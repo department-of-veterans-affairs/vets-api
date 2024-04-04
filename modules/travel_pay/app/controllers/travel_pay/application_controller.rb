@@ -26,7 +26,7 @@ module TravelPay
     # * Remove this before_action
     # * Remove block_if_flag_disabled definition
 
-    before_action :block_if_flag_disabled
+    # before_action :block_if_flag_disabled
 
     protected
 

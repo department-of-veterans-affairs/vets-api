@@ -11,6 +11,7 @@ module TravelPay
       auth_url = Settings.travel_pay.veis.auth_url
       tenant_id = Settings.travel_pay.veis.tenant_id
 
+      # response = connection(server_url: auth_url).post("#{tenant_id}/oauth2/v2.0/token") do |req|
       response = connection(server_url: auth_url).post("#{tenant_id}/oauth2/token") do |req|
         req.headers[:content_type] = 'application/x-www-form-urlencoded'
         req.body = URI.encode_www_form(veis_params)
@@ -112,7 +113,7 @@ module TravelPay
       Faraday.new(url: server_url) do |conn|
         conn.use :breakers
         conn.response :raise_error, error_prefix: service_name, include_request: true
-        conn.response :betamocks if use_fakes?
+        conn.response :betamocks if mock_enabled?
         conn.response :json
         conn.request :json
 
@@ -123,8 +124,8 @@ module TravelPay
     ##
     # Syntactic sugar for determining if the client should use
     # fake api responses or actually connect to the BTSSS API
-    def use_fakes?
-      Settings.useFakes
+    def mock_enabled?
+      Settings.travel_pay.mock
     end
   end
 end

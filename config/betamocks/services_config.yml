@@ -9,6 +9,10 @@
       :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/ping" %>
       :file_path: "/ask_va/dynamics_api"
       :response_delay: 15
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1/Sample/ping"
+      :file_path: "/travel_pay/ping"
+      :response_delay: 0.3
     - :method: :post
       :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/inquiries/new" %>
       :file_path: "/ask_va/crm_api/post_inquiries/default"
@@ -19,8 +23,16 @@
   :base_uri: <%= "#{URI(Settings.ask_va_api.crm_api.auth_url).host}:#{URI(Settings.ask_va_api.crm_api.auth_url).port}" %>
   :endpoints:
     - :method: :post
-      :path: <%= "/#{Settings.ask_va_api.crm_api.tenant_id}/oauth2/v2.0/token" %>
+      # :path: <%= "/#{Settings.ask_va_api.crm_api.tenant_id}/oauth2/v2.0/token" %>
+      :path: <%= "/*/oauth2/v2.0/token" %>
       :file_path: "/ask_va/token/default"
+      # :cache_multiple_responses:
+      #   :uid_location: url
+      #   :uid_locator: '\/(.+)\/oauth2\/v2.0\/token' # matches anything supplied as a tenant_id
+      :response_delay: 0.3
+    - :method: :post
+      :path: '/*/oauth2/token'
+      :file_path: '/ask_va/token/default'
       :response_delay: 0.3
 
 - :name: 'carma'
@@ -648,8 +660,12 @@
   :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api.auth_url).host}:#{URI(Settings.check_in.travel_reimbursement_api.auth_url).port}" %>
   :endpoints:
     - :method: :post
-      :path: <%= "/#{Settings.check_in.travel_reimbursement_api.tenant_id}/oauth2/v2.0/token" %>
+      # :path: <%= "/#{Settings.check_in.travel_reimbursement_api.tenant_id}/oauth2/v2.0/token" %>
+      # :path: <%= "/*/oauth2/v2.0/token" %>
       :file_path: "/travel_claim/token/default"
+      # :cache_multiple_responses:
+      #   :uid_location: url
+      #   :uid_locator: '\/(.+)\/oauth2\/v2.0\/token' # matches anything supplied as a tenant_id
       :response_delay: 0.3
 
 #Travel Claim Ingest Service (BTSSS)
@@ -867,3 +883,25 @@
     - :method: :get
       :path: "/demographics/demographics/v1/*/*"
       :file_path: "vet360/demographics/default"
+
+# Travel Claim Status Service (BTSSS)
+- :name: "Travel Claim Status Service (BTSSS)"
+  :base_uri: <%= "#{URI(Settings.travel_pay.base_url).host}:#{URI(Settings.travel_pay.base_url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1/Sample/ping"
+      :file_path: "/travel_pay/ping"
+      :response_delay: 15
+    # - :method: :get
+    #   :path: "/travel_pay/pings/authorized_ping"
+    #   :file_path: "/travel_pay/ping"
+    #   :response_delay: 15
+
+#CRM Token post
+- :name: "Travel Claim VEIS Auth Service"
+  :base_uri: <%= "#{URI(Settings.travel_pay.veis.auth_url).host}:#{URI(Settings.travel_pay.veis.auth_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: <%= "/#{Settings.travel_pay.veis.tenant_id}/oauth2/v2.0/token" %>
+      :file_path: "/travel_pay/token"
+      :response_delay: 0.3
