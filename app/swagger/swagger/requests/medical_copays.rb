@@ -255,7 +255,7 @@ module Swagger
           parameter do
             key :name, :statements
             key :in, :body
-            key :description, 'New statement data'
+            key :description, 'An array of statement data sent as a base64 json file'
             key :required, true
 
             schema do
