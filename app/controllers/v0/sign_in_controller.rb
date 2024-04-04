@@ -343,7 +343,7 @@ module V0
       klass = if state_payload.client_id == Settings.sign_in.arp_client_id
                 AccreditedRepresentativePortal::RepresentativeUserCreator
               else
-                SignIn::UserCreator
+                SignIn::UserCodeMapCreator
               end
 
       klass.new(user_attributes:, state_payload:, verified_icn:, request_ip:).perform
