@@ -50,7 +50,7 @@ module RepresentationManagement
       end
 
       def type(body)
-        @type ||= body.dig('data', 'type')
+        body.dig('data', 'type')
       end
 
       def code(body)
