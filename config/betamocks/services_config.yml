@@ -659,6 +659,24 @@
         :uid_location: url
         :uid_locator: '\/data\/(.+)'
 
+#Travel Claim VEIS Auth (BTSSS)
+- :name: "Travel Claim VEIS Auth Service"
+  :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api.auth_url).host}:#{URI(Settings.check_in.travel_reimbursement_api.auth_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api.tenant_id}/oauth2/v2.0/token" %>
+      :file_path: "/travel_claim/token/default"
+      :response_delay: 0.3
+
+#Travel Claim Ingest Service (BTSSS)
+- :name: "Travel Claim Ingest Service"
+  :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api.claims_url).host}:#{URI(Settings.check_in.travel_reimbursement_api.claims_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api.claims_base_path}/api/ClaimIngest/submitclaim" %>
+      :file_path: "/travel_claim/submitclaim/default"
+      :response_delay: 15
+
 #CHIP
 - :name: "CHIP"
   :base_uri: <%= "#{URI(Settings.chip.url).host}:#{URI(Settings.chip.url).port}" %>
@@ -865,25 +883,3 @@
     - :method: :get
       :path: "/demographics/demographics/v1/*/*"
       :file_path: "vet360/demographics/default"
-
-# Travel Claim Status Service (BTSSS)
-- :name: "Travel Claim Status Service (BTSSS)"
-  :base_uri: <%= "#{URI(Settings.travel_pay.base_url).host}:#{URI(Settings.travel_pay.base_url).port}" %>
-  :endpoints:
-    - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v1/Sample/ping"
-      :file_path: "/travel_pay/ping"
-      :response_delay: 15
-    # - :method: :get
-    #   :path: "/veis/api/btsss/travelclaim/api/v1/Sample/authorized_ping"
-    #   :file_path: "/travel_pay/ping"
-    #   :response_delay: 15
-
-#CRM Token post
-- :name: "Travel Claim VEIS Auth Service"
-  :base_uri: <%= "#{URI(Settings.travel_pay.veis.auth_url).host}:#{URI(Settings.travel_pay.veis.auth_url).port}" %>
-  :endpoints:
-    - :method: :post
-      :path: <%= "/#{Settings.travel_pay.veis.tenant_id}/oauth2/v2.0/token" %>
-      :file_path: "/travel_pay/token"
-      :response_delay: 0.3
