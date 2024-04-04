@@ -32,15 +32,10 @@
   :endpoints:
     - :method: :post
       :path: <%= "/#{Settings.ask_va_api.crm_api.tenant_id}/oauth2/v2.0/token" %>
-      # :path: <%= "/*/oauth2/v2.0/token" %>
       :file_path: "/ask_va/token/default"
-      # :cache_multiple_responses:
-      #   :uid_location: url
-      #   :uid_locator: '\/(.+)\/oauth2\/v2.0\/token' # matches anything supplied as a tenant_id
       :response_delay: 0.3
     - :method: :post
       :path: <%= "/#{Settings.travel_pay.veis.tenant_id}/oauth2/token" %>
-      # :path: '/*/oauth2/token'
       :file_path: '/ask_va/token/default'
       :response_delay: 0.3
 
@@ -663,28 +658,6 @@
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/data\/(.+)'
-
-#Travel Claim VEIS Auth (BTSSS)
-- :name: "Travel Claim VEIS Auth Service"
-  :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api.auth_url).host}:#{URI(Settings.check_in.travel_reimbursement_api.auth_url).port}" %>
-  :endpoints:
-    - :method: :post
-      # :path: <%= "/#{Settings.check_in.travel_reimbursement_api.tenant_id}/oauth2/v2.0/token" %>
-      # :path: <%= "/*/oauth2/v2.0/token" %>
-      :file_path: "/travel_claim/token/default"
-      # :cache_multiple_responses:
-      #   :uid_location: url
-      #   :uid_locator: '\/(.+)\/oauth2\/v2.0\/token' # matches anything supplied as a tenant_id
-      :response_delay: 0.3
-
-#Travel Claim Ingest Service (BTSSS)
-- :name: "Travel Claim Ingest Service"
-  :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api.claims_url).host}:#{URI(Settings.check_in.travel_reimbursement_api.claims_url).port}" %>
-  :endpoints:
-    - :method: :post
-      :path: <%= "/#{Settings.check_in.travel_reimbursement_api.claims_base_path}/api/ClaimIngest/submitclaim" %>
-      :file_path: "/travel_claim/submitclaim/default"
-      :response_delay: 15
 
 #CHIP
 - :name: "CHIP"
