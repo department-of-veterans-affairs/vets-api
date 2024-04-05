@@ -27,10 +27,7 @@ module V0
       user_verification = UserVerification.find_by_type!(user_attributes['type'], user_attributes['credential_id'])
       user_verification.lock!
       Rails.logger.info('[V0::AccountControlsController] credential_lock', lock_log_info(user_verification:))
-      response_data = serialize_user_verification(user_verification:)
-      return response_data if @service_account_access_token.user_identifier == 'rake_task'
-
-      render json: { data: response_data }
+      render json: { data: serialize_user_verification(user_verification:) }
     rescue ActiveRecord::RecordInvalid
       Rails.logger.info('[V0::AccountControlsController] credential_lock failed', lock_log_info(user_verification:))
       render json: { error: 'UserAccount credential lock failed.' }, status: :internal_server_error
@@ -47,10 +44,7 @@ module V0
       user_verification = UserVerification.find_by_type!(user_attributes['type'], user_attributes['credential_id'])
       user_verification.unlock!
       Rails.logger.info('[V0::AccountControlsController] credential_unlock', lock_log_info(user_verification:))
-      response_data = serialize_user_verification(user_verification:)
-      return response_data if @service_account_access_token.user_identifier == 'rake_task'
-
-      render json: { data: response_data }
+      render json: { data: serialize_user_verification(user_verification:) }
     rescue ActiveRecord::RecordInvalid
       Rails.logger.info('[V0::AccountControlsController] credential_unlock failed', lock_log_info(user_verification:))
       render json: { error: 'UserAccount credential unlock failed.' }, status: :internal_server_error

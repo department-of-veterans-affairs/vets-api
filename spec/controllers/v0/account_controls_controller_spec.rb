@@ -91,26 +91,14 @@ RSpec.describe V0::AccountControlsController, type: :controller do
           end.to change(user_verification, :locked).from(locked).to(expected_lock_status)
         end
 
+        it 'returns serialized user account data' do
+          expect(subject).to have_http_status(:ok)
+          expect(JSON.parse(subject.body)['data']).to eq(expected_response_data)
+        end
+
         it 'logs the lock action' do
           expect(Rails.logger).to receive(:info).with(expected_log_message, expected_response_log)
           subject
-        end
-
-        context 'when the controller method is called by a rake task' do
-          let(:service_account_access_token) do
-            build(:service_account_access_token, user_attributes:, user_identifier: 'rake_task')
-          end
-
-          it 'does not return serialized user account data as a JSON response' do
-            expect(subject.status).to eq(204)
-          end
-        end
-
-        context 'when the controller method is called through Rails routing' do
-          it 'returns serialized user account data as a JSON response' do
-            expect(subject).to have_http_status(:ok)
-            expect(JSON.parse(subject.body)['data']).to eq(expected_response_data)
-          end
         end
       end
 
