@@ -50,7 +50,11 @@
         "tracking",
         "orderableItem",
         "sortedDispensedDate",
-        "prescriptionImage"
+        "prescriptionImage",
+        "color",
+        "shape",
+        "backImprint",
+        "frontImprint"
       ],
       "properties": {
         "prescriptionId": { "type": ["integer", "null"] },
@@ -90,6 +94,10 @@
         "indicationForUse": { "type": ["string", "null"] },
         "indicationForUseFlag": { "type": ["string", "null"] },
         "category": { "type": ["string", "null"] },
+        "color": { "type": ["string", "null"] },
+        "shape": { "type": ["string", "null"] },
+        "backImprint": { "type": ["string", "null"] },
+        "frontImprint": { "type": ["string", "null"] },
         "trackingList": {
           "type": "array",
           "items": {
