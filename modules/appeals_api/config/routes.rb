@@ -6,13 +6,10 @@ AppealsApi::Engine.routes.draw do
   get '/v0/healthcheck', to: 'metadata#healthcheck'
   get '/v1/healthcheck', to: 'metadata#healthcheck_s3'
   get '/v2/healthcheck', to: 'metadata#healthcheck_s3'
-  get '/v1/appeals_healthcheck', to: 'metadata#healthcheck'
-  get '/v1/appeals_upstream_healthcheck', to: 'metadata#appeals_status_upstream_healthcheck'
   get '/v0/upstream_healthcheck', to: 'metadata#appeals_status_upstream_healthcheck'
   get '/v1/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck'
   get '/v2/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck'
   get '/v0/appeals', to: 'v0/appeals#index'
-  get '/v1/appeals', to: 'v1/appeals#index'
 
   namespace :v1, defaults: { format: 'json' } do
     namespace :decision_reviews do
@@ -76,20 +73,10 @@ AppealsApi::Engine.routes.draw do
   namespace :docs do
     namespace :v0, defaults: { format: 'json' } do
       resources :api, only: [:index]
-
-      # Routes below are deprecated - they can be removed once they are no longer used:
-      docs_controller = '/appeals_api/docs/v2/docs'
-      get 'hlr', to: "#{docs_controller}#hlr"
-      get 'nod', to: "#{docs_controller}#nod"
-      get 'sc', to: "#{docs_controller}#sc"
-      get 'ci', to: "#{docs_controller}#ci"
-      get 'la', to: "#{docs_controller}#la"
-      # ...end of deprecated routes
     end
 
     namespace :v1, defaults: { format: 'json' } do
       get 'decision_reviews', to: 'docs#decision_reviews'
-      get 'appeals', to: 'docs#appeals_status'
     end
 
     namespace :v2, defaults: { format: 'json' } do
