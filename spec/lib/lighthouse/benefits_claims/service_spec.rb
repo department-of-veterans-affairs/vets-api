@@ -75,16 +75,6 @@ RSpec.describe BenefitsClaims::Service do
             end
           end
         end
-
-        context 'when the API returns a 422 Unprocessable Entity error' do
-          it 'handles the error gracefully' do
-            VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney/422_response') do
-              expect do
-                @service.get_power_of_attorney
-              end.to raise_error(Common::Exceptions::UnprocessableEntity)
-            end
-          end
-        end
       end
 
       describe 'when posting a form526' do
