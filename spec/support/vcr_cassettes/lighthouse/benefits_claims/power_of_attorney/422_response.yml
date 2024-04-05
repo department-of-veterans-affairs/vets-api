@@ -1,0 +1,50 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/123498767V234859/power-of-attorney
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 422
+      message: Unprocessable Entity
+    headers:
+      Date:
+      - Tue, 02 Apr 2024 14:30:58 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '119'
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      Ratelimit-Remaining:
+      - '119'
+      Ratelimit-Limit:
+      - '120'
+      Ratelimit-Reset:
+      - '10'
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"Unprocessable entity","status":"422","detail":"Could not retrieve Power of Attorney due to multiple representatives with code: A1Q","source":{"pointer":"/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:112:in `representative`"}}]}'
+  recorded_at: Tue, 02 Apr 2024 14:30:58 GMT
+recorded_with: VCR 6.2.0
