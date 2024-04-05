@@ -109,7 +109,6 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyController', type: 
         end
       end
 
-
       context 'when the service encounters an unprocessable entity error' do
         it 'returns a 422/unprocessable_entity status' do
           allow_any_instance_of(BenefitsClaims::Service)
