@@ -27,7 +27,11 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
 
-    CentralMail::SubmitSavedClaimJob.new.perform(id)
+    if Flipper.enabled?(:central_mail_benefits_intake_submission)
+      Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
+    else
+      CentralMail::SubmitSavedClaimJob.new.perform(id)
+    end
   end
 
   def business_line
