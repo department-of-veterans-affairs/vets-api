@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe AppealsApi::AppealSubmittedJob, type: :job do
+describe AppealsApi::AppealReceivedJob, type: :job do
   let(:job) { described_class.new }
   let(:appeal) { create(:higher_level_review_v2) }
   let(:hlr_template_name) { 'higher_level_review_received' }

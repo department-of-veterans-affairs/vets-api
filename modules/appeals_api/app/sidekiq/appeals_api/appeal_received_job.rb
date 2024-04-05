@@ -4,9 +4,8 @@ require 'sidekiq'
 require 'feature_flipper'
 
 module AppealsApi
-  class AppealSubmittedJob
+  class AppealReceivedJob
     include Sidekiq::Job
-    # These constants are set to match the previous version of this job, which was AppealsApi::AppealReceivedJob
     STATSD_KEY_PREFIX = 'api.appeals.received'
     STATSD_CLAIMANT_EMAIL_SENT = "#{STATSD_KEY_PREFIX}.claimant.email.sent".freeze
 
