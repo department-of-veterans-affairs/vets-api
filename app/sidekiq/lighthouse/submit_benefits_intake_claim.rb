@@ -77,7 +77,7 @@ module Lighthouse
         'veteranFirstName' => veteran_full_name['first'],
         'veteranLastName' => veteran_full_name['last'],
         'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-        'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
+        'zipCode' => check_zipcode(address),
         'source' => "#{@claim.class} va.gov",
         'docType' => @claim.form_id,
         'businessLine' => @claim.business_line
@@ -148,6 +148,12 @@ module Lighthouse
     def cleanup_file_paths
       Common::FileHelpers.delete_file_if_exists(@pdf_path) if @pdf_path
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
+    end
+
+    private
+
+    def check_zipcode(address)
+      address['country'].upcase.in?(%w[USA US]) ? address['postalCode'] : FOREIGN_POSTALCODE
     end
   end
 end
