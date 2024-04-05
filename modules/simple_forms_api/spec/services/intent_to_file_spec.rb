@@ -105,11 +105,11 @@ describe SimpleFormsApi::IntentToFile do
       allow_any_instance_of(BenefitsClaims::Service).to receive(:create_intent_to_file).with(
         'compensation',
         ssn
-      ).and_return({})
+      ).and_raise(Faraday::ServerError)
 
       expect do
         intent_to_file_service.submit
-      end.to raise_error
+      end.to raise_error Faraday::ServerError
     end
   end
 end

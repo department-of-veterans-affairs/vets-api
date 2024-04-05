@@ -25,7 +25,7 @@ module SimpleFormsApi
         confirmation_number = response.dig('data', 'id')
         expiration_date = response.dig('data', 'attributes', 'expirationDate')
 
-        raise unless confirmation_number && expiration_date
+        raise response unless confirmation_number && expiration_date
       end
 
       [confirmation_number, expiration_date]
