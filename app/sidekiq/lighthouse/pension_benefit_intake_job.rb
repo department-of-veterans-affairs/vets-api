@@ -4,6 +4,7 @@ require 'benefits_intake_service/service'
 require 'central_mail/datestamp_pdf'
 require 'simple_forms_api_submission/metadata_validator'
 require 'pension_21p527ez/tag_sentry'
+require 'pension_21p527ez/monitor'
 
 module Lighthouse
   class PensionBenefitIntakeJob
@@ -20,9 +21,13 @@ module Lighthouse
     # retry for one day
     sidekiq_options retry: 14, queue: 'low'
     sidekiq_retries_exhausted do |msg|
-      Rails.logger.error('Lighthouse::PensionBenefitIntakeJob Exhausted!',
-                         { saved_claim_id: @saved_claim_id, error: msg })
-      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+      pension_monitor = Pension21p527ez::Monitor.new
+      begin
+        claim = SavedClaim::Pension.find(msg['args'].first)
+      rescue
+        claim = nil
+      end
+      pension_monitor.track_submission_exhaustion(msg, claim)
     end
 
     # Process claim pdfs and upload to Benefits Intake API
@@ -33,19 +38,15 @@ module Lighthouse
     #
     # @param [Integer] saved_claim_id
     # rubocop:disable Metrics/MethodLength
-    def perform(saved_claim_id)
+    def perform(saved_claim_id, user_uuid = nil)
       Pension21p527ez::TagSentry.tag_sentry
-
+      @user_uuid = user_uuid
       @saved_claim_id = saved_claim_id
       @claim = SavedClaim::Pension.find(saved_claim_id)
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
       @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
-      Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Attempt', {
-                          claim_id: @claim.id,
-                          benefits_intake_uuid: @lighthouse_service.uuid,
-                          confirmation_number: @claim.confirmation_number
-                        })
+      pension_monitor.track_submission_begun(@claim, @lighthouse_service, @user_uuid)
 
       form_submission_polling
 
@@ -60,25 +61,14 @@ module Lighthouse
         attachments: @attachment_paths.map(&method(:split_file_and_path))
       }
 
-      Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Upload', {
-                          file: payload[:file],
-                          attachments: payload[:attachments],
-                          claim_id: @claim.id,
-                          benefits_intake_uuid: @lighthouse_service.uuid,
-                          confirmation_number: @claim.confirmation_number
-                        })
+      pension_monitor.track_submission_attempted(@claim, @lighthouse_service, @user_uuid, payload)
       response = @lighthouse_service.upload_doc(**payload)
 
       check_success(response)
     rescue => e
-      Rails.logger.warn('Lighthouse::PensionBenefitIntakeJob FAILED!',
-                        { error: e.message,
-                          claim_id: @claim&.id,
-                          benefits_intake_uuid: @lighthouse_service&.uuid,
-                          confirmation_number: @claim&.confirmation_number })
-      StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
+      pension_monitor.track_submission_retry(@claim, @lighthouse_service, @user_uuid, e)
       @form_submission_attempt&.fail!
-      raise
+      raise e
     ensure
       cleanup_file_paths
     end
@@ -143,11 +133,7 @@ module Lighthouse
     # @param [Object] response
     def check_success(response)
       if response.success?
-        Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Succeeded!',
-                          { claim_id: @claim.id,
-                            benefits_intake_uuid: @lighthouse_service.uuid,
-                            confirmation_number: @claim.confirmation_number })
-        StatsD.increment("#{STATSD_KEY_PREFIX}.success")
+        pension_monitor.track_submission_success(@claim, @lighthouse_service, @user_uuid)
 
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       else
@@ -174,14 +160,14 @@ module Lighthouse
       Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     rescue => e
-      Rails.logger.error('Lighthouse::PensionBenefitIntakeJob cleanup failed',
-                         {
-                           error: e.message,
-                           claim_id: @claim&.id,
-                           benefits_intake_uuid: @lighthouse_service&.uuid,
-                           confirmation_number: @claim&.confirmation_number
-                         })
+      pension_monitor.track_file_cleanup_error(@claim, @lighthouse_service, @user_uuid, e)
       raise e
+    end
+
+    private
+
+    def pension_monitor
+      Pension21p527ez::Monitor.new
     end
   end
 end
