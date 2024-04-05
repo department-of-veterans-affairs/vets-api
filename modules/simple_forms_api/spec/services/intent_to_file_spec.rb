@@ -4,7 +4,7 @@ require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe SimpleFormsApi::IntentToFile do
-  describe 'an Intent To File has previously been submitted' do
+  context 'an Intent To File has previously been submitted' do
     let(:params) do
       {
         'benefit_selection' => {
@@ -39,7 +39,7 @@ describe SimpleFormsApi::IntentToFile do
     end
   end
 
-  describe 'no Intent to File has previously been submitted' do
+  context 'no Intent to File has previously been submitted' do
     let(:ssn) { 'fake-ssn' }
     let(:params) do
       {
@@ -78,6 +78,38 @@ describe SimpleFormsApi::IntentToFile do
       result = intent_to_file_service.submit
 
       expect(result).to eq [id, expiration_date]
+    end
+  end
+
+  context 'Intent to File endpoint does not return correctly' do
+    let(:ssn) { 'fake-ssn' }
+    let(:params) do
+      {
+        'benefit_selection' => {
+          'COMPENSATION' => true
+        },
+        'preparer_identification' => 'VETERAN',
+        'veteran_id' => {
+          'ssn' => ssn
+        }
+      }
+    end
+
+    it 'raises error' do
+      icn = 'fake-icn'
+      intent_to_file_service = SimpleFormsApi::IntentToFile.new(icn, params)
+      allow_any_instance_of(BenefitsClaims::Service).to receive(:get_intent_to_file).with('compensation')
+                                                                                    .and_return(nil)
+      allow_any_instance_of(BenefitsClaims::Service).to receive(:get_intent_to_file).with('pension').and_return(nil)
+      allow_any_instance_of(BenefitsClaims::Service).to receive(:get_intent_to_file).with('survivor').and_return(nil)
+      allow_any_instance_of(BenefitsClaims::Service).to receive(:create_intent_to_file).with(
+        'compensation',
+        ssn
+      ).and_return({})
+
+      expect {
+        intent_to_file_service.submit
+      }.to raise_error
     end
   end
 end

@@ -24,6 +24,8 @@ module SimpleFormsApi
         response = benefits_claims_lighthouse_service.create_intent_to_file(type, ssn)
         confirmation_number = response.dig('data', 'id')
         expiration_date = response.dig('data', 'attributes', 'expirationDate')
+
+        raise unless confirmation_number && expiration_date
       end
 
       [confirmation_number, expiration_date]
