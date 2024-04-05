@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_03_19_141429) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_05_141726) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -51,6 +51,75 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_19_141429) do
     t.index ["logingov_uuid"], name: "index_accounts_on_logingov_uuid", unique: true
     t.index ["sec_id"], name: "index_accounts_on_sec_id"
     t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
+  end
+
+  create_table "accredited_organization_accredited_representatives", id: false, force: :cascade do |t|
+    t.string "accredited_representative_registration_number"
+    t.string "accredited_organization_poa_code"
+    t.index ["accredited_representative_registration_number", "accredited_organization_poa_code"], name: "index_organization_representatives_on_rep_and_org", unique: true
+  end
+
+  create_table "accredited_organizations", primary_key: "poa_code", id: { type: :string, limit: 3 }, force: :cascade do |t|
+    t.string "name"
+    t.string "phone"
+    t.string "state", limit: 2
+    t.string "address_type"
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "address_line3"
+    t.string "city"
+    t.string "country_code_iso3"
+    t.string "country_name"
+    t.string "county_name"
+    t.string "county_code"
+    t.string "international_postal_code"
+    t.string "province"
+    t.string "state_code"
+    t.string "zip_code"
+    t.string "zip_suffix"
+    t.jsonb "raw_address"
+    t.float "lat"
+    t.float "long"
+    t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["location"], name: "index_accredited_organizations_on_location", using: :gist
+    t.index ["name"], name: "index_accredited_organizations_on_name"
+    t.index ["poa_code"], name: "index_accredited_organizations_on_poa_code", unique: true
+  end
+
+  create_table "accredited_representatives", primary_key: "registration_number", id: :string, force: :cascade do |t|
+    t.string "poa_code"
+    t.string "types", array: true
+    t.string "first_name"
+    t.string "middle_initial"
+    t.string "last_name"
+    t.string "full_name"
+    t.string "email"
+    t.string "phone"
+    t.string "address_type"
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "address_line3"
+    t.string "city"
+    t.string "country_code_iso3"
+    t.string "country_name"
+    t.string "county_name"
+    t.string "county_code"
+    t.string "international_postal_code"
+    t.string "province"
+    t.string "state_code"
+    t.string "zip_code"
+    t.string "zip_suffix"
+    t.jsonb "raw_address"
+    t.float "lat"
+    t.float "long"
+    t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["full_name"], name: "index_accredited_representatives_on_full_name"
+    t.index ["location"], name: "index_accredited_representatives_on_location", using: :gist
+    t.index ["registration_number"], name: "index_accredited_representatives_on_registration_number", unique: true
   end
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -1422,6 +1491,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_19_141429) do
   end
 
   add_foreign_key "account_login_stats", "accounts"
+  add_foreign_key "accredited_organization_accredited_representatives", "accredited_organizations", column: "accredited_organization_poa_code", primary_key: "poa_code"
+  add_foreign_key "accredited_organization_accredited_representatives", "accredited_representatives", column: "accredited_representative_registration_number", primary_key: "registration_number"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"
