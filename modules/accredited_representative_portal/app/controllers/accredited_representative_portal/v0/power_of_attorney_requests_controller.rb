@@ -22,7 +22,8 @@ module AccreditedRepresentativePortal
 
         poa_requests = AccreditedRepresentativePortal::Services::FetchPoaRequests.new(poa_codes).call
 
-        render json: { records: poa_requests, records_count: poa_requests.count }, status: :ok
+        render json: { records: poa_requests['records'], records_count: poa_requests['meta']['totalRecords'].to_i },
+               status: :ok
       end
 
       private
