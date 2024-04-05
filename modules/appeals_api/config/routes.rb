@@ -3,13 +3,13 @@
 AppealsApi::Engine.routes.draw do
   get '/appeals_status/metadata', to: 'metadata#appeals_status'
   get '/decision_reviews/metadata', to: 'metadata#decision_reviews'
-  get '/v0/healthcheck', to: 'metadata#healthcheck'
-  get '/v1/healthcheck', to: 'metadata#healthcheck_s3'
-  get '/v2/healthcheck', to: 'metadata#healthcheck_s3'
-  get '/v0/upstream_healthcheck', to: 'metadata#appeals_status_upstream_healthcheck'
-  get '/v1/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck'
-  get '/v2/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck'
-  get '/v0/appeals', to: 'v0/appeals#index'
+  get '/v0/healthcheck', to: 'metadata#healthcheck' # Appeals Status v0
+  get '/v1/healthcheck', to: 'metadata#healthcheck_s3' # Decision Reviews v1
+  get '/v2/healthcheck', to: 'metadata#healthcheck_s3' # Decision Reviews v2
+  get '/v0/upstream_healthcheck', to: 'metadata#appeals_status_upstream_healthcheck' # Appeals Status v0
+  get '/v1/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck' # Decision Reviews v1
+  get '/v2/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck' # Decision Reviews v2
+  get '/v0/appeals', to: 'v0/appeals#index' # Appeals Status v0
 
   namespace :v1, defaults: { format: 'json' } do
     namespace :decision_reviews do
