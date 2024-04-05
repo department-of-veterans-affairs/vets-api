@@ -72,19 +72,18 @@ module Lighthouse
       form = @claim.parsed_form
       veteran_full_name = form['veteranFullName']
       address = form['claimantAddress'] || form['veteranAddress']
-      zipcode, zipcode_is_us_based = check_zipcode(address)
 
       metadata = {
         'veteranFirstName' => veteran_full_name['first'],
         'veteranLastName' => veteran_full_name['last'],
         'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-        'zipCode' => zipcode,
+        'zipCode' => address['postalCode'],
         'source' => "#{@claim.class} va.gov",
         'docType' => @claim.form_id,
         'businessLine' => @claim.business_line
       }
 
-      SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: zipcode_is_us_based)
+      SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: check_zipcode(address))
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -152,11 +151,7 @@ module Lighthouse
     end
 
     def check_zipcode(address)
-      if address['country'].upcase.in?(%w[USA US])
-        [address['postalCode'], true]
-      else
-        [FOREIGN_POSTALCODE, false]
-      end
+      address['country'].upcase.in?(%w[USA US])
     end
   end
 end
