@@ -107,9 +107,9 @@ describe SimpleFormsApi::IntentToFile do
         ssn
       ).and_return({})
 
-      expect {
+      expect do
         intent_to_file_service.submit
-      }.to raise_error
+      end.to raise_error
     end
   end
 end
