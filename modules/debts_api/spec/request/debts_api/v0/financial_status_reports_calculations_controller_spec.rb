@@ -19,6 +19,9 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReportsCalculations requesting', ty
   let(:andrew_expenses) do
     get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/andrew_fsr_expenses')
   end
+  let(:andrew_two) do
+    get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/andrew_fsr_2')
+  end
   let(:old_expenses) do
     get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/non_enhanced_fsr_expenses')
   end
@@ -34,10 +37,27 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReportsCalculations requesting', ty
         expect(response).to have_http_status(:ok)
       end
     end
+
     context 'with andrew fsr form data' do
       it 'returns monthly income' do
         post('/debts_api/v0/calculate_monthly_income', params: andrew_expenses.to_h, as: :json)
         expect(response).to have_http_status(:ok)
+      end
+
+      it 'behaves like the FE' do
+        post('/debts_api/v0/calculate_monthly_income', params: andrew_two.to_h, as: :json)
+        expect(response).to have_http_status(:ok)
+
+        vet_other_income = JSON.parse(response.body)['vetIncome']['otherIncome']
+        expect(vet_other_income['name']).to eq('Social Security')
+        expect(vet_other_income['amount']).to eq(500)
+
+        spouse_other_income = JSON.parse(response.body)['spIncome']['otherIncome']
+        expect(spouse_other_income['name']).to eq('Disability Compensation, Education, Caretaker income')
+        expect(spouse_other_income['amount']).to eq(600)
+
+        expect(JSON.parse(response.body)['spIncome']['totalMonthlyNetIncome']).to eq(1600)
+        expect(JSON.parse(response.body)['totalMonthlyNetIncome']).to eq(3100)
       end
     end
   end
