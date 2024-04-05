@@ -150,7 +150,7 @@ module Lighthouse
       Common::FileHelpers.delete_file_if_exists(@pdf_path) if @pdf_path
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     end
-    
+
     def check_zipcode(address)
       if address['country'].upcase.in?(%w[USA US])
         [address['postalCode'], true]
