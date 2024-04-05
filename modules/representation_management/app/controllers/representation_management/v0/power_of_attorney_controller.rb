@@ -8,12 +8,7 @@ module RepresentationManagement
       service_tag 'representation-management'
 
       def index
-        begin
-          @active_poa = lighthouse_service.get_power_of_attorney
-        rescue BenefitsClaims::ServiceException => e
-          Rails.logger.error("[Active POA] Error fetching power of attorney: #{e.message}")
-          return render json: { error: 'Unable to fetch power of attorney information' }, status: :service_unavailable
-        end
+        @active_poa = lighthouse_service.get_power_of_attorney
 
         if @active_poa.blank? || record.blank?
           render json: { data: {} }, status: :ok
