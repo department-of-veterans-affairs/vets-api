@@ -54,7 +54,7 @@ module MebApi
         dd_response = nil
         if Flipper.enabled?(:toe_short_circuit_bgs_failure, @current_user)
           begin
-            dd_response = payment_service.get_ch33_dd_eft_info
+            dd_response = direct_deposit_response
           rescue => e
             Rails.logger.error('BDN service error: ', e)
             head :internal_server_error
@@ -95,6 +95,14 @@ module MebApi
 
       def payment_service
         BGS::Service.new(@current_user)
+      end
+
+      def direct_deposit_response
+        if Flipper.enabled?(:toe_light_house_dgi_direct_deposit, @current_user)
+          DirectDeposit::Client.new(@current_user&.icn).get_payment_info
+        else
+          payment_service.get_ch33_dd_eft_info
+        end
       end
     end
   end

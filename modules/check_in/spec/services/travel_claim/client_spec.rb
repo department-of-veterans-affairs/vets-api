@@ -10,7 +10,6 @@ describe TravelClaim::Client do
 
   before do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_increase_timeout).and_return(true)
   end
 
   describe '.build' do

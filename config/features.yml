@@ -73,6 +73,10 @@ features:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
     enable_in_development: true
+  ezr_tera_enabled:
+    actor_type: user
+    description: Enables Toxic Exposure questions for 10-10EZR applicants.
+    enable_in_development: true
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
@@ -151,10 +155,6 @@ features:
   check_in_experience_travel_claim_redis_client_refactor:
     actor_type: user
     description: Uses the refactored code for Travel Claim Redis client to fetch attributes
-    enable_in_development: true
-  check_in_experience_travel_claim_increase_timeout:
-    actor_type: user
-    description: Increases the timeout for BTSSS submit claim request to 120 seconds
     enable_in_development: true
   claim_letters_access:
     actor_type: user
@@ -316,9 +316,6 @@ features:
   decision_review_delay_evidence:
     actor_type: user
     description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself
-  decision_review_use_appeal_submitted_job:
-    actor_type: user
-    description: Uses the revised AppealSubmittedJob instead of AppealReceivedJob to send emails for newly submitted Decision Reviews
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -351,9 +348,9 @@ features:
     actor_type: user
     description: enables displaying a short education blurb alongside rated disabilities already at maximum rating.
     enable_in_development: true
-  disability_526_maximum_rating_api:
+  disability_526_maximum_rating_api_all_conditions:
     actor_type: user
-    description: enables sending disability diagnostic codes to VRO Max CFI API to get the corresponding maximum ratings.
+    description: enables calls to VRO Max CFI API for all conditions, otherwise only calls for select conditions are made
     enable_in_development: false
   disability_526_ep_merge_api:
     actor_type: user
@@ -462,6 +459,10 @@ features:
     description: Enables Find a Representative frontend
     enable_in_development: true
   find_a_representative_flag_results_enabled:
+    actor_type: user
+    description: Enables flagging feature for Find a Representative frontend
+    enable_in_development: true
+  representative_status_enabled:
     actor_type: user
     description: Enables flagging feature for Find a Representative frontend
     enable_in_development: true
@@ -1090,10 +1091,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for proof of concept to help Veteran contact a facility when the type of care is not available
-  va_online_scheduling_required_schedulable_param:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle that requires the inclusion of a new 'schedulable' boolean param for fetching facilities
   va_online_scheduling_after_visit_summary:
     actor_type: user
     enable_in_development: true
@@ -1110,6 +1107,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Allows appointment cancellations to be routed to Oracle Health sites.
+  va_online_scheduling_enable_OH_eligibility:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for routing eligibility requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
   va_online_scheduling_enable_OH_slots_search:
     actor_type: user
     enable_in_development: true
@@ -1190,6 +1191,10 @@ features:
   toe_short_circuit_bgs_failure:
     actor_type: user
     description: Flag to use begin rescue block for BGS call
+    enable_in_development: true
+  toe_light_house_dgi_direct_deposit:
+    actor_type: user
+    description: Uses lighthouse api for direct deposit information in TOE.
     enable_in_development: true
   move_form_back_button:
     actor_type: user

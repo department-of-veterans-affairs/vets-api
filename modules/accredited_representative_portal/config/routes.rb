@@ -5,6 +5,7 @@ AccreditedRepresentativePortal::Engine.routes.draw do
     resources :power_of_attorney_requests, only: [] do
       member do
         post :accept
+        post :decline
       end
     end
 
