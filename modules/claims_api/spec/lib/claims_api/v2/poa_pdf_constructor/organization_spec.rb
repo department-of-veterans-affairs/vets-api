@@ -23,7 +23,8 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
           areaCode: '555',
           phoneNumber: '5551337'
         },
-        email: 'test@example.com'
+        email: 'test@example.com',
+        insuranceNumber: 'Ar67346578674'
       },
       claimant: {
         firstName: 'Lillian',
