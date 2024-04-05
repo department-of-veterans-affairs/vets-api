@@ -22,6 +22,54 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
     }
   }
 
+  mock_appt_location_openstruct = OpenStruct.new(
+    {
+      'id': '983',
+      'vistaSite': '983',
+      'vastParent': '983',
+      'type': 'va_facilities',
+      'name': 'COL OR 1',
+      'classification': 'VA Medical Center (VAMC)',
+      'lat': 39.744507,
+      'long': -104.830956,
+      'website': 'https://www.denver.va.gov/locations/directions.asp',
+      'phone': {
+        'main': '307-778-7550',
+        'fax': '307-778-7381',
+        'pharmacy': '866-420-6337',
+        'afterHours': '307-778-7550',
+        'patientAdvocate': '307-778-7550 x7517',
+        'mentalHealthClinic': '307-778-7349',
+        'enrollmentCoordinator': '307-778-7550 x7579'
+      },
+      'physicalAddress': {
+        'type': 'physical',
+        'line': ['2360 East Pershing Boulevard'],
+        'city': 'Cheyenne',
+        'state': 'WY',
+        'postalCode': '82001-5356'
+      },
+      'mobile': false,
+      'healthService': %w[Audiology Cardiology DentalServices EmergencyCare Gastroenterology
+                          Gynecology MentalHealthCare Nutrition Ophthalmology Optometry Orthopedics
+                          Podiatry PrimaryCare SpecialtyCare UrgentCare Urology WomensHealth],
+      'operatingStatus': {
+        'code': 'NORMAL'
+      }
+    }
+  )
+
+  mock_appt_location_extracted_values = ['983', '983', '983', 'va_facilities', 'COL OR 1', 'VA Medical Center (VAMC)',
+                                         39.744507, -104.830956, 'https://www.denver.va.gov/locations/directions.asp',
+                                         '307-778-7550', '307-778-7381', '866-420-6337', '307-778-7550',
+                                         '307-778-7550 x7517', '307-778-7349', '307-778-7550 x7579',
+                                         'physical', '2360 East Pershing Boulevard', 'Cheyenne', 'WY',
+                                         '82001-5356', false, 'Audiology', 'Cardiology', 'DentalServices',
+                                         'EmergencyCare', 'Gastroenterology', 'Gynecology', 'MentalHealthCare',
+                                         'Nutrition', 'Ophthalmology', 'Optometry', 'Orthopedics',
+                                         'Podiatry', 'PrimaryCare', 'SpecialtyCare',
+                                         'UrgentCare', 'Urology', 'WomensHealth', 'NORMAL']
+
   before do
     Flipper.enable('va_online_scheduling')
     sign_in_as(current_user)
@@ -194,12 +242,17 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_booked_cerner_with_color1_location',
                            match_requests_on: %i[method path query], allow_playback_repeats: true) do
             allow(Rails.logger).to receive(:info).at_least(:once)
+            allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(
+              :get_facility_memoized
+            ).and_return(mock_appt_location_openstruct)
             get '/vaos/v2/appointments?_include=facilities,clinics', params:, headers: inflection_header
             data = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(data.size).to eq(2)
-            expect(data[0]['attributes']['location']).to eq(mock_facility)
+            expect(data[0]['attributes']['location']['attributes'].to_json).to eq(
+              mock_appt_location_openstruct.table.to_json
+            )
             expect(Rails.logger).to have_received(:info).with("Details for Cerner 'COL OR 1' Appointment",
                                                               any_args).at_least(:once)
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
@@ -595,6 +648,90 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
             expect(response.status).to eq(502)
             expect(JSON.parse(response.body)['errors'][0]['code']).to eq('VAOS_502')
           end
+        end
+      end
+    end
+
+    describe 'extract_all_values' do
+      context 'when processing an array, hash, or openstruct' do
+        let(:array1) { ['a', 'b', 'c', %w[100 200 300]] }
+
+        let(:hash1) { { a: '100', b: '200', c: '300' } }
+
+        let(:os1) do
+          OpenStruct.new({ 'a' => '100', 'b' => '200', 'c' => '300', 'd' => 400 })
+        end
+
+        it 'returns an array of values from an array' do
+          expect(subject.send(:extract_all_values, array1)).to eq(%w[a b c 100 200 300])
+        end
+
+        it 'returns an array of values from a hash' do
+          expect(subject.send(:extract_all_values, hash1)).to eq(%w[100 200 300])
+        end
+
+        it 'returns an array of values from a simple openstruct' do
+          expect(subject.send(:extract_all_values, os1)).to eq(['100', '200', '300', 400])
+        end
+
+        it 'returns an array of values from a nested openstruct' do
+          expect(subject.send(:extract_all_values,
+                              mock_appt_location_openstruct)).to eq(mock_appt_location_extracted_values)
+        end
+      end
+
+      context 'when processing input that is not an array, hash, or openstruct' do
+        it 'returns input object in an array' do
+          expect(subject.send(:extract_all_values, 'Simple String Input')).to eq(['Simple String Input'])
+        end
+
+        it 'returns input object in an array (nil)' do
+          expect(subject.send(:extract_all_values, nil)).to eq([nil])
+        end
+      end
+    end
+
+    describe 'contains_substring' do
+      context 'when checking an input array that contains a given substring' do
+        it 'returns true' do
+          expect(subject.send(:contains_substring, ['given string', 'another string', 100], 'given string')).to be(true)
+        end
+      end
+
+      context 'when checking an input array that does not contain a given substring' do
+        it 'returns false' do
+          expect(subject.send(:contains_substring, ['given string', 'another string', 100],
+                              'different string')).to be(false)
+        end
+      end
+
+      context 'when checking a non-array and a string' do
+        it 'returns false' do
+          expect(subject.send(:contains_substring, 'given string', 'given string')).to be(false)
+        end
+      end
+
+      context 'when checking nil and a string' do
+        it 'returns false' do
+          expect(subject.send(:contains_substring, nil, 'some string')).to be(false)
+        end
+      end
+
+      context 'when checking an array and a non-string' do
+        it 'returns false' do
+          expect(subject.send(:contains_substring, ['given string', 'another string', 100], 100)).to be(false)
+        end
+      end
+
+      context 'when the input array contains nil' do
+        it 'returns false' do
+          expect(subject.send(:contains_substring, [nil], 'some string')).to be(false)
+        end
+      end
+
+      context 'when the input array is empty' do
+        it 'returns false' do
+          expect(subject.send(:contains_substring, [], 'some string')).to be(false)
         end
       end
     end
