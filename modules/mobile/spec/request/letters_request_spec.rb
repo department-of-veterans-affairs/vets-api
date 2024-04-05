@@ -126,6 +126,15 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
   end
 
   describe 'GET /mobile/v0/letters' do
+    context 'when user does not have access' do
+      let!(:user) { sis_user(participant_id: nil) }
+
+      it 'returns forbidden' do
+        get '/mobile/v0/letters', headers: sis_headers
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'with a valid lighthouse response' do
       it 'matches the letters schema' do
         VCR.use_cassette('mobile/lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
@@ -149,6 +158,15 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
   end
 
   describe 'GET /mobile/v0/letters/beneficiary' do
+    context 'when user does not have access' do
+      let!(:user) { sis_user(participant_id: nil) }
+
+      it 'returns forbidden' do
+        get '/mobile/v0/letters/beneficiary', headers: sis_headers
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'with a valid lighthouse response' do
       it 'matches the letters beneficiary schema' do
         VCR.use_cassette('mobile/lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
@@ -162,6 +180,15 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
   end
 
   describe 'POST /mobile/v0/letters/:type/download' do
+    context 'when user does not have access' do
+      let!(:user) { sis_user(participant_id: nil) }
+
+      it 'returns forbidden' do
+        post '/mobile/v0/letters/benefit_summary/download', headers: sis_headers
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     describe 'formats' do
       context 'when format is unspecified' do
         it 'downloads a PDF' do
