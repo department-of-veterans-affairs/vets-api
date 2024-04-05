@@ -5,7 +5,8 @@ require 'simple_forms_api_submission/metadata_validator'
 
 RSpec.describe 'Forms uploader', type: :request do
   non_ivc_forms = [
-    'vba_26_4555.json',
+    # TODO: Restore this test when we release 26-4555 to production.
+    # 'vba_26_4555.json',
     'vba_21_4142.json',
     'vba_21_10210.json',
     'vba_21p_0847.json',
@@ -284,6 +285,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
       describe '26-4555' do
         it 'makes the request and expects a failure' do
+          skip 'restore this test when we release the form to production'
+
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                          'form_with_dangerous_characters_26_4555.json')
           data = JSON.parse(fixture_path.read)
