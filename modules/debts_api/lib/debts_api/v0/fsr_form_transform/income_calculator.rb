@@ -22,8 +22,18 @@ module DebtsApi
         def get_monthly_income
           sp_addl_income = @form.dig('additional_income', 'spouse', 'sp_addl_income') || []
           addl_inc_records = @form.dig('additional_income', 'addl_inc_records') || []
-          vet_employment_records = @form.dig('personal_data', 'employment_history', 'veteran', 'employment_records') || []
-          sp_employment_records = @form.dig('personal_data', 'employment_history', 'spouse', 'sp_employment_records') || []
+          vet_employment_records = @form.dig(
+            'personal_data',
+            'employment_history',
+            'veteran',
+            'employment_records'
+          ) || []
+          sp_employment_records = @form.dig(
+            'personal_data',
+            'employment_history',
+            'spouse',
+            'sp_employment_records'
+          ) || []
           social_security = @form['social_security'] || {}
           benefits = @form['benefits'] || {}
           curr_employment = @form['curr_employment'] || []
@@ -91,10 +101,9 @@ module DebtsApi
 
         def name_str(social_security, compensation, education, addl_inc)
           benefit_types = []
-
-          benefit_types.push('Social Security') if social_security
-          benefit_types.push('Disability Compensation') if compensation
-          benefit_types.push('Education') if education
+          benefit_types.push('Social Security') if social_security.positive?
+          benefit_types.push('Disability Compensation') if compensation.positive?
+          benefit_types.push('Education') if education.positive?
 
           vet_addl_names = addl_inc&.pluck('name') || []
           other_inc_names = [*benefit_types, *vet_addl_names]
