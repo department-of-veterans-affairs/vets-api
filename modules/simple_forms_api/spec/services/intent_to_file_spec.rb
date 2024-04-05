@@ -97,6 +97,14 @@ describe SimpleFormsApi::IntentToFile do
 
     it 'raises error' do
       icn = 'fake-icn'
+      return_value = {
+        errors: [
+          {
+            title: 'Unprocessable Entity',
+            detail: 'Invalid claimantSsn parameter'
+          }
+        ]
+      }
       intent_to_file_service = SimpleFormsApi::IntentToFile.new(icn, params)
       allow_any_instance_of(BenefitsClaims::Service).to receive(:get_intent_to_file).with('compensation')
                                                                                     .and_return(nil)
@@ -105,11 +113,11 @@ describe SimpleFormsApi::IntentToFile do
       allow_any_instance_of(BenefitsClaims::Service).to receive(:create_intent_to_file).with(
         'compensation',
         ssn
-      ).and_raise(Faraday::ServerError)
+      ).and_return(return_value)
 
       expect do
         intent_to_file_service.submit
-      end.to raise_error Faraday::ServerError
+      end.to raise_error StandardError
     end
   end
 end
