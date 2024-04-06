@@ -12,8 +12,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   end
 
   describe 'POST /accept' do
+    let(:proc_id) { '123' }
+
     it 'returns a successful response with an accepted message' do
-      proc_id = '123'
       post "/accredited_representative_portal/v0/power_of_attorney_requests/#{proc_id}/accept"
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
@@ -22,8 +23,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   end
 
   describe 'POST /decline' do
-    it 'returns a successful response with an accepted message' do
-      proc_id = '123'
+    let(:proc_id) { '123' }
+
+    it 'returns a successful response with a declined message' do
       post "/accredited_representative_portal/v0/power_of_attorney_requests/#{proc_id}/decline"
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
@@ -38,12 +40,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['records']).to be_an_instance_of(Array)
-        expect(json['records_count']).to be_an_instance_of(Integer)
+        expect(json['records_count']).to eq(json['records'].size)
       end
     end
 
     context 'when no POA codes are provided' do
-      it 'returns a bad request status' do
+      it 'returns a bad request status with an error message' do
         get '/accredited_representative_portal/v0/power_of_attorney_requests'
         expect(response).to have_http_status(:bad_request)
         json = JSON.parse(response.body)
@@ -52,15 +54,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     end
 
     context 'when POA codes parameter is empty' do
-      it 'returns a bad request status' do
+      it 'returns a bad request status with an error message' do
         get '/accredited_representative_portal/v0/power_of_attorney_requests', params: { poa_codes: '' }
         expect(response).to have_http_status(:bad_request)
         expect(JSON.parse(response.body)['error']).to eq('POA codes are required')
       end
     end
 
-    context 'when there are no records for the provided POA' do
-      it 'returns an empty records array' do
+    context 'when there are no records for the provided POA codes' do
+      it 'returns an empty records array and zero records count' do
         get '/accredited_representative_portal/v0/power_of_attorney_requests', params: { poa_codes: 'XYZ,ABC' }
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)

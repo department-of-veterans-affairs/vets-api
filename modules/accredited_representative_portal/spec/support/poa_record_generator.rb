@@ -1,17 +1,15 @@
 # frozen_string_literal: true
 
-# This module provides functionality to generate mock Power of Attorney (POA) request data.
-# It leverages the Faker library to create realistic but fictitious data for development
-# and testing purposes. The generated data includes various attributes associated with a
-# POA request such as claimant information, veteran details, and representative contacts.
-# The module also provides a method to save the generated data to a JSON file, which can be
-# useful for seeding databases or loading mock data in front-end applications during development.
+# The module provides a method to save generated data to a JSON file,
+# useful for seeding databases or loading mock data during development.
 #
-# To use the generator in the Rails console:
-# 1. Start the console with `bundle exec rails c`.
-# 2. Load the generator with `require Rails.root.join('modules/accredited_representative_portal/spec/support/poa_record_generator.rb')`.
-# 3. Call `PoaRecordGenerator.generate(num_records: 30)` to generate an in-memory hash of POA records.
-# 4. Use `PoaRecordGenerator.generate_and_save_to_file(num_records: 30)` to generate and save the data to a file.
+# Using the generator in the Rails console:
+# 1. Start the console: `bundle exec rails c`.
+# 2. Load the generator:
+#    `require Rails.root.join('modules/accredited_representative_portal',
+#                             'spec/support/poa_record_generator.rb')`.
+# 3. Generate POA records: `PoaRecordGenerator.generate(num_records: 30)`.
+# 4. Save to a file: `PoaRecordGenerator.generate_and_save_to_file(num_records: 30)`.
 module PoaRecordGenerator
   class << self
     require 'faker'
