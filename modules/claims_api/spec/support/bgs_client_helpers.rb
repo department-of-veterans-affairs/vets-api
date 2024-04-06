@@ -60,7 +60,7 @@ module BGSClientHelpers
       HEREDOC
     end
 
-    name = File.join('bgs', service, operation, name)
+    name = File.join('claims_api/bgs', service, operation, name)
     VCR.use_cassette(name, VCR_OPTIONS, &)
   end
 end
