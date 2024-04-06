@@ -24,7 +24,7 @@ module PoaRecordGenerator
       records = num_records.times.map do |i|
         status = i < 25 ? 'pending' : %w[obsolete expired canceled].sample
         {
-          proc_id: Faker::Number.unique.number(digits: 10).to_s,
+          procId: Faker::Number.unique.number(digits: 10).to_s,
           type: 'powerOfAttorneyRequest',
           attributes: generate_attributes(i, status)
         }
