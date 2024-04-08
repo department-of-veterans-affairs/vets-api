@@ -69,6 +69,46 @@
     }
   },
   "paths": {
+    "/power-of-attorney-requests": {
+      "get": {
+        "summary": "Search for Power of Attorney requests.",
+        "tags": [
+          "Power of Attorney"
+        ],
+        "operationId": "searchPowerOfAttorneyRequests",
+        "security": [
+          {
+            "productionOauth": [
+              "system/claim.read",
+              "system/system/claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "system/claim.read",
+              "system/system/claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Faceted, paginated, and sorted search of Power of Attorney requests",
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "example": {
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/veteran-id:find": {
       "post": {
         "summary": "Retrieve Veteran ID.",

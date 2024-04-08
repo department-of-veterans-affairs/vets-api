@@ -62,6 +62,8 @@ ClaimsApi::Engine.routes.draw do
       post '/:veteranId/526/:id/attachments', to: 'disability_compensation#attachments'
       post '/:veteranId/526/generatePDF/minimum-validations', to: 'disability_compensation#generate_pdf'
     end
+
+    resources :power_of_attorney_requests, path: 'power-of-attorney-requests', only: [:index]
   end
 
   namespace :docs do
