@@ -59,6 +59,13 @@ describe PdfFill::Forms::Va21p530v2 do
           :phone
         ],
         { 'first' => '111', 'second' => '222', 'third' => '3333' }
+      ],
+      [
+        [
+          { phone: '111-222-3333' },
+          :phone
+        ],
+        { 'first' => '111', 'second' => '222', 'third' => '3333' }
       ]
     ]
   )
