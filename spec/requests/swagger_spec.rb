@@ -3417,7 +3417,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     it 'tests all documented routes' do
       # exclude these route as they return binaries
       subject.untested_mappings.delete('/v0/letters/{id}')
-      subject.untested_mappings.delete('/v0/financial_status_reports/download_pdf')
+      subject.untested_mappings.delete('/debts_api/v0/financial_status_reports/download_pdf')
       subject.untested_mappings.delete('/v0/form1095_bs/download_pdf/{tax_year}')
       subject.untested_mappings.delete('/v0/form1095_bs/download_txt/{tax_year}')
       subject.untested_mappings.delete('/v0/claim_letters/{document_id}')
