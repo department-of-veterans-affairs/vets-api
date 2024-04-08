@@ -40,7 +40,7 @@ class ClaimsBaseController < ApplicationController
   end
 
   def show
-    render(json: CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] }))
+    benefits_intake_json
   end
 
   private
@@ -51,5 +51,44 @@ class ClaimsBaseController < ApplicationController
 
   def stats_key
     "api.#{short_name}"
+  end
+
+  def returned_json
+    submission = CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] })
+    if submission.present?
+      render(json: submission)
+    else
+      render(json: benefits_intake_json)
+    end
+  end
+
+  def benefits_intake_json
+    claim = SavedClaim::Burial.find_by!(guid: params[:id]) # will raise ActiveRecord::NotFound
+    form_submission = claim.form_submissions&.order(id: :asc)&.last
+    submission_attempt = form_submission&.form_submission_attempts&.last
+    if submission_attempt
+      # this is to satisfy frontend check for successful submission
+      state = submission_attempt.aasm_state == 'failure' ? 'failure' : 'success'
+      render(json: format_show_response(claim, state, form_submission, submission_attempt))
+    else
+      render(json: CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] }))
+    end
+  end
+
+  def format_show_response(claim, state, form_submission, submission_attempt)
+    {
+      data: {
+        id: claim.id,
+        form_id: claim.form_id,
+        guid: claim.guid,
+        attributes: {
+          state:,
+          benefits_intake_uuid: form_submission.benefits_intake_uuid,
+          form_type: form_submission.form_type,
+          attempt_id: submission_attempt.id,
+          aasm_state: submission_attempt.aasm_state
+        }
+      }
+    }
   end
 end

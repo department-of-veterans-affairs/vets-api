@@ -6,6 +6,10 @@ module V0
   class BurialClaimsController < ClaimsBaseController
     service_tag 'burial-application'
 
+    def show
+      render(json: CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] }))
+    end
+
     def create
       PensionBurial::TagSentry.tag_sentry
 
