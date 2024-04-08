@@ -158,7 +158,7 @@
                     }
                   }
                 },
-                "practiceName": { "type": "string" },
+                "practice_name": { "type": "string" },
                 "address": {
                   "type": "object",
                   "additionalProperties": false,
@@ -173,13 +173,13 @@
                     },
                     "city": { "type": "string" },
                     "state": { "type": "string" },
-                    "postalCode": { "type": "string" },
+                    "postal_code": { "type": "string" },
                     "country": { "type": "string" },
                     "text": { "type": "string" }
                   }
                 },
-                "firstName": { "type": "string" },
-                "lastName": { "type": "string" }
+                "first_name": { "type": "string" },
+                "last_name": { "type": "string" }
               }
             }
           },
@@ -357,34 +357,18 @@
                   "practice_name": { "type": "string" }
                 }
               },
-              "cc_requested_cancellation": {
-                "type": "boolean"
-              },
-              "hsrm_tast_id": {
-                "type": "string"
-              },
-              "hsrm_consult_id": {
-                "type": "string"
-              },
+              "cc_requested_cancellation": { "type": "boolean" },
+              "hsrm_tast_id": { "type": "string" },
+              "hsrm_consult_id": { "type": "string" },
               "vista_status": {
                 "type": "array",
                 "items": { "type": "string" }
               },
-              "cc_treating_specialty": {
-                "type": "string"
-              },
-              "modality": {
-                "type": "string"
-              },
-              "patient_has_mobile_gfe": {
-                "type": "boolean"
-              },
-              "pre_checkin_allowed": {
-                "type": "boolean"
-              },
-              "e_checkin_allowed": {
-                "type": "boolean"
-              },
+              "cc_treating_specialty": { "type": "string" },
+              "modality": { "type": "string" },
+              "patient_has_mobile_gfe": { "type": "boolean" },
+              "pre_checkin_allowed": { "type": "boolean" },
+              "e_checkin_allowed": { "type": "boolean" },
               "clinic": {
                 "type": "object",
                 "additionalProperties": false,
