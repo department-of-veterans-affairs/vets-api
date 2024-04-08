@@ -17,7 +17,9 @@ RSpec.describe SignIn::ClientConfig, type: :model do
            certificates:,
            access_token_attributes:,
            enforced_terms:,
-           terms_of_use_url:)
+           terms_of_use_url:,
+           csps:,
+           acrs:)
   end
   let(:client_id) { 'some-client-id' }
   let(:authentication) { SignIn::Constants::Auth::API }
@@ -32,6 +34,8 @@ RSpec.describe SignIn::ClientConfig, type: :model do
   let(:access_token_attributes) { [] }
   let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
   let(:terms_of_use_url) { 'some-terms-of-use-url' }
+  let(:csps) { %w[idme logingov dslogon mhv] }
+  let(:acrs) { %w[loa1 loa3 ial1 ial2 min] }
 
   describe 'validations' do
     subject { client_config }
@@ -217,6 +221,66 @@ RSpec.describe SignIn::ClientConfig, type: :model do
       end
     end
 
+    describe '#csps' do
+      context 'when csps is empty' do
+        let(:csps) { [] }
+        let(:expected_error_message) { "Validation failed: Csps can't be blank" }
+        let(:expected_error) { ActiveRecord::RecordInvalid }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+
+      context 'when csps contain values not included in CSP_TYPES constant' do
+        let(:csps) { %w[idme logingov dslogon mhv bad_csp] }
+        let(:expected_error_message) { 'Validation failed: Csps is not included in the list' }
+        let(:expected_error) { ActiveRecord::RecordInvalid }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+
+      context 'when all csps are included in CSP_TYPES constant' do
+        let(:csps) { SignIn::Constants::Auth::CSP_TYPES }
+
+        it 'does not raise validation error' do
+          expect { subject }.not_to raise_error
+        end
+      end
+    end
+
+    describe '#acrs' do
+      context 'when acrs is empty' do
+        let(:acrs) { [] }
+        let(:expected_error_message) { "Validation failed: Acrs can't be blank" }
+        let(:expected_error) { ActiveRecord::RecordInvalid }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+
+      context 'when acrs contain values not included in ACR_VALUES constant' do
+        let(:acrs) { %w[loa1 loa3 ial1 ial2 min bad_acr] }
+        let(:expected_error_message) { 'Validation failed: Acrs is not included in the list' }
+        let(:expected_error) { ActiveRecord::RecordInvalid }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+
+      context 'when all acrs are included in ACR_VALUES constant' do
+        let(:acrs) { SignIn::Constants::Auth::ACR_VALUES }
+
+        it 'does not raise validation error' do
+          expect { subject }.not_to raise_error
+        end
+      end
+    end
+
     describe '#enforced_terms' do
       context 'when enforced_terms is arbitrary' do
         let(:enforced_terms) { 'some-enforced-terms' }
@@ -371,6 +435,46 @@ RSpec.describe SignIn::ClientConfig, type: :model do
 
     context 'when enforced terms is nil' do
       let(:enforced_terms) { nil }
+
+      it 'returns false' do
+        expect(subject).to be(false)
+      end
+    end
+  end
+
+  describe '#valid_type?' do
+    subject { client_config.valid_type?(type) }
+
+    context 'when type is included in csps' do
+      let(:type) { 'idme' }
+
+      it 'returns true' do
+        expect(subject).to be(true)
+      end
+    end
+
+    context 'when type is not included in csps' do
+      let(:type) { 'bad_csp' }
+
+      it 'returns false' do
+        expect(subject).to be(false)
+      end
+    end
+  end
+
+  describe '#valid_acr?' do
+    subject { client_config.valid_acr?(acr) }
+
+    context 'when acr is included in acrs' do
+      let(:acr) { 'loa1' }
+
+      it 'returns true' do
+        expect(subject).to be(true)
+      end
+    end
+
+    context 'when acr is not included in acrs' do
+      let(:acr) { 'bad_acr' }
 
       it 'returns false' do
         expect(subject).to be(false)

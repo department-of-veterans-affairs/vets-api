@@ -22,6 +22,8 @@ module SignIn
     validates :client_id, presence: true, uniqueness: true
     validates :logout_redirect_uri, presence: true, if: :cookie_auth?
     validates :access_token_attributes, inclusion: { in: Constants::AccessToken::USER_ATTRIBUTES }
+    validates :csps, presence: true, inclusion: { in: Constants::Auth::CSP_TYPES, allow_nil: false }
+    validates :acrs, presence: true, inclusion: { in: Constants::Auth::ACR_VALUES, allow_nil: false }
 
     def self.valid_client_id?(client_id:)
       find_by(client_id:).present?
@@ -47,6 +49,14 @@ module SignIn
 
     def va_terms_enforced?
       enforced_terms == Constants::Auth::VA_TERMS
+    end
+
+    def valid_type?(type)
+      csps.include?(type)
+    end
+
+    def valid_acr?(acr)
+      acrs.include?(acr)
     end
 
     private
