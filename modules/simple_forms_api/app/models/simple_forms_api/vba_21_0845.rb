@@ -37,6 +37,10 @@ module SimpleFormsApi
         person_address + organization_address
     end
 
+    def desired_stamps
+      [{ coords: [50, 240], text: data['statement_of_truth_signature'], page: 2 }]
+    end
+
     def submission_date_config
       {
         should_stamp_date?: true,

@@ -33,6 +33,10 @@ module SimpleFormsApi
         statement + witness_phone + witness_email
     end
 
+    def desired_stamps
+      [{ coords: [50, 160], text: data['statement_of_truth_signature'], page: 2 }]
+    end
+
     def submission_date_config
       {
         should_stamp_date?: true,

@@ -110,6 +110,19 @@ module SimpleFormsApi
       end
     end
 
+    def desired_stamps
+      coords = if data['preparer_type'] == 'veteran'
+                 [[50, 690]]
+               elsif data['third_party_type'] == 'power-of-attorney'
+                 [[50, 445]]
+               elsif data['preparer_type'] == 'third-party-veteran' ||
+                     data['preparer_type'] == 'third-party-non-veteran' ||
+                     data['preparer_type'] == 'non-veteran'
+                 [[50, 570]]
+               end
+      [{ coords:, text: data['statement_of_truth_signature'], page: 4 }]
+    end
+
     def submission_date_config
       {
         should_stamp_date?: false
