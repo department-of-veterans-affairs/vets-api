@@ -13,7 +13,8 @@ module EVSS
         error_class = msg['error_class']
         error_message = msg['error_message']
         timestamp = Time.now.utc
-        form526_submission_id = msg['args'].first
+        # Extract original job arguments
+        form526_submission_id, upload_data = msg['args']
 
         form_job_status = Form526JobStatus.find_by(job_id:)
         bgjob_errors = form_job_status.bgjob_errors || {}
@@ -30,6 +31,11 @@ module EVSS
           status: Form526JobStatus::STATUS[:exhausted],
           bgjob_errors: bgjob_errors.merge(new_error)
         )
+
+        # YUCK. Check if this is still necessary
+        upload_data = upload_data.first if upload_data.is_a?(Array) # temporary for transition
+        guid = upload_data['confirmationCode']
+        Form526DocumentUploadFailureEmail.perform_async(form526_submission_id, guid)
 
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 

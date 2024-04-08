@@ -62,6 +62,30 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           expect { described_class.drain }.to raise_error(EVSS::ErrorMiddleware::EVSSBackendServiceError)
         end
       end
+
+      context 'when all retries are exhausted' do
+        let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission: submission, job_id: 1) }
+
+        let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
+        let!(:attachment) do
+          sea = SupportingEvidenceAttachment.new(guid: upload_data.first['confirmationCode'])
+          sea.set_file_data!(file)
+          sea.save!
+          sea
+        end
+
+        it 'enqueues a failure notification mailer to send to the veteran' do
+          subject.within_sidekiq_retries_exhausted_block(
+            {
+              'jid' => form526_job_status.job_id,
+              'args' => [submission.id, upload_data]
+            }
+          ) do
+            expect(EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail)
+              .to receive(:perform_async).with(submission.id, attachment.guid)
+          end
+        end
+      end
     end
 
     context 'when misnamed file_data exists' do
