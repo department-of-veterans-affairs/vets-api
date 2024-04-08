@@ -133,21 +133,30 @@ class CreateOrgsRepsTables < ActiveRecord::Migration[7.1]
     add_index :accredited_organizations, :location, using: :gist
     add_index :accredited_organizations, :name
 
-    create_join_table :accredited_organizations, :accredited_representatives do |t|
-      t.index :accredited_organization_id
-      t.index :accredited_representative_id
+    # Use create_table (instead of create_join_table) to explicitly define the table and its columns
+    create_table :accredited_organizations_accredited_representatives, id: false do |t|
+      t.uuid :accredited_organization_id
+      t.uuid :accredited_representative_id
     end
+
+    # Add the indexes
+    add_index :accredited_organizations_accredited_representatives, :accredited_organization_id
+    add_index :accredited_organizations_accredited_representatives, :accredited_representative_id
     add_index :accredited_organizations_accredited_representatives,
-              %i[accredited_organization_id accredited_representative_id],
+              [:accredited_organization_id, :accredited_representative_id],
               unique: true,
               name: 'index_organization_representatives_on_rep_and_org',
               algorithm: :concurrently
+
+    # Add the foreign keys
     add_foreign_key :accredited_organizations_accredited_representatives, :accredited_representatives,
                     column: :accredited_representative_id,
                     validate: false
     add_foreign_key :accredited_organizations_accredited_representatives, :accredited_organizations,
                     column: :accredited_organization_id,
                     validate: false
+
+    # Validate the foreign keys
     validate_foreign_key :accredited_organizations_accredited_representatives, :accredited_representatives
     validate_foreign_key :accredited_organizations_accredited_representatives, :accredited_organizations
   end
