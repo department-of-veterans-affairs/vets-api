@@ -32,17 +32,34 @@ describe ClaimsApi::VnpPersonService, metadata do
       expect { subject.vnp_person_create(data) }.to raise_error(e)
     end
 
-    it 'creates a new person from data', run_at: '2024-04-01T18:48:27Z' do
-      data = {
-        vnp_proc_id:,
-        vnp_ptcpnt_id:,
-        first_nm: 'Tamara',
-        last_nm: 'Ellis'
-      }
+    describe 'valid data' do
+      it 'creates a new person from data', run_at: '2024-04-01T18:48:27Z' do
+        data = {
+          vnp_proc_id:,
+          vnp_ptcpnt_id:,
+          first_nm: 'Tamara',
+          last_nm: 'Ellis'
+        }
 
-      use_bgs_cassette('happy_path') do
-        result = subject.vnp_person_create(data)
-        expect((expected_response.to_a & result.to_a).to_h).to eq expected_response
+        use_bgs_cassette('happy_path') do
+          result = subject.vnp_person_create(data)
+          expect((expected_response.to_a & result.to_a).to_h).to eq expected_response
+        end
+      end
+    end
+
+    describe 'invalid procId' do
+      it 'raises an error', run_at: '2024-04-01T18:48:27Z' do
+        data = {
+          vnp_proc_id: '1234',
+          vnp_ptcpnt_id:,
+          first_nm: 'Tamara',
+          last_nm: 'Ellis'
+        }
+
+        use_bgs_cassette('invalid_procId') do
+          expect { subject.vnp_person_create(data) }.to raise_error(Common::Exceptions::ServiceError)
+        end
       end
     end
   end
