@@ -177,7 +177,7 @@ RSpec.describe 'Claims', type: :request do
           lh_claims = ClaimsApi::AutoEstablishedClaim.where(id: [lighthouse_claim.id, lighthouse_claim_two.id])
 
           mock_ccg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+            VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
               expect_any_instance_of(bcs)
                 .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
               expect(ClaimsApi::AutoEstablishedClaim)
@@ -248,7 +248,7 @@ RSpec.describe 'Claims', type: :request do
               lh_claims = ClaimsApi::AutoEstablishedClaim.where(id: [lighthouse_claim.id, lighthouse_claim_two.id])
 
               mock_ccg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
                   expect(ClaimsApi::AutoEstablishedClaim)
@@ -284,7 +284,7 @@ RSpec.describe 'Claims', type: :request do
               )
 
               mock_ccg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
                   expect(ClaimsApi::AutoEstablishedClaim)
@@ -337,7 +337,7 @@ RSpec.describe 'Claims', type: :request do
               )
 
               mock_ccg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
                   expect(ClaimsApi::AutoEstablishedClaim)
@@ -378,7 +378,7 @@ RSpec.describe 'Claims', type: :request do
 
             it "provides a value for 'claimId', but 'lighthouseId' will be 'nil' " do
               mock_ccg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
                   expect(ClaimsApi::AutoEstablishedClaim)
@@ -420,7 +420,7 @@ RSpec.describe 'Claims', type: :request do
 
             it "provides a value for 'lighthouseId', but 'claimId' will be 'nil' " do
               mock_ccg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
                   expect(ClaimsApi::AutoEstablishedClaim)
@@ -443,7 +443,7 @@ RSpec.describe 'Claims', type: :request do
 
             it "provides a value for 'lighthouseId', but 'claimId' will be 'nil' when bgs returns nil" do
               mock_ccg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(nil)
                   expect(ClaimsApi::AutoEstablishedClaim)
@@ -524,7 +524,7 @@ RSpec.describe 'Claims', type: :request do
           lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
                                                      evss_id: '111111111')
           mock_ccg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+            VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
               VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                 bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_vet_id] = '600061742'
                 expect_any_instance_of(bcs)
@@ -554,7 +554,7 @@ RSpec.describe 'Claims', type: :request do
           lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: '2023062086V8675309',
                                                      evss_id: '111111111')
           mock_ccg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+            VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
               VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                 expect_any_instance_of(bcs)
                   .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
@@ -590,7 +590,7 @@ RSpec.describe 'Claims', type: :request do
           lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
                                                      evss_id: '111111111')
           mock_ccg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+            VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
               VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                 expect_any_instance_of(bcs)
                   .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
@@ -611,7 +611,7 @@ RSpec.describe 'Claims', type: :request do
         end
       end
 
-      it 'uses BD when it should', vcr: 'claims_api/v2/claims_show' do
+      it 'uses BD when it should', vcr: { cassette_name: 'claims_api/v2/claims_show', erb: true } do
         allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return true
         lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
                                                    evss_id: '111111111')
@@ -684,7 +684,7 @@ RSpec.describe 'Claims', type: :request do
 
             it 'returns a 200' do
               mock_ccg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
 
@@ -702,7 +702,7 @@ RSpec.describe 'Claims', type: :request do
             describe "handling 'lighthouseId' and 'claimId'" do
               it "provides a value for 'lighthouseId', but 'claimId' will be 'nil' " do
                 mock_ccg(scopes) do |auth_header|
-                  VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+                  VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                     expect_any_instance_of(bcs)
                       .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
 
@@ -725,7 +725,7 @@ RSpec.describe 'Claims', type: :request do
             describe "handling 'lighthouseId' and 'claimId'" do
               it "provides a value for 'lighthouseId' and 'claimId'" do
                 mock_ccg(scopes) do |auth_header|
-                  VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+                  VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                     VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                       expect(ClaimsApi::AutoEstablishedClaim)
                         .to receive(:get_by_id_and_icn).and_return(lighthouse_claim)
@@ -779,7 +779,7 @@ RSpec.describe 'Claims', type: :request do
             describe "handling 'lighthouseId' and 'claimId'" do
               it "provides a value for 'lighthouseId' and 'claimId'" do
                 mock_ccg(scopes) do |auth_header|
-                  VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+                  VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                     VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                       expect_any_instance_of(bcs)
                         .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
@@ -804,7 +804,7 @@ RSpec.describe 'Claims', type: :request do
           context 'and a Lighthouse claim does not exit' do
             it "provides a value for 'claimId', but 'lighthouseId' will be 'nil' " do
               mock_ccg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                   VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                     expect_any_instance_of(bcs)
                       .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
@@ -828,7 +828,7 @@ RSpec.describe 'Claims', type: :request do
             context 'when the file_number is nil' do
               it 'returns an empty array and not a 404' do
                 mock_ccg(scopes) do |auth_header|
-                  VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+                  VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                     VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
                         .to receive(:benefits_documents_enabled?).and_return(true)
@@ -869,7 +869,7 @@ RSpec.describe 'Claims', type: :request do
         context 'when there is 1 status' do
           it "sets the 'status'" do
             mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                 VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
@@ -893,7 +893,7 @@ RSpec.describe 'Claims', type: :request do
 
           it 'shows a closed date' do
             mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                 VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
@@ -917,7 +917,7 @@ RSpec.describe 'Claims', type: :request do
         context 'when a typical status is received' do
           it "the v2 mapper sets the correct 'status'" do
             mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                 VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
@@ -951,7 +951,7 @@ RSpec.describe 'Claims', type: :request do
 
           it "the v2 mapper sets the 'status' correctly" do
             mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                 VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
@@ -975,7 +975,7 @@ RSpec.describe 'Claims', type: :request do
 
           it "the v2 mapper sets the 'status' correctly" do
             mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                 VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
@@ -999,7 +999,7 @@ RSpec.describe 'Claims', type: :request do
 
           it "the v2 mapper sets the 'status' correctly" do
             mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                 VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
@@ -1024,7 +1024,7 @@ RSpec.describe 'Claims', type: :request do
         context 'it picks the newest status' do
           it "returns a claim with the 'claimId' and 'lighthouseId' set" do
             mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                 VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
@@ -1053,7 +1053,7 @@ RSpec.describe 'Claims', type: :request do
             claim_contentions = bgs_claim_response
             claim_contentions[:benefit_claim_details_dto][:contentions] = ' c1 (New),  c2 (Old), c3 (Unknown)'
             mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                 VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(claim_contentions)
@@ -1079,7 +1079,7 @@ RSpec.describe 'Claims', type: :request do
             claim_contentions[:benefit_claim_details_dto][:contentions] =
               'Low back strain (New), Knee, internal derangement (New)'
             mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                 VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(claim_contentions)
@@ -1104,7 +1104,7 @@ RSpec.describe 'Claims', type: :request do
         context 'it has documents' do
           it "returns a claim with 'supporting_documents'" do
             mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                 VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
@@ -1132,7 +1132,7 @@ RSpec.describe 'Claims', type: :request do
             bgs_claim[:benefit_claim_details_dto][:benefit_claim_id] = '222222222'
 
             mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                 VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
@@ -1164,7 +1164,7 @@ RSpec.describe 'Claims', type: :request do
 
           it "returns a claim with 'suporting_documents' as an empty array" do
             mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                 expect_any_instance_of(bcs)
                   .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
 
@@ -1246,7 +1246,7 @@ RSpec.describe 'Claims', type: :request do
           it "returns a claim with 'tracked_items'" do
             mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
-                VCR.use_cassette('claims_api/bgs/tracked_item_service/claims_v2_show_tracked_items') do
+                VCR.use_cassette('claims_api/bgs/tracked_item_service/claims_v2_show_tracked_items', erb: true) do
                   allow(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_and_icn)
 
                   get claim_by_id_with_items_path, headers: auth_header
@@ -1285,7 +1285,7 @@ RSpec.describe 'Claims', type: :request do
           it "returns a claim with 'tracked_items'" do
             mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/tracked_item_service/get_claim_documents_with_tracked_item_ids') do
-                VCR.use_cassette('claims_api/bgs/tracked_item_service/claims_v2_show_tracked_items') do
+                VCR.use_cassette('claims_api/bgs/tracked_item_service/claims_v2_show_tracked_items', erb: true) do
                   allow(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_and_icn)
 
                   get claim_by_id_with_items_path, headers: auth_header
@@ -1316,7 +1316,7 @@ RSpec.describe 'Claims', type: :request do
 
           it "returns a claim with 'tracked_items' as an empty array" do
             mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                 expect_any_instance_of(bcs)
                   .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
 
@@ -1346,7 +1346,7 @@ RSpec.describe 'Claims', type: :request do
         context 'when provided' do
           context 'when valid' do
             it 'returns a 200' do
-              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                 mock_ccg(scopes) do |auth_header|
                   expect(ClaimsApi::AutoEstablishedClaim)
                     .to receive(:get_by_id_and_icn).and_return(lighthouse_claim)
@@ -1378,7 +1378,7 @@ RSpec.describe 'Claims', type: :request do
 
           context 'claims show' do
             it 'returns a 200 response when successful' do
-              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items', erb: true) do
                 mock_ccg_for_fine_grained_scope(claims_show_scopes) do |auth_header|
                   expect(ClaimsApi::AutoEstablishedClaim)
                     .to receive(:get_by_id_and_icn).and_return(lighthouse_claim)

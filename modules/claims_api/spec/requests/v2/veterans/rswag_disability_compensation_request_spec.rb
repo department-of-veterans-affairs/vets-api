@@ -7,7 +7,7 @@ require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
 describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_api_docs,
-                                   vcr: 'claims_api/disability_comp' do
+                                   vcr: { cassette_name: 'claims_api/disability_comp', erb: true } do
   let(:scopes) { %w[system/claim.read system/claim.write] }
   let(:generate_pdf_minimum_validations_scopes) { %w[system/claim.read system/claim.write system/526-pdf.override] }
 

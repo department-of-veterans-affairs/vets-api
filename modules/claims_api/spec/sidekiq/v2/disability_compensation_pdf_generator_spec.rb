@@ -60,7 +60,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
       end
 
       it 'sets the claim status to pending when starting/rerunning' do
-        VCR.use_cassette('claims_api/disability_comp') do
+        VCR.use_cassette('claims_api/disability_comp', erb: true) do
           expect(errored_claim.status).to eq('errored')
 
           service.perform(errored_claim.id, middle_initial)
@@ -73,7 +73,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
 
     context 'handles an errored claim correctly' do
       it 'sets claim state to errored when pdf_string is empty' do
-        VCR.use_cassette('claims_api/disability_comp') do
+        VCR.use_cassette('claims_api/disability_comp', erb: true) do
           allow(service).to receive(:generate_526_pdf).and_return('')
 
           service.perform(claim.id, middle_initial)
@@ -84,7 +84,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
       end
 
       it 'does not call the next job when the claim.status is errored' do
-        VCR.use_cassette('claims_api/disability_comp') do
+        VCR.use_cassette('claims_api/disability_comp', erb: true) do
           allow(service).to receive(:generate_526_pdf).and_return('')
 
           service.perform(claim.id, middle_initial)
