@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class CreateOrgsRepsTables < ActiveRecord::Migration[7.1]
+  disable_ddl_transaction!
   # rubocop:disable Metrics/MethodLength
   # rubocop:disable Metrics/AbcSize
   def change
@@ -132,15 +133,24 @@ class CreateOrgsRepsTables < ActiveRecord::Migration[7.1]
     add_index :accredited_organizations, :location, using: :gist
     add_index :accredited_organizations, :name
 
-    create_join_table :accredited_organizations, :accredited_representatives, column_options: { type: :uuid } do |t|
-      t.uuid :accredited_organization_uuid, null: false, index: true
-      t.uuid :accredited_representative_uuid, null: false, index: true
+    create_join_table :accredited_organizations, :accredited_representatives do |t|
+      t.index :accredited_organization_id
+      t.index :accredited_representative_id
     end
     add_index :accredited_organizations_accredited_representatives,
-              [:accredited_organization_uuid, :accredited_representative_uuid],
+              %i[accredited_organization_id accredited_representative_id],
               unique: true,
-              name: 'index_orgs_reps_on_organization_uuid_and_representative_uuid'
-      end
+              name: 'index_organization_representatives_on_rep_and_org',
+              algorithm: :concurrently
+    add_foreign_key :accredited_organizations_accredited_representatives, :accredited_representatives,
+                    column: :accredited_representative_id,
+                    validate: false
+    add_foreign_key :accredited_organizations_accredited_representatives, :accredited_organizations,
+                    column: :accredited_organization_id,
+                    validate: false
+    validate_foreign_key :accredited_organizations_accredited_representatives, :accredited_representatives
+    validate_foreign_key :accredited_organizations_accredited_representatives, :accredited_organizations
+  end
   # rubocop:enable Metrics/AbcSize
   # rubocop:enable Metrics/MethodLength
 end
