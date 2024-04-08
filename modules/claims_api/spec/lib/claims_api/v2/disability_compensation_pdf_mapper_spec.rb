@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'claims_api/v2/disability_compensation_pdf_mapper'
 
 describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
-  describe '526 claim maps to the pdf generator', vcr: { cassette_name: 'claims_api/disability_comp', erb: true } do
+  describe '526 claim maps to the pdf generator', vcr: 'claims_api/disability_comp' do
     let(:pdf_data) do
       {
         data: {

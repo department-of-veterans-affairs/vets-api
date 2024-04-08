@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: <%= Settings.bgs.url %>/IntentToFileWebServiceBean/IntentToFileWebService?WSDL
+    uri: <BGS_BASE_URL>/IntentToFileWebServiceBean/IntentToFileWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -171,7 +171,7 @@ http_interactions:
   recorded_at: Tue, 22 Sep 2020 13:56:19 GMT
 - request:
     method: post
-    uri: <%= Settings.bgs.url %>/IntentToFileWebServiceBean/IntentToFileWebService
+    uri: <BGS_BASE_URL>/IntentToFileWebServiceBean/IntentToFileWebService
     body:
       encoding: UTF-8
       string: |-

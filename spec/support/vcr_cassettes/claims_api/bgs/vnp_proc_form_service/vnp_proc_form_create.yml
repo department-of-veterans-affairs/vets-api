@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: <%= Settings.bgs.url %>/VnpProcFormWebServiceBean/VnpProcFormService?WSDL
+    uri: <BGS_BASE_URL>/VnpProcFormWebServiceBean/VnpProcFormService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -148,7 +148,7 @@ http_interactions:
   recorded_at: Wed, 27 Mar 2024 18:49:03 GMT
 - request:
     method: post
-    uri: <%= Settings.bgs.url %>/VnpProcFormWebServiceBean/VnpProcFormService
+    uri: <BGS_BASE_URL>/VnpProcFormWebServiceBean/VnpProcFormService
     body:
       encoding: UTF-8
       string: |

@@ -105,7 +105,7 @@ describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagger/clai
             stub_poa_verification
 
             mock_acg(scopes) do
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   submit_request(example.metadata)
                 end
@@ -147,7 +147,7 @@ describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagger/clai
             stub_poa_verification
 
             mock_acg(scopes) do
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
                   submit_request(example.metadata)
@@ -182,7 +182,7 @@ describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagger/clai
             stub_poa_verification
 
             mock_acg(scopes) do
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 submit_request(example.metadata)
               end
             end
@@ -522,7 +522,7 @@ describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagger/clai
 
             VCR.use_cassette('claims_api/evss/disability_compensation_form/form_526_valid_validation') do
               mock_acg(scopes) do
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     VCR.use_cassette('claims_api/v1/disability_comp/bd_token') do
                       VCR.use_cassette('claims_api/v1/disability_comp/validate') do
@@ -570,7 +570,7 @@ describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagger/clai
 
             VCR.use_cassette('claims_api/evss/disability_compensation_form/form_526_valid_validation') do
               mock_acg(scopes) do
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
                   submit_request(example.metadata)
                 end
@@ -606,7 +606,7 @@ describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagger/clai
 
             mock_acg(scopes) do
               VCR.use_cassette('claims_api/evss/disability_compensation_form/form_526_invalid_validation') do
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   submit_request(example.metadata)
                 end
               end

@@ -18,7 +18,7 @@ RSpec.describe 'Disability Claims', type: :request do
     Timecop.return
   end
 
-  describe '#526', vcr: { cassette_name: 'claims_api/disability_comp', erb: true } do
+  describe '#526', vcr: 'claims_api/disability_comp' do
     let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do
@@ -3855,7 +3855,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
     it 'creates a new claim if duplicate submit occurs (does not use md5 lookup)' do
       mock_ccg(scopes) do |auth_header|
-        VCR.use_cassette('claims_api/disability_comp', erb: true) do
+        VCR.use_cassette('claims_api/disability_comp') do
           json = JSON.parse(data)
           post submit_path, params: json.to_json, headers: auth_header
           expect(response).to have_http_status(:accepted)
@@ -3864,7 +3864,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
       end
       mock_ccg(scopes) do |auth_header|
-        VCR.use_cassette('claims_api/disability_comp', erb: true) do
+        VCR.use_cassette('claims_api/disability_comp') do
           json = JSON.parse(data)
           post submit_path, params: json.to_json, headers: auth_header
           expect(response).to have_http_status(:accepted)
@@ -3876,7 +3876,7 @@ RSpec.describe 'Disability Claims', type: :request do
     end
   end
 
-  describe 'POST #generatePDF/minimum-validations', vcr: { cassette_name: 'claims_api/disability_comp', erb: true } do
+  describe 'POST #generatePDF/minimum-validations', vcr: 'claims_api/disability_comp' do
     let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do

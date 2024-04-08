@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: <%= Settings.bgs.url %>/EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService?WSDL
+    uri: <BGS_BASE_URL>/EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -217,7 +217,7 @@ http_interactions:
   recorded_at: Tue, 12 Dec 2017 03:09:06 GMT
 - request:
     method: post
-    uri: <%= Settings.bgs.url %>/EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService
+    uri: <BGS_BASE_URL>/EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService
     body:
       encoding: UTF-8
       string: |

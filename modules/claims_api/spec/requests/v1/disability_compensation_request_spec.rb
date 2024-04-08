@@ -90,7 +90,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'returns a 200' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
                   params = json_data
@@ -136,7 +136,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'returns a 200' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
                   params = json_data
@@ -188,7 +188,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'returns a 200' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
                   params = json_data
@@ -219,7 +219,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'returns a 200' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
                   params = json_data
@@ -305,7 +305,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'returns a 200' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
                   params = json_data
@@ -324,7 +324,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'returns a 200' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     json_data = JSON.parse data
                     params = json_data
@@ -342,7 +342,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'returns a 200' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     json_data = JSON.parse data
                     params = json_data
@@ -360,7 +360,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'returns a 200' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     json_data = JSON.parse data
                     params = json_data
@@ -387,7 +387,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
       it 'returns a successful response with all the data' do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
             VCR.use_cassette('claims_api/brd/countries') do
               post path, params: data, headers: headers.merge(auth_header)
               parsed = JSON.parse(response.body)
@@ -403,7 +403,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
         it 'creates the sidekick job' do
           mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+            VCR.use_cassette('claims_api/bgs/claims/claims') do
               VCR.use_cassette('claims_api/brd/countries') do
                 expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
                 post path, params: data, headers: headers.merge(auth_header)
@@ -418,7 +418,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
         it 'creates the sidekick job' do
           mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+            VCR.use_cassette('claims_api/bgs/claims/claims') do
               VCR.use_cassette('claims_api/brd/countries') do
                 post path, params: data, headers: headers.merge(auth_header)
               end
@@ -429,7 +429,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
       it 'assigns a source' do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
             VCR.use_cassette('claims_api/brd/countries') do
               post path, params: data, headers: headers.merge(auth_header)
               token = JSON.parse(response.body)['data']['attributes']['token']
@@ -442,7 +442,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
       it "assigns a 'cid' (OKTA client_id)" do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
             VCR.use_cassette('claims_api/brd/countries') do
               jwt_payload = {
                 'ver' => 1,
@@ -471,7 +471,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
       it 'sets the flashes' do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
             VCR.use_cassette('claims_api/brd/countries') do
               post path, params: data, headers: headers.merge(auth_header)
               token = JSON.parse(response.body)['data']['attributes']['token']
@@ -484,7 +484,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
       it 'sets the special issues' do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
             VCR.use_cassette('claims_api/brd/countries') do
               post path, params: data, headers: headers.merge(auth_header)
               token = JSON.parse(response.body)['data']['attributes']['token']
@@ -499,7 +499,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
       it 'builds the auth headers' do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
             VCR.use_cassette('claims_api/brd/countries') do
               auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
               expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).once { auth_header_stub })
@@ -606,7 +606,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'raises an exception that title10ActivationDate is invalid' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     par = json_data
                     par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
@@ -642,7 +642,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'returns a successful response' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     par = json_data
                     par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
@@ -661,7 +661,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'returns a successful response' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     par = json_data
                     par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
@@ -699,7 +699,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it "raises an exception that 'anticipatedSeparationDate' is invalid" do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     par = json_data
                     par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
@@ -735,7 +735,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'returns a successful response' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     par = json_data
                     par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
@@ -808,7 +808,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
 
         it 'requires homelessness homelessnessRisk subfields' do
-          VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
             mock_acg(scopes) do |auth_header|
               par = json_data
               par['data']['attributes']['veteran']['homelessness'] = {
@@ -856,7 +856,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           context 'when correct types are passed for specialIssues' do
             it 'returns a successful status' do
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   mock_acg(scopes) do |auth_header|
                     params = json_data
@@ -885,7 +885,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           context 'when correct types are passed for flashes' do
             it 'returns a successful status' do
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   mock_acg(scopes) do |auth_header|
                     params = json_data
@@ -923,7 +923,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             receive(:body).and_return(fake_puma_null_io_object)
           )
           mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+            VCR.use_cassette('claims_api/bgs/claims/claims') do
               post path, params: data, headers: headers.merge(auth_header)
               expect(response.status).to eq 422
               expect(JSON.parse(response.body)['errors']).to be_an Array
@@ -942,7 +942,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'responds with a properly formed error object' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   post path, params: data, headers: headers.merge(auth_header)
                   body = JSON.parse(response.body)
                   expect(response.status).to eq 422
@@ -958,7 +958,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'responds with a properly formed error object' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   post path, params: data, headers: headers.merge(auth_header)
                   body = JSON.parse(response.body)
                   expect(response.status).to eq 422
@@ -977,7 +977,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         it 'returns a successful response when valid' do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/v1/disability_comp/validate') do
                   post path, params: data, headers: headers.merge(auth_header)
                   parsed = JSON.parse(response.body)
@@ -993,7 +993,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         xit 'returns a list of errors when invalid hitting EVSS' do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/v1/disability_comp/invalid') do
                   post path, params: data, headers: headers.merge(auth_header)
                   parsed = JSON.parse(response.body)
@@ -1031,7 +1031,7 @@ RSpec.describe 'Disability Claims ', type: :request do
               it 'is logged to PersonalInformationLog' do
                 mock_acg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/brd/countries') do
-                    VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                    VCR.use_cassette('claims_api/bgs/claims/claims') do
                       allow_any_instance_of(ClaimsApi::DisabilityCompensation::MockOverrideService)
                         .to receive(:validate_form526).and_raise(error_klass)
                       allow_any_instance_of(EVSS::DisabilityCompensationForm::Service)
@@ -1083,7 +1083,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
         it 'returns a 422 without an edipi' do
           mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+            VCR.use_cassette('claims_api/bgs/claims/claims') do
               VCR.use_cassette('claims_api/brd/countries') do
                 VCR.use_cassette('claims_api/mpi/add_person/add_person_success') do
                   VCR.use_cassette('claims_api/mpi/find_candidate/orch_search_with_attributes') do
@@ -1106,7 +1106,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
         it 'adds person to MPI and checks for edipi' do
           mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+            VCR.use_cassette('claims_api/bgs/claims/claims') do
               VCR.use_cassette('claims_api/brd/countries') do
                 VCR.use_cassette('claims_api/mpi/add_person/add_person_success') do
                   VCR.use_cassette('claims_api/mpi/find_candidate/orch_search_with_attributes') do
@@ -1130,7 +1130,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
         it 'raises a 422, with message' do
           mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+            VCR.use_cassette('claims_api/bgs/claims/claims') do
               VCR.use_cassette('claims_api/brd/countries') do
                 mpi_profile_response.profile.participant_ids = []
                 mpi_profile_response.profile.participant_id = ''
@@ -1179,7 +1179,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       it 'returns an unprocessible entity status' do
         mock_acg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/brd/countries') do
-            VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+            VCR.use_cassette('claims_api/bgs/claims/claims') do
               allow_any_instance_of(ClaimsApi::Veteran)
                 .to receive(:mpi_record?).and_return(true)
               allow_any_instance_of(MPIData)
@@ -1216,7 +1216,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'responds with a 200' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   post path, params: data, headers: headers.merge(auth_header)
                   expect(response.status).to eq(200)
@@ -1231,7 +1231,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'responds with a 200' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   post path, params: data, headers: headers.merge(auth_header)
                   expect(response.status).to eq(200)
@@ -1246,7 +1246,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'responds with a bad request' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
                 expect(response.status).to eq(400)
               end
@@ -1269,7 +1269,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'responds with a 200' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   post path, params: data, headers: headers.merge(auth_header)
                   expect(response.status).to eq(200)
@@ -1284,7 +1284,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'responds with a 200' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   post path, params: data, headers: headers.merge(auth_header)
                   expect(response.status).to eq(200)
@@ -1299,7 +1299,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'responds with bad request' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
                 expect(response.status).to eq(400)
               end
@@ -1312,7 +1312,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'responds with a 200' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   post path, params: data, headers: headers.merge(auth_header)
                   expect(response.status).to eq(200)
@@ -1327,7 +1327,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'responds with a 200' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   post path, params: data, headers: headers.merge(auth_header)
                   expect(response.status).to eq(200)
@@ -1342,7 +1342,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'responds with a bad request' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
                 expect(response.status).to eq(422)
               end
@@ -1355,7 +1355,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'responds with a 422' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
                 expect(response.status).to eq(422)
               end
@@ -1368,7 +1368,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'responds with a 422' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
                 expect(response.status).to eq(422)
               end
@@ -1381,7 +1381,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'responds with bad request' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
                 expect(response.status).to eq(422)
               end
@@ -1394,7 +1394,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'responds with bad request' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
                 expect(response.status).to eq(422)
               end
@@ -1407,7 +1407,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     context 'when submitted application_expiration_date is in the past' do
       it 'responds with bad request' do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
             json_data = JSON.parse data
             params = json_data
             params['data']['attributes']['applicationExpirationDate'] = (Time.zone.today - 1.day).to_s
@@ -1435,7 +1435,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     context 'when submitted application_expiration_date is in the future' do
       it 'responds with a 200' do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
             VCR.use_cassette('claims_api/brd/countries') do
               json_data = JSON.parse data
               params = json_data
@@ -1451,7 +1451,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     context 'when submitted claimant_certification is false' do
       it 'responds with bad request' do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
             json_data = JSON.parse data
             params = json_data
             params['data']['attributes']['claimantCertification'] = false
@@ -1501,7 +1501,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     context 'when confinements don\'t fall within service periods' do
       it 'responds with a bad request' do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
             VCR.use_cassette('claims_api/brd/countries') do
               json_data = JSON.parse data
               params = json_data
@@ -1572,7 +1572,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         context "when 'pointOfContact' is provided" do
           it 'responds with a 422' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
                   params = json_data
@@ -1650,7 +1650,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
               it 'responds with a bad request' do
                 mock_acg(scopes) do |auth_header|
-                  VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                  VCR.use_cassette('claims_api/bgs/claims/claims') do
                     VCR.use_cassette('claims_api/brd/countries') do
                       json_data = JSON.parse data
                       params = json_data
@@ -1688,7 +1688,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
               it 'responds with a 200' do
                 mock_acg(scopes) do |auth_header|
-                  VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                  VCR.use_cassette('claims_api/bgs/claims/claims') do
                     VCR.use_cassette('claims_api/brd/countries') do
                       json_data = JSON.parse data
                       params = json_data
@@ -1707,7 +1707,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
               it 'responds with a 200' do
                 mock_acg(scopes) do |auth_header|
-                  VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                  VCR.use_cassette('claims_api/bgs/claims/claims') do
                     VCR.use_cassette('claims_api/brd/countries') do
                       json_data = JSON.parse data
                       params = json_data
@@ -1757,7 +1757,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'responds with an unprocessible entity' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     json_data = JSON.parse data
                     params = json_data
@@ -1775,7 +1775,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'responds with a 200' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     json_data = JSON.parse data
                     params = json_data
@@ -1835,7 +1835,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
               it 'responds with a 200' do
                 mock_acg(scopes) do |auth_header|
-                  VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                  VCR.use_cassette('claims_api/bgs/claims/claims') do
                     VCR.use_cassette('claims_api/brd/countries') do
                       json_data = JSON.parse data
                       params = json_data
@@ -1887,7 +1887,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'responds with an unprocessible entity' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     json_data = JSON.parse data
                     params = json_data
@@ -1905,7 +1905,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'responds with a 200' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     json_data = JSON.parse data
                     params = json_data
@@ -1954,7 +1954,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'responds with a 200' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     json_data = JSON.parse data
                     params = json_data
@@ -2176,7 +2176,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
         it 'raises an exception if name is longer than 255 characters' do
           mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+            VCR.use_cassette('claims_api/bgs/claims/claims') do
               VCR.use_cassette('claims_api/brd/countries') do
                 json_data = JSON.parse data
                 params = json_data
@@ -2216,7 +2216,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         context "when 'disabilites.classificationCode' is valid" do
           it 'returns a successful response' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
                   params = json_data
@@ -2263,7 +2263,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           context "and 'disabilities.ratedDisabilityId' is not provided" do
             it 'returns an unprocessible entity status' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     json_data = JSON.parse data
                     params = json_data
@@ -2286,7 +2286,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           context "and 'disabilities.ratedDisabilityId' is provided" do
             it 'responds with a 200' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     json_data = JSON.parse data
                     params = json_data
@@ -2334,7 +2334,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             context "and 'disabilites.diagnosticCode is not provided" do
               it 'returns an unprocessible entity status' do
                 mock_acg(scopes) do |auth_header|
-                  VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                  VCR.use_cassette('claims_api/bgs/claims/claims') do
                     VCR.use_cassette('claims_api/brd/countries') do
                       json_data = JSON.parse data
                       params = json_data
@@ -2367,7 +2367,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           context "and 'disabilities.ratedDisabilityId' is not provided" do
             it 'responds with a 200' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     json_data = JSON.parse data
                     params = json_data
@@ -2421,7 +2421,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'responds with a 200' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
                   params = json_data
@@ -2473,7 +2473,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'responds with a useful error message  ' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     json_data = JSON.parse data
                     params = json_data
@@ -2493,7 +2493,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'responds with a 200' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     json_data = JSON.parse data
                     params = json_data
@@ -2553,7 +2553,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'responds with a 200' do
               mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
                     json_data = JSON.parse data
                     params = json_data
@@ -2585,7 +2585,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             )
 
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
                   params = json_data
@@ -2621,7 +2621,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             )
 
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
                   params = json_data
@@ -2639,7 +2639,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       describe "'addressLine3'" do
         it "accepts 'addressLine3' and returns a 200" do
           mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+            VCR.use_cassette('claims_api/bgs/claims/claims') do
               VCR.use_cassette('claims_api/brd/countries') do
                 json_data = JSON.parse data
                 params = json_data
@@ -2655,7 +2655,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       describe "'currentMailingAddress.country'" do
         it "accepts 'USA'" do
           mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+            VCR.use_cassette('claims_api/bgs/claims/claims') do
               VCR.use_cassette('claims_api/brd/countries') do
                 json_data = JSON.parse data
                 params = json_data
@@ -2686,7 +2686,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         context 'when not provided' do
           it 'responds with a 200' do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
                   params = json_data
@@ -2705,7 +2705,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       describe 'is case insensitive' do
         it 'is properly transformed to uppercase before submission to EVSS' do
           mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+            VCR.use_cassette('claims_api/bgs/claims/claims') do
               VCR.use_cassette('claims_api/brd/countries') do
                 direct_deposit_info = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures',
                                                                 'form_526_direct_deposit.json'))
@@ -2747,7 +2747,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
     it 'sets the flashes and special_issues' do
       mock_acg(scopes) do |auth_header|
-        VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+        VCR.use_cassette('claims_api/bgs/claims/claims') do
           VCR.use_cassette('claims_api/brd/countries') do
             post path, params: data_no_flashes, headers: headers.merge(auth_header)
             token = JSON.parse(response.body)['data']['attributes']['token']
@@ -2907,7 +2907,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
     it 'returns existing claim if duplicate submit occurs by using the md5 lookup' do
       mock_acg(scopes) do |auth_header|
-        VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+        VCR.use_cassette('claims_api/bgs/claims/claims') do
           VCR.use_cassette('claims_api/brd/countries') do
             json = JSON.parse(data)
             post path, params: json.to_json, headers: headers.merge(auth_header)
@@ -2918,7 +2918,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
       mock_acg(scopes) do |auth_header|
-        VCR.use_cassette('claims_api/bgs/claims/claims', erb: true) do
+        VCR.use_cassette('claims_api/bgs/claims/claims') do
           VCR.use_cassette('claims_api/brd/countries') do
             json = JSON.parse(data)
             post path, params: json.to_json, headers: headers.merge(auth_header)

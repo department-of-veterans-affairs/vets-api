@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: <%= Settings.bgs.url %>/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService?WSDL
+    uri: <BGS_BASE_URL>/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -171,7 +171,7 @@ http_interactions:
   recorded_at: Fri, 29 Mar 2024 14:37:13 GMT
 - request:
     method: post
-    uri: <%= Settings.bgs.url %>/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService
+    uri: <BGS_BASE_URL>/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService
     body:
       encoding: UTF-8
       string: |

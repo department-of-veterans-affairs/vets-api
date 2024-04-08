@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: <%= Settings.bgs.url %>/TrackedItemService/TrackedItemService?WSDL
+    uri: <BGS_BASE_URL>/TrackedItemService/TrackedItemService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -266,7 +266,7 @@ http_interactions:
   recorded_at: Wed, 17 Aug 2022 20:30:36 GMT
 - request:
     method: post
-    uri: <%= Settings.bgs.url %>/TrackedItemService/TrackedItemService
+    uri: <BGS_BASE_URL>/TrackedItemService/TrackedItemService
     body:
       encoding: UTF-8
       string: |-

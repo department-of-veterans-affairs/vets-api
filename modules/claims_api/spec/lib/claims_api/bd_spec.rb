@@ -30,7 +30,7 @@ describe ClaimsApi::BD do
     end
   end
 
-  describe '#search', vcr: { cassette_name: 'claims_api/v2/claims_show', erb: true } do
+  describe '#search', vcr: 'claims_api/v2/claims_show' do
     let(:claim_id) { '600397218' }
     let(:file_number) { '796378782' }
 
