@@ -10,6 +10,7 @@ module AskVAApi
       skip_before_action :verify_authenticity_token, only: %i[unauth_create upload_attachment]
 
       def index
+        binding.pry
         render json: @user_inquiries.payload, status: @user_inquiries.status
       end
 

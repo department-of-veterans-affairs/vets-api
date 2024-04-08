@@ -101,7 +101,6 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   end
 
   describe 'GET #show' do
-    let(:id) { valid_id }
     let(:expected_response) do
       { 'data' =>
         { 'id' => '1',
@@ -141,7 +140,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     context 'when user is signed in' do
       before do
         sign_in(authorized_user)
-        get "#{inquiry_path}/#{id}", params: { mock: true }
+        get "#{inquiry_path}/#{valid_id}", params: { mock: true }
       end
 
       it { expect(response).to have_http_status(:ok) }
@@ -161,7 +160,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       before do
         allow(Crm::Service).to receive(:new).and_raise(ErrorHandler::ServiceError)
         sign_in(authorized_user)
-        get "#{inquiry_path}/#{id}"
+        get "#{inquiry_path}/#{valid_id}"
       end
 
       it { expect(JSON.parse(response.body)).to eq('error' => 'ErrorHandler::ServiceError') }
@@ -169,7 +168,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
     context 'when user is not signed in' do
       before do
-        get "#{inquiry_path}/#{id}"
+        get "#{inquiry_path}/#{valid_id}"
       end
 
       it { expect(response).to have_http_status(:unauthorized) }
