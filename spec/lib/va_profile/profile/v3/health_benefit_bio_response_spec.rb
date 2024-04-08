@@ -7,17 +7,22 @@ describe VAProfile::Profile::V3::HealthBenefitBioResponse do
   subject { described_class.new(response) }
 
   let(:response) do
-    double('Faraday::Response',
-           status: 200,
-           body: {
-             'profile' => {
-               'health_benefit' => {
-                 'associated_persons' => [{
-                   'contact_type' => contact_type
-                 }]
-               }
-             }
-           })
+    double(
+      'Faraday::Response',
+      status: 200,
+      body: {
+        'profile' => {
+          'health_benefit' => {
+            'associated_persons' => [{
+              'contact_type' => contact_type
+            }]
+          }
+        }
+      },
+      response_headers: {
+        'vaprofiletxauditid' => 'abc123'
+      }
+    )
   end
 
   describe 'Emergency contact' do
