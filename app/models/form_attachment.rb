@@ -36,7 +36,7 @@ class FormAttachment < ApplicationRecord
   private
 
   def unlock_pdf(file, file_password)
-    return file unless File.extname(file) == '.pdf'
+    return file unless File.extname(file).downcase == '.pdf'
 
     pdftk = PdfForms.new(Settings.binaries.pdftk)
     tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
@@ -44,7 +44,7 @@ class FormAttachment < ApplicationRecord
     begin
       pdftk.call_pdftk(file.tempfile.path, 'input_pw', file_password, 'output', tmpf.path)
     rescue PdfForms::PdftkError => e
-      file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
+      file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}i
       password_regex = /(input_pw).*?(output)/
       sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
       log_message_to_sentry(sanitized_message, 'warn')
