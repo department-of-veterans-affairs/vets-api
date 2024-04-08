@@ -56,33 +56,6 @@ module SimpleFormsApi
       ]
 
       verified_multistamp(stamped_template_path, signature_text, page_configuration)
-
-      # This is a one-off case where we need to stamp a date on the first page of 21-4142 when resubmitting
-      if form.data['in_progress_form_created_at']
-        date_title = 'Application Submitted:'
-        date_text = form.data['in_progress_form_created_at']
-        stamp214142_date_stamp_for_resubmission(stamped_template_path, date_title, date_text)
-      end
-    end
-
-    def self.stamp214142_date_stamp_for_resubmission(stamped_template_path, date_title, date_text)
-      date_title_stamp_position = [440, 710]
-      date_text_stamp_position = [440, 690]
-      page_configuration = [
-        { type: :text, position: date_title_stamp_position },
-        { type: :new_page },
-        { type: :new_page }
-      ]
-
-      verified_multistamp(stamped_template_path, date_title, page_configuration, 12)
-
-      page_configuration = [
-        { type: :text, position: date_text_stamp_position },
-        { type: :new_page },
-        { type: :new_page }
-      ]
-
-      verified_multistamp(stamped_template_path, date_text, page_configuration, 12)
     end
 
     def self.stamp2110210(stamped_template_path, form)
