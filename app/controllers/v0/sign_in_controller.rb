@@ -232,11 +232,17 @@ module V0
       unless SignIn::Constants::Auth::CSP_TYPES.include?(type)
         raise SignIn::Errors::MalformedParamsError.new message: 'Type is not valid'
       end
+      unless client_config(client_id).valid_type?(type)
+        raise SignIn::Errors::MalformedParamsError.new message: 'Type is not valid for client'
+      end
       unless SignIn::Constants::Auth::OPERATION_TYPES.include?(operation)
         raise SignIn::Errors::MalformedParamsError.new message: 'Operation is not valid'
       end
       unless SignIn::Constants::Auth::ACR_VALUES.include?(acr)
         raise SignIn::Errors::MalformedParamsError.new message: 'ACR is not valid'
+      end
+      unless client_config(client_id).valid_acr?(acr)
+        raise SignIn::Errors::MalformedParamsError.new message: 'ACR is not valid for client'
       end
     end
 
