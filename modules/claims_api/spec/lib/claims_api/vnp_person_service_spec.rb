@@ -24,7 +24,7 @@ describe ClaimsApi::VnpPersonService, metadata do
         first_nm: 'Tamara', last_nm: 'Ellis' }
     end
 
-    it 'validates data', :skip_name do
+    it 'validates data' do
       data = { asdf: 'qwerty' }
       e = an_instance_of(ArgumentError).and having_attributes(
         message: 'Missing required keys: vnpProcId, vnpPtcpntId, firstNm, lastNm'
