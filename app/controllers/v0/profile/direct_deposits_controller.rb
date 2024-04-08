@@ -10,7 +10,7 @@ module V0
   module Profile
     class DirectDepositsController < ApplicationController
       service_tag 'direct-deposit'
-      before_action { authorize :lighthouse, :access_disability_compensations? }
+      before_action { authorize :lighthouse, :direct_deposit_access? }
       before_action :payment_account, only: :update
       before_action :control_information, only: :update
       after_action :log_sso_info, only: :update
