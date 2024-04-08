@@ -613,7 +613,7 @@ ask_va_api:
     client_id: client_id
     client_secret: secret
     resource: resource
-    veis_api_path: veis/vagov.lob.ava/api
+    veis_api_path: eis/vagov.lob.ava/api
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     ocp_apim_subscription_key: subscription_key
     redis_token_expiry: 3540 # 59 minutes
