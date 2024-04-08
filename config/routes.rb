@@ -18,7 +18,6 @@ Rails.application.routes.draw do
   post '/v0/sign_in/refresh', to: 'v0/sign_in#refresh'
   post '/v0/sign_in/revoke', to: 'v0/sign_in#revoke'
   post '/v0/sign_in/token', to: 'v0/sign_in#token'
-  get '/v0/sign_in/introspect', to: 'v0/sign_in#introspect'
   get '/v0/sign_in/logout', to: 'v0/sign_in#logout'
   get '/v0/sign_in/logingov_logout_proxy', to: 'v0/sign_in#logingov_logout_proxy'
   get '/v0/sign_in/revoke_all_sessions', to: 'v0/sign_in#revoke_all_sessions'
@@ -299,6 +298,7 @@ Rails.application.routes.draw do
       resource :military_occupations, only: :show
 
       # Lighthouse
+      resource :direct_deposits, only: %i[show update], controller: 'direct_deposits/disability_compensations'
       namespace :direct_deposits do
         resource :disability_compensations, only: %i[show update]
       end
@@ -463,6 +463,7 @@ Rails.application.routes.draw do
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'
+  mount IvcChampva::Engine, at: '/ivc_champva'
   mount RepresentationManagement::Engine, at: '/representation_management'
   mount SimpleFormsApi::Engine, at: '/simple_forms_api'
   mount HealthQuest::Engine, at: '/health_quest'

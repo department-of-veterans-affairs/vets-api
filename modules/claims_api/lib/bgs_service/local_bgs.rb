@@ -14,9 +14,30 @@ module ClaimsApi
   class LocalBGS
     attr_accessor :external_uid, :external_key
 
+    # rubocop:disable Metrics/MethodLength
     def initialize(external_uid:, external_key:)
+      @client_ip =
+        if Rails.env.test?
+          # For all intents and purposes, BGS behaves identically no matter what
+          # IP we provide it. So in a test environment, let's just give it a
+          # fake so that cassette matching isn't defeated on CI and everyone's
+          # computer.
+          '127.0.0.1'
+        else
+          Socket
+            .ip_address_list
+            .detect(&:ipv4_private?)
+            .ip_address
+        end
+
+      @ssl_verify_mode =
+        if Settings.bgs.ssl_verify_mode == 'none'
+          OpenSSL::SSL::VERIFY_NONE
+        else
+          OpenSSL::SSL::VERIFY_PEER
+        end
+
       @application = Settings.bgs.application
-      @client_ip = Socket.ip_address_list.detect(&:ipv4_private?).ip_address
       @client_station_id = Settings.bgs.client_station_id
       @client_username = Settings.bgs.client_username
       @env = Settings.bgs.env
@@ -25,9 +46,9 @@ module ClaimsApi
       @external_uid = external_uid || Settings.bgs.external_uid
       @external_key = external_key || Settings.bgs.external_key
       @forward_proxy_url = Settings.bgs.url
-      @ssl_verify_mode = Settings.bgs.ssl_verify_mode == 'none' ? OpenSSL::SSL::VERIFY_NONE : OpenSSL::SSL::VERIFY_PEER
       @timeout = Settings.bgs.timeout || 120
     end
+    # rubocop:enable Metrics/MethodLength
 
     def self.breakers_service
       url = Settings.bgs.url
@@ -214,15 +235,26 @@ module ClaimsApi
       header.to_s
     end
 
-    def full_body(action:, body:, namespace:)
+    def full_body(action:, body:, namespace:, namespaces:)
+      namespaces =
+        namespaces.map do |aliaz, path|
+          uri = URI(namespace)
+          uri.path = path
+          %(xmlns:#{aliaz}="#{uri}")
+        end
+
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <?xml version="1.0" encoding="UTF-8"?>
-          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="#{namespace}" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Envelope
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:tns="#{namespace}"
+            xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+            #{namespaces.join("\n")}
+          >
           #{header}
           <env:Body>
-            <tns:#{action}>
-              #{body}
-            </tns:#{action}>
+            <tns:#{action}>#{body}</tns:#{action}>
           </env:Body>
           </env:Envelope>
       EOXML
@@ -253,6 +285,10 @@ module ClaimsApi
       end
     end
 
+    def namespaces
+      {}
+    end
+
     def make_request(endpoint:, action:, body:, key: nil) # rubocop:disable Metrics/MethodLength
       connection = log_duration event: 'establish_ssl_connection' do
         Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
@@ -266,16 +302,18 @@ module ClaimsApi
         wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
           connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
         end
-        target_namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace')
+
+        url = "#{Settings.bgs.url}/#{endpoint}"
+        namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace').to_s
+        body = full_body(action:, body:, namespace:, namespaces:)
+        headers = {
+          'Content-Type' => 'text/xml;charset=UTF-8',
+          'Host' => "#{@env}.vba.va.gov",
+          'Soapaction' => %("#{action}")
+        }
+
         response = log_duration(event: 'connection_post', endpoint:, action:) do
-          connection.post("#{Settings.bgs.url}/#{endpoint}", full_body(action:,
-                                                                       body:,
-                                                                       namespace: target_namespace),
-                          {
-                            'Content-Type' => 'text/xml;charset=UTF-8',
-                            'Host' => "#{@env}.vba.va.gov",
-                            'Soapaction' => "\"#{action}\""
-                          })
+          connection.post(url, body, headers)
         end
       rescue Faraday::TimeoutError, Faraday::ConnectionFailed => e
         ClaimsApi::Logger.log('local_bgs',
@@ -338,6 +376,15 @@ module ClaimsApi
 
     def to_camelcase(claim:)
       claim.deep_transform_keys { |k| k.to_s.camelize(:lower) }
+    end
+
+    def convert_nil_values(options)
+      arg_strg = ''
+      options.each do |option|
+        arg = option[0].to_s.camelize(:lower)
+        arg_strg += (option[1].nil? ? "<#{arg} xsi:nil='true'/>" : "<#{arg}>#{option[1]}</#{arg}>")
+      end
+      arg_strg
     end
   end
 end

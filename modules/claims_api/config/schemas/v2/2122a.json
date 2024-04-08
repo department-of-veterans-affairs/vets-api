@@ -221,8 +221,7 @@
       "additionalProperties": false,
       "required": [
         "poaCode",
-        "firstName",
-        "lastName",
+        "registrationNumber",
         "type"
       ],
       "properties": {
@@ -231,15 +230,10 @@
           "type": "string",
           "example": "A1Q"
         },
-        "firstName": {
-          "description": "First Name of the representative.",
+        "registrationNumber": {
+          "description": "Registration Number of representative.",
           "type": "string",
-          "example": "John"
-        },
-        "lastName": {
-          "description": "Last Name of the representative",
-          "type": "string",
-          "example": "Doe"
+          "example": "12345"
         },
         "type": {
           "description": "Type of individual representative",
@@ -294,11 +288,6 @@
               "example": "6789"
             }
           }
-        },
-        "organizationName": {
-          "description": "Name of the service organization.",
-          "type": "string",
-          "example": "I help vets LLC."
         }
       }
     },

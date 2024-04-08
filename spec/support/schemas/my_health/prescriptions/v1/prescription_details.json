@@ -50,7 +50,11 @@
         "tracking",
         "orderable_item",
         "sorted_dispensed_date",
-        "prescription_image"
+        "prescription_image",
+        "color",
+        "shape",
+        "back_imprint",
+        "front_imprint"
       ],
       "properties": {
         "prescription_id": { "type": ["integer", "null"] },
@@ -90,6 +94,10 @@
         "indication_for_use": { "type": ["string", "null"] },
         "indication_for_use_flag": { "type": ["string", "null"] },
         "category": { "type": ["string", "null"] },
+        "color": { "type": ["string", "null"] },
+        "shape": { "type": ["string", "null"] },
+        "back_imprint": { "type": ["string", "null"] },
+        "front_imprint": { "type": ["string", "null"] },
         "tracking_list": {
           "type": "array",
           "items": {
@@ -166,7 +174,7 @@
         },
         "tracking": { "type": ["boolean", "null"] },
         "orderable_item": { "type": ["string", "null"] },
-        "sorted_dispensed_date": { "type": "string", "format": "date" },
+        "sorted_dispensed_date": { "type": ["string", "null"], "format": "date" },
         "prescription_image": { "type": ["string", "null"] }
       }
     },
