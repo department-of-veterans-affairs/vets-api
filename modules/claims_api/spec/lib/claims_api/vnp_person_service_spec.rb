@@ -27,7 +27,7 @@ describe ClaimsApi::VnpPersonService, metadata do
     it 'validates data' do
       data = { asdf: 'qwerty' }
       e = an_instance_of(ArgumentError).and having_attributes(
-        message: 'Missing required keys: vnpProcId, vnpPtcpntId, firstNm, lastNm'
+        message: 'Missing required keys: vnp_proc_id, vnp_ptcpnt_id, first_nm, last_nm'
       )
       expect { subject.vnp_person_create(data) }.to raise_error(e)
     end
