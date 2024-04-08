@@ -4,9 +4,9 @@ class CreateOrgsRepsTables < ActiveRecord::Migration[7.1]
   # rubocop:disable Metrics/MethodLength
   # rubocop:disable Metrics/AbcSize
   def change
-    create_table :accredited_attorneys, id: false, primary_key: :registration_number do |t|
+    create_table :accredited_attorneys, id: :uuid do |t|
       t.string :registration_number, null: false
-      t.string :poa_code
+      t.string :poa_code, null: false
       t.string :first_name
       t.string :middle_initial
       t.string :last_name
@@ -33,12 +33,14 @@ class CreateOrgsRepsTables < ActiveRecord::Migration[7.1]
       t.geography :location, limit: { srid: 4326, type: 'st_point', geographic: true }
       t.timestamps
     end
+    add_index :accredited_attorneys, :registration_number, unique: true
+    add_index :accredited_attorneys, :poa_code, unique: true
     add_index :accredited_attorneys, :full_name
     add_index :accredited_attorneys, :location, using: :gist
 
-    create_table :accredited_claims_agents, id: false, primary_key: :registration_number do |t|
+    create_table :accredited_claims_agents, id: :uuid do |t|
       t.string :registration_number, null: false
-      t.string :poa_code
+      t.string :poa_code, null: false
       t.string :first_name
       t.string :middle_initial
       t.string :last_name
@@ -65,12 +67,13 @@ class CreateOrgsRepsTables < ActiveRecord::Migration[7.1]
       t.geography :location, limit: { srid: 4326, type: 'st_point', geographic: true }
       t.timestamps
     end
+    add_index :accredited_claims_agents, :registration_number, unique: true
+    add_index :accredited_claims_agents, :poa_code, unique: true
     add_index :accredited_claims_agents, :full_name
     add_index :accredited_claims_agents, :location, using: :gist
 
-    create_table :accredited_representatives, id: false, primary_key: :registration_number do |t|
+    create_table :accredited_representatives, id: :uuid do |t|
       t.string :registration_number, null: false
-      t.string :poa_code
       t.string :first_name
       t.string :middle_initial
       t.string :last_name
@@ -97,10 +100,11 @@ class CreateOrgsRepsTables < ActiveRecord::Migration[7.1]
       t.geography :location, limit: { srid: 4326, type: 'st_point', geographic: true }
       t.timestamps
     end
+    add_index :accredited_representatives, :registration_number, unique: true
     add_index :accredited_representatives, :full_name
     add_index :accredited_representatives, :location, using: :gist
 
-    create_table :accredited_organizations, id: false, primary_key: :poa_code do |t|
+    create_table :accredited_organizations, id: :uuid do |t|
       t.string :poa_code, limit: 3, null: false
       t.string :name
       t.string :phone
@@ -128,19 +132,15 @@ class CreateOrgsRepsTables < ActiveRecord::Migration[7.1]
     add_index :accredited_organizations, :location, using: :gist
     add_index :accredited_organizations, :name
 
-    create_join_table :accredited_organizations, :accredited_representatives do |t|
-      t.index :accredited_organization_poa_code
-      t.index :accredited_representative_registration_number
+    create_join_table :accredited_organizations, :accredited_representatives, column_options: { type: :uuid } do |t|
+      t.uuid :accredited_organization_uuid, null: false, index: true
+      t.uuid :accredited_representative_uuid, null: false, index: true
     end
-    add_index :accredited_organization_accredited_representatives,
-              %i[accredited_representative_registration_number accredited_organization_poa_code], unique: true, name: 'index_organization_representatives_on_rep_and_org' # rubocop:disable Layout/LineLength
-    add_foreign_key :accredited_organization_accredited_representatives, :accredited_representatives,
-                    column: :accredited_representative_registration_number, primary_key: :registration_number, validate: false # rubocop:disable Layout/LineLength
-    add_foreign_key :accredited_organization_accredited_representatives, :accredited_organizations,
-                    column: :accredited_organization_poa_code, primary_key: :poa_code, validate: false
-    validate_foreign_key :accredited_organization_accredited_representatives, :accredited_representatives
-    validate_foreign_key :accredited_organization_accredited_representatives, :accredited_organizations
-  end
+    add_index :accredited_organizations_accredited_representatives,
+              [:accredited_organization_uuid, :accredited_representative_uuid],
+              unique: true,
+              name: 'index_orgs_reps_on_organization_uuid_and_representative_uuid'
+      end
   # rubocop:enable Metrics/AbcSize
   # rubocop:enable Metrics/MethodLength
 end
