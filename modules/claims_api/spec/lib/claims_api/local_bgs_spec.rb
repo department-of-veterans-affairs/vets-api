@@ -42,10 +42,8 @@ describe ClaimsApi::LocalBGS do
     end
 
     it 'triggers StatsD measurements' do
-      VCR.use_cassette(
-        'claims_api/bgs/claimant_web_service/find_poa_by_participant_id',
-        allow_playback_repeats: true
-      ) do
+      VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id',
+                       allow_playback_repeats: true) do
         allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id).and_return({})
 
         %w[establish_ssl_connection connection_wsdl_get connection_post parsed_response].each do |event|
