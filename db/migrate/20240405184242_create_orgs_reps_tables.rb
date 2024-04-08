@@ -6,7 +6,7 @@ class CreateOrgsRepsTables < ActiveRecord::Migration[7.1]
   def change
     create_table :accredited_attorneys, id: :uuid do |t|
       t.string :registration_number, null: false
-      t.string :poa_code, null: false
+      t.string :poa_code, limit: 3, null: false
       t.string :first_name
       t.string :middle_initial
       t.string :last_name
@@ -40,7 +40,7 @@ class CreateOrgsRepsTables < ActiveRecord::Migration[7.1]
 
     create_table :accredited_claims_agents, id: :uuid do |t|
       t.string :registration_number, null: false
-      t.string :poa_code, null: false
+      t.string :poa_code, limit: 3, null: false
       t.string :first_name
       t.string :middle_initial
       t.string :last_name
