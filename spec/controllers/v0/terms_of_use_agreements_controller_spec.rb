@@ -301,6 +301,11 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
         let(:expected_cookie_domain) { '.va.gov' }
         let(:expected_cookie_path) { '/' }
         let(:expected_cookie_expiration) { 2.minutes.from_now }
+        let(:expected_log) { '[TermsOfUseAgreementsController] update_provisioning success' }
+
+        before do
+          allow(Rails.logger).to receive(:info)
+        end
 
         it 'returns ok status and sets the cerner cookie' do
           subject
@@ -311,16 +316,31 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
           expect(response.headers['Set-Cookie']).to include("path=#{expected_cookie_path}")
           expect(response.headers['Set-Cookie']).to include("expires=#{expected_cookie_expiration.httpdate}")
         end
+
+        it 'logs the expected log' do
+          subject
+          expect(Rails.logger).to have_received(:info).with(expected_log, { icn: user.icn })
+        end
       end
 
       context 'when the provisioning is not successful' do
         let(:provisioned) { false }
+        let(:expected_log) { '[TermsOfUseAgreementsController] update_provisioning error' }
+
+        before do
+          allow(Rails.logger).to receive(:error)
+        end
 
         it 'returns unprocessable_entity status and does not set the cookie' do
           subject
           expect(response).to have_http_status(:unprocessable_entity)
           expect(cookies['CERNER_CONSENT']).to be_nil
           expect(response.headers['Set-Cookie']).to be_nil
+        end
+
+        it 'logs the expected log' do
+          subject
+          expect(Rails.logger).to have_received(:error).with(expected_log, { icn: user.icn })
         end
       end
 
