@@ -27,7 +27,7 @@ module SimpleFormsApi
       middle_name = data.dig('veteran_full_name', 'middle') || ''
       last_name = data.dig('veteran_full_name', 'last') || ''
 
-      first_name + ' ' + middle_name + ' ' + last_name
+      "#{first_name} #{middle_name} #{last_name}"
     end
 
     def applicant_name
@@ -35,7 +35,7 @@ module SimpleFormsApi
       middle_name = data.dig('applicant_full_name', 'middle') || ''
       last_name = data.dig('applicant_full_name', 'last') || ''
 
-      first_name + ' ' + middle_name + ' ' + last_name
+      "#{first_name} #{middle_name} #{last_name}"
     end
 
     def applicant_address
@@ -46,7 +46,7 @@ module SimpleFormsApi
       postal_code = data.dig('applicant_address', 'postal_code') || ''
       country = data.dig('applicant_address', 'country') || ''
 
-      street + ', ' + street2 + '\n' + city + ', ' + state + ' ' + postal_code + ' ' + country
+      "#{street}, #{street2}\\n#{city}, #{state} #{postal_code} #{country}"
     end
 
     def zip_code_is_us_based
