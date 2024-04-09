@@ -683,13 +683,16 @@ module PdfFill
           'other' => select_checkbox(relationship_to_veteran == 'other')
         }
 
+        # special case for transportation being the only option selected.
         final_resting_place = @form_data.dig('finalRestingPlace', 'location')
-        @form_data['finalRestingPlace']['location'] = {
-          'cemetery' => select_checkbox(final_resting_place == 'cemetery'),
-          'privateResidence' => select_checkbox(final_resting_place == 'privateResidence'),
-          'mausoleum' => select_checkbox(final_resting_place == 'mausoleum'),
-          'other' => select_checkbox(final_resting_place == 'other')
-        }
+        if final_resting_place.present?
+          @form_data['finalRestingPlace']['location'] = {
+            'cemetery' => select_checkbox(final_resting_place == 'cemetery'),
+            'privateResidence' => select_checkbox(final_resting_place == 'privateResidence'),
+            'mausoleum' => select_checkbox(final_resting_place == 'mausoleum'),
+            'other' => select_checkbox(final_resting_place == 'other')
+          }
+        end
 
         expand_cemetery_location
 
