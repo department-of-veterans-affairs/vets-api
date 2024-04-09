@@ -28,4 +28,13 @@ RSpec.describe Vye::UserProfile, type: :model do
       expect(u.icn_in_database).to eq(user.icn)
     end
   end
+
+  describe '#active_user_info' do
+    let!(:user_info) { create(:vye_user_info) }
+    let!(:user_profile) { user_info.user_profile }
+
+    it 'loads the user info' do
+      expect(user_profile.active_user_info).to eq(user_info)
+    end
+  end
 end

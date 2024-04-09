@@ -240,6 +240,8 @@ module SimpleFormsApi
       stamped_size = File.size(template_path)
 
       raise StandardError, 'The PDF remained unchanged upon stamping.' unless stamped_size > orig_size
+    rescue Prawn::Errors::IncompatibleStringEncoding
+      raise
     rescue => e
       raise StandardError, "An error occurred while verifying stamp: #{e}"
     end

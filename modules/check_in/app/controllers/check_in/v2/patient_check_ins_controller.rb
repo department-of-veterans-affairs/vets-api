@@ -17,13 +17,11 @@ module CheckIn
 
         check_in_data = ::V2::Lorota::Service.build(check_in: check_in_session).check_in_data
 
-        if Flipper.enabled?('check_in_experience_45_minute_reminder')
-          if call_set_echeckin_started?(check_in_data)
-            ::V2::Chip::Service.build(check_in: check_in_session).set_echeckin_started
-            params[:set_e_checkin_started_called] = false
-          else
-            params[:set_e_checkin_started_called] = true
-          end
+        if call_set_echeckin_started?(check_in_data)
+          ::V2::Chip::Service.build(check_in: check_in_session).set_echeckin_started
+          params[:set_e_checkin_started_called] = false
+        else
+          params[:set_e_checkin_started_called] = true
         end
 
         render json: check_in_data

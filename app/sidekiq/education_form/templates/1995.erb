@@ -126,6 +126,12 @@ Date Entered   Date Separated     Service Component
 Date Entered   Date Separated     Service Component
 <% @applicant&.toursOfDuty&.each do |tour| -%>
 <%= to_date(tour.dateRange&.from) %>     <%= to_date(tour.dateRange&.to) %>         <%= tour.serviceBranch %>
+<% end -%>
+
+<% else -%>
+Date Entered   Date Separated     Service Component
+<% @applicant&.toursOfDuty&.each do |tour| -%>
+<%= to_date(tour.dateRange&.from) %>     <%= to_date(tour.dateRange&.to) %>         <%= tour.serviceBranch %>
 <% end %>
 
 <% end -%>
