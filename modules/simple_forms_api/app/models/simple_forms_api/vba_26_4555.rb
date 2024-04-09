@@ -46,20 +46,13 @@ module SimpleFormsApi
     end
 
     def desired_stamps
-      desired_stamps = []
-      unless data['previous_sah_application']['has_previous_sah_application']
-        desired_stamps.append({ coords: [73, 390], text: 'X',
-                                page: 0 })
-      end
-      unless data['previous_hi_application']['has_previous_hi_application']
-        desired_stamps.append({ coords: [73, 355], text: 'X',
-                                page: 0 })
-      end
-      unless data['living_situation']['is_in_care_facility']
-        desired_stamps.append({ coords: [73, 320], text: 'X',
-                                page: 0 })
-      end
-      desired_stamps
+      return [] unless data
+      
+      [].tap do |stamps|
+        stamps << [73, 390, 'X'] unless data.dig('previous_sah_application', 'has_previous_sah_application')
+        stamps << [73, 355, 'X'] unless data.dig('previous_hi_application', 'has_previous_hi_application')
+stamps << [73, 320, 'X'] unless data.dig('living_situation', 'is_in_care_facility')
+      end.compact
     end
 
     def submission_date_config
