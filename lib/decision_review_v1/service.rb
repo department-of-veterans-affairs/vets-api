@@ -38,7 +38,7 @@ module DecisionReviewV1
       with_monitoring_and_error_handling do
         headers = create_higher_level_review_headers(user)
         common_log_params = { key: :overall_claim_submission, form_id: '996', user_uuid: user.uuid,
-                                downstream_system: 'Lighthouse' }
+                              downstream_system: 'Lighthouse' }
         begin
           response = perform :post, 'higher_level_reviews', request_body, headers
           log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
@@ -81,7 +81,7 @@ module DecisionReviewV1
         path = "contestable_issues/higher_level_reviews?benefit_type=#{benefit_type}"
         headers = get_contestable_issues_headers(user)
         common_log_params = { key: :get_contestable_issues, form_id: '996', user_uuid: user.uuid,
-                                upstream_system: 'Lighthouse' }
+                              upstream_system: 'Lighthouse' }
         begin
           response = perform :get, path, nil, headers
           log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
