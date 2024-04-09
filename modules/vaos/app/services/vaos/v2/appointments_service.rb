@@ -31,7 +31,7 @@ module VAOS
 
         with_monitoring do
           response = perform(:get, appointments_base_path, params, headers)
-          SchemaContract::ValidationInitiator.call(user:, response:, contract_name: 'appointments_index')
+          validate_response_schema(response, 'appointments_index')
           response.body[:data].each do |appt|
             # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
             set_cancellable_false(appt) if cnp?(appt) || covid?(appt)
@@ -537,6 +537,12 @@ module VAOS
         url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
         params = VAOS::V2::UpdateAppointmentForm.new(status:).params
         perform(:put, url_path, params, headers)
+      end
+
+      def validate_response_schema(response, contract_name)
+        return unless response.success? && response.body[:data].present?
+
+        SchemaContract::ValidationInitiator.call(user:, response:, contract_name:)
       end
     end
   end
