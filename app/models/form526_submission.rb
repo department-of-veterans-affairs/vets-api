@@ -424,6 +424,10 @@ class Form526Submission < ApplicationRecord
     }
   end
 
+  def get_email_address
+    form.dig('form526', 'form526', 'veteran', 'emailAddress')
+  end
+
   private
 
   def queue_central_mail_backup_submission_for_non_retryable_error!(e: nil)
