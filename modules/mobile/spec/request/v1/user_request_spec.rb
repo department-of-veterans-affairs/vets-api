@@ -28,6 +28,7 @@ RSpec.describe 'user', type: :request do
 
     context 'with no upstream errors' do
       before do
+        Flipper.enable('va_online_scheduling')
         VCR.use_cassette('mobile/payment_information/payment_information') do
           VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358') do
             VCR.use_cassette('mobile/va_profile/demographics/demographics') do

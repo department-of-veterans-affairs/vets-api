@@ -19,6 +19,16 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
   context 'when using old authorization policy' do
     before { Flipper.disable(:mobile_sm_session_policy) }
 
+    context 'when user does not have access' do
+      let!(:user) { sis_user(:mhv, mhv_account_type: 'Free') }
+
+      it 'returns forbidden' do
+        get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     it 'responds to GET messages/categories' do
       VCR.use_cassette('sm_client/session') do
         VCR.use_cassette('sm_client/messages/gets_message_categories') do
@@ -34,6 +44,16 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
 
   context 'when using new session authorization policy' do
     before { Flipper.enable_actor(:mobile_sm_session_policy, user) }
+
+    context 'when user does not have access' do
+      let!(:user) { sis_user(:mhv, mhv_correlation_id: nil) }
+
+      it 'returns forbidden' do
+        get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
 
     context 'when not authorized' do
       it 'responds with 403 error' do
