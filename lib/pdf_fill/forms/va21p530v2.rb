@@ -666,6 +666,11 @@ module PdfFill
         end.join('; ')
       end
 
+      def set_state_to_no_if_national
+        national = @form_data['nationalOrFederal']
+        @form_data['cemetaryLocationQuestion'] = 'none' if national
+      end
+
       # rubocop:disable Metrics/MethodLength
       def merge_fields(_options = {})
         expand_signature(@form_data['claimantFullName'])
@@ -724,6 +729,7 @@ module PdfFill
         @form_data['noProcessOption'] = process_option ? nil : 'On'
 
         expand_confirmation_question
+        set_state_to_no_if_national
         expand_location_question
 
         split_phone(@form_data, 'claimantPhone')
