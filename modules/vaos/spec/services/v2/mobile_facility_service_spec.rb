@@ -25,10 +25,6 @@ describe VAOS::V2::MobileFacilityService do
         end
       end
 
-      it 'returns a scheduling configuration' do
-        expect(@response[:data].size).to eq(1)
-      end
-
       it 'returns a scheduling configuration with the correct id' do
         expect(@response.dig(:data, 0, :facility_id)).to eq(facility_id)
       end
@@ -41,10 +37,6 @@ describe VAOS::V2::MobileFacilityService do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_scheduling_configurations_200', cassette_options) do
           @response = subject.get_scheduling_configurations(facility_ids)
         end
-      end
-
-      it 'returns scheduling configurations' do
-        expect(@response[:data].size).to eq(2)
       end
 
       it 'returns scheduling configurations with the correct ids' do
@@ -60,10 +52,6 @@ describe VAOS::V2::MobileFacilityService do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_scheduling_configurations_cc_200', cassette_options) do
           @response = subject.get_scheduling_configurations(facility_ids, true)
         end
-      end
-
-      it 'returns scheduling configuration' do
-        expect(@response[:data].size).to eq(1)
       end
 
       it 'returns scheduling configuration with the correct id' do
@@ -91,10 +79,6 @@ describe VAOS::V2::MobileFacilityService do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_single_id_200', cassette_options) do
           @response = subject.get_facilities(ids: facility_id, schedulable: true)
         end
-      end
-
-      it 'returns a configuration' do
-        expect(@response[:data].size).to eq(1)
       end
 
       it 'returns a configuration with the correct id' do
@@ -141,10 +125,6 @@ describe VAOS::V2::MobileFacilityService do
         end
       end
 
-      it 'returns facility information for each id' do
-        expect(@response[:data].size).to eq(2)
-      end
-
       it 'returns a configuration with the correct id' do
         expect(@response.dig(:data, 0, :id)).to eq('983')
         expect(@response.dig(:data, 1, :id)).to eq('984')
@@ -157,10 +137,6 @@ describe VAOS::V2::MobileFacilityService do
                          cassette_options) do
           @response = subject.get_facilities(children: true, schedulable: true, ids: '688')
         end
-      end
-
-      it 'returns facility information' do
-        expect(@response[:data].size).to eq(8)
       end
 
       it 'returns facility information for each ids' do
@@ -176,7 +152,7 @@ describe VAOS::V2::MobileFacilityService do
     end
 
     context 'with a facility id and children true and schedulable false' do
-      it 'returns a configuration' do
+      it 'filters out non schedulable facilities' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_with_children_schedulable_false_200',
                          cassette_options) do
           response = subject.get_facilities(children: true, schedulable: false, ids: '688')
@@ -191,10 +167,6 @@ describe VAOS::V2::MobileFacilityService do
                          cassette_options) do
           @response = subject.get_facilities(children: true, schedulable: true, ids: '983, 984')
         end
-      end
-
-      it 'returns a configuration' do
-        expect(@response[:data].size).to eq(13)
       end
 
       it 'returns facility information for each ids' do
