@@ -17,7 +17,7 @@ spec:
           image: '{{ .Values.image.value }}:{{ .Values.image.tag }}'
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["bundle"]
-          args:  ["exec", "rails", "db:migrate"]
+          args:  ["exec", "timeout", "1800", "rails", "db:migrate"]
           volumeMounts:
 {{ toYaml .Values.common.volumeMounts | indent 12 }}
           env:
