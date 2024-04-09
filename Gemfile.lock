@@ -491,6 +491,8 @@ GEM
     google-api-client (0.53.0)
       google-apis-core (~> 0.1)
       google-apis-generator (~> 0.1)
+    google-apis-bigquery_v2 (0.67.0)
+      google-apis-core (>= 0.14.0, < 2.a)
     google-apis-core (0.14.1)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (~> 1.9)
@@ -507,8 +509,19 @@ GEM
       google-apis-core (>= 0.14.0, < 2.a)
       google-apis-discovery_v1 (~> 0.14)
       thor (>= 0.20, < 2.a)
+    google-cloud-bigquery (1.49.0)
+      concurrent-ruby (~> 1.0)
+      google-apis-bigquery_v2 (~> 0.62)
+      google-apis-core (~> 0.13)
+      google-cloud-core (~> 1.6)
+      googleauth (~> 1.9)
+      mini_mime (~> 1.0)
+    google-cloud-core (1.7.0)
+      google-cloud-env (>= 1.0, < 3.a)
+      google-cloud-errors (~> 1.0)
     google-cloud-env (2.1.1)
       faraday (>= 1.0, < 3.a)
+    google-cloud-errors (1.4.0)
     google-protobuf (4.26.1)
       rake (>= 13)
     googleauth (1.11.0)
@@ -600,6 +613,8 @@ GEM
     libddwaf (1.14.0.0.0)
       ffi (~> 1.0)
     libddwaf (1.14.0.0.0-java)
+      ffi (~> 1.0)
+    libddwaf (1.14.0.0.0-x86_64-darwin)
       ffi (~> 1.0)
     libddwaf (1.14.0.0.0-x86_64-linux)
       ffi (~> 1.0)
@@ -1076,10 +1091,10 @@ GEM
 
 PLATFORMS
   java
-  ruby
   x64-mingw32
   x86-mingw32
   x86-mswin32
+  x86_64-darwin-22
   x86_64-linux
 
 DEPENDENCIES
@@ -1149,6 +1164,7 @@ DEPENDENCIES
   google-api-client
   google-apis-core
   google-apis-generator
+  google-cloud-bigquery
   google-protobuf
   googleauth
   govdelivery-tms!
