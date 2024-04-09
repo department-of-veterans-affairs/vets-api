@@ -55,6 +55,19 @@ describe VAProfile::Profile::V3::Service do
   describe '#get_health_benefit_bio' do
     let(:user) { build(:user, :loa3, idme_uuid:) }
 
+    let(:cassette_filename) { "spec/support/vcr_cassettes/#{cassette}.yml" }
+    let(:cassette_data) { YAML.load_file(cassette_filename) }
+    let(:va_profile_tx_audit_id) do
+      cassette_data['http_interactions'][0]['response']['headers']['Vaprofiletxauditid'][0]
+    end
+    let(:debug_data) do
+      {
+        status:,
+        message:,
+        va_profile_tx_audit_id:
+      }
+    end
+
     around do |ex|
       VCR.use_cassette(cassette) { ex.run }
     end
@@ -68,19 +81,21 @@ describe VAProfile::Profile::V3::Service do
         expect(response.status).to eq(200)
         expect(response.contacts.size).to eq(4)
         types = response.contacts.map(&:contact_type)
-        valid_contact_types = [
-          VAProfile::Models::AssociatedPerson::EMERGENCY_CONTACT,
-          VAProfile::Models::AssociatedPerson::OTHER_EMERGENCY_CONTACT,
-          VAProfile::Models::AssociatedPerson::PRIMARY_NEXT_OF_KIN,
-          VAProfile::Models::AssociatedPerson::OTHER_NEXT_OF_KIN
-        ]
+        valid_contact_types = VAProfile::Models::AssociatedPerson::PERSONAL_HEALTH_CARE_CONTACT_TYPES
         expect(types).to match_array(valid_contact_types)
+      end
+
+      it 'does not call Sentry.set_extras' do
+        expect(Sentry).not_to receive(:set_extras)
+        subject.get_health_benefit_bio
       end
     end
 
     context '404 response' do
       let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
       let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_404' }
+      let(:status) { 404 }
+      let(:message) { 'MVI201 MviNotFound The person with the identifier requested was not found in MVI.' }
 
       it 'includes messages received from the api' do
         response = subject.get_health_benefit_bio
@@ -88,17 +103,33 @@ describe VAProfile::Profile::V3::Service do
         expect(response.contacts.size).to eq(0)
         expect(response.messages.size).to eq(1)
       end
+
+      it 'calls Sentry.set_extras' do
+        expect(Sentry).to receive(:set_extras).once.with(debug_data)
+        subject.get_health_benefit_bio
+      end
     end
 
     context '500 response' do
       let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
       let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_500' }
+      let(:status) { 500 }
+      let(:message) do
+        result = 'MVI203 MviResponseError MVI returned acknowledgement error code '
+        result += 'AE with error detail: More Than One Active Correlation Exists'
+        result
+      end
 
       it 'includes messages recieved from the api' do
         response = subject.get_health_benefit_bio
         expect(response.status).to eq(500)
         expect(response.contacts.size).to eq(0)
         expect(response.messages.size).to eq(1)
+      end
+
+      it 'calls Sentry.set_extras' do
+        expect(Sentry).to receive(:set_extras).once.with(debug_data)
+        subject.get_health_benefit_bio
       end
     end
 
