@@ -5,14 +5,23 @@ require 'rails_helper'
 RSpec.describe DebtsApi::V0::Form5655Submission do
   describe 'scopes' do
     let!(:first_record) do
-      create(:debts_api_form5655_submission, public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => true } })
+      create(
+        :debts_api_form5655_submission,
+        public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => true } }
+      )
     end
     let!(:second_record) do
-      create(:debts_api_form5655_submission, public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => false } })
+      create(
+        :debts_api_form5655_submission,
+        public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => false } }
+      )
     end
     let!(:third_record) { create(:debts_api_form5655_submission, public_metadata: {}) }
     let!(:fourth_record) do
-      create(:debts_api_form5655_submission, public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => nil } })
+      create(
+        :debts_api_form5655_submission,
+        public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => nil } }
+      )
     end
 
     it 'includes records within scope' do

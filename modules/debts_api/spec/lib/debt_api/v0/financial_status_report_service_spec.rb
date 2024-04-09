@@ -267,7 +267,9 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       service = described_class.new(user)
       builder = DebtsApi::V0::FsrFormBuilder.new(vha_form_data, '', user)
       copay_count = builder.vha_forms.length
-      expect { service.submit_combined_fsr(builder) }.to change(DebtsApi::V0::Form5655Submission, :count).by(copay_count)
+      expect { service.submit_combined_fsr(builder) }.to change(
+        DebtsApi::V0::Form5655Submission, :count
+      ).by(copay_count)
       expect(DebtsApi::V0::Form5655Submission.last.in_progress?).to eq(true)
       form = service.send(:add_vha_specific_data, DebtsApi::V0::Form5655Submission.last)
       expect(form.class).to be(Hash)
@@ -280,7 +282,9 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         copay_count = builder.vha_forms.length
         debt_count = builder.vba_form.present? ? 1 : 0
         needed_count = copay_count + debt_count
-        expect { service.submit_combined_fsr(builder) }.to change(DebtsApi::V0::Form5655Submission, :count).by(needed_count)
+        expect do
+          service.submit_combined_fsr(builder)
+        end.to change(DebtsApi::V0::Form5655Submission, :count).by(needed_count)
         expect(DebtsApi::V0::Form5655Submission.last.public_metadata['combined']).to eq(true)
         debt_amounts = DebtsApi::V0::Form5655Submission.with_debt_type('DEBT').last.public_metadata['debt_amounts']
         expect(debt_amounts).to eq(['541.67', '1134.22'])
