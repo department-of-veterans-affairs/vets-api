@@ -109,7 +109,6 @@ class CreateOrgsRepsTables < ActiveRecord::Migration[7.1]
       t.string :poa_code, limit: 3, null: false
       t.string :name
       t.string :phone
-      t.string :state, limit: 2
       t.string :address_type
       t.string :address_line1
       t.string :address_line2
@@ -135,8 +134,8 @@ class CreateOrgsRepsTables < ActiveRecord::Migration[7.1]
 
     # Use create_table (instead of create_join_table) to explicitly define the table and its columns
     create_table :accredited_organizations_accredited_representatives, id: false do |t|
-      t.uuid :accredited_organization_id
-      t.uuid :accredited_representative_id
+      t.uuid :accredited_organization_id, null: false
+      t.uuid :accredited_representative_id, null: false
     end
 
     # Add the indexes

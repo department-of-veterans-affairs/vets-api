@@ -127,7 +127,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_05_184242) do
     t.string "poa_code", limit: 3, null: false
     t.string "name"
     t.string "phone"
-    t.string "state", limit: 2
     t.string "address_type"
     t.string "address_line1"
     t.string "address_line2"
@@ -153,8 +152,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_05_184242) do
   end
 
   create_table "accredited_organizations_accredited_representatives", id: false, force: :cascade do |t|
-    t.uuid "accredited_organization_id"
-    t.uuid "accredited_representative_id"
+    t.uuid "accredited_organization_id", null: false
+    t.uuid "accredited_representative_id", null: false
     t.index ["accredited_organization_id", "accredited_representative_id"], name: "index_organization_representatives_on_rep_and_org", unique: true
     t.index ["accredited_organization_id"], name: "idx_on_accredited_organization_id_4df677e34d"
     t.index ["accredited_representative_id"], name: "idx_on_accredited_representative_id_c58ba2a35b"
