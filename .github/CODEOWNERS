@@ -977,6 +977,7 @@ rakelib/mockdata_synchronize.rake @department-of-veterans-affairs/octo-identity
 rakelib/pension_burial.rake @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/piilog_repl @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 rakelib/prod @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
+rakelib/prod/user_credential.rake @department-of-veterans-affairs/octo-identity
 rakelib/remove_va1995s_records.rake @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/routes_csv.rake @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/rswag.rake @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
