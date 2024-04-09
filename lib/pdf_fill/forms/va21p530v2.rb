@@ -659,8 +659,8 @@ module PdfFill
 
         length = @form_data['amountGovtContribution'].length
         if length < 5
-          (5-length).times do
-            @form_data['amountGovtContribution'].prepend(" ")
+          (5 - length).times do
+            @form_data['amountGovtContribution'].prepend(' ')
           end
         end
       end
