@@ -83,7 +83,7 @@ module SimpleFormsApi
       page = desired_stamp[:page]
       x = coords[0]
       y = coords[1]
-      if page.positive?
+      if page
         page_configuration = get_page_configuration(page, coords)
         verified_multistamp(stamped_template_path, text, page_configuration)
       else
