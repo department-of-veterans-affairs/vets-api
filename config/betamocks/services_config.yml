@@ -36,7 +36,7 @@
       :response_delay: 0.3
     - :method: :post
       :path: <%= "/#{Settings.travel_pay.veis.tenant_id}/oauth2/token" %>
-      :file_path: '/ask_va/token/default'
+      :file_path: "/travel_pay/token"
       :response_delay: 0.3
 
 - :name: 'carma'
