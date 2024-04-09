@@ -21,12 +21,13 @@ module ClaimsApi
     private
 
     def convert_file!(opts)
-      txt = opts.deep_symbolize_keys[:atchms_txt]
+      opts.deep_symbolize_keys!
+      txt = opts[:atchms_txt]
       raise ArgumentError, 'File must be a string' unless txt.is_a? String
 
       if File.exist?(txt)
         file = File.read(txt)
-        opts['atchms_txt'] = Base64.encode64 file
+        opts[:atchms_txt] = Base64.encode64 file
       end
     end
   end

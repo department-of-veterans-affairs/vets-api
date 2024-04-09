@@ -65,11 +65,11 @@ http_interactions:
             <env:Body>
               <tns:vnpAtchmsCreate>
                 <arg0>
-                  <jrn_dt>2024-04-01T18:48:27Z</jrn_dt>
-                  <jrn_lctn_id>281</jrn_lctn_id>
-                  <jrn_status_type_cd>U</jrn_status_type_cd>
-                  <jrn_user_id>VAgovAPI</jrn_user_id>
-                  <jrn_obj_id>VAgovAPI</jrn_obj_id>
+                  <jrnDt>2024-04-01T18:48:27Z</jrnDt>
+                  <jrnLctnId>281</jrnLctnId>
+                  <jrnStatusTypeCd>U</jrnStatusTypeCd>
+                  <jrnUserId>VAgovAPI</jrnUserId>
+                  <jrnObjId>VAgovAPI</jrnObjId>
                   <vnpProcId>1234abc</vnpProcId>
                   <atchmsFileNm>test.pdf</atchmsFileNm>
                   <atchmsDescp>test</atchmsDescp>
