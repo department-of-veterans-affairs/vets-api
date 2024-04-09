@@ -415,13 +415,6 @@ RSpec.describe V0::SignInController, type: :controller do
         end
 
         context 'and acr param is given but not in client service_levels' do
-          let(:acr_value) { 'some-undefiend-acr' }
-          let(:expected_error) { 'ACR is not valid' }
-
-          it_behaves_like 'error response'
-        end
-
-        context 'and acr param is given but not in client service_levels"' do
           let(:acr_value) { 'loa1' }
           let(:service_levels) { ['loa3'] }
           let(:expected_error) { 'ACR is not valid' }
