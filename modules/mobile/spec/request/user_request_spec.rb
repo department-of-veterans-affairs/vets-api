@@ -28,6 +28,7 @@ RSpec.describe 'user', type: :request do
     end
 
     before do
+      Flipper.enable('va_online_scheduling')
       Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
       VCR.insert_cassette('sm_client/session')
     end
