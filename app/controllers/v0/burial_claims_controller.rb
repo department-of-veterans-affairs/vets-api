@@ -6,6 +6,10 @@ module V0
   class BurialClaimsController < ClaimsBaseController
     service_tag 'burial-application'
 
+    def show
+      render_burials_json
+    end
+
     def create
       PensionBurial::TagSentry.tag_sentry
 
@@ -36,6 +40,23 @@ module V0
 
     def claim_class
       SavedClaim::Burial
+    end
+
+    private
+
+    def render_burials_json
+      if (submission_attempt = determine_submission_attempt)
+        state = submission_attempt.aasm_state == 'failure' ? 'failure' : 'success'
+        render(json: { data: { attributes: { state: } } })
+      else
+        render(json: CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] }))
+      end
+    end
+
+    def determine_submission_attempt
+      claim = claim_class.find_by!(guid: params[:id])
+      form_submission = claim.form_submissions&.last
+      form_submission&.form_submission_attempts&.last
     end
   end
 end
