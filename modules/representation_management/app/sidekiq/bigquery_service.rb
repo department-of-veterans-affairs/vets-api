@@ -1,6 +1,6 @@
-# frozen-string-literal: true
+# frozen_string_literal: true
 
-require "google/cloud/bigquery"
+require 'google/cloud/bigquery'
 
 module RepresentationManagement
   class BigqueryService
@@ -8,9 +8,7 @@ module RepresentationManagement
       authenticate
     end
 
-    def insert(data)
-      table.insert(data)
-    end
+    delegate :insert, to: :table
 
     private
 
@@ -21,7 +19,7 @@ module RepresentationManagement
         config.project_id  = Settings.representation_management.bigquery.project_id
         config.credentials = Settings.representation_management.bigquery.credentials
       end
-      
+
       @bigquery = Google::Cloud::Bigquery.new
     end
 
