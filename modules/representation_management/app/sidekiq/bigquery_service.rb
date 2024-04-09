@@ -8,7 +8,9 @@ module RepresentationManagement
       authenticate
     end
 
-    delegate :insert, to: :table
+    def insert(data) # rubocop:disable Rails/Delegate
+      table.insert(data) # rubocop:disable Rails/SkipsModelValidations
+    end
 
     private
 
