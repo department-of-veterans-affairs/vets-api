@@ -84,7 +84,6 @@ module ClaimsApi
     end
 
     def generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
-      byebug
       if doc_type == 'L122'
         "#{veteran_name}_#{claim_id}_526EZ.pdf"
       else
