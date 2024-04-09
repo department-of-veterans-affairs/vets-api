@@ -3,8 +3,6 @@
  "plotExpenseResponsibility":true,
  "govtContributions":true,
  "amountGovtContribution":"50000",
- "cemeteryLocation":{"name":"state cemetery", "zip":"04102"},
- "cemetaryLocationQuestion":"cemetery",
  "nationalOrFederal":true,
  "name":"name of cemetery",
  "finalRestingPlace":{"location":"other", "other":"other"},
