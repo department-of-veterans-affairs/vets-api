@@ -37,32 +37,7 @@ module SimpleFormsApi
     end
 
     def submission_date_stamps
-      [
-        {
-          coords: [440, 710],
-          text: 'Application Submitted:',
-          page: 0,
-          font_size: 12
-        },
-        {
-          coords: [440, 690],
-          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
-          page: 0,
-          font_size: 12
-        },
-        {
-          coords: [440, 710],
-          text: 'Application Submitted:',
-          page: 3,
-          font_size: 12
-        },
-        {
-          coords: [440, 690],
-          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
-          page: 3,
-          font_size: 12
-        }
-      ]
+      [submission_date_stamps_first_page, submission_date_stamps_fourth_page].flatten
     end
 
     def track_user_identity(confirmation_number)
@@ -116,6 +91,40 @@ module SimpleFormsApi
       [
         data.dig('veteran', 'email')&.[](0..14),
         data.dig('veteran', 'email')&.[](15..)
+      ]
+    end
+
+    def submission_date_stamps_first_page
+      [
+        {
+        coords: [440, 710],
+        text: 'Application Submitted:',
+        page: 0,
+        font_size: 12
+      },
+       {
+         coords: [440, 690],
+         text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+         page: 0,
+         font_size: 12
+       }
+      ]
+    end
+
+    def submission_date_stamps_fourth_page
+      [
+        {
+        coords: [440, 710],
+        text: 'Application Submitted:',
+        page: 3,
+        font_size: 12
+      },
+       {
+         coords: [440, 690],
+         text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+         page: 3,
+         font_size: 12
+       }
       ]
     end
   end
