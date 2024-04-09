@@ -44,7 +44,7 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
     end
 
     context 'feature disabled' do
-      it 'returns an unauthorized status code' do
+      it 'returns a not found status code' do
         Flipper.disable(:profile_contacts)
         sign_in_as user
         expect(subject).to have_http_status(:not_found)
