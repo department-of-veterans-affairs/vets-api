@@ -63,5 +63,7 @@ module SimpleFormsApi
         words.uniq.sort_by(&:length).reverse
       end
     end
+
+    class StampVerificationError < RuntimeError; end
   end
 end

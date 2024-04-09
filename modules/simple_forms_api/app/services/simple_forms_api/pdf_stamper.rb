@@ -243,7 +243,7 @@ module SimpleFormsApi
     rescue Prawn::Errors::IncompatibleStringEncoding
       raise
     rescue => e
-      raise StandardError, "An error occurred while verifying stamp: #{e}"
+      raise Exceptions::StampVerificationError, "An error occurred while verifying stamp: #{e}"
     end
 
     def self.verified_multistamp(stamped_template_path, stamp_text, page_configuration, *)
