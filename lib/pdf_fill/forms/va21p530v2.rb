@@ -654,6 +654,17 @@ module PdfFill
         end.join('; ')
       end
 
+      def format_currency_spacing
+        return if @form_data['amountGovtContribution'].blank?
+
+        length = @form_data['amountGovtContribution'].length
+        if length < 5
+          (5-length).times do
+            @form_data['amountGovtContribution'].prepend(" ")
+          end
+        end
+      end
+
       # rubocop:disable Metrics/MethodLength
       def merge_fields(_options = {})
         expand_signature(@form_data['claimantFullName'])
@@ -724,6 +735,8 @@ module PdfFill
         expand_burial_allowance
 
         convert_location_of_death
+
+        format_currency_spacing
 
         %w[
           nationalOrFederal

@@ -2,7 +2,7 @@
  "transportationExpenses":true,
  "plotExpenseResponsibility":true,
  "govtContributions":true,
- "amountGovtContribution":"50000",
+ "amountGovtContribution":"5000",
  "cemeteryLocation":{"name":"state cemetery", "zip":"04102"},
  "cemetaryLocationQuestion":"cemetery",
  "nationalOrFederal":true,
