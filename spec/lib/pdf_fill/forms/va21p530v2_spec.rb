@@ -117,6 +117,25 @@ describe PdfFill::Forms::Va21p530v2 do
     end
   end
 
+  describe 'set_state_to_no_if_national' do
+    subject do
+      new_form_class.set_state_to_no_if_national
+    end
+
+    context 'with a regular location of death' do
+      let(:form_data) do
+        {
+          'nationalOrFederal' => true
+        }
+      end
+
+      it 'returns the directly mapped location' do
+        subject
+        expect(class_form_data['cemetaryLocationQuestion']).to eq('none')
+      end
+    end
+  end
+
   describe '#merge_fields' do
     it 'merges the right fields', run_at: '2024-03-21 00:00:00 EDT' do
       expect(described_class.new(get_fixture('pdf_fill/21P-530V2/kitchen_sink')).merge_fields.to_json).to eq(
