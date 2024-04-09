@@ -18,8 +18,8 @@ RSpec.describe SignIn::ClientConfig, type: :model do
            access_token_attributes:,
            enforced_terms:,
            terms_of_use_url:,
-           csps:,
-           acrs:)
+           service_levels:,
+           credential_service_providers:)
   end
   let(:client_id) { 'some-client-id' }
   let(:authentication) { SignIn::Constants::Auth::API }
@@ -34,8 +34,8 @@ RSpec.describe SignIn::ClientConfig, type: :model do
   let(:access_token_attributes) { [] }
   let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
   let(:terms_of_use_url) { 'some-terms-of-use-url' }
-  let(:csps) { %w[idme logingov dslogon mhv] }
-  let(:acrs) { %w[loa1 loa3 ial1 ial2 min] }
+  let(:service_levels) { %w[loa1 loa3 ial1 ial2 min] }
+  let(:credential_service_providers) { %w[idme logingov dslogon mhv] }
 
   describe 'validations' do
     subject { client_config }
@@ -221,10 +221,10 @@ RSpec.describe SignIn::ClientConfig, type: :model do
       end
     end
 
-    describe '#csps' do
-      context 'when csps is empty' do
-        let(:csps) { [] }
-        let(:expected_error_message) { "Validation failed: Csps can't be blank" }
+    describe '#credential_service_providers' do
+      context 'when credential_service_providers is empty' do
+        let(:credential_service_providers) { [] }
+        let(:expected_error_message) { "Validation failed: Credential service providers can't be blank" }
         let(:expected_error) { ActiveRecord::RecordInvalid }
 
         it 'raises validation error' do
@@ -232,9 +232,9 @@ RSpec.describe SignIn::ClientConfig, type: :model do
         end
       end
 
-      context 'when csps contain values not included in CSP_TYPES constant' do
-        let(:csps) { %w[idme logingov dslogon mhv bad_csp] }
-        let(:expected_error_message) { 'Validation failed: Csps is not included in the list' }
+      context 'when credential_service_providers contain values not included in CSP_TYPES constant' do
+        let(:credential_service_providers) { %w[idme logingov dslogon mhv bad_csp] }
+        let(:expected_error_message) { 'Validation failed: Credential service providers is not included in the list' }
         let(:expected_error) { ActiveRecord::RecordInvalid }
 
         it 'raises validation error' do
@@ -242,8 +242,8 @@ RSpec.describe SignIn::ClientConfig, type: :model do
         end
       end
 
-      context 'when all csps are included in CSP_TYPES constant' do
-        let(:csps) { SignIn::Constants::Auth::CSP_TYPES }
+      context 'when all credential_service_providers values are included in CSP_TYPES constant' do
+        let(:credential_service_providers) { SignIn::Constants::Auth::CSP_TYPES }
 
         it 'does not raise validation error' do
           expect { subject }.not_to raise_error
@@ -251,10 +251,10 @@ RSpec.describe SignIn::ClientConfig, type: :model do
       end
     end
 
-    describe '#acrs' do
-      context 'when acrs is empty' do
-        let(:acrs) { [] }
-        let(:expected_error_message) { "Validation failed: Acrs can't be blank" }
+    describe '#service_levels' do
+      context 'when service_levels is empty' do
+        let(:service_levels) { [] }
+        let(:expected_error_message) { "Validation failed: Service levels can't be blank" }
         let(:expected_error) { ActiveRecord::RecordInvalid }
 
         it 'raises validation error' do
@@ -262,9 +262,9 @@ RSpec.describe SignIn::ClientConfig, type: :model do
         end
       end
 
-      context 'when acrs contain values not included in ACR_VALUES constant' do
-        let(:acrs) { %w[loa1 loa3 ial1 ial2 min bad_acr] }
-        let(:expected_error_message) { 'Validation failed: Acrs is not included in the list' }
+      context 'when service_levels contain values not included in ACR_VALUES constant' do
+        let(:service_levels) { %w[loa1 loa3 ial1 ial2 min bad_acr] }
+        let(:expected_error_message) { 'Validation failed: Service levels is not included in the list' }
         let(:expected_error) { ActiveRecord::RecordInvalid }
 
         it 'raises validation error' do
@@ -272,8 +272,8 @@ RSpec.describe SignIn::ClientConfig, type: :model do
         end
       end
 
-      context 'when all acrs are included in ACR_VALUES constant' do
-        let(:acrs) { SignIn::Constants::Auth::ACR_VALUES }
+      context 'when all service_levels values are included in ACR_VALUES constant' do
+        let(:service_levels) { SignIn::Constants::Auth::ACR_VALUES }
 
         it 'does not raise validation error' do
           expect { subject }.not_to raise_error
@@ -442,8 +442,8 @@ RSpec.describe SignIn::ClientConfig, type: :model do
     end
   end
 
-  describe '#valid_type?' do
-    subject { client_config.valid_type?(type) }
+  describe '#valid_credential_service_provider?' do
+    subject { client_config.valid_credential_service_provider?(type) }
 
     context 'when type is included in csps' do
       let(:type) { 'idme' }
@@ -462,8 +462,8 @@ RSpec.describe SignIn::ClientConfig, type: :model do
     end
   end
 
-  describe '#valid_acr?' do
-    subject { client_config.valid_acr?(acr) }
+  describe '#valid_service_level?' do
+    subject { client_config.valid_service_level?(acr) }
 
     context 'when acr is included in acrs' do
       let(:acr) { 'loa1' }
