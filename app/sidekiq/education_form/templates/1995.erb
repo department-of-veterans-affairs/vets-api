@@ -126,7 +126,7 @@ Date Entered   Date Separated     Service Component
 Date Entered   Date Separated     Service Component
 <% @applicant&.toursOfDuty&.each do |tour| -%>
 <%= to_date(tour.dateRange&.from) %>     <%= to_date(tour.dateRange&.to) %>         <%= tour.serviceBranch %>
-<% end %>
+<% end -%>
 
 <% end -%>
 <% unless Settings.vsp_environment.eql?('production') -%>
