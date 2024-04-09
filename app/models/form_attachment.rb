@@ -13,7 +13,7 @@ class FormAttachment < ApplicationRecord
 
   def set_file_data!(file, file_password = nil)
     attachment_uploader = get_attachment_uploader
-    file = unlock_pdf(file, file_password) if file_password.present?
+    file = unlock_pdf(file, file_password) if File.extname(file).downcase == '.pdf' && file_password.present?
     attachment_uploader.store!(file)
     self.file_data = { filename: attachment_uploader.filename }.to_json
   rescue CarrierWave::IntegrityError => e
@@ -36,8 +36,6 @@ class FormAttachment < ApplicationRecord
   private
 
   def unlock_pdf(file, file_password)
-    return file unless File.extname(file).downcase == '.pdf'
-
     pdftk = PdfForms.new(Settings.binaries.pdftk)
     tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
 
