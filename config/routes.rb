@@ -92,12 +92,6 @@ Rails.application.routes.draw do
     end
     get 'benefits_reference_data/*path', to: 'benefits_reference_data#get_data'
 
-    resources :financial_status_reports, only: %i[create] do
-      collection do
-        get :download_pdf
-      end
-    end
-
     post '/mvi_users/:id', to: 'mpi_users#submit'
 
     resource :decision_review_evidence, only: :create

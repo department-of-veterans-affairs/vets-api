@@ -51,7 +51,7 @@ RSpec.describe Crm::Service do
 
         before do
           allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
-          allow_any_instance_of(Faraday::Connection).to receive(:get).with('veis/vagov.lob.ava/api/inquiries',
+          allow_any_instance_of(Faraday::Connection).to receive(:get).with('eis/vagov.lob.ava/api/inquiries',
                                                                            icn: '123',
                                                                            organizationName: 'iris-dev')
                                                                      .and_return(response)
@@ -99,7 +99,7 @@ RSpec.describe Crm::Service do
 
       before do
         allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
-        allow_any_instance_of(Faraday::Connection).to receive(:get).with('veis/vagov.lob.ava/api/inquiries',
+        allow_any_instance_of(Faraday::Connection).to receive(:get).with('eis/vagov.lob.ava/api/inquiries',
                                                                          { icn: '123',
                                                                            organizationName: 'iris-dev' })
                                                                    .and_raise(exception)
