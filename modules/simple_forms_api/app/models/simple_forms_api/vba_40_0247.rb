@@ -39,8 +39,8 @@ module SimpleFormsApi
       end
     end
 
-    def submission_date_config
-      { should_stamp_date?: false }
+    def submission_date_stamps
+      []
     end
 
     def track_user_identity(confirmation_number); end

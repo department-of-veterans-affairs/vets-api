@@ -63,13 +63,21 @@ module SimpleFormsApi
       [{ coords: [50, 415], text: data['statement_of_truth_signature'], page: 1 }]
     end
 
-    def submission_date_config
-      {
-        should_stamp_date?: true,
-        page_number: 0,
-        title_coords: [460, 710],
-        text_coords: [460, 690]
-      }
+    def submission_date_stamps
+      [
+        {
+          coords: [460, 710],
+          text: 'Application Submitted:',
+          page: 0,
+          font_size: 12
+        },
+        {
+          coords: [460, 690],
+          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          page: 0,
+          font_size: 12
+        }
+      ]
     end
 
     def track_user_identity(confirmation_number)
