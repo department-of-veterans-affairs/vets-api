@@ -28,11 +28,17 @@ module PdfFill
             question_num: 1,
             question_text: "DECEASED VETERAN'S FIRST NAME"
           },
-          'middle' => {
+          'middleInitial' => {
             key: 'form1[0].#subform[82].VeteransMiddleInitial1[0]',
             question_num: 1,
             limit: 1,
             question_text: "DECEASED VETERAN'S MIDDLE INITIAL"
+          },
+          'middle' => {
+            key: 'form1[0].#subform[82].VeteransMiddleInitialNotReal[0]',
+            question_num: 1,
+            limit: 0,
+            question_text: "DECEASED VETERAN'S MIDDLE NAME"
           },
           'last' => {
             key: 'form1[0].#subform[82].VeteransLastName[0]',
@@ -138,8 +144,14 @@ module PdfFill
             question_num: 7,
             question_text: "CLAIMANT'S FIRST NAME"
           },
-          'middle' => {
+          'middleInitial' => {
             key: 'form1[0].#subform[82].ClaimantsMiddleInitial1[0]'
+          },
+          'middle' => {
+            key: 'form1[0].#subform[82].ClaimantsMiddleInitial1[0]',
+            limit: 0,
+            question_num: 7,
+            question_text: "CLAIMANT'S MIDDLE NAME"
           },
           'last' => {
             key: 'form1[0].#subform[82].ClaimantsLastName[0]',
