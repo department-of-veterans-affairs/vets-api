@@ -37,7 +37,15 @@ module DecisionReviewV1
     def create_higher_level_review(request_body:, user:)
       with_monitoring_and_error_handling do
         headers = create_higher_level_review_headers(user)
-        response = perform :post, 'higher_level_reviews', request_body, headers
+        common_log_params = { key: :overall_claim_submission, form_id: '996', user_uuid: user.uuid,
+                                downstream_system: 'Lighthouse' }
+        begin
+          response = perform :post, 'higher_level_reviews', request_body, headers
+          log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
+        rescue => e
+          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          raise e
+        end
         raise_schema_error_unless_200_status response.status
         validate_against_schema json: response.body, schema: HLR_CREATE_RESPONSE_SCHEMA,
                                 append_to_error_class: ' (HLR_V1)'
