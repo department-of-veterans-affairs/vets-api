@@ -54,9 +54,9 @@ module MebApi
           check_masking = account_number&.include?('*')
 
           if check_masking && Flipper.enabled?(:show_dgi_direct_deposit_1990EZ, @current_user)
-            params[:direct_deposit][:account_number] =
+            params[:direct_deposit][:direct_deposit_account_number] =
               dd_params&.payment_account ? dd_params.payment_account[:account_number] : nil
-            params[:direct_deposit][:routing_number] =
+            params[:direct_deposit][:direct_deposit_routing_number] =
               dd_params&.payment_account ? dd_params.payment_account[:routing_number] : nil
           end
 
