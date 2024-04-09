@@ -25,7 +25,6 @@ describe CheckIn::VAOS::BaseService do
       expect(subject.headers).to eq({ 'Referer' => 'https://review-instance.va.gov',
                                       'X-VAMF-JWT' => token,
                                       'X-Request-ID' => request_id })
-
     end
   end
 
