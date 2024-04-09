@@ -11,15 +11,15 @@
       :response_delay: 15
     - :method: :get
       :path: "/veis/api/btsss/travelclaim/api/v1/Sample/ping"
-      :file_path: "/travel_pay/ping"
+      :file_path: "/travel_pay/ping/default"
       :response_delay: 0.3
     - :method: :get
       :path: "/veis/api/btsss/travelclaim/api/v1/Sample/authorized-ping"
-      :file_path: "/travel_pay/ping"
+      :file_path: "/travel_pay/ping/default"
       :response_delay: 0.3
     - :method: :post
       :path: "/veis/api/btsss/travelclaim/api/v1/Auth/access-token"
-      :file_path: "/travel_pay/token"
+      :file_path: "/travel_pay/token/default"
       :response_delay: 0.3
     - :method: :post
       :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/inquiries/new" %>
@@ -36,7 +36,7 @@
       :response_delay: 0.3
     - :method: :post
       :path: <%= "/#{Settings.travel_pay.veis.tenant_id}/oauth2/token" %>
-      :file_path: "/travel_pay/token"
+      :file_path: "/travel_pay/token/default"
       :response_delay: 0.3
 
 - :name: 'carma'
