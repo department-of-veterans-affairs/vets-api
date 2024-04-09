@@ -49,8 +49,10 @@ module SimpleFormsApi
       return [] unless data
 
       [].tap do |stamps|
-        stamps << { coords: [73, 390], text: 'X' } unless data.dig('previous_sah_application', 'has_previous_sah_application')
-        stamps << { coords: [73, 355], text: 'X' } unless data.dig('previous_hi_application', 'has_previous_hi_application')
+        stamps << { coords: [73, 390], text: 'X' } unless data.dig('previous_sah_application',
+                                                                   'has_previous_sah_application')
+        stamps << { coords: [73, 355], text: 'X' } unless data.dig('previous_hi_application',
+                                                                   'has_previous_hi_application')
         stamps << { coords: [73, 320], text: 'X' } unless data.dig('living_situation', 'is_in_care_facility')
       end.compact
     end
