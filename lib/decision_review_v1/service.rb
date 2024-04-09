@@ -80,7 +80,17 @@ module DecisionReviewV1
       with_monitoring_and_error_handling do
         path = "contestable_issues/higher_level_reviews?benefit_type=#{benefit_type}"
         headers = get_contestable_issues_headers(user)
-        response = perform :get, path, nil, headers
+        common_log_params = { key: :get_contestable_issues, form_id: '996', user_uuid: user.uuid,
+                                upstream_system: 'Lighthouse' }
+        begin
+          response = perform :get, path, nil, headers
+          log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
+        rescue => e
+          # We can freely log Lighthouse's error responses because they do not include PII or PHI.
+          # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v1.
+          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          raise e
+        end
         raise_schema_error_unless_200_status response.status
         validate_against_schema(
           json: response.body,
