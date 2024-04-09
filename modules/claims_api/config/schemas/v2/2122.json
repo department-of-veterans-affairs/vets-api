@@ -219,11 +219,6 @@
           "type": "string",
           "example": "A1Q"
         },
-        "organizationName": {
-          "description": "Name of the service organization.",
-          "type": "string",
-          "example": "I help vets LLC."
-        },
         "registrationNumber": {
           "description": "Registration Number of representative.",
           "type": "string",
