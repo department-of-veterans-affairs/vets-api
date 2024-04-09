@@ -9,7 +9,7 @@ module Mobile
           raise Common::Exceptions::BackendServiceException, 'validation_errors_bad_request'
         end
 
-        id = lh_location[:identifier].first[:value][4..6]
+        id = lh_location[:identifier].first[:value].split('_').second
         facility = Mobile::FacilitiesHelper.get_facilities([id])
         raise Common::Exceptions::BackendServiceException, 'LIGHTHOUSE_FACILITIES404' if facility.first.nil?
 

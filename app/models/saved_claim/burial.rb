@@ -20,8 +20,11 @@ class SavedClaim::Burial < CentralMailClaim
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
-
-    CentralMail::SubmitSavedClaimJob.new.perform(id)
+    if Flipper.enabled?(:central_mail_benefits_intake_submission)
+      Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
+    else
+      CentralMail::SubmitSavedClaimJob.new.perform(id)
+    end
   end
 
   def regional_office
@@ -29,7 +32,7 @@ class SavedClaim::Burial < CentralMailClaim
   end
 
   def attachment_keys
-    %i[transportationReceipts deathCertificate].freeze
+    %i[transportationReceipts deathCertificate militarySeparationDocuments additionalEvidence].freeze
   end
 
   def email
@@ -42,6 +45,22 @@ class SavedClaim::Burial < CentralMailClaim
     JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[form_id], parsed_form).each do |v|
       errors.add(:form, v.to_s)
     end
+  end
+
+  def process_pdf(pdf_path, timestamp = nil, form_id = nil)
+    processed_pdf = CentralMail::DatestampPdf.new(pdf_path).run(
+      text: 'Application Submitted on va.gov',
+      x: 400,
+      y: 675,
+      text_only: true, # passing as text only because we override how the date is stamped in this instance
+      timestamp:,
+      page_number: 6,
+      template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
+      multistamp: true
+    )
+    renamed_path = "tmp/pdfs/#{form_id}_#{id}_final.pdf"
+    File.rename(processed_pdf, renamed_path) # rename for vbms upload
+    renamed_path # return the renamed path
   end
 
   def business_line

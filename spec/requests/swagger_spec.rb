@@ -110,23 +110,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      describe 'GET v0/sign_in/introspect' do
-        let(:access_token_object) { create(:access_token) }
-        let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-        let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid, middle_name: 'leo') }
-
-        it 'returns user attributes' do
-          expect(subject).to validate(
-            :get,
-            '/v0/sign_in/introspect',
-            200,
-            '_headers' => {
-              'Authorization' => "Bearer #{access_token}"
-            }
-          )
-        end
-      end
-
       describe 'POST v0/sign_in/revoke' do
         let(:user_verification) { create(:user_verification) }
         let(:validated_credential) { create(:validated_credential, user_verification:, client_config:) }
@@ -742,7 +725,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             VCR.use_cassette('bgs/people_service/person_data') do
               expect(subject).to validate(
                 :post,
-                '/v0/financial_status_reports',
+                '/debts_api/v0/financial_status_reports',
                 200,
                 headers.merge(
                   '_data' => fsr_data
@@ -3434,7 +3417,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     it 'tests all documented routes' do
       # exclude these route as they return binaries
       subject.untested_mappings.delete('/v0/letters/{id}')
-      subject.untested_mappings.delete('/v0/financial_status_reports/download_pdf')
+      subject.untested_mappings.delete('/debts_api/v0/financial_status_reports/download_pdf')
       subject.untested_mappings.delete('/v0/form1095_bs/download_pdf/{tax_year}')
       subject.untested_mappings.delete('/v0/form1095_bs/download_txt/{tax_year}')
       subject.untested_mappings.delete('/v0/claim_letters/{document_id}')

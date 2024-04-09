@@ -13,10 +13,16 @@ module Form526ClaimFastTrackingConcern
   MAX_CFI_STATSD_KEY_PREFIX = 'api.max_cfi'
   EP_MERGE_STATSD_KEY_PREFIX = 'worker.ep_merge'
 
-  DISABILITIES_WITH_MAX_CFI = [ClaimFastTracking::DiagnosticCodes::TINNITUS].freeze
   EP_MERGE_BASE_CODES = %w[010 110 020 030 040].freeze
   EP_MERGE_SPECIAL_ISSUE = 'EMP'
-  OPEN_STATUSES = ['CLAIM RECEIVED', 'UNDER REVIEW', 'GATHERING OF EVIDENCE', 'REVIEW OF EVIDENCE'].freeze
+  OPEN_STATUSES = [
+    'CLAIM RECEIVED',
+    'UNDER REVIEW',
+    'GATHERING OF EVIDENCE',
+    'REVIEW OF EVIDENCE',
+    'CLAIM_RECEIVED',
+    'INITIAL_REVIEW'
+  ].freeze
 
   def send_rrd_alert_email(subject, message, error = nil, to = Settings.rrd.alerts.recipients)
     RrdAlertMailer.build(self, subject, message, error, to).deliver_now
@@ -117,14 +123,17 @@ module Form526ClaimFastTrackingConcern
     pending_eps = open_claims.select do |claim|
       EP_MERGE_BASE_CODES.include?(claim['base_end_product_code']) && OPEN_STATUSES.include?(claim['status'])
     end
-    StatsD.distribution("#{EP_MERGE_STATSD_KEY_PREFIX}.pending_ep_count", pending_eps.count)
+    Rails.logger.info('EP Merge total open EPs', id:, count: pending_eps.count)
     return unless pending_eps.count == 1
 
     date = Date.strptime(pending_eps.first['date'], '%m/%d/%Y')
     days_ago = (Time.zone.today - date).round
-    StatsD.distribution("#{EP_MERGE_STATSD_KEY_PREFIX}.pending_ep_age", days_ago)
-
-    if Flipper.enabled?(:disability_526_ep_merge_api, User.find(user_uuid))
+    feature_enabled = Flipper.enabled?(:disability_526_ep_merge_api, User.find(user_uuid))
+    Rails.logger.info(
+      'EP Merge open EP eligibility',
+      { id:, feature_enabled:, pending_ep_age: days_ago, pending_ep_status: pending_eps.first['status'] }
+    )
+    if feature_enabled
       save_metadata(ep_merge_pending_claim_id: pending_eps.first['id'])
       add_ep_merge_special_issue!
     end
@@ -179,7 +188,7 @@ module Form526ClaimFastTrackingConcern
   end
 
   def log_max_cfi_metrics_on_submit
-    DISABILITIES_WITH_MAX_CFI.intersection(diagnostic_codes).each do |diagnostic_code|
+    ClaimFastTracking::DiagnosticCodesForMetrics::DC.intersection(diagnostic_codes).each do |diagnostic_code|
       next unless disabilities.any? do |dis|
         diagnostic_code == dis['diagnosticCode']
       end
