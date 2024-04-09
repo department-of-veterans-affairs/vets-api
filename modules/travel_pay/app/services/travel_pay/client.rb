@@ -8,6 +8,8 @@ module TravelPay
     # @return [Faraday::Response]
     #
     def request_veis_token
+      return nil if use_fakes?
+
       auth_url = Settings.travel_pay.veis.auth_url
       tenant_id = Settings.travel_pay.veis.tenant_id
 
@@ -25,6 +27,8 @@ module TravelPay
     # @return [Faraday::Response]
     #
     def request_btsss_token(veis_token, vagov_token)
+      return nil if use_fakes?
+
       btsss_url = Settings.travel_pay.base_url
       api_key = Settings.travel_pay.subscription_key
       client_number = Settings.travel_pay.client_number
@@ -35,6 +39,7 @@ module TravelPay
         req.headers['BTSSS-API-Client-Number'] = client_number.to_s
         req.body = { authJwt: vagov_token }
       end
+
       response.body['access_token']
     end
 
@@ -86,7 +91,7 @@ module TravelPay
       end
 
       symbolized_body = response.body.deep_symbolize_keys
-      parse_claim_date = ->(c) { Date.parse(c[:modified_on]) }
+      parse_claim_date = ->(c) { Date.parse(c[:modifiedOn]) }
       symbolized_body[:data].sort_by(&parse_claim_date).reverse!
     end
 
@@ -124,7 +129,7 @@ module TravelPay
     # Syntactic sugar for determining if the client should use
     # fake api responses or actually connect to the BTSSS API
     def use_fakes?
-      Settings.useFakes
+      Settings.travel_pay.use_fakes
     end
   end
 end

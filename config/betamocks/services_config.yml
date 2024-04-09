@@ -13,6 +13,9 @@
       :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/inquiries/new" %>
       :file_path: "/ask_va/crm_api/post_inquiries/default"
       :response_delay: 0.3
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1/claims"
+      :file_path: "/travel_pay/claims/default"
 
 #CRM Token post
 - :name: "CRM VEIS Auth Service"
@@ -22,6 +25,9 @@
       :path: <%= "/#{Settings.ask_va_api.crm_api.tenant_id}/oauth2/v2.0/token" %>
       :file_path: "/ask_va/token/default"
       :response_delay: 0.3
+    - :method: :post
+      :path: <%= "/#{Settings.travel_pay.veis.tenant_id}/oauth2/token" %>
+      :file_path: "/travel_pay/veis"
 
 - :name: 'carma'
   :base_uri: <%= "#{URI(Settings['salesforce-carma'].url).host}:#{URI(Settings['salesforce-carma'].url).port}" %>
