@@ -97,34 +97,34 @@ module SimpleFormsApi
     def submission_date_stamps_first_page
       [
         {
-        coords: [440, 710],
-        text: 'Application Submitted:',
-        page: 0,
-        font_size: 12
-      },
-       {
-         coords: [440, 690],
-         text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
-         page: 0,
-         font_size: 12
-       }
+          coords: [440, 710],
+          text: 'Application Submitted:',
+          page: 0,
+          font_size: 12
+        },
+        {
+          coords: [440, 690],
+          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          page: 0,
+          font_size: 12
+        }
       ]
     end
 
     def submission_date_stamps_fourth_page
       [
         {
-        coords: [440, 710],
-        text: 'Application Submitted:',
-        page: 3,
-        font_size: 12
-      },
-       {
-         coords: [440, 690],
-         text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
-         page: 3,
-         font_size: 12
-       }
+          coords: [440, 710],
+          text: 'Application Submitted:',
+          page: 3,
+          font_size: 12
+        },
+        {
+          coords: [440, 690],
+          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          page: 3,
+          font_size: 12
+        }
       ]
     end
   end
