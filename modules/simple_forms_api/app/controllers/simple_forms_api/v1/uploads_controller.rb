@@ -47,6 +47,8 @@ module SimpleFormsApi
           response = submit_form_to_central_mail
         end
 
+        clear_saved_form(params[:form_number])
+
         render response
       rescue Prawn::Errors::IncompatibleStringEncoding
         raise
