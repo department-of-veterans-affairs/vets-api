@@ -51,6 +51,11 @@ module V0
       else
         render(json: CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] }))
       end
+    rescue ActiveRecord::RecordNotFound => e
+      render(json: { error: e.to_s }, status: :not_found)
+    rescue => e
+      Rails.logger.error(e.to_s)
+      render(json: { error: e.to_s}, status: :unprocessable_entity)
     end
 
     def determine_submission_attempt
