@@ -51,6 +51,16 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
   after { Flipper.disable(:mobile_lighthouse_disability_ratings) }
 
   describe 'Get /v0/disability-rating' do
+    context 'user without access' do
+      let!(:user) { sis_user(participant_id: nil) }
+
+      it 'returns 403' do
+        get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'with a valid 200 lighthouse response' do
       context 'with a single individual rating' do
         it 'matches the rated disabilities schema' do

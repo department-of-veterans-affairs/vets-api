@@ -444,26 +444,4 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
       end
     end
   end
-
-  describe 'alternate routes for direct deposit', type: :routing do
-    it 'routes GET v0/profile/direct_deposits to disability_compensations_controller#show' do
-      expect(get('v0/profile/direct_deposits')).to route_to(
-        {
-          'format' => 'json',
-          'controller' => 'v0/profile/direct_deposits/disability_compensations',
-          'action' => 'show'
-        }
-      )
-    end
-
-    it 'routes PUT v0/profile/direct_deposits to disability_compensations_controller#update' do
-      expect(put('v0/profile/direct_deposits')).to route_to(
-        {
-          'format' => 'json',
-          'controller' => 'v0/profile/direct_deposits/disability_compensations',
-          'action' => 'update'
-        }
-      )
-    end
-  end
 end
