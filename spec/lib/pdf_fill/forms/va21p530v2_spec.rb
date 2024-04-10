@@ -59,6 +59,13 @@ describe PdfFill::Forms::Va21p530v2 do
           :phone
         ],
         { 'first' => '111', 'second' => '222', 'third' => '3333' }
+      ],
+      [
+        [
+          { phone: '111-222-3333' },
+          :phone
+        ],
+        { 'first' => '111', 'second' => '222', 'third' => '3333' }
       ]
     ]
   )
@@ -106,6 +113,25 @@ describe PdfFill::Forms::Va21p530v2 do
       it 'returns the directly mapped location' do
         subject
         expect(class_form_data['locationOfDeath']['checkbox']).to eq({ 'nursingHomeUnpaid' => 'On' })
+      end
+    end
+  end
+
+  describe 'set_state_to_no_if_national' do
+    subject do
+      new_form_class.set_state_to_no_if_national
+    end
+
+    context 'with a regular location of death' do
+      let(:form_data) do
+        {
+          'nationalOrFederal' => true
+        }
+      end
+
+      it 'returns the directly mapped location' do
+        subject
+        expect(class_form_data['cemetaryLocationQuestion']).to eq('none')
       end
     end
   end
