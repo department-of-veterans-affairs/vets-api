@@ -49,7 +49,9 @@ module DebtsApi
                 amount
               ]
             },
+            { monetary_assets: [:name, :amount] },
             :rec_vehicle_amount,
+            :real_estate_value,
             { automobiles: [:resale_value] }
           ]
         )
