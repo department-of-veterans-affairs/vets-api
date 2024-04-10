@@ -10,7 +10,7 @@ metadata = {
   production: false
 }
 
-describe 'PowerOfAttorney', metadata  do
+describe 'PowerOfAttorney', metadata do
   path '/power-of-attorney-requests' do
     get 'Search for Power of Attorney requests.' do
       tags 'Power of Attorney'
@@ -27,11 +27,11 @@ describe 'PowerOfAttorney', metadata  do
       let(:scopes) { %w[system/claim.read system/system/claim.write] }
 
       response '200', 'Search results' do
-        schema JSON.parse(File.read(Rails.root.join(
+        schema JSON.parse(Rails.root.join(
           'spec', 'support', 'schemas',
           'claims_api', 'v2', 'power_of_attorney_requests',
           'index.json'
-        )))
+        ).read)
 
         before do |example|
           mock_ccg(scopes) do
