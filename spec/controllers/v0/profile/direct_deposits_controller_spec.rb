@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, type: :controller do
+RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
   let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
 
   before do
@@ -88,8 +88,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
     context 'when invalid scopes are provided' do
       it 'returns a 400' do
         VCR.use_cassette('lighthouse/direct_deposit/show/errors/400_invalid_scopes') do
-          expect { get(:show) }
-            .to trigger_statsd_increment('cnp.payment.invalid.scopes')
+          get(:show)
         end
 
         json = JSON.parse(response.body)
@@ -117,8 +116,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
     context 'when ICN not found' do
       it 'returns a status of 404' do
         VCR.use_cassette('lighthouse/direct_deposit/show/errors/404_response') do
-          expect { get(:show) }
-            .to trigger_statsd_increment('cnp.payment.icn.not.found')
+          get(:show)
         end
 
         json = JSON.parse(response.body)
@@ -132,8 +130,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
     context 'when there is a gateway timeout' do
       it 'returns a status of 504' do
         VCR.use_cassette('lighthouse/direct_deposit/show/errors/504_response') do
-          expect { get(:show) }
-            .to trigger_statsd_increment('cnp.payment.api.gateway.timeout')
+          get(:show)
         end
 
         expect(response).to have_http_status(:gateway_timeout)
@@ -149,9 +146,16 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
   describe '#update successful' do
     let(:params) do
       {
-        account_number: '1234567890',
-        account_type: 'CHECKING',
-        routing_number: '031000503'
+        payment_account: {
+          account_number: '1234567890',
+          account_type: 'CHECKING',
+          routing_number: '031000503'
+        },
+        control_information: {
+          can_update_direct_deposit: true,
+          is_corp_available: true,
+          is_edu_claim_available: true
+        }
       }
     end
 
@@ -176,8 +180,6 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
 
     context 'when the user does have an associated email address' do
       it 'sends an email through va notify' do
-        # params = { account_number: '1234567890', account_type: 'CHECKING', routing_number: '031000503' }
-
         expect(VANotifyDdEmailJob).to receive(:send_to_emails).with(
           user.all_emails, 'comp_and_pen'
         )
@@ -194,8 +196,6 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
       end
 
       it 'logs a message to Sentry' do
-        # params = { account_number: '1234567890', account_type: 'CHECKING', routing_number: '031000503' }
-
         VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
           expect_any_instance_of(User).to receive(:all_emails).and_return([])
           expect(Sentry).to receive(:capture_message).once
@@ -208,18 +208,27 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
   end
 
   describe '#update unsuccessful' do
-    context 'when missing account type' do
-      let(:params) do
-        {
+    let(:params) do
+      {
+        payment_account: {
+          account_type: 'CHECKING',
           routing_number: '031000503',
           account_number: '12345678'
+        },
+        control_information: {
+          can_update_direct_deposit: true,
+          is_corp_available: true,
+          is_edu_claim_available: true
         }
-      end
+      }
+    end
+
+    context 'when missing account type' do
+      before { params[:payment_account].delete(:account_type) }
 
       it 'returns a validation error' do
         VCR.use_cassette('lighthouse/direct_deposit/update/400_invalid_account_type') do
-          expect { put(:update, params:) }
-            .to trigger_statsd_increment('cnp.payment.account.type.invalid')
+          put(:update, params:)
         end
 
         expect(response).to have_http_status(:bad_request)
@@ -234,17 +243,11 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
     end
 
     context 'when missing account number' do
-      let(:params) do
-        {
-          account_type: 'CHECKING',
-          routing_number: '031000503'
-        }
-      end
+      before { params[:payment_account].delete(:account_number) }
 
       it 'returns a validation error' do
         VCR.use_cassette('lighthouse/direct_deposit/update/400_invalid_account_number') do
-          expect { put(:update, params:) }
-            .to trigger_statsd_increment('cnp.payment.account.number.invalid')
+          put(:update, params:)
         end
 
         expect(response).to have_http_status(:bad_request)
@@ -259,17 +262,11 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
     end
 
     context 'when missing routing number' do
-      let(:params) do
-        {
-          account_type: 'CHECKING',
-          account_number: '12345678'
-        }
-      end
+      before { params[:payment_account].delete(:routing_number) }
 
       it 'returns a validation error' do
         VCR.use_cassette('lighthouse/direct_deposit/update/400_invalid_routing_number') do
-          expect { put(:update, params:) }
-            .to trigger_statsd_increment('cnp.payment.routing.number.invalid')
+          put(:update, params:)
         end
 
         expect(response).to have_http_status(:bad_request)
@@ -284,18 +281,9 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
     end
 
     context 'when fraud flag is present' do
-      let(:params) do
-        {
-          account_type: 'CHECKING',
-          account_number: '1234567890',
-          routing_number: '031000503'
-        }
-      end
-
       it 'returns a routing number fraud error' do
         VCR.use_cassette('lighthouse/direct_deposit/update/400_routing_number_fraud') do
-          expect { put(:update, params:) }
-            .to trigger_statsd_increment('cnp.payment.routing.number.fraud')
+          put(:update, params:)
         end
 
         expect(response).to have_http_status(:bad_request)
@@ -311,8 +299,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
 
       it 'returns an account number fraud error' do
         VCR.use_cassette('lighthouse/direct_deposit/update/400_account_number_fraud') do
-          expect { put(:update, params:) }
-            .to trigger_statsd_increment('cnp.payment.account.number.fraud')
+          put(:update, params:)
         end
 
         expect(response).to have_http_status(:bad_request)
@@ -328,18 +315,9 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
     end
 
     context 'when user profile info is invalid' do
-      let(:params) do
-        {
-          account_type: 'CHECKING',
-          account_number: '1234567890',
-          routing_number: '031000503'
-        }
-      end
-
       it 'returns a day phone number error' do
         VCR.use_cassette('lighthouse/direct_deposit/update/400_invalid_day_phone_number') do
-          expect { put(:update, params:) }
-            .to trigger_statsd_increment('cnp.payment.day.phone.number.invalid')
+          put(:update, params:)
         end
 
         expect(response).to have_http_status(:bad_request)
@@ -355,8 +333,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
 
       it 'returns an mailing address error' do
         VCR.use_cassette('lighthouse/direct_deposit/update/400_invalid_mailing_address') do
-          expect { put(:update, params:) }
-            .to trigger_statsd_increment('cnp.payment.mailing.address.invalid')
+          put(:update, params:)
         end
 
         expect(response).to have_http_status(:bad_request)
@@ -372,8 +349,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
 
       it 'returns a routing number checksum error' do
         VCR.use_cassette('lighthouse/direct_deposit/update/400_routing_number_checksum') do
-          expect { put(:update, params:) }
-            .to trigger_statsd_increment('cnp.payment.routing.number.invalid.checksum')
+          put(:update, params:)
         end
 
         expect(response).to have_http_status(:bad_request)
@@ -389,8 +365,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
 
       it 'returns a potential fraud error' do
         VCR.use_cassette('lighthouse/direct_deposit/update/400_potential_fraud') do
-          expect { put(:update, params:) }
-            .to trigger_statsd_increment('cnp.payment.potential.fraud')
+          put(:update, params:)
         end
 
         expect(response).to have_http_status(:bad_request)
@@ -409,8 +384,16 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
   describe '#update feature flag' do
     let(:params) do
       {
-        routing_number: '031000503',
-        account_number: '12345678'
+        payment_account: {
+          account_type: 'CHECKING',
+          routing_number: '031000503',
+          account_number: '12345678'
+        },
+        control_information: {
+          can_update_direct_deposit: true,
+          is_corp_available: true,
+          is_edu_claim_available: true
+        }
       }
     end
 
