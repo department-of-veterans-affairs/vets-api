@@ -657,12 +657,7 @@ module PdfFill
       def format_currency_spacing
         return if @form_data['amountGovtContribution'].blank?
 
-        length = @form_data['amountGovtContribution'].length
-        if length < 5
-          (5 - length).times do
-            @form_data['amountGovtContribution'].prepend(' ')
-          end
-        end
+        @form_data['amountGovtContribution'] = @form_data['amountGovtContribution'].rjust(5)
       end
 
       # rubocop:disable Metrics/MethodLength
