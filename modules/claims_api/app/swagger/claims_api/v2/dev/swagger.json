@@ -102,6 +102,217 @@
             "content": {
               "application/json": {
                 "example": {
+                },
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "description": "List of Power of Attorney requests satisfying the given search",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "id",
+                          "attributes"
+                        ],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "powerOfAttorneyRequest"
+                            ]
+                          },
+                          "id": {
+                            "type": "integer",
+                            "description": "The ID of the form application process that uniquely identifies this Power of Attorney request",
+                            "format": "int64"
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "status",
+                              "submittedAt",
+                              "acceptedOrDeclinedAt",
+                              "declinedReason",
+                              "authorizesAddressChanges",
+                              "authorizesTreatmentDisclosures",
+                              "powerOfAttorneyCode",
+                              "veteran",
+                              "claimant",
+                              "representative"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "description": "The Power of Attorney request's current status",
+                                "enum": [
+                                  "NEW",
+                                  "PENDING",
+                                  "ACCEPTED",
+                                  "DECLINED"
+                                ]
+                              },
+                              "submittedAt": {
+                                "type": "string",
+                                "description": "When the Power of Attorney request was submitted",
+                                "format": "date-time"
+                              },
+                              "acceptedOrDeclinedAt": {
+                                "type": "string",
+                                "description": "When the Power of Attorney request was accepted or declined",
+                                "nullable": true,
+                                "format": "date-time"
+                              },
+                              "declinedReason": {
+                                "type": "string",
+                                "description": "The reason given by the representative for declining the Power of Attorney request",
+                                "nullable": true
+                              },
+                              "authorizesAddressChanges": {
+                                "type": "boolean",
+                                "description": "Whether the representative is authorized to change the claimant's address"
+                              },
+                              "authorizesTreatmentDisclosures": {
+                                "type": "boolean",
+                                "description": "Whether the representative is authorized to receive disclosures of the Veteran's treatment records"
+                              },
+                              "powerOfAttorneyCode": {
+                                "type": "string",
+                                "description": "The code that indicates an individual or organization's ability to be granted Power of Attorney for a Veteran"
+                              },
+                              "veteran": {
+                                "type": "object",
+                                "description": "The Veteran for whom Power of Attorney is being requested",
+                                "additionalProperties": false,
+                                "required": [
+                                  "firstName",
+                                  "middleName",
+                                  "lastName"
+                                ],
+                                "properties": {
+                                  "firstName": {
+                                    "type": "string"
+                                  },
+                                  "middleName": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "lastName": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "claimant": {
+                                "type": "object",
+                                "description": "The individual, often but not always the Veteran, that executed this form application process",
+                                "additionalProperties": false,
+                                "required": [
+                                  "participantId",
+                                  "mailingAddress",
+                                  "nonVeteranIndividual"
+                                ],
+                                "properties": {
+                                  "participantId": {
+                                    "type": "integer",
+                                    "description": "The identifier of the individual that executed this form application process",
+                                    "format": "int64"
+                                  },
+                                  "mailingAddress": {
+                                    "type": "object",
+                                    "description": "The mailing address of the individual that executed this form application process",
+                                    "additionalProperties": false,
+                                    "required": [
+                                      "city",
+                                      "state",
+                                      "zip",
+                                      "country",
+                                      "militaryPostOffice",
+                                      "militaryPostalCode"
+                                    ],
+                                    "properties": {
+                                      "city": {
+                                        "type": "string"
+                                      },
+                                      "state": {
+                                        "type": "string"
+                                      },
+                                      "zip": {
+                                        "type": "string"
+                                      },
+                                      "country": {
+                                        "type": "string"
+                                      },
+                                      "militaryPostOffice": {
+                                        "type": "string",
+                                        "nullable": true
+                                      },
+                                      "militaryPostalCode": {
+                                        "type": "string",
+                                        "nullable": true
+                                      }
+                                    }
+                                  },
+                                  "nonVeteranIndividual": {
+                                    "type": "object",
+                                    "description": "When present, the non-Veteran individual that executed this form application process for the Veteran",
+                                    "nullable": true,
+                                    "additionalProperties": false,
+                                    "required": [
+                                      "firstName",
+                                      "middleName",
+                                      "lastName",
+                                      "relationshipToVeteran"
+                                    ],
+                                    "properties": {
+                                      "firstName": {
+                                        "type": "string"
+                                      },
+                                      "middleName": {
+                                        "type": "string",
+                                        "nullable": true
+                                      },
+                                      "lastName": {
+                                        "type": "string"
+                                      },
+                                      "relationshipToVeteran": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "representative": {
+                                "type": "object",
+                                "description": "The representative to whom this Power of Attorney request is being submitted",
+                                "additionalProperties": false,
+                                "required": [
+                                  "firstName",
+                                  "lastName",
+                                  "email"
+                                ],
+                                "properties": {
+                                  "firstName": {
+                                    "type": "string"
+                                  },
+                                  "lastName": {
+                                    "type": "string"
+                                  },
+                                  "email": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
