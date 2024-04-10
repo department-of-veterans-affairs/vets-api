@@ -28,11 +28,17 @@ module PdfFill
             question_num: 1,
             question_text: "DECEASED VETERAN'S FIRST NAME"
           },
-          'middle' => {
+          'middleInitial' => {
             key: 'form1[0].#subform[82].VeteransMiddleInitial1[0]',
             question_num: 1,
             limit: 1,
             question_text: "DECEASED VETERAN'S MIDDLE INITIAL"
+          },
+          'middle' => {
+            key: 'form1[0].#subform[82].VeteransMiddleInitialNotReal[0]',
+            question_num: 1,
+            limit: 0,
+            question_text: "DECEASED VETERAN'S MIDDLE NAME"
           },
           'last' => {
             key: 'form1[0].#subform[82].VeteransLastName[0]',
@@ -138,8 +144,14 @@ module PdfFill
             question_num: 7,
             question_text: "CLAIMANT'S FIRST NAME"
           },
-          'middle' => {
+          'middleInitial' => {
             key: 'form1[0].#subform[82].ClaimantsMiddleInitial1[0]'
+          },
+          'middle' => {
+            key: 'form1[0].#subform[82].ClaimantsMiddleInitial1[0]',
+            limit: 0,
+            question_num: 7,
+            question_text: "CLAIMANT'S MIDDLE NAME"
           },
           'last' => {
             key: 'form1[0].#subform[82].ClaimantsLastName[0]',
@@ -317,10 +329,17 @@ module PdfFill
           },
           'rank' => {
             key: "form1[0].#subform[82].GRADE_RANK_OR_RATING[#{ITERATOR}]",
-            question_num: 11,
+            question_num: 14,
             question_suffix: 'D',
             question_text: 'GRADE, RANK OR RATING, ORGANIZATION AND BRANCH OF SERVICE',
             limit: 31
+          },
+          'unit' => {
+            key: "form1[0].#subform[82].GRADE_RANK_OR_RATING_UNIT[#{ITERATOR}]",
+            question_num: 14,
+            question_suffix: 'D',
+            question_text: 'UNIT',
+            limit: 0
           }
         },
         'previousNames' => {
@@ -439,6 +458,12 @@ module PdfFill
             question_suffix: 'B',
             question_text: "WHERE DID THE VETERAN'S DEATH OCCUR?",
             limit: 32
+          },
+          'placeAndLocation' => {
+            limit: 75,
+            question_num: 16,
+            question_text: "PLEASE PROVIDE VETERAN'S SPECIFIC PLACE OF DEATH INCLUDING THE NAME AND LOCATION OF THE NURSING HOME, VA MEDICAL CENTER OR STATE VETERAN FACILITY.",
+            key: 'form1[0].#subform[37].DeathOccurredPlaceAndLocation[1]'
           }
         },
         'hasPreviouslyReceivedAllowance' => {
@@ -519,10 +544,15 @@ module PdfFill
       }.freeze
       # rubocop:enable Layout/LineLength
 
+      def sanitize_phone(phone)
+        phone.gsub('-', '')
+      end
+
       def split_phone(hash, key)
         phone = hash[key]
         return if phone.blank?
 
+        phone = sanitize_phone(phone)
         hash[key] = {
           'first' => phone[0..2],
           'second' => phone[3..5],
@@ -570,7 +600,13 @@ module PdfFill
         location_of_death = @form_data['locationOfDeath']
         return if location_of_death.blank?
 
+        if location_of_death[location_of_death['location']].present? && location_of_death['location'] != 'other'
+          options = location_of_death[location_of_death['location']]
+          location_of_death['placeAndLocation'] = "#{options['facilityName']} - #{options['facilityLocation']}"
+        end
+
         location_of_death['location'] = 'nursingHomeUnpaid' if location_of_death['location'] == 'atHome'
+
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
       end
 
@@ -642,6 +678,11 @@ module PdfFill
         end.join('; ')
       end
 
+      def set_state_to_no_if_national
+        national = @form_data['nationalOrFederal']
+        @form_data['cemetaryLocationQuestion'] = 'none' if national
+      end
+
       # rubocop:disable Metrics/MethodLength
       def merge_fields(_options = {})
         expand_signature(@form_data['claimantFullName'])
@@ -671,13 +712,16 @@ module PdfFill
           'other' => select_checkbox(relationship_to_veteran == 'other')
         }
 
+        # special case for transportation being the only option selected.
         final_resting_place = @form_data.dig('finalRestingPlace', 'location')
-        @form_data['finalRestingPlace']['location'] = {
-          'cemetery' => select_checkbox(final_resting_place == 'cemetery'),
-          'privateResidence' => select_checkbox(final_resting_place == 'privateResidence'),
-          'mausoleum' => select_checkbox(final_resting_place == 'mausoleum'),
-          'other' => select_checkbox(final_resting_place == 'other')
-        }
+        if final_resting_place.present?
+          @form_data['finalRestingPlace']['location'] = {
+            'cemetery' => select_checkbox(final_resting_place == 'cemetery'),
+            'privateResidence' => select_checkbox(final_resting_place == 'privateResidence'),
+            'mausoleum' => select_checkbox(final_resting_place == 'mausoleum'),
+            'other' => select_checkbox(final_resting_place == 'other')
+          }
+        end
 
         expand_cemetery_location
 
@@ -697,6 +741,7 @@ module PdfFill
         @form_data['noProcessOption'] = process_option ? nil : 'On'
 
         expand_confirmation_question
+        set_state_to_no_if_national
         expand_location_question
 
         split_phone(@form_data, 'claimantPhone')

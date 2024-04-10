@@ -15,7 +15,7 @@ module DecisionReview
       user_uuid: nil
     }.freeze
 
-    def perform(file_name, template_id, s3_config = Settings.decision_review.s3)
+    def perform(file_name, template_id, s3_config)
       csv_file = get_csv(file_name, s3_config)
 
       line_num = 1
@@ -36,9 +36,9 @@ module DecisionReview
 
     # returns StringIO
     def get_csv(file_name, s3_config)
-      credentials = Aws::Credentials.new(s3_config.aws_access_key_id, s3_config.aws_secret_access_key)
-      s3 = Aws::S3::Client.new(region: s3_config.region, credentials:)
-      s3.get_object(bucket: s3_config.bucket, key: file_name).body
+      credentials = Aws::Credentials.new(s3_config[:aws_access_key_id], s3_config[:aws_secret_access_key])
+      s3 = Aws::S3::Client.new(region: s3_config[:region], credentials:)
+      s3.get_object(bucket: s3_config[:bucket], key: file_name).body
     rescue => e
       raise "Error fetching #{file_name}: #{e}"
     end
