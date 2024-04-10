@@ -50,6 +50,5 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
       get(:show, params: { id: '12345' })
       expect(response).to have_http_status(:not_found)
     end
-
   end
 end
