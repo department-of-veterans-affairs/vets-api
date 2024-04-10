@@ -36,7 +36,7 @@ describe CheckIn::Map::Client do
               id: '180765',
               identifier: [
                 {
-                  system: 'Appointment/',
+                  system: 'https://va.gov/Appointment/',
                   value: '413938333130383735'
                 }
               ],
@@ -65,6 +65,40 @@ describe CheckIn::Map::Client do
       it 'returns appointments data' do
         expect(subject.appointments(token: jwt_token, patient_icn: icn,
                                     query_params:)).to eq(appointments_response)
+      end
+    end
+
+    context 'when appointments service returns success response takes out https://va.gov' do
+      let(:appointments_response) do
+        {
+          data: [
+            {
+              id: '180765',
+              identifier: [
+                {
+                  system: 'https://va.gov/Appointment/',
+                  value: '413938333130383735'
+                }
+              ],
+              # ... rest of the response ...
+            }
+          ]
+        }
+      end
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(appointments_response)
+        subject.deep_analyze_and_modify(appointments_response)
+      end
+
+      it 'strips https://va.gov from any system property in the response' do
+        response = subject.appointments(token: jwt_token, patient_icn: icn, query_params:)
+        response[:data].each do |appointment|
+          appointment[:identifier].each do |identifier|
+            puts identifier[:system]
+            expect(identifier[:system]).not_to start_with('https://va.gov')
+          end
+        end
       end
     end
 
