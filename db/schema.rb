@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_08_152120) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_10_184931) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -149,6 +149,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_08_152120) do
     t.datetime "updated_at", null: false
     t.index ["location"], name: "index_accredited_organizations_on_location", using: :gist
     t.index ["name"], name: "index_accredited_organizations_on_name"
+    t.index ["poa_code"], name: "index_accredited_organizations_on_poa_code", unique: true
   end
 
   create_table "accredited_organizations_accredited_representatives", id: false, force: :cascade do |t|
