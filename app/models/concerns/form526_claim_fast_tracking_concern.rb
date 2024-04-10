@@ -91,6 +91,10 @@ module Form526ClaimFastTrackingConcern
     form.dig('form526', 'form526', 'disabilities')
   end
 
+  def increase_disabilities
+    disabilities.select { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
+  end
+
   def increase_only?
     disabilities.all? { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
   end
@@ -188,18 +192,19 @@ module Form526ClaimFastTrackingConcern
   end
 
   def log_max_cfi_metrics_on_submit
-    ClaimFastTracking::DiagnosticCodesForMetrics::DC.intersection(diagnostic_codes).each do |diagnostic_code|
-      next unless disabilities.any? do |dis|
-        diagnostic_code == dis['diagnosticCode']
-      end
+    user = User.find(user_uuid)
+    max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating, user) ? 'on' : 'off'
+    ClaimFastTracking::DiagnosticCodesForMetrics::DC.each do |diagnostic_code|
+      next unless max_rated_diagnostic_codes_from_ipf.include?(diagnostic_code)
 
-      next unless max_rated_disabilities_from_ipf.any? do |dis|
-        diagnostic_code == dis['diagnostic_code']
-      end
+      disability_claimed = diagnostic_codes.include?(diagnostic_code)
 
-      user = User.find(user_uuid)
-      max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating, user) ? 'on' : 'off'
-      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{diagnostic_code}")
+      if disability_claimed
+        StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{diagnostic_code}")
+      end
+      Rails.logger.info('Max CFI form526 submission',
+                        id:, max_cfi_enabled:, disability_claimed:, diagnostic_code:,
+                        total_increase_conditions: increase_disabilities.count)
     end
   rescue => e
     # Log the exception but but do not fail, otherwise form will not be submitted
@@ -242,6 +247,10 @@ module Form526ClaimFastTrackingConcern
     rated_disabilities.select do |dis|
       dis['maximum_rating_percentage'].present? && dis['maximum_rating_percentage'] == dis['rating_percentage']
     end
+  end
+
+  def max_rated_diagnostic_codes_from_ipf
+    max_rated_disabilities_from_ipf.pluck('diagnostic_code')
   end
 
   # Fetch and memoize all of the veteran's open EPs. Establishing a new EP will make the memoized

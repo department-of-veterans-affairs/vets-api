@@ -2,7 +2,7 @@
 
 AccreditedRepresentativePortal::Engine.routes.draw do
   namespace :v0, defaults: { format: :json } do
-    resources :power_of_attorney_requests, only: [] do
+    resources :power_of_attorney_requests, only: [:index] do
       member do
         post :accept
         post :decline
