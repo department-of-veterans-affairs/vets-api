@@ -153,7 +153,7 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
         expect(response.parsed_body['data'].any? { |m| m['id'] == thread_id.to_s }).to be true
       end
 
-      it 'filters the provided message' do
+      it 'filters the provided message when excludeProvidedMessage is true' do
         VCR.use_cassette('mobile/messages/v1_get_thread') do
           get "/mobile/v1/messaging/health/messages/#{thread_id}/thread",
               headers: sis_headers,
@@ -163,6 +163,18 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
         expect(response).to be_successful
         expect(response.parsed_body['data']).to eq(thread_response['data'].filter { |m| m['id'] != thread_id.to_s })
         expect(response.parsed_body['data'].any? { |m| m['id'] == thread_id.to_s }).to be false
+      end
+
+      it 'does not filter the provided message when excludeProvidedMessage is false' do
+        VCR.use_cassette('mobile/messages/v1_get_thread') do
+          get "/mobile/v1/messaging/health/messages/#{thread_id}/thread",
+              headers: sis_headers,
+              params: { excludeProvidedMessage: false }
+        end
+
+        expect(response).to be_successful
+        expect(response.parsed_body).to eq(thread_response)
+        expect(response.parsed_body['data'].any? { |m| m['id'] == thread_id.to_s }).to be true
       end
 
       it 'provides a count in the meta of read' do
