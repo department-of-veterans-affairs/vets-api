@@ -15,10 +15,10 @@ module V0
       end
     rescue ActiveRecord::RecordNotFound => e
       Rails.logger.error(e.to_s)
-      render(json: { error: e.to_s }, status: :not_found)
+      render(json: { data: { attributes: { state: 'not found' } } }, status: :not_found)
     rescue => e
       Rails.logger.error(e.to_s)
-      render(json: { error: e.to_s }, status: :unprocessable_entity)
+      render(json: { data: { attributes: { state: 'error processing request' } } }, status: :unprocessable_entity)
     end
 
     def create
