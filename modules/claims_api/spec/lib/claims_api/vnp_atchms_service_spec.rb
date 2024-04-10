@@ -12,7 +12,7 @@ metadata = {
 }
 
 describe ClaimsApi::VnpAtchmsService, metadata do
-  describe '#vnp_atchms_create' do
+  describe '#vnp_atchms_create', run_at: '2024-04-01T18:48:27Z' do
     subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
 
     # get a proc_id from vnp_proc_create
@@ -23,16 +23,18 @@ describe ClaimsApi::VnpAtchmsService, metadata do
         atchms_descp: 'test' }
     end
 
-    describe 'vnp_atchms_create' do
-      it 'validates data' do
+    context 'when missing required params' do
+      it 'raises an error' do
         data = { asdf: 'qwerty' }
         expect { subject.vnp_atchms_create(data) }.to(raise_error do |error|
           expect(error).to be_a(ArgumentError)
           expect(error.message).to eq('Missing required keys: vnp_proc_id, atchms_file_nm, atchms_descp, atchms_txt')
         end)
       end
+    end
 
-      describe 'valid data with base64', run_at: '2024-04-01T18:48:27Z' do
+    describe 'submitting valid data' do
+      context 'base64' do
         it 'creates a attachment from data' do
           data = {
             vnp_proc_id:,
@@ -47,7 +49,7 @@ describe ClaimsApi::VnpAtchmsService, metadata do
         end
       end
 
-      describe 'valid data with a path', run_at: '2024-04-01T18:48:27Z' do
+      context 'file path' do
         it 'creates a attachment from data' do
           data = {
             vnp_proc_id:,
@@ -61,19 +63,19 @@ describe ClaimsApi::VnpAtchmsService, metadata do
           end
         end
       end
+    end
 
-      describe 'invalid procId', run_at: '2024-04-01T18:48:27Z' do
-        it 'raises an error', run_at: '2024-04-01T18:48:27Z' do
-          data = {
-            vnp_proc_id: '1234abc',
-            atchms_file_nm: 'test.pdf',
-            atchms_descp: 'test',
-            atchms_txt: 'base64here'
-          }
+    context 'with an invalid procId' do
+      it 'raises an error' do
+        data = {
+          vnp_proc_id: '1234abc',
+          atchms_file_nm: 'test.pdf',
+          atchms_descp: 'test',
+          atchms_txt: 'base64here'
+        }
 
-          use_bgs_cassette('invalid_procId') do
-            expect { subject.vnp_atchms_create(data) }.to raise_error(Common::Exceptions::ServiceError)
-          end
+        use_bgs_cassette('invalid_procId') do
+          expect { subject.vnp_atchms_create(data) }.to raise_error(Common::Exceptions::ServiceError)
         end
       end
     end
