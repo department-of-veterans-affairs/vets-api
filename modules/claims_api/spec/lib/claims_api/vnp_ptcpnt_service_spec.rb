@@ -26,7 +26,7 @@ describe ClaimsApi::VnpPtcpntService do
       options[:tin_waiver_reason_type_cd] = nil
       options[:ptcpnt_fk_ptcpnt_id] = nil
       options[:corp_ptcpnt_id] = nil
-      VCR.use_cassette('bgs/vnp_ptcpnt_service/vnp_ptcpnt_create') do
+      VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_service/vnp_ptcpnt_create') do
         response = subject.vnp_ptcpnt_create(options)
         expect(response).to include(
           { vnp_ptcpnt_id: '181913',

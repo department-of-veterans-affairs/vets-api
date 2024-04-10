@@ -296,7 +296,7 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
             stub_poa_verification
 
             mock_ccg(scopes) do
-              VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
                 submit_request(example.metadata)
               end
             end

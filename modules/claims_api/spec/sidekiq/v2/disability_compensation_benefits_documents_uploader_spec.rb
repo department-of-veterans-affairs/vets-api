@@ -57,7 +57,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
     end
 
     it 'the claim should still be established on a successful BD submission' do
-      VCR.use_cassette('bd/upload') do
+      VCR.use_cassette('claims_api/bd/upload') do
         expect(claim.status).to eq('pending') # where we start
 
         service.perform(claim.id)

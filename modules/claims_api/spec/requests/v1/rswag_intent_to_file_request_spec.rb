@@ -79,7 +79,7 @@ describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/claims_
             stub_poa_verification
 
             mock_acg(scopes) do
-              VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
                 submit_request(example.metadata)
               end
             end
@@ -112,7 +112,7 @@ describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/claims_
             stub_poa_verification
 
             mock_acg(scopes) do
-              VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
                 allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
                 submit_request(example.metadata)
               end
@@ -148,7 +148,7 @@ describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/claims_
               expect_any_instance_of(
                 ClaimsApi::V1::Forms::IntentToFileController
               ).to receive(:veteran_submitting_burial_itf?).and_return(true)
-              VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
                 submit_request(example.metadata)
               end
             end
@@ -180,7 +180,7 @@ describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/claims_
             stub_poa_verification
 
             mock_acg(scopes) do
-              VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
                 submit_request(example.metadata)
               end
             end
@@ -247,7 +247,7 @@ describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/claims_
             Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
 
             mock_acg(scopes) do
-              VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/get_intent_to_file') do
                 submit_request(example.metadata)
               end
             end
@@ -281,7 +281,7 @@ describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/claims_
             stub_poa_verification
 
             mock_acg(scopes) do
-              VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/get_intent_to_file') do
                 allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
                 submit_request(example.metadata)
               end
@@ -316,7 +316,7 @@ describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/claims_
             stub_poa_verification
 
             mock_acg(scopes) do
-              VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/get_intent_to_file') do
                 submit_request(example.metadata)
               end
             end
@@ -348,7 +348,7 @@ describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/claims_
             stub_poa_verification
 
             mock_acg(scopes) do
-              VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/get_intent_to_file') do
                 submit_request(example.metadata)
               end
             end
@@ -415,7 +415,7 @@ describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/claims_
             stub_poa_verification
 
             mock_acg(scopes) do
-              VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
                 submit_request(example.metadata)
               end
             end
@@ -448,7 +448,7 @@ describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/claims_
             stub_poa_verification
 
             mock_acg(scopes) do
-              VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
                 allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
                 submit_request(example.metadata)
               end
@@ -481,7 +481,7 @@ describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/claims_
             stub_poa_verification
 
             mock_acg(scopes) do
-              VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
                 submit_request(example.metadata)
               end
             end

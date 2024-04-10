@@ -16,7 +16,7 @@ module DebtsApi
 
     def kms_encryption_context
       {
-        model_name: Form5655Submission.model_name.to_s,
+        model_name: 'Form5655Submission',
         model_id: id
       }
     end
