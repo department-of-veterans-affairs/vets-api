@@ -3,6 +3,7 @@
 require 'hca/service'
 require 'bgs/service'
 require 'pdf_fill/filler'
+require 'lighthouse/facilities/v1/client'
 
 module V0
   class HealthCareApplicationsController < ApplicationController
@@ -11,7 +12,7 @@ module V0
     service_tag 'healthcare-application'
     FORM_ID = '1010ez'
 
-    skip_before_action(:authenticate, only: %i[create show enrollment_status healthcheck download_pdf])
+    skip_before_action(:authenticate, only: %i[create show enrollment_status healthcheck download_pdf facilities])
 
     before_action :record_submission_attempt, only: :create
     before_action :load_user, only: %i[create enrollment_status]
@@ -76,10 +77,18 @@ module V0
       send_data file_contents, filename: file_name_for_pdf, type: 'application/pdf', disposition: 'attachment'
     end
 
+    def facilities
+      render(json: lighthouse_facilities_service.get_facilities(params.permit(:ids)))
+    end
+
     private
 
     def health_care_application
       @health_care_application ||= HealthCareApplication.new(params.permit(:form))
+    end
+
+    def lighthouse_facilities_service
+      @lighthouse_facilities_service ||= Lighthouse::Facilities::V1::Client.new
     end
 
     def file_name_for_pdf
