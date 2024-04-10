@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: <%= bgs_base_url %>/VDC/ManageRepresentativeService?WSDL
+    uri: <BGS_BASE_URL>/VDC/ManageRepresentativeService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -37,7 +37,7 @@ http_interactions:
   recorded_at: Thu, 28 Mar 2024 00:10:05 GMT
 - request:
     method: post
-    uri: <%= bgs_base_url %>/VDC/ManageRepresentativeService
+    uri: <BGS_BASE_URL>/VDC/ManageRepresentativeService
     body:
       encoding: UTF-8
       string: |
