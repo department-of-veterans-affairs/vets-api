@@ -20,7 +20,8 @@ RSpec.describe 'Forms uploader', type: :request do
     'vba_20_10207-non-veteran.json'
   ]
 
-  authenticated_non_ivc_forms = non_ivc_forms - %w[vba_40_0247.json vba_21_10210.json vba_21p_0847.json vba_40_10007.json]
+  authenticated_non_ivc_forms = non_ivc_forms - %w[vba_40_0247.json vba_21_10210.json vba_21p_0847.json
+                                                   vba_40_10007.json]
 
   ivc_forms = [
     'vha_10_10d.json',

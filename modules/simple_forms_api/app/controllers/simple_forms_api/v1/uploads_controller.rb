@@ -37,15 +37,14 @@ module SimpleFormsApi
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
-        response = nil
 
-        if form_is210966 && icn && first_party?
-          response = handle_210966_authenticated
-        elsif form_is264555_and_should_use_lgy_api
-          response = handle_264555
-        else
-          response = submit_form_to_central_mail
-        end
+        response = if form_is210966 && icn && first_party?
+                     handle_210966_authenticated
+                   elsif form_is264555_and_should_use_lgy_api
+                     handle264555
+                   else
+                     submit_form_to_central_mail
+                   end
 
         clear_saved_form(params[:form_number])
 
@@ -105,7 +104,7 @@ module SimpleFormsApi
         } }
       end
 
-      def handle_264555
+      def handle264555
         parsed_form_data = JSON.parse(params.to_json)
         form = SimpleFormsApi::VBA264555.new(parsed_form_data)
         lgy_response = LGY::Service.new.post_grant_application(payload: form.as_payload)
