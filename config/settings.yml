@@ -79,6 +79,8 @@ sign_in:
   vaweb_client_id: vaweb
   vamobile_client_id: vamobile
   arp_client_id: arp
+  sts_client:
+    key_path: spec/fixtures/sign_in/sts_client.pem
 
 terms_of_use:
   current_version: v1
