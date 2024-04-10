@@ -1637,7 +1637,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
       context 'and assertion is a valid jwt' do
         let(:private_key) { OpenSSL::PKey::RSA.new(File.read(private_key_path)) }
-        let(:private_key_path) { 'spec/fixtures/sign_in/sample_service_account.pem' }
+        let(:private_key_path) { 'spec/fixtures/sign_in/sts_client.pem' }
         let(:assertion_payload) do
           {
             iss:,
@@ -1661,7 +1661,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expiration_time) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES.since.to_i }
         let(:created_time) { Time.zone.now.to_i }
         let(:uuid) { 'some-uuid' }
-        let(:certificate_path) { 'spec/fixtures/sign_in/sample_service_account.crt' }
+        let(:certificate_path) { 'spec/fixtures/sign_in/sts_client.crt' }
         let(:version) { SignIn::Constants::AccessToken::CURRENT_VERSION }
         let(:assertion_certificate) { File.read(certificate_path) }
         let(:service_account_config) { create(:service_account_config, certificates: [assertion_certificate]) }
