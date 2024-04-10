@@ -212,10 +212,9 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
 
   describe 'GET facilities' do
     it 'responds with facilities data' do
-      VCR.use_cassette('lighthouse/facilities/v1/200_facilities', match_requests_on: %i[method uri]) do
-        get(facilities_v0_health_care_applications_path(ids: 'vha_442'))
+      VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+        get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
       end
-
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body[0]).to eq({ 'access' => nil,
                                               'active_status' => nil,
@@ -233,13 +232,13 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
                                               'facility_type_prefix' => 'nca',
                                               'feedback' => nil,
                                               'hours' =>
-                                            { 'monday' => 'Sunrise - Sundown',
-                                              'tuesday' => 'Sunrise - Sundown',
-                                              'wednesday' => 'Sunrise - Sundown',
-                                              'thursday' => 'Sunrise - Sundown',
-                                              'friday' => 'Sunrise - Sundown',
-                                              'saturday' => 'Sunrise - Sundown',
-                                              'sunday' => 'Sunrise - Sundown' },
+                                               { 'monday' => 'Sunrise - Sundown',
+                                                 'tuesday' => 'Sunrise - Sundown',
+                                                 'wednesday' => 'Sunrise - Sundown',
+                                                 'thursday' => 'Sunrise - Sundown',
+                                                 'friday' => 'Sunrise - Sundown',
+                                                 'saturday' => 'Sunrise - Sundown',
+                                                 'sunday' => 'Sunrise - Sundown' },
                                               'id' => 'nca_042',
                                               'lat' => 37.0320575,
                                               'long' => -94.7706605,

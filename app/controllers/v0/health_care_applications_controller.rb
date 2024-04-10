@@ -78,7 +78,7 @@ module V0
     end
 
     def facilities
-      render(json: lighthouse_facilities_service.get_facilities(params.permit(:ids)))
+      render(json: lighthouse_facilities_service.get_facilities(lighthouse_facilities_params))
     end
 
     private
@@ -89,6 +89,22 @@ module V0
 
     def lighthouse_facilities_service
       @lighthouse_facilities_service ||= Lighthouse::Facilities::V1::Client.new
+    end
+
+    def lighthouse_facilities_params
+      params.permit(:zip,
+                    :state,
+                    :lat,
+                    :long,
+                    :radius,
+                    :bbox,
+                    :visn,
+                    :type,
+                    :services,
+                    :mobile,
+                    :page,
+                    :per_page,
+                    facilityIds: [])
     end
 
     def file_name_for_pdf
