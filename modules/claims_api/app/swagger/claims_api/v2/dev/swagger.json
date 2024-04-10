@@ -102,6 +102,48 @@
             "content": {
               "application/json": {
                 "example": {
+                  "data": [
+                    {
+                      "type": "powerOfAttorneyRequest",
+                      "id": 12345,
+                      "attributes": {
+                        "status": "DECLINED",
+                        "submittedAt": "2024-04-10T04:51:12.000Z",
+                        "acceptedOrDeclinedAt": "2024-04-10T04:51:12.000Z",
+                        "declinedReason": "Because I felt like it",
+                        "authorizesAddressChanges": true,
+                        "authorizesTreatmentDisclosures": false,
+                        "powerOfAttorneyCode": "012",
+                        "veteran": {
+                          "firstName": "Firstus",
+                          "middleName": null,
+                          "lastName": "Lastus"
+                        },
+                        "claimant": {
+                          "participantId": 23456,
+                          "mailingAddress": {
+                            "city": "Baltimore",
+                            "state": "MD",
+                            "zip": "21218",
+                            "country": "US",
+                            "militaryPostOffice": null,
+                            "militaryPostalCode": null
+                          },
+                          "nonVeteranIndividual": {
+                            "firstName": "Alpha",
+                            "middleName": null,
+                            "lastName": "Omega",
+                            "relationshipToVeteran": "Cousin"
+                          }
+                        },
+                        "representative": {
+                          "firstName": "Primero",
+                          "lastName": "Ultimo",
+                          "email": "primero.ultimo@vsorg.org"
+                        }
+                      }
+                    }
+                  ]
                 },
                 "schema": {
                   "type": "object",
