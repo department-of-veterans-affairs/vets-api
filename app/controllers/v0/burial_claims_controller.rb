@@ -7,7 +7,18 @@ module V0
     service_tag 'burial-application'
 
     def show
-      render_burials_json
+      if (submission_attempt = determine_submission_attempt)
+        state = submission_attempt.aasm_state == 'failure' ? 'failure' : 'success'
+        render(json: { data: { attributes: { state: state } } })
+      else
+        render(json: CentralMailSubmission.joins(:central_mail_claim).find_by!(saved_claims: { guid: params[:id] }))
+      end
+    rescue ActiveRecord::RecordNotFound => e
+      Rails.logger.error(e.to_s)
+      render(json: { error: e.to_s }, status: :not_found)
+    rescue => e
+      Rails.logger.error(e.to_s)
+      render(json: { error: e.to_s }, status: :unprocessable_entity)
     end
 
     def create
@@ -44,23 +55,9 @@ module V0
 
     private
 
-    def render_burials_json
-      if (submission_attempt = determine_submission_attempt)
-        state = submission_attempt.aasm_state == 'failure' ? 'failure' : 'success'
-        render(json: { data: { attributes: { state: } } })
-      else
-        render(json: CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] }))
-      end
-    rescue ActiveRecord::RecordNotFound => e
-      render(json: { error: e.to_s }, status: :not_found)
-    rescue => e
-      Rails.logger.error(e.to_s)
-      render(json: { error: e.to_s}, status: :unprocessable_entity)
-    end
-
     def determine_submission_attempt
-      claim = claim_class.find_by!(guid: params[:id])
-      form_submission = claim.form_submissions&.last
+      claim = claim_class.find_by(guid: params[:id])
+      form_submission = claim&.form_submissions&.last
       form_submission&.form_submission_attempts&.last
     end
   end
