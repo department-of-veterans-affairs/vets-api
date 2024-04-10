@@ -10,7 +10,9 @@ module DebtsApi
       service_tag 'financial-report'
 
       def total_assets
-        render json: asset_calculator.get_total_assets
+        render json: {
+          calculatedTotalAssets: asset_calculator.get_total_assets
+        }
       end
 
       def monthly_income
@@ -18,7 +20,9 @@ module DebtsApi
       end
 
       def monthly_expenses
-        render json: expense_calculator.get_monthly_expenses
+        render json: {
+          calculatedMonthlyExpenses: expense_calculator.get_monthly_expenses
+        }
       end
 
       def all_expenses
@@ -49,7 +53,7 @@ module DebtsApi
                 amount
               ]
             },
-            { monetary_assets: [:name, :amount] },
+            { monetary_assets: %i[name amount] },
             :rec_vehicle_amount,
             :real_estate_value,
             { automobiles: [:resale_value] }

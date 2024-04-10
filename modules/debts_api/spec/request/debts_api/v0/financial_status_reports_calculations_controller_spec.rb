@@ -22,6 +22,12 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReportsCalculations requesting', ty
   let(:andrew_two) do
     get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/andrew_fsr_2')
   end
+  let(:andrew_three) do
+    get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/andrew_fsr_3')
+  end
+  let(:andrew_to_the_max) do
+    get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/andrew_maximal')
+  end
   let(:old_expenses) do
     get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/non_enhanced_fsr_expenses')
   end
@@ -75,6 +81,13 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReportsCalculations requesting', ty
         post('/debts_api/v0/calculate_total_assets', params: andrew_expenses.to_h, as: :json)
         expect(response).to have_http_status(:ok)
       end
+
+      it 'behaves like FE' do
+        post('/debts_api/v0/calculate_total_assets', params: andrew_three.to_h, as: :json)
+        expect(response).to have_http_status(:ok)
+        body = JSON.parse(response.body)
+        expect(body).to eq({ 'calculatedTotalAssets' => 2780.35 })
+      end
     end
   end
 
@@ -104,6 +117,8 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReportsCalculations requesting', ty
       it 'returns all expenses' do
         post('/debts_api/v0/calculate_monthly_expenses', params: enhanced_expenses.to_h, as: :json)
         expect(response).to have_http_status(:ok)
+        body = JSON.parse(response.body)
+        expect(body).to eq({ 'calculatedMonthlyExpenses' => 19_603.44 })
       end
     end
 
