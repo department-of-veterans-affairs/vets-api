@@ -17,7 +17,7 @@ module V0
 
       rescue_from(*Lighthouse::ServiceException::ERROR_MAP.values) do |exception|
         error = { status: exception.status_code, body: exception.errors.first }
-        response = Lighthouse::DirectDeposit::ErrorParser.parse(error)
+        response = Lighthouse::DirectDeposit::ErrorParser.parse(@current_user, error)
 
         render status: response.status, json: response.body
       end

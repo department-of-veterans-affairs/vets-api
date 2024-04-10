@@ -5,7 +5,7 @@ require 'lighthouse/direct_deposit/error_response'
 module Lighthouse
   module DirectDeposit
     class ErrorParser
-      def self.parse(response)
+      def self.parse(user, response)
         body = parse_body(response[:body])
         detail = parse_detail(body)
         status = parse_status(response[:status], detail)
@@ -14,7 +14,7 @@ module Lighthouse
           {
             title: parse_title(body),
             detail:,
-            code: parse_code(detail),
+            code: parse_code(user, detail),
             source: data_source
           }
         ]
@@ -43,7 +43,9 @@ module Lighthouse
         messages.compact.join(': ')
       end
 
-      def self.parse_code(detail) # rubocop:disable Metrics/MethodLength
+      def self.parse_code(user, detail) # rubocop:disable Metrics/MethodLength
+        prefix = error_prefix(user)
+
         return "#{prefix}.api.rate.limit.exceeded" if detail.include? 'API rate limit exceeded'
         return "#{prefix}.api.gateway.timeout" if detail.include? 'Did not receive a timely response'
         return "#{prefix}.invalid.authentication.creds" if detail.include? 'Invalid authentication credentials'
@@ -69,8 +71,8 @@ module Lighthouse
         "#{prefix}.generic.error"
       end
 
-      def self.prefix
-        return 'direct.deposit' if Flipper.enabled?(:profile_show_direct_deposit_single_form)
+      def self.error_prefix(user)
+        return 'direct.deposit' if Flipper.enabled?(:profile_show_direct_deposit_single_form, user)
 
         'cnp.payment'
       end
