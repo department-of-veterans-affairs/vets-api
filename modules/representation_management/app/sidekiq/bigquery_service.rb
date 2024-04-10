@@ -4,7 +4,7 @@ require 'google/cloud/bigquery'
 
 module RepresentationManagement
   class BigqueryService
-    TABLE_NAME = 'my_table'
+    TABLE_NAME = 'flagged_veteran_representative_contact_data'
 
     def initialize
       authenticate
@@ -15,14 +15,14 @@ module RepresentationManagement
     end
 
     def create_table
-      # temporary comment
-      # update schema
       dataset.create_table TABLE_NAME do |schema|
-        schema.string 'first_name', mode: :required
-        schema.record 'cities_lived', mode: :repeated do |nested_schema|
-          nested_schema.string 'place', mode: :required
-          nested_schema.integer 'number_of_years', mode: :required
-        end
+        schema.string 'ip_address', mode: :required
+        schema.string 'representative_id', mode: :required
+        schema.string 'flag_type', mode: :required
+        schema.string 'flagged_value', mode: :required
+        schema.timestamp 'created_at', mode: :required
+        schema.timestamp 'updated_at', mode: :required
+        schema.timestamp 'flagged_value_updated_at', mode: :nullable
       end
     end
 
