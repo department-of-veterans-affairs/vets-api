@@ -30,6 +30,10 @@ module MyHealth
       attribute :tracking
       attribute :orderable_item
       attribute :sorted_dispensed_date
+      attribute :shape
+      attribute :color
+      attribute :back_imprint
+      attribute :front_imprint
 
       def rx_rf_records
         records = object&.rx_rf_records
