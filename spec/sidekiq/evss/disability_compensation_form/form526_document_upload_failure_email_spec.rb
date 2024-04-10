@@ -39,9 +39,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
 
       expect(notification_client).to receive(:send_email).with(
         # Email address and first_name are from our User fixtures
+        # form526_document_upload_failure_notification_template_id is placeholder in settings.yml
         {
           email_address: 'test@email.com',
-          template_id: 'form_526_document_upload_failed',
+          template_id: 'form526_document_upload_failure_notification_template_id',
           personalisation: {
             first_name: 'BEYONCE',
             filename: obscured_filename,
