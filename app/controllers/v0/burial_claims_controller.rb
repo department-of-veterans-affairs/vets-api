@@ -8,7 +8,8 @@ module V0
 
     def show
       if (submission_attempt = determine_submission_attempt)
-        render(json: { data: { attributes: { state: submission_attempt.aasm_state } } })
+        state = submission_attempt.aasm_state == 'failure' ? 'failure' : 'success'
+        render(json: { data: { attributes: { state: } } })
       else
         render(json: CentralMailSubmission.joins(:central_mail_claim).find_by!(saved_claims: { guid: params[:id] }))
       end

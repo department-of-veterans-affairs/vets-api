@@ -43,7 +43,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
       claim.form_submissions << create(:form_submission, :pending, form_type: '21P-530')
       get(:show, params: { id: claim.guid })
 
-      expect(JSON.parse(response.body)['data']['attributes']['state']).to eq('pending')
+      expect(JSON.parse(response.body)['data']['attributes']['state']).to eq('success')
     end
 
     it 'returns an error if the claim is not found' do
