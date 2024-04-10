@@ -92,12 +92,6 @@ Rails.application.routes.draw do
     end
     get 'benefits_reference_data/*path', to: 'benefits_reference_data#get_data'
 
-    resources :financial_status_reports, only: %i[create] do
-      collection do
-        get :download_pdf
-      end
-    end
-
     post '/mvi_users/:id', to: 'mpi_users#submit'
 
     resource :decision_review_evidence, only: :create
@@ -298,7 +292,7 @@ Rails.application.routes.draw do
       resource :military_occupations, only: :show
 
       # Lighthouse
-      resource :direct_deposits, only: %i[show update], controller: 'direct_deposits/disability_compensations'
+      resource :direct_deposits, only: %i[show update]
       namespace :direct_deposits do
         resource :disability_compensations, only: %i[show update]
       end
