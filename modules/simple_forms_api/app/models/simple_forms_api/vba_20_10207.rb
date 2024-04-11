@@ -12,14 +12,14 @@ module SimpleFormsApi
 
     def facility_name(index)
       facility = @data['medical_treatments']&.[](index - 1)
-      "#{facility&.[]('facility_name')}\n#{facility_address(index)}"
+      "#{facility&.[]('facility_name')}\\n#{facility_address(index)}"
     end
 
     def facility_address(index)
       facility = @data['medical_treatments']&.[](index - 1)
       address = facility&.[]('facility_address')
-      "#{address&.[]('street')}\n" \
-        "#{address&.[]('city')}, #{address&.[]('state')} #{address&.[]('postal_code')}\n" \
+      "#{address&.[]('street')}" \
+        "#{address&.[]('city')}, #{address&.[]('state')}\\n#{address&.[]('postal_code')}\\n" \
         "#{address&.[]('country')}"
     end
 
