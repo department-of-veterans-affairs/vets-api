@@ -27,7 +27,7 @@ RSpec.describe PersonalInformationLog, type: :model do
       let(:pi_log) { build(:personal_information_log, data: nil) }
 
       it 'does not raise error' do
-        expect { pi_log.save }.to_not raise_error
+        expect { pi_log.save }.not_to raise_error
       end
     end
 
