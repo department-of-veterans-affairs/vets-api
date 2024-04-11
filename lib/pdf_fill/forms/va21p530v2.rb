@@ -34,12 +34,6 @@ module PdfFill
             limit: 1,
             question_text: "DECEASED VETERAN'S MIDDLE INITIAL"
           },
-          'middle' => {
-            key: 'form1[0].#subform[82].VeteransMiddleInitialNotReal[0]',
-            question_num: 1,
-            limit: 0,
-            question_text: "DECEASED VETERAN'S MIDDLE NAME"
-          },
           'last' => {
             key: 'form1[0].#subform[82].VeteransLastName[0]',
             limit: 18,
@@ -146,12 +140,6 @@ module PdfFill
           },
           'middleInitial' => {
             key: 'form1[0].#subform[82].ClaimantsMiddleInitial1[0]'
-          },
-          'middle' => {
-            key: 'form1[0].#subform[82].ClaimantsMiddleInitial1[0]',
-            limit: 0,
-            question_num: 7,
-            question_text: "CLAIMANT'S MIDDLE NAME"
           },
           'last' => {
             key: 'form1[0].#subform[82].ClaimantsLastName[0]',
@@ -678,6 +666,12 @@ module PdfFill
         end.join('; ')
       end
 
+      def format_currency_spacing
+        return if @form_data['amountGovtContribution'].blank?
+
+        @form_data['amountGovtContribution'] = @form_data['amountGovtContribution'].rjust(5)
+      end
+
       def set_state_to_no_if_national
         national = @form_data['nationalOrFederal']
         @form_data['cemetaryLocationQuestion'] = 'none' if national
@@ -757,6 +751,8 @@ module PdfFill
         expand_burial_allowance
 
         convert_location_of_death
+
+        format_currency_spacing
 
         %w[
           nationalOrFederal
