@@ -92,19 +92,21 @@ module V0
     end
 
     def lighthouse_facilities_params
-      params.permit(:zip,
-                    :state,
-                    :lat,
-                    :long,
-                    :radius,
-                    :bbox,
-                    :visn,
-                    :type,
-                    :services,
-                    :mobile,
-                    :page,
-                    :per_page,
-                    facilityIds: [])
+      params.permit(
+        :zip,
+        :state,
+        :lat,
+        :long,
+        :radius,
+        :bbox,
+        :visn,
+        :type,
+        :services,
+        :mobile,
+        :page,
+        :per_page,
+        facilityIds: []
+      )
     end
 
     def file_name_for_pdf
