@@ -31,7 +31,7 @@ RSpec.describe 'community care providers', type: :request do
     end
 
     it 'forms meta data' do
-      VCR.use_cassette('mobile/appointments/get_facilities', match_requests_on: %i[method uri]) do
+      VCR.use_cassette('lighthouse/facilities/v1/200_facilities', match_requests_on: %i[method uri]) do
         VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_facility', match_requests_on: %i[method uri]) do
           params = { serviceType: 'podiatry', facilityId: '442' }
           get('/mobile/v0/community-care-providers', headers: sis_headers, params:)
@@ -100,7 +100,7 @@ RSpec.describe 'community care providers', type: :request do
 
     context 'when a facility id is provided' do
       it 'requests community care clinics near the facility' do
-        VCR.use_cassette('mobile/appointments/get_facilities', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('lighthouse/facilities/v1/200_facilities', match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_facility',
                            match_requests_on: %i[method uri]) do
             params = { facilityId: '442', serviceType: 'podiatry' }
@@ -112,7 +112,7 @@ RSpec.describe 'community care providers', type: :request do
 
       context 'when facility id is not found' do
         it 'returns not found with a helpful error message' do
-          VCR.use_cassette('mobile/lighthouse_health/get_facilities_empty', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_442', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_facility',
                              match_requests_on: %i[method uri]) do
               params = { facilityId: '442', serviceType: 'podiatry' }
