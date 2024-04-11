@@ -45,15 +45,8 @@ module ClaimsApi
       #
       # @return [Hash] All data to be inserted into pdf
       def data(power_of_attorney, form_number, rep)
-        res = power_of_attorney
-              .form_data.deep_merge({
-                                      'veteran' => {
-                                        'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
-                                        'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
-                                        'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
-                                        'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
-                                      }
-                                    })
+        res = power_of_attorney.form_data
+        res.deep_merge!(veteran_attributes(power_of_attorney))
 
         signatures = if form_number == '2122A'
                        individual_signatures(power_of_attorney, rep)
@@ -65,8 +58,22 @@ module ClaimsApi
                           'firstName' => rep.first_name,
                           'lastName' => rep.last_name
                         } })
+
+        res.deep_merge!(organization_name(power_of_attorney)) if form_number == '2122'
+
         res.merge!({ 'text_signatures' => signatures })
         res
+      end
+
+      def veteran_attributes(power_of_attorney)
+        {
+          'veteran' => {
+            'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
+            'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
+            'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
+            'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+          }
+        }
       end
 
       def organization_signatures(power_of_attorney, rep)
@@ -89,11 +96,11 @@ module ClaimsApi
       end
 
       def individual_signatures(power_of_attorney, rep)
+        first_name, last_name = veteran_or_claimant_signature(power_of_attorney)
         {
           'page2' => [
             {
-              'signature' => "#{power_of_attorney.auth_headers['va_eauth_firstName']} " \
-                             "#{power_of_attorney.auth_headers['va_eauth_lastName']} - signed via api.va.gov",
+              'signature' => "#{first_name} #{last_name} - signed via api.va.gov",
               'x' => 35,
               'y' => 306
             },
@@ -116,6 +123,18 @@ module ClaimsApi
           last_name = power_of_attorney.auth_headers['va_eauth_lastName']
         end
         [first_name, last_name]
+      end
+
+      def organization_name(power_of_attorney)
+        poa_code = power_of_attorney.form_data.dig('serviceOrganization', 'poaCode')
+
+        name = ::Veteran::Service::Organization.find_by(poa: poa_code).name
+
+        {
+          'serviceOrganization' => {
+            'organizationName' => name
+          }
+        }
       end
     end
   end
