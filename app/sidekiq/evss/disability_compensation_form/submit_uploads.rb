@@ -32,10 +32,12 @@ module EVSS
           bgjob_errors: bgjob_errors.merge(new_error)
         )
 
-        # YUCK. Check if this is still necessary
-        upload_data = upload_data.first if upload_data.is_a?(Array) # temporary for transition
-        guid = upload_data['confirmationCode']
-        Form526DocumentUploadFailureEmail.perform_async(form526_submission_id, guid)
+        if Flipper.enabled?(:form526_send_document_upload_failure_notification)
+          # YUCK. Check if this is still necessary
+          upload_data = upload_data.first if upload_data.is_a?(Array) # temporary for transition
+          guid = upload_data['confirmationCode']
+          Form526DocumentUploadFailureEmail.perform_async(form526_submission_id, guid)
+        end
 
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
