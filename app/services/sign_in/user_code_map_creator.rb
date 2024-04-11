@@ -1,15 +1,11 @@
 # frozen_string_literal: true
 
 module SignIn
-  class UserCreator
+  class UserCodeMapCreator
     attr_reader :state_payload,
                 :idme_uuid,
                 :logingov_uuid,
-                :authn_context,
-                :current_ial,
-                :max_ial,
                 :credential_email,
-                :multifactor,
                 :verified_icn,
                 :edipi,
                 :mhv_correlation_id,
@@ -21,11 +17,7 @@ module SignIn
       @state_payload = state_payload
       @idme_uuid = user_attributes[:idme_uuid]
       @logingov_uuid = user_attributes[:logingov_uuid]
-      @authn_context = user_attributes[:authn_context]
-      @current_ial = user_attributes[:current_ial]
-      @max_ial = user_attributes[:max_ial]
       @credential_email = user_attributes[:csp_email]
-      @multifactor = user_attributes[:multifactor]
       @edipi = user_attributes[:edipi]
       @mhv_correlation_id = user_attributes[:mhv_correlation_id]
       @verified_icn = verified_icn
@@ -35,7 +27,6 @@ module SignIn
     end
 
     def perform
-      create_authenticated_user
       create_credential_email
       create_user_acceptable_verified_credential
       create_terms_code_container if needs_accepted_terms_of_use?
@@ -44,10 +35,6 @@ module SignIn
     end
 
     private
-
-    def create_authenticated_user
-      user
-    end
 
     def create_credential_email
       Login::UserCredentialEmailUpdater.new(credential_email:,
@@ -80,17 +67,6 @@ module SignIn
                                                  icn: verified_icn })
     end
 
-    def user_identity_for_user_creation
-      @user_identity_for_user_creation ||= UserIdentity.new({ idme_uuid:,
-                                                              logingov_uuid:,
-                                                              icn: verified_icn,
-                                                              loa:,
-                                                              sign_in:,
-                                                              email: credential_email,
-                                                              multifactor:,
-                                                              authn_context: })
-    end
-
     def user_code_map
       @user_code_map ||= UserCodeMap.new(login_code:,
                                          type: state_payload.type,
@@ -109,14 +85,6 @@ module SignIn
         auth_broker: Constants::Auth::BROKER_CODE,
         client_id: state_payload.client_id
       }
-    end
-
-    def loa
-      @loa ||= { current: ial_to_loa(current_ial), highest: ial_to_loa(max_ial) }
-    end
-
-    def ial_to_loa(ial)
-      ial == Constants::Auth::IAL_TWO ? Constants::Auth::LOA_THREE : Constants::Auth::LOA_ONE
     end
 
     def user_uuid
@@ -145,19 +113,6 @@ module SignIn
       return nil unless needs_accepted_terms_of_use?
 
       @terms_code ||= SecureRandom.uuid
-    end
-
-    def user
-      @user ||= begin
-        user = User.new
-        user.instance_variable_set(:@identity, user_identity_for_user_creation)
-        user.uuid = user_uuid
-        user_identity_for_user_creation.uuid = user_uuid
-        user.last_signed_in = Time.zone.now
-        user.fingerprint = request_ip
-        user.save && user_identity_for_user_creation.save
-        user
-      end
     end
   end
 end
