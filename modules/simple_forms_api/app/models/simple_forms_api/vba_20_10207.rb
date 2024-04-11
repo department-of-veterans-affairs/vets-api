@@ -10,34 +10,6 @@ module SimpleFormsApi
       @data = data
     end
 
-    def currently_homeless?
-      (0..2).include? homeless_living_situation
-    end
-
-    def homeless_living_situation
-      if @data['living_situation']['SHELTER']
-        0
-      elsif @data['living_situation']['FRIEND_OR_FAMILY']
-        1
-      elsif @data['living_situation']['OVERNIGHT']
-        2
-      end
-    end
-
-    def at_risk_of_being_homeless?
-      (0..2).include? risk_homeless_living_situation
-    end
-
-    def risk_homeless_living_situation
-      if @data['living_situation']['LOSING_HOME']
-        0
-      elsif @data['living_situation']['LEAVING_SHELTER']
-        1
-      elsif @data['living_situation']['OTHER_RISK']
-        2
-      end
-    end
-
     def facility_name(index)
       facility = @data['medical_treatments']&.[](index - 1)
       "#{facility&.[]('facility_name')}\n#{facility_address(index)}"
