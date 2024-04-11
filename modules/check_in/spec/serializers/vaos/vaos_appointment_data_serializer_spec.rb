@@ -190,67 +190,6 @@ RSpec.describe CheckIn::VAOS::VAOSAppointmentDataSerializer do
             preCheckinAllowed: true,
             eCheckinAllowed: true
           }
-        },
-        {
-          id: '180768',
-          identifier: [
-            {
-              system: 'Appointment/',
-              value: '413938333130383738'
-            },
-            {
-              system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_84',
-              value: '983:10878'
-            }
-          ],
-          kind: 'clinic',
-          status: 'booked',
-          serviceType: 'amputation',
-          serviceTypes: [
-            {
-              coding: [
-                {
-                  system: 'http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type',
-                  code: 'amputation'
-                }
-              ]
-            }
-          ],
-          serviceCategory: [
-            {
-              coding: [
-                {
-                  system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_1',
-                  code: 'REGULAR',
-                  display: 'REGULAR'
-                }
-              ],
-              text: 'REGULAR'
-            }
-          ],
-          patientIcn: '1013125218V696863',
-          locationId: '983GC',
-          clinic: '1081',
-          start: '2023-11-27T16:00:00Z',
-          end: '2023-11-27T16:30:00Z',
-          minutesDuration: 30,
-          slot: {
-            id: '3230323331313237313630303A323032333131323731363330',
-            start: '2023-11-27T16:00:00Z',
-            end: '2023-11-27T16:30:00Z'
-          },
-          created: '2023-08-02T00:00:00Z',
-          cancellable: true,
-          extension: {
-            ccLocation: {
-              address: {}
-            },
-            vistaStatus: [
-              'FUTURE'
-            ],
-            preCheckinAllowed: true,
-            eCheckinAllowed: true
-          }
         }
       ]
     }
@@ -353,38 +292,6 @@ RSpec.describe CheckIn::VAOS::VAOSAppointmentDataSerializer do
         }
       }
     end
-    let(:appointment4) do
-      {
-        id: '180768',
-        identifier: [
-          {
-            system: 'Appointment/',
-            value: '413938333130383738'
-          },
-          {
-            system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_84',
-            value: '983:10878'
-          }
-        ],
-        kind: 'clinic',
-        status: 'booked',
-        serviceType: 'amputation',
-        locationId: '983GC',
-        clinic: '1081',
-        start: '2023-11-27T16:00:00Z',
-        end: '2023-11-27T16:30:00Z',
-        extension: {
-          ccLocation: {
-            address: {}
-          },
-          vistaStatus: [
-            'FUTURE'
-          ],
-          preCheckinAllowed: true,
-          eCheckinAllowed: true
-        }
-      }
-    end
 
     let(:serialized_hash_response) do
       {
@@ -396,7 +303,7 @@ RSpec.describe CheckIn::VAOS::VAOSAppointmentDataSerializer do
               {
                 appointments:
                 [
-                  appointment1, appointment2, appointment3, appointment4
+                  appointment1, appointment2, appointment3
                 ]
               }
           }
