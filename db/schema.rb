@@ -844,6 +844,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_10_212727) do
     t.string "error_class", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "data_ciphertext"
+    t.text "encrypted_kms_key"
     t.index ["created_at"], name: "index_personal_information_logs_on_created_at"
     t.index ["error_class"], name: "index_personal_information_logs_on_error_class"
   end
