@@ -39,7 +39,7 @@ RSpec.describe 'Intent to file', type: :request do
 
       it 'posts a minimum payload and returns a payload with an expiration date' do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+          VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
             post path, params: data.to_json, headers: headers.merge(auth_header)
             expect(response.status).to eq(200)
             expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('duplicate')
@@ -49,7 +49,7 @@ RSpec.describe 'Intent to file', type: :request do
 
       it 'posts a maximum payload and returns a payload with an expiration date' do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+          VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
             data[:data][:attributes] = extra
             post path, params: data.to_json, headers: headers.merge(auth_header)
             expect(response.status).to eq(200)
@@ -60,7 +60,7 @@ RSpec.describe 'Intent to file', type: :request do
 
       it 'posts a 404 error with detail when BGS returns a 500 response' do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file_500') do
+          VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file_500') do
             data[:data][:attributes] = { type: 'pension' }
             post path, params: data.to_json, headers: headers.merge(auth_header)
             expect(response.status).to eq(404)
@@ -71,7 +71,7 @@ RSpec.describe 'Intent to file', type: :request do
       describe "'burial' submission" do
         it "returns a 403 when veteran is submitting for 'burial'" do
           mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+            VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
               data[:data][:attributes] = { type: 'burial' }
               post path, params: data.to_json, headers: auth_header
               expect(response.status).to eq(403)
@@ -81,7 +81,7 @@ RSpec.describe 'Intent to file', type: :request do
 
         it "returns a 403 when neither 'participant_claimant_id' nor 'claimant_ssn' are provided" do
           mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+            VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
               data[:data][:attributes] = { type: 'burial' }
               post path, params: data.to_json, headers: headers.merge(auth_header)
               expect(response.status).to eq(403)
@@ -91,7 +91,7 @@ RSpec.describe 'Intent to file', type: :request do
 
         it "returns a 200 if the veteran is not the submitter and 'participant_claimant_id' is provided" do
           mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+            VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
               data[:attributes] = extra
               data[:attributes][:type] = 'burial'
               post path, params: data.to_json, headers: headers.merge(auth_header)
@@ -102,7 +102,7 @@ RSpec.describe 'Intent to file', type: :request do
 
         it "returns a 200 if the veteran is not the submitter and 'claimant_ssn' is provided" do
           mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+            VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
               data[:data][:attributes][:type] = 'burial'
               data[:data][:attributes][:claimant_ssn] = '123_456_789'
               post path, params: data.to_json, headers: headers.merge(auth_header)
@@ -210,7 +210,7 @@ RSpec.describe 'Intent to file', type: :request do
         context 'when submitting the ITF to BGS is successful' do
           it "adds a 'ClaimsApi::IntentToFile' record" do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
                 expect do
                   post path, params: data.to_json, headers: headers.merge(auth_header)
                 end.to change(ClaimsApi::IntentToFile, :count).by(1)
@@ -224,7 +224,7 @@ RSpec.describe 'Intent to file', type: :request do
         context 'when submitting the ITF to BGS is NOT successful' do
           it "adds a 'ClaimsApi::IntentToFile' record" do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file_500') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file_500') do
                 data[:data][:attributes] = { type: 'pension' }
                 expect do
                   post path, params: data.to_json, headers: headers.merge(auth_header)
@@ -280,7 +280,7 @@ RSpec.describe 'Intent to file', type: :request do
 
     it 'returns the latest itf of a compensation type' do
       mock_acg(scopes) do |auth_header|
-        VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
+        VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/get_intent_to_file') do
           get "#{path}/active", params: { type: 'compensation' }, headers: headers.merge(auth_header)
           expect(response.status).to eq(200)
           expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
@@ -290,7 +290,7 @@ RSpec.describe 'Intent to file', type: :request do
 
     it 'returns the latest itf of a pension type' do
       mock_acg(scopes) do |auth_header|
-        VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
+        VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/get_intent_to_file') do
           get "#{path}/active", params: { type: 'pension' }, headers: headers.merge(auth_header)
           expect(response.status).to eq(200)
           expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
@@ -300,7 +300,7 @@ RSpec.describe 'Intent to file', type: :request do
 
     it 'returns the latest itf of a burial type' do
       mock_acg(scopes) do |auth_header|
-        VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
+        VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/get_intent_to_file') do
           get "#{path}/active", params: { type: 'burial' }, headers: headers.merge(auth_header)
           expect(response.status).to eq(200)
           expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')

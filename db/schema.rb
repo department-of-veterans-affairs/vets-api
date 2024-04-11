@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_03_19_141429) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_10_212727) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -339,6 +339,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_19_141429) do
     t.text "terms_of_use_url"
     t.text "enforced_terms"
     t.boolean "shared_sessions", default: false, null: false
+    t.string "service_levels", default: ["ial1", "ial2", "loa1", "loa3", "min"], array: true
+    t.string "credential_service_providers", default: ["logingov", "idme", "dslogon", "mhv"], array: true
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
