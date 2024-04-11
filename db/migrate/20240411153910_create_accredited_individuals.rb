@@ -1,14 +1,14 @@
 class CreateAccreditedIndividuals < ActiveRecord::Migration[7.1]
   def change
     create_table :accredited_individuals, id: :uuid do |t|
-      t.uuid :individual_id, null: false
+      t.uuid :ogc_id, null: false
       t.string :registration_number, null: false
       t.string :poa_code, limit: 3
       t.string :individual_type, null: false
       t.string :first_name
       t.string :middle_initial
       t.string :last_name
-      t.string :full_name
+      t.string :full_name, index: true
       t.string :email
       t.string :phone
       t.string :address_type
@@ -31,7 +31,8 @@ class CreateAccreditedIndividuals < ActiveRecord::Migration[7.1]
       t.geography :location, limit: { srid: 4326, type: 'st_point', geographic: true }
       t.timestamps
 
-      t.index %i[ registration_number individual_type ], name: 'index_reg_num_and_indi_type', unique: true
+      t.index :location, using: :gist
+      t.index %i[ registration_number individual_type ], name: 'index_on_reg_num_and_type_for_accredited_individuals', unique: true
     end
   end
 end
