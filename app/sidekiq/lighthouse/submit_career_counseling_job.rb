@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-module CentralMail
+module Lighthouse
   class SubmitCareerCounselingJob
     include Sidekiq::Job
     include SentryLogging
     RETRY = 14
 
-    STATSD_KEY_PREFIX = 'worker.central_mail.submit_career_counseling_job'
+    STATSD_KEY_PREFIX = 'worker.lighthouse.submit_career_counseling_job'
 
     sidekiq_options retry: RETRY
 
     sidekiq_retries_exhausted do |msg, _ex|
       Rails.logger.error(
-        "Failed all retries on CentralMail::SubmitCareerCounselingJob, last error: #{msg['error_message']}"
+        "Failed all retries on SubmitCareerCounselingJob, last error: #{msg['error_message']}"
       )
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
     end
@@ -20,10 +20,10 @@ module CentralMail
     def perform(claim_id, user_uuid = nil)
       begin
         @claim = SavedClaim.find(claim_id)
-        @claim.send_to_central_mail!
+        @claim.send_to_benefits_intake!
         send_confirmation_email(user_uuid)
       rescue => e
-        log_message_to_sentry('CentralMail::SubmitCareerCounselingJob failed, retrying...', :warn,
+        log_message_to_sentry('SubmitCareerCounselingJob failed, retrying...', :warn,
                               generate_sentry_details(e))
         raise
       end

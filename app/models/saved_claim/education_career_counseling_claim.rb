@@ -8,7 +8,7 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
     []
   end
 
-  def send_to_central_mail!
+  def send_to_benefits_intake!
     form_copy = parsed_form
 
     if form_copy['veteranSocialSecurityNumber'].blank?
