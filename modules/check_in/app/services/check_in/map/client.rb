@@ -32,7 +32,7 @@ module CheckIn
         case obj
         when Hash
           obj.each do |key, value|
-            if key == "system" && value.is_a?(String)
+            if key == :system && value.is_a?(String)
               obj[key] = value.gsub("https://va.gov", "")
             else
               deep_analyze_and_modify(value)

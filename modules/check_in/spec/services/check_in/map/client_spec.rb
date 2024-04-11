@@ -80,7 +80,19 @@ describe CheckIn::Map::Client do
                   value: '413938333130383735'
                 }
               ],
-              # ... rest of the response ...
+              kind: 'clinic',
+              status: 'booked',
+              serviceType: 'amputation',
+              patientIcn: :icn,
+              locationId: '983GC',
+              clinic: '1081',
+              start: '2023-11-02T17:12:30.174Z',
+              end: '2023-12-12T17:12:30.174Z',
+              minutesDuration: 30,
+              extension: {
+                preCheckinAllowed: true,
+                eCheckinAllowed: true
+              }
             }
           ]
         }
@@ -88,7 +100,6 @@ describe CheckIn::Map::Client do
 
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(appointments_response)
-        subject.deep_analyze_and_modify(appointments_response)
       end
 
       it 'strips https://va.gov from any system property in the response' do
