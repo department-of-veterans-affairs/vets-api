@@ -153,7 +153,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             expect(Rails.logger).to have_received(:info).with('EP Merge total open EPs', id: submission.id, count: 1)
             expect(Rails.logger).to have_received(:info).with(
               'EP Merge open EP eligibility',
-              { id: submission.id, feature_enabled: true, open_claim_review: false, pending_ep_age: 365, pending_ep_status: 'UNDER REVIEW' }
+              { id: submission.id, feature_enabled: true, open_claim_review: false,
+                pending_ep_age: 365, pending_ep_status: 'UNDER REVIEW' }
             )
           end
 

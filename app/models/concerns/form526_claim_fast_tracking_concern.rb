@@ -138,7 +138,8 @@ module Form526ClaimFastTrackingConcern
     open_claim_review = open_claim_review?
     Rails.logger.info(
       'EP Merge open EP eligibility',
-      { id:, feature_enabled:, open_claim_review:, pending_ep_age: days_ago, pending_ep_status: pending_eps.first['status'] }
+      { id:, feature_enabled:, open_claim_review:,
+        pending_ep_age: days_ago, pending_ep_status: pending_eps.first['status'] }
     )
     if feature_enabled && !open_claim_review
       save_metadata(ep_merge_pending_claim_id: pending_eps.first['id'])
