@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateAccreditedIndividuals < ActiveRecord::Migration[7.1]
   def change
     create_table :accredited_individuals, id: :uuid do |t|
