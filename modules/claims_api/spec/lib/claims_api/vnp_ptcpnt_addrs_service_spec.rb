@@ -2,8 +2,16 @@
 
 require 'rails_helper'
 require 'bgs_service/vnp_ptcpnt_addrs_service'
+require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_helpers.rb')
 
-describe ClaimsApi::VnpPtcpntAddrsService do
+metadata = {
+  bgs: {
+    service: 'vnp_ptcpnt_addrs_service',
+    operation: 'vnp_ptcpnt_addrs_create'
+  }
+}
+
+describe ClaimsApi::VnpPtcpntAddrsService, metadata do
   subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
 
   describe 'vnp_ptcpnt_addrs_create' do
