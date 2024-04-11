@@ -7,7 +7,7 @@ describe AppealsApi::V1::AppealsController, type: :request do
   include SchemaMatchers
 
   describe '#index' do
-    let(:path) { '/services/appeals/v1/appeals' }
+    let(:path) { '/services/appeals/appeals-status/v1/appeals' }
     let(:caseflow_cassette_name) { 'caseflow/appeals' }
     let(:mpi_cassette_name) { 'mpi/find_candidate/valid' }
     let(:va_user) { 'test.user@example.com' }
@@ -20,7 +20,7 @@ describe AppealsApi::V1::AppealsController, type: :request do
         'GET endpoint with optional Veteran ICN parameter',
         {
           cassette: 'caseflow/appeals',
-          path: '/services/appeals/v1/appeals',
+          path: '/services/appeals/appeals-status/v1/appeals',
           scope_base: 'AppealsStatus',
           headers: { 'X-VA-User' => 'test.user@example.com' }
         }

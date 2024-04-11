@@ -241,7 +241,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
                 let(:error_msg) { "If claimant is present 'claimantId' must be filled in" }
 
                 it 'returns a meaningful 422' do
-                  VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                     mock_ccg(%w[claim.write claim.read]) do |auth_header|
                       json = JSON.parse(request_body)
                       json['data']['attributes']['claimant'] = claimant
