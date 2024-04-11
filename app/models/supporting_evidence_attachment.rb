@@ -23,4 +23,22 @@ class SupportingEvidenceAttachment < FormAttachment
   def original_filename
     JSON.parse(file_data)['filename']
   end
+
+  # Obfuscates the attachment's file name for use in mailers, so we don't email PII
+  # The intent is the file should still be recognizable to the veteran who uploaded it
+  # Follows these rules:
+  # - Only masks filenames longer than 5 characters
+  # - Masks letters and numbers, but preserves special characters
+  # - Includes the file extension
+  def obscured_filename
+    extension = original_filename[/\.\w*$/]
+    filename_without_extension = original_filename.gsub(/\.\w*$/, '')
+
+    if filename_without_extension.length > 5
+      obfuscated_portion = filename_without_extension[3..-3].gsub(/[a-zA-Z\d]/, '*')
+      filename_without_extension[0..2] + obfuscated_portion + filename_without_extension[-2..] + extension
+    else
+      original_filename
+    end
+  end
 end
