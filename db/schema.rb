@@ -86,6 +86,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.datetime "updated_at", null: false
     t.index ["full_name"], name: "index_accredited_individuals_on_full_name"
     t.index ["location"], name: "index_accredited_individuals_on_location", using: :gist
+    t.index ["poa_code"], name: "index_accredited_individuals_on_poa_code"
     t.index ["registration_number", "individual_type"], name: "index_on_reg_num_and_type_for_accredited_individuals", unique: true
   end
 

@@ -5,7 +5,7 @@ class CreateAccreditedIndividuals < ActiveRecord::Migration[7.1]
     create_table :accredited_individuals, id: :uuid do |t|
       t.uuid :ogc_id, null: false
       t.string :registration_number, null: false
-      t.string :poa_code, limit: 3
+      t.string :poa_code, limit: 3, index: true
       t.string :individual_type, null: false
       t.string :first_name
       t.string :middle_initial
