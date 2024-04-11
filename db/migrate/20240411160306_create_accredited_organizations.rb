@@ -2,7 +2,7 @@ class CreateAccreditedOrganizations < ActiveRecord::Migration[7.1]
   def change
     create_table :accredited_organizations, id: :uuid do |t|
       t.uuid :ogc_id, null: false
-      t.string :poa_code, limit: 3, null: false
+      t.string :poa_code, limit: 3, null: false, index: { unique: true }
       t.string :name, index: true
       t.string :phone
       t.string :address_type
