@@ -428,6 +428,10 @@ class Form526Submission < ApplicationRecord
     form.dig('form526', 'form526', 'veteran', 'emailAddress')
   end
 
+  def get_formatted_creation_time
+    created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+  end
+
   private
 
   def queue_central_mail_backup_submission_for_non_retryable_error!(e: nil)
