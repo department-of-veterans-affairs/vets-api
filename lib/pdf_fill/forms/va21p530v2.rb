@@ -28,7 +28,7 @@ module PdfFill
             question_num: 1,
             question_text: "DECEASED VETERAN'S FIRST NAME"
           },
-          'middle' => {
+          'middleInitial' => {
             key: 'form1[0].#subform[82].VeteransMiddleInitial1[0]',
             question_num: 1,
             limit: 1,
@@ -138,7 +138,7 @@ module PdfFill
             question_num: 7,
             question_text: "CLAIMANT'S FIRST NAME"
           },
-          'middle' => {
+          'middleInitial' => {
             key: 'form1[0].#subform[82].ClaimantsMiddleInitial1[0]'
           },
           'last' => {
@@ -317,10 +317,17 @@ module PdfFill
           },
           'rank' => {
             key: "form1[0].#subform[82].GRADE_RANK_OR_RATING[#{ITERATOR}]",
-            question_num: 11,
+            question_num: 14,
             question_suffix: 'D',
             question_text: 'GRADE, RANK OR RATING, ORGANIZATION AND BRANCH OF SERVICE',
             limit: 31
+          },
+          'unit' => {
+            key: "form1[0].#subform[82].GRADE_RANK_OR_RATING_UNIT[#{ITERATOR}]",
+            question_num: 14,
+            question_suffix: 'D',
+            question_text: 'UNIT',
+            limit: 0
           }
         },
         'previousNames' => {
@@ -525,10 +532,15 @@ module PdfFill
       }.freeze
       # rubocop:enable Layout/LineLength
 
+      def sanitize_phone(phone)
+        phone.gsub('-', '')
+      end
+
       def split_phone(hash, key)
         phone = hash[key]
         return if phone.blank?
 
+        phone = sanitize_phone(phone)
         hash[key] = {
           'first' => phone[0..2],
           'second' => phone[3..5],
@@ -654,6 +666,17 @@ module PdfFill
         end.join('; ')
       end
 
+      def format_currency_spacing
+        return if @form_data['amountGovtContribution'].blank?
+
+        @form_data['amountGovtContribution'] = @form_data['amountGovtContribution'].rjust(5)
+      end
+
+      def set_state_to_no_if_national
+        national = @form_data['nationalOrFederal']
+        @form_data['cemetaryLocationQuestion'] = 'none' if national
+      end
+
       # rubocop:disable Metrics/MethodLength
       def merge_fields(_options = {})
         expand_signature(@form_data['claimantFullName'])
@@ -683,13 +706,16 @@ module PdfFill
           'other' => select_checkbox(relationship_to_veteran == 'other')
         }
 
+        # special case for transportation being the only option selected.
         final_resting_place = @form_data.dig('finalRestingPlace', 'location')
-        @form_data['finalRestingPlace']['location'] = {
-          'cemetery' => select_checkbox(final_resting_place == 'cemetery'),
-          'privateResidence' => select_checkbox(final_resting_place == 'privateResidence'),
-          'mausoleum' => select_checkbox(final_resting_place == 'mausoleum'),
-          'other' => select_checkbox(final_resting_place == 'other')
-        }
+        if final_resting_place.present?
+          @form_data['finalRestingPlace']['location'] = {
+            'cemetery' => select_checkbox(final_resting_place == 'cemetery'),
+            'privateResidence' => select_checkbox(final_resting_place == 'privateResidence'),
+            'mausoleum' => select_checkbox(final_resting_place == 'mausoleum'),
+            'other' => select_checkbox(final_resting_place == 'other')
+          }
+        end
 
         expand_cemetery_location
 
@@ -709,6 +735,7 @@ module PdfFill
         @form_data['noProcessOption'] = process_option ? nil : 'On'
 
         expand_confirmation_question
+        set_state_to_no_if_national
         expand_location_question
 
         split_phone(@form_data, 'claimantPhone')
@@ -724,6 +751,8 @@ module PdfFill
         expand_burial_allowance
 
         convert_location_of_death
+
+        format_currency_spacing
 
         %w[
           nationalOrFederal
