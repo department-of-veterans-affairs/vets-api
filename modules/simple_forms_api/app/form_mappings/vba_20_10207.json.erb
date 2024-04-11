@@ -50,8 +50,17 @@
   "form1[0].#subform[3].Email_Address[3]": "<%= nil %>",
   "form1[0].#subform[3].VA_File_Number_If_Applicable[1]": "<%= nil %>",
 
+  "form1[0].#subform[4].I_Live_Or_Sleep_In_A_Place_That_Is_Not_Meant_For_Regular_Sleeping[0]": "<%= form.data.dig('living_situation', 'OVERNIGHT') ? 1 : 0 %>",
+  "form1[0].#subform[4].I_Live_In_A_Shelter[0]": "<%= form.data.dig('living_situation', 'SHELTER') ? 1 : 0 %>",
+  "form1[0].#subform[4].Staying_With_A_Friend_Or_Family_Member_Because_I_Am_Unable_To_Own_A_Home_Right_Now[0]": "<%= form.data.dig('living_situation', 'FRIEND_OR_FAMILY') ? 1 : 0 %>",
+  "form1[0].#subform[4].In_The_Next_30_Days_I_Will_Have_To_Leave_A_Facility_Like_A_Homeless_Shelter[0]": "<%= form.data.dig('living_situation', 'LEAVING_SHELTER') ? 1 : 0 %>",
+  "form1[0].#subform[4].IN_THE_NEXT_30_DAYS_I_WILL_LOSE_MY_HOME[0]": "<%= form.data.dig('living_situation', 'LOSING_HOME') ? 1 : 0 %>",
+  "form1[0].#subform[4].NONE_OF_THESE_SITUATIONS_APPLY_TO_ME[0]": "<%= form.data.dig('living_situation', 'NONE') ? 1 : 0 %>",
+  "form1[0].#subform[4].OTHER_Specify[0]": "<%= form.data.dig('living_situation', 'OTHER_RISK') ? 1 : 0 %>",
+
   "form1[0].#subform[3].CurrentlyHomeless[0]": "<%= form.currently_homeless? ? 0 : 1 %>",
   "form1[0].#subform[3].HomelessLivingSituation[0]": "<%= form.homeless_living_situation %>",
+  
   "form1[0].#subform[3].Other1[0]": "<%= nil %>",
   "form1[0].#subform[4].Veterans_SocialSecurityNumber_LastFourNumbers[1]": "<%= form.data.dig('veteran_id', 'ssn')&.[](5..8) %>",
   "form1[0].#subform[4].Veterans_SocialSecurityNumber_SecondTwoNumbers[1]": "<%= form.data.dig('veteran_id', 'ssn')&.[](3..4) %>",
@@ -59,6 +68,13 @@
   "form1[0].#subform[4].RadioButtonList[0]": "<%= form.at_risk_of_being_homeless? ? 0 : 1 %>",
   "form1[0].#subform[4].RadioButtonList[1]": "<%= form.risk_homeless_living_situation %>",
   "form1[0].#subform[4].Other2[0]": "<%= form.data['other_housing_risks'] %>",
+
+  "form1[0].#subform[4].Telephone_Number_Area_Code[0]": "<%= form.data['point_of_contact_phone']&.gsub('-', '')&.[](0..2) %>",
+  "form1[0].#subform[4].Telephone_Middle_Three_Numbers[0]": "<%= form.data['point_of_contact_phone']&.gsub('-', '')&.[](3..5) %>",
+  "form1[0].#subform[4].Telephone_Last_Four_Numbers[0]": "<%= form.data['point_of_contact_phone']&.gsub('-', '')&.[](6..9) %>",
+  "form1[0].#subform[4].International_Telephone_Number_If_Applicable[0]": "<%= nil %>",
+  "form1[0].#subform[4].POINT_OF_CONTACT[0]": "<%= form.data['point_of_contact_name'] %>",
+
   "form1[0].#subform[4].OtherReasonsForRequest[0]": "<%= form.data.dig('other_reasons', 'FORMER_POW') ? 1 : 0 %>",
   "form1[0].#subform[4].OtherReasonsForRequest[1]": "<%= form.data.dig('other_reasons', 'VSI_SI') ? 1 : 0 %>",
   "form1[0].#subform[4].OtherReasonsForRequest[2]": "<%= form.data.dig('other_reasons', 'ALS') ? 1 : 0 %>",

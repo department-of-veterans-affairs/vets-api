@@ -29,7 +29,8 @@
     "TERMINAL_ILLNESS": true,
     "VSI_SI": true,
     "FORMER_POW": true,
-    "MEDAL_AWARD": true
+    "MEDAL_AWARD": true,
+    "OVER_85": true
   },
   "pow_confinement_start_date": "2018-01-01",
   "pow_confinement_end_date": "2018-02-03",
@@ -60,5 +61,7 @@
       "start_date": "2013-01-06"
     }
   ],
+  "point_of_contact_name": "Pointy McPointersons",
+  "point_of_contact_phone": "098-765-4321",
   "statement_of_truth_signature": "John Veteran"
 }
