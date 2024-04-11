@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_10_212727) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_11_152758) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -840,7 +840,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_10_212727) do
   end
 
   create_table "personal_information_logs", id: :serial, force: :cascade do |t|
-    t.jsonb "data", null: false
     t.string "error_class", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
