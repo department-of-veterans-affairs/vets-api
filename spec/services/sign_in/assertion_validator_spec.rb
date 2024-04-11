@@ -7,7 +7,7 @@ RSpec.describe SignIn::AssertionValidator do
     subject { SignIn::AssertionValidator.new(assertion:).perform }
 
     let(:private_key) { OpenSSL::PKey::RSA.new(File.read(private_key_path)) }
-    let(:private_key_path) { 'spec/fixtures/sign_in/sample_service_account.pem' }
+    let(:private_key_path) { 'spec/fixtures/sign_in/sts_client.pem' }
     let(:assertion_payload) do
       {
         iss:,
@@ -30,7 +30,7 @@ RSpec.describe SignIn::AssertionValidator do
     let(:service_account_audience) { service_account_config.access_token_audience }
     let(:assertion_encode_algorithm) { SignIn::Constants::Auth::ASSERTION_ENCODE_ALGORITHM }
     let(:assertion) { JWT.encode(assertion_payload, private_key, assertion_encode_algorithm) }
-    let(:certificate_path) { 'spec/fixtures/sign_in/sample_service_account.crt' }
+    let(:certificate_path) { 'spec/fixtures/sign_in/sts_client.crt' }
     let(:assertion_certificate) { File.read(certificate_path) }
     let(:token_route) { "https://#{Settings.hostname}#{SignIn::Constants::Auth::TOKEN_ROUTE_PATH}" }
 
