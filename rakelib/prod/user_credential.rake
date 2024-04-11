@@ -11,8 +11,8 @@ namespace :user_credential do
     log_to_stdout(level: 'info', message: "[#{namespace}] rake task start, context: #{context.to_json}")
     user_verification = UserVerification.where(["#{type}_uuid = ?", credential_id]).first
     user_verification.lock!
-    log_to_stdout(level: 'info',
-                  message: "[#{namespace}] rake task complete, context: #{context.merge(locked: user_verification.locked).to_json}")
+    context[:locked] = user_verification.locked
+    log_to_stdout(level: 'info', message: "[#{namespace}] rake task complete, context: #{context.to_json}")
     puts "#{namespace} complete - #{type}_uuid: #{credential_id}"
   rescue => e
     puts "#{namespace} failed - #{e.message}"
@@ -27,8 +27,8 @@ namespace :user_credential do
     log_to_stdout(level: 'info', message: "[#{namespace}] rake task start, context: #{context.to_json}")
     user_verification = UserVerification.where(["#{type}_uuid = ?", credential_id]).first
     user_verification.unlock!
-    log_to_stdout(level: 'info',
-                  message: "[#{namespace}] rake task complete, context: #{context.merge(locked: user_verification.locked).to_json}")
+    context[:locked] = user_verification.locked
+    log_to_stdout(level: 'info', message: "[#{namespace}] rake task complete, context: #{context.to_json}")
     puts "#{namespace} complete - #{type}_uuid: #{credential_id}"
   rescue => e
     puts "#{namespace} failed - #{e.message}"
