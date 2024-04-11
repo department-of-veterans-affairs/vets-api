@@ -11,7 +11,6 @@ RSpec.describe 'V2::Demographics', type: :request do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_enabled', anything).and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
-    allow(Flipper).to receive(:enabled?).with('check_in_experience_45_minute_reminder').and_return(false)
 
     Rails.cache.clear
   end
@@ -63,8 +62,12 @@ RSpec.describe 'V2::Demographics', type: :request do
         end
 
         VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
-          get "/check_in/v2/patient_check_ins/#{id}"
-          expect(response.status).to eq(200)
+          VCR.use_cassette 'check_in/chip/set_echeckin_started/set_echeckin_started_200' do
+            VCR.use_cassette 'check_in/chip/token/token_200' do
+              get "/check_in/v2/patient_check_ins/#{id}"
+              expect(response.status).to eq(200)
+            end
+          end
         end
 
         VCR.use_cassette('check_in/chip/token/token_200') do
@@ -104,8 +107,12 @@ RSpec.describe 'V2::Demographics', type: :request do
         end
 
         VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
-          get "/check_in/v2/patient_check_ins/#{id}"
-          expect(response.status).to eq(200)
+          VCR.use_cassette 'check_in/chip/set_echeckin_started/set_echeckin_started_200' do
+            VCR.use_cassette 'check_in/chip/token/token_200' do
+              get "/check_in/v2/patient_check_ins/#{id}"
+              expect(response.status).to eq(200)
+            end
+          end
         end
 
         VCR.use_cassette('check_in/chip/confirm_demographics/confirm_demographics_504', match_requests_on: [:host]) do
@@ -163,8 +170,12 @@ RSpec.describe 'V2::Demographics', type: :request do
         end
 
         VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
-          get "/check_in/v2/patient_check_ins/#{id}"
-          expect(response.status).to eq(200)
+          VCR.use_cassette 'check_in/chip/set_echeckin_started/set_echeckin_started_200' do
+            VCR.use_cassette 'check_in/chip/token/token_200' do
+              get "/check_in/v2/patient_check_ins/#{id}"
+              expect(response.status).to eq(200)
+            end
+          end
         end
 
         VCR.use_cassette('check_in/chip/confirm_demographics/confirm_demographics_200', match_requests_on: [:host]) do

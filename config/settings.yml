@@ -79,6 +79,8 @@ sign_in:
   vaweb_client_id: vaweb
   vamobile_client_id: vamobile
   arp_client_id: arp
+  sts_client:
+    key_path: spec/fixtures/sign_in/sts_client.pem
 
 terms_of_use:
   current_version: v1
@@ -617,7 +619,7 @@ ask_va_api:
     client_id: client_id
     client_secret: secret
     resource: resource
-    veis_api_path: veis/vagov.lob.ava/api
+    veis_api_path: eis/vagov.lob.ava/api
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     ocp_apim_subscription_key: subscription_key
     redis_token_expiry: 3540 # 59 minutes
@@ -1672,6 +1674,7 @@ travel_pay:
     auth_url: https://login.microsoftonline.us
   subscription_key: ~
   base_url: ~
+  client_number: ~
   service_name: BTSSS-API
 
 xlsx_file_fetcher:

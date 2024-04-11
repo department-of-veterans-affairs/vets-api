@@ -4,18 +4,24 @@ module Vye
   class Vye::AddressChange < ApplicationRecord
     belongs_to :user_info
 
-    ENCRYPTED_ATTRIBUTES = %i[
-      veteran_name address1 address2 address3 address4 city state zip_code
-    ].freeze
-
     has_kms_key
-    has_encrypted(*ENCRYPTED_ATTRIBUTES, key: :kms_key, **lockbox_options)
 
-    REQUIRED_ATTRIBUTES = %i[
-      veteran_name address1 city state
-    ].freeze
+    has_encrypted(
+      :veteran_name,
+      :address1, :address2, :address3, :address4, :address5,
+      :city, :state, :zip_code,
+      key: :kms_key, **lockbox_options
+    )
 
-    validates(*REQUIRED_ATTRIBUTES, presence: true)
+    validates(
+      :veteran_name, :address1, :city,
+      presence: true, if: -> { origin == 'frontend' }
+    )
+
+    validates(
+      :veteran_name, :address1,
+      presence: true, if: -> { origin == 'backend' }
+    )
 
     enum origin: { frontend: 'f', backend: 'b' }
 

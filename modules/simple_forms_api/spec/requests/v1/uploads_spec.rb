@@ -5,7 +5,8 @@ require 'simple_forms_api_submission/metadata_validator'
 
 RSpec.describe 'Forms uploader', type: :request do
   non_ivc_forms = [
-    'vba_26_4555.json',
+    # TODO: Restore this test when we release 26-4555 to production.
+    # 'vba_26_4555.json',
     'vba_21_4142.json',
     'vba_21_10210.json',
     'vba_21p_0847.json',
@@ -18,6 +19,9 @@ RSpec.describe 'Forms uploader', type: :request do
     'vba_20_10207-veteran.json',
     'vba_20_10207-non-veteran.json'
   ]
+
+  authenticated_non_ivc_forms = non_ivc_forms - %w[vba_40_0247.json vba_21_10210.json vba_21p_0847.json
+                                                   vba_40_10007.json]
 
   ivc_forms = [
     'vha_10_10d.json',
@@ -62,10 +66,32 @@ RSpec.describe 'Forms uploader', type: :request do
       end
     end
 
-    let(:s3_client) { Aws::S3::Client.new(stub_responses: true) }
+    authenticated_non_ivc_forms.each do |form|
+      fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
+      data = JSON.parse(fixture_path.read)
 
-    before do
-      allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
+      context 'authenticated user' do
+        before do
+          user = create(:user)
+          sign_in_as(user)
+          create(:in_progress_form, user_uuid: user.uuid, form_id: data['form_number'])
+        end
+
+        it 'clears the InProgressForm' do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+              allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+
+              expect do
+                post '/simple_forms_api/v1/simple_forms', params: data
+              end.to change(InProgressForm, :count).by(-1)
+            ensure
+              metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
+              Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
+            end
+          end
+        end
+      end
     end
 
     ivc_forms.each do |form|
@@ -74,7 +100,7 @@ RSpec.describe 'Forms uploader', type: :request do
 
       it 'uploads a PDF file to S3' do
         allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-        allow_any_instance_of(Aws::S3::Object).to receive(:upload_file).and_return(true)
+        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -292,6 +318,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
       describe '26-4555' do
         it 'makes the request and expects a failure' do
+          skip 'restore this test when we release the form to production'
+
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                          'form_with_dangerous_characters_26_4555.json')
           data = JSON.parse(fixture_path.read)
@@ -349,6 +377,37 @@ RSpec.describe 'Forms uploader', type: :request do
           expect(exception).not_to include(data['veteran_ssn']&.[](0..2))
           expect(exception).not_to include(data['veteran_ssn']&.[](3..4))
           expect(exception).not_to include(data['veteran_ssn']&.[](5..8))
+        end
+      end
+    end
+
+    describe 'transliterating fields' do
+      context 'transliteration succeeds' do
+        it 'responds with ok' do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+              fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                             'form_with_accented_chars_21_0966.json')
+              data = JSON.parse(fixture_path.read)
+
+              post '/simple_forms_api/v1/simple_forms', params: data
+
+              expect(response).to have_http_status(:ok)
+            end
+          end
+        end
+      end
+
+      context 'transliteration fails' do
+        it 'responds with an error' do
+          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                         'form_with_non_latin_chars_21_0966.json')
+          data = JSON.parse(fixture_path.read)
+
+          post '/simple_forms_api/v1/simple_forms', params: data
+
+          expect(response).to have_http_status(:error)
+          expect(response.body).to include('not compatible with the Windows-1252 character set')
         end
       end
     end

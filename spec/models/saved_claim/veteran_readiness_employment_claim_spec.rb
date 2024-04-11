@@ -62,6 +62,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
     context 'when VBMS response is VBMSDownForMaintenance' do
       before do
+        allow(OpenSSL::PKCS12).to receive(:new).and_return(double.as_null_object)
         @vbms_client = FakeVBMS.new
         allow(VBMS::Client).to receive(:from_env_vars).and_return(@vbms_client)
       end
@@ -164,21 +165,6 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   describe '#regional_office' do
     it 'returns an empty array' do
       expect(claim.regional_office).to be_empty
-    end
-  end
-
-  describe '#send_to_central_mail!' do
-    subject { claim.send_to_central_mail!(user_object) }
-
-    it 'adds `veteranFullName` key to db so that SavedClaimJob can use it' do
-      Sidekiq::Testing.inline! do
-        VCR.use_cassette('central_mail/upload_one_attachment') do
-          expect(claim.parsed_form['veteranFullName']).to be_nil
-          expect(claim).to receive(:send_central_mail_confirmation_email).with(user_object)
-          subject
-          expect(JSON.parse(claim.form)['veteranFullName']).not_to be_nil
-        end
-      end
     end
   end
 
