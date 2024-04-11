@@ -87,7 +87,6 @@ jobs:
       - name: Add and Commit file
         uses: EndBug/add-and-commit@v9
         with:
-          branch: main
           add: "*"
           cwd: vsp-infra-application-manifests/apps
           author_name: va-vsp-bot
