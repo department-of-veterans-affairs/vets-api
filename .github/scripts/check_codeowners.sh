@@ -36,6 +36,7 @@ check_in_codeowners() {
         echo "PARENT DIR: Checking CODEOWNERS for: $file"
         file=$(dirname "$file")
     done
+    echo "THIS IS THE OFFENDING FILE: $file"
     offending_files+=("$file")  # Add file to the array
     return 1
 }
