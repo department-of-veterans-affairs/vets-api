@@ -3,6 +3,7 @@
 require 'caseflow/service'
 require 'decision_review/service'
 
+# test
 class AppealsBaseController < ApplicationController
   include ActionController::Serialization
   include FailedRequestLoggable
