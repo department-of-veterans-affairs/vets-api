@@ -971,6 +971,10 @@ features:
     actor_type: user
     description: enables exclusion period checks
     enable_in_development: false
+  meb_auto_populate_relinquishment_date:
+    actor_type: user
+    description: Flag to autofill datepicker for reliinquishment date
+    enable_in_development: true
   show_forms_app:
     actor_type: user
     description: Enables the TOE form to be displayed.
