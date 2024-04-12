@@ -12,12 +12,13 @@ class PegaTable < ApplicationRecord
   private
 
   def validate_response_format
-    return unless response.present?
+    return if response.blank?
+
     response_hash = JSON.parse(response)
     unless response_hash['status'].present? && [200, 403, 500].include?(response_hash['status'].to_i)
-      errors.add(:response, "must contain a valid HTTP status code (200, 403, 500)")
+      errors.add(:response, 'must contain a valid HTTP status code (200, 403, 500)')
     end
-  rescue JSON::ParserError => e
-    errors.add(:response, "must be a valid JSON format")
+  rescue JSON::ParserError
+    errors.add(:response, 'must be a valid JSON format')
   end
 end

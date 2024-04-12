@@ -1,12 +1,13 @@
-# spec/models/pega_table_spec.rb
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe PegaTable, type: :model do
   describe 'validations' do
-    it { should validate_presence_of(:uuid) }
-    it { should validate_presence_of(:veteranfirstname) }
-    it { should validate_presence_of(:veteranlastname) }
-    it { should validate_presence_of(:response) }
+    it { is_expected.to validate_presence_of(:uuid) }
+    it { is_expected.to validate_presence_of(:veteranfirstname) }
+    it { is_expected.to validate_presence_of(:veteranlastname) }
+    it { is_expected.to validate_presence_of(:response) }
 
     context 'custom validations' do
       it 'ensures response contains a valid HTTP status code' do
