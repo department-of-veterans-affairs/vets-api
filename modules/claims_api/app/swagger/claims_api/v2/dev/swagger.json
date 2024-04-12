@@ -104,42 +104,40 @@
                 "example": {
                   "data": [
                     {
-                      "type": "powerOfAttorneyRequest",
                       "id": 12345,
+                      "type": "powerOfAttorneyRequest",
                       "attributes": {
-                        "status": "DECLINED",
-                        "submittedAt": "2024-04-10T04:51:12+00:00",
-                        "acceptedOrDeclinedAt": "2024-04-10T04:51:12+00:00",
+                        "status": "Declined",
                         "declinedReason": "Because I felt like it",
+                        "powerOfAttorneyCode": "012",
+                        "submittedAt": "2024-04-10T04:51:12Z",
+                        "acceptedOrDeclinedAt": "2024-04-10T04:51:12Z",
                         "isAddressChangingAuthorized": true,
                         "isTreatmentDisclosureAuthorized": false,
-                        "powerOfAttorneyCode": "012",
                         "veteran": {
                           "firstName": "Firstus",
                           "middleName": null,
-                          "lastName": "Lastus"
-                        },
-                        "claimant": {
-                          "participantId": 23456,
-                          "mailingAddress": {
-                            "city": "Baltimore",
-                            "state": "MD",
-                            "zip": "21218",
-                            "country": "US",
-                            "militaryPostOffice": null,
-                            "militaryPostalCode": null
-                          },
-                          "nonVeteranIndividual": {
-                            "firstName": "Alpha",
-                            "middleName": null,
-                            "lastName": "Omega",
-                            "relationshipToVeteran": "Cousin"
-                          }
+                          "lastName": "Lastus",
+                          "participantId": 600043200
                         },
                         "representative": {
                           "firstName": "Primero",
                           "lastName": "Ultimo",
                           "email": "primero.ultimo@vsorg.org"
+                        },
+                        "claimant": {
+                          "firstName": "Alpha",
+                          "lastName": "Omega",
+                          "participantId": 23456,
+                          "relationshipToVeteran": "Cousin"
+                        },
+                        "claimantAddress": {
+                          "city": "Baltimore",
+                          "state": "MD",
+                          "zip": "21218",
+                          "country": "US",
+                          "militaryPostOffice": null,
+                          "militaryPostalCode": null
                         }
                       }
                     }
@@ -185,18 +183,19 @@
                               "isTreatmentDisclosureAuthorized",
                               "powerOfAttorneyCode",
                               "veteran",
+                              "representative",
                               "claimant",
-                              "representative"
+                              "claimantAddress"
                             ],
                             "properties": {
                               "status": {
                                 "type": "string",
                                 "description": "The Power of Attorney request's current status",
                                 "enum": [
-                                  "NEW",
-                                  "PENDING",
-                                  "ACCEPTED",
-                                  "DECLINED"
+                                  "New",
+                                  "Pending",
+                                  "Accepted",
+                                  "Declined"
                                 ]
                               },
                               "submittedAt": {
@@ -234,7 +233,8 @@
                                 "required": [
                                   "firstName",
                                   "middleName",
-                                  "lastName"
+                                  "lastName",
+                                  "participantId"
                                 ],
                                 "properties": {
                                   "firstName": {
@@ -246,85 +246,12 @@
                                   },
                                   "lastName": {
                                     "type": "string"
-                                  }
-                                }
-                              },
-                              "claimant": {
-                                "type": "object",
-                                "description": "The individual, often but not always the Veteran, that executed this form application process",
-                                "additionalProperties": false,
-                                "required": [
-                                  "participantId",
-                                  "mailingAddress",
-                                  "nonVeteranIndividual"
-                                ],
-                                "properties": {
+                                  },
                                   "participantId": {
                                     "type": "integer",
-                                    "description": "The identifier of the individual that executed this form application process",
-                                    "format": "int64"
-                                  },
-                                  "mailingAddress": {
-                                    "type": "object",
-                                    "description": "The mailing address of the individual that executed this form application process",
-                                    "additionalProperties": false,
-                                    "required": [
-                                      "city",
-                                      "state",
-                                      "zip",
-                                      "country",
-                                      "militaryPostOffice",
-                                      "militaryPostalCode"
-                                    ],
-                                    "properties": {
-                                      "city": {
-                                        "type": "string"
-                                      },
-                                      "state": {
-                                        "type": "string"
-                                      },
-                                      "zip": {
-                                        "type": "string"
-                                      },
-                                      "country": {
-                                        "type": "string"
-                                      },
-                                      "militaryPostOffice": {
-                                        "type": "string",
-                                        "nullable": true
-                                      },
-                                      "militaryPostalCode": {
-                                        "type": "string",
-                                        "nullable": true
-                                      }
-                                    }
-                                  },
-                                  "nonVeteranIndividual": {
-                                    "type": "object",
-                                    "description": "When present, the non-Veteran individual that executed this form application process for the Veteran",
-                                    "nullable": true,
-                                    "additionalProperties": false,
-                                    "required": [
-                                      "firstName",
-                                      "middleName",
-                                      "lastName",
-                                      "relationshipToVeteran"
-                                    ],
-                                    "properties": {
-                                      "firstName": {
-                                        "type": "string"
-                                      },
-                                      "middleName": {
-                                        "type": "string",
-                                        "nullable": true
-                                      },
-                                      "lastName": {
-                                        "type": "string"
-                                      },
-                                      "relationshipToVeteran": {
-                                        "type": "string"
-                                      }
-                                    }
+                                    "description": "The identifier of the Veteran as executor of this form application process",
+                                    "format": "int64",
+                                    "nullable": true
                                   }
                                 }
                               },
@@ -346,6 +273,69 @@
                                   },
                                   "email": {
                                     "type": "string"
+                                  }
+                                }
+                              },
+                              "claimant": {
+                                "type": "object",
+                                "description": "If applicable, the individual that executed this form application process for the Veteran",
+                                "additionalProperties": false,
+                                "nullable": true,
+                                "required": [
+                                  "firstName",
+                                  "lastName",
+                                  "participantId",
+                                  "relationshipToVeteran"
+                                ],
+                                "properties": {
+                                  "firstName": {
+                                    "type": "string"
+                                  },
+                                  "lastName": {
+                                    "type": "string"
+                                  },
+                                  "participantId": {
+                                    "type": "integer",
+                                    "description": "The identifier of the individual as executor of this form application process",
+                                    "format": "int64"
+                                  },
+                                  "relationshipToVeteran": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "claimantAddress": {
+                                "type": "object",
+                                "description": "The mailing address of the individual as executor of this form application process",
+                                "additionalProperties": false,
+                                "required": [
+                                  "city",
+                                  "state",
+                                  "zip",
+                                  "country",
+                                  "militaryPostOffice",
+                                  "militaryPostalCode"
+                                ],
+                                "properties": {
+                                  "city": {
+                                    "type": "string"
+                                  },
+                                  "state": {
+                                    "type": "string"
+                                  },
+                                  "zip": {
+                                    "type": "string"
+                                  },
+                                  "country": {
+                                    "type": "string"
+                                  },
+                                  "militaryPostOffice": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "militaryPostalCode": {
+                                    "type": "string",
+                                    "nullable": true
                                   }
                                 }
                               }
