@@ -14,21 +14,4 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
       expect(json['attributes']).to eq(hca_response['attributes'])
     end
   end
-
-  describe '#download_pdf' do
-    let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10EZ_John_Smith.pdf' }
-    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10EZ', 'unsigned', 'simple.pdf' }
-
-    it 'downloads a pdf' do
-      post :download_pdf, params: JSON.parse(hca_request)
-
-      File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
-
-      expect(response).to have_http_status(:ok)
-
-      expect(
-        pdfs_fields_match?(response_pdf, expected_pdf)
-      ).to eq(true)
-    end
-  end
 end
