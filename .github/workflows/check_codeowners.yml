@@ -43,7 +43,7 @@ jobs:
       if: ${{ failure() }}
       uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6 # v2.5.0
       with:
-        message: 'Error: A file (or its parent directories) does not have a CODEOWNERS entry. Please update the .github/CODEOWNERS file and add the entry for the Offending file: ${{ env.offending_files }}'
+        message: 'Error: A file (or its parent directories) does not have a CODEOWNERS entry. Please update the .github/CODEOWNERS file and add the entry for the Offending file: ${{ env.offending_file }}'
         GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
   check-deletions:

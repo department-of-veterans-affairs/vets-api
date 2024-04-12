@@ -16,8 +16,6 @@ IFS=$'\n'  # Change IFS to split only on newlines
 CHANGED_FILES=$(git diff --name-only --diff-filter=AMR ${BASE_SHA}...${HEAD_SHA})
 echo "Changed files: $CHANGED_FILES"
 
-offending_files=()  # Initialize an array to hold files without CODEOWNERS
-
 check_in_codeowners() {
     local file="$1"
     while [[ "$file" != '.' && "$file" != '/' ]]; do
@@ -36,8 +34,7 @@ check_in_codeowners() {
         echo "PARENT DIR: Checking CODEOWNERS for: $file"
         file=$(dirname "$file")
     done
-    echo "THIS IS THE OFFENDING FILE: $file"
-    offending_files+=("$file")  # Add file to the array
+    echo "Not found in CODEOWNERS: $file"
     return 1
 }
 
@@ -50,16 +47,11 @@ for FILE in ${CHANGED_FILES}; do
 
   echo "Checking file: $FILE"
   if ! check_in_codeowners "$FILE"; then
-    echo "Warning: $FILE (or its parent directories) does not have a CODEOWNERS entry."
+    echo "Error: $FILE (or its parent directories) does not have a CODEOWNERS entry."
+    echo "offending_file=$FILE" >> $GITHUB_ENV
+    exit 1
   fi
 done
-
-if [ ${#offending_files[@]} -ne 0 ]; then
-    echo "Error: The following files (or their parent directories) do not have a CODEOWNERS entry:"
-    echo $offending_files
-    echo "offending_files=${offending_files[@]}" >> $GITHUB_ENV
-    exit 1
-fi
 
 echo "All changed files or their parent directories have a CODEOWNERS entry."
 IFS=$' \t\n'  # Reset IFS after the loop
