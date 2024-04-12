@@ -53,5 +53,24 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
 
       subject.perform(form526_submission.id, form_attachment.guid)
     end
+
+    it 'logs to the Rails logger' do
+      allow(notification_client).to receive(:send_email)
+      exhaustion_time = Time.new(1985, 10, 26).utc
+
+      Timecop.freeze(exhaustion_time) do
+        expect(Rails.logger).to receive(:warn).with(
+          'EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail retries exhausted',
+          {
+            obscured_filename: 'sm_***e1.jpg',
+            form526_submission_id: form526_submission.id,
+            supporting_evidence_attachment_guid: form_attachment.guid,
+            timestamp: exhaustion_time
+          }
+        )
+
+        subject.perform(form526_submission.id, form_attachment.guid)
+      end
+    end
   end
 end
