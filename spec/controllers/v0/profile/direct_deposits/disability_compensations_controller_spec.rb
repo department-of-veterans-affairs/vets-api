@@ -335,7 +335,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
           routing_number: '031000503'
         }
       end
-
+      
       it 'returns a day phone number error' do
         VCR.use_cassette('lighthouse/direct_deposit/update/400_invalid_day_phone_number') do
           expect { put(:update, params:) }
@@ -402,45 +402,6 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
         expect(e['title']).to eq('Bad Request')
         expect(e['code']).to eq('cnp.payment.potential.fraud')
         expect(e['source']).to eq('Lighthouse Direct Deposit')
-      end
-    end
-  end
-
-  describe '#update feature flag' do
-    let(:params) do
-      {
-        routing_number: '031000503',
-        account_number: '12345678'
-      }
-    end
-
-    context 'when feature flag is on' do
-      before do
-        Flipper.enable(:profile_show_direct_deposit_single_form)
-      end
-
-      it 'error code is prefixed with direct.deposit' do
-        VCR.use_cassette('lighthouse/direct_deposit/update/400_invalid_account_type') do
-          put(:update, params:)
-        end
-
-        json = JSON.parse(response.body)
-        e = json['errors'].first
-
-        expect(e['code']).to eq('direct.deposit.account.type.invalid')
-      end
-    end
-
-    context 'when feature flag is off' do
-      it 'error code is prefixed with cnp.payment' do
-        VCR.use_cassette('lighthouse/direct_deposit/update/400_invalid_account_type') do
-          put(:update, params:)
-        end
-
-        json = JSON.parse(response.body)
-        e = json['errors'].first
-
-        expect(e['code']).to eq('cnp.payment.account.type.invalid')
       end
     end
   end
