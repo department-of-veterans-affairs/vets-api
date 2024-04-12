@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/DevelopmentNotesService/DevelopmentNotesService?WSDL
+    uri: <BGS_BASE_URL>/DevelopmentNotesService/DevelopmentNotesService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -232,7 +232,7 @@ http_interactions:
   recorded_at: Tue, 27 Jul 2021 23:53:30 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/DevelopmentNotesService/DevelopmentNotesService
+    uri: <BGS_BASE_URL>/DevelopmentNotesService/DevelopmentNotesService
     body:
       encoding: UTF-8
       string: |-
