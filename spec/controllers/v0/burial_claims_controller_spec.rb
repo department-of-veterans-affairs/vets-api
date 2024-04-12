@@ -45,5 +45,10 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
 
       expect(JSON.parse(response.body)['data']['attributes']['state']).to eq('success')
     end
+
+    it 'returns an error if the claim is not found' do
+      get(:show, params: { id: '12345' })
+      expect(response).to have_http_status(:not_found)
+    end
   end
 end
