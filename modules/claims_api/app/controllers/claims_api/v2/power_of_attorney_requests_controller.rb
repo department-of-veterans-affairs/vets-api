@@ -12,11 +12,11 @@ module ClaimsApi
               id: 12_345,
               attributes: {
                 status: 'DECLINED',
-                submittedAt: Time.zone.at(1_712_724_672),
-                acceptedOrDeclinedAt: Time.zone.at(1_712_724_672),
+                submittedAt: Time.zone.at(1_712_724_672).iso8601,
+                acceptedOrDeclinedAt: Time.zone.at(1_712_724_672).iso8601,
                 declinedReason: 'Because I felt like it',
-                authorizesAddressChanges: true,
-                authorizesTreatmentDisclosures: false,
+                isAddressChangingAuthorized: true,
+                isTreatmentDisclosureAuthorized: false,
                 powerOfAttorneyCode: '012',
                 veteran: {
                   firstName: 'Firstus',
