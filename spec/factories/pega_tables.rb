@@ -1,4 +1,5 @@
-# spec/factories/pega_tables.rb
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :pega_table do
     uuid { 'c47bec59-02c7-43e4-a0f7-acf287a32a97' }
@@ -18,4 +19,3 @@ FactoryBot.define do
     end
   end
 end
-
