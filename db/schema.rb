@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_10_212727) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_11_153944) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -203,6 +203,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_10_212727) do
     t.index ["transaction_id"], name: "index_async_transactions_on_transaction_id"
     t.index ["user_account_id"], name: "index_async_transactions_on_user_account_id"
     t.index ["user_uuid"], name: "index_async_transactions_on_user_uuid"
+  end
+
+  create_table "average_days_for_claim_completions", id: :serial, force: :cascade do |t|
+    t.float "average_days", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "base_facilities", id: false, force: :cascade do |t|
