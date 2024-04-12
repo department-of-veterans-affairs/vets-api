@@ -335,7 +335,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
           routing_number: '031000503'
         }
       end
-      
+
       it 'returns a day phone number error' do
         VCR.use_cassette('lighthouse/direct_deposit/update/400_invalid_day_phone_number') do
           expect { put(:update, params:) }
