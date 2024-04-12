@@ -115,7 +115,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               .and_return({ person_poa_history: nil })
             expect(ClaimsApi::V2::PoaFormBuilderJob).to receive(:perform_async) do |*args|
               expect(args[2]).to eq(rep_id)
-            end.and_call_original
+            end
 
             post appoint_organization_path, params: data.to_json, headers: auth_header
 

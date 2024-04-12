@@ -9491,11 +9491,6 @@
                                     "example": "6789"
                                   }
                                 }
-                              },
-                              "organizationName": {
-                                "description": "Name of the service organization.",
-                                "type": "string",
-                                "example": "I help vets LLC."
                               }
                             }
                           },
@@ -10006,6 +10001,11 @@
                                 "type": "string",
                                 "pattern": "^\\d{9}?$",
                                 "example": "123456789"
+                              },
+                              "insuranceNumber": {
+                                "type": "string",
+                                "maxLength": 60,
+                                "description": "Veteran's insurance number, if applicable. Include letter prefix."
                               }
                             }
                           },
@@ -10124,11 +10124,6 @@
                                 "description": "The POA code of the organization.",
                                 "type": "string",
                                 "example": "A1Q"
-                              },
-                              "organizationName": {
-                                "description": "Name of the service organization.",
-                                "type": "string",
-                                "example": "I help vets LLC."
                               },
                               "registrationNumber": {
                                 "description": "Registration Number of representative.",
@@ -10819,11 +10814,6 @@
                                     "example": "6789"
                                   }
                                 }
-                              },
-                              "organizationName": {
-                                "description": "Name of the service organization.",
-                                "type": "string",
-                                "example": "I help vets LLC."
                               }
                             }
                           },
@@ -11325,6 +11315,11 @@
                                 "type": "string",
                                 "pattern": "^\\d{9}?$",
                                 "example": "123456789"
+                              },
+                              "insuranceNumber": {
+                                "type": "string",
+                                "maxLength": 60,
+                                "description": "Veteran's insurance number, if applicable. Include letter prefix."
                               }
                             }
                           },
@@ -11443,11 +11438,6 @@
                                 "description": "The POA code of the organization.",
                                 "type": "string",
                                 "example": "A1Q"
-                              },
-                              "organizationName": {
-                                "description": "Name of the service organization.",
-                                "type": "string",
-                                "example": "I help vets LLC."
                               },
                               "registrationNumber": {
                                 "description": "Registration Number of representative.",

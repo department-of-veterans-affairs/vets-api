@@ -6,19 +6,22 @@ module AccreditedRepresentativePortal
     redis_ttl REDIS_CONFIG[:representative_user_store][:each_ttl]
     redis_key :uuid
 
-    attribute :uuid
-    attribute :email
-    attribute :first_name
-    attribute :last_name
-    attribute :icn
-    alias_attribute :mhv_icn, :icn
-    attribute :idme_uuid
-    attribute :logingov_uuid
-    attribute :fingerprint
-    attribute :last_signed_in
+    # in alphabetical order
     attribute :authn_context
+    attribute :email
+    attribute :fingerprint
+    attribute :first_name
+    attribute :icn
+    attribute :idme_uuid
+    attribute :last_name
+    attribute :last_signed_in
     attribute :loa
+    attribute :logingov_uuid
+    attribute :ogc_number
+    attribute :poa_codes
     attribute :sign_in
+    attribute :uuid
+    alias_attribute :mhv_icn, :icn
 
     validates :uuid, :email, :first_name, :last_name, :icn, presence: true
   end

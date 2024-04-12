@@ -8,7 +8,10 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
 
   let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
   let(:poa_code) { 'ABC' }
-  let(:rep) { create(:representative, first_name: 'Bob', last_name: 'Representative') }
+  let(:rep) do
+    create(:representative, representative_id: '1234', poa_codes: [poa_code], first_name: 'Bob',
+                            last_name: 'Representative')
+  end
 
   before do
     Sidekiq::Job.clear_all
@@ -23,45 +26,27 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
           consentLimits: %w[DRUG_ABUSE SICKLE_CELL],
           veteran: {
             address: {
-              numberAndStreet: '2719 Hyperion Ave',
+              addressLine1: '2719 Hyperion Ave',
               city: 'Los Angeles',
-              state: 'CA',
+              stateCode: 'CA',
               country: 'US',
-              zipFirstFive: '92264'
+              zipCode: '92264'
             },
             phone: {
               areaCode: '555',
               phoneNumber: '5551337'
             }
           },
-          claimant: {
-            claimantId: '1012830872V584140',
-            email: 'lillian@disney.com',
-            relationship: 'Spouse',
-            address: {
-              numberAndStreet: '2688 S Camino Real',
-              city: 'Palm Springs',
-              state: 'CA',
-              country: 'US',
-              zipFirstFive: '92264'
-            },
-            phone: {
-              areaCode: '555',
-              phoneNumber: '5551337'
-            },
-            firstName: 'JESSE',
-            lastName: 'GRAY'
-          },
           representative: {
             poaCode: poa_code.to_s,
+            registrationNumber: '1234',
             type: 'ATTORNEY',
-            organizationName: 'I Help Vets LLC',
             address: {
-              numberAndStreet: '2719 Hyperion Ave',
+              addressLine1: '2719 Hyperion Ave',
               city: 'Los Angeles',
-              state: 'CA',
+              stateCode: 'CA',
               country: 'US',
-              zipFirstFive: '92264'
+              zipCode: '92264'
             }
           }
         }
@@ -139,15 +124,15 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
         power_of_attorney.form_data = {
           recordConsent: true,
           consentAddressChange: true,
-          consentLimits: ['DRUG ABUSE', 'SICKLE CELL'],
+          consentLimits: %w[DRUG_ABUSE SICKLE_CELL],
           veteran: {
             serviceBranch: 'ARMY',
             address: {
-              numberAndStreet: '2719 Hyperion Ave',
+              addressLine1: '2719 Hyperion Ave',
               city: 'Los Angeles',
-              state: 'CA',
+              stateCode: 'CA',
               country: 'US',
-              zipFirstFive: '92264'
+              zipCode: '92264'
             },
             phone: {
               areaCode: '555',
@@ -159,11 +144,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             email: 'lillian@disney.com',
             relationship: 'Spouse',
             address: {
-              numberAndStreet: '2688 S Camino Real',
+              addressLine1: '2688 S Camino Real',
               city: 'Palm Springs',
-              state: 'CA',
+              stateCode: 'CA',
               country: 'US',
-              zipFirstFive: '92264'
+              zipCode: '92264'
             },
             phone: {
               areaCode: '555',
@@ -174,16 +159,16 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
           },
           representative: {
             poaCode: poa_code.to_s,
+            registrationNumber: '1234',
             type: 'SERVICE ORGANIZATION REPRESENTATIVE',
             firstName: 'Bob',
             lastName: 'Representative',
-            organizationName: 'I Help Vets LLC',
             address: {
-              numberAndStreet: '2719 Hyperion Ave',
+              addressLine1: '2719 Hyperion Ave',
               city: 'Los Angeles',
-              state: 'CA',
+              stateCode: 'CA',
               country: 'US',
-              zipFirstFive: '92264'
+              zipCode: '92264'
             }
           }
         }
@@ -209,7 +194,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
               'text_signatures' => {
                 'page2' => [
                   {
-                    'signature' => 'JESSE GRAY - signed via api.va.gov',
+                    'signature' => 'Mitchell Jenkins - signed via api.va.gov',
                     'x' => 35,
                     'y' => 306
                   },
@@ -239,6 +224,8 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
     end
 
     context '2122 veteran claimant' do
+      let!(:org) { create(:organization, name: 'I Help Vets LLC', poa: poa_code) }
+
       before do
         power_of_attorney.form_data = {
           recordConsent: true,
@@ -246,45 +233,26 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
           consentLimits: %w[DRUG_ABUSE SICKLE_CELL],
           veteran: {
             address: {
-              numberAndStreet: '2719 Hyperion Ave',
+              addressLine1: '2719 Hyperion Ave',
               city: 'Los Angeles',
-              state: 'CA',
+              stateCode: 'CA',
               country: 'US',
-              zipFirstFive: '92264'
+              zipCode: '92264'
             },
             phone: {
               areaCode: '555',
               phoneNumber: '5551337'
             }
           },
-          claimant: {
-            email: 'lillian@disney.com',
-            relationship: 'Spouse',
-            address: {
-              numberAndStreet: '2688 S Camino Real',
-              city: 'Palm Springs',
-              state: 'CA',
-              country: 'US',
-              zipFirstFive: '92264'
-            },
-            phone: {
-              areaCode: '555',
-              phoneNumber: '5551337'
-            },
-            firstName: 'JESSE',
-            lastName: 'GRAY'
-          },
           serviceOrganization: {
             poaCode: poa_code.to_s,
-            firstName: 'Bob',
-            lastName: 'Representative',
-            organizationName: 'I Help Vets LLC',
+            registrationNumber: '1234',
             address: {
-              numberAndStreet: '2719 Hyperion Ave',
+              addressLine1: '2719 Hyperion Ave',
               city: 'Los Angeles',
-              state: 'CA',
+              stateCode: 'CA',
               country: 'US',
-              zipFirstFive: '92264'
+              zipCode: '92264'
             }
           }
         }
@@ -320,7 +288,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                 }
               ]
             },
-            'serviceOrganization' => { 'firstName' => 'Bob', 'lastName' => 'Representative' }
+            'serviceOrganization' => {
+              'firstName' => 'Bob',
+              'lastName' => 'Representative',
+              'organizationName' => 'I Help Vets LLC'
+            }
           }
         )
 
@@ -354,18 +326,20 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
     end
 
     context '2122 non-veteran claimant' do
+      let!(:org) { create(:organization, name: 'I Help Vets LLC', poa: poa_code) }
+
       before do
         power_of_attorney.form_data = {
           recordConsent: true,
           consentAddressChange: true,
-          consentLimits: ['DRUG ABUSE', 'SICKLE CELL'],
+          consentLimits: %w[DRUG_ABUSE SICKLE_CELL],
           veteran: {
             address: {
-              numberAndStreet: '2719 Hyperion Ave',
+              addressLine1: '2719 Hyperion Ave',
               city: 'Los Angeles',
-              state: 'CA',
+              stateCode: 'CA',
               country: 'US',
-              zipFirstFive: '92264'
+              zipCode: '92264'
             },
             phone: {
               areaCode: '555',
@@ -377,11 +351,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             email: 'lillian@disney.com',
             relationship: 'Spouse',
             address: {
-              numberAndStreet: '2688 S Camino Real',
+              addressLine1: '2688 S Camino Real',
               city: 'Palm Springs',
-              state: 'CA',
+              stateCode: 'CA',
               country: 'US',
-              zipFirstFive: '92264'
+              zipCode: '92264'
             },
             phone: {
               areaCode: '555',
@@ -392,15 +366,13 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
           },
           serviceOrganization: {
             poaCode: poa_code.to_s,
-            firstName: 'Bob',
-            lastName: 'Representative',
-            organizationName: 'I Help Vets LLC',
+            registrationNumber: '1234',
             address: {
-              numberAndStreet: '2719 Hyperion Ave',
+              addressLine1: '2719 Hyperion Ave',
               city: 'Los Angeles',
-              state: 'CA',
+              stateCode: 'CA',
               country: 'US',
-              zipFirstFive: '92264'
+              zipCode: '92264'
             }
           }
         }
@@ -436,7 +408,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                 }
               ]
             },
-            'serviceOrganization' => { 'firstName' => 'Bob', 'lastName' => 'Representative' }
+            'serviceOrganization' => {
+              'firstName' => 'Bob',
+              'lastName' => 'Representative',
+              'organizationName' => 'I Help Vets LLC'
+            }
           }
         )
 
