@@ -2,24 +2,19 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::UserCreator do
+RSpec.describe SignIn::UserCodeMapCreator do
   describe '#perform' do
     subject do
-      SignIn::UserCreator.new(user_attributes:,
-                              state_payload:,
-                              verified_icn: icn,
-                              request_ip:).perform
+      described_class.new(user_attributes:,
+                          state_payload:,
+                          verified_icn: icn,
+                          request_ip:).perform
     end
 
     let(:user_attributes) do
       {
         logingov_uuid:,
-        loa:,
         csp_email:,
-        current_ial:,
-        max_ial:,
-        multifactor:,
-        authn_context:,
         first_name:,
         last_name:
       }
@@ -36,19 +31,14 @@ RSpec.describe SignIn::UserCreator do
     let(:client_config) { create(:client_config, enforced_terms:) }
     let(:code_challenge) { 'some-code-challenge' }
     let(:type) { service_name }
-    let(:current_ial) { SignIn::Constants::Auth::IAL_TWO }
-    let(:max_ial) { SignIn::Constants::Auth::IAL_TWO }
     let(:logingov_uuid) { SecureRandom.hex }
     let(:icn) { 'some-icn' }
-    let(:loa) { { current: SignIn::Constants::Auth::LOA_THREE, highest: SignIn::Constants::Auth::LOA_THREE } }
     let(:csp_email) { 'some-csp-email' }
     let(:service_name) { SignIn::Constants::Auth::LOGINGOV }
     let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
     let!(:user_verification) { create(:logingov_user_verification, logingov_uuid:) }
     let(:user_uuid) { user_verification.backing_credential_identifier }
-    let(:multifactor) { true }
     let(:sign_in) { { service_name:, auth_broker:, client_id: } }
-    let(:authn_context) { service_name }
     let(:login_code) { 'some-login-code' }
     let(:expected_last_signed_in) { '2023-1-1' }
     let(:expected_avc_at) { '2023-1-1' }
@@ -65,32 +55,16 @@ RSpec.describe SignIn::UserCreator do
 
     after { Timecop.return }
 
-    it 'creates a user with expected attributes' do
-      subject
-      user = User.find(user_uuid)
-      expect(user.logingov_uuid).to eq(logingov_uuid)
-      expect(user.last_signed_in).to eq(expected_last_signed_in)
-      expect(user.loa).to eq(loa)
-      expect(user.icn).to eq(icn)
-      expect(user.email).to eq(csp_email)
-      expect(user.identity_sign_in).to eq(sign_in)
-      expect(user.authn_context).to eq(authn_context)
-      expect(user.multifactor).to eq(multifactor)
-      expect(user.fingerprint).to eq(request_ip)
-    end
-
     it 'creates a user credential email with expected attributes' do
       expect { subject }.to change(UserCredentialEmail, :count)
-      user = User.find(user_uuid)
-      user_credential_email = user.user_verification.user_credential_email
+      user_credential_email = UserCredentialEmail.last
       expect(user_credential_email.credential_email).to eq(csp_email)
     end
 
     it 'creates a user acceptable verified credential email with expected attributes' do
       expect { subject }.to change(UserAcceptableVerifiedCredential, :count)
-      user = User.find(user_uuid)
-      user_avc = UserAcceptableVerifiedCredential.find_by(user_account: user.user_account)
-      expect(user_avc.acceptable_verified_credential_at).to eq(expected_avc_at)
+      user_acceptable_verified_credential = UserAcceptableVerifiedCredential.last
+      expect(user_acceptable_verified_credential.acceptable_verified_credential_at).to eq(expected_avc_at)
     end
 
     it 'returns a user code map with expected attributes' do
