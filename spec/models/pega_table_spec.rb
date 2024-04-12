@@ -28,4 +28,3 @@ RSpec.describe PegaTable, type: :model do
     end
   end
 end
-
