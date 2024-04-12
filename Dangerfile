@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ostruct'
+
 module VSPDanger
   HEAD_SHA = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
   BASE_SHA = 'origin/master'
