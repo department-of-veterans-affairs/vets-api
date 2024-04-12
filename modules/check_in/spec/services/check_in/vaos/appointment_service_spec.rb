@@ -29,7 +29,7 @@ describe CheckIn::VAOS::AppointmentService do
             id: '180765',
             kind: 'clinic',
             status: 'booked',
-            patientIcn: :icn,
+            patientIcn: 'icn',
             locationId: '983GC',
             clinic: '1081',
             start: '2023-11-02T17:12:30.174Z',
@@ -37,11 +37,12 @@ describe CheckIn::VAOS::AppointmentService do
             minutesDuration: 30
           }
         ]
-      }
+      }.with_indifferent_access
     end
-    let(:faraday_response) { double('Faraday::Env', status: 200, body: appointments_response.to_json) }
+    let(:faraday_response) { double('Faraday::Response') }
+    let(:faraday_env) { double('Faraday::Env', status: 200, body: appointments_response.to_json) }
 
-    context 'when successful response' do
+    context 'when vaos returns successful response' do
       before do
         allow_any_instance_of(CheckIn::Map::TokenService).to receive(:token)
           .and_return(token)
@@ -49,14 +50,38 @@ describe CheckIn::VAOS::AppointmentService do
                                                                          { start: start_date, end: end_date,
                                                                            statuses: })
                                                                    .and_return(faraday_response)
-        allow(faraday_response).to receive(:env).and_return(faraday_response)
+        allow(faraday_response).to receive(:env).and_return(faraday_env)
       end
 
       it 'returns appointments' do
         response = subject.get_appointments(DateTime.parse(start_date).in_time_zone,
                                             DateTime.parse(end_date).in_time_zone,
                                             statuses)
-        expect(response.status).to be 200
+        expect(response).to eq(appointments_response)
+      end
+    end
+
+    context 'when vaos returns server error' do
+      let(:resp) { Faraday::Response.new(body: { error: 'Internal server error' }, status: 500) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+
+      before do
+        allow_any_instance_of(CheckIn::Map::TokenService).to receive(:token)
+          .and_return(token)
+        allow_any_instance_of(Faraday::Connection).to receive(:get).with('/vaos/v1/patients/123/appointments',
+                                                                         { start: start_date, end: end_date,
+                                                                           statuses: })
+                                                                   .and_raise(exception)
+      end
+
+      it 'throws exception' do
+        expect do
+          subject.get_appointments(DateTime.parse(start_date).in_time_zone,
+                                   DateTime.parse(end_date).in_time_zone,
+                                   statuses)
+        end.to(raise_error do |error|
+          expect(error).to be_a(Common::Exceptions::BackendServiceException)
+        end)
       end
     end
   end
