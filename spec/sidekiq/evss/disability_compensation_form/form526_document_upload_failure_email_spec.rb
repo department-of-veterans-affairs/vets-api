@@ -60,7 +60,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
 
       Timecop.freeze(exhaustion_time) do
         expect(Rails.logger).to receive(:warn).with(
-          'EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail retries exhausted',
+          'EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail notification dispatched',
           {
             obscured_filename: 'sm_***e1.jpg',
             form526_submission_id: form526_submission.id,
@@ -71,6 +71,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
 
         subject.perform(form526_submission.id, form_attachment.guid)
       end
+    end
+
+    it 'increments a Statsd metric' do
+      allow(notification_client).to receive(:send_email)
+
+      expect { subject.perform(form526_submission.id, form_attachment.guid) }.to trigger_statsd_increment(
+        'api.form_526.document_upload_failure_notification_sent'
+      )
     end
   end
 end

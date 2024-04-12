@@ -5,6 +5,8 @@ require 'va_notify/service'
 module EVSS
   module DisabilityCompensationForm
     class Form526DocumentUploadFailureEmail < Job
+      STATSD_METRIC_KEY = 'api.form_526.document_upload_failure_notification_sent'
+
       def perform(form526_submission_id, supporting_evidence_attachment_guid)
         @notify_client ||= VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key)
         submission = Form526Submission.find(form526_submission_id)
@@ -31,7 +33,7 @@ module EVSS
         )
 
         Rails.logger.warn(
-          'EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail retries exhausted',
+          'EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail notification dispatched',
           {
             obscured_filename:,
             form526_submission_id:,
@@ -39,6 +41,8 @@ module EVSS
             timestamp: Time.now.utc
           }
         )
+
+        StatsD.increment(STATSD_METRIC_KEY)
       end
     end
   end
