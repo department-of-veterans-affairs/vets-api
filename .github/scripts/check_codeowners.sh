@@ -55,10 +55,8 @@ done
 
 if [ ${#offending_files[@]} -ne 0 ]; then
     echo "Error: The following files (or their parent directories) do not have a CODEOWNERS entry:"
-    for file in "${offending_files[@]}"; do
-        echo "$file"
-    done
-    echo "offending_files=${offending_files[*]}" >> $GITHUB_ENV
+    echo $offending_files
+    echo "offending_files=${offending_files[@]}" >> $GITHUB_ENV
     exit 1
 fi
 
