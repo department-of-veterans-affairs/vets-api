@@ -4,10 +4,15 @@ require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require Rails.root.join('modules', 'claims_api', 'spec', 'rails_helper.rb')
+require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_helpers.rb')
 
 metadata = {
   openapi_spec: Rswag::TextHelpers.new.claims_api_docs,
-  production: false
+  production: false,
+  bgs: {
+    service: 'manage_representative_service',
+    operation: 'read_poa_request'
+  }
 }
 
 describe 'PowerOfAttorney', metadata do
@@ -35,7 +40,9 @@ describe 'PowerOfAttorney', metadata do
 
         before do |example|
           mock_ccg(scopes) do
-            submit_request(example.metadata)
+            use_bgs_cassette('nonempty') do
+              submit_request(example.metadata)
+            end
           end
         end
 
