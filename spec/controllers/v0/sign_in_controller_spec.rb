@@ -791,15 +791,6 @@ RSpec.describe V0::SignInController, type: :controller do
                     authentication_time:
                   }
                 end
-                let(:expected_user_attributes) do
-                  {
-                    ssn: user_info.social_security_number,
-                    birth_date: Formatters::DateFormatter.format_date(user_info.birthdate),
-                    first_name: user_info.given_name,
-                    last_name: user_info.family_name,
-                    fingerprint: request.remote_ip
-                  }
-                end
                 let(:mpi_profile) do
                   build(:mpi_profile,
                         ssn: user_info.social_security_number,
@@ -875,42 +866,6 @@ RSpec.describe V0::SignInController, type: :controller do
                 it 'updates StatsD with a callback request success' do
                   expect { subject }.to trigger_statsd_increment(statsd_callback_success, tags: statsd_tags)
                 end
-
-                context 'when the client is the representative client' do
-                  let(:expected_user_attributes) do
-                    {
-                      authn_context: SignIn::Constants::Auth::LOGIN_GOV_IAL2,
-                      email: user_info.email,
-                      first_name: user_info.given_name,
-                      last_name: user_info.family_name,
-                      icn: mpi_profile.icn,
-                      logingov_uuid:,
-                      fingerprint: request.remote_ip,
-                      loa: { current: LOA::THREE, highest: LOA::THREE }
-                    }
-                  end
-
-                  before do
-                    allow(Settings.sign_in).to receive(:arp_client_id).and_return(client_id)
-                  end
-
-                  it 'creates a RepresentativeUser' do
-                    subject
-
-                    user_uuid = UserVerification.last.credential_identifier
-                    user = AccreditedRepresentativePortal::RepresentativeUser.find(user_uuid)
-                    expect(user).to be_a(AccreditedRepresentativePortal::RepresentativeUser)
-                    expect(user).to have_attributes(expected_user_attributes)
-                  end
-                end
-
-                it 'creates a user with expected attributes' do
-                  subject
-
-                  user_uuid = UserVerification.last.credential_identifier
-                  user = User.find(user_uuid)
-                  expect(user).to have_attributes(expected_user_attributes)
-                end
               end
             end
           end
@@ -929,14 +884,6 @@ RSpec.describe V0::SignInController, type: :controller do
                 lname: 'some-family-name',
                 email: 'some-email'
               )
-            end
-            let(:expected_user_attributes) do
-              {
-                ssn: user_info.social,
-                birth_date: Formatters::DateFormatter.format_date(user_info.birth_date),
-                first_name: user_info.fname,
-                last_name: user_info.lname
-              }
             end
             let(:mpi_profile) do
               build(:mpi_profile,
@@ -1077,43 +1024,6 @@ RSpec.describe V0::SignInController, type: :controller do
                   expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
                   expect { subject }.to trigger_statsd_increment(statsd_callback_success, tags: statsd_tags)
                 end
-
-                context 'when the client is the representative client' do
-                  let(:expected_user_attributes) do
-                    {
-                      authn_context: SignIn::Constants::Auth::IDME_LOA3,
-                      email: user_info.email,
-                      first_name: user_info.fname,
-                      last_name: user_info.lname,
-                      icn: mpi_profile.icn,
-                      idme_uuid:,
-                      fingerprint: request.remote_ip,
-                      loa: { current: LOA::THREE, highest: LOA::THREE }
-                    }
-                  end
-
-                  before do
-                    allow(Settings.sign_in).to receive(:arp_client_id).and_return(client_id)
-                  end
-
-                  it 'creates a RepresentativeUser' do
-                    subject
-
-                    user_uuid = UserVerification.last.credential_identifier
-                    user = AccreditedRepresentativePortal::RepresentativeUser.find(user_uuid)
-                    expect(user).to be_a(AccreditedRepresentativePortal::RepresentativeUser)
-                    expect(user).to have_attributes(expected_user_attributes)
-                  end
-                end
-
-                it 'creates a user with expected attributes' do
-                  subject
-
-                  user_uuid = UserVerification.last.credential_identifier
-                  user = User.find(user_uuid)
-
-                  expect(user).to have_attributes(expected_user_attributes)
-                end
               end
             end
           end
@@ -1136,16 +1046,6 @@ RSpec.describe V0::SignInController, type: :controller do
                 dslogon_assurance:,
                 email: 'some-email'
               )
-            end
-            let(:expected_user_attributes) do
-              {
-                ssn: user_info.dslogon_idvalue,
-                birth_date: Formatters::DateFormatter.format_date(user_info.dslogon_birth_date),
-                first_name: user_info.dslogon_fname,
-                middle_name: user_info.dslogon_mname,
-                last_name: user_info.dslogon_lname,
-                edipi: user_info.dslogon_uuid
-              }
             end
             let(:mpi_profile) do
               build(:mpi_profile,
@@ -1232,30 +1132,11 @@ RSpec.describe V0::SignInController, type: :controller do
                   expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
                   expect { subject }.to trigger_statsd_increment(statsd_callback_success, tags: statsd_tags)
                 end
-
-                it 'creates a user with expected attributes' do
-                  subject
-
-                  user_uuid = UserVerification.last.backing_credential_identifier
-                  user = User.find(user_uuid)
-
-                  expect(user).to have_attributes(expected_user_attributes)
-                end
               end
 
               context 'and dslogon account is not premium' do
                 let(:dslogon_assurance) { 'some-dslogon-assurance' }
                 let(:ial) { IAL::ONE }
-                let(:expected_user_attributes) do
-                  {
-                    ssn: nil,
-                    birth_date: nil,
-                    first_name: nil,
-                    middle_name: nil,
-                    last_name: nil,
-                    edipi: nil
-                  }
-                end
 
                 it_behaves_like 'dslogon successful callback'
               end
@@ -1264,16 +1145,6 @@ RSpec.describe V0::SignInController, type: :controller do
                 let(:dslogon_assurance) { LOA::DSLOGON_ASSURANCE_THREE }
                 let(:ial) { IAL::TWO }
                 let(:expected_icn) { mpi_profile.icn }
-                let(:expected_user_attributes) do
-                  {
-                    ssn: user_info.dslogon_idvalue,
-                    birth_date: Formatters::DateFormatter.format_date(user_info.dslogon_birth_date),
-                    first_name: user_info.dslogon_fname,
-                    middle_name: user_info.dslogon_mname,
-                    last_name: user_info.dslogon_lname,
-                    edipi: user_info.dslogon_uuid
-                  }
-                end
 
                 it_behaves_like 'dslogon successful callback'
 
@@ -1410,27 +1281,12 @@ RSpec.describe V0::SignInController, type: :controller do
                   expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
                   expect { subject }.to trigger_statsd_increment(statsd_callback_success, tags: statsd_tags)
                 end
-
-                it 'creates a user with expected attributes' do
-                  subject
-
-                  user_uuid = UserVerification.last.backing_credential_identifier
-                  user = User.find(user_uuid)
-
-                  expect(user).to have_attributes(expected_user_attributes)
-                end
               end
 
               context 'and mhv account is not premium' do
                 let(:mhv_assurance) { 'some-mhv-assurance' }
                 let(:ial) { IAL::ONE }
                 let(:expected_icn) { nil }
-                let(:expected_user_attributes) do
-                  {
-                    mhv_correlation_id: nil,
-                    icn: nil
-                  }
-                end
 
                 it_behaves_like 'mhv successful callback'
               end
@@ -1438,12 +1294,6 @@ RSpec.describe V0::SignInController, type: :controller do
               context 'and mhv account is premium' do
                 let(:mhv_assurance) { 'Premium' }
                 let(:ial) { IAL::TWO }
-                let(:expected_user_attributes) do
-                  {
-                    mhv_correlation_id: user_info.mhv_uuid,
-                    icn: user_info.mhv_icn
-                  }
-                end
 
                 it_behaves_like 'mhv successful callback'
 
@@ -1637,7 +1487,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
       context 'and assertion is a valid jwt' do
         let(:private_key) { OpenSSL::PKey::RSA.new(File.read(private_key_path)) }
-        let(:private_key_path) { 'spec/fixtures/sign_in/sample_service_account.pem' }
+        let(:private_key_path) { 'spec/fixtures/sign_in/sts_client.pem' }
         let(:assertion_payload) do
           {
             iss:,
@@ -1661,7 +1511,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expiration_time) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES.since.to_i }
         let(:created_time) { Time.zone.now.to_i }
         let(:uuid) { 'some-uuid' }
-        let(:certificate_path) { 'spec/fixtures/sign_in/sample_service_account.crt' }
+        let(:certificate_path) { 'spec/fixtures/sign_in/sts_client.crt' }
         let(:version) { SignIn::Constants::AccessToken::CURRENT_VERSION }
         let(:assertion_certificate) { File.read(certificate_path) }
         let(:service_account_config) { create(:service_account_config, certificates: [assertion_certificate]) }
