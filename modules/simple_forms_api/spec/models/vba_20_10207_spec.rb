@@ -83,7 +83,8 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
         expected: statement_of_truth_signature },
       { preparer_type: 'third-party-veteran', third_party_type: 'representative',
         expected: statement_of_truth_signature },
-      { preparer_type: 'third-party-non-veteran', third_party_type: 'power-of-attorney', expected: statement_of_truth_signature }
+      { preparer_type: 'third-party-non-veteran', third_party_type: 'power-of-attorney',
+        expected: statement_of_truth_signature }
     ].each do |data|
       preparer_type = data[:preparer_type]
       third_party_type = data[:third_party_type]
