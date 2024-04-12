@@ -38,6 +38,7 @@ module SimpleFormsApi
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
+        byebug
         response = if form_is210966 && icn && first_party?
                      handle_210966_authenticated
                    elsif form_is264555_and_should_use_lgy_api
