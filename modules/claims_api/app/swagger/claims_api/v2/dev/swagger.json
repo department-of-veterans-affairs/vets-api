@@ -108,11 +108,11 @@
                       "id": 12345,
                       "attributes": {
                         "status": "DECLINED",
-                        "submittedAt": "2024-04-10T04:51:12.000Z",
-                        "acceptedOrDeclinedAt": "2024-04-10T04:51:12.000Z",
+                        "submittedAt": "2024-04-10T04:51:12+00:00",
+                        "acceptedOrDeclinedAt": "2024-04-10T04:51:12+00:00",
                         "declinedReason": "Because I felt like it",
-                        "authorizesAddressChanges": true,
-                        "authorizesTreatmentDisclosures": false,
+                        "isAddressChangingAuthorized": true,
+                        "isTreatmentDisclosureAuthorized": false,
                         "powerOfAttorneyCode": "012",
                         "veteran": {
                           "firstName": "Firstus",
@@ -181,8 +181,8 @@
                               "submittedAt",
                               "acceptedOrDeclinedAt",
                               "declinedReason",
-                              "authorizesAddressChanges",
-                              "authorizesTreatmentDisclosures",
+                              "isAddressChangingAuthorized",
+                              "isTreatmentDisclosureAuthorized",
                               "powerOfAttorneyCode",
                               "veteran",
                               "claimant",
@@ -201,12 +201,12 @@
                               },
                               "submittedAt": {
                                 "type": "string",
-                                "description": "When the Power of Attorney request was submitted",
+                                "description": "UTC datetime at which the Power of Attorney request was submitted",
                                 "format": "date-time"
                               },
                               "acceptedOrDeclinedAt": {
                                 "type": "string",
-                                "description": "When the Power of Attorney request was accepted or declined",
+                                "description": "UTC datetime at which the Power of Attorney request was accepted or declined",
                                 "nullable": true,
                                 "format": "date-time"
                               },
@@ -215,11 +215,11 @@
                                 "description": "The reason given by the representative for declining the Power of Attorney request",
                                 "nullable": true
                               },
-                              "authorizesAddressChanges": {
+                              "isAddressChangingAuthorized": {
                                 "type": "boolean",
                                 "description": "Whether the representative is authorized to change the claimant's address"
                               },
-                              "authorizesTreatmentDisclosures": {
+                              "isTreatmentDisclosureAuthorized": {
                                 "type": "boolean",
                                 "description": "Whether the representative is authorized to receive disclosures of the Veteran's treatment records"
                               },
