@@ -29,7 +29,7 @@ module AskVAApi
           filter_data(data, id)
         else
           endpoint = 'inquiries'
-          payload = id ? { icn: } : { id: }
+          payload = id ? { id: } : { icn: }
 
           response = Crm::Service.new(icn:).call(endpoint:, payload:)
           handle_response_data(response)
