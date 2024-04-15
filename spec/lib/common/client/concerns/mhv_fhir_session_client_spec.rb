@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'medical_records/client_session'
-require_relative '../../../../../lib/common/client/concerns/mhv_fhir_session_client'
+require 'common/client/concerns/mhv_fhir_session_client'
 
 describe Common::Client::Concerns::MhvFhirSessionClient do
   let(:dummy_class) do

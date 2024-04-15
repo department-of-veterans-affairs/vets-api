@@ -126,7 +126,7 @@ Date Entered   Date Separated     Service Component
 Date Entered   Date Separated     Service Component
 <% @applicant&.toursOfDuty&.each do |tour| -%>
 <%= to_date(tour.dateRange&.from) %>     <%= to_date(tour.dateRange&.to) %>         <%= tour.serviceBranch %>
-<% end %>
+<% end -%>
 
 <% end -%>
 <% unless Settings.vsp_environment.eql?('production') -%>
@@ -185,7 +185,11 @@ Signature/Title/Branch of Armed Forces Education Service Officer     Date
 As an active-duty service member, you have consulted with an Education Service
 Officer (ESO) regarding your education program.
 <% else -%>
+<% if @applicant.minorHighSchoolQuestions -%>
+      You are the parent, guardian, or custodian of the applicant
+<% else -%>
       Certification and Signature of Applicant
+<% end -%>
 Signature of Applicant                                               Date
 <% end -%>
 <% end -%>
