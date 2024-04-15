@@ -5,6 +5,7 @@ require 'common/exceptions'
 
 module AppealsApi
   class NoticeOfDisagreement < ApplicationRecord
+    include AppealScopes
     include NodStatus
     include PdfOutputPrep
     include ModelValidations

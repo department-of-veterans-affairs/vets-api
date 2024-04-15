@@ -5,9 +5,11 @@ require 'common/exceptions'
 
 module AppealsApi
   class HigherLevelReview < ApplicationRecord
+    include AppealScopes
     include HlrStatus
     include PdfOutputPrep
     include ModelValidations
+
     required_claimant_headers %w[
       X-VA-NonVeteranClaimant-First-Name
       X-VA-NonVeteranClaimant-Last-Name
