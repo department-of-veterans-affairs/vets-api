@@ -1175,10 +1175,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for querying Drupal Source of Truth for Acheron flag
-  va_online_scheduling_request_flow_update:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for content update to VA and Community Care request flow
   va_online_scheduling_poc_type_of_care:
     actor_type: user
     enable_in_development: true
