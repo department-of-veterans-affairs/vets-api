@@ -5,7 +5,26 @@ require 'va_notify/service'
 module EVSS
   module DisabilityCompensationForm
     class Form526DocumentUploadFailureEmail < Job
-      STATSD_METRIC_KEY = 'api.form_526.document_upload_failure_notification_sent'
+      STATSD_SENT_METRIC_KEY = 'api.form_526.document_upload_failure_notification_sent'
+      STATSD_EXHAUSTED_METRIC_KEY = 'api.form_526.document_upload_failure_email_job_exhausted'
+
+      # retry for one day
+      sidekiq_options retry: 14
+
+      sidekiq_retries_exhausted do |msg, _ex|
+        job_id = msg['jid']
+        error_class = msg['error_class']
+        error_message = msg['error_message']
+        timestamp = Time.now.utc
+        form526_submission_id = msg['args'][0]
+
+        Rails.logger.warn(
+          'EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail retries exhausted',
+          { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+        )
+
+        StatsD.increment(STATSD_EXHAUSTED_METRIC_KEY)
+      end
 
       def perform(form526_submission_id, supporting_evidence_attachment_guid)
         @notify_client ||= VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key)
@@ -32,18 +51,25 @@ module EVSS
           }
         )
 
-        Rails.logger.warn(
+        Rails.logger.info(
           'EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail notification dispatched',
           {
             obscured_filename:,
             form526_submission_id:,
-            supporting_evidence_attachment_guid:,
+            supporting_evidence_attachment_guid: attachment_guid,
             timestamp: Time.now.utc
           }
         )
 
-        StatsD.increment(STATSD_METRIC_KEY)
+        StatsD.increment(STATSD_SENT_METRIC_KEY)
+      rescue => e
+        retryable_error_handler(e)
       end
+    end
+
+    def retryable_error_handler(error)
+      super(error)
+      raise error
     end
   end
 end

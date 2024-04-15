@@ -59,7 +59,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
       exhaustion_time = Time.new(1985, 10, 26).utc
 
       Timecop.freeze(exhaustion_time) do
-        expect(Rails.logger).to receive(:warn).with(
+        expect(Rails.logger).to receive(:info).with(
           'EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail notification dispatched',
           {
             obscured_filename: 'sm_***e1.jpg',
@@ -79,6 +79,48 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
       expect { subject.perform(form526_submission.id, form_attachment.guid) }.to trigger_statsd_increment(
         'api.form_526.document_upload_failure_notification_sent'
       )
+    end
+  end
+
+  context 'when all retries are exhausted' do
+    let(:retry_params) do
+      {
+        'jid' => 8675309,
+        'error_class' => 'JennyNotFound',
+        'error_message' => 'Jenny did not answer',
+        'args' => [form526_submission.id, form_attachment.guid]
+      }
+    end
+
+    let(:exhaustion_time) { DateTime.new(1985, 10, 26).utc }
+
+    before do
+      allow(notification_client).to receive(:send_email)
+    end
+
+    it 'increments a StatsD exhaustion metric and logs to the Rails logger' do
+      Timecop.freeze(exhaustion_time) do
+        described_class.within_sidekiq_retries_exhausted_block(retry_params) do
+          expect(Rails.logger).to receive(:warn).with(
+            "EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail retries exhausted",
+            {
+              job_id: 8675309,
+              error_class: 'JennyNotFound',
+              error_message: 'Jenny did not answer',
+              timestamp: exhaustion_time,
+              form526_submission_id: form526_submission.id
+            }
+          ).and_call_original
+        end
+      end
+    end
+
+    it 'increments a StatsD exhaustion metric' do
+      Timecop.freeze(exhaustion_time) do
+        described_class.within_sidekiq_retries_exhausted_block(retry_params) do
+          expect(StatsD).to receive(:increment).with('api.form_526.document_upload_failure_email_job_exhausted')
+        end
+      end
     end
   end
 end
