@@ -63,6 +63,9 @@ module Lighthouse
     end
 
 
+    # SMELL:  Why did I name this param "as_pdf"
+    #         that is different than the central mail method
+    #
     def perform(form_4142_as_pdf)
       # TODO: What kind of object is form_4142_as_pdf?
       #       in CentralMail's job it is a submission_id
@@ -173,7 +176,7 @@ module Lighthouse
         benefits_intake_uuid: intake_uuid,
         saved_claim:          @claim
       )
-      
+
       @form_submission_attempt = FormSubmissionAttempt.create(form_submission:)
     end
 
