@@ -3,75 +3,159 @@
 require 'rails_helper'
 
 RSpec.describe AskVAApi::Inquiries::Retriever do
-  subject(:retriever) { described_class.new(icn:, service:) }
+  subject(:retriever) do
+    described_class.new(user_mock_data:, entity_class: AskVAApi::Inquiries::Entity, icn:)
+  end
 
-  let(:icn) { YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']['test_user_228_icn'] }
-  let(:service) { DynamicsMockService.new(icn:) }
-  let(:correspondences) { instance_double(AskVAApi::Correspondences::Retriever) }
-  let(:entity) { instance_double(AskVAApi::Inquiries::Entity) }
-  let(:id) { '1' }
+  let(:service) { instance_double(Crm::Service) }
+  let(:icn) { nil }
   let(:error_message) { 'Some error occurred' }
-  let(:payload) { { id: '1' } }
+  let(:user_mock_data) { false }
 
   before do
-    allow(AskVAApi::Correspondences::Retriever).to receive(:new).and_return(correspondences)
-    allow(correspondences).to receive(:call).and_return(entity)
-    allow(AskVAApi::Inquiries::Entity).to receive(:new).and_return(entity)
+    allow(Crm::Service).to receive(:new).and_return(service)
+    allow(service).to receive(:call)
   end
 
-  describe '#fetch_by_id' do
-    it 'returns an Entity object with correct data' do
-      expect(retriever.fetch_by_id(id:)).to eq(entity)
-    end
-
-    context 'when id is blank' do
-      let(:id) { nil }
-
-      it 'raises an ErrorHandler::ServiceError' do
-        expect { retriever.fetch_by_id(id:) }
-          .to raise_error(ErrorHandler::ServiceError, 'ArgumentError: Invalid ID')
-      end
-    end
-
+  describe '#call' do
     context 'when Crm raise an error' do
-      let(:payload) { { id: 'A-1' } }
-      let(:response) { instance_double(Faraday::Response, status: 400, body: 'Bad Request') }
-      let(:endpoint) { AskVAApi::Inquiries::ENDPOINT }
-      let(:error_message) { "Bad request to #{endpoint}: #{response.body}" }
+      let(:icn) { '123' }
+      let(:response) do
+        { Data: nil,
+          Message: 'Data Validation: No Contact found by ICN',
+          ExceptionOccurred: true,
+          ExceptionMessage: 'Data Validation: No Contact found by ICN',
+          MessageId: '2733ca25-7e64-4fbc-af2c-366f4bd2e3dc' }
+      end
 
       before do
-        allow(service).to receive(:call)
-          .with(endpoint:, payload:)
-          .and_raise(Crm::ErrorHandler::ServiceError, error_message)
+        allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+        allow(service).to receive(:call).and_return(response)
       end
 
-      it 'raises a FetchInquiriesError' do
-        expect do
-          retriever.fetch_by_id(id: 'A-1')
-        end.to raise_error(ErrorHandler::ServiceError, "Crm::ErrorHandler::ServiceError: #{error_message}")
-      end
-    end
-  end
-
-  describe '#fetch_by_icn' do
-    context 'when icn is blank' do
-      let(:icn) { nil }
-
-      it 'raises an ErrorHandler::ServiceError' do
-        expect { retriever.fetch_by_icn }
-          .to raise_error(ErrorHandler::ServiceError, 'ArgumentError: Invalid ICN')
+      it 'raise CorrespondenceRetrieverrError' do
+        expect { retriever.call }.to raise_error(ErrorHandler::ServiceError)
       end
     end
 
-    context 'when icn is present' do
-      it 'returns an array of Entity objects' do
-        expect(retriever.fetch_by_icn.first).to eq(entity)
+    context 'when successful' do
+      context 'with user_mock_data' do
+        context 'when an ID is given' do
+          let(:user_mock_data) { true }
+          let(:id) { 'A-1' }
+
+          it 'returns an array object with correct data' do
+            expect(retriever.fetch_by_id(id:)).to be_a(AskVAApi::Inquiries::Entity)
+          end
+        end
+
+        context 'when an ICN is given' do
+          let(:user_mock_data) { true }
+          let(:icn) { '1008709396V637156' }
+
+          it 'returns an array object with correct data' do
+            expect(retriever.call.first).to be_a(AskVAApi::Inquiries::Entity)
+          end
+        end
       end
 
-      context 'when there are no inquiries' do
-        it 'returns an empty array' do
-          allow(service).to receive(:call).and_return({ Data: [] })
-          expect(retriever.fetch_by_icn).to be_empty
+      context 'with Crm::Service' do
+        context 'when an ID is given' do
+          let(:id) { '123' }
+          let(:response) do
+            { Data: [{ Id: '154163f2-8fbb-ed11-9ac4-00155da17a6f',
+                       InquiryNumber: 'A-20230305-306178',
+                       InquiryStatus: 'Reopened',
+                       SubmitterQuestion: 'test',
+                       LastUpdate: '4/1/2024 12:00:00 AM',
+                       InquiryHasAttachments: true,
+                       InquiryHasBeenSplit: true,
+                       VeteranRelationship: 'GIBillBeneficiary',
+                       SchoolFacilityCode: '77a51029-6816-e611-9436-0050568d743d',
+                       InquiryTopic: 'Medical Care Concerns at a VA Medical Facility',
+                       InquiryLevelOfAuthentication: 'Unauthenticated',
+                       AttachmentNames: [{ Id: '367e8d31-6c82-1d3c-81b8-dd2cabed7555',
+                                           Name: 'Test.txt' }] }] }
+          end
+
+          before do
+            allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+            allow(service).to receive(:call).and_return(response)
+          end
+
+          it 'returns an array object with correct data' do
+            expect(retriever.fetch_by_id(id:)).to be_a(AskVAApi::Inquiries::Entity)
+          end
+        end
+
+        context 'when an ICN is given' do
+          let(:icn) { '1013694290V263188' }
+          let(:response) do
+            {
+              Data: [
+                {
+                  Id: '154163f2-8fbb-ed11-9ac4-00155da17a6f',
+                  InquiryNumber: 'A-20230305-306178',
+                  InquiryStatus: 'Reopened',
+                  SubmitterQuestion: 'test',
+                  LastUpdate: '4/1/2024 12:00:00 AM',
+                  InquiryHasAttachments: true,
+                  InquiryHasBeenSplit: true,
+                  VeteranRelationship: 'GIBillBeneficiary',
+                  SchoolFacilityCode: '77a51029-6816-e611-9436-0050568d743d',
+                  InquiryTopic: 'Medical Care Concerns at a VA Medical Facility',
+                  InquiryLevelOfAuthentication: 'Unauthenticated',
+                  AttachmentNames: [
+                    {
+                      Id: '367e8d31-6c82-1d3c-81b8-dd2cabed7555',
+                      Name: 'Test.txt'
+                    }
+                  ]
+                },
+                {
+                  Id: 'b24e8113-92d1-ed11-9ac4-00155da17a6f',
+                  InquiryNumber: 'A-20230402-306218',
+                  InquiryStatus: 'New',
+                  SubmitterQuestion: 'test',
+                  LastUpdate: '1/1/0001 12:00:00 AM',
+                  InquiryHasAttachments: false,
+                  InquiryHasBeenSplit: false,
+                  VeteranRelationship: nil,
+                  SchoolFacilityCode: '77a51029-6816-e611-9436-0050568d743d',
+                  InquiryTopic: 'Medical Care Concerns at a VA Medical Facility',
+                  InquiryLevelOfAuthentication: 'Personal',
+                  AttachmentNames: nil
+                },
+                {
+                  Id: 'e1ce6ae6-40ec-ee11-904d-001dd8306a72',
+                  InquiryNumber: 'A-20240327-307060',
+                  InquiryStatus: 'New',
+                  SubmitterQuestion: 'test',
+                  LastUpdate: '3/27/2024 12:00:00 AM',
+                  InquiryHasAttachments: true,
+                  InquiryHasBeenSplit: true,
+                  VeteranRelationship: nil,
+                  SchoolFacilityCode: nil,
+                  InquiryTopic: 'Filing for compensation benefits',
+                  InquiryLevelOfAuthentication: 'Personal',
+                  AttachmentNames: nil
+                }
+              ],
+              Message: nil,
+              ExceptionOccurred: false,
+              ExceptionMessage: nil,
+              MessageId: '3779a3c5-15a5-4846-8198-d499a0bbfe1f'
+            }
+          end
+
+          before do
+            allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+            allow(service).to receive(:call).and_return(response)
+          end
+
+          it 'returns an array object with correct data' do
+            expect(retriever.call.first).to be_a(AskVAApi::Inquiries::Entity)
+          end
         end
       end
     end
