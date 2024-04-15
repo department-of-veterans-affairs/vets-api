@@ -59,7 +59,7 @@ describe ClaimsApi::VnpPtcpntAddrsService, metadata do
       options[:zip_prefix_nbr] = '06605'
       options[:zip_second_suffix_nbr] = nil
 
-      use_bgs_cassette('vnp_ptcpnt_addrs_create') do
+      use_bgs_cassette('happy_path') do
         response = subject.vnp_ptcpnt_addrs_create(options)
         expect(response).to include(
           { vnp_ptcpnt_addrs_id: '143950',
