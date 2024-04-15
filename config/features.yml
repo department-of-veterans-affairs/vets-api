@@ -951,7 +951,15 @@ features:
     actor_type: user
     description: Displays an alert to users on 1990EZ intro page that the Backend Service is Down.
     enable_in_development: false
+  show_meb_1990EZ_R6_maintenance_message:
+    actor_type: user
+    description: Displays an alert to users on 1990EZ intro page that the Backend Service is Down.
+    enable_in_development: false
   show_meb_1990E_maintenance_alert:
+    actor_type: user
+    description: Displays an alert to users on 1990E intro page that the Backend Service is Down.
+    enable_in_development: false
+  show_meb_1990E_R6_maintenance_message:
     actor_type: user
     description: Displays an alert to users on 1990E intro page that the Backend Service is Down.
     enable_in_development: false
