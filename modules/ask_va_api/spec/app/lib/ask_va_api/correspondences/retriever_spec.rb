@@ -48,10 +48,54 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
     end
 
     context 'when successful' do
-      let(:user_mock_data) { true }
+      context 'with user_mock_data' do
+        let(:user_mock_data) { true }
 
-      it 'returns an array object with correct data' do
-        expect(retriever.call.first).to be_a(AskVAApi::Correspondences::Entity)
+        it 'returns an array object with correct data' do
+          expect(retriever.call.first).to be_a(AskVAApi::Correspondences::Entity)
+        end
+      end
+
+      context 'with Crm::Service' do
+        let(:crm_response) do
+          {
+            Data: [
+              {
+                Id: 'a5247de6-62c4-ee11-907a-001dd804eab2',
+                ModifiedOn: '2/5/2024 8:14:48 PM',
+                StatusReason: 'PendingSend',
+                Description: 'Dear aminul, Thank you for submitting ' \
+                             'your Inquiry with the U.S.',
+                MessageType: 'Notification',
+                EnableReply: true,
+                AttachmentNames: nil
+              },
+              {
+                Id: 'f4b12ee3-93bb-ed11-9886-001dd806a6a7',
+                ModifiedOn: '3/5/2023 8:25:49 PM',
+                StatusReason: 'Sent',
+                Description: 'Dear aminul, Thank you for submitting your ' \
+                             'Inquiry with the U.S. Department of Veteran Affairs.',
+                MessageType: 'Notification',
+                EnableReply: true,
+                AttachmentNames: nil
+              }
+            ],
+            Message: nil,
+            ExceptionOccurred: false,
+            ExceptionMessage: nil,
+            MessageId: '086594d9-188b-46b0-9ce2-b8b36329506b'
+          }
+        end
+
+        before do
+          allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+          allow(service).to receive(:call).and_return(crm_response)
+        end
+
+        it 'returns an array object with correct data' do
+          expect(retriever.call.first).to be_a(AskVAApi::Correspondences::Entity)
+        end
       end
     end
   end
