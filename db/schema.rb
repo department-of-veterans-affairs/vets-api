@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_10_212727) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -818,6 +818,23 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_10_212727) do
     t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
   end
 
+  create_table "pega_tables", force: :cascade do |t|
+    t.uuid "uuid"
+    t.string "veteranfirstname"
+    t.string "veteranmiddlename"
+    t.string "veteranlastname"
+    t.string "applicantfirstname"
+    t.string "applicantmiddlename"
+    t.string "applicantlastname"
+    t.jsonb "response"
+    t.string "filenumber"
+    t.string "doctype"
+    t.datetime "date_created"
+    t.datetime "date_completed"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "pension_ipf_notifications", force: :cascade do |t|
     t.text "payload_ciphertext"
     t.text "encrypted_kms_key"
@@ -843,8 +860,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_10_212727) do
   create_table "personal_information_logs", id: :serial, force: :cascade do |t|
     t.jsonb "data", null: false
     t.string "error_class", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.text "data_ciphertext"
     t.text "encrypted_kms_key"
     t.index ["created_at"], name: "index_personal_information_logs_on_created_at"
