@@ -48,7 +48,9 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
       it 'and a result that matches our schema is successfully returned with the 200 status ' do
         VCR.use_cassette(good_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/appeals') do
+            original_evss_claims_count = EVSSClaim.count
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+            expect(EVSSClaim.count).not_to eq(original_evss_claims_count)
             expect(response).to have_http_status(:ok)
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body['data']
