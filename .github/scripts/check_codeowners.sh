@@ -12,6 +12,7 @@ HEAD_SHA=$(git rev-parse HEAD)
 BASE_SHA=$(git rev-parse origin/master)
 
 # Get the list of changed files between the base and head commits
+IFS=$'\n'  # Change IFS to split only on newlines
 CHANGED_FILES=$(git diff --name-only --diff-filter=AMR ${BASE_SHA}...${HEAD_SHA})
 echo "Changed files: $CHANGED_FILES"
 
@@ -37,7 +38,7 @@ check_in_codeowners() {
     return 1
 }
 
-for FILE in "${CHANGED_FILES}"; do
+for FILE in ${CHANGED_FILES}; do
   # Ignore files starting with a dot
   if [[ $FILE == .* ]]; then
     echo "Ignoring file $FILE"
@@ -53,3 +54,4 @@ for FILE in "${CHANGED_FILES}"; do
 done
 
 echo "All changed files or their parent directories have a CODEOWNERS entry."
+IFS=$' \t\n'  # Reset IFS after the loop
