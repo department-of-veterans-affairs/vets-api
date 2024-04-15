@@ -149,6 +149,8 @@ Rails.application.routes.draw do
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
 
+    get 'average_days_for_claim_completion', to: 'average_days_for_claim_completion#index'
+
     get 'virtual_agent_claim_letters', to: 'virtual_agent_claim_letters#index'
     get 'virtual_agent_claim_letters/:document_id', to: 'virtual_agent_claim_letters#show'
 
