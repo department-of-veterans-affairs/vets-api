@@ -22,7 +22,7 @@ module AskVAApi
           data = JSON.parse(data, symbolize_names: true)[:Data]
           filter_data(data)
         else
-          endpoint = "inquiries/#{inquiry_id}/replies"
+          endpoint = "inquiry/#{inquiry_id}/replies"
 
           response = Crm::Service.new(icn: nil).call(endpoint:)
           handle_response_data(response)
