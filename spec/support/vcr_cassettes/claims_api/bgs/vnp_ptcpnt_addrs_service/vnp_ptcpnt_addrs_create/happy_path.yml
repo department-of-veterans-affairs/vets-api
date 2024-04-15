@@ -183,7 +183,7 @@ http_interactions:
               <wsse:Username>VAgovAPI</wsse:Username>
             </wsse:UsernameToken>
             <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-              <vaws:CLIENT_MACHINE>192.168.0.9</vaws:CLIENT_MACHINE>
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
               <vaws:STN_ID>281</vaws:STN_ID>
               <vaws:applicationName>VAgovAPI</vaws:applicationName>
               <vaws:ExternalUid>xUid</vaws:ExternalUid>
