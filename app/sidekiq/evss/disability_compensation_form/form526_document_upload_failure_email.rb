@@ -24,6 +24,20 @@ module EVSS
         )
 
         StatsD.increment(STATSD_EXHAUSTED_METRIC_KEY)
+      rescue => e
+        ::Rails.logger.error(
+          'Failure in DisabilityCompensationForm::Form526DocumentUploadFailureEmail#sidekiq_retries_exhausted',
+          {
+            messaged_content: e.message,
+            job_id:,
+            submission_id: form526_submission_id,
+            pre_exhaustion_failure: {
+              error_class:,
+              error_message:
+            }
+          }
+        )
+        raise e
       end
 
       def perform(form526_submission_id, supporting_evidence_attachment_guid)
@@ -56,7 +70,7 @@ module EVSS
           {
             obscured_filename:,
             form526_submission_id:,
-            supporting_evidence_attachment_guid: attachment_guid,
+            supporting_evidence_attachment_guid: supporting_evidence_attachment_guid,
             timestamp: Time.now.utc
           }
         )

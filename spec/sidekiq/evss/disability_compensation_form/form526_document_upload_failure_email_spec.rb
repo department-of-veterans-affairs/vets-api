@@ -102,7 +102,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
       Timecop.freeze(exhaustion_time) do
         described_class.within_sidekiq_retries_exhausted_block(retry_params) do
           expect(Rails.logger).to receive(:warn).with(
-            "EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail retries exhausted",
+            'EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail retries exhausted',
             {
               job_id: 8675309,
               error_class: 'JennyNotFound',
