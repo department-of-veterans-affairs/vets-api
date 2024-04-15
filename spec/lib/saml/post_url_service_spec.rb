@@ -613,8 +613,10 @@ RSpec.describe SAML::PostURLService do
             let(:expected_log_message) { 'Redirecting to /terms-of-use' }
             let(:expected_log_payload) { { type: :ssoe } }
 
-            context 'when tracker application is within TERMS_OF_USE_ENABLED_CLIENTS' do
-              let(:application) { SAML::URLService::TERMS_OF_USE_ENABLED_CLIENTS_LOWERS.first }
+            context 'when tracker application is within Settings.terms_of_use.enabled_clients' do
+              before do
+                allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(application)
+              end
 
               context 'and authentication is occuring on a review instance' do
                 let(:review_instance_slug) { 'some-review-instance-slug' }
@@ -660,8 +662,10 @@ RSpec.describe SAML::PostURLService do
               end
             end
 
-            context 'when tracker application is not within TERMS_OF_USE_ENABLED_CLIENTS' do
-              let(:application) { 'some-application' }
+            context 'when tracker application is not within Settings.terms_of_use.enabled_clients' do
+              before do
+                allow(Settings.terms_of_use).to receive(:enabled_clients).and_return('')
+              end
 
               it 'has a login redirect url with success not embedded in a terms of use page' do
                 expect(subject.terms_of_use_redirect_url)
