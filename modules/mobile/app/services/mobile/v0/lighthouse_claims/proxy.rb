@@ -49,7 +49,6 @@ module Mobile
                                   data: {})
           end
           claim.update(list_data: raw_claim)
-          claim
         end
       end
     end
