@@ -144,14 +144,12 @@ module SimpleFormsApi
     end
 
     def self.stamp2010207(stamped_template_path, form)
-      desired_stamps = if form.data['preparer_type'] == 'veteran'
-                         [[50, 690]]
+      desired_stamps = if %w[veteran non-veteran].include? form.data['preparer_type']
+                         [[50, 685]]
                        elsif form.data['third_party_type'] == 'power-of-attorney'
-                         [[50, 445]]
-                       elsif form.data['preparer_type'] == 'third-party-veteran' ||
-                             form.data['preparer_type'] == 'third-party-non-veteran' ||
-                             form.data['preparer_type'] == 'non-veteran'
-                         [[50, 570]]
+                         [[50, 440]]
+                       elsif %w[third-party-veteran third-party-non-veteran].include? form.data['preparer_type']
+                         [[50, 565]]
                        end
       signature_text = form.data['statement_of_truth_signature']
       page_configuration = [
