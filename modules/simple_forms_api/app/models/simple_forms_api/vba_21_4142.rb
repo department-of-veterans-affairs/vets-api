@@ -33,13 +33,7 @@ module SimpleFormsApi
     end
 
     def desired_stamps
-      [
-        {
-          coords: [50, 560],
-          text: data['statement_of_truth_signature'],
-          page: 1
-        }
-      ]
+      [{ coords: [50, 560], text: data['statement_of_truth_signature'], page: 1 }]
     end
 
     def submission_date_config

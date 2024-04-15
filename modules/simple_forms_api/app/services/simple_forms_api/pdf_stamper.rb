@@ -149,14 +149,14 @@ module SimpleFormsApi
     end
 
     def self.get_page_configuration(page, position)
-      config = [
+      [
         { type: :new_page },
         { type: :new_page },
         { type: :new_page },
         { type: :new_page }
-      ]
-      config[page] = { type: :text, position: }
-      config
+      ].tap do |config|
+        config[page] = { type: :text, position: }
+      end
     end
   end
 end
