@@ -342,6 +342,12 @@ RSpec/SubjectStub:
 Rails/FilePath:
   EnforcedStyle: arguments
 
+Lint/Debugger:
+  DebuggerMethods:
+    Breakpoint:
+      - Breakpoint.at_receiver
+      - Breakpoint.at_owner
+
 # This one doesn’t always make sense, it’s mostly the swagger,
 # factories and pact provider states — which need a tear_down block regardless
 Lint/EmptyBlock:
