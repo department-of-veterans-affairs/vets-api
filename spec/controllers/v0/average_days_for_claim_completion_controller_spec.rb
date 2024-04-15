@@ -30,7 +30,7 @@ RSpec.describe V0::AverageDaysForClaimCompletionController, type: :controller do
       AverageDaysForClaimCompletion.create(average_days: 300)
     end
 
-    it 'returns the value' do
+    it 'returns the most recently inserted value' do
       get :index
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body)['average_days']).to eq(300.0)
