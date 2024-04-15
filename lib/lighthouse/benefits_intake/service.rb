@@ -15,6 +15,7 @@ module BenefitsIntake
   class Service < Common::Client::Base
     configuration BenefitsIntake::Configuration
 
+    # TODO: process document error similar to service exception
     class InvalidDocumentError < StandardError; end
 
     STATSD_KEY_PREFIX = 'api.benefits_intake'
@@ -62,7 +63,7 @@ module BenefitsIntake
     end
 
     ##
-    # Get the status for a pervious upload
+    # Get the status for a previous upload
     #
     # @param [String] uuid
     #
