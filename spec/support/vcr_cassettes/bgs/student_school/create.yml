@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpChildSchoolWebServiceBean/VnpChildSchoolService?WSDL
+    uri: <BGS_BASE_URL>/VnpChildSchoolWebServiceBean/VnpChildSchoolService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -171,7 +171,7 @@ http_interactions:
   recorded_at: Sat, 18 Jul 2020 02:53:50 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpChildSchoolWebServiceBean/VnpChildSchoolService
+    uri: <BGS_BASE_URL>/VnpChildSchoolWebServiceBean/VnpChildSchoolService
     body:
       encoding: UTF-8
       string: |-
@@ -234,7 +234,7 @@ http_interactions:
   recorded_at: Sat, 18 Jul 2020 02:53:51 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpChildStudentWebServiceBean/VnpChildStudentService?WSDL
+    uri: <BGS_BASE_URL>/VnpChildStudentWebServiceBean/VnpChildStudentService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -403,7 +403,7 @@ http_interactions:
   recorded_at: Sat, 18 Jul 2020 02:53:51 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpChildStudentWebServiceBean/VnpChildStudentService
+    uri: <BGS_BASE_URL>/VnpChildStudentWebServiceBean/VnpChildStudentService
     body:
       encoding: UTF-8
       string: |-

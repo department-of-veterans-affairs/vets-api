@@ -30,6 +30,23 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
           expect(max_ratings).to eq([10, nil, nil])
         end
       end
+
+      context 'when a disabilities response has two rated disabilities with same diagnostic code' do
+        let(:disabilities_data) do
+          [
+            { name: 'Tinnitus', diagnostic_code: 6260, rating_percentage: 10 },
+            { name: 'Tinnitus', diagnostic_code: 6260, rating_percentage: 10 }
+          ]
+        end
+
+        it 'mutates both rated disabilities with max ratings from VRO' do
+          VCR.use_cassette('virtual_regional_office/max_ratings') do
+            subject
+            max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
+            expect(max_ratings).to eq([10, 10])
+          end
+        end
+      end
     end
 
     context 'with disability_526_maximum_rating_api_all_conditions enabled' do

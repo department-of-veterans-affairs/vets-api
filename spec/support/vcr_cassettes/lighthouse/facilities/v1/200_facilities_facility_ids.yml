@@ -1,0 +1,129 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v1/facilities?facilityIds%5B%5D=vha_358&facilityIds%5B%5D=vha_757
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - abcde
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Wed, 10 Apr 2024 20:19:43 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '47'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '47'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '17'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      X-Frame-Options:
+      - SAMEORIGIN
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"id":"nca_042","type":"va_facilities","attributes":{"name":"Baxter
+        Springs City Soldiers'' Lot","facilityType":"va_cemetery","classification":"Soldiers
+        Lot","website":"https://www.cem.va.gov/cems/lots/BaxterSprings.asp","lat":37.03205750,"long":-94.77066050,"timeZone":"America/Chicago","address":{"mailing":{"zip":"66713","city":"Leavenworth","state":"KS","address1":"150
+        Muncie Rd"},"physical":{"zip":"66713","city":"Baxter Springs","state":"KS","address1":"Baxter
+        Springs City Cemetery"}},"phone":{"fax":"9137584136","main":"9137584105"},"hours":{"monday":"Sunrise
+        - Sundown","tuesday":"Sunrise - Sundown","wednesday":"Sunrise - Sundown","thursday":"Sunrise
+        - Sundown","friday":"Sunrise - Sundown","saturday":"Sunrise - Sundown","sunday":"Sunrise
+        - Sundown"},"operatingStatus":{"code":"NORMAL"}}},{"id":"nca_054","type":"va_facilities","attributes":{"name":"Congressional
+        Cemetery Government Lots","facilityType":"va_cemetery","classification":"Government
+        Lots","website":"https://www.cem.va.gov/cems/lots/Congressional.asp","lat":38.88277970,"long":-76.97901110,"timeZone":"America/New_York","address":{"mailing":{"zip":"21228","city":"Baltimore","state":"MD","address1":"5501
+        Frederick Avenue"},"physical":{"zip":"20003","city":"Washington","state":"DC","address1":"1801
+        E Street, SE"}},"phone":{"fax":"4106441563","main":"4106449696"},"hours":{"monday":"Sunrise
+        - Sundown","tuesday":"Sunrise - Sundown","wednesday":"Sunrise - Sundown","thursday":"Sunrise
+        - Sundown","friday":"Sunrise - Sundown","saturday":"Sunrise - Sundown","sunday":"Sunrise
+        - Sundown"},"operatingStatus":{"code":"NORMAL"}}},{"id":"nca_055","type":"va_facilities","attributes":{"name":"Evergreen
+        Cemetery Soldiers'' Lot","facilityType":"va_cemetery","classification":"Soldiers
+        Lot","website":"https://www.cem.va.gov/cems/lots/Evergreen.asp","lat":39.06965130,"long":-84.46885410,"timeZone":"America/New_York","address":{"mailing":{"zip":"40356","city":"Nicholasville","state":"KY","address1":"6980
+        Danville Rd"},"physical":{"zip":"41071","city":"Southgate","state":"KY","address1":"25
+        South Alexandria Pike"}},"phone":{"fax":"859-887-4860","main":"859-885-5727"},"hours":{"monday":"Sunrise
+        - Sundown","tuesday":"Sunrise - Sundown","wednesday":"Sunrise - Sundown","thursday":"Sunrise
+        - Sundown","friday":"Sunrise - Sundown","saturday":"Sunrise - Sundown","sunday":"Sunrise
+        - Sundown"},"operatingStatus":{"code":"NORMAL"}}},{"id":"nca_058","type":"va_facilities","attributes":{"name":"Forest
+        Lawn Cemetery Soldiers'' Lot","facilityType":"va_cemetery","classification":"Soldiers
+        Lot","website":"https://www.cem.va.gov/cems/lots/ForestLawn.asp","lat":41.33124280,"long":-95.99361190,"timeZone":"America/Chicago","address":{"mailing":{"zip":"66048","city":"Leavenworth","state":"KS","address1":"150
+        Muncie Rd"},"physical":{"zip":"68112","city":"Omaha","state":"NE","address1":"7909
+        Mormon Bridge Rd"}},"phone":{"fax":"9137584136","main":"9137584105"},"hours":{"monday":"Sunrise
+        - Sundown","tuesday":"Sunrise - Sundown","wednesday":"Sunrise - Sundown","thursday":"Sunrise
+        - Sundown","friday":"Sunrise - Sundown","saturday":"Sunrise - Sundown","sunday":"Sunrise
+        - Sundown"},"operatingStatus":{"code":"NORMAL"}}},{"id":"nca_059","type":"va_facilities","attributes":{"name":"Fort
+        Crawford Cemetery Soldiers'' Lot","facilityType":"va_cemetery","classification":"Soldiers
+        Lot","website":"https://www.cem.va.gov/cems/lots/Fort_Crawford.asp","lat":43.04707820,"long":-91.14648480,"timeZone":"America/Chicago","address":{"mailing":{"zip":"53295-4000","city":"Milwaukee","state":"WI","address1":"5000
+        W. National Ave, Bldg. 1301"},"physical":{"zip":"53821","city":"Prairie du
+        Chien","state":"WI","address1":"413 S. Beaumont Rd"}},"phone":{"fax":"4143825321","main":"4143825300"},"hours":{"monday":"Sunrise
+        - Sundown","tuesday":"Sunrise - Sundown","wednesday":"Sunrise - Sundown","thursday":"Sunrise
+        - Sundown","friday":"Sunrise - Sundown","saturday":"Sunrise - Sundown","sunday":"Sunrise
+        - Sundown"},"operatingStatus":{"code":"NORMAL"}}},{"id":"nca_061","type":"va_facilities","attributes":{"name":"Green
+        Mount Cemetery Soldiers'' Lot","facilityType":"va_cemetery","classification":"Soldiers
+        Lot","website":"https://www.cem.va.gov/cems/lots/Green_Mount.asp","lat":44.25730710,"long":-72.59974600,"timeZone":"America/New_York","address":{"mailing":{"zip":"02532","city":"Bourne","state":"MA","address1":"Off
+        Connery Ave."},"physical":{"zip":"05602","city":"Montpelier","state":"VT","address1":"250
+        State Street"}},"phone":{"fax":"5085649946","main":"5085637113"},"hours":{"monday":"Sunrise
+        - Sundown","tuesday":"Sunrise - Sundown","wednesday":"Sunrise - Sundown","thursday":"Sunrise
+        - Sundown","friday":"Sunrise - Sundown","saturday":"Sunrise - Sundown","sunday":"Sunrise
+        - Sundown"},"operatingStatus":{"code":"NORMAL"}}},{"id":"nca_062","type":"va_facilities","attributes":{"name":"Lakeside
+        Cemetery Soldiers'' Lot","facilityType":"va_cemetery","classification":"Soldiers
+        Lot","website":"https://www.cem.va.gov/cems/lots/Lakeside.asp","lat":43.01735370,"long":-82.43269330,"timeZone":"America/Detroit","address":{"mailing":{"zip":"48442","city":"Holly","state":"MI","address1":"4200
+        Belford Rd"},"physical":{"zip":"48060","city":"Port Huron","state":"MI","address1":"3781
+        Gratiot St"}},"phone":{"fax":"2483280612","main":"2483280386"},"hours":{"monday":"Sunrise
+        - Sundown","tuesday":"Sunrise - Sundown","wednesday":"Sunrise - Sundown","thursday":"Sunrise
+        - Sundown","friday":"Sunrise - Sundown","saturday":"Sunrise - Sundown","sunday":"Sunrise
+        - Sundown"},"operatingStatus":{"code":"NORMAL"}}},{"id":"nca_063","type":"va_facilities","attributes":{"name":"Mound
+        Cemetery Soldiers'' Lot","facilityType":"va_cemetery","classification":"Soldiers
+        Lot","website":"https://www.cem.va.gov/cems/lots/Mound.asp","lat":42.71931550,"long":-87.81609560,"timeZone":"America/Chicago","address":{"mailing":{"zip":"53295-4000","city":"Milwaukee","state":"WI","address1":"5000
+        W. National Ave, Bldg. 1301"},"physical":{"zip":"53405","city":"Racine","state":"WI","address1":"1147
+        West Blvd"}},"phone":{"fax":"4143825321","main":"4143825300"},"hours":{"monday":"Sunrise
+        - Sundown","tuesday":"Sunrise - Sundown","wednesday":"Sunrise - Sundown","thursday":"Sunrise
+        - Sundown","friday":"Sunrise - Sundown","saturday":"Sunrise - Sundown","sunday":"Sunrise
+        - Sundown"},"operatingStatus":{"code":"NORMAL"}}},{"id":"nca_064","type":"va_facilities","attributes":{"name":"Mound
+        City Cemetery Soldiers'' Lot","facilityType":"va_cemetery","classification":"Soldiers
+        Lot","website":"https://www.cem.va.gov/cems/lots/MoundCity.asp","lat":38.14555200,"long":-94.81322820,"timeZone":"America/Chicago","address":{"mailing":{"zip":"66506","city":"Leavenworth","state":"KS","address1":"150
+        Muncie Rd"},"physical":{"zip":"66506","city":"Mound City","state":"KS","address1":"Woodland
+        Cemetery"}},"phone":{"fax":"9137584136","main":"9137584105"},"hours":{"monday":"Sunrise
+        - Sundown","tuesday":"Sunrise - Sundown","wednesday":"Sunrise - Sundown","thursday":"Sunrise
+        - Sundown","friday":"Sunrise - Sundown","saturday":"Sunrise - Sundown","sunday":"Sunrise
+        - Sundown"},"operatingStatus":{"code":"NORMAL"}}},{"id":"nca_065","type":"va_facilities","attributes":{"name":"Mount
+        Moriah Cemetery Soldiers'' Lot","facilityType":"va_cemetery","classification":"Soldiers
+        Lot","website":"https://www.cem.va.gov/cems/lots/MountMoriah.asp","lat":39.93245530,"long":-75.23679670,"timeZone":"America/New_York","address":{"mailing":{"zip":"08010","city":"Beverly","state":"NJ","address1":"916
+        Bridgeboro Road"},"physical":{"zip":"19142","city":"Philadelphia","state":"PA","address1":"62nd
+        Street and Kingsessing Avenue"}},"phone":{"fax":"6098714691","main":"6098775460"},"hours":{"monday":"Sunrise
+        - Sundown","tuesday":"Sunrise - Sundown","wednesday":"Sunrise - Sundown","thursday":"Sunrise
+        - Sundown","friday":"Sunrise - Sundown","saturday":"Sunrise - Sundown","sunday":"Sunrise
+        - Sundown"},"operatingStatus":{"code":"NORMAL"}}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities?page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities?page=1&per_page=10","next":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities?page=2&per_page=10","last":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities?page=257&per_page=10"},"meta":{"pagination":{"currentPage":1,"perPage":10,"totalPages":257,"totalEntries":2563}}}'
+  recorded_at: Wed, 10 Apr 2024 20:19:43 GMT
+recorded_with: VCR 6.2.0

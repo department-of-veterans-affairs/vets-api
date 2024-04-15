@@ -270,10 +270,10 @@ module PdfFill
           'executor' => {
             key: 'form1[0].#subform[82].CheckboxExecutor[0]'
           },
-          'funeralHome' => {
+          'funeralDirector' => {
             key: 'form1[0].#subform[82].CheckboxFuneralHome[0]'
           },
-          'other' => {
+          'otherFamily' => {
             key: 'form1[0].#subform[82].CheckboxOther[0]'
           }
         },
@@ -702,8 +702,8 @@ module PdfFill
           'child' => select_checkbox(relationship_to_veteran == 'child'),
           'executor' => select_checkbox(relationship_to_veteran == 'executor'),
           'parent' => select_checkbox(relationship_to_veteran == 'parent'),
-          'funeralHome' => select_checkbox(relationship_to_veteran == 'funeralHome'),
-          'other' => select_checkbox(relationship_to_veteran == 'other')
+          'funeralDirector' => select_checkbox(relationship_to_veteran == 'funeralDirector'),
+          'otherFamily' => select_checkbox(relationship_to_veteran == 'otherFamily')
         }
 
         # special case for transportation being the only option selected.
@@ -718,6 +718,9 @@ module PdfFill
         end
 
         expand_cemetery_location
+
+        # special case: the UI only has a 'yes' checkbox, so the PDF 'noTransportation' checkbox can never be true.
+        @form_data['hasTransportation'] = @form_data['transportation'] == true ? 'YES' : nil
 
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
         burial_expense_responsibility = @form_data['burialExpenseResponsibility']
@@ -759,7 +762,6 @@ module PdfFill
           govtContributions
           previouslyReceivedAllowance
           allowanceStatementOfTruth
-          transportation
         ].each do |attr|
           expand_checkbox_in_place(@form_data, attr)
         end
