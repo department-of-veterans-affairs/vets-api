@@ -205,6 +205,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.index ["user_uuid"], name: "index_async_transactions_on_user_uuid"
   end
 
+  create_table "average_days_for_claim_completions", id: :serial, force: :cascade do |t|
+    t.float "average_days", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "base_facilities", id: false, force: :cascade do |t|
     t.string "unique_id", null: false
     t.string "name", null: false
