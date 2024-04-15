@@ -100,9 +100,6 @@ shared_examples 'an appeal model with updatable status' do |opts|
         expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
         instance_without_email.update_status(status: 'submitted')
         expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 1
-
-        email_identifier = AppealsApi::AppealReceivedJob.jobs.last['args'].first['email_identifier']
-        expect(email_identifier.values).to include 'ICN'
       end
     end
 

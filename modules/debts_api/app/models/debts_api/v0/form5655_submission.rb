@@ -12,11 +12,11 @@ module DebtsApi
     validates :user_uuid, presence: true
     belongs_to :user_account, dependent: nil, optional: true
     has_kms_key
-    has_encrypted :form_json, :metadata, key: :kms_key, **lockbox_options
+    has_encrypted :form_json, :metadata, :ipf_data, key: :kms_key, **lockbox_options
 
     def kms_encryption_context
       {
-        model_name: Form5655Submission.model_name.to_s,
+        model_name: 'Form5655Submission',
         model_id: id
       }
     end
@@ -37,6 +37,10 @@ module DebtsApi
 
     def form
       @form_hash ||= JSON.parse(form_json)
+    end
+
+    def ipf_form
+      @ipf_form_hash ||= JSON.parse(ipf_data)
     end
 
     def user_cache_id

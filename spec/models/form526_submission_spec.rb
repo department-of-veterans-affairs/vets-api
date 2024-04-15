@@ -33,6 +33,39 @@ RSpec.describe Form526Submission do
     end
   end
 
+  describe 'state' do
+    let(:submission) { create(:form526_submission) }
+
+    it 'transitions states' do
+      expect(submission).to transition_from(:unprocessed)
+        .to(:delivered_to_primary).on_event(:deliver_to_primary)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:failed_primary_delivery).on_event(:fail_primary_delivery)
+      expect(submission).to transition_from(:failed_primary_delivery)
+        .to(:delivered_to_backup).on_event(:deliver_to_backup)
+      expect(submission).to transition_from(:rejected_by_primary)
+        .to(:delivered_to_backup).on_event(:deliver_to_backup)
+      expect(submission).to transition_from(:failed_primary_delivery)
+        .to(:failed_backup_delivery).on_event(:fail_backup_delivery)
+      expect(submission).to transition_from(:rejected_by_primary)
+        .to(:failed_backup_delivery).on_event(:reject_from_backup)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:rejected_by_primary).on_event(:reject_from_primary)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:delivered_to_backup).on_event(:deliver_to_backup)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:failed_backup_delivery).on_event(:fail_backup_delivery)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:failed_backup_delivery).on_event(:reject_from_backup)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:finalized_as_successful).on_event(:finalize_success)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:unprocessable).on_event(:mark_as_unprocessable)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:in_remediation).on_event(:begin_remediation)
+    end
+  end
+
   describe '#start' do
     context 'the submission is for hypertension' do
       let(:form_json) do
@@ -58,7 +91,15 @@ RSpec.describe Form526Submission do
 
       before do
         allow(StatsD).to receive(:increment)
+        allow(Rails.logger).to receive(:info)
         Flipper.disable(:disability_526_maximum_rating)
+      end
+
+      def expect_max_cfi_logged(max_cfi_enabled, disability_claimed, diagnostic_code, total_increase_conditions)
+        expect(Rails.logger).to have_received(:info).with(
+          'Max CFI form526 submission',
+          { id: subject.id, max_cfi_enabled:, disability_claimed:, diagnostic_code:, total_increase_conditions: }
+        )
       end
 
       context 'the submission is for tinnitus' do
@@ -84,6 +125,7 @@ RSpec.describe Form526Submission do
             it 'logs CFI metric upon submission' do
               subject.start
               expect(StatsD).to have_received(:increment).with('api.max_cfi.on.submit.6260')
+              expect_max_cfi_logged('on', true, 6260, 1)
             end
           end
 
@@ -104,6 +146,7 @@ RSpec.describe Form526Submission do
             it 'logs CFI metric upon submission' do
               subject.start
               expect(StatsD).to have_received(:increment).with('api.max_cfi.off.submit.6260')
+              expect_max_cfi_logged('off', true, 6260, 1)
             end
           end
 
@@ -143,6 +186,127 @@ RSpec.describe Form526Submission do
           it 'does not log CFI metric upon submission' do
             subject.start
             expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
+          end
+        end
+      end
+
+      context 'the submission is from a Veteran with rated tinnitus and hypertension' do
+        let(:form_json) do
+          File.read('spec/support/disability_compensation_form/submissions/only_526_two_cfi_with_max_ratings.json')
+        end
+        let(:rated_disabilities) do
+          [
+            { name: 'Tinnitus',
+              diagnostic_code: ClaimFastTracking::DiagnosticCodes::TINNITUS,
+              rating_percentage: rating_percentage_tinnitus,
+              maximum_rating_percentage: 10 },
+            { name: 'Hypertension',
+              diagnostic_code: ClaimFastTracking::DiagnosticCodes::HYPERTENSION,
+              rating_percentage: rating_percentage_hypertension,
+              maximum_rating_percentage: 60 }
+          ]
+        end
+        let(:rating_percentage_tinnitus) { 0 }
+        let(:rating_percentage_hypertension) { 0 }
+
+        context 'Max rating education enabled' do
+          before { Flipper.enable(:disability_526_maximum_rating, user) }
+
+          context 'Rated Disabilities are not at maximum' do
+            it 'does not log CFI metric upon submission' do
+              subject.start
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
+            end
+          end
+
+          context 'Rated Disabilities are at maximum' do
+            let(:rating_percentage_tinnitus) { 10 }
+            let(:rating_percentage_hypertension) { 60 }
+
+            it 'logs CFI metric upon submission only for tinnitus' do
+              subject.start
+              expect(StatsD).to have_received(:increment).with('api.max_cfi.on.submit.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
+              expect_max_cfi_logged('on', true, 6260, 2)
+            end
+
+            context 'when the submission omits tinnitus' do
+              let(:form_json) do
+                File.read('spec/support/disability_compensation_form/submissions/only_526_hypertension.json')
+              end
+
+              it 'logs CFI metric upon submission for tinnitus being omitted' do
+                subject.start
+                expect_max_cfi_logged('on', false, 6260, 1)
+              end
+            end
+          end
+
+          context 'Only Tinnitus is rated at the maximum' do
+            let(:rating_percentage_tinnitus) { 10 }
+
+            it 'logs CFI metric upon submission only for tinnitus' do
+              subject.start
+              expect(StatsD).to have_received(:increment).with('api.max_cfi.on.submit.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
+              expect_max_cfi_logged('on', true, 6260, 2)
+            end
+          end
+
+          context 'Only Hypertension is rated at the maximum' do
+            let(:rating_percentage_hypertension) { 60 }
+
+            it 'does not log CFI metric upon submission' do
+              subject.start
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
+            end
+          end
+        end
+
+        context 'Max rating education disabled' do
+          before { Flipper.disable(:disability_526_maximum_rating, user) }
+
+          context 'Rated Disabilities are not at maximum' do
+            it 'does not log CFI metric upon submission' do
+              subject.start
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
+            end
+          end
+
+          context 'Rated Disabilities are at maximum' do
+            let(:rating_percentage_tinnitus) { 10 }
+            let(:rating_percentage_hypertension) { 60 }
+
+            it 'logs CFI metric upon submission only for tinnitus' do
+              subject.start
+              expect(StatsD).to have_received(:increment).with('api.max_cfi.off.submit.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
+              expect_max_cfi_logged('off', true, 6260, 2)
+            end
+          end
+
+          context 'Only Tinnitus is rated at the maximum' do
+            let(:rating_percentage_tinnitus) { 10 }
+
+            it 'logs CFI metric upon submission only for tinnitus' do
+              subject.start
+              expect(StatsD).to have_received(:increment).with('api.max_cfi.off.submit.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
+              expect_max_cfi_logged('off', true, 6260, 2)
+            end
+          end
+
+          context 'Only Hypertension is rated at the maximum' do
+            let(:rating_percentage_hypertension) { 60 }
+
+            it 'does not log CFI metric upon submission' do
+              subject.start
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
+            end
           end
         end
       end

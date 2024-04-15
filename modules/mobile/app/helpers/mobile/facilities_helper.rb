@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'lighthouse/facilities/v1/client'
 require 'lighthouse/facilities/client'
 
 module Mobile
@@ -16,17 +17,21 @@ module Mobile
       vaos_facilities[:data]
     end
 
-    def get_facilities(facility_ids)
-      facilities_service.get_facilities(ids: facility_ids.to_a.map { |id| "vha_#{id}" }.join(','))
+    def get_facilities(facility_ids, v1_facilties_flag)
+      facilities_service(v1_facilties_flag).get_facilities(ids: facility_ids.to_a.map { |id| "vha_#{id}" }.join(','))
     end
 
-    def get_facility_names(facility_ids)
-      facilities = get_facilities(facility_ids)
+    def get_facility_names(facility_ids, v1_facilties_flag)
+      facilities = get_facilities(facility_ids, v1_facilties_flag)
       facilities.map(&:name)
     end
 
-    def facilities_service
-      Lighthouse::Facilities::Client.new
+    def facilities_service(v1_facilties_flag)
+      if v1_facilties_flag
+        Lighthouse::Facilities::V1::Client.new
+      else
+        Lighthouse::Facilities::Client.new
+      end
     end
 
     def address_from_facility(facility)
@@ -36,7 +41,8 @@ module Mobile
         zip_code = address[:postal_code]
       else
         address = facility.address['physical']
-        street = address.slice('address_1', 'address_2', 'address_3').values.compact.join(', ')
+        street = address.slice('address1', 'address2', 'address3', 'address_1', 'address_2',
+                               'address_3').values.compact.join(', ')
         zip_code = address['zip']
       end
       Mobile::V0::Address.new(
@@ -74,16 +80,7 @@ module Mobile
 
       # captures area code (\d{3}) number (\d{3}-\d{4})
       # and optional extension (until the end of the string) (?:\sx(\d*))?$
-      phone_captures = phone.match(/^(\d{3})-(\d{3}-\d{4})(?:\sx(\d*))?$/)
-
-      if phone_captures.nil?
-        Rails.logger.warn(
-          'mobile appointments failed to parse facility phone number',
-          facility_id: facility.id,
-          facility_phone: facility.phone
-        )
-        return nil
-      end
+      phone_captures = phone.match(/^(\d{3})-?(\d{3}-?\d{4})(?:\sx(\d*))?$/)
 
       Mobile::V0::AppointmentPhone.new(
         area_code: phone_captures[1].presence,
@@ -104,7 +101,6 @@ module Mobile
     # Returns the distance between these two
     # points in either miles or kilometers
     def haversine_distance(geo_a, geo_b, miles: true)
-      Rails.logger.info('haversine_distance coords', geo_a, geo_b)
       # Get latitude and longitude
       lat1, lon1 = geo_a
       lat2, lon2 = geo_b

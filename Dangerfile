@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ostruct'
+
 module VSPDanger
   HEAD_SHA = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
   BASE_SHA = 'origin/master'
@@ -191,11 +193,11 @@ module VSPDanger
   end
 
   class MigrationIsolator
+    DB_PATHS = ['db/migrate/', 'db/schema.rb'].freeze
+    SEEDS_PATHS = ['db/seeds/', 'db/seeds.rb'].freeze
+
     def run
-      if files.any? { |file| file.include? 'db/' } && !files.all? { |file| file.include? 'db/' }
-        # one of the changed files was in 'db/' but not all of them
-        return Result.error(error_message)
-      end
+      return Result.error(error_message) if db_files.any? && app_files.any?
 
       Result.success('All set.')
     end
@@ -204,7 +206,7 @@ module VSPDanger
 
     def error_message
       <<~EMSG
-        Modified files in `db/` should be the only files checked into this PR.
+        Modified files in `db/migrate` or `db/schema.rb` changes should be the only files checked into this PR.
 
         <details>
           <summary>File Summary</summary>
@@ -227,11 +229,15 @@ module VSPDanger
     end
 
     def app_files
-      files - db_files
+      files - db_files - seed_files
     end
 
     def db_files
-      files.select { |file| file.include? 'db/' }
+      files.select { |file| DB_PATHS.any? { |db_path| file.include?(db_path) } }
+    end
+
+    def seed_files
+      files.select { |file| SEEDS_PATHS.any? { |seed_path| file.include?(seed_path) } }
     end
 
     def files

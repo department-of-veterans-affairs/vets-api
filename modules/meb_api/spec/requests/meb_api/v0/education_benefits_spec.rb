@@ -112,11 +112,11 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
                  params: { "education_benefit":
                   { enrollment_verifications: {
                     enrollment_certify_requests: [{
-                      "certified_period_begin_date": '2022-08-01',
-                      "certified_period_end_date": '2022-08-31',
-                      "certified_through_date": '2022-08-31',
-                      "certification_method": 'MEB',
-                      "app_communication": { "response_type": 'Y' }
+                      'certified_period_begin_date': '2022-08-01',
+                      'certified_period_end_date': '2022-08-31',
+                      'certified_through_date': '2022-08-31',
+                      'certification_method': 'MEB',
+                      'app_communication': { 'response_type': 'Y' }
                     }]
                   } } }
             expect(response).to have_http_status(:ok)
@@ -187,74 +187,21 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
             disagree_with_service_period: false
           },
           direct_deposit: {
-            account_number: '123123123123',
+            account_number: '********3123',
             account_type: 'savings',
-            routing_number: '123123123'
+            routing_number: '*******3123'
           }
         }
       end
 
-      context 'confirmation email' do
-        it 'delegates to submit_0994_form_confirmation job' do
-          VCR.use_cassette('dgi/submit_claim') do
-            allow(MebApi::V0::Submit1990mebFormConfirmation).to receive(:perform_async)
-            expect_any_instance_of(BGS::Service).to receive(:get_ch33_dd_eft_info).and_return({})
-
+      context 'direct deposit' do
+        it 'successfully submits with new lighthouse api' do
+          VCR.use_cassette('dgi/submit_claim_lighthouse') do
+            Settings.mobile_lighthouse.rsa_key = OpenSSL::PKey::RSA.generate(2048).to_s
+            Settings.lighthouse.direct_deposit.use_mocks = true
             post '/meb_api/v0/submit_claim', params: claimant_params
 
-            expect(MebApi::V0::Submit1990mebFormConfirmation).to have_received(:perform_async)
-              .with('b2fab2b5-6af0-45e1-a9e2-394347af91ef', 'hhover@test.com', 'HERBERT')
-          end
-        end
-
-        it 'does not delegate when claim submission fails' do
-          VCR.use_cassette('dgi/submit_claim_failure') do
-            allow(MebApi::V0::Submit1990mebFormConfirmation).to receive(:perform_async)
-            expect_any_instance_of(BGS::Service).to receive(:get_ch33_dd_eft_info).and_return({})
-
-            response = post '/meb_api/v0/submit_claim', params: claimant_params
-
-            expect(response).to be(503)
-            expect(MebApi::V0::Submit1990mebFormConfirmation).not_to have_received(:perform_async)
-          end
-        end
-
-        it 'does not delegate when feature is disabled' do
-          VCR.use_cassette('dgi/submit_claim') do
-            allow(MebApi::V0::Submit1990mebFormConfirmation).to receive(:perform_async)
-            expect_any_instance_of(BGS::Service).to receive(:get_ch33_dd_eft_info).and_return({})
-            Flipper.disable(:form1990meb_confirmation_email)
-
-            post '/meb_api/v0/submit_claim', params: claimant_params
-
-            expect(MebApi::V0::Submit1990mebFormConfirmation).not_to have_received(:perform_async)
-
-            Flipper.enable(:form1990meb_confirmation_email)
-          end
-        end
-
-        it 'does not delegate when email is missing' do
-          VCR.use_cassette('dgi/submit_claim') do
-            claimant_params_without_email = {
-              **claimant_params,
-              education_benefit: {
-                **claimant_params[:education_benefit],
-                claimant: {
-                  **claimant_params[:education_benefit][:claimant],
-                  contact_info: {
-                    **claimant_params[:education_benefit][:claimant][:contact_info],
-                    email_address: nil
-                  }
-                }
-              }
-            }
-
-            allow(MebApi::V0::Submit1990mebFormConfirmation).to receive(:perform_async)
-            expect_any_instance_of(BGS::Service).to receive(:get_ch33_dd_eft_info).and_return({})
-
-            post '/meb_api/v0/submit_claim', params: claimant_params_without_email
-
-            expect(MebApi::V0::Submit1990mebFormConfirmation).not_to have_received(:perform_async)
+            expect(response).to have_http_status(:ok)
           end
         end
       end

@@ -76,6 +76,8 @@ module ClaimsApi
             "#{base_form}.DOBmonth[0]": data.dig('veteran', 'birthdate').split('-').second,
             "#{base_form}.DOBday[0]": data.dig('veteran', 'birthdate').split('-').last.first(2),
             "#{base_form}.DOByear[0]": data.dig('veteran', 'birthdate').split('-').first,
+            # Item 5
+            "#{base_form}.InsuranceNumber_s[0]": data.dig('veteran', 'insuranceNumber'),
             # Item 7
             "#{base_form}.Veterans_MailingAddress_NumberAndStreet[0]": data.dig('veteran', 'address', 'addressLine1'),
             "#{base_form}.Claimants_MailingAddress_ApartmentOrUnitNumber[1]": data.dig('veteran', 'address', 'addressLine2'),

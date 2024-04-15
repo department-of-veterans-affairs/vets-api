@@ -9,6 +9,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
     sign_in_as(user)
     token = 'abcdefghijklmnop'
     allow_any_instance_of(DirectDeposit::Configuration).to receive(:access_token).and_return(token)
+    Flipper.disable(:profile_show_direct_deposit_single_form)
   end
 
   describe '#show' do

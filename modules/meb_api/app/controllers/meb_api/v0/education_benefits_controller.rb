@@ -6,7 +6,6 @@ require 'dgi/submission/service'
 require 'dgi/enrollment/service'
 require 'dgi/contact_info/service'
 require 'dgi/exclusion_period/service'
-require 'bgs/service'
 
 module MebApi
   module V0
@@ -59,9 +58,10 @@ module MebApi
 
       def submit_claim
         response_data = nil
+
         if Flipper.enabled?(:show_dgi_direct_deposit_1990EZ, @current_user) && !Rails.env.development?
           begin
-            response_data = payment_service.get_ch33_dd_eft_info
+            response_data = DirectDeposit::Client.new(@current_user&.icn).get_payment_info
           rescue => e
             Rails.logger.error("BGS service error: #{e}")
             head :internal_server_error
@@ -72,8 +72,6 @@ module MebApi
         response = submission_service.submit_claim(params[:education_benefit].except(:form_id), response_data)
 
         clear_saved_form(params[:form_id]) if params[:form_id]
-
-        send_confirmation_email if response.ok? && Flipper.enabled?(:form1990meb_confirmation_email)
 
         render json: {
           data: {
@@ -95,6 +93,16 @@ module MebApi
           response = enrollment_service.get_enrollment(claimant_id)
           render json: response, serializer: EnrollmentSerializer
         end
+      end
+
+      def send_confirmation_email
+        return unless Flipper.enabled?(:form1990meb_confirmation_email)
+
+        status = params[:claim_status]
+        email = params[:email] || @current_user.email
+        first_name = params[:first_name]&.upcase || @current_user.first_name&.upcase
+
+        MebApi::V0::Submit1990mebFormConfirmation.perform_async(status, email, first_name) if email.present?
       end
 
       def submit_enrollment_verification
@@ -156,18 +164,6 @@ module MebApi
 
       def exclusion_period_service
         MebApi::DGI::ExclusionPeriod::Service.new(@current_user)
-      end
-
-      def send_confirmation_email
-        form_data = params[:education_benefit]
-        email = form_data.dig('claimant', 'contact_info', 'email_address')
-        first_name = form_data.dig('claimant', 'first_name')&.upcase.presence
-
-        if email.present?
-          MebApi::V0::Submit1990mebFormConfirmation.perform_async(
-            @current_user.uuid, email, first_name
-          )
-        end
       end
     end
   end

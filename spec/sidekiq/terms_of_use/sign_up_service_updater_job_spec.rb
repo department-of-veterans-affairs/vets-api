@@ -13,13 +13,18 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
     let(:common_name) { 'some-common-name' }
     let(:service_instance) { instance_double(MAP::SignUp::Service) }
     let(:version) { terms_of_use_agreement.agreement_version }
+    let(:attr_package_key) { Digest::SHA256.hexdigest(attr_package.to_json) }
+    let(:attr_package) { { icn: user_account.icn, signature_name: common_name, version: } }
 
     before do
       allow(MAP::SignUp::Service).to receive(:new).and_return(service_instance)
+      allow(Sidekiq::AttrPackage).to receive(:create).and_return(attr_package_key)
+      allow(Sidekiq::AttrPackage).to receive(:find).with(attr_package_key).and_return(attr_package)
+      allow(Sidekiq::AttrPackage).to receive(:delete)
     end
 
-    it 'retries 15 times after failure' do
-      expect(described_class.get_sidekiq_options['retry']).to eq(15)
+    it 'retries 5 times after failure' do
+      expect(described_class.get_sidekiq_options['retry']).to eq(5)
     end
 
     it 'logs a message when retries have been exhausted' do
@@ -40,50 +45,56 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
         )
     end
 
-    it { is_expected.to be_unique }
-
     context 'when the terms of use agreement is accepted' do
-      let(:attr_key) do
-        Digest::SHA256.hexdigest({ icn: user_account.icn, signature_name: common_name, version: }.to_json)
-      end
-
       before do
         allow(service_instance).to receive(:agreements_accept)
-        allow(Sidekiq::AttrPackage).to receive(:create).and_return(attr_key)
-        allow(Sidekiq::AttrPackage).to receive(:find).with(attr_key).and_return({ icn: user_account.icn,
-                                                                                  signature_name: common_name,
-                                                                                  version: })
       end
 
       it 'updates the terms of use agreement in sign up service' do
-        job.perform(attr_key)
+        job.perform(attr_package_key)
 
         expect(MAP::SignUp::Service).to have_received(:new)
         expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
                                                                            signature_name: common_name,
                                                                            version:)
       end
+
+      it 'deletes the attribute package' do
+        job.perform(attr_package_key)
+
+        expect(Sidekiq::AttrPackage).to have_received(:delete).with(attr_package_key)
+      end
     end
 
     context 'when the terms of use agreement is declined' do
-      let(:attr_key) do
-        Digest::SHA256.hexdigest({ icn: user_account.icn, signature_name: common_name, version: }.to_json)
-      end
       let(:response) { 'declined' }
 
       before do
         allow(service_instance).to receive(:agreements_decline)
-        allow(Sidekiq::AttrPackage).to receive(:create).and_return(attr_key)
-        allow(Sidekiq::AttrPackage).to receive(:find).with(attr_key).and_return({ icn: user_account.icn,
-                                                                                  signature_name: common_name,
-                                                                                  version: })
       end
 
       it 'updates the terms of use agreement in sign up service' do
-        job.perform(attr_key)
+        job.perform(attr_package_key)
 
         expect(MAP::SignUp::Service).to have_received(:new)
         expect(service_instance).to have_received(:agreements_decline).with(icn: user_account.icn)
+      end
+
+      it 'deletes the attribute package' do
+        job.perform(attr_package_key)
+
+        expect(Sidekiq::AttrPackage).to have_received(:delete).with(attr_package_key)
+      end
+    end
+
+    context 'when MAP::SignUp::Service service fails' do
+      before do
+        allow(service_instance).to receive(:agreements_accept).and_raise(StandardError)
+      end
+
+      it 'does not delete the attribute package' do
+        expect { job.perform(attr_package_key) }.to raise_error(StandardError)
+        expect(Sidekiq::AttrPackage).not_to have_received(:delete).with(attr_package_key)
       end
     end
   end

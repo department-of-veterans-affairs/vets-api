@@ -5,7 +5,6 @@ module SimpleFormsApi
     include Virtus.model(nullify_blank: true)
 
     attribute :data
-    attr_accessor :data
 
     def initialize(data)
       @data = data
@@ -34,12 +33,16 @@ module SimpleFormsApi
       {
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
-        'fileNumber' => @data.dig('veteran', 'va_file_number').presence || @data.dig('veteran', 'ssn'),
-        'zipCode' => @data.dig('veteran', 'address', 'postal_code') || '00000',
+        'fileNumber' => @data.dig('veteran', 'ssn'),
+        'zipCode' => @data.dig('veteran', 'address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
+    end
+
+    def zip_code_is_us_based
+      @data.dig('veteran', 'address', 'country') == 'USA'
     end
 
     def submission_date_config
@@ -97,8 +100,7 @@ module SimpleFormsApi
       full_name = data.dig('veteran', 'full_name')
       {
         address: veteran_address_payload,
-        ssn: data.dig('veteran', 'ssn'),
-        vaFileNumber: data.dig('veteran', 'va_file_number'),
+        ssn: data.dig('veteran', 'ssn')&.tr('-', ''),
         fullName: {
           first: full_name['first']&.[](0..29),
           middle: full_name['middle']&.[](0..29),

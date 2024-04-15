@@ -4,6 +4,7 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "veteran",
     "representative"
   ],
   "properties": {
@@ -11,8 +12,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "address",
-        "phone"
+        "address"
       ],
       "properties": {
         "serviceNumber": {
@@ -46,6 +46,7 @@
           "required": [
             "addressLine1",
             "city",
+            "stateCode",
             "country",
             "zipCode"
           ],
@@ -126,44 +127,18 @@
     "claimant": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "firstName",
-        "lastName",
-        "address",
-        "phone",
-        "relationship"
-      ],
       "properties": {
-        "firstName": {
-          "description": "First name of Claimant.",
+        "claimantId": {
           "type": "string",
-          "example": "John",
-          "maxLength": 12
-        },
-        "middleInitial": {
-          "description": "Middle initial of Claimant.",
-          "type": "string",
-          "example": "M",
-          "maxLength": 1
-        },
-        "lastName": {
-          "description": "Last name of Claimant.",
-          "type": "string",
-          "example": "Dow",
-          "maxLength": 18
+          "example": "123456789",
+          "description": "Id of the claimant."
         },
         "address": {
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "addressLine1",
-            "city",
-            "country",
-            "zipCode"
-          ],
           "properties" : {
             "addressLine1": {
-              "description": "Street address with number and name.",
+              "description": "Street address with number and name. Required if claimant information provided.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
@@ -173,24 +148,24 @@
               "maxLength": 5
             },
             "city": {
-              "description": "City for the address.",
+              "description": "City for the address. Required if claimant information provided.",
               "type": "string",
               "example": "Portland",
               "maxLength": 18
             },
             "stateCode": {
-              "description": "State for the address.",
+              "description": "State for the address. Required if claimant information provided.",
               "type": "string",
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
             },
             "country": {
-              "description": "Country of the address.",
+              "description": "Country of the address. Required if claimant information provided.",
               "type": "string",
               "example": "USA"
             },
             "zipCode": {
-              "description": "Zipcode (First 5 digits) of the address.",
+              "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
@@ -234,7 +209,7 @@
           "example": "claimant@example.com"
         },
         "relationship": {
-          "description": "Relationship of claimant to the veteran.",
+          "description": "Relationship of claimant to the veteran. Required if claimant information provided.",
           "type": "string",
           "example": "Spouse"
         }
@@ -246,10 +221,8 @@
       "additionalProperties": false,
       "required": [
         "poaCode",
-        "firstName",
-        "lastName",
-        "type",
-        "address"
+        "registrationNumber",
+        "type"
       ],
       "properties": {
         "poaCode": {
@@ -257,15 +230,10 @@
           "type": "string",
           "example": "A1Q"
         },
-        "firstName": {
-          "description": "First Name of the representative.",
+        "registrationNumber": {
+          "description": "Registration Number of representative.",
           "type": "string",
-          "example": "John"
-        },
-        "lastName": {
-          "description": "Last Name of the representative",
-          "type": "string",
-          "example": "Doe"
+          "example": "12345"
         },
         "type": {
           "description": "Type of individual representative",
@@ -279,12 +247,6 @@
         "address": {
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "addressLine1",
-            "city",
-            "country",
-            "zipCode"
-          ],
           "properties" : {
             "addressLine1": {
               "description": "Street address with number and name.",
@@ -326,11 +288,6 @@
               "example": "6789"
             }
           }
-        },
-        "organizationName": {
-          "description": "Name of the service organization.",
-          "type": "string",
-          "example": "I help vets LLC."
         }
       }
     },

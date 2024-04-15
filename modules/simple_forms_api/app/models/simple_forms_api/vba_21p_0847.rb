@@ -3,6 +3,7 @@
 module SimpleFormsApi
   class VBA21p0847
     include Virtus.model(nullify_blank: true)
+    STATS_KEY = 'api.simple_forms_api.21p_0847'
 
     attribute :data
 
@@ -19,11 +20,15 @@ module SimpleFormsApi
         'veteranFirstName' => data.dig('deceased_claimant_full_name', 'first'),
         'veteranLastName' => data.dig('deceased_claimant_full_name', 'last'),
         'fileNumber' => data['veteran_va_file_number'].presence || data['veteran_ssn'],
-        'zipCode' => data.dig('preparer_address', 'postal_code') || '00000',
+        'zipCode' => data.dig('preparer_address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
+    end
+
+    def zip_code_is_us_based
+      @data.dig('preparer_address', 'country') == 'USA'
     end
 
     def submission_date_config
@@ -35,7 +40,12 @@ module SimpleFormsApi
       }
     end
 
-    def track_user_identity(confirmation_number); end
+    def track_user_identity(confirmation_number)
+      identity = data.dig('relationship_to_deceased_claimant', 'other_relationship_to_veteran') ||
+                 data.dig('relationship_to_deceased_claimant', 'relationship_to_veteran')
+      StatsD.increment("#{STATS_KEY}.#{identity}")
+      Rails.logger.info('Simple forms api - 21P-0847 submission user identity', identity:, confirmation_number:)
+    end
 
     private
 

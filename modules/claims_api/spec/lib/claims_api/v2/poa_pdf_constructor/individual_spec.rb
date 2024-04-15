@@ -47,9 +47,8 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
       },
       representative: {
         poaCode: 'A1Q',
+        registrationNumber: '1234',
         type: 'ATTORNEY',
-        firstName: 'Bob',
-        lastName: 'Law',
         address: {
           addressLine1: '2719 Hyperion Ave',
           city: 'Los Angeles',
@@ -68,7 +67,8 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
     other_service_branch_temp.form_data = {
       veteran: {
         serviceNumber: '987654321',
-        otherServiceBranch: 'Air National Guard',
+        serviceBranch: 'OTHER',
+        serviceBranchOther: 'Air National Guard',
         address: {
           addressLine1: '2719 Hyperion Ave',
           city: 'Los Angeles',
@@ -103,8 +103,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
       representative: {
         poaCode: 'A1Q',
         type: 'ATTORNEY',
-        firstName: 'Bob',
-        lastName: 'Law',
+        registrationNumber: '1234',
         address: {
           addressLine1: '2719 Hyperion Ave',
           city: 'Los Angeles',
@@ -138,8 +137,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
         'text_signatures' => {
           'page2' => [
             {
-              'signature' => "#{power_of_attorney.auth_headers['va_eauth_firstName']} " \
-                             "#{power_of_attorney.auth_headers['va_eauth_lastName']} - signed via api.va.gov",
+              'signature' => 'Lillian Disney - signed via api.va.gov',
               'x' => 35,
               'y' => 306
             },
@@ -149,6 +147,10 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
               'y' => 200
             }
           ]
+        },
+        'representative' => {
+          'firstName' => 'Bob',
+          'lastName' => 'Law'
         }
       }
     )
@@ -173,8 +175,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
         'text_signatures' => {
           'page2' => [
             {
-              'signature' => "#{power_of_attorney.auth_headers['va_eauth_firstName']} " \
-                             "#{power_of_attorney.auth_headers['va_eauth_lastName']} - signed via api.va.gov",
+              'signature' => 'Lillian Disney - signed via api.va.gov',
               'x' => 35,
               'y' => 306
             },
@@ -184,13 +185,17 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
               'y' => 200
             }
           ]
+        },
+        'representative' => {
+          'firstName' => 'Bob',
+          'lastName' => 'Law'
         }
       }
     )
 
     constructor = ClaimsApi::V2::PoaPdfConstructor::Individual.new
     expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '21-22A', 'v2',
-                                   'signed_filled_final.pdf')
+                                   'signed_filled_final_other_service_branch.pdf')
     generated_pdf = constructor.construct(data, id: power_of_attorney.id)
     expect(generated_pdf).to match_pdf_content_of(expected_pdf)
   end

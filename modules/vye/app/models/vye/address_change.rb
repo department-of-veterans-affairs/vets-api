@@ -4,20 +4,31 @@ module Vye
   class Vye::AddressChange < ApplicationRecord
     belongs_to :user_info
 
-    ENCRYPTED_ATTRIBUTES = %i[
-      veteran_name address1 address2 address3 address4 city state zip_code
-    ].freeze
-
     has_kms_key
-    has_encrypted(*ENCRYPTED_ATTRIBUTES, key: :kms_key, **lockbox_options)
 
-    REQUIRED_ATTRIBUTES = %i[
-      veteran_name address1 city state
-    ].freeze
+    has_encrypted(
+      :veteran_name,
+      :address1, :address2, :address3, :address4, :address5,
+      :city, :state, :zip_code,
+      key: :kms_key, **lockbox_options
+    )
 
-    validates(*REQUIRED_ATTRIBUTES, presence: true)
+    validates(
+      :veteran_name, :address1, :city,
+      presence: true, if: -> { origin == 'frontend' }
+    )
 
-    scope :created_today, -> { includes(:user_info).where('created_at >= ?', Time.zone.now.beginning_of_day) }
+    validates(
+      :veteran_name, :address1,
+      presence: true, if: -> { origin == 'backend' }
+    )
+
+    enum origin: { frontend: 'f', backend: 'b' }
+
+    scope :created_today, lambda {
+      includes(user_info: :user_profile)
+        .where('created_at >= ?', Time.zone.now.beginning_of_day)
+    }
 
     def self.todays_records
       created_today.each_with_object([]) do |record, result|
@@ -26,7 +37,7 @@ module Vye
           benefit_type: record.user_info.indicator,
           ssn: record.user_info.ssn,
           file_number: record.user_info.file_number,
-          veteran_name: record.user_info.full_name,
+          veteran_name: record.veteran_name,
           address1: record.address1,
           address2: record.address2,
           address3: record.address3,

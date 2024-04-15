@@ -7,8 +7,7 @@ module TermsOfUse
   class SignUpServiceUpdaterJob
     include Sidekiq::Job
 
-    sidekiq_options unique_for: 2.days
-    sidekiq_options retry: 15 # 2.1 days using exponential backoff
+    sidekiq_options retry: 5 # ~17 mins
 
     sidekiq_retries_exhausted do |job, exception|
       Rails.logger.warn(
@@ -27,6 +26,8 @@ module TermsOfUse
       @version = attrs[:version]
 
       terms_of_use_agreement.accepted? ? accept : decline
+
+      Sidekiq::AttrPackage.delete(attr_package_key)
     end
 
     private
