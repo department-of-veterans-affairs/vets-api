@@ -8,10 +8,11 @@ namespace :user_credential do
     type = args[:type]
     credential_id = args[:credential_id]
     context = { type:, credential_id:, requested_by: args[:requested_by] }
-    log_task(namespace:, status: 'start', context:)
+    log_to_stdout(level: 'info', message: "[#{namespace}] rake task start, context: #{context.to_json}")
     user_verification = UserVerification.where(["#{type}_uuid = ?", credential_id]).first
     user_verification.lock!
-    log_task(namespace:, status: 'complete', context: context.merge(locked: user_verification.locked))
+    context[:locked] = user_verification.locked
+    log_to_stdout(level: 'info', message: "[#{namespace}] rake task complete, context: #{context.to_json}")
     puts "#{namespace} complete - #{type}_uuid: #{credential_id}"
   rescue => e
     puts "#{namespace} failed - #{e.message}"
@@ -23,10 +24,11 @@ namespace :user_credential do
     type = args[:type]
     credential_id = args[:credential_id]
     context = { type:, credential_id:, requested_by: args[:requested_by] }
-    log_task(namespace:, status: 'start', context:)
+    log_to_stdout(level: 'info', message: "[#{namespace}] rake task start, context: #{context.to_json}")
     user_verification = UserVerification.where(["#{type}_uuid = ?", credential_id]).first
     user_verification.unlock!
-    log_task(namespace:, status: 'complete', context: context.merge(locked: user_verification.locked))
+    context[:locked] = user_verification.locked
+    log_to_stdout(level: 'info', message: "[#{namespace}] rake task complete, context: #{context.to_json}")
     puts "#{namespace} complete - #{type}_uuid: #{credential_id}"
   rescue => e
     puts "#{namespace} failed - #{e.message}"
@@ -38,7 +40,27 @@ namespace :user_credential do
                                           args[:requested_by].blank?
   end
 
-  def log_task(namespace:, status:, context:)
-    Rails.logger.info("[#{namespace}] rake task #{status}", context)
+  def log_to_stdout(level:, message:)
+    `echo "#{log_message(level:, message:).to_json.dump}" >> /proc/1/fd/1`
+  end
+
+  def log_message(level:, message:)
+    {
+      level:,
+      message:,
+      application: 'vets-api-server',
+      environment: Rails.env,
+      timestamp: Time.zone.now.iso8601,
+
+      file: 'rakelib/prod/user_credential.rake',
+      named_tags: {
+        dd: {
+          env: ENV.fetch('DD_ENV', nil),
+          service: 'vets-api'
+        },
+        ddsource: 'ruby'
+      },
+      name: 'Rails'
+    }
   end
 end

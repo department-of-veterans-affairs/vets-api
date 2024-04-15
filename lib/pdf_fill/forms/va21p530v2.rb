@@ -719,6 +719,9 @@ module PdfFill
 
         expand_cemetery_location
 
+        # special case: the UI only has a 'yes' checkbox, so the PDF 'noTransportation' checkbox can never be true.
+        @form_data['hasTransportation'] = @form_data['transportation'] == true ? 'YES' : nil
+
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
         burial_expense_responsibility = @form_data['burialExpenseResponsibility']
         @form_data['hasBurialExpenseResponsibility'] = burial_expense_responsibility ? 'On' : nil
@@ -759,7 +762,6 @@ module PdfFill
           govtContributions
           previouslyReceivedAllowance
           allowanceStatementOfTruth
-          transportation
         ].each do |attr|
           expand_checkbox_in_place(@form_data, attr)
         end
