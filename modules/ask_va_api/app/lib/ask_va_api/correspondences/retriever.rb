@@ -2,6 +2,8 @@
 
 module AskVAApi
   module Correspondences
+    class CorrespondencesRetrieverError < StandardError; end
+
     class Retriever < BaseRetriever
       attr_reader :inquiry_id, :entity_class
 
@@ -12,17 +14,18 @@ module AskVAApi
 
       private
 
-      def fetch_data(payload: {})
+      def fetch_data
         validate_input(inquiry_id, 'Invalid Inquiry ID')
         if user_mock_data
           data = File.read('modules/ask_va_api/config/locales/get_replies_mock_data.json')
 
-          data = JSON.parse(data, symbolize_names: true)[:Correspondences]
+          data = JSON.parse(data, symbolize_names: true)[:Data]
           filter_data(data)
         else
           endpoint = "inquiries/#{inquiry_id}/replies"
 
-          Crm::Service.new(icn: nil).call(endpoint:, payload:)[:Correspondences]
+          response = Crm::Service.new(icn: nil).call(endpoint:)
+          handle_response_data(response)
         end
       end
 
@@ -34,6 +37,10 @@ module AskVAApi
         data.select do |cor|
           cor[:InquiryId] == inquiry_id
         end
+      end
+
+      def handle_response_data(response)
+        response[:Data].presence || raise(CorrespondencesRetrieverError, response[:Message])
       end
     end
   end

@@ -8,9 +8,8 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
   end
 
   let(:service) { instance_double(Crm::Service) }
-  let(:inquiry_id) { '1' }
+  let(:inquiry_id) { 'A-1' }
   let(:error_message) { 'Some error occurred' }
-  let(:payload) { { inquiry_id: '1' } }
   let(:user_mock_data) { false }
 
   before do
@@ -28,24 +27,25 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
       end
     end
 
-    # context 'when Crm raise an error' do
-    #   let(:payload) { { InquiryId: '1' } }
-    #   let(:response) { instance_double(Faraday::Response, status: 400, body: 'Bad Request') }
-    #   let(:endpoint) { 'inquiries/1/replies' }
-    #   let(:error_message) { "Bad request to #{endpoint}: #{response.body}" }
+    context 'when Crm raise an error' do
+      let(:endpoint) { 'inquiries/1/replies' }
+      let(:response) do
+        { Data: [],
+          Message: 'Data Validation: No Inquiry Found',
+          ExceptionOccurred: true,
+          ExceptionMessage: 'Data Validation: No Inquiry Found',
+          MessageId: '2d746074-9e5c-4987-a894-e3f834b156b5' }
+      end
 
-    #   before do
-    #     allow(service).to receive(:call)
-    #       .with(endpoint:, payload:)
-    #       .and_raise(Crm::ErrorHandler::ServiceError, error_message)
-    #   end
+      before do
+        allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+        allow(service).to receive(:call).and_return(response)
+      end
 
-    #   it 'raises an Error' do
-    #     expect do
-    #       retriever.call
-    #     end.to raise_error(ErrorHandler::ServiceError, "Crm::ErrorHandler::ServiceError: #{error_message}")
-    #   end
-    # end
+      it 'raise CorrespondenceRetrieverError' do
+        expect { retriever.call }.to raise_error(ErrorHandler::ServiceError)
+      end
+    end
 
     context 'when successful' do
       let(:user_mock_data) { true }
