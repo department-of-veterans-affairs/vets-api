@@ -26,10 +26,11 @@ module Veteran
       # @param poa_code: nil [String] filter to reps working this POA code
       #
       # @return [Array(Veteran::Service::Representative)] All representatives found using the submitted search criteria
-      def self.all_for_user(first_name:, last_name:, middle_initial: nil, poa_code: nil) # rubocop:disable Metrics/ParameterLists
-        representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name.downcase, last_name.downcase)
+      def self.all_for_user(first_name:, last_name:, middle_initial: nil, poa_code: nil)
+        representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name.downcase,
+                                last_name.downcase)
         representatives = representatives.where('? = ANY(poa_codes)', poa_code) if poa_code
-        representatives.select { |rep| matching_middle_initial(rep, middle_initial)}
+        representatives.select { |rep| matching_middle_initial(rep, middle_initial) }
       end
 
       #
