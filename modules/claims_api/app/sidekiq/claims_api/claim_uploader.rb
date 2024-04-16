@@ -7,7 +7,7 @@ module ClaimsApi
   class ClaimUploader < ClaimsApi::ServiceBase
     sidekiq_options retry: true, unique_until: :success
 
-    def perform(uuid, original_filename)
+    def perform(uuid)
       claim_object = ClaimsApi::SupportingDocument.find_by(id: uuid) ||
                      ClaimsApi::AutoEstablishedClaim.find_by(id: uuid)
 
@@ -21,7 +21,8 @@ module ClaimsApi
       else
         auth_headers = auto_claim.auth_headers
         uploader = claim_object.uploader
-        uploader.retrieve_from_store!(claim_object.file_data['filename'])
+        original_filename = claim_object.file_data['filename']
+        uploader.retrieve_from_store!(original_filename)
         file_body = uploader.read
         ClaimsApi::Logger.log('lighthouse_claim_uploader', claim_id: auto_claim.id, attachment_id: uuid)
         if Flipper.enabled? :claims_claim_uploader_use_bd

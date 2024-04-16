@@ -19,10 +19,7 @@ module ClaimsApi
           claim_document = @claim.supporting_documents.build
           claim_document.set_file_data!(document, EVSS_DOCUMENT_TYPE, @params[:description])
           claim_document.save!
-          unless Flipper.enabled? :claims_load_testing
-            ClaimsApi::ClaimUploader.perform_async(claim_document.id,
-                                                   @base_filename)
-          end
+          ClaimsApi::ClaimUploader.perform_async(claim_document.id) unless Flipper.enabled? :claims_load_testing
         end
       end
 
@@ -59,8 +56,8 @@ module ClaimsApi
       def create_unique_filename(doc:)
         original_filename = doc.original_filename
         file_extension = File.extname(original_filename)
-        @base_filename = File.basename(original_filename, file_extension)
-        "#{@base_filename}_#{SecureRandom.urlsafe_base64(8)}#{file_extension}"
+        base_filename = File.basename(original_filename, file_extension)
+        "#{base_filename}_#{SecureRandom.urlsafe_base64(8)}#{file_extension}"
       end
     end
   end
