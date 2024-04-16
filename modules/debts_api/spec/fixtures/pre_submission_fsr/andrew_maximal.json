@@ -1,5 +1,6 @@
 {
   "view:enhanced_financial_status_report": true,
+  "view:streamlined_waiver": true,
   "other_expenses": [
     {
       "name": "Clothing",
@@ -27,14 +28,17 @@
       {
         "name": "Rent",
         "amount": "1200.53"
-      },
+      }
+    ],
+    "credit_card_bills": [
       {
-        "name": "Mortgage payment",
-        "amount": "800.00"
-      },
-      {
-        "name": "Property tax",
-        "amount": "85.25"
+        "purpose": "Credit card payment",
+        "creditor_name": "",
+        "original_amount": "",
+        "unpaid_balance": "300000",
+        "amount_due_monthly": "10000",
+        "date_started": "",
+        "amount_past_due": "7000"
       }
     ]
   },
@@ -42,11 +46,23 @@
     "real_estate_value": "800000.81",
     "other_assets": [
       {
-        "name": "Gambling earning",
-        "amount": "16000.34"
+        "name": "Collectibles, or collection(s)",
+        "amount": "12344"
+      },
+      {
+        "name": "Antiques",
+        "amount": "44"
+      },
+      {
+        "name": "Fine art",
+        "amount": "122"
       }
     ],
+    "cash_in_bank": "3000.45",
+    "cash_on_hand": "10000.67",
     "rec_vehicle_amount": "15000.23",
+    "us_savings_bonds": "25000.65",
+    "stocks_and_other_bonds": "50000.84",
     "automobiles": [
       {
         "make": "Dodge",
@@ -64,35 +80,35 @@
     "monetary_assets": [
       {
         "name": "Cash",
-        "amount": "10000.67"
+        "amount": "100"
       },
       {
         "name": "Checking accounts",
-        "amount": "1000.40"
+        "amount": "100"
       },
       {
         "name": "Savings accounts",
-        "amount": "2000.05"
+        "amount": "100"
       },
       {
         "name": "U.S. Savings Bonds",
-        "amount": "25000.65"
+        "amount": "100"
       },
       {
         "name": "Retirement accounts (401k, IRAs, 403b, TSP)",
-        "amount": "10000.04"
+        "amount": "100"
       },
       {
         "name": "Other stocks and bonds (not in your retirement accounts)",
-        "amount": "20000.10"
+        "amount": "100"
       },
       {
         "name": "Pension",
-        "amount": "15000.25"
+        "amount": "100"
       },
       {
         "name": "Cryptocurrency",
-        "amount": "5000.45"
+        "amount": "100"
       }
     ]
   },
@@ -100,39 +116,31 @@
     "spouse": {
       "sp_addl_income": [
         {
-          "name": "Child support",
+          "name": "Child care income",
           "amount": "800.54"
         },
         {
-          "name": "Alimony",
+          "name": "Alimony payment",
           "amount": "1000.23"
-        },
-        {
-          "name": "Social Security",
-          "amount": "1400.45"
         }
       ]
     },
     "addl_inc_records": [
       {
         "name": "Social Security",
-        "amount": "1200.65"
-      },
-      {
-        "name": "Employment bonus",
-        "amount": "1500.67"
+        "amount": "150.67"
       },
       {
         "name": "Alimony",
-        "amount": "1000.43"
+        "amount": "210.43"
       }
     ]
   },
   "social_security": {
     "spouse": {
-      "social_sec_amt": "0"
+      "social_sec_amt": "1400.45"
     },
-    "social_sec_amt": "0"
+    "social_sec_amt": "1200.65"
   },
   "benefits": {
     "spouse_benefits": {
@@ -142,7 +150,7 @@
   },
   "additional_data": {
     "bankruptcy": {
-      "date_discharged": "2004-10-XX",
+      "date_discharged": "2004-10-22",
       "court_location": "Tampa, FL",
       "docket_number": "123456"
     },
@@ -150,19 +158,21 @@
   },
   "questions": {
     "has_been_adjudicated_bankrupt": true,
+    "has_credit_card_bills": true,
     "has_other_expenses": true,
     "has_repayments": true,
     "has_utilities": true,
-    "has_other_assets": true,
     "has_recreational_vehicle": true,
     "has_vehicle": true,
     "has_real_estate": true,
     "has_dependents": "2",
     "spouse_has_additional_income": true,
+    "spouse_has_social_security": true,
     "spouse_has_benefits": true,
     "spouse_is_employed": true,
     "is_married": true,
     "has_additional_income": true,
+    "has_social_security": true,
     "vet_is_employed": true
   },
   "installment_contracts": [
@@ -188,15 +198,15 @@
   "utility_records": [
     {
       "name": "Electricity",
-      "amount": "350.45"
+      "amount": "402.35"
     },
     {
-      "name": "Water",
-      "amount": "75.43"
+      "name": "Gas",
+      "amount": "85.16"
     },
     {
       "name": "Cable",
-      "amount": "275.47"
+      "amount": "175.47"
     }
   ],
   "personal_data": {
@@ -217,23 +227,11 @@
             "to": "",
             "is_current": true,
             "employer_name": "Spouse Current",
-            "gross_monthly_income": "5000.54",
+            "gross_monthly_income": "100",
             "deductions": [
               {
-                "name": "Federal tax",
-                "amount": "350.56"
-              },
-              {
                 "name": "State tax",
-                "amount": "230.45"
-              },
-              {
-                "name": "Pension",
-                "amount": "100"
-              },
-              {
-                "name": "Health insurance",
-                "amount": "254.45"
+                "amount": "10"
               }
             ]
           },
@@ -250,49 +248,15 @@
         "employment_records": [
           {
             "type": "Full time",
-            "from": "2017-1-XX",
+            "from": "2021-01-XX",
             "to": "",
             "is_current": true,
-            "employer_name": "Veteran Current One",
-            "gross_monthly_income": "5000.54",
+            "employer_name": "Test",
+            "gross_monthly_income": "123",
             "deductions": [
-              {
-                "name": "Federal tax",
-                "amount": "350.56"
-              },
               {
                 "name": "State tax",
-                "amount": "230.45"
-              },
-              {
-                "name": "Pension",
-                "amount": "100"
-              },
-              {
-                "name": "Health insurance",
-                "amount": "254.45"
-              }
-            ]
-          },
-          {
-            "type": "Part time",
-            "from": "2019-7-XX",
-            "to": "",
-            "is_current": true,
-            "employer_name": "Veteran Current Two",
-            "gross_monthly_income": "2000.56",
-            "deductions": [
-              {
-                "name": "Federal tax",
-                "amount": "200.02"
-              },
-              {
-                "name": "Allotment",
-                "amount": "134.56"
-              },
-              {
-                "name": "FICA (Social Security and Medicare)",
-                "amount": "122.4"
+                "amount": "1"
               }
             ]
           },
@@ -417,6 +381,7 @@
       "id": 0,
       "debt_type": "DEBT",
       "resolution_option": "waiver",
+      "resolution_comment": "",
       "resolution_waiver_check": true
     },
     {
@@ -1277,6 +1242,7 @@
       },
       "debt_type": "COPAY",
       "resolution_option": "waiver",
+      "resolution_comment": "",
       "resolution_waiver_check": true
     }
   ],
@@ -1290,80 +1256,6 @@
     "deduction_code": "",
     "original_ar": 0
   },
-  "curr_employment": [
-    {
-      "veteran_gross_salary": "0",
-      "deductions": [
-        {
-          "name": "Federal tax",
-          "amount": "0"
-        },
-        {
-          "name": "State tax",
-          "amount": "0"
-        },
-        {
-          "name": "Pension",
-          "amount": "0"
-        },
-        {
-          "name": "Health insurance",
-          "amount": "0"
-        }
-      ],
-      "type": "Full time",
-      "from": "2017-1-XX",
-      "to": "",
-      "is_current": true,
-      "employer_name": "Veteran Current One"
-    },
-    {
-      "veteran_gross_salary": "0",
-      "deductions": [
-        {
-          "name": "Federal tax",
-          "amount": "0"
-        },
-        {
-          "name": "Allotment",
-          "amount": "0"
-        },
-        {
-          "name": "FICA (Social Security and Medicare)",
-          "amount": "0"
-        }
-      ],
-      "type": "Part time",
-      "from": "2019-7-XX",
-      "to": "",
-      "is_current": true,
-      "employer_name": "Veteran Current Two"
-    }
-  ],
-  "sp_curr_employment": [
-    {
-      "spouse_gross_salary": "4000.45",
-      "deductions": [
-        {
-          "name": "Federal tax",
-          "amount": "325.54"
-        },
-        {
-          "name": "Health insurance",
-          "amount": "250.34"
-        },
-        {
-          "name": "Garnishment",
-          "amount": "150"
-        }
-      ],
-      "type": "Full time",
-      "from": "2018-6-XX",
-      "to": "",
-      "is_current": true,
-      "employer_name": "Spouse Current"
-    }
-  ],
   "financial_overview": {},
   "available_options": {},
   "income": [
