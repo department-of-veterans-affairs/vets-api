@@ -23,39 +23,12 @@ RSpec.describe CheckIn::VAOS::VAOSAppointmentDataSerializer do
           kind: 'clinic',
           status: 'booked',
           serviceType: 'amputation',
-          serviceTypes: [
-            {
-              coding: [
-                {
-                  system: 'http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type',
-                  code: 'amputation'
-                }
-              ]
-            }
-          ],
-          serviceCategory: [
-            {
-              coding: [
-                {
-                  system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_1',
-                  code: 'REGULAR',
-                  display: 'REGULAR'
-                }
-              ],
-              text: 'REGULAR'
-            }
-          ],
           patientIcn: '1013125218V696863',
           locationId: '983GC',
           clinic: '1081',
           start: '2023-11-06T16:00:00Z',
           end: '2023-11-06T16:30:00Z',
           minutesDuration: 30,
-          slot: {
-            id: '3230323331313036313630303A323032333131303631363330',
-            start: '2023-11-06T16:00:00Z',
-            end: '2023-11-06T16:30:00Z'
-          },
           created: '2023-08-02T00:00:00Z',
           cancellable: true,
           extension: {
@@ -84,100 +57,12 @@ RSpec.describe CheckIn::VAOS::VAOSAppointmentDataSerializer do
           kind: 'clinic',
           status: 'booked',
           serviceType: 'amputation',
-          serviceTypes: [
-            {
-              coding: [
-                {
-                  system: 'http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type',
-                  code: 'amputation'
-                }
-              ]
-            }
-          ],
-          serviceCategory: [
-            {
-              coding: [
-                {
-                  system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_1',
-                  code: 'REGULAR',
-                  display: 'REGULAR'
-                }
-              ],
-              text: 'REGULAR'
-            }
-          ],
           patientIcn: '1013125218V696863',
           locationId: '983GC',
           clinic: '1081',
           start: '2023-11-13T16:00:00Z',
           end: '2023-11-13T16:30:00Z',
           minutesDuration: 30,
-          slot: {
-            id: '3230323331313133313630303A323032333131313331363330',
-            start: '2023-11-13T16:00:00Z',
-            end: '2023-11-13T16:30:00Z'
-          },
-          created: '2023-08-02T00:00:00Z',
-          cancellable: true,
-          extension: {
-            ccLocation: {
-              address: {}
-            },
-            vistaStatus: [
-              'FUTURE'
-            ],
-            preCheckinAllowed: true,
-            eCheckinAllowed: true
-          }
-        },
-        {
-          id: '180767',
-          identifier: [
-            {
-              system: 'Appointment/',
-              value: '413938333130383737'
-            },
-            {
-              system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_84',
-              value: '983:10877'
-            }
-          ],
-          kind: 'clinic',
-          status: 'booked',
-          serviceType: 'amputation',
-          serviceTypes: [
-            {
-              coding: [
-                {
-                  system: 'http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type',
-                  code: 'amputation'
-                }
-              ]
-            }
-          ],
-          serviceCategory: [
-            {
-              coding: [
-                {
-                  system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_1',
-                  code: 'REGULAR',
-                  display: 'REGULAR'
-                }
-              ],
-              text: 'REGULAR'
-            }
-          ],
-          patientIcn: '1013125218V696863',
-          locationId: '983GC',
-          clinic: '1081',
-          start: '2023-11-20T16:00:00Z',
-          end: '2023-11-20T16:30:00Z',
-          minutesDuration: 30,
-          slot: {
-            id: '3230323331313230313630303A323032333131323031363330',
-            start: '2023-11-20T16:00:00Z',
-            end: '2023-11-20T16:30:00Z'
-          },
           created: '2023-08-02T00:00:00Z',
           cancellable: true,
           extension: {
@@ -260,38 +145,6 @@ RSpec.describe CheckIn::VAOS::VAOSAppointmentDataSerializer do
         }
       }
     end
-    let(:appointment3) do
-      {
-        id: '180767',
-        identifier: [
-          {
-            system: 'Appointment/',
-            value: '413938333130383737'
-          },
-          {
-            system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_84',
-            value: '983:10877'
-          }
-        ],
-        kind: 'clinic',
-        status: 'booked',
-        serviceType: 'amputation',
-        locationId: '983GC',
-        clinic: '1081',
-        start: '2023-11-20T16:00:00Z',
-        end: '2023-11-20T16:30:00Z',
-        extension: {
-          ccLocation: {
-            address: {}
-          },
-          vistaStatus: [
-            'FUTURE'
-          ],
-          preCheckinAllowed: true,
-          eCheckinAllowed: true
-        }
-      }
-    end
 
     let(:serialized_hash_response) do
       {
@@ -303,7 +156,7 @@ RSpec.describe CheckIn::VAOS::VAOSAppointmentDataSerializer do
               {
                 appointments:
                 [
-                  appointment1, appointment2, appointment3
+                  appointment1, appointment2
                 ]
               }
           }
@@ -326,39 +179,11 @@ RSpec.describe CheckIn::VAOS::VAOSAppointmentDataSerializer do
             kind: 'clinic',
             status: 'booked',
             serviceType: 'amputation',
-            serviceTypes: [
-              {
-                coding: [
-                  {
-                    system: 'http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type',
-                    code: 'amputation'
-                  }
-                ]
-              }
-            ],
-            serviceCategory: [
-              {
-                coding: [
-                  {
-                    system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_1',
-                    code: 'REGULAR',
-                    display: 'REGULAR'
-                  }
-                ],
-                text: 'REGULAR'
-              }
-            ],
             patientIcn: '1013125218V696863',
             locationId: '983GC',
             clinic: '1081',
             start: '2023-11-06T16:00:00Z',
             end: '2023-11-06T16:30:00Z',
-            minutesDuration: 30,
-            slot: {
-              id: '3230323331313036313630303A323032333131303631363330',
-              start: '2023-11-06T16:00:00Z',
-              end: '2023-11-06T16:30:00Z'
-            },
             created: '2023-08-02T00:00:00Z',
             cancellable: true,
             extension: {
