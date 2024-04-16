@@ -21,7 +21,7 @@ module Lighthouse
         @claim = SavedClaim.find(claim_id)
         @claim.send_to_benefits_intake!
         send_confirmation_email(user_uuid)
-      rescue => e
+      rescue
         Rails.logger.warn('SubmitCareerCounselingJob failed, retrying...')
         raise
       end
