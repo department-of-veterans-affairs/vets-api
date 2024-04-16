@@ -21,11 +21,11 @@ module Lighthouse
         @claim = SavedClaim.find(claim_id)
         @claim.send_to_benefits_intake!
         send_confirmation_email(user_uuid)
-      rescue
-        Rails.logger.warn('SubmitCareerCounselingJob failed, retrying...')
+      rescue => e
+        Rails.logger.warn('SubmitCareerCounselingJob failed, retrying...', { error_message: e.message })
         raise
       end
-      Rails.logger.info("Successfully submitted form 25-8832 for uuid: #{user_uuid}")
+      Rails.logger.info('Successfully submitted form 25-8832', { uuid: user_uuid })
     end
 
     def send_confirmation_email(user_uuid)
