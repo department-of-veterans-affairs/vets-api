@@ -30,9 +30,6 @@ describe TravelClaim::RedisClient do
 
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
-    allow(Flipper).to receive(:enabled?).with('check_in_experience_travel_claim_redis_client_refactor')
-                                        .and_return(false)
-
     Rails.cache.clear
   end
 
@@ -201,23 +198,7 @@ describe TravelClaim::RedisClient do
       )
     end
 
-    context 'when cache exists and refactor feature flag is off' do
-      before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_travel_claim_redis_client_refactor')
-                                            .and_return(false)
-      end
-
-      it 'returns the cached value' do
-        expect(redis_client.facility_type(uuid:)).to eq(facility_type)
-      end
-    end
-
-    context 'when cache exists and refactor feature flag is on' do
-      before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_travel_claim_redis_client_refactor')
-                                            .and_return(true)
-      end
-
+    context 'when cache exists' do
       it 'returns the cached value' do
         expect(redis_client.facility_type(uuid:)).to eq(facility_type)
       end
