@@ -52,7 +52,6 @@ describe Veteran::Service::Representative, type: :model do
         ).id).to eq(representative.id)
       end
     end
-
   end
 
   describe '.find_within_max_distance' do
@@ -101,7 +100,7 @@ describe Veteran::Service::Representative, type: :model do
       context 'creating a new representative' do
         it 'sets the full_name attribute as first_name + last_name' do
           representative = described_class.new(representative_id: 'abc', poa_codes: ['123'], first_name: 'Joe',
-                                    last_name: 'Smith')
+                                               last_name: 'Smith')
 
           expect(representative.full_name).to be_nil
 
