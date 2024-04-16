@@ -951,7 +951,15 @@ features:
     actor_type: user
     description: Displays an alert to users on 1990EZ intro page that the Backend Service is Down.
     enable_in_development: false
+  show_meb_1990EZ_R6_maintenance_message:
+    actor_type: user
+    description: Displays an alert to users on 1990EZ intro page that the Backend Service is Down.
+    enable_in_development: false
   show_meb_1990E_maintenance_alert:
+    actor_type: user
+    description: Displays an alert to users on 1990E intro page that the Backend Service is Down.
+    enable_in_development: false
+  show_meb_1990E_R6_maintenance_message:
     actor_type: user
     description: Displays an alert to users on 1990E intro page that the Backend Service is Down.
     enable_in_development: false
@@ -1209,6 +1217,10 @@ features:
   supply_reordering_sleep_apnea_enabled:
     actor_type: user
     description: Enables sleep apnea supplies to be ordered in the supply reorder tool / MDOT.
+    enable_in_development: true
+  toe_dup_contact_info_call:
+    actor_type: user
+    description: Flag to use contact info call and modal
     enable_in_development: true
   toe_short_circuit_bgs_failure:
     actor_type: user
