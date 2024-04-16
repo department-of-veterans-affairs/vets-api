@@ -951,7 +951,15 @@ features:
     actor_type: user
     description: Displays an alert to users on 1990EZ intro page that the Backend Service is Down.
     enable_in_development: false
+  show_meb_1990EZ_R6_maintenance_message:
+    actor_type: user
+    description: Displays an alert to users on 1990EZ intro page that the Backend Service is Down.
+    enable_in_development: false
   show_meb_1990E_maintenance_alert:
+    actor_type: user
+    description: Displays an alert to users on 1990E intro page that the Backend Service is Down.
+    enable_in_development: false
+  show_meb_1990E_R6_maintenance_message:
     actor_type: user
     description: Displays an alert to users on 1990E intro page that the Backend Service is Down.
     enable_in_development: false
@@ -1210,6 +1218,10 @@ features:
     actor_type: user
     description: Enables sleep apnea supplies to be ordered in the supply reorder tool / MDOT.
     enable_in_development: true
+  toe_dup_contact_info_call:
+    actor_type: user
+    description: Flag to use contact info call and modal
+    enable_in_development: true
   toe_short_circuit_bgs_failure:
     actor_type: user
     description: Flag to use begin rescue block for BGS call
@@ -1344,6 +1356,9 @@ features:
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API
+  ecc_benefits_intake_submission:
+    actor_type: user
+    description: Enable education and career counseling claim submissions to use Benefits Intake API
   virtual_agent_enable_param_error_detection:
     actor_type: user
     description: If enabled, Allows for the detection of errors in the chatbot params
