@@ -12,7 +12,7 @@ module V0
     service_tag 'healthcare-application'
     FORM_ID = '1010ez'
 
-    skip_before_action(:authenticate, only: %i[create show enrollment_status healthcheck download_pdf facilities])
+    skip_before_action(:authenticate, only: %i[create show enrollment_status healthcheck facilities])
 
     before_action :record_submission_attempt, only: :create
     before_action :load_user, only: %i[create enrollment_status]
@@ -69,14 +69,6 @@ module V0
       render(json: HCA::Service.new.health_check)
     end
 
-    def download_pdf
-      source_file_path = PdfFill::Filler.fill_form(health_care_application, SecureRandom.uuid, sign: false)
-      file_contents = File.read(source_file_path)
-      File.delete(source_file_path)
-
-      send_data file_contents, filename: file_name_for_pdf, type: 'application/pdf', disposition: 'attachment'
-    end
-
     def facilities
       render(json: lighthouse_facilities_service.get_facilities(lighthouse_facilities_params))
     end
@@ -107,13 +99,6 @@ module V0
         :per_page,
         facilityIds: []
       )
-    end
-
-    def file_name_for_pdf
-      veteran_name = health_care_application.parsed_form.try(:[], 'veteranFullName')
-      first_name = veteran_name.try(:[], 'first') || 'First'
-      last_name = veteran_name.try(:[], 'last') || 'Last'
-      "10-10EZ_#{first_name}_#{last_name}.pdf"
     end
 
     def record_submission_attempt
