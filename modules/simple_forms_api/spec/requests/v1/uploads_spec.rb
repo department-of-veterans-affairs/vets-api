@@ -2,10 +2,12 @@
 
 require 'rails_helper'
 require 'simple_forms_api_submission/metadata_validator'
+require 'common/file_helpers'
 
 RSpec.describe 'Forms uploader', type: :request do
   non_ivc_forms = [
-    'vba_26_4555.json',
+    # TODO: Restore this test when we release 26-4555 to production.
+    # 'vba_26_4555.json',
     'vba_21_4142.json',
     'vba_21_10210.json',
     'vba_21p_0847.json',
@@ -19,6 +21,9 @@ RSpec.describe 'Forms uploader', type: :request do
     'vba_20_10207-non-veteran.json'
   ]
 
+  authenticated_non_ivc_forms = non_ivc_forms - %w[vba_40_0247.json vba_21_10210.json vba_21p_0847.json
+                                                   vba_40_10007.json]
+
   ivc_forms = [
     'vha_10_10d.json',
     'vha_10_7959f_1.json',
@@ -26,6 +31,13 @@ RSpec.describe 'Forms uploader', type: :request do
   ]
 
   describe '#submit' do
+    let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
+    let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
+
+    before { allow(Common::FileHelpers).to receive(:random_file_path).and_return(file_seed) }
+
+    after { Common::FileHelpers.delete_file_if_exists(metadata_file) }
+
     non_ivc_forms.each do |form|
       fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
       data = JSON.parse(fixture_path.read)
@@ -39,9 +51,6 @@ RSpec.describe 'Forms uploader', type: :request do
 
             expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
             expect(response).to have_http_status(:ok)
-          ensure
-            metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
-            Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
           end
         end
       end
@@ -54,9 +63,31 @@ RSpec.describe 'Forms uploader', type: :request do
             expect do
               post '/simple_forms_api/v1/simple_forms', params: data
             end.to change(FormSubmissionAttempt, :count).by(1)
-          ensure
-            metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
-            Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
+          end
+        end
+      end
+    end
+
+    authenticated_non_ivc_forms.each do |form|
+      fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
+      data = JSON.parse(fixture_path.read)
+
+      context 'authenticated user' do
+        before do
+          user = create(:user)
+          sign_in_as(user)
+          create(:in_progress_form, user_uuid: user.uuid, form_id: data['form_number'])
+        end
+
+        it 'clears the InProgressForm' do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+              allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+
+              expect do
+                post '/simple_forms_api/v1/simple_forms', params: data
+              end.to change(InProgressForm, :count).by(-1)
+            end
           end
         end
       end
@@ -167,9 +198,6 @@ RSpec.describe 'Forms uploader', type: :request do
             expect_any_instance_of(SimpleFormsApi::PdfFiller).to receive(:generate).with(3)
 
             post '/simple_forms_api/v1/simple_forms', params: data
-          ensure
-            metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
-            Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
           end
         end
       end
@@ -191,9 +219,6 @@ RSpec.describe 'Forms uploader', type: :request do
             post '/simple_forms_api/v1/simple_forms', params: data
 
             expect(response).to have_http_status(:ok)
-          ensure
-            metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
-            Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
           end
         end
       end
@@ -210,9 +235,6 @@ RSpec.describe 'Forms uploader', type: :request do
             expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
             post '/simple_forms_api/v1/simple_forms', params: data
             expect(response).to have_http_status(:ok)
-          ensure
-            metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
-            Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
           end
         end
       end
@@ -284,6 +306,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
       describe '26-4555' do
         it 'makes the request and expects a failure' do
+          skip 'restore this test when we release the form to production'
+
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                          'form_with_dangerous_characters_26_4555.json')
           data = JSON.parse(fixture_path.read)

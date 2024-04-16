@@ -38,18 +38,17 @@ module SimpleFormsApi
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
-        if form_is210966 && icn && first_party?
-          handle_210966_authenticated
-        elsif form_is264555_and_should_use_lgy_api
-          parsed_form_data = JSON.parse(params.to_json)
-          form = SimpleFormsApi::VBA264555.new(parsed_form_data)
-          response = LGY::Service.new.post_grant_application(payload: form.as_payload)
-          reference_number = response.body['reference_number']
-          status = response.body['status']
-          render json: { reference_number:, status: }, status: response.status
-        else
-          submit_form_to_central_mail
-        end
+        response = if form_is210966 && icn && first_party?
+                     handle_210966_authenticated
+                   elsif form_is264555_and_should_use_lgy_api
+                     handle264555
+                   else
+                     submit_form_to_central_mail
+                   end
+
+        clear_saved_form(params[:form_number])
+
+        render response
       rescue Prawn::Errors::IncompatibleStringEncoding
         raise
       rescue => e
@@ -96,13 +95,22 @@ module SimpleFormsApi
         confirmation_number, expiration_date = intent_service.submit
         form.track_user_identity(confirmation_number)
 
-        render json: {
+        { json: {
           confirmation_number:,
           expiration_date:,
           compensation_intent: existing_intents['compensation'],
           pension_intent: existing_intents['pension'],
           survivor_intent: existing_intents['survivor']
-        }
+        } }
+      end
+
+      def handle264555
+        parsed_form_data = JSON.parse(params.to_json)
+        form = SimpleFormsApi::VBA264555.new(parsed_form_data)
+        lgy_response = LGY::Service.new.post_grant_application(payload: form.as_payload)
+        reference_number = lgy_response.body['reference_number']
+        status = lgy_response.body['status']
+        { json: { reference_number:, status: }, status: lgy_response.status }
       end
 
       def submit_form_to_central_mail
@@ -129,7 +137,7 @@ module SimpleFormsApi
           ).send
         end
 
-        render json: get_json(confirmation_number || nil, form_id, error_message || nil), status:
+        { json: get_json(confirmation_number || nil, form_id, error_message || nil), status: }
       end
 
       def handle_ivc_uploads(form_id, metadata, pdf_file_paths)
@@ -236,12 +244,8 @@ module SimpleFormsApi
       end
 
       def form_is264555_and_should_use_lgy_api
-        # TODO: Remove prod/test check and ALWAYS require icn
-        if Rails.env.production? || Rails.env.test?
-          params[:form_number] == '26-4555' && icn
-        else
-          params[:form_number] == '26-4555'
-        end
+        # TODO: Remove comment octothorpe and ALWAYS require icn
+        params[:form_number] == '26-4555' # && icn
       end
 
       def should_authenticate

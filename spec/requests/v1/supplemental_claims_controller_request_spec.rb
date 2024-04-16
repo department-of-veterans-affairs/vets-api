@@ -6,6 +6,36 @@ require 'support/controller_spec_helper'
 RSpec.describe V1::SupplementalClaimsController do
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
+  let(:success_log_args) do
+    {
+      message: 'Overall claim submission success!',
+      user_uuid: user.uuid,
+      action: 'Overall claim submission',
+      form_id: '995',
+      upstream_system: nil,
+      downstream_system: 'Lighthouse',
+      is_success: true,
+      http: {
+        status_code: 200,
+        body: '[Redacted]'
+      }
+    }
+  end
+  let(:error_log_args) do
+    {
+      message: 'Overall claim submission failure!',
+      user_uuid: user.uuid,
+      action: 'Overall claim submission',
+      form_id: '995',
+      upstream_system: nil,
+      downstream_system: 'Lighthouse',
+      is_success: false,
+      http: {
+        status_code: 422,
+        body: anything
+      }
+    }
+  end
 
   before { sign_in_as(user) }
 
@@ -27,6 +57,12 @@ RSpec.describe V1::SupplementalClaimsController do
         in_progress_form = create(:in_progress_form, user_uuid: user.uuid, form_id: '20-0995')
         expect(in_progress_form).not_to be_nil
         previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
+
+        allow(Rails.logger).to receive(:info)
+        expect(Rails.logger).to receive(:info).with(success_log_args)
+        allow(StatsD).to receive(:increment)
+        expect(StatsD).to receive(:increment).with('decision_review.form_995.overall_claim_submission.success')
+
         subject
         expect(response).to be_successful
         parsed_response = JSON.parse(response.body)
@@ -43,6 +79,11 @@ RSpec.describe V1::SupplementalClaimsController do
     it 'adds to the PersonalInformationLog when an exception is thrown' do
       VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-422_V1') do
         expect(personal_information_logs.count).to be 0
+        allow(Rails.logger).to receive(:error)
+        expect(Rails.logger).to receive(:error).with(error_log_args)
+        allow(StatsD).to receive(:increment)
+        expect(StatsD).to receive(:increment).with('decision_review.form_995.overall_claim_submission.failure')
+
         subject
         expect(personal_information_logs.count).to be 1
         pil = personal_information_logs.first

@@ -21,8 +21,16 @@ RSpec.describe SavedClaim::Burial do
   end
 
   describe '#process_attachments!' do
-    it 'starts a job to submit the saved claim' do
+    it 'starts a job to submit the saved claim via Central Mail' do
+      Flipper.disable(:central_mail_benefits_intake_submission)
       expect_any_instance_of(CentralMail::SubmitSavedClaimJob).to receive(:perform).with(instance.id)
+
+      instance.process_attachments!
+    end
+
+    it 'starts a job to submit the saved claim via Benefits Intake' do
+      Flipper.enable(:central_mail_benefits_intake_submission)
+      expect_any_instance_of(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform).with(instance.id)
 
       instance.process_attachments!
     end

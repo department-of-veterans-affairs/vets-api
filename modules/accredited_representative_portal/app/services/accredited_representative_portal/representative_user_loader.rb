@@ -4,6 +4,8 @@ module AccreditedRepresentativePortal
   class RepresentativeUserLoader
     attr_reader :access_token, :request_ip
 
+    class RepresentativeNotFoundError < StandardError; end
+
     def initialize(access_token:, request_ip:)
       @access_token = access_token
       @request_ip = request_ip
@@ -64,6 +66,18 @@ module AccreditedRepresentativePortal
       @user_verification ||= session.user_verification
     end
 
+    def get_poa_codes
+      rep = Veteran::Service::Representative.find_by(representative_id: ogc_number)
+      # TODO-ARF 80297: Determine how to get ogc_number into RepresentativeUserLoader
+      # raise RepresentativeNotFoundError unless rep
+
+      rep&.poa_codes
+    end
+
+    def ogc_number
+      # TODO-ARF 80297: Determine how to get ogc_number into RepresentativeUserLoader
+    end
+
     def current_user
       return @current_user if @current_user.present?
 
@@ -77,6 +91,8 @@ module AccreditedRepresentativePortal
       user.authn_context = authn_context
       user.loa = loa
       user.logingov_uuid = user_verification.logingov_uuid
+      user.ogc_number = ogc_number # TODO-ARF 80297: Determine how to get ogc_number into RepresentativeUserLoader
+      user.poa_codes = get_poa_codes
       user.idme_uuid = user_verification.idme_uuid || user_verification.backing_idme_uuid
       user.last_signed_in = session.created_at
       user.sign_in = sign_in
