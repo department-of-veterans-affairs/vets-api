@@ -90,6 +90,36 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_16_203351) do
     t.index ["registration_number", "individual_type"], name: "index_on_reg_num_and_type_for_accredited_individuals", unique: true
   end
 
+  create_table "accredited_organizations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "ogc_id", null: false
+    t.string "poa_code", limit: 3, null: false
+    t.string "name"
+    t.string "phone"
+    t.string "address_type"
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "address_line3"
+    t.string "city"
+    t.string "country_code_iso3"
+    t.string "country_name"
+    t.string "county_name"
+    t.string "county_code"
+    t.string "international_postal_code"
+    t.string "province"
+    t.string "state_code"
+    t.string "zip_code"
+    t.string "zip_suffix"
+    t.jsonb "raw_address"
+    t.float "lat"
+    t.float "long"
+    t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["location"], name: "index_accredited_organizations_on_location", using: :gist
+    t.index ["name"], name: "index_accredited_organizations_on_name"
+    t.index ["poa_code"], name: "index_accredited_organizations_on_poa_code", unique: true
+  end
+
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
