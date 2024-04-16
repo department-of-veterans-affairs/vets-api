@@ -177,8 +177,7 @@ module ClaimsApi
           track_526_validation_errors(error_details)
           raise ::Common::Exceptions::UnprocessableEntity.new(errors: format_526_errors(error_details))
         rescue ::Common::Exceptions::BackendServiceException => e
-          error_details = e&.original_body&.[](:messages)
-          raise ::Common::Exceptions::UnprocessableEntity.new(errors: format_526_errors(error_details))
+          raise ::Common::Exceptions::UnprocessableEntity.new(errors: format_526_errors(e.original_body))
         rescue ::Common::Exceptions::GatewayTimeout,
                ::Timeout::Error,
                ::Faraday::TimeoutError,

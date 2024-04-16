@@ -48,7 +48,7 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
         )
       end
 
-      let(:backend_error_submit) { ClaimsApi::CustomError.new(backend_error, claim, 'submit') }
+      let(:backend_error_submit) { ClaimsApi::CustomError.new(backend_error) }
 
       it 'correctly set the key as the string value from the error message' do
         backend_error_submit.build_error
@@ -78,7 +78,7 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
         )
       end
 
-      let(:backend_error_submit) { ClaimsApi::CustomError.new(backend_error, claim, 'submit') }
+      let(:backend_error_submit) { ClaimsApi::CustomError.new(backend_error) }
 
       it 'sets the evss_response to the original body error message' do
         backend_error_submit.build_error

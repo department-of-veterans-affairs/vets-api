@@ -27,7 +27,7 @@ module ClaimsApi
           log_outcome_for_claims_api('submit', 'success', resp, claim)
           resp # return is for v1 Sidekiq worker
         rescue => e
-          error_handler(e, claim, 'submit')
+          error_handler(e)
         end
       end
 
@@ -43,7 +43,7 @@ module ClaimsApi
           detail = e.respond_to?(:original_body) ? e.original_body : e
           log_outcome_for_claims_api('validate', 'error', detail, claim)
 
-          error_handler(e, claim, 'validate')
+          error_handler(e)
         end
       end
 
@@ -90,12 +90,12 @@ module ClaimsApi
                               detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}", claim: claim&.id)
       end
 
-      def custom_error(error, claim, method)
-        ClaimsApi::CustomError.new(error, claim, method)
+      def custom_error(error)
+        ClaimsApi::CustomError.new(error)
       end
 
-      def error_handler(error, claim, method)
-        custom_error(error, claim, method).build_error
+      def error_handler(error)
+        custom_error(error).build_error
       end
     end
   end

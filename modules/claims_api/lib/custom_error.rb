@@ -2,10 +2,8 @@
 
 module ClaimsApi
   class CustomError
-    def initialize(error, claim, method)
+    def initialize(error)
       @error = error
-      @claim = claim
-      @method = method
     end
 
     def build_error
