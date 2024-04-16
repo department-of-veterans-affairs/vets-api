@@ -145,12 +145,14 @@ describe PdfFill::Forms::Va21p530v2 do
 
     it 'leaves benefit selections blank on pdf if unselected', run_at: '2024-03-21 00:00:00 EDT' do
       unselected_benefits_data = get_fixture('pdf_fill/21P-530V2/kitchen_sink').except(
-        'burialAllowance', 'plotAllowance', 'transportation'
+        'burialExpenseResponsibility', 'plotExpenseResponsibility', 'transportation'
       )
       expected_merge_data = get_fixture('pdf_fill/21P-530V2/merge_fields').except(
-        'burialAllowance', 'plotAllowance', 'transportation'
+        'burialExpenseResponsibility', 'plotExpenseResponsibility', 'transportation'
       )
       expected_merge_data['hasTransportation'] = nil
+      expected_merge_data['hasBurialExpenseResponsibility'] = nil
+      expected_merge_data['hasPlotExpenseResponsibility'] = nil
       expect(described_class.new(unselected_benefits_data).merge_fields.to_json).to eq(
         expected_merge_data.to_json
       )
