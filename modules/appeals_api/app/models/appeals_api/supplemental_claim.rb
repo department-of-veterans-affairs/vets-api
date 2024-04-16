@@ -4,9 +4,11 @@ require 'json_marshal/marshaller'
 
 module AppealsApi
   class SupplementalClaim < ApplicationRecord
+    include AppealScopes
     include ScStatus
     include PdfOutputPrep
     include ModelValidations
+
     required_claimant_headers %w[X-VA-NonVeteranClaimant-First-Name X-VA-NonVeteranClaimant-Last-Name]
 
     attr_readonly :auth_headers

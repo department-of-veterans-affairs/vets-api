@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService?WSDL
+    uri: <BGS_BASE_URL>/EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -217,7 +217,7 @@ http_interactions:
   recorded_at: Wed, 28 Jun 2023 21:15:21 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService
+    uri: <BGS_BASE_URL>/EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService
     body:
       encoding: UTF-8
       string: |

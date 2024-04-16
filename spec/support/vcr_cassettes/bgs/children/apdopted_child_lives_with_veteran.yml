@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntWebServiceBean/VnpPtcpntService?WSDL
+    uri: <BGS_BASE_URL>/VnpPtcpntWebServiceBean/VnpPtcpntService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -171,7 +171,7 @@ http_interactions:
   recorded_at: Tue, 21 Jul 2020 05:36:27 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntWebServiceBean/VnpPtcpntService
+    uri: <BGS_BASE_URL>/VnpPtcpntWebServiceBean/VnpPtcpntService
     body:
       encoding: UTF-8
       string: |-
@@ -227,7 +227,7 @@ http_interactions:
   recorded_at: Tue, 21 Jul 2020 05:36:27 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPersonWebServiceBean/VnpPersonService?WSDL
+    uri: <BGS_BASE_URL>/VnpPersonWebServiceBean/VnpPersonService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -396,7 +396,7 @@ http_interactions:
   recorded_at: Tue, 21 Jul 2020 05:36:28 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPersonWebServiceBean/VnpPersonService
+    uri: <BGS_BASE_URL>/VnpPersonWebServiceBean/VnpPersonService
     body:
       encoding: UTF-8
       string: |-
@@ -455,7 +455,7 @@ http_interactions:
   recorded_at: Tue, 21 Jul 2020 05:36:29 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService?WSDL
+    uri: <BGS_BASE_URL>/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -624,7 +624,7 @@ http_interactions:
   recorded_at: Tue, 21 Jul 2020 05:36:30 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
+    uri: <BGS_BASE_URL>/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
     body:
       encoding: UTF-8
       string: |-
