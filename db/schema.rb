@@ -931,7 +931,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
   end
 
   create_table "personal_information_logs", id: :serial, force: :cascade do |t|
-    t.jsonb "data", null: false
     t.string "error_class", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
