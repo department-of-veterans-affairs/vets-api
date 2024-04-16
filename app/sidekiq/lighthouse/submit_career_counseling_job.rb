@@ -1,18 +1,17 @@
 # frozen_string_literal: true
 
-module CentralMail
+module Lighthouse
   class SubmitCareerCounselingJob
     include Sidekiq::Job
-    include SentryLogging
     RETRY = 14
 
-    STATSD_KEY_PREFIX = 'worker.central_mail.submit_career_counseling_job'
+    STATSD_KEY_PREFIX = 'worker.lighthouse.submit_career_counseling_job'
 
     sidekiq_options retry: RETRY
 
     sidekiq_retries_exhausted do |msg, _ex|
       Rails.logger.error(
-        "Failed all retries on CentralMail::SubmitCareerCounselingJob, last error: #{msg['error_message']}"
+        "Failed all retries on SubmitCareerCounselingJob, last error: #{msg['error_message']}"
       )
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
     end
@@ -20,14 +19,13 @@ module CentralMail
     def perform(claim_id, user_uuid = nil)
       begin
         @claim = SavedClaim.find(claim_id)
-        @claim.send_to_central_mail!
+        @claim.send_to_benefits_intake!
         send_confirmation_email(user_uuid)
       rescue => e
-        log_message_to_sentry('CentralMail::SubmitCareerCounselingJob failed, retrying...', :warn,
-                              generate_sentry_details(e))
+        Rails.logger.warn('SubmitCareerCounselingJob failed, retrying...', { error_message: e.message })
         raise
       end
-      log_message_to_sentry('Successfully submitted form 25-8832', :info, { uuid: user_uuid })
+      Rails.logger.info('Successfully submitted form 25-8832', { uuid: user_uuid })
     end
 
     def send_confirmation_email(user_uuid)
@@ -38,8 +36,7 @@ module CentralMail
               end
 
       if email.blank?
-        log_message_to_sentry('No email to send confirmation regarding submitted form 25-8832', :info,
-                              { uuid: user_uuid })
+        Rails.logger.info("No email to send confirmation regarding submitted form 25-8832 for uuid: #{user_uuid}")
         return
       end
 
