@@ -41,7 +41,7 @@ module TravelPay
     def authorize
       auth_header = request.headers['Authorization']
       raise_unauthorized('Missing Authorization header') if auth_header.nil?
-      raise_unauthorized('Authorization header missing Bearer token') if !auth_header.start_with?('Bearer ')
+      raise_unauthorized('Authorization header missing Bearer token') unless auth_header.start_with?('Bearer ')
     end
 
     def raise_unauthorized(detail)
