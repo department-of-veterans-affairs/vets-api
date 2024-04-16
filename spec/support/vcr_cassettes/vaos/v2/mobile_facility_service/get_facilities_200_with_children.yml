@@ -37,9 +37,9 @@ http_interactions:
       Etag:
       - '"601db677-1493"'
       Set-Cookie:
-      - TS016f4012=01c8917e48f82448aabad123124d27561ecea14fc6b7c5eef42a0f00d507b037e6542b7d32397d4fc45448ce2e65e382fb42f9b5cc;
+      - TS016f4012=stubbed_cookie;
         Max-Age=900; Path=/
-      - vamfjwtv3=eyJ6aXAiOiJERUYiLCJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.ejBzdl75tE7c9bkV7bTJj39NwyZ3fi1egLtJdiMLpnIrq6pV5t4jIIko8V7ad8z9tKtooKVVzDoRh8bvKH8ohhAiU8tBa3E-Kt8Yq8jiqgi-lIj_PKzCeY6_wdEI81AVwxvN-1kANBdZf-64i1LmuYOTZaUtO_TDN98Rs7S7PQLZHkkAIX8UGCwPUiL4nwS9BJxiBbarjQn8WdCOx0CaFwL5i0Kf8L5w6oKG16tt7asRqU0IkSnVWCRQoVrKn5rV6PrB8ujfmMxdpexWLV9syT_bM1Q1_-BZsocOmfGy5u_l2u_4ES6NR1y1AnVzu161gBewnxuNYrNq2EPI5t1xTw.T8A7jvOC063AoEYpdkwoQQ.nsasE7cZyigJOauLMipzUMja24rbCt1CLFhAfzxw_nLbEWJQadPD2PhW2cjNGQdzZiehvT30Eg3gh-stb0HiKiSKUfW5DA_srdn4GbfnBq3BzHVWM_vGiE7tX0r96twOCSkVxm6ve0ifL2Yc39wB_zlATUcd34rZ5iKqndlJdZoNAN5V7JjPUYuHKbA5KWEzIcQKWDkFubaiiXwsL110qcCRYSLc3wopCY57HVHtfJci70FrvUe-cIJ_ZWEom7Ku1NTFQ6By-EG29rQq4InWxDqnj8g_hbu4XEgtLSm2CPQuYzaWz87MA0dwzLGE4SEvPCVSJgQZLDSu6vVerAGr7oQ5b_EgrkiPSDR2phcYy3xWPXD2QSPlQgZqdhHoPwGDwgvlBmm2y1rKF8R20ldQ7icbTkrHPnQ9MMje8jRuSgW-Mi6UfKX-2ecGDkSrbHsWc3FtoPpDKxN3OC7s_OPIYzEZW5t5LCdLA0PO1WNYnv3tKwPxkjLFrNtf7IOoL6yr-EZc3kol_hCb8xaVoVtwQwzSvxXf0j1bCT-ilBosktbg622mpuo3TWNaUwSdLVvivYsXisZ9wNiGzbJi0EobFoN4iHhX2wHzcfIke-5ntxdal8_YSZTyX_Ae5JAoP52nYN60enygaxDs6Qvg4AWBnweCWe0QgWgdEUlOatj3dd5pFtJsLbP8_HFQjJTtSI17FjL-QEaC6bVqyT-VuR6hQw.SveNG2a77UDkzS524pd6jj038e4MjNidSEfRVOGDwqk;
+      - vamfjwtv3=stubbed_token;
         path=/; SameSite=Lax; HttpOnly
       - vamftimeoutv1=1621618493; SameSite=Lax; path=/
     body:
