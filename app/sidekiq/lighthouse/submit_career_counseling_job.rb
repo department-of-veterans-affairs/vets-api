@@ -3,7 +3,6 @@
 module Lighthouse
   class SubmitCareerCounselingJob
     include Sidekiq::Job
-    include SentryLogging
     RETRY = 14
 
     STATSD_KEY_PREFIX = 'worker.lighthouse.submit_career_counseling_job'
@@ -23,11 +22,10 @@ module Lighthouse
         @claim.send_to_benefits_intake!
         send_confirmation_email(user_uuid)
       rescue => e
-        log_message_to_sentry('SubmitCareerCounselingJob failed, retrying...', :warn,
-                              generate_sentry_details(e))
+        Rails.logger.warn('SubmitCareerCounselingJob failed, retrying...')
         raise
       end
-      log_message_to_sentry('Successfully submitted form 25-8832', :info, { uuid: user_uuid })
+      Rails.logger.info("Successfully submitted form 25-8832 for uuid: #{user_uuid}")
     end
 
     def send_confirmation_email(user_uuid)
@@ -38,8 +36,7 @@ module Lighthouse
               end
 
       if email.blank?
-        log_message_to_sentry('No email to send confirmation regarding submitted form 25-8832', :info,
-                              { uuid: user_uuid })
+        Rails.logger.info("No email to send confirmation regarding submitted form 25-8832 for uuid: #{user_uuid}")
         return
       end
 
