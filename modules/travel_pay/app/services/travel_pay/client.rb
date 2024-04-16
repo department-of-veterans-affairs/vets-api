@@ -32,7 +32,7 @@ module TravelPay
       response = connection(server_url: btsss_url).post('api/v1/Auth/access-token') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['Ocp-Apim-Subscription-Key'] = api_key
-        req.headers['BTSSS-API-Client-Number'] = client_number
+        req.headers['BTSSS-API-Client-Number'] = client_number.to_s
         req.body = { authJwt: vagov_token }
       end
       response.body['access_token']

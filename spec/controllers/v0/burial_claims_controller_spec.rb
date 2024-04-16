@@ -30,12 +30,25 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
   end
 
   describe '#show' do
-    it 'returns the submission status' do
+    it 'returns the submission status when the claim uses central mail' do
       claim = create(:burial_claim)
       claim.central_mail_submission.update!(state: 'success')
       get(:show, params: { id: claim.guid })
 
       expect(JSON.parse(response.body)['data']['attributes']['state']).to eq('success')
+    end
+
+    it 'returns the submission status when the claim uses benefits intake' do
+      claim = create(:burial_claim)
+      claim.form_submissions << create(:form_submission, :pending, form_type: '21P-530')
+      get(:show, params: { id: claim.guid })
+
+      expect(JSON.parse(response.body)['data']['attributes']['state']).to eq('success')
+    end
+
+    it 'returns an error if the claim is not found' do
+      get(:show, params: { id: '12345' })
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

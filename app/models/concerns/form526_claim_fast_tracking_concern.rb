@@ -15,7 +15,14 @@ module Form526ClaimFastTrackingConcern
 
   EP_MERGE_BASE_CODES = %w[010 110 020 030 040].freeze
   EP_MERGE_SPECIAL_ISSUE = 'EMP'
-  OPEN_STATUSES = ['CLAIM RECEIVED', 'UNDER REVIEW', 'GATHERING OF EVIDENCE', 'REVIEW OF EVIDENCE'].freeze
+  OPEN_STATUSES = [
+    'CLAIM RECEIVED',
+    'UNDER REVIEW',
+    'GATHERING OF EVIDENCE',
+    'REVIEW OF EVIDENCE',
+    'CLAIM_RECEIVED',
+    'INITIAL_REVIEW'
+  ].freeze
 
   def send_rrd_alert_email(subject, message, error = nil, to = Settings.rrd.alerts.recipients)
     RrdAlertMailer.build(self, subject, message, error, to).deliver_now
@@ -84,6 +91,10 @@ module Form526ClaimFastTrackingConcern
     form.dig('form526', 'form526', 'disabilities')
   end
 
+  def increase_disabilities
+    disabilities.select { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
+  end
+
   def increase_only?
     disabilities.all? { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
   end
@@ -116,14 +127,17 @@ module Form526ClaimFastTrackingConcern
     pending_eps = open_claims.select do |claim|
       EP_MERGE_BASE_CODES.include?(claim['base_end_product_code']) && OPEN_STATUSES.include?(claim['status'])
     end
-    StatsD.distribution("#{EP_MERGE_STATSD_KEY_PREFIX}.pending_ep_count", pending_eps.count)
+    Rails.logger.info('EP Merge total open EPs', id:, count: pending_eps.count)
     return unless pending_eps.count == 1
 
     date = Date.strptime(pending_eps.first['date'], '%m/%d/%Y')
     days_ago = (Time.zone.today - date).round
-    StatsD.distribution("#{EP_MERGE_STATSD_KEY_PREFIX}.pending_ep_age", days_ago)
-
-    if Flipper.enabled?(:disability_526_ep_merge_api, User.find(user_uuid))
+    feature_enabled = Flipper.enabled?(:disability_526_ep_merge_api, User.find(user_uuid))
+    Rails.logger.info(
+      'EP Merge open EP eligibility',
+      { id:, feature_enabled:, pending_ep_age: days_ago, pending_ep_status: pending_eps.first['status'] }
+    )
+    if feature_enabled
       save_metadata(ep_merge_pending_claim_id: pending_eps.first['id'])
       add_ep_merge_special_issue!
     end
@@ -178,18 +192,19 @@ module Form526ClaimFastTrackingConcern
   end
 
   def log_max_cfi_metrics_on_submit
-    ClaimFastTracking::DiagnosticCodesForMetrics::DC.intersection(diagnostic_codes).each do |diagnostic_code|
-      next unless disabilities.any? do |dis|
-        diagnostic_code == dis['diagnosticCode']
-      end
+    user = User.find(user_uuid)
+    max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating, user) ? 'on' : 'off'
+    ClaimFastTracking::DiagnosticCodesForMetrics::DC.each do |diagnostic_code|
+      next unless max_rated_diagnostic_codes_from_ipf.include?(diagnostic_code)
 
-      next unless max_rated_disabilities_from_ipf.any? do |dis|
-        diagnostic_code == dis['diagnostic_code']
-      end
+      disability_claimed = diagnostic_codes.include?(diagnostic_code)
 
-      user = User.find(user_uuid)
-      max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating, user) ? 'on' : 'off'
-      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{diagnostic_code}")
+      if disability_claimed
+        StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{diagnostic_code}")
+      end
+      Rails.logger.info('Max CFI form526 submission',
+                        id:, max_cfi_enabled:, disability_claimed:, diagnostic_code:,
+                        total_increase_conditions: increase_disabilities.count)
     end
   rescue => e
     # Log the exception but but do not fail, otherwise form will not be submitted
@@ -232,6 +247,10 @@ module Form526ClaimFastTrackingConcern
     rated_disabilities.select do |dis|
       dis['maximum_rating_percentage'].present? && dis['maximum_rating_percentage'] == dis['rating_percentage']
     end
+  end
+
+  def max_rated_diagnostic_codes_from_ipf
+    max_rated_disabilities_from_ipf.pluck('diagnostic_code')
   end
 
   # Fetch and memoize all of the veteran's open EPs. Establishing a new EP will make the memoized

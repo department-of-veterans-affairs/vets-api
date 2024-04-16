@@ -10,44 +10,16 @@ module SimpleFormsApi
       @data = data
     end
 
-    def currently_homeless?
-      (0..2).include? homeless_living_situation
-    end
-
-    def homeless_living_situation
-      if @data['living_situation']['SHELTER']
-        0
-      elsif @data['living_situation']['FRIEND_OR_FAMILY']
-        1
-      elsif @data['living_situation']['OVERNIGHT']
-        2
-      end
-    end
-
-    def at_risk_of_being_homeless?
-      (0..2).include? risk_homeless_living_situation
-    end
-
-    def risk_homeless_living_situation
-      if @data['living_situation']['LOSING_HOME']
-        0
-      elsif @data['living_situation']['LEAVING_SHELTER']
-        1
-      elsif @data['living_situation']['OTHER_RISK']
-        2
-      end
-    end
-
     def facility_name(index)
       facility = @data['medical_treatments']&.[](index - 1)
-      "#{facility&.[]('facility_name')}\n#{facility_address(index)}"
+      "#{facility&.[]('facility_name')}\\n#{facility_address(index)}" if facility
     end
 
     def facility_address(index)
       facility = @data['medical_treatments']&.[](index - 1)
       address = facility&.[]('facility_address')
-      "#{address&.[]('street')}\n" \
-        "#{address&.[]('city')}, #{address&.[]('state')} #{address&.[]('postal_code')}\n" \
+      "#{address&.[]('street')}" \
+        "#{address&.[]('city')}, #{address&.[]('state')}\\n#{address&.[]('postal_code')}\\n" \
         "#{address&.[]('country')}"
     end
 
@@ -67,12 +39,12 @@ module SimpleFormsApi
     end
 
     def requester_signature
-      @data['statement_of_truth_signature'] if @data['preparer_type'] == 'veteran'
+      @data['statement_of_truth_signature'] if %w[veteran non-veteran].include? @data['preparer_type']
     end
 
     def third_party_signature
-      @data['statement_of_truth_signature'] if @data['preparer_type'] != 'veteran' &&
-                                               @data['third_party_type'] != 'power-of-attorney'
+      @data['statement_of_truth_signature'] if %w[third-party-veteran
+                                                  third-party-non-veteran].include? @data['preparer_type']
     end
 
     def power_of_attorney_signature
@@ -108,6 +80,17 @@ module SimpleFormsApi
 
         combined_pdf.save file_path
       end
+    end
+
+    def desired_stamps
+      coords = if %w[veteran non-veteran].include? data['preparer_type']
+                 [[50, 685]]
+               elsif data['third_party_type'] == 'power-of-attorney'
+                 [[50, 440]]
+               elsif %w[third-party-veteran third-party-non-veteran].include? data['preparer_type']
+                 [[50, 565]]
+               end
+      [{ coords:, text: data['statement_of_truth_signature'], page: 4 }]
     end
 
     def submission_date_config

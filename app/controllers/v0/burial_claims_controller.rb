@@ -6,6 +6,22 @@ module V0
   class BurialClaimsController < ClaimsBaseController
     service_tag 'burial-application'
 
+    def show
+      submission_attempt = determine_submission_attempt
+      if submission_attempt
+        state = submission_attempt.aasm_state == 'failure' ? 'failure' : 'success'
+        render(json: { data: { attributes: { state: } } })
+      elsif central_mail_submission
+        render(json: central_mail_submission)
+      else
+        Rails.logger.error("ActiveRecord::RecordNotFound: Claim submission not found for claim_id: #{params[:id]}")
+        render(json: { data: { attributes: { state: 'not found' } } }, status: :not_found)
+      end
+    rescue => e
+      Rails.logger.error(e.to_s)
+      render(json: { data: { attributes: { state: 'error processing request' } } }, status: :unprocessable_entity)
+    end
+
     def create
       PensionBurial::TagSentry.tag_sentry
 
@@ -36,6 +52,18 @@ module V0
 
     def claim_class
       SavedClaim::Burial
+    end
+
+    private
+
+    def determine_submission_attempt
+      claim = claim_class.find_by(guid: params[:id])
+      form_submission = claim&.form_submissions&.last
+      form_submission&.form_submission_attempts&.last
+    end
+
+    def central_mail_submission
+      CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] })
     end
   end
 end

@@ -17,8 +17,6 @@ module V0
     def save_attachment_to_cloud!
       common_log_params = {
         key: :evidence_upload_to_s3,
-        # Will have to update this when NOD and SC using same LH API version. The beginning of that work is ticketed in
-        # https://github.com/department-of-veterans-affairs/va.gov-team/issues/66514.
         form_id: get_form_id_from_request_headers,
         user_uuid: current_user.uuid,
         downstream_system: 'AWS S3',
@@ -41,7 +39,7 @@ module V0
       # - vets-website/src/platform/startup/setup.js (setUpCommonFunctionality)
       # - vets-website/src/platform/startup/index.js (startApp)
       source_app_name = request.headers['Source-App-Name']
-      # The higher-level review form (966) is not included in this list because it does permit evidence uploads.
+      # The higher-level review form (996) is not included in this list because it does not permit evidence uploads.
       form_id = {
         '10182-board-appeal' => '10182',
         '995-supplemental-claim' => '995'

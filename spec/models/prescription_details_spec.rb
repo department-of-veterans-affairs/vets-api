@@ -21,7 +21,8 @@ describe PrescriptionDetails do
                                          disp_status: 'Active: Refill in Process', ndc: '00173_9447_00',
                                          reason: nil, prescription_number_index: 'RX', prescription_source: 'RX',
                                          disclaimer: nil, indication_for_use: nil, indication_for_use_flag: nil,
-                                         category: 'Rx Medication', tracking: false)
+                                         category: 'Rx Medication', tracking: false, color: nil, shape: nil,
+                                         back_imprint: nil, front_imprint: nil)
     end
 
     it 'has additional aliased rubyesque methods' do

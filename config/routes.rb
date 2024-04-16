@@ -18,7 +18,6 @@ Rails.application.routes.draw do
   post '/v0/sign_in/refresh', to: 'v0/sign_in#refresh'
   post '/v0/sign_in/revoke', to: 'v0/sign_in#revoke'
   post '/v0/sign_in/token', to: 'v0/sign_in#token'
-  get '/v0/sign_in/introspect', to: 'v0/sign_in#introspect'
   get '/v0/sign_in/logout', to: 'v0/sign_in#logout'
   get '/v0/sign_in/logingov_logout_proxy', to: 'v0/sign_in#logingov_logout_proxy'
   get '/v0/sign_in/revoke_all_sessions', to: 'v0/sign_in#revoke_all_sessions'
@@ -93,12 +92,6 @@ Rails.application.routes.draw do
     end
     get 'benefits_reference_data/*path', to: 'benefits_reference_data#get_data'
 
-    resources :financial_status_reports, only: %i[create] do
-      collection do
-        get :download_pdf
-      end
-    end
-
     post '/mvi_users/:id', to: 'mpi_users#submit'
 
     resource :decision_review_evidence, only: :create
@@ -121,7 +114,7 @@ Rails.application.routes.draw do
         get(:healthcheck)
         get(:enrollment_status)
         get(:rating_info)
-        post(:download_pdf)
+        get(:facilities)
       end
     end
 
@@ -154,6 +147,8 @@ Rails.application.routes.draw do
 
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
+
+    get 'average_days_for_claim_completion', to: 'average_days_for_claim_completion#index'
 
     get 'virtual_agent_claim_letters', to: 'virtual_agent_claim_letters#index'
     get 'virtual_agent_claim_letters/:document_id', to: 'virtual_agent_claim_letters#show'
@@ -299,6 +294,7 @@ Rails.application.routes.draw do
       resource :military_occupations, only: :show
 
       # Lighthouse
+      resource :direct_deposits, only: %i[show update]
       namespace :direct_deposits do
         resource :disability_compensations, only: %i[show update]
       end

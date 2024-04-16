@@ -16,7 +16,7 @@ describe ClaimsApi::BD do
     let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-526EZ.pdf' }
 
     it 'uploads a document to BD' do
-      VCR.use_cassette('bd/upload') do
+      VCR.use_cassette('claims_api/bd/upload') do
         result = subject.upload(claim:, pdf_path:)
         expect(result).to be_a Hash
         expect(result[:data][:success]).to be true

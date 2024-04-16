@@ -107,14 +107,10 @@ bgs:
   client_station_id: 281
   client_username: VAgovAPI
   url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447
-  # To create a new VCR cassette:
-  # 1. Uncomment these lines
-  # 2. Create an empty cassette file
-  # 3. Run the test against that file, VCR should fill it
-  # 4. Replace localhost in the file with the url above
-  # 5. Re-comment these lines:
-  # url: https://localhost:4447
-  # ssl_verify_mode: "none"
+# You can use this in `config/settings/test.local.yml`.
+# bgs:
+#   url: https://localhost:4447
+#   ssl_verify_mode: "none"
 
 flipper:
   github_organization: "organization"

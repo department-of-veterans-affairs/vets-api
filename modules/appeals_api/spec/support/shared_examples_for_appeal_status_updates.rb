@@ -71,9 +71,9 @@ shared_examples 'an appeal model with updatable status' do |opts|
 
     context "when status has updated to 'submitted' and claimant or veteran email data present" do
       it 'enqueues the appeal received job' do
-        expect(AppealsApi::AppealSubmittedJob.jobs.size).to eq 0
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
         example_instance.update_status(status: 'submitted')
-        expect(AppealsApi::AppealSubmittedJob.jobs.size).to eq 1
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 1
       end
     end
 
@@ -81,25 +81,25 @@ shared_examples 'an appeal model with updatable status' do |opts|
       before { example_instance.update(status: 'submitted') }
 
       it 'does not enqueue the appeal received job' do
-        expect(AppealsApi::AppealSubmittedJob.jobs.size).to eq 0
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
         example_instance.update_status(status: 'submitted')
-        expect(AppealsApi::AppealSubmittedJob.jobs.size).to eq 0
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
       end
     end
 
     context "when incoming status is not 'submitted' and claimant or veteran email data present" do
       it 'does not enqueue the appeal received job' do
-        expect(AppealsApi::AppealSubmittedJob.jobs.size).to eq 0
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
         example_instance.update_status(status: 'pending')
-        expect(AppealsApi::AppealSubmittedJob.jobs.size).to eq 0
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
       end
     end
 
     context 'when veteran appellant without email provided' do
       it 'gets the ICN and enqueues the appeal received job' do
-        expect(AppealsApi::AppealSubmittedJob.jobs.size).to eq 0
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
         instance_without_email.update_status(status: 'submitted')
-        expect(AppealsApi::AppealSubmittedJob.jobs.size).to eq 1
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 1
       end
     end
 
@@ -111,9 +111,9 @@ shared_examples 'an appeal model with updatable status' do |opts|
       end
 
       it 'does not enqueue the appeal received job' do
-        expect(AppealsApi::AppealSubmittedJob.jobs.size).to eq 0
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
         example_instance.update_status(status: 'submitted')
-        expect(AppealsApi::AppealSubmittedJob.jobs.size).to eq 0
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
       end
     end
   end
