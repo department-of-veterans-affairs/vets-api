@@ -386,5 +386,22 @@ module ClaimsApi
       end
       arg_strg
     end
+
+    def validate_opts!(opts, required_keys)
+      keys = opts.keys.map(&:to_s)
+      required_keys = required_keys.map(&:to_s)
+      missing_keys = required_keys - keys
+      raise ArgumentError, "Missing required keys: #{missing_keys.join(', ')}" if missing_keys.present?
+    end
+
+    def jrn
+      {
+        jrn_dt: Time.current.iso8601,
+        jrn_lctn_id: Settings.bgs.client_station_id,
+        jrn_status_type_cd: 'U',
+        jrn_user_id: Settings.bgs.client_username,
+        jrn_obj_id: Settings.bgs.application
+      }
+    end
   end
 end

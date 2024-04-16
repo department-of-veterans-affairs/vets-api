@@ -85,6 +85,9 @@ module VBADocuments
           extend VBADocuments::Responses::ForbiddenError
           key :summary, 'Get status for a previous benefits document upload'
           key :operationId, 'getBenefitsDocumentUploadStatus'
+          key :description, 'A request to the `/uploads/{id}` endpoint will return a real-time status for that GUID, ' \
+                            'and update its status in `/uploads/report`.\n\n' \
+                            'The `updated_at` field indicates the last time the status for a given GUID was updated.'
 
           key :tags, [
             VBA_TAG
@@ -173,6 +176,12 @@ module VBADocuments
 
           key :summary, 'Get a bulk status report for a list of previous uploads'
           key :operationId, 'getBenefitsDocumentUploadStatusReport'
+          key :description, 'Due to current system limitations, data for the `/uploads/report` endpoint is cached for one hour.' \
+                            '\n\n' \
+                            'A request to the `/uploads/{id}` endpoint will return a real-time status for that GUID, ' \
+                            'and update its status in `/uploads/report`.' \
+                            '\n\n' \
+                            'The `updated_at` field indicates the last time the status for a given GUID was updated.'
 
           security do
             key :apikey, []

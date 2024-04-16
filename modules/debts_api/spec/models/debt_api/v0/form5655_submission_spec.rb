@@ -3,41 +3,39 @@
 require 'rails_helper'
 
 RSpec.describe DebtsApi::V0::Form5655Submission do
-  describe 'namespace portability' do
-    let!(:some_record) do
-      create(:form5655_submission, public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => true } })
-    end
-
-    it 'shares data with the old model scope' do
-      expect(described_class.last.form).to eq(some_record.form)
-      expect(Form5655Submission.last.form).to eq(some_record.form)
-    end
-  end
-
   describe 'scopes' do
     let!(:first_record) do
-      create(:form5655_submission, public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => true } })
+      create(
+        :debts_api_form5655_submission,
+        public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => true } }
+      )
     end
     let!(:second_record) do
-      create(:form5655_submission, public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => false } })
+      create(
+        :debts_api_form5655_submission,
+        public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => false } }
+      )
     end
-    let!(:third_record) { create(:form5655_submission, public_metadata: {}) }
+    let!(:third_record) { create(:debts_api_form5655_submission, public_metadata: {}) }
     let!(:fourth_record) do
-      create(:form5655_submission, public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => nil } })
+      create(
+        :debts_api_form5655_submission,
+        public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => nil } }
+      )
     end
 
     it 'includes records within scope' do
-      expect(Form5655Submission.streamlined).to include(first_record)
-      expect(Form5655Submission.streamlined.length).to eq(1)
+      expect(DebtsApi::V0::Form5655Submission.streamlined).to include(first_record)
+      expect(DebtsApi::V0::Form5655Submission.streamlined.length).to eq(1)
 
-      expect(Form5655Submission.not_streamlined).to include(second_record)
-      expect(Form5655Submission.not_streamlined.length).to eq(1)
+      expect(DebtsApi::V0::Form5655Submission.not_streamlined).to include(second_record)
+      expect(DebtsApi::V0::Form5655Submission.not_streamlined.length).to eq(1)
 
-      expect(Form5655Submission.streamlined_unclear).to include(third_record)
-      expect(Form5655Submission.streamlined_unclear.length).to eq(1)
+      expect(DebtsApi::V0::Form5655Submission.streamlined_unclear).to include(third_record)
+      expect(DebtsApi::V0::Form5655Submission.streamlined_unclear.length).to eq(1)
 
-      expect(Form5655Submission.streamlined_nil).to include(fourth_record)
-      expect(Form5655Submission.streamlined_nil.length).to eq(1)
+      expect(DebtsApi::V0::Form5655Submission.streamlined_nil).to include(fourth_record)
+      expect(DebtsApi::V0::Form5655Submission.streamlined_nil.length).to eq(1)
     end
   end
 
@@ -65,7 +63,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
   end
 
   describe '.user_cache_id' do
-    let(:form5655_submission) { create(:form5655_submission) }
+    let(:form5655_submission) { create(:debts_api_form5655_submission) }
     let(:user) { build(:user, :loa3) }
 
     it 'creates a new User profile attribute' do
@@ -81,7 +79,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
       end
 
       it 'returns an error' do
-        expect { form5655_submission.user_cache_id }.to raise_error(Form5655Submission::StaleUserError)
+        expect { form5655_submission.user_cache_id }.to raise_error(DebtsApi::V0::Form5655Submission::StaleUserError)
       end
     end
   end

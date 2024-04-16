@@ -14,7 +14,7 @@ module Vye
     )
 
     validates(
-      :veteran_name, :address1, :city, :state,
+      :veteran_name, :address1, :city,
       presence: true, if: -> { origin == 'frontend' }
     )
 

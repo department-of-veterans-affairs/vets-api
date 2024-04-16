@@ -16,3 +16,7 @@ The authentication model for the Legacy Appeals API uses OAuth 2.0/OpenID Connec
 * [Client Credentials Grant (CCG)](/explore/api/legacy-appeals/client-credentials)
 
 **Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](/support/contact-us).
+
+### Test data
+
+Our sandbox environment is populated with [Veteran test data](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/legacy_appeals_test_accounts.md) that can be used to test various response scenarios. This sandbox data contains no PII or PHI, but mimics real Veteran account information.
