@@ -26,7 +26,7 @@ module DebtsApi
 
       def submissions
         submissions = DebtsApi::V0::Form5655Submission.where(user_uuid: current_user.uuid)
-        render json: { "submissions" => submissions.map{|sub| {"id" => sub.id}} }
+        render json: { 'submissions' => submissions.map { |sub| { 'id' => sub.id } } }
       end
 
       def rehydrate
@@ -38,9 +38,11 @@ module DebtsApi
       rescue ActiveRecord::RecordNotFound
         render json: { error: "Form5655Submission record #{submission_id} not found." }, status: :not_found
       rescue DebtsApi::V0::FsrRehydrationService::UserDoesNotOwnsubmission
-        render json: { error: "User #{current_user.uuid} does not own submission #{submission_id}" }, status: :unauthorized
+        render json: { error: "User #{current_user.uuid} does not own submission #{submission_id}" },
+               status: :unauthorized
       rescue DebtsApi::V0::FsrRehydrationService::NoInProgressFormDataStored
-        render json: { error: "Form5655Submission record #{submission_id} missing InProgressForm data", status: :not_found }
+        render json: { error: "Form5655Submission record #{submission_id} missing InProgressForm data",
+                       status: :not_found }
       end
 
       private
