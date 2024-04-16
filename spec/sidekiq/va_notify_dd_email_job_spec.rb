@@ -38,7 +38,7 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
   describe '#perform' do
     let(:notification_client) { double('Notifications::Client') }
 
-    context "with a dd type of ch33" do
+    context 'with a dd type of ch33' do
       it 'sends a confirmation email using the edu template' do
         allow(VaNotify::Service).to receive(:new)
           .with(Settings.vanotify.services.va_gov.api_key).and_return(notification_client)
@@ -51,12 +51,11 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
       end
     end
 
-    context "with a dd type of comp_pen" do
+    context 'with a dd type of comp_pen' do
       it 'sends a confirmation email using the comp and pen template' do
         allow(VaNotify::Service).to receive(:new)
           .with(Settings.vanotify.services.va_gov.api_key).and_return(notification_client)
 
-        
         expect(notification_client).to receive(:send_email).with(
           email_address: email, template_id: 'comp_pen_template_id'
         )
@@ -65,11 +64,11 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
       end
     end
 
-    context "without a dd type" do
+    context 'without a dd type' do
       it 'sends a confirmation email using the direct_deposit template' do
         allow(VaNotify::Service).to receive(:new)
           .with(Settings.vanotify.services.va_gov.api_key).and_return(notification_client)
-        
+
         expect(notification_client).to receive(:send_email).with(
           email_address: email, template_id: 'direct_deposit_template_id'
         )
