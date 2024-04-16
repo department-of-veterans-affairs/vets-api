@@ -1356,6 +1356,9 @@ features:
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API
+  ecc_benefits_intake_submission:
+    actor_type: user
+    description: Enable education and career counseling claim submissions to use Benefits Intake API
   virtual_agent_enable_param_error_detection:
     actor_type: user
     description: If enabled, Allows for the detection of errors in the chatbot params
