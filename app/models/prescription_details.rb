@@ -27,6 +27,10 @@ class PrescriptionDetails < Prescription
   attribute :tracking, Boolean
   attribute :orderable_item, String
   attribute :sorted_dispensed_date
+  attribute :shape, String
+  attribute :color, String
+  attribute :back_imprint, String
+  attribute :front_imprint, String
 
   def sorted_dispensed_date
     has_refills = try(:rx_rf_records).present?

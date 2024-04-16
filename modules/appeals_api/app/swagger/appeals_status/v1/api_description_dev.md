@@ -27,4 +27,4 @@ The authentication model for the Appeals Status API uses OAuth 2.0/OpenID Connec
 
 ### Test data
 
-The database powering our sandbox environment is populated with [Veteran test data](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/benefits_test_accounts.md). This sandbox data contains no PII or PHI, but mimics real Veteran account information.
+Our sandbox environment is populated with [Veteran test data](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/appeals_status_test_accounts.md) that can be used to test various response scenarios. This sandbox data contains no PII or PHI, but mimics real Veteran account information.

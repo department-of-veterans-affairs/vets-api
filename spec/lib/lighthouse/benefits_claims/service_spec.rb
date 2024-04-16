@@ -56,6 +56,27 @@ RSpec.describe BenefitsClaims::Service do
         end
       end
 
+      describe "when requesting a user's power of attorney" do
+        context 'when the user has an active power of attorney' do
+          it 'retrieves the power of attorney from the Lighthouse API' do
+            VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney/200_response') do
+              response = @service.get_power_of_attorney
+              expect(response['data']['type']).to eq('individual')
+              expect(response['data']['attributes']['code']).to eq('067')
+            end
+          end
+        end
+
+        context 'when the user does not have an active power of attorney' do
+          it 'retrieves the power of attorney from the Lighthouse API' do
+            VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney/200_empty_response') do
+              response = @service.get_power_of_attorney
+              expect(response['data']).to eq({})
+            end
+          end
+        end
+      end
+
       describe 'when posting a form526' do
         it 'when given a full request body, posts to the Lighthouse API' do
           VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do

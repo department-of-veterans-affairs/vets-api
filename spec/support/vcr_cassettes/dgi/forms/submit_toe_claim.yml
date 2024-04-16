@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/BenefitClaimServiceBean/BenefitClaimWebService?WSDL
+    uri: <BGS_BASE_URL>/BenefitClaimServiceBean/BenefitClaimWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -355,7 +355,7 @@ http_interactions:
   recorded_at: Wed, 30 Sep 2020 21:04:37 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/BenefitClaimServiceBean/BenefitClaimWebService
+    uri: <BGS_BASE_URL>/BenefitClaimServiceBean/BenefitClaimWebService
     body:
       encoding: UTF-8
       string: |-

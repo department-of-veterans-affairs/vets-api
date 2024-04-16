@@ -135,7 +135,8 @@ module Rx
     #
     def post_refill_rx(id)
       if (result = perform(:post, "prescription/rxrefill/#{id}", nil, token_headers))
-        Common::Collection.bust([cache_key('getactiverx'), cache_key('gethistoryrx')])
+        keys = [cache_key('getactiverx'), cache_key('gethistoryrx')].compact
+        Common::Collection.bust(keys) unless keys.empty?
       end
       result
     end
