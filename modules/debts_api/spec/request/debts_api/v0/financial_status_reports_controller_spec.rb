@@ -59,4 +59,34 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
       expect(response.body).to eq(content)
     end
   end
+
+  describe '#rehydrate' do 
+    context 'on a nonexistent submission' do 
+      it 'renders a 404' do 
+        get '/debts_api/v0/financial_status_reports/rehydrate_submission/1'
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'on a submission you don\'t own' do 
+      let(:form5655_submission) { create(:debts_api_form5655_submission) }
+      it 'renders a 404' do 
+        form5655_submission
+        form5655_submission.update!(user_uuid: "nottherightguy", ipf_data: '{"its":"me"}')
+        get "/debts_api/v0/financial_status_reports/rehydrate_submission/#{form5655_submission.id}"
+        expect(response.code).to eq("401")
+        expect(response.body).to eq("{\"error\":\"User #{user.uuid} does not own submission #{form5655_submission.id}\"}")
+      end
+    end
+
+    context 'on a submission you do own' do 
+      let(:form5655_submission) { create(:debts_api_form5655_submission, user_uuid: 'b2fab2b56af045e1a9e2394347af91ef') }
+      it 'works' do 
+        form5655_submission
+        form5655_submission.update!(user_uuid: user.uuid, ipf_data: '{"its":"me"}')
+        get "/debts_api/v0/financial_status_reports/rehydrate_submission/#{form5655_submission.id}"
+        expect(response.code).to eq('200')
+      end
+    end
+  end
 end
