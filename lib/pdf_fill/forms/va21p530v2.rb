@@ -725,12 +725,10 @@ module PdfFill
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
         burial_expense_responsibility = @form_data['burialExpenseResponsibility']
         @form_data['hasBurialExpenseResponsibility'] = burial_expense_responsibility ? 'On' : nil
-        @form_data['noBurialExpenseResponsibility'] = burial_expense_responsibility ? nil : 'On'
 
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
         plot_expense_responsibility = @form_data['plotExpenseResponsibility']
         @form_data['hasPlotExpenseResponsibility'] = plot_expense_responsibility ? 'On' : nil
-        @form_data['noPlotExpenseResponsibility'] = plot_expense_responsibility ? nil : 'On'
 
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
         process_option = @form_data['processOption']
