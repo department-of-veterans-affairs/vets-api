@@ -9,8 +9,6 @@ module Veteran
       BASE_URL = 'https://www.va.gov/ogc/apps/accreditation/'
 
       self.primary_key = :representative_id
-      has_kms_key
-      has_encrypted :dob, :ssn, key: :kms_key, **lockbox_options
 
       scope :attorneys, -> { where(user_types: ['attorney']) }
       scope :veteran_service_officers, -> { where(user_types: ['veteran_service_officer']) }
@@ -24,62 +22,27 @@ module Veteran
       # Find all representatives that matches the provided search criteria
       # @param first_name: [String] First name to search for, ignoring case
       # @param last_name: [String] Last name to search for, ignoring case
-      # @param ssn: nil [String] SSN to search for
-      # @param dob: nil [String] Date of birth to search for
       # @param middle_initial: nil [String] Middle initial to search for
       # @param poa_code: nil [String] filter to reps working this POA code
       #
       # @return [Array(Veteran::Service::Representative)] All representatives found using the submitted search criteria
-      def self.all_for_user(first_name:, last_name:, ssn: nil, dob: nil, middle_initial: nil, poa_code: nil) # rubocop:disable Metrics/ParameterLists
-        reps = where('lower(first_name) = ? AND lower(last_name) = ?', first_name.downcase, last_name.downcase)
-        reps = reps.where('? = ANY(poa_codes)', poa_code) if poa_code
-
-        reps.select do |rep|
-          matching_ssn(rep, ssn) &&
-            matching_date_of_birth(rep, dob) &&
-            matching_middle_initial(rep, middle_initial)
-        end
+      def self.all_for_user(first_name:, last_name:, middle_initial: nil, poa_code: nil) # rubocop:disable Metrics/ParameterLists
+        representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name.downcase, last_name.downcase)
+        representatives = representatives.where('? = ANY(poa_codes)', poa_code) if poa_code
+        representatives.select { |rep| matching_middle_initial(rep, middle_initial)}
       end
 
       #
       # Find first representative that matches the provided search criteria
       # @param first_name: [String] First name to search for, ignoring case
       # @param last_name: [String] Last name to search for, ignoring case
-      # @param ssn: nil [String] SSN to search for
-      # @param dob: nil [String] Date of birth to search for
       #
       # @return [Veteran::Service::Representative] First representative record found using the submitted search criteria
-      def self.for_user(first_name:, last_name:, ssn: nil, dob: nil)
-        reps = all_for_user(first_name:, last_name:, ssn:, dob:)
-        return nil if reps.blank?
+      def self.for_user(first_name:, last_name:)
+        representatives = all_for_user(first_name:, last_name:)
+        return nil if representatives.blank?
 
-        reps.first
-      end
-
-      #
-      # Determine if representative ssn matches submitted ssn search query
-      # @note Assumes that the consumer did not submit an ssn value if the value is blank
-      # @param rep [Veteran::Service::Representative] Representative to match soon with
-      # @param ssn [String] Submitted ssn to match against representative
-      #
-      # @return [Boolean] True if matches, false if not
-      def self.matching_ssn(rep, ssn)
-        return true if ssn.blank?
-
-        rep.ssn.present? && rep.ssn == ssn
-      end
-
-      #
-      # Determine if representative dob matches submitted birth_date search query
-      # @note Assumes that the consumer did not submit a birth_date value if the value is blank
-      # @param rep [Veteran::Service::Representative] Representative to match soon with
-      # @param birth_date [String] Submitted birth_date to match against representative
-      #
-      # @return [Boolean] True if matches, false if not
-      def self.matching_date_of_birth(rep, birth_date)
-        return true if birth_date.blank?
-
-        rep.dob.present? && rep.dob == birth_date
+        representatives.first
       end
 
       #
@@ -89,10 +52,10 @@ module Veteran
       # @param middle_initial [String] Submitted middle_initial to match against representative
       #
       # @return [Boolean] True if matches, false if not
-      def self.matching_middle_initial(rep, middle_initial)
+      def self.matching_middle_initial(representative, middle_initial)
         return true if middle_initial.blank?
 
-        rep.middle_initial.present? && rep.middle_initial == middle_initial
+        representative.middle_initial.present? && representative.middle_initial == middle_initial
       end
 
       #
