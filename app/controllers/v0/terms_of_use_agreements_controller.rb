@@ -42,8 +42,10 @@ module V0
                                                 mpi_gcids: current_user.mpi_gcids)
       if provisioner.perform
         create_cerner_cookie
+        Rails.logger.info('[TermsOfUseAgreementsController] update_provisioning success', { icn: current_user.icn })
         render json: { provisioned: true }, status: :ok
       else
+        Rails.logger.error('[TermsOfUseAgreementsController] update_provisioning error', { icn: current_user.icn })
         render_error('Failed to provision')
       end
     rescue TermsOfUse::Errors::ProvisionerError => e

@@ -9708,6 +9708,11 @@
                                 "type": "string",
                                 "pattern": "^\\d{9}?$",
                                 "example": "123456789"
+                              },
+                              "insuranceNumber": {
+                                "type": "string",
+                                "maxLength": 60,
+                                "description": "Veteran's insurance number, if applicable. Include letter prefix."
                               }
                             }
                           },
@@ -11017,6 +11022,11 @@
                                 "type": "string",
                                 "pattern": "^\\d{9}?$",
                                 "example": "123456789"
+                              },
+                              "insuranceNumber": {
+                                "type": "string",
+                                "maxLength": 60,
+                                "description": "Veteran's insurance number, if applicable. Include letter prefix."
                               }
                             }
                           },

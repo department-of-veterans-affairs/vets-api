@@ -79,12 +79,17 @@ RSpec.describe TermsOfUse::Provisioner do
     end
 
     context 'when agreement is not signed' do
+      let(:expected_log) { '[TermsOfUse] [Provisioner] update_provisioning error' }
+      let(:service_response) { { agreement_signed: false } }
+
       before do
-        allow(service).to receive(:update_provisioning).and_return({ agreement_signed: false })
+        allow(Rails.logger).to receive(:error)
+        allow(service).to receive(:update_provisioning).and_return(service_response)
       end
 
-      it 'raises an error' do
+      it 'raises and logs an error' do
         expect { provisioner.perform }.to raise_error(TermsOfUse::Errors::ProvisionerError)
+        expect(Rails.logger).to have_received(:error).with(expected_log, { icn:, response: service_response })
       end
     end
 
