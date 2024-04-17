@@ -237,6 +237,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
     context 'going to Lighthouse Benefits Claims API' do
       before do
+        allow(Common::VirusScan).to receive(:scan).and_return(true)
+        allow_any_instance_of(Common::VirusScan).to receive(:scan).and_return(true)
         VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response')
         VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension')
         VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor')
