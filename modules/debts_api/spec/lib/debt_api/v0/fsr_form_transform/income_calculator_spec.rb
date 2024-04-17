@@ -13,7 +13,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
   end
 
   def populate_monthly_income
-    calculations_controller = described_class.new(maximal_fsr_form_data['data'])
+    calculations_controller = described_class.new(maximal_fsr_form_data)
     @monthly_income = calculations_controller.get_monthly_income
   end
 
