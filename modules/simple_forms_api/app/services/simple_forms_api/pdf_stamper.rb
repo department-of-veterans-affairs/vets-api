@@ -13,7 +13,7 @@ module SimpleFormsApi
 
       stamp_auth_text(stamped_template_path, current_loa)
 
-      stamp_submission_date(stamped_template_path, form.submission_date_config)
+      stamp_submission_date(stamped_template_path, form.submission_date_stamps)
     end
 
     def self.stamp_signature(stamped_template_path, form)
@@ -81,11 +81,12 @@ module SimpleFormsApi
       coords = desired_stamp[:coords]
       text = desired_stamp[:text]
       page = desired_stamp[:page]
+      font_size = desired_stamp[:font_size]
       x = coords[0]
       y = coords[1]
       if page
         page_configuration = get_page_configuration(page, coords)
-        verified_multistamp(stamped_template_path, text, page_configuration)
+        verified_multistamp(stamped_template_path, text, page_configuration, font_size)
       else
         datestamp_instance = CentralMail::DatestampPdf.new(current_file_path, append_to_stamp:)
         current_file_path = datestamp_instance.run(text:, x:, y:, text_only:, size: 9)
@@ -104,20 +105,9 @@ module SimpleFormsApi
       raise
     end
 
-    def self.stamp_submission_date(stamped_template_path, config)
-      if config[:should_stamp_date?]
-        date_title_stamp_position = config[:title_coords]
-        date_text_stamp_position = config[:text_coords]
-        page_configuration = default_page_configuration
-        page_configuration[config[:page_number]] = { type: :text, position: date_title_stamp_position }
-
-        verified_multistamp(stamped_template_path, SUBMISSION_DATE_TITLE, page_configuration, 12)
-
-        page_configuration = default_page_configuration
-        page_configuration[config[:page_number]] = { type: :text, position: date_text_stamp_position }
-
-        current_time = Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D')
-        verified_multistamp(stamped_template_path, current_time, page_configuration, 12)
+    def self.stamp_submission_date(stamped_template_path, desired_stamps)
+      desired_stamps.each do |desired_stamp|
+        stamp(desired_stamp, stamped_template_path)
       end
     end
 
@@ -139,17 +129,9 @@ module SimpleFormsApi
       verify(stamped_template_path) { multistamp(stamped_template_path, stamp_text, page_configuration, *) }
     end
 
-    def self.default_page_configuration
-      [
-        { type: :new_page },
-        { type: :new_page },
-        { type: :new_page },
-        { type: :new_page }
-      ]
-    end
-
     def self.get_page_configuration(page, position)
       [
+        { type: :new_page },
         { type: :new_page },
         { type: :new_page },
         { type: :new_page },
