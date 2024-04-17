@@ -28,7 +28,6 @@ RSpec.describe TravelPay::ClaimsController, type: :request do
 
         get '/travel_pay/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
 
-        byebug
         expect(response).to have_http_status(:ok)
       end
     end
