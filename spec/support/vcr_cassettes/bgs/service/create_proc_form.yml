@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcFormWebServiceBean/VnpProcFormService?WSDL
+    uri: <BGS_BASE_URL>/VnpProcFormWebServiceBean/VnpProcFormService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -148,7 +148,7 @@ http_interactions:
   recorded_at: Thu, 06 Aug 2020 22:15:10 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcFormWebServiceBean/VnpProcFormService
+    uri: <BGS_BASE_URL>/VnpProcFormWebServiceBean/VnpProcFormService
     body:
       encoding: UTF-8
       string: |-

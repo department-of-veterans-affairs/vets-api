@@ -85,6 +85,7 @@ sign_in:
 terms_of_use:
   current_version: v1
   provisioner_cookie_domain: localhost
+  enabled_clients: vaweb, mhv, myvahealth
 
 lockbox:
   master_key: "0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9"
@@ -994,6 +995,12 @@ lighthouse:
       rsa_key: ~
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausln2mo4jCAYRrlR2p7/v1/token
     use_mocks: false
+  benefits_intake:
+    host: https://sandbox-api.va.gov
+    path: /services/vba_documents
+    version: v1
+    use_mocks: false
+    api_key: ~
   letters_generator:
     url: https://sandbox-api.va.gov
     path: /services/va-letter-generator/v1/
@@ -1281,6 +1288,7 @@ vanotify:
         in_progress_reminder_email_generic: fake_template_id
         covid_vaccine_registration: fake_template_id
         covid_vaccine_expanded_registration: fake_template_id
+        direct_deposit: direct_deposit_template_id
         direct_deposit_edu: edu_template_id
         direct_deposit_comp_pen: comp_pen_template_id
         login_reactivation_email: reactivation_email_test_b
@@ -1666,6 +1674,7 @@ brd:
 
 
 travel_pay:
+  mock: true
   veis:
     client_id: ~
     client_secret: ~

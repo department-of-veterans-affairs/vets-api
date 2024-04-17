@@ -8,78 +8,52 @@ describe SimpleFormsApi::PdfStamper do
   let(:form) { "SimpleFormsApi::#{test_payload.titleize.gsub(' ', '')}".constantize.new(data) }
   let(:path) { 'tmp/stuff.json' }
 
-  describe 'form-specific stamp methods' do
-    subject(:stamp) { described_class.send(stamp_method, generated_form_path, form) }
+  describe '.stamp_signature' do
+    subject(:stamp_signature) { described_class.stamp_signature(path, form) }
 
     before do
-      allow(Common::FileHelpers).to receive(:random_file_path).and_return('fake/stamp_path')
-      allow(Common::FileHelpers).to receive(:delete_file_if_exists)
-    end
-
-    %w[21-4142 21-10210 21p-0847].each do |form_number|
-      context "when generating a stamped file for form #{form_number}" do
-        let(:stamp_method) { "stamp#{form_number.gsub('-', '')}" }
-        let(:test_payload) { "vba_#{form_number.gsub('-', '_')}" }
-        let(:generated_form_path) { 'fake/generated_form_path' }
-
-        it 'raises an error' do
-          expect { stamp }.to raise_error(StandardError, /An error occurred while verifying stamp/)
-        end
-      end
-    end
-  end
-
-  describe '.stamp107959f1' do
-    subject(:stamp107959f1) { described_class.stamp107959f1(path, form) }
-
-    before do
-      allow(described_class).to receive(:stamp).and_return(true)
       allow(File).to receive(:size).and_return(1, 2)
     end
 
     context 'when statement_of_truth_signature is provided' do
-      before { stamp107959f1 }
+      before do
+        allow(described_class).to receive(:stamp).and_return(true)
+        stamp_signature
+      end
 
       let(:test_payload) { 'vha_10_7959f_1' }
-      let(:signature) { form.data['statement_of_truth_signature'] }
-      let(:stamps) { [[26, 82.5, signature]] }
+      let(:desired_stamp) do
+        {
+          coords: [26, 82.5],
+          text: form.data['statement_of_truth_signature'],
+          page: 0
+        }
+      end
 
       it 'calls stamp with correct desired_stamp' do
-        expect(described_class).to have_received(:stamp).with(stamps, path, false)
+        expect(described_class).to have_received(:stamp).with(desired_stamp, path)
       end
     end
-  end
 
-  describe '.stamp264555' do
-    subject(:stamp264555) { described_class.stamp264555(path, form) }
-
-    before do
-      allow(described_class).to receive(:stamp).and_return(true)
-      allow(File).to receive(:size).and_return(1, 2)
-    end
-
-    context 'when it is called with legitimate parameters' do
-      before { stamp264555 }
+    context 'when no stamps are needed' do
+      before do
+        allow(described_class).to receive(:stamp).and_return(true)
+        stamp_signature
+      end
 
       let(:test_payload) { 'vba_26_4555' }
       let(:stamps) { [] }
 
-      it 'calls stamp correctly' do
-        expect(described_class).to have_received(:stamp).with(stamps, path, false)
+      it 'does not call :stamp' do
+        expect(described_class).not_to have_received(:stamp)
       end
-    end
-  end
-
-  describe '.stamp210845' do
-    subject(:stamp210845) { described_class.stamp210845(path, form) }
-
-    before do
-      allow(described_class).to receive(:multistamp).and_return(true)
-      allow(File).to receive(:size).and_return(1, 2)
     end
 
     context 'when it is called with legitimate parameters' do
-      before { stamp210845 }
+      before do
+        allow(described_class).to receive(:multistamp).and_return(true)
+        stamp_signature
+      end
 
       let(:test_payload) { 'vba_21_0845' }
       let(:signature) { form.data['statement_of_truth_signature'] }
@@ -87,12 +61,14 @@ describe SimpleFormsApi::PdfStamper do
         [
           { type: :new_page },
           { type: :new_page },
-          { type: :text, position: [50, 240] }
+          { type: :text, position: [50, 240] },
+          { type: :new_page },
+          { type: :new_page }
         ]
       end
 
       it 'calls multistamp correctly' do
-        expect(described_class).to have_received(:multistamp).with(path, signature, page_config)
+        expect(described_class).to have_received(:multistamp).with(path, signature, page_config, nil)
       end
     end
   end

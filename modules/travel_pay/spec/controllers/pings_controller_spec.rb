@@ -49,6 +49,9 @@ RSpec.describe TravelPay::PingsController, type: :request do
       btsss_authorized_ping_response = double
       allow(btsss_authorized_ping_response).to receive(:status).and_return(200)
       allow(client)
+        .to receive(:request_sts_token)
+        .and_return('sample_sts_token')
+      allow(client)
         .to receive(:request_btsss_token)
         .and_return('sample_btsss_token')
       allow(client)

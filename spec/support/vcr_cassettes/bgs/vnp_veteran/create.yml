@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntWebServiceBean/VnpPtcpntService?WSDL
+    uri: <BGS_BASE_URL>/VnpPtcpntWebServiceBean/VnpPtcpntService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -171,7 +171,7 @@ http_interactions:
   recorded_at: Mon, 21 Sep 2020 20:57:42 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntWebServiceBean/VnpPtcpntService
+    uri: <BGS_BASE_URL>/VnpPtcpntWebServiceBean/VnpPtcpntService
     body:
       encoding: UTF-8
       string: |-
@@ -227,7 +227,7 @@ http_interactions:
   recorded_at: Mon, 21 Sep 2020 20:57:43 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/StandardDataWebServiceBean/StandardDataWebService?WSDL
+    uri: <BGS_BASE_URL>/StandardDataWebServiceBean/StandardDataWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -1101,7 +1101,7 @@ http_interactions:
   recorded_at: Mon, 21 Sep 2020 20:57:43 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/StandardDataWebServiceBean/StandardDataWebService
+    uri: <BGS_BASE_URL>/StandardDataWebServiceBean/StandardDataWebService
     body:
       encoding: UTF-8
       string: |-
@@ -1157,7 +1157,7 @@ http_interactions:
   recorded_at: Mon, 21 Sep 2020 20:57:44 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/StandardDataWebServiceBean/StandardDataWebService?WSDL
+    uri: <BGS_BASE_URL>/StandardDataWebServiceBean/StandardDataWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -2031,7 +2031,7 @@ http_interactions:
   recorded_at: Wed, 28 Oct 2020 19:13:47 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/StandardDataWebServiceBean/StandardDataWebService
+    uri: <BGS_BASE_URL>/StandardDataWebServiceBean/StandardDataWebService
     body:
       encoding: UTF-8
       string: |-
@@ -2134,7 +2134,7 @@ http_interactions:
   recorded_at: Wed, 28 Oct 2020 19:13:48 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService?WSDL
+    uri: <BGS_BASE_URL>/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -2303,7 +2303,7 @@ http_interactions:
   recorded_at: Mon, 21 Sep 2020 20:57:44 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
+    uri: <BGS_BASE_URL>/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
     body:
       encoding: UTF-8
       string: |-
@@ -2360,7 +2360,7 @@ http_interactions:
   recorded_at: Mon, 21 Sep 2020 20:57:45 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
+    uri: <BGS_BASE_URL>/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
     body:
       encoding: UTF-8
       string: |-
@@ -2417,7 +2417,7 @@ http_interactions:
   recorded_at: Mon, 21 Sep 2020 20:57:45 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
+    uri: <BGS_BASE_URL>/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
     body:
       encoding: UTF-8
       string: |-
@@ -2474,7 +2474,7 @@ http_interactions:
   recorded_at: Mon, 21 Sep 2020 20:57:45 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/RORoutingServiceWS/RORoutingService?WSDL
+    uri: <BGS_BASE_URL>/RORoutingServiceWS/RORoutingService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -2554,7 +2554,7 @@ http_interactions:
   recorded_at: Mon, 21 Sep 2020 20:57:46 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/RORoutingServiceWS/RORoutingService
+    uri: <BGS_BASE_URL>/RORoutingServiceWS/RORoutingService
     body:
       encoding: UTF-8
       string: |-
@@ -2610,7 +2610,7 @@ http_interactions:
   recorded_at: Mon, 21 Sep 2020 20:57:46 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPersonWebServiceBean/VnpPersonService?WSDL
+    uri: <BGS_BASE_URL>/VnpPersonWebServiceBean/VnpPersonService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -2779,7 +2779,7 @@ http_interactions:
   recorded_at: Mon, 21 Sep 2020 20:57:47 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPersonWebServiceBean/VnpPersonService
+    uri: <BGS_BASE_URL>/VnpPersonWebServiceBean/VnpPersonService
     body:
       encoding: UTF-8
       string: |-
@@ -2835,7 +2835,7 @@ http_interactions:
   recorded_at: Mon, 21 Sep 2020 20:57:48 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService?WSDL
+    uri: <BGS_BASE_URL>/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -3004,7 +3004,7 @@ http_interactions:
   recorded_at: Mon, 21 Sep 2020 20:57:48 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService
+    uri: <BGS_BASE_URL>/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService
     body:
       encoding: UTF-8
       string: |-

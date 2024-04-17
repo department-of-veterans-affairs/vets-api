@@ -31,13 +31,25 @@ module SimpleFormsApi
       @data.dig('preparer_address', 'country') == 'USA'
     end
 
-    def submission_date_config
-      {
-        should_stamp_date?: true,
-        page_number: 1,
-        title_coords: [460, 710],
-        text_coords: [460, 690]
-      }
+    def desired_stamps
+      [{ coords: [50, 190], text: data['statement_of_truth_signature'], page: 1 }]
+    end
+
+    def submission_date_stamps
+      [
+        {
+          coords: [460, 710],
+          text: 'Application Submitted:',
+          page: 1,
+          font_size: 12
+        },
+        {
+          coords: [460, 690],
+          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          page: 1,
+          font_size: 12
+        }
+      ]
     end
 
     def track_user_identity(confirmation_number)

@@ -38,7 +38,7 @@ module BGSClientHelpers
   # Then, HTTP interactions that occur within the block supplied to this method
   # will be captured by VCR cassettes that have the following convenient
   # properties:
-  #   - They will be nicely organized at `bgs/:service/:operation/:name`
+  #   - They will be nicely organized at `claims_api/bgs/:service/:operation/:name`
   #   - Cassette matching will be done on canonicalized XML bodies, so
   #     reformatting cassettes for human readability won't defeat matching
   def use_bgs_cassette(name, &)
