@@ -13,8 +13,8 @@ module ClaimsApi
           <formTypeCode>#{type_code}</formTypeCode>
         </ns0:CorpPtcpntIdFormTypeCode>
       EOXML
-      ret = make_request(endpoint:, action: 'readAllVeteranRepresentatives', body:)
-      ret&.dig(:veteran_representative_return_list) || []
+      ret = make_request(action: 'readAllVeteranRepresentatives', body:)
+      ret&.dig('VeteranRepresentativeReturnList') || []
     end
 
     # bad idea?

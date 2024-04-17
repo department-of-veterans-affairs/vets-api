@@ -4,14 +4,15 @@ require_relative 'veteran_representative_service/read_all_veteran_representative
 
 module ClaimsApi
   class VeteranRepresentativeService < ClaimsApi::LocalBGS
-    def endpoint
-      'VDC/VeteranRepresentativeService'
-    end
+    private
 
-    def namespaces
-      {
-        'ns0' => '/data'
-      }
+    def make_request(**args)
+      super(
+        endpoint: 'VDC/VeteranRepresentativeService',
+        namespaces: { 'ns0' => '/data' },
+        transform_response: false,
+        **args
+      )
     end
   end
 end
