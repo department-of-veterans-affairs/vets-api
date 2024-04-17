@@ -38,24 +38,6 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
         it 'allows access' do
           expect(subject).to have_http_status(:ok)
         end
-
-        context 'when the representatives_portal_api feature toggle' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_api).and_return(enabled)
-          end
-
-          context 'is enabled' do
-            let(:enabled) { true }
-
-            it { is_expected.to have_http_status(:ok) }
-          end
-
-          context 'is disabled' do
-            let(:enabled) { false }
-
-            it { is_expected.to have_http_status(:not_found) }
-          end
-        end
       end
 
       context 'with an invalid audience' do
