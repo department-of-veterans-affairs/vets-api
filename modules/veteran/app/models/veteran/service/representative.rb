@@ -8,6 +8,8 @@ module Veteran
     class Representative < ApplicationRecord
       BASE_URL = 'https://www.va.gov/ogc/apps/accreditation/'
 
+      self.ignored_columns += %w[dob_ciphertext encrypted_kms_key ssn_ciphertext]
+
       self.primary_key = :representative_id
 
       scope :attorneys, -> { where(user_types: ['attorney']) }
