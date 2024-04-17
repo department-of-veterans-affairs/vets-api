@@ -8,7 +8,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
   before do
     login_as(representative_user)
-    allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_api).and_return(true)
   end
 
   describe 'POST /accept' do
