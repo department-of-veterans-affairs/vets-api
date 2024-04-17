@@ -1306,6 +1306,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_16_203351) do
     t.datetime "updated_at", null: false
     t.string "poa_codes", default: [], array: true
     t.string "user_types", default: [], array: true
+    t.text "ssn_ciphertext"
+    t.text "dob_ciphertext"
+    t.text "encrypted_kms_key"
     t.string "middle_initial"
     t.string "address_type"
     t.string "city"
