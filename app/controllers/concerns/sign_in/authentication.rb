@@ -34,6 +34,14 @@ module SignIn
       nil
     end
 
+    def access_token_authenticate(required: true)
+      access_token.present?
+    rescue Errors::AccessTokenExpiredError => e
+      render json: { errors: e }, status: :forbidden if required
+    rescue Errors::StandardError => e
+      handle_authenticate_error(e)
+    end
+
     private
 
     def access_token

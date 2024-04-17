@@ -5,7 +5,8 @@ require 'sign_in/logger'
 module V0
   class SignInController < SignIn::ApplicationController
     skip_before_action :authenticate,
-                       only: %i[authorize callback token refresh revoke logingov_logout_proxy]
+                       only: %i[authorize callback token refresh revoke logout logingov_logout_proxy]
+    before_action -> { access_token_authenticate(required: false) }, only: %i[logout]
 
     def authorize # rubocop:disable Metrics/MethodLength
       type = params[:type].presence
@@ -174,25 +175,32 @@ module V0
     end
 
     def logout # rubocop:disable Metrics/MethodLength
-      session = SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
-      user_verification = session.user_verification
-      client_id = params[:client_id].presence || session.client_id
-      anti_csrf_token = anti_csrf_token_param.presence
+      client_id = params[:client_id].presence
 
-      if client_config(client_id).blank?
-        raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
+      if @access_token&.session_handle.present?
+        session = SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
+        user_verification = session.user_verification
+        client_id = session.client_id
+        anti_csrf_token = anti_csrf_token_param.presence
+
+        SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token:).perform
+        delete_cookies if token_cookies
+
+        sign_in_logger.info('logout', @access_token.to_s)
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS)
+      else
+        user_verification = OpenStruct.new(:credential_type => nil)
+        sign_in_logger.info('logout error', { errors: 'No valid Session found' })
+        delete_cookies if token_cookies
       end
 
-      SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token:).perform
-      delete_cookies if token_cookies
-
-      sign_in_logger.info('logout', @access_token.to_s)
-      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS)
-
-      logout_redirect = SignIn::LogoutRedirectGenerator.new(user_verification:,
-                                                            client_config: client_config(client_id)).perform
-
-      logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
+      if client_id
+        logout_redirect = SignIn::LogoutRedirectGenerator.new(user_verification:,
+                                                              client_config: client_config(client_id)).perform
+        logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
+      else
+        render status: :ok
+      end
     rescue SignIn::Errors::SessionNotAuthorizedError => e
       sign_in_logger.info('logout error', { errors: e.message })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
