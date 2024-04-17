@@ -1669,6 +1669,7 @@ brd:
 
 
 travel_pay:
+  mock: true
   veis:
     client_id: ~
     client_secret: ~
