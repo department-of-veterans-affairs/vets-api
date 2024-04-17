@@ -196,6 +196,10 @@ module V0
       end
 
       if client_id
+        if client_config(client_id).blank?
+          raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
+        end
+
         logout_redirect = SignIn::LogoutRedirectGenerator.new(user_verification:,
                                                               client_config: client_config(client_id)).perform
         logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
