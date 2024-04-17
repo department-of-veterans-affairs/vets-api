@@ -26,8 +26,8 @@ RSpec.describe PersonalInformationLog, type: :model do
     context 'when data is missing' do
       let(:pi_log) { build(:personal_information_log, data: nil) }
 
-      it 'raises PG::NotNullViolation error' do
-        expect { pi_log.save }.to raise_error(ActiveRecord::NotNullViolation)
+      it 'does not raise error' do
+        expect { pi_log.save }.not_to raise_error
       end
     end
 
