@@ -38,7 +38,7 @@ Rails.application.routes.draw do
     resources :onsite_notifications, only: %i[create index update]
 
     resources :appointments, only: :index
-    resources :in_progress_forms, only: %i[index show update destroy]
+    #resources :in_progress_forms, only: %i[index show update destroy]
     resources :disability_compensation_in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
@@ -463,6 +463,7 @@ Rails.application.routes.draw do
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'
+  mount InProgressForms::Engine, at: '/in_progress_forms'
   mount IvcChampva::Engine, at: '/ivc_champva'
   mount RepresentationManagement::Engine, at: '/representation_management'
   mount SimpleFormsApi::Engine, at: '/simple_forms_api'

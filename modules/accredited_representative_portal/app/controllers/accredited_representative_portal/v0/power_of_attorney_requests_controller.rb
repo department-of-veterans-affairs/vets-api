@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+byebug
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
