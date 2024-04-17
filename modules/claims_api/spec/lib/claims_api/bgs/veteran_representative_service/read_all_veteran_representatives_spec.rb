@@ -8,7 +8,8 @@ metadata = {
   bgs: {
     service: 'veteran_representative_service',
     operation: 'read_all_veteran_representatives'
-  }
+  },
+  run_at: '2024-04-17T23:10:31+00:00'
 }
 
 describe ClaimsApi::VeteranRepresentativeService, metadata do
