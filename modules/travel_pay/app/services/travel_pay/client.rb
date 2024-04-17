@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'securerandom'
 
 module TravelPay
   class Client
@@ -90,7 +91,54 @@ module TravelPay
       symbolized_body[:data].sort_by(&parse_claim_date).reverse!
     end
 
+    def request_sts_token(user)
+      service_account_id = Settings.travel_pay.sts.service_account_id
+      private_key_file = Settings.sign_in.sts_client.key_path
+      host_baseurl = build_host_baseurl({ ip_form: false })
+      audience_baseurl = build_host_baseurl({ip_form: true})
+
+      current_time = Time.now.to_i
+      jti = SecureRandom.uuid
+
+      token = {
+        'iss' => host_baseurl,
+        'sub' => user.email,
+        'aud' => "#{audience_baseurl}/v0/sign_in/token",
+        'iat' => current_time,
+        'exp' => current_time + 300,
+        'scopes' => [],
+        'service_account_id' => service_account_id,
+        'jti' => jti,
+        'user_attributes' => { 'icn' => user.icn }
+      }
+
+      private_key = OpenSSL::PKey::RSA.new(File.read(private_key_file))
+
+      jwt = JWT.encode(token, private_key, 'RS256')
+
+      # send to sis
+      response = connection(server_url: host_baseurl).post('/v0/sign_in/token') do |req|
+        req.params['grant_type'] = 'urn:ietf:params:oauth:grant-type:jwt-bearer'
+        req.params['assertion'] = jwt
+      end
+
+      response.body["data"]["access_token"]
+    end
+
+
     private
+
+    def build_host_baseurl(config)
+      env = Settings.vsp_environment
+      host = Settings.hostname
+
+      if env == 'localhost'
+        return 'http://127.0.0.1:3000' if config[:ip_form]
+        return "http://localhost:3000" 
+      else
+        return "https://#{host}"
+      end
+    end
 
     def veis_params
       {
