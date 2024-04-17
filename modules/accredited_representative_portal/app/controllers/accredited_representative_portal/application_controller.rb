@@ -11,14 +11,16 @@ module AccreditedRepresentativePortal
     service_tag 'accredited-representative-portal'
     validates_access_token_audience Settings.sign_in.arp_client_id
 
-    before_action :verify_feature_enabled!
-
     private
 
-    def verify_feature_enabled!
-      return if Flipper.enabled?(:accredited_representative_portal_api)
-
-      raise Common::Exceptions::RoutingError, params[:path]
+    # feature flag specifically for the pilot
+    def verify_pilot_enabled
+      if Flipper.enabled?(:accredited_representative_portal_pilot, @current_user)
+        true
+      else
+        render json: { error: 'Feature not enabled' }, status: :forbidden
+        false
+      end
     end
   end
 end
