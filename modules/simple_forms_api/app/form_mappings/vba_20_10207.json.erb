@@ -49,6 +49,7 @@
   "form1[0].#subform[3].CheckBox1[1]": "<%= nil %>",
   "form1[0].#subform[3].Email_Address[3]": "<%= nil %>",
   "form1[0].#subform[3].VA_File_Number_If_Applicable[1]": "<%= form.data.dig('veteran_id', 'va_file_number') %>",
+  "form1[0].#subform[3].CurrentlyHomeless[0]": "<%= form.data.dig('living_situation', 'none') ? 1 : 0 %>",
 
   "form1[0].#subform[4].I_Live_Or_Sleep_In_A_Place_That_Is_Not_Meant_For_Regular_Sleeping[0]": "<%= form.data.dig('living_situation', 'overnight') ? 1 : 0 %>",
   "form1[0].#subform[4].I_Live_In_A_Shelter[0]": "<%= form.data.dig('living_situation', 'shelter') ? 1 : 0 %>",
@@ -57,10 +58,8 @@
   "form1[0].#subform[4].IN_THE_NEXT_30_DAYS_I_WILL_LOSE_MY_HOME[0]": "<%= form.data.dig('living_situation', 'losing_home') ? 1 : 0 %>",
   "form1[0].#subform[4].NONE_OF_THESE_SITUATIONS_APPLY_TO_ME[0]": "<%= form.data.dig('living_situation', 'none') ? 1 : 0 %>",
   "form1[0].#subform[4].OTHER_Specify[0]": "<%= form.data.dig('living_situation', 'other_risk') ? 1 : 0 %>",
-
-  "form1[0].#subform[3].CurrentlyHomeless[0]": "<%= form.data.dig('living_situation', 'none') ? 1 : 0 %>",
+  "form1[0].#subform[4].Other1[0]": "<%= form.data['other_housing_risks'] %>",
   
-  "form1[0].#subform[3].Other1[0]": "<%= form.data['other_housing_risks'] %>",
   "form1[0].#subform[4].Veterans_SocialSecurityNumber_LastFourNumbers[1]": "<%= form.data.dig('veteran_id', 'ssn')&.[](5..8) %>",
   "form1[0].#subform[4].Veterans_SocialSecurityNumber_SecondTwoNumbers[1]": "<%= form.data.dig('veteran_id', 'ssn')&.[](3..4) %>",
   "form1[0].#subform[4].Veterans_SocialSecurityNumber_FirstThreeNumbers[1]": "<%= form.data.dig('veteran_id', 'ssn')&.[](0..2) %>",

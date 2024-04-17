@@ -2,6 +2,8 @@
 
 module TravelPay
   class PingsController < ApplicationController
+    before_action :authorize, only: [:authorized_ping]
+
     def ping
       veis_token = client.request_veis_token
 

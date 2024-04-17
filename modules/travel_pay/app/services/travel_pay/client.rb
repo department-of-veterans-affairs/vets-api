@@ -165,7 +165,7 @@ module TravelPay
       Faraday.new(url: server_url) do |conn|
         conn.use :breakers
         conn.response :raise_error, error_prefix: service_name, include_request: true
-        conn.response :betamocks if use_fakes?
+        conn.response :betamocks if mock_enabled?
         conn.response :json
         conn.request :json
 
@@ -176,8 +176,8 @@ module TravelPay
     ##
     # Syntactic sugar for determining if the client should use
     # fake api responses or actually connect to the BTSSS API
-    def use_fakes?
-      Settings.useFakes
+    def mock_enabled?
+      Settings.travel_pay.mock
     end
   end
 end

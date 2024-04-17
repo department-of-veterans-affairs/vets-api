@@ -22,13 +22,8 @@ module SimpleFormsApi
       }
     end
 
-    def submission_date_config
-      {
-        should_stamp_date?: false,
-        page_number: 1,
-        title_coords: [440, 690],
-        text_coords: [440, 670]
-      }
+    def submission_date_stamps
+      []
     end
   end
 end
