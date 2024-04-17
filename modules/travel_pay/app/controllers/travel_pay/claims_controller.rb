@@ -2,9 +2,10 @@
 
 module TravelPay
   class ClaimsController < ApplicationController
+    before_action :authorize
+
     def index
       veis_token = client.request_veis_token
-
       # Non-intuitive Ruby behavior: #split splits a string on space by default
       vagov_token = request.headers['Authorization'].split[1]
       btsss_token = client.request_btsss_token(veis_token, vagov_token)
