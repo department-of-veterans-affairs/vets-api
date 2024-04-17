@@ -867,3 +867,15 @@
     - :method: :get
       :path: "/demographics/demographics/v1/*/*"
       :file_path: "vet360/demographics/default"
+
+
+# VA Profile Military Personnel
+- :name: "VA Profile Military Service History"
+  :base_uri: <%= "#{URI(Settings.vet360.url).host}:#{URI(Settings.vet360.url).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: "/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/*"
+    :file_path: "va_profile/military_personnel"
+    :cache_multiple_responses:
+      :uid_location: "url"
+      :uid_locator: "\/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/(.+)"
