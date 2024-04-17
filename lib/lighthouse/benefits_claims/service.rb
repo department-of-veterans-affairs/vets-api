@@ -102,7 +102,8 @@ module BenefitsClaims
       handle_error(e, lighthouse_client_id, endpoint)
     end
 
-    # submit form526 to Lighthouse API endpoint: /services/claims/v2/veterans/{veteranId}/526
+    # submit form526 to Lighthouse API endpoint: /services/claims/v2/veterans/{veteranId}/526 or
+    # /services/claims/v2/veterans/{veteranId}/526/generatePdf
     # @param [hash || Requests::Form526] body: a hash representing the form526
     # attributes in the Lighthouse request schema
     # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
@@ -111,9 +112,15 @@ module BenefitsClaims
     # @option options [hash] :body_only only return the body from the request
     # @option options [string] :aud_claim_url option to override the aud_claim_url for LH Veteran Verification APIs
     # @option options [hash] :auth_params a hash to send in auth params to create the access token
+    # @option options [hash] :generate_pdf call the generatePdf endpoint to receive the 526 pdf
     def submit526(body, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      endpoint = 'benefits_claims/form/526'
+      endpoint = '{icn}/526'
       path = "#{@icn}/526"
+
+      if options[:generate_pdf].present?
+        path += "/generatePDF/minimum-validations"
+        endpoint += '/generatePDF/minimum-validations'
+      end
 
       # if we're coming straight from the transformation service without
       # making this a jsonapi request body first ({data: {type:, attributes}}),
