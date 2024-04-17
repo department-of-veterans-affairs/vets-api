@@ -176,6 +176,7 @@ module V0
 
     def logout # rubocop:disable Metrics/MethodLength
       client_id = params[:client_id].presence
+      user_verification = nil
 
       if @access_token&.session_handle.present?
         session = SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
@@ -189,7 +190,7 @@ module V0
         sign_in_logger.info('logout', @access_token.to_s)
         StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS)
       else
-        user_verification = OpenStruct.new(:credential_type => nil)
+        user_verification = OpenStruct.new(credential_type: nil)
         sign_in_logger.info('logout error', { errors: 'No valid Session found' })
         delete_cookies if token_cookies
       end
