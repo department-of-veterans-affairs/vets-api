@@ -108,7 +108,7 @@ RSpec.describe 'Forms uploader', type: :request do
             %w[THIRD_PARTY_VETERAN THIRD_PARTY_SURVIVING_DEPENDENT].each do |identification|
               it 'returns an expiration date' do
                 fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                              'vba_21_0966.json')
+                                               'vba_21_0966.json')
                 data = JSON.parse(fixture_path.read)
                 data['preparer_identification'] = identification
 
@@ -124,18 +124,18 @@ RSpec.describe 'Forms uploader', type: :request do
 
         context 'unauthenticated' do
           let(:expiration_date) { Time.zone.now }
-    
+
           before do
             allow_any_instance_of(ActiveSupport::TimeZone).to receive(:now).and_return(expiration_date)
           end
-    
+
           it 'returns an expiration date' do
             fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                            'vba_21_0966.json')
+                                           'vba_21_0966.json')
             data = JSON.parse(fixture_path.read)
-    
+
             post '/simple_forms_api/v1/simple_forms', params: data
-    
+
             parsed_response_body = JSON.parse(response.body)
             parsed_expiration_date = Time.zone.parse(parsed_response_body['expiration_date'])
             expect(parsed_expiration_date.to_s).to eq (expiration_date + 1.year).to_s
@@ -146,7 +146,7 @@ RSpec.describe 'Forms uploader', type: :request do
       context 'request with attached documents' do
         it 'appends the attachments to the 40-0247 PDF' do
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                          'vba_40_0247_with_supporting_document.json')
+                                         'vba_40_0247_with_supporting_document.json')
           pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
           data = JSON.parse(fixture_path.read)
           attachment = double
@@ -158,10 +158,10 @@ RSpec.describe 'Forms uploader', type: :request do
 
           expect(response).to have_http_status(:ok)
         end
-  
+
         it 'appends the attachments to the 40-10007 PDF' do
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                          'vba_40_10007_with_supporting_document.json')
+                                         'vba_40_10007_with_supporting_document.json')
           pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
           data = JSON.parse(fixture_path.read)
           attachment = double
@@ -178,10 +178,10 @@ RSpec.describe 'Forms uploader', type: :request do
           allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
         end
-        
+
         it 'stamps the LOA3 text on the PDF' do
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                           'vba_21_4142.json')
+                                         'vba_21_4142.json')
           data = JSON.parse(fixture_path.read)
 
           allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
@@ -195,7 +195,7 @@ RSpec.describe 'Forms uploader', type: :request do
         context 'transliteration succeeds' do
           it 'responds with ok' do
             fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                          'form_with_accented_chars_21_0966.json')
+                                           'form_with_accented_chars_21_0966.json')
             data = JSON.parse(fixture_path.read)
 
             post '/simple_forms_api/v1/simple_forms', params: data
@@ -207,7 +207,7 @@ RSpec.describe 'Forms uploader', type: :request do
         context 'transliteration fails' do
           it 'responds with an error' do
             fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                          'form_with_non_latin_chars_21_0966.json')
+                                           'form_with_non_latin_chars_21_0966.json')
             data = JSON.parse(fixture_path.read)
 
             post '/simple_forms_api/v1/simple_forms', params: data
@@ -261,7 +261,7 @@ RSpec.describe 'Forms uploader', type: :request do
           context 'veteran' do
             it 'makes the request with an intent to file' do
               fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                            'vba_21_0966-min.json')
+                                             'vba_21_0966-min.json')
               data = JSON.parse(fixture_path.read)
               data['preparer_identification'] = 'VETERAN'
 
