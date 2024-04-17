@@ -7,16 +7,16 @@ module CheckIn
         new
       end
 
-      def token(patient_icn:)
+      def token(check_in_uuid:)
         Rails.cache.read(
-          patient_icn,
+          check_in_uuid,
           namespace: 'check-in-map-token-cache'
         )
       end
 
-      def save_token(patient_icn:, token:, expires_in:)
+      def save_token(check_in_uuid:, token:, expires_in:)
         Rails.cache.write(
-          patient_icn,
+          check_in_uuid,
           token,
           namespace: 'check-in-map-token-cache',
           expires_in:

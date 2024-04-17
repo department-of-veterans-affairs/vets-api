@@ -23,18 +23,18 @@ describe CheckIn::Map::RedisClient do
 
   describe '#token' do
     let(:token) { 'some_value' }
-    let(:patient_icn) { '12345' }
+    let(:check_in_uuid) { 'some_uuid' }
 
     context 'when cache does not exist' do
       it 'returns nil' do
-        expect(redis_client.token(patient_icn: '123')).to eq(nil)
+        expect(redis_client.token(check_in_uuid:)).to eq(nil)
       end
     end
 
     context 'when cache exists' do
       before do
         Rails.cache.write(
-          patient_icn,
+          check_in_uuid,
           token,
           namespace: 'check-in-map-token-cache',
           expires_in:
@@ -42,14 +42,14 @@ describe CheckIn::Map::RedisClient do
       end
 
       it 'returns the cached value' do
-        expect(redis_client.token(patient_icn:)).to eq(token)
+        expect(redis_client.token(check_in_uuid:)).to eq(token)
       end
     end
 
     context 'when cache has expired' do
       before do
         Rails.cache.write(
-          patient_icn,
+          check_in_uuid,
           token,
           namespace: 'check-in-map-token-cache',
           expires_in:
@@ -58,7 +58,7 @@ describe CheckIn::Map::RedisClient do
 
       it 'returns nil' do
         Timecop.travel(expires_in.from_now) do
-          expect(redis_client.token(patient_icn:)).to eq(nil)
+          expect(redis_client.token(check_in_uuid:)).to eq(nil)
         end
       end
     end
@@ -66,15 +66,15 @@ describe CheckIn::Map::RedisClient do
 
   describe '#save_token' do
     let(:token) { 'some_value' }
-    let(:patient_icn) { '12345' }
+    let(:check_in_uuid) { 'some_uuid' }
 
     it 'saves the value in cache' do
       expect(
-        redis_client.save_token(patient_icn:, token:, expires_in:)
+        redis_client.save_token(check_in_uuid:, token:, expires_in:)
       ).to eq(true)
 
       val = Rails.cache.read(
-        patient_icn,
+        check_in_uuid,
         namespace: 'check-in-map-token-cache'
       )
       expect(val).to eq(token)
