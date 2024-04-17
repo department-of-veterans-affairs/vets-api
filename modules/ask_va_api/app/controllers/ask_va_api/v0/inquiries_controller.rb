@@ -6,8 +6,8 @@ module AskVAApi
       around_action :handle_exceptions
       before_action :get_inquiries_by_icn, only: [:index]
       before_action :get_inquiry_by_id, only: [:show]
-      skip_before_action :authenticate, only: %i[unauth_create upload_attachment]
-      skip_before_action :verify_authenticity_token, only: %i[unauth_create upload_attachment]
+      skip_before_action :authenticate, only: %i[unauth_create upload_attachment test_create]
+      skip_before_action :verify_authenticity_token, only: %i[unauth_create upload_attachment test_create]
 
       def index
         render json: @user_inquiries.payload, status: @user_inquiries.status
@@ -15,6 +15,14 @@ module AskVAApi
 
       def show
         render json: @inquiry.payload, status: @inquiry.status
+      end
+
+      def test_create
+        service = Crm::Service.new(icn: nil)
+        payload = { reply: params[:reply] }
+        response = service.call(endpoint: params[:endpoint], method: :post, payload:)
+
+        render json: response.to_json, status: :ok
       end
 
       def create
