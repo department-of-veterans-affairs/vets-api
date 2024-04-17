@@ -17,13 +17,12 @@ module ClaimFastTracking
       return rated_disabilities_response if diagnostic_codes.empty?
 
       ratings = get_ratings(diagnostic_codes)
-      if ratings.present?
-        ratings.each do |rating|
-          rated_disability = rated_disabilities_response.rated_disabilities.find do |disability|
-            disability.diagnostic_code == rating['diagnostic_code']
-          end
-          rated_disability.maximum_rating_percentage = rating['max_rating'] if rated_disability.present?
-        end
+      return rated_disabilities_response unless ratings
+
+      ratings_hash = ratings.to_h { |rating| [rating['diagnostic_code'], rating['max_rating']] }
+      rated_disabilities_response.rated_disabilities.each do |rated_disability|
+        max_rating = ratings_hash[rated_disability.diagnostic_code]
+        rated_disability.maximum_rating_percentage = max_rating if max_rating
       end
       rated_disabilities_response
     end

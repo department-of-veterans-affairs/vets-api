@@ -34,12 +34,6 @@ module PdfFill
             limit: 1,
             question_text: "DECEASED VETERAN'S MIDDLE INITIAL"
           },
-          'middle' => {
-            key: 'form1[0].#subform[82].VeteransMiddleInitialNotReal[0]',
-            question_num: 1,
-            limit: 0,
-            question_text: "DECEASED VETERAN'S MIDDLE NAME"
-          },
           'last' => {
             key: 'form1[0].#subform[82].VeteransLastName[0]',
             limit: 18,
@@ -146,12 +140,6 @@ module PdfFill
           },
           'middleInitial' => {
             key: 'form1[0].#subform[82].ClaimantsMiddleInitial1[0]'
-          },
-          'middle' => {
-            key: 'form1[0].#subform[82].ClaimantsMiddleInitial1[0]',
-            limit: 0,
-            question_num: 7,
-            question_text: "CLAIMANT'S MIDDLE NAME"
           },
           'last' => {
             key: 'form1[0].#subform[82].ClaimantsLastName[0]',
@@ -282,10 +270,10 @@ module PdfFill
           'executor' => {
             key: 'form1[0].#subform[82].CheckboxExecutor[0]'
           },
-          'funeralHome' => {
+          'funeralDirector' => {
             key: 'form1[0].#subform[82].CheckboxFuneralHome[0]'
           },
-          'other' => {
+          'otherFamily' => {
             key: 'form1[0].#subform[82].CheckboxOther[0]'
           }
         },
@@ -678,6 +666,12 @@ module PdfFill
         end.join('; ')
       end
 
+      def format_currency_spacing
+        return if @form_data['amountGovtContribution'].blank?
+
+        @form_data['amountGovtContribution'] = @form_data['amountGovtContribution'].rjust(5)
+      end
+
       def set_state_to_no_if_national
         national = @form_data['nationalOrFederal']
         @form_data['cemetaryLocationQuestion'] = 'none' if national
@@ -708,8 +702,8 @@ module PdfFill
           'child' => select_checkbox(relationship_to_veteran == 'child'),
           'executor' => select_checkbox(relationship_to_veteran == 'executor'),
           'parent' => select_checkbox(relationship_to_veteran == 'parent'),
-          'funeralHome' => select_checkbox(relationship_to_veteran == 'funeralHome'),
-          'other' => select_checkbox(relationship_to_veteran == 'other')
+          'funeralDirector' => select_checkbox(relationship_to_veteran == 'funeralDirector'),
+          'otherFamily' => select_checkbox(relationship_to_veteran == 'otherFamily')
         }
 
         # special case for transportation being the only option selected.
@@ -725,15 +719,16 @@ module PdfFill
 
         expand_cemetery_location
 
+        # special case: the UI only has a 'yes' checkbox, so the PDF 'noTransportation' checkbox can never be true.
+        @form_data['hasTransportation'] = @form_data['transportation'] == true ? 'YES' : nil
+
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
         burial_expense_responsibility = @form_data['burialExpenseResponsibility']
         @form_data['hasBurialExpenseResponsibility'] = burial_expense_responsibility ? 'On' : nil
-        @form_data['noBurialExpenseResponsibility'] = burial_expense_responsibility ? nil : 'On'
 
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
         plot_expense_responsibility = @form_data['plotExpenseResponsibility']
         @form_data['hasPlotExpenseResponsibility'] = plot_expense_responsibility ? 'On' : nil
-        @form_data['noPlotExpenseResponsibility'] = plot_expense_responsibility ? nil : 'On'
 
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
         process_option = @form_data['processOption']
@@ -758,12 +753,13 @@ module PdfFill
 
         convert_location_of_death
 
+        format_currency_spacing
+
         %w[
           nationalOrFederal
           govtContributions
           previouslyReceivedAllowance
           allowanceStatementOfTruth
-          transportation
         ].each do |attr|
           expand_checkbox_in_place(@form_data, attr)
         end

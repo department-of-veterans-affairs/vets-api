@@ -59,14 +59,11 @@ module AskVAApi
 
       def get_inquiry_by_id
         inq = retriever.fetch_by_id(id: params[:id])
-
-        raise InvalidInquiryError if inq.is_a?(Hash)
-
         @inquiry = Result.new(payload: Inquiries::Serializer.new(inq).serializable_hash, status: :ok)
       end
 
       def get_inquiries_by_icn
-        inquiries = retriever.fetch_by_icn
+        inquiries = retriever.call
         @user_inquiries = Result.new(payload: Inquiries::Serializer.new(inquiries).serializable_hash, status: :ok)
       end
 
@@ -89,11 +86,11 @@ module AskVAApi
       end
 
       def retriever
-        @retriever ||= Inquiries::Retriever.new(icn: current_user.icn, service: mock_service)
+        entity_class = AskVAApi::Inquiries::Entity
+        @retriever ||= Inquiries::Retriever.new(icn: current_user.icn, user_mock_data: params[:mock], entity_class:)
       end
 
       Result = Struct.new(:payload, :status, keyword_init: true)
-      class InvalidInquiryError < StandardError; end
       class InvalidAttachmentError < StandardError; end
     end
   end
