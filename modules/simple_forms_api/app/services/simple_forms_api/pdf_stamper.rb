@@ -37,8 +37,7 @@ module SimpleFormsApi
                   end
       coords = [10, 10]
       text = SUBMISSION_TEXT + current_time
-      page = 0
-      desired_stamp = { coords:, text:, page: }
+      desired_stamp = { coords:, text: }
       verify(stamped_template_path) do
         stamp(desired_stamp, stamped_template_path, append_to_stamp: auth_text, text_only: false)
       end
