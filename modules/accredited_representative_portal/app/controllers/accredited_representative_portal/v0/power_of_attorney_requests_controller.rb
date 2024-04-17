@@ -3,7 +3,6 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
-
       # TODO: When the pilot begins rolling out we need to uncomment this
       # before_action :verify_pilot_enabled
 
