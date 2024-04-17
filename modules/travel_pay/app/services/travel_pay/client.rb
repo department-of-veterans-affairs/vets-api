@@ -26,7 +26,7 @@ module TravelPay
     #
     # @return [Faraday::Response]
     #
-    def request_btsss_token(veis_token, vagov_token)
+    def request_btsss_token(veis_token, sts_token)
       btsss_url = Settings.travel_pay.base_url
       api_key = Settings.travel_pay.subscription_key
       client_number = Settings.travel_pay.client_number
@@ -35,7 +35,7 @@ module TravelPay
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['Ocp-Apim-Subscription-Key'] = api_key
         req.headers['BTSSS-API-Client-Number'] = client_number.to_s
-        req.body = { authJwt: vagov_token }
+        req.body = { authJwt: sts_token }
       end
       response.body['access_token']
     end
