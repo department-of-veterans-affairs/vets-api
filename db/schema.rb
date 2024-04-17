@@ -822,6 +822,20 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_17_130647) do
     t.index ["edipi"], name: "index_invalid_letter_address_edipis_on_edipi"
   end
 
+  create_table "ivc_champva_forms", force: :cascade do |t|
+    t.string "email"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "form_number"
+    t.string "file_name"
+    t.uuid "form_uuid"
+    t.string "s3_status"
+    t.string "pega_status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_ivc_champva_forms_on_email", unique: true
+  end
+
   create_table "maintenance_windows", id: :serial, force: :cascade do |t|
     t.string "pagerduty_id"
     t.string "external_service"
@@ -888,23 +902,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_17_130647) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
-  end
-
-  create_table "pega_tables", force: :cascade do |t|
-    t.uuid "uuid"
-    t.string "veteranfirstname"
-    t.string "veteranmiddlename"
-    t.string "veteranlastname"
-    t.string "applicantfirstname"
-    t.string "applicantmiddlename"
-    t.string "applicantlastname"
-    t.jsonb "response"
-    t.string "filenumber"
-    t.string "doctype"
-    t.datetime "date_created"
-    t.datetime "date_completed"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "pension_ipf_notifications", force: :cascade do |t|
