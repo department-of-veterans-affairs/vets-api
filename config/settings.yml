@@ -1281,6 +1281,7 @@ vanotify:
         in_progress_reminder_email_generic: fake_template_id
         covid_vaccine_registration: fake_template_id
         covid_vaccine_expanded_registration: fake_template_id
+        direct_deposit: direct_deposit_template_id
         direct_deposit_edu: edu_template_id
         direct_deposit_comp_pen: comp_pen_template_id
         login_reactivation_email: reactivation_email_test_b
