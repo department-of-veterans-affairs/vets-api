@@ -19,14 +19,14 @@ module EVSS
         form526_submission_id = msg['args'][0]
 
         Rails.logger.warn(
-          'EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail retries exhausted',
+          'Form526DocumentUploadFailureEmail retries exhausted',
           { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
         )
 
         StatsD.increment(STATSD_EXHAUSTED_METRIC_KEY)
       rescue => e
         ::Rails.logger.error(
-          'Failure in DisabilityCompensationForm::Form526DocumentUploadFailureEmail#sidekiq_retries_exhausted',
+          'Failure in Form526DocumentUploadFailureEmail#sidekiq_retries_exhausted',
           {
             messaged_content: e.message,
             job_id:,
@@ -66,7 +66,7 @@ module EVSS
         )
 
         Rails.logger.info(
-          'EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail notification dispatched',
+          'Form526DocumentUploadFailureEmail notification dispatched',
           {
             obscured_filename:,
             form526_submission_id:,
