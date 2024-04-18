@@ -30,7 +30,6 @@ module ClaimsApi
         end
 
       make_request(
-        endpoint:,
         action: 'readPOARequest',
         body: builder.doc.at('root').children.to_xml,
         key: 'POARequestRespondReturnVO'
