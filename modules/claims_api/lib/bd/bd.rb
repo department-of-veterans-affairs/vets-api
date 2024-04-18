@@ -66,6 +66,7 @@ module ClaimsApi
       payload = {}
       veteran_name = "#{claim.auth_headers['va_eauth_firstName']}_#{claim.auth_headers['va_eauth_lastName']}"
       file_name = generate_file_name(doc_type:, veteran_name:, claim_id: claim.evss_id, original_filename:)
+
       data = {
         data: {
           systemName: 'VA.gov',
@@ -84,11 +85,22 @@ module ClaimsApi
     end
 
     def generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
-      if doc_type == 'L122'
+      if doc_type == 'L122' && original_filename.blank?
         "#{veteran_name}_#{claim_id}_526EZ.pdf"
       else
-        "#{veteran_name}_#{claim_id}_#{original_filename}.pdf"
+        filename = get_original_supporting_doc_file_name(original_filename)
+        "#{veteran_name}_#{claim_id}_#{filename}.pdf"
       end
+    end
+
+    ##
+    # DisabilityCompensationDocuments method create_unique_filename adds a random 11 digit
+    # hex string to the original filename, so we remove that to yield the user-submitted
+    # filename to use as part of the filename uploaded to the BD service.
+    def get_original_supporting_doc_file_name(original_filename)
+      file_extension = File.extname(original_filename)
+      base_filename = File.basename(original_filename, file_extension)
+      base_filename[0...-12]
     end
 
     ##
