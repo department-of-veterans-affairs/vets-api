@@ -279,7 +279,7 @@ module VAOS
       # @param request_object_body [Hash, ActionController::Parameters] The request object body containing
       # the reason code text field.
       #
-      # @return [String, nil] The filtered reason text, or nil if the reason code text  was nil.
+      # @return [String, nil] The filtered reason text, or nil if the reason code text was not present or nil.
       #
       def filter_reason_code_text(request_object_body)
         text = request_object_body&.dig(:reason_code, :text)
