@@ -118,7 +118,7 @@ module BenefitsClaims
       path = "#{@icn}/526"
 
       if options[:generate_pdf].present?
-        path += "/generatePDF/minimum-validations"
+        path += '/generatePDF/minimum-validations'
         endpoint += '/generatePDF/minimum-validations'
       end
 
@@ -136,6 +136,8 @@ module BenefitsClaims
       # Inflection settings force 'current_va_employee' to render as 'currentVAEmployee' in the above camelize() call
       # Since Lighthouse needs 'currentVaEmployee', the following workaround renames it.
       fix_current_va_employee(body)
+
+      debugger
 
       response = config.post(
         path,
