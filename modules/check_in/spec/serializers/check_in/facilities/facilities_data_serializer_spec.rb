@@ -140,6 +140,5 @@ RSpec.describe CheckIn::Facilities::FacilitiesDataSerializer do
         expect(facilities_serializer.serializable_hash).to eq(serialized_hash_response)
       end
     end
-
   end
 end
