@@ -67,7 +67,6 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
   end
 
   context 'with an invalid submission' do
-
     it 'sends an error message if no claim exists' do
       job = described_class.new
       expect(Rails.logger).to receive(:warn)
