@@ -32,9 +32,7 @@ describe ClaimsApi::VeteranRepresentativeService, metadata do
 
         it 'raises ArgumentError' do
           use_bgs_cassette('no_params') do
-            expect { subject }.to raise_error(
-              ArgumentError
-            )
+            expect { subject }.to raise_error(ArgumentError)
           end
         end
       end
@@ -43,9 +41,7 @@ describe ClaimsApi::VeteranRepresentativeService, metadata do
         let(:params) { { ptcpnt_id: '123456' } }
 
         it 'raises ArgumentError' do
-          expect { subject }.to raise_error(
-            ArgumentError
-          )
+          expect { subject }.to raise_error(ArgumentError)
         end
       end
 
@@ -58,9 +54,7 @@ describe ClaimsApi::VeteranRepresentativeService, metadata do
         end
 
         it 'raises ArgumentError' do
-          expect { subject }.to raise_error(
-            ArgumentError
-          )
+          expect { subject }.to raise_error(ArgumentError)
         end
       end
 
@@ -68,9 +62,7 @@ describe ClaimsApi::VeteranRepresentativeService, metadata do
         let(:params) { { type_code: '21-22' } }
 
         it 'raises ArgumentError' do
-          expect { subject }.to raise_error(
-            ArgumentError
-          )
+          expect { subject }.to raise_error(ArgumentError)
         end
       end
 
