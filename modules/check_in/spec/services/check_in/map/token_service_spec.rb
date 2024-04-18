@@ -6,11 +6,7 @@ describe CheckIn::Map::TokenService do
   subject { described_class.build(opts) }
 
   let(:check_in_uuid) { 'some_uuid' }
-  let(:opts) do
-    {
-      check_in_uuid:
-    }
-  end
+  let(:opts) { { check_in_uuid: }}
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
   before do
@@ -28,6 +24,10 @@ describe CheckIn::Map::TokenService do
   describe '#initialize' do
     it 'has a redis client' do
       expect(subject.redis_client).to be_a(CheckIn::Map::RedisClient)
+    end
+
+    it 'has a lorota redis client' do
+      expect(subject.lorota_redis_client).to be_a(V2::Lorota::RedisClient)
     end
   end
 
@@ -57,6 +57,18 @@ describe CheckIn::Map::TokenService do
 
         expect(subject.token).to eq(access_token)
       end
+    end
+  end
+
+  describe '#patient_icn' do
+    let(:patient_icn) { '123' }
+
+    before do
+      allow_any_instance_of(V2::Lorota::RedisClient).to receive(:icn).and_return(patient_icn)
+    end
+
+    it 'returns icn from lorota redis client' do
+      expect(subject.patient_icn).to eq(patient_icn)
     end
   end
 end
