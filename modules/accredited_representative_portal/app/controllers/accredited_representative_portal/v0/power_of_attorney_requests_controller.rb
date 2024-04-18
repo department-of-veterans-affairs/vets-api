@@ -78,15 +78,6 @@ module AccreditedRepresentativePortal
       rescue => e
         { success: false, error: e.message }
       end
-
-      # feature flag specifically for the pilot
-      def verify_pilot_enabled
-        if Flipper.enabled?(:accredited_representative_portal_pilot)
-          true
-        else
-          render json: { error: 'Feature flag is disabled' }, status: :forbidden
-        end
-      end
     end
   end
 end

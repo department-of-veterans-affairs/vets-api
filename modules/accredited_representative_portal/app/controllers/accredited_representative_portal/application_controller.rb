@@ -10,5 +10,16 @@ module AccreditedRepresentativePortal
     #   https://github.com/department-of-veterans-affairs/vets-api/tree/master/datadog-service-catalog
     service_tag 'accredited-representative-portal'
     validates_access_token_audience Settings.sign_in.arp_client_id
+
+    before_action :verify_pilot_enabled
+
+    # feature flag specifically for the pilot
+    def verify_pilot_enabled
+      if Flipper.enabled?(:accredited_representative_portal_pilot)
+        true
+      else
+        render json: { error: 'Feature flag is disabled' }, status: :forbidden
+      end
+    end
   end
 end
