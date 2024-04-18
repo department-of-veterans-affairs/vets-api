@@ -53,6 +53,10 @@ module ClaimsApi
         error.original_body
       elsif error.respond_to? :message
         error.message
+      elsif error.respond_to? :errors
+        error.errors
+      elsif error.respond_to? :detailed_message
+        error.detailed_message
       else
         error
       end

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 def update_appeal_status(appeal, status, code: nil, detail: nil)
   # At the time of writing, the `update_status` method for each appeal model involves kicking off a sidekiq job to
@@ -159,6 +158,32 @@ describe AppealsApi::RemovePii do
       expect { AppealsApi::RemovePii.new(form_type: 'Invalid').run! }.to raise_error(ArgumentError)
     end
 
+    context 'when the removal fails' do
+      let!(:appeals) do
+        Timecop.freeze(100.days.ago) do
+          status = 'complete'
+          [create(:supplemental_claim, status:), create(:supplemental_claim_v0, status:)]
+        end
+      end
+
+      before do
+        instance = AppealsApi::RemovePii.new(form_type: AppealsApi::SupplementalClaim)
+        msg = 'Failed to remove expired AppealsApi::SupplementalClaim PII from records'
+        expect(Rails.logger).to receive(:error).with(msg, appeals.map(&:id))
+        expect_any_instance_of(AppealsApi::Slack::Messager).to receive(:notify!)
+        allow(instance).to receive(:remove_pii!).and_return []
+        instance.run!
+      end
+
+      it 'logs an error and the IDs of records whose PII failed to be removed' do
+        appeals.each do |appeal|
+          appeal.reload
+          expect(appeal.auth_headers).to be_present
+          expect(appeal.form_data).to be_present
+        end
+      end
+    end
+
     it 'removes PII from HLR records needing PII removal' do
       day_old_has_pii_v2 = create :higher_level_review_v2, status: 'complete'
       day_old_has_pii_v2.update updated_at: 1.day.ago
@@ -270,14 +295,6 @@ describe AppealsApi::RemovePii do
         expect(week_old_has_pii.reload.form_data_ciphertext).to be_nil
         expect(week_old_has_pii_error.reload.form_data_ciphertext).to be_present
       end
-    end
-
-    it 'sends a message to sentry if the removal failed.' do
-      allow_any_instance_of(AppealsApi::RemovePii).to receive(:records_were_not_cleared).and_return(true)
-      service = AppealsApi::RemovePii.new(form_type: AppealsApi::NoticeOfDisagreement)
-      expect(service).to receive(:log_failure_to_sentry)
-
-      service.run!
     end
   end
 end
