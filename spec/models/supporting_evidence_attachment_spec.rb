@@ -99,8 +99,8 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
     end
 
     # NOTE: Filetypes that need to be converted in EVSSClaimDocumentUploaderBase
-    # have 'converted_' appended to the file name and saved as convered_filename in the file_data
-    # Ensure the obscured_filename method is masking the orignal filename
+    # have 'converted_' prepended to the file name and saved as converted_filename in the file_data
+    # Ensure the obscured_filename method is masking the original filename
     # This is the name of the file the veteran originally uploaded so it will be recognizable to them
     context 'for a file with a converted file name' do
       let(:attachment) do
