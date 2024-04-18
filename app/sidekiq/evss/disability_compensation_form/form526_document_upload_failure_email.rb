@@ -18,6 +18,24 @@ module EVSS
         timestamp = Time.now.utc
         form526_submission_id = msg['args'][0]
 
+        # Job status records are upserted in the JobTracker module
+        # when the retryable_error_handler is called
+        form_job_status = Form526JobStatus.find_by(job_id:)
+        bgjob_errors = form_job_status.bgjob_errors || {}
+        new_error = {
+          "#{timestamp.to_i}": {
+            caller_method: __method__.to_s,
+            error_class:,
+            error_message:,
+            timestamp:,
+            form526_submission_id:
+          }
+        }
+        form_job_status.update(
+          status: Form526JobStatus::STATUS[:exhausted],
+          bgjob_errors: bgjob_errors.merge(new_error)
+        )
+
         Rails.logger.warn(
           'Form526DocumentUploadFailureEmail retries exhausted',
           { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }

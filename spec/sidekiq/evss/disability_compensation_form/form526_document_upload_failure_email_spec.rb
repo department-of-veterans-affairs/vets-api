@@ -83,6 +83,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
   end
 
   context 'when all retries are exhausted' do
+    let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 8675309) }
     let(:retry_params) do
       {
         'jid' => 8675309,
@@ -98,7 +99,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
       allow(notification_client).to receive(:send_email)
     end
 
-    it 'increments a StatsD exhaustion metric and logs to the Rails logger' do
+    it 'increments a StatsD exhaustion metric, logs to the Rails logger and updates the job status' do
       Timecop.freeze(exhaustion_time) do
         described_class.within_sidekiq_retries_exhausted_block(retry_params) do
           expect(Rails.logger).to receive(:warn).with(
@@ -111,15 +112,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
               form526_submission_id: form526_submission.id
             }
           ).and_call_original
+          expect(StatsD).to receive(:increment).with(
+            'api.form_526.veteran_notifications.document_upload_failure_email.exhausted'
+          )
         end
-      end
-    end
 
-    it 'increments a StatsD exhaustion metric' do
-      Timecop.freeze(exhaustion_time) do
-        described_class.within_sidekiq_retries_exhausted_block(retry_params) do
-          expect(StatsD).to receive(:increment).with('api.form_526.veteran_notifications.document_upload_failure_email.exhausted')
-        end
+        form526_job_status.reload
+        expect(form526_job_status.status).to eq(Form526JobStatus::STATUS[:exhausted])
       end
     end
   end
