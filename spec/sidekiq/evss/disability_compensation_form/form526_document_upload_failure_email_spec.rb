@@ -88,7 +88,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
       {
         'jid' => 8675309,
         'error_class' => 'JennyNotFound',
-        'error_message' => 'Jenny did not answer',
         'args' => [form526_submission.id, form_attachment.guid]
       }
     end
@@ -107,9 +106,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
             {
               job_id: 8675309,
               error_class: 'JennyNotFound',
-              error_message: 'Jenny did not answer',
               timestamp: exhaustion_time,
-              form526_submission_id: form526_submission.id
+              form526_submission_id: form526_submission.id,
+              supporting_evidence_attachment_guid: form_attachment.guid
             }
           ).and_call_original
           expect(StatsD).to receive(:increment).with(

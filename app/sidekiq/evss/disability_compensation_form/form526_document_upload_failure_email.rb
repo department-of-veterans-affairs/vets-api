@@ -14,9 +14,8 @@ module EVSS
       sidekiq_retries_exhausted do |msg, _ex|
         job_id = msg['jid']
         error_class = msg['error_class']
-        error_message = msg['error_message']
         timestamp = Time.now.utc
-        form526_submission_id = msg['args'][0]
+        form526_submission_id, supporting_evidence_attachment_guid = msg['args']
 
         # Job status records are upserted in the JobTracker module
         # when the retryable_error_handler is called
@@ -25,10 +24,9 @@ module EVSS
         new_error = {
           "#{timestamp.to_i}": {
             caller_method: __method__.to_s,
-            error_class:,
-            error_message:,
             timestamp:,
-            form526_submission_id:
+            form526_submission_id:,
+            supporting_evidence_attachment_guid:
           }
         }
         form_job_status.update(
@@ -38,7 +36,7 @@ module EVSS
 
         Rails.logger.warn(
           'Form526DocumentUploadFailureEmail retries exhausted',
-          { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+          { job_id:, timestamp:, form526_submission_id:, error_class:, supporting_evidence_attachment_guid: }
         )
 
         StatsD.increment(STATSD_EXHAUSTED_METRIC_KEY)
@@ -49,9 +47,9 @@ module EVSS
             messaged_content: e.message,
             job_id:,
             submission_id: form526_submission_id,
+            supporting_evidence_attachment_guid:,
             pre_exhaustion_failure: {
-              error_class:,
-              error_message:
+              error_class:
             }
           }
         )
