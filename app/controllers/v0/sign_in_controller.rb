@@ -7,6 +7,8 @@ module V0
     skip_before_action :authenticate,
                        only: %i[authorize callback token refresh revoke logout logingov_logout_proxy]
 
+    before_action :set_client_config, only: :authorize
+
     def authorize # rubocop:disable Metrics/MethodLength
       type = params[:type].presence
       client_state = params[:state].presence
@@ -16,7 +18,7 @@ module V0
       acr = params[:acr].presence
       operation = params[:operation].presence || SignIn::Constants::Auth::AUTHORIZE
 
-      validate_authorize_params(type, client_id, acr, operation)
+      validate_authorize_params(type, acr, operation)
 
       delete_cookies if token_cookies
 
@@ -24,7 +26,7 @@ module V0
       state = SignIn::StatePayloadJwtEncoder.new(code_challenge:,
                                                  code_challenge_method:,
                                                  acr:,
-                                                 client_config: client_config(client_id),
+                                                 client_config: @client_config,
                                                  type:,
                                                  client_state:).perform
       context = { type:, client_id:, acr:, operation: }
@@ -225,17 +227,15 @@ module V0
 
     private
 
-    def validate_authorize_params(type, client_id, acr, operation)
-      if client_config(client_id).blank?
-        raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
-      end
-      unless client_config(client_id).valid_credential_service_provider?(type)
+    def validate_authorize_params(type, acr, operation)
+      raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid' if @client_config.blank?
+      unless @client_config.valid_credential_service_provider?(type)
         raise SignIn::Errors::MalformedParamsError.new message: 'Type is not valid'
       end
       unless SignIn::Constants::Auth::OPERATION_TYPES.include?(operation)
         raise SignIn::Errors::MalformedParamsError.new message: 'Operation is not valid'
       end
-      unless client_config(client_id).valid_service_level?(acr)
+      unless @client_config.valid_service_level?(acr)
         raise SignIn::Errors::MalformedParamsError.new message: 'ACR is not valid'
       end
     end
@@ -370,6 +370,10 @@ module V0
 
     def client_config(client_id)
       @client_config ||= SignIn::ClientConfig.find_by(client_id:)
+    end
+
+    def set_client_config
+      @client_config = SignIn::ClientConfig.find_by(client_id: params[:client_id])
     end
 
     def sign_in_logger
