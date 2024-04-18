@@ -103,6 +103,21 @@ describe ClaimsApi::VeteranRepresentativeService, metadata do
           end
         end
       end
+
+      describe 'with a single response' do
+        let(:params) do
+          {
+            type_code: '21-22',
+            ptcpnt_id: '600043201'
+          }
+        end
+
+        it 'handles object vs array' do
+          use_bgs_cassette('valid_org_single') do
+            expect(subject.size).to eq(1)
+          end
+        end
+      end
     end
   end
 

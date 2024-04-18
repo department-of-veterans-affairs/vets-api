@@ -14,7 +14,8 @@ module ClaimsApi
         </ns0:CorpPtcpntIdFormTypeCode>
       EOXML
       ret = make_request(action: 'readAllVeteranRepresentatives', body:)
-      ret&.dig('VeteranRepresentativeReturnList') || []
+            &.dig('VeteranRepresentativeReturnList') || []
+      [ret].flatten
     end
 
     # bad idea?
