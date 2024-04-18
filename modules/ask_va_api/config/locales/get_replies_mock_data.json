@@ -1,7 +1,7 @@
 {
   "Data": [
     {
-      "InquiryId": "1",
+      "InquiryId": "A-1",
       "Id": "1",
       "ModifiedOn": "1/2/23",
       "StatusReason": "Completed/Sent",
@@ -16,7 +16,7 @@
       ]
     },
     {
-      "InquiryId": "2",
+      "InquiryId": "A-2",
       "Id": "2",
       "ModifiedOn": "1/21/23",
       "StatusReason": "Completed/Sent",
@@ -31,7 +31,7 @@
       ]
     },
     {
-      "InquiryId": "2",
+      "InquiryId": "A-2",
       "Id": "3",
       "ModifiedOn": "1/22/23",
       "StatusReason": "Completed/Sent",
@@ -41,7 +41,7 @@
       "AttachmentNames": []
     },
     {
-      "InquiryId": "2",
+      "InquiryId": "A-2",
       "Id": "4",
       "ModifiedOn": "1/23/23",
       "StatusReason": "Completed/Sent",
@@ -51,7 +51,7 @@
       "AttachmentNames": []
     },
     {
-      "InquiryId": "9",
+      "InquiryId": "A-9",
       "Id": "5",
       "ModifiedOn": "8/23/23",
       "StatusReason": "Completed/Sent",
@@ -61,7 +61,7 @@
       "AttachmentNames": []
     },
     {
-      "InquiryId": "9",
+      "InquiryId": "A-9",
       "Id": "6",
       "ModifiedOn": "8/24/23",
       "StatusReason": "Completed/Sent",
@@ -71,7 +71,7 @@
       "AttachmentNames": []
     },
     {
-      "InquiryId": "9",
+      "InquiryId": "A-9",
       "Id": "7",
       "ModifiedOn": "8/24/23",
       "StatusReason": "Completed/Sent",
@@ -81,7 +81,7 @@
       "AttachmentNames": []
     },
     {
-      "InquiryId": "9",
+      "InquiryId": "A-9",
       "Id": "7",
       "ModifiedOn": "8/25/23",
       "StatusReason": "Completed/Sent",
@@ -91,7 +91,7 @@
       "AttachmentNames": []
     },
     {
-      "InquiryId": "9",
+      "InquiryId": "A-9",
       "Id": "8",
       "ModifiedOn": "8/26/23",
       "StatusReason": "Completed/Sent",
@@ -101,7 +101,7 @@
       "AttachmentNames": []
     },
     {
-      "InquiryId": "9",
+      "InquiryId": "A-9",
       "Id": "8",
       "ModifiedOn": "8/26/23",
       "StatusReason": "Completed/Sent",
@@ -111,7 +111,7 @@
       "AttachmentNames": []
     },
     {
-      "InquiryId": "9",
+      "InquiryId": "A-9",
       "Id": "9",
       "ModifiedOn": "8/28/23",
       "StatusReason": "Completed/Sent",

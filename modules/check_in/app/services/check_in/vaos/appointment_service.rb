@@ -7,7 +7,7 @@ require 'memoist'
 
 module CheckIn
   module VAOS
-    class AppointmentsService < CheckIn::VAOS::BaseService
+    class AppointmentService < CheckIn::VAOS::BaseService
       def get_appointments(start_date, end_date, statuses = nil)
         params = date_params(start_date, end_date)
                  .merge(status_params(statuses))

@@ -82,10 +82,19 @@ module SimpleFormsApi
       end
     end
 
-    def submission_date_config
-      {
-        should_stamp_date?: false
-      }
+    def desired_stamps
+      coords = if %w[veteran non-veteran].include? data['preparer_type']
+                 [[50, 685]]
+               elsif data['third_party_type'] == 'power-of-attorney'
+                 [[50, 440]]
+               elsif %w[third-party-veteran third-party-non-veteran].include? data['preparer_type']
+                 [[50, 565]]
+               end
+      [{ coords:, text: data['statement_of_truth_signature'], page: 4 }]
+    end
+
+    def submission_date_stamps
+      []
     end
 
     def track_user_identity(confirmation_number); end
