@@ -808,7 +808,7 @@ lib/common/client/middleware/request/remove_cookies.rb @department-of-veterans-a
 lib/common/client/middleware/response/soap_parser.rb @department-of-veterans-affairs/backend-review-group
 lib/common/exceptions/open_id_service_error.rb @department-of-veterans-affairs/lighthouse-pivot
 lib/common/file_helpers.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-lib/custom_cops/enforce_sidekiq_policy.rb @department-of-veterans-affairs/octo-benefits-portfolio-code-reviewers
+lib/custom_cops/enforce_sidekiq_policy.rb @department-of-veterans-affairs/backend-review-group
 lib/debt_management_center @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 lib/decision_review @department-of-veterans-affairs/Benefits-Team-1 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/decision_review_v1 @department-of-veterans-affairs/Benefits-Team-1 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
