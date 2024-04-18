@@ -29,7 +29,6 @@ module VBMS
       Rails.logger.info('VBMS::SubmitDependentsPdfJob succeeded!', { saved_claim_id: })
     rescue => e
       Rails.logger.warn('VBMS::SubmitDependentsPdfJob failed, retrying...', { saved_claim_id:, error: e.message })
-      send_error_to_sentry(e, saved_claim_id)
       @saved_claim_id = saved_claim_id
       raise
     end
