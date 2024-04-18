@@ -90,6 +90,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_16_155705) do
     t.index ["registration_number", "individual_type"], name: "index_on_reg_num_and_type_for_accredited_individuals", unique: true
   end
 
+  create_table "accredited_individuals_accredited_organizations", force: :cascade do |t|
+    t.uuid "accredited_individual_id", null: false
+    t.uuid "accredited_organization_id", null: false
+    t.index ["accredited_individual_id", "accredited_organization_id"], name: "index_accredited_on_indi_and_org_ids", unique: true
+    t.index ["accredited_individual_id"], name: "idx_on_accredited_individual_id_94f42eefad"
+    t.index ["accredited_organization_id"], name: "idx_on_accredited_organization_id_a394d1de51"
+  end
+
   create_table "accredited_organizations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "ogc_id", null: false
     t.string "poa_code", limit: 3, null: false
@@ -1513,6 +1521,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_16_155705) do
   end
 
   add_foreign_key "account_login_stats", "accounts"
+  add_foreign_key "accredited_individuals_accredited_organizations", "accredited_individuals"
+  add_foreign_key "accredited_individuals_accredited_organizations", "accredited_organizations"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"
