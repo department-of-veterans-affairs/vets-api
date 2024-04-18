@@ -22,7 +22,7 @@ RSpec.describe 'Forms uploader', type: :request do
   ]
 
   authenticated_forms = forms - %w[vba_40_0247.json vba_21_10210.json vba_21p_0847.json
-                                                   vba_40_10007.json]
+                                   vba_40_10007.json]
 
   describe '#submit' do
     context 'going to Lighthouse Benefits Intake API' do
