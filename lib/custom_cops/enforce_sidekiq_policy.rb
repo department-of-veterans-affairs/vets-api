@@ -22,11 +22,13 @@ module CustomCops
 
       if retry_option
         retries_disabled = node.body.children.find { |n| n.type == :send && n.method_name == :sidekiq_options }
-                              .arguments.first.children.find { |n| n.type == :pair && n.children[0].value == :retry }
-                              .children[1].type == :false
+                               .arguments.first.children.find { |n| n.type == :pair && n.children[0].value == :retry }
+                               .children[1].type == false
         return if retries_disabled
 
-        add_offense(node, message: 'Ensure Sidekiq jobs define a sidekiq_retries_exhausted block.') unless exhausted_block
+        unless exhausted_block
+          add_offense(node, message: 'Ensure Sidekiq jobs define a sidekiq_retries_exhausted block.')
+        end
       else
         add_offense(node, message: 'Ensure Sidekiq jobs define a retry policy (integer or false).')
       end
