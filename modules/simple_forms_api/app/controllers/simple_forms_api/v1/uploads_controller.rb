@@ -126,7 +126,7 @@ module SimpleFormsApi
           ).send
         end
 
-        { json: get_json(confirmation_number || nil, form_id, error_message || nil), status: }
+        { json: get_json(confirmation_number || nil, form_id), status: }
       end
 
       def get_file_paths_and_metadata(parsed_form_data)
@@ -212,10 +212,9 @@ module SimpleFormsApi
         FORM_NUMBER_MAP[form_number]
       end
 
-      def get_json(confirmation_number, form_id, error_message)
+      def get_json(confirmation_number, form_id)
         json = { confirmation_number: }
         json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
-        json[:error_message] = error_message
 
         json
       end
