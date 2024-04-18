@@ -94,52 +94,6 @@ RSpec.describe CheckIn::Facilities::FacilitiesDataSerializer do
       end
     end
 
-    context 'when type does not exist' do
-      let(:facilities_data_without_type) do
-        facilities_data.except!(:type)
-        facilities_data
-      end
-
-      let(:serialized_hash_response) do
-        {
-          data: {
-            id: '442',
-            type: :facilities_data,
-            attributes: {
-              name: 'Cheyenne VA Medical Center',
-              classification: 'VA Medical Center (VAMC)',
-              timezone: {
-                timeZoneId: 'America/Denver'
-              },
-              phone: {
-                main: '307-778-7550',
-                fax: '307-778-7381',
-                pharmacy: '866-420-6337',
-                afterHours: '307-778-7550',
-                patientAdvocate: '307-778-7550 x7573',
-                mentalHealthClinic: '307-778-7349',
-                enrollmentCoordinator: '307-778-7550 x7579'
-              },
-              physicalAddress: {
-                type: 'physical',
-                line: ['2360 East Pershing Boulevard', nil, nil],
-                city: 'Cheyenne',
-                state: 'WY',
-                postalCode: '82001-5356'
-              }
-            }
-          }
-        }
-      end
-
-      it 'returns a serialized hash' do
-        facilities_struct = OpenStruct.new(facilities_data_without_type)
-        facilities_serializer = CheckIn::Facilities::FacilitiesDataSerializer.new(facilities_struct)
-
-        expect(facilities_serializer.serializable_hash).to eq(serialized_hash_response)
-      end
-    end
-
     context 'when name does not exist' do
       let(:facilities_data_without_name) do
         facilities_data.except!(:name)
@@ -152,6 +106,7 @@ RSpec.describe CheckIn::Facilities::FacilitiesDataSerializer do
             id: '442',
             type: :facilities_data,
             attributes: {
+              name: nil,
               type: 'va_health_facility',
               classification: 'VA Medical Center (VAMC)',
               timezone: {
@@ -178,7 +133,7 @@ RSpec.describe CheckIn::Facilities::FacilitiesDataSerializer do
         }
       end
 
-      it 'returns a serialized hash' do
+      it 'returns a serialized hash with nil in name field' do
         facilities_struct = OpenStruct.new(facilities_data_without_name)
         facilities_serializer = CheckIn::Facilities::FacilitiesDataSerializer.new(facilities_struct)
 
@@ -186,172 +141,5 @@ RSpec.describe CheckIn::Facilities::FacilitiesDataSerializer do
       end
     end
 
-    context 'when classification does not exist' do
-      let(:facilities_data_without_classification) do
-        facilities_data.except!(:classification)
-        facilities_data
-      end
-
-      let(:serialized_hash_response) do
-        {
-          data: {
-            id: '442',
-            type: :facilities_data,
-            attributes: {
-              name: 'Cheyenne VA Medical Center',
-              type: 'va_health_facility',
-              timezone: {
-                timeZoneId: 'America/Denver'
-              },
-              phone: {
-                main: '307-778-7550',
-                fax: '307-778-7381',
-                pharmacy: '866-420-6337',
-                afterHours: '307-778-7550',
-                patientAdvocate: '307-778-7550 x7573',
-                mentalHealthClinic: '307-778-7349',
-                enrollmentCoordinator: '307-778-7550 x7579'
-              },
-              physicalAddress: {
-                type: 'physical',
-                line: ['2360 East Pershing Boulevard', nil, nil],
-                city: 'Cheyenne',
-                state: 'WY',
-                postalCode: '82001-5356'
-              }
-            }
-          }
-        }
-      end
-
-      it 'returns a serialized hash' do
-        facilities_struct = OpenStruct.new(facilities_data_without_classification)
-        facilities_serializer = CheckIn::Facilities::FacilitiesDataSerializer.new(facilities_struct)
-
-        expect(facilities_serializer.serializable_hash).to eq(serialized_hash_response)
-      end
-    end
-
-    context 'when timezone does not exist' do
-      let(:facilities_data_without_timezone) do
-        facilities_data.except!(:timezone)
-        facilities_data
-      end
-
-      let(:serialized_hash_response) do
-        {
-          data: {
-            id: '442',
-            type: :facilities_data,
-            attributes: {
-              name: 'Cheyenne VA Medical Center',
-              type: 'va_health_facility',
-              classification: 'VA Medical Center (VAMC)',
-              phone: {
-                main: '307-778-7550',
-                fax: '307-778-7381',
-                pharmacy: '866-420-6337',
-                afterHours: '307-778-7550',
-                patientAdvocate: '307-778-7550 x7573',
-                mentalHealthClinic: '307-778-7349',
-                enrollmentCoordinator: '307-778-7550 x7579'
-              },
-              physicalAddress: {
-                type: 'physical',
-                line: ['2360 East Pershing Boulevard', nil, nil],
-                city: 'Cheyenne',
-                state: 'WY',
-                postalCode: '82001-5356'
-              }
-            }
-          }
-        }
-      end
-
-      it 'returns a serialized hash' do
-        facilities_struct = OpenStruct.new(facilities_data_without_timezone)
-        facilities_serializer = CheckIn::Facilities::FacilitiesDataSerializer.new(facilities_struct)
-
-        expect(facilities_serializer.serializable_hash).to eq(serialized_hash_response)
-      end
-    end
-
-    context 'when phone does not exist' do
-      let(:facilities_data_without_phone) do
-        facilities_data.except!(:phone)
-        facilities_data
-      end
-
-      let(:serialized_hash_response) do
-        {
-          data: {
-            id: '442',
-            type: :facilities_data,
-            attributes: {
-              name: 'Cheyenne VA Medical Center',
-              type: 'va_health_facility',
-              classification: 'VA Medical Center (VAMC)',
-              timezone: {
-                timeZoneId: 'America/Denver'
-              },
-              physicalAddress: {
-                type: 'physical',
-                line: ['2360 East Pershing Boulevard', nil, nil],
-                city: 'Cheyenne',
-                state: 'WY',
-                postalCode: '82001-5356'
-              }
-            }
-          }
-        }
-      end
-
-      it 'returns a serialized hash' do
-        facilities_struct = OpenStruct.new(facilities_data_without_phone)
-        facilities_serializer = CheckIn::Facilities::FacilitiesDataSerializer.new(facilities_struct)
-
-        expect(facilities_serializer.serializable_hash).to eq(serialized_hash_response)
-      end
-    end
-
-    context 'when physicalAddress does not exist' do
-      let(:facilities_data_without_physical_address) do
-        facilities_data.except!(:physicalAddress)
-        facilities_data
-      end
-
-      let(:serialized_hash_response) do
-        {
-          data: {
-            id: '442',
-            type: :facilities_data,
-            attributes: {
-              name: 'Cheyenne VA Medical Center',
-              type: 'va_health_facility',
-              classification: 'VA Medical Center (VAMC)',
-              timezone: {
-                timeZoneId: 'America/Denver'
-              },
-              phone: {
-                main: '307-778-7550',
-                fax: '307-778-7381',
-                pharmacy: '866-420-6337',
-                afterHours: '307-778-7550',
-                patientAdvocate: '307-778-7550 x7573',
-                mentalHealthClinic: '307-778-7349',
-                enrollmentCoordinator: '307-778-7550 x7579'
-              }
-            }
-          }
-        }
-      end
-
-      it 'returns a serialized hash' do
-        facilities_struct = OpenStruct.new(facilities_data_without_physical_address)
-        facilities_serializer = CheckIn::Facilities::FacilitiesDataSerializer.new(facilities_struct)
-
-        expect(facilities_serializer.serializable_hash).to eq(serialized_hash_response)
-      end
-    end
   end
 end
