@@ -3,8 +3,7 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
-      # TODO: When the pilot begins rolling out we need to uncomment this
-      # before_action :verify_pilot_enabled
+      before_action :verify_pilot_enabled
 
       def accept
         id = params[:proc_id]
@@ -78,6 +77,15 @@ module AccreditedRepresentativePortal
         end
       rescue => e
         { success: false, error: e.message }
+      end
+
+      # feature flag specifically for the pilot
+      def verify_pilot_enabled
+        if Flipper.enabled?(:accredited_representative_portal_pilot)
+          true
+        else
+          render json: { error: 'Feature flag is disabled' }, status: :forbidden
+        end
       end
     end
   end
