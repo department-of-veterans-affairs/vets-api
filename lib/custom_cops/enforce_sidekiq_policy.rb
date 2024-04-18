@@ -23,7 +23,7 @@ module CustomCops
       if retry_option
         retries_disabled = node.body.children.find { |n| n.type == :send && n.method_name == :sidekiq_options }
                                .arguments.first.children.find { |n| n.type == :pair && n.children[0].value == :retry }
-                               .children[1].type == false
+                               .children[1].type == :false # rubocop:disable Lint/BooleanSymbol
         return if retries_disabled
 
         unless exhausted_block
