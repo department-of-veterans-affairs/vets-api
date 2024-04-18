@@ -25,15 +25,18 @@ module Mobile
                            raise Pundit::NotAuthorizedError
                          end
 
-          try_cache(data, errors)
+          set_cache(data) unless errors.any?
+
+          errors.push({ service: 'appeals', error_details: APPEALS_NOT_AUTHORIZED_MESSAGE }) unless appeals_access?
+          errors.push({ service: 'claims', error_details: CLAIMS_NOT_AUTHORIZED_MESSAGE }) unless claims_access?
 
           [data, errors]
         end
 
         private
 
-        def try_cache(data, errors)
-          Mobile::V0::ClaimOverview.set_cached(@current_user, data) unless non_authorization_errors?(errors)
+        def set_cache(data)
+          Mobile::V0::ClaimOverview.set_cached(@current_user, data)
         end
 
         def get_claims_and_appeals(use_cache)
@@ -50,30 +53,7 @@ module Mobile
             data = claims_adapter.parse(full_list)
           end
 
-          errors = errors.map { |err| simplify_error(err) }
-
           [data, errors]
-        end
-
-        # this is being done to fix a front end bug in which error details consisting of an array of objects causes
-        # the mobile app to crash
-        def simplify_error(err)
-          details = err[:error_details]
-          return err if details.is_a?(String)
-
-          raise StandardError('Invalid format') unless details.is_a?(Array)
-
-          messages = details.map do |ed|
-            message = ed['details'] || ed['text']
-            raise StandardError('Invalid format') unless message
-
-            message
-          end
-          err[:error_details] = messages.join('; ')
-          err
-        rescue => e
-          Rails.logger.error('explain error')
-          err
         end
 
         def get_claims(use_cache)
@@ -86,7 +66,6 @@ module Mobile
             errors.push(claims[:errors]) unless claims[:errors].nil?
             data = claims[:errors].nil? ? claims_adapter.parse(claims[:list]) : []
           end
-          errors.push({ service: 'appeals', error_details: APPEALS_NOT_AUTHORIZED_MESSAGE })
 
           [data, errors]
         end
@@ -103,16 +82,7 @@ module Mobile
             data = appeals[:errors].nil? ? claims_adapter.parse(appeals[:list]) : []
           end
 
-          errors.push({ service: 'claims', error_details: CLAIMS_NOT_AUTHORIZED_MESSAGE })
-
           [data, errors]
-        end
-
-        def non_authorization_errors?(service_errors)
-          return false unless service_errors
-
-          authorization_errors = [CLAIMS_NOT_AUTHORIZED_MESSAGE, APPEALS_NOT_AUTHORIZED_MESSAGE]
-          !service_errors.all? { |error| authorization_errors.include?(error[:error_details]) }
         end
 
         def service

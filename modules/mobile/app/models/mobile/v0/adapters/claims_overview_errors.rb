@@ -15,9 +15,9 @@ module Mobile
 
         def error_details(error)
           if error.respond_to?(:details)
-            error.details
+            error.details.pluck('text').join('; ')
           elsif error.respond_to?(:errors)
-            error.errors.as_json
+            error.errors.as_json.pluck('detail').join('; ')
           else
             error.message
           end
