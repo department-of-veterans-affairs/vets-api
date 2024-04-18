@@ -115,6 +115,7 @@ module TravelPay
       service_account_id = Settings.travel_pay.sts.service_account_id
       host_baseurl = build_host_baseurl({ ip_form: false })
       audience_baseurl = build_host_baseurl({ ip_form: true })
+      scope = Settings.travel_pay.sts.scope
 
       current_time = Time.now.to_i
       jti = SecureRandom.uuid
@@ -125,7 +126,7 @@ module TravelPay
         'aud' => "#{audience_baseurl}/v0/sign_in/token",
         'iat' => current_time,
         'exp' => current_time + 300,
-        'scopes' => [],
+        'scopes' => [scope],
         'service_account_id' => service_account_id,
         'jti' => jti,
         'user_attributes' => { 'icn' => user.icn }
