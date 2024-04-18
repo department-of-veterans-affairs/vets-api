@@ -19,6 +19,7 @@ module TermsOfUse
     attr_reader :icn, :signature_name, :version
 
     def perform(attr_package_key)
+      raise 'test'
       attrs = Sidekiq::AttrPackage.find(attr_package_key)
 
       @icn = attrs[:icn]

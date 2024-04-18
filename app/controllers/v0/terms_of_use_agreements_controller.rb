@@ -10,9 +10,12 @@ module V0
     skip_before_action :authenticate
     before_action :terms_authenticate
 
+    PROVISION_POLL_TIMEOUT_DURATION = 10
+    PROVISION_POLL_SLEEP_DURATION = 2
+
     def latest
       terms_of_use_agreement = get_terms_of_use_agreements_for_version(params[:version]).last
-      render_success(terms_of_use_agreement, :ok)
+      render_success(context: 'latest', body: { terms_of_use_agreement: })
     end
 
     def accept
@@ -20,9 +23,19 @@ module V0
                                                         common_name: current_user.common_name,
                                                         version: params[:version]).perform!
       recache_user
-      render_success(terms_of_use_agreement, :created)
+      render_success(context: 'accept', body: { terms_of_use_agreement: }, status: :created)
     rescue TermsOfUse::Errors::AcceptorError => e
-      render_error(e.message)
+      render_error(context: 'accept', message: e.message)
+    end
+
+    def accept_and_provision
+      terms_of_use_agreement = TermsOfUse::Acceptor.new(user_account: current_user.user_account,
+                                                        common_name: current_user.common_name,
+                                                        version: params[:version]).perform!
+      recache_user
+      update_provisioning
+    rescue TermsOfUse::Errors::AcceptorError => e
+      render_error(context: 'accept_and_provision', message: e.message)
     end
 
     def decline
@@ -30,29 +43,51 @@ module V0
                                                         common_name: current_user.common_name,
                                                         version: params[:version]).perform!
       recache_user
-      render_success(terms_of_use_agreement, :created)
+      render_success(context: 'decline', body: { terms_of_use_agreement: }, status: :created)
     rescue TermsOfUse::Errors::DeclinerError => e
-      render_error(e.message)
+      render_error(context: 'decline', message: e.message)
     end
 
     def update_provisioning
-      provisioner = TermsOfUse::Provisioner.new(icn: current_user.icn,
-                                                first_name: current_user.first_name,
-                                                last_name: current_user.last_name,
-                                                mpi_gcids: current_user.mpi_gcids)
-      if provisioner.perform
+      if ActiveRecord::Type::Boolean.new.cast(params[:poll])
+        poll_provisioning
+      elsif provisioner.perform
         create_cerner_cookie
-        Rails.logger.info('[TermsOfUseAgreementsController] update_provisioning success', { icn: current_user.icn })
-        render json: { provisioned: true }, status: :ok
+        render_success(context: 'update_provisioning', body: { provisioned: true }, status: :ok)
       else
-        Rails.logger.error('[TermsOfUseAgreementsController] update_provisioning error', { icn: current_user.icn })
-        render_error('Failed to provision')
+        render_error(context: 'update_provisioning', message: 'Failed to provision', status: :unprocessable_entity)
       end
     rescue TermsOfUse::Errors::ProvisionerError => e
-      render_error(e.message)
+      render_error(context: 'update_provisioning', message: "Failed to provision. #{e.message}")
     end
 
     private
+
+    def poll_provisioning
+      Timeout.timeout(PROVISION_POLL_TIMEOUT_DURATION) do
+        loop do
+          if false
+            create_cerner_cookie
+            render_success(context: 'update_provisioning', body: { provisioned: true }, status: :ok)
+            break
+          end
+
+          sleep PROVISION_POLL_SLEEP_DURATION
+        end
+      end
+    rescue Timeout::Error
+      render_error(context: 'update_provisioning', message: 'Failed to provision. Poll timeout',
+                   status: :request_timeout)
+    end
+
+    def provisioner
+      @provisioner ||= TermsOfUse::Provisioner.new(
+        icn: current_user.icn,
+        first_name: current_user.first_name,
+        last_name: current_user.last_name,
+        mpi_gcids: current_user.mpi_gcids
+      )
+    end
 
     def recache_user
       current_user.needs_accepted_terms_of_use = current_user.user_account&.needs_accepted_terms_of_use?
@@ -85,12 +120,14 @@ module V0
       raise Common::Exceptions::Unauthorized unless @current_user
     end
 
-    def render_success(terms_of_use_agreement, status)
-      render json: { terms_of_use_agreement: }, status:
+    def render_success(context:, body:, status: :ok)
+      Rails.logger.info("[TermsOfUseAgreementsController] #{context} success", { icn: current_user.icn })
+      render json: body, status:
     end
 
-    def render_error(message)
-      render json: { error: message }, status: :unprocessable_entity
+    def render_error(context:, message:, status: :unprocessable_entity)
+      Rails.logger.error("[TermsOfUseAgreementsController] #{context} error: #{message}", { icn: current_user.icn })
+      render json: { error: message }, status:
     end
   end
 end

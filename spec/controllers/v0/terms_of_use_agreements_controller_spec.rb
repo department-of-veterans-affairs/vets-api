@@ -280,80 +280,131 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
   end
 
   describe 'PUT #update_provisioning' do
-    subject { put :update_provisioning }
-
-    context 'when user is authenticated with a session token' do
-      let(:mpi_profile) { build(:mpi_profile) }
-      let(:user) { build(:user, :loa3, mpi_profile:) }
-      let(:provisioned) { true }
-      let(:provisioner) { instance_double(TermsOfUse::Provisioner, perform: provisioned) }
+    shared_examples 'successful provisioning' do
+      let(:expected_cookie) { 'CERNER_CONSENT=ACCEPTED' }
+      let(:expected_cookie_domain) { '.va.gov' }
+      let(:expected_cookie_path) { '/' }
+      let(:expected_cookie_expiration) { 2.minutes.from_now }
+      let(:expected_log) { '[TermsOfUseAgreementsController] update_provisioning success' }
 
       before do
-        Timecop.freeze(Time.zone.now.floor)
-        sign_in(user)
-        allow(TermsOfUse::Provisioner).to receive(:new).and_return(provisioner)
+        allow(Rails.logger).to receive(:info)
       end
 
-      after { Timecop.return }
-
-      context 'when the provisioning is successful' do
-        let(:expected_cookie) { 'CERNER_CONSENT=ACCEPTED' }
-        let(:expected_cookie_domain) { '.va.gov' }
-        let(:expected_cookie_path) { '/' }
-        let(:expected_cookie_expiration) { 2.minutes.from_now }
-        let(:expected_log) { '[TermsOfUseAgreementsController] update_provisioning success' }
-
-        before do
-          allow(Rails.logger).to receive(:info)
-        end
-
-        it 'returns ok status and sets the cerner cookie' do
-          subject
-          expect(response).to have_http_status(:ok)
-          expect(cookies['CERNER_CONSENT']).to eq('ACCEPTED')
-          expect(response.headers['Set-Cookie']).to include(expected_cookie)
-          expect(response.headers['Set-Cookie']).to include("domain=#{expected_cookie_domain}")
-          expect(response.headers['Set-Cookie']).to include("path=#{expected_cookie_path}")
-          expect(response.headers['Set-Cookie']).to include("expires=#{expected_cookie_expiration.httpdate}")
-        end
-
-        it 'logs the expected log' do
-          subject
-          expect(Rails.logger).to have_received(:info).with(expected_log, { icn: user.icn })
-        end
+      it 'returns ok status and sets the cerner cookie' do
+        subject
+        expect(response).to have_http_status(:ok)
+        expect(cookies['CERNER_CONSENT']).to eq('ACCEPTED')
+        expect(response.headers['Set-Cookie']).to include(expected_cookie)
+        expect(response.headers['Set-Cookie']).to include("domain=#{expected_cookie_domain}")
+        expect(response.headers['Set-Cookie']).to include("path=#{expected_cookie_path}")
+        expect(response.headers['Set-Cookie']).to include("expires=#{expected_cookie_expiration.httpdate}")
       end
 
-      context 'when the provisioning is not successful' do
-        let(:provisioned) { false }
-        let(:expected_log) { '[TermsOfUseAgreementsController] update_provisioning error' }
+      it 'logs the expected log' do
+        subject
+        expect(Rails.logger).to have_received(:info).with(expected_log, { icn: user.icn })
+      end
+    end
 
-        before do
-          allow(Rails.logger).to receive(:error)
-        end
-
-        it 'returns unprocessable_entity status and does not set the cookie' do
-          subject
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(cookies['CERNER_CONSENT']).to be_nil
-          expect(response.headers['Set-Cookie']).to be_nil
-        end
-
-        it 'logs the expected log' do
-          subject
-          expect(Rails.logger).to have_received(:error).with(expected_log, { icn: user.icn })
-        end
+    shared_examples 'unsuccessful provisioning' do
+      before do
+        allow(Rails.logger).to receive(:error)
       end
 
-      context 'when the provisioning raises an error' do
+      it 'returns unprocessable_entity status and does not set the cookie' do
+        subject
+        expect(response).to have_http_status(expected_status)
+        expect(cookies['CERNER_CONSENT']).to be_nil
+        expect(response.headers['Set-Cookie']).to be_nil
+      end
+
+      it 'logs the expected log' do
+        subject
+        expect(Rails.logger).to have_received(:error).with(expected_log, { icn: user.icn })
+      end
+    end
+
+    context 'when poll param is false' do
+      subject { put :update_provisioning }
+
+      context 'when user is authenticated with a session token' do
+        let(:mpi_profile) { build(:mpi_profile) }
+        let(:user) { build(:user, :loa3, mpi_profile:) }
+        let(:provisioned) { true }
+        let(:provisioner) { instance_double(TermsOfUse::Provisioner, perform: provisioned) }
+
         before do
-          allow(provisioner).to receive(:perform).and_raise(TermsOfUse::Errors::ProvisionerError)
+          Timecop.freeze(Time.zone.now.floor)
+          sign_in(user)
+          allow(TermsOfUse::Provisioner).to receive(:new).and_return(provisioner)
         end
 
-        it 'returns unprocessable_entity status and does not set the cookie' do
-          subject
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(cookies['CERNER_CONSENT']).to be_nil
-          expect(response.headers['Set-Cookie']).to be_nil
+        after { Timecop.return }
+
+        context 'when the provisioning is successful' do
+          it_behaves_like 'successful provisioning'
+        end
+
+        context 'when the provisioning is not successful' do
+          let(:expected_status) { :unprocessable_entity }
+          let(:provisioned) { false }
+          let(:expected_log) { '[TermsOfUseAgreementsController] update_provisioning error: Failed to provision' }
+
+          it_behaves_like 'unsuccessful provisioning'
+        end
+
+        context 'when the provisioning raises an error' do
+          let(:expected_status) { :unprocessable_entity }
+          let(:expected_log) do
+            <<-LOG.squish
+              [TermsOfUseAgreementsController] update_provisioning error: Failed to provision.
+               TermsOfUse::Errors::ProvisionerError
+            LOG
+          end
+
+          before do
+            allow(provisioner).to receive(:perform).and_raise(TermsOfUse::Errors::ProvisionerError)
+          end
+
+          it_behaves_like 'unsuccessful provisioning'
+        end
+      end
+    end
+
+    context 'when poll param is true' do
+      subject { put :update_provisioning, params: { poll: true } }
+
+      context 'when user is authenticated with a session token' do
+        let(:mpi_profile) { build(:mpi_profile) }
+        let(:user) { build(:user, :loa3, mpi_profile:) }
+        let(:provisioned) { true }
+        let(:provisioner) { instance_double(TermsOfUse::Provisioner, perform: provisioned) }
+
+        before do
+          Timecop.freeze(Time.zone.now.floor)
+          sign_in(user)
+          allow(TermsOfUse::Provisioner).to receive(:new).and_return(provisioner)
+        end
+
+        after { Timecop.return }
+
+        context 'when the provisioning is successful' do
+          it_behaves_like 'successful provisioning'
+        end
+
+        context 'when the provisioning poll times out' do
+          let(:expected_status) { :request_timeout }
+          let(:expected_log) do
+            '[TermsOfUseAgreementsController] update_provisioning error: Failed to provision. Poll timeout'
+          end
+
+          before do
+            allow(provisioner).to receive(:perform).and_return(false)
+            stub_const('V0::TermsOfUseAgreementsController::PROVISION_POLL_TIMEOUT_DURATION', 0.1)
+          end
+
+          it_behaves_like 'unsuccessful provisioning'
         end
       end
     end

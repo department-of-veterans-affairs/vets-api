@@ -984,7 +984,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_16_155705) do
     t.string "type"
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
-    t.string "uploaded_forms", default: [], array: true
+    t.string "uploaded_forms", array: true
     t.datetime "itf_datetime", precision: nil
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
