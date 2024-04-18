@@ -29,7 +29,7 @@ module AskVAApi
       def post_data(payload: {})
         endpoint = "inquiries/#{inquiry_id}/reply/new"
 
-        response = service.call(endpoint:, payload:)
+        response = service.call(endpoint:, method: :post, payload:)
         handle_response_data(response)
       end
 

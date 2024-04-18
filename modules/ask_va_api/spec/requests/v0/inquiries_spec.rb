@@ -100,6 +100,19 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     end
   end
 
+  describe 'POST #test_create' do
+    before do
+      allow_any_instance_of(Crm::Service).to receive(:call).and_return({ message: 'success' })
+      post '/ask_va_api/v0/test_create',
+           params: { 'reply' => 'test', 'endpoint' => 'inquiries/id/reply/new' },
+           as: :json
+    end
+
+    it 'response with 200' do
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
   describe 'GET #show' do
     let(:expected_response) do
       { 'data' =>
