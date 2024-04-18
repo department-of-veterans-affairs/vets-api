@@ -77,7 +77,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
       allow(notification_client).to receive(:send_email)
 
       expect { subject.perform(form526_submission.id, form_attachment.guid) }.to trigger_statsd_increment(
-        'api.form_526.document_upload_failure_notification_sent'
+        'api.form_526.veteran_notifications.document_upload_failure_email.success'
       )
     end
   end
@@ -118,7 +118,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
     it 'increments a StatsD exhaustion metric' do
       Timecop.freeze(exhaustion_time) do
         described_class.within_sidekiq_retries_exhausted_block(retry_params) do
-          expect(StatsD).to receive(:increment).with('api.form_526.document_upload_failure_email_job_exhausted')
+          expect(StatsD).to receive(:increment).with('api.form_526.veteran_notifications.document_upload_failure_email.exhausted')
         end
       end
     end

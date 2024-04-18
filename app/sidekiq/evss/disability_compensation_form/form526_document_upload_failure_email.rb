@@ -5,8 +5,8 @@ require 'va_notify/service'
 module EVSS
   module DisabilityCompensationForm
     class Form526DocumentUploadFailureEmail < Job
-      STATSD_SENT_METRIC_KEY = 'api.form_526.document_upload_failure_notification_sent'
-      STATSD_EXHAUSTED_METRIC_KEY = 'api.form_526.document_upload_failure_email_job_exhausted'
+      STATSD_SENT_METRIC_KEY = 'api.form_526.veteran_notifications.document_upload_failure_email.success'
+      STATSD_EXHAUSTED_METRIC_KEY = 'api.form_526.veteran_notifications.document_upload_failure_email.exhausted'
 
       # retry for one day
       sidekiq_options retry: 14
