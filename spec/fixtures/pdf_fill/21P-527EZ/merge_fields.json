@@ -77,8 +77,7 @@
   "currentEmployers": [
     {
       "jobType": "Customer service",
-      "jobHoursWeek": "20",
-      "jobTitle": "Manager"
+      "jobHoursWeek": "20"
     }
   ],
   "maritalStatus": 1,
@@ -245,6 +244,7 @@
         "stepchild": "Off"
       },
       "previouslyMarried": 1,
+      "disabled": "Off",
       "married": true,
       "fullName": {
         "first": "Emily",
@@ -259,7 +259,6 @@
       "fullNameOverflow": "Emily Anne Doe",
       "childDateOfBirthOverflow": "03-03-2000",
       "childSocialSecurityNumberOverflow": "333224444",
-      "disabled": "Off",
       "attendingCollege": "Off",
       "childNotInHousehold": 1,
       "childStatusOverflow": "Biological, previously married, does not live with you but contributes",
@@ -279,6 +278,7 @@
         "stepchild": "Off"
       },
       "previouslyMarried": "Off",
+      "disabled": "Off",
       "attendingCollege": 1,
       "fullName": {
         "first": "Bobby",
@@ -293,7 +293,6 @@
       "fullNameOverflow": "Bobby Nolan Doe",
       "childDateOfBirthOverflow": "09-22-2005",
       "childSocialSecurityNumberOverflow": "333224444",
-      "disabled": "Off",
       "childNotInHousehold": "Off",
       "childStatusOverflow": "Adopted, 18-23 years old (in school)",
       "monthlyPayment": {},

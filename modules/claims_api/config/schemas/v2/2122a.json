@@ -288,11 +288,6 @@
               "example": "6789"
             }
           }
-        },
-        "organizationName": {
-          "description": "Name of the service organization.",
-          "type": "string",
-          "example": "I help vets LLC."
         }
       }
     },

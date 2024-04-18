@@ -11,7 +11,7 @@ describe ClaimsApi::LocalBGS do
 
   describe '#find_poa_by_participant_id' do
     it 'responds as expected, with extra ClaimsApi::Logger logging' do
-      VCR.use_cassette('bgs/claimant_web_service/find_poa_by_participant_id') do
+      VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
         allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id).and_return({})
 
         # Events logged:
@@ -42,7 +42,8 @@ describe ClaimsApi::LocalBGS do
     end
 
     it 'triggers StatsD measurements' do
-      VCR.use_cassette('bgs/claimant_web_service/find_poa_by_participant_id', allow_playback_repeats: true) do
+      VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id',
+                       allow_playback_repeats: true) do
         allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id).and_return({})
 
         %w[establish_ssl_connection connection_wsdl_get connection_post parsed_response].each do |event|
@@ -72,7 +73,7 @@ describe ClaimsApi::LocalBGS do
 
     context 'when claims come back as a hash instead of an array' do
       it 'casts the hash as an array' do
-        VCR.use_cassette('bgs/claims/claims_trimmed_down') do
+        VCR.use_cassette('claims_api/bgs/claims/claims_trimmed_down') do
           claims = subject_instance.find_benefit_claims_status_by_ptcpnt_id('600061742')
           claims[:benefit_claims_dto][:benefit_claim] = claims[:benefit_claims_dto][:benefit_claim][0]
           allow(subject_instance).to receive(:find_benefit_claims_status_by_ptcpnt_id).with(id).and_return(claims)

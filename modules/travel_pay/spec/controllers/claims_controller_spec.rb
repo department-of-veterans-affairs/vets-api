@@ -13,8 +13,12 @@ RSpec.describe TravelPay::ClaimsController, type: :request do
           .and_return('veis_token')
 
         allow_any_instance_of(TravelPay::Client)
+          .to receive(:request_sts_token)
+          .and_return('sts_token')
+
+        allow_any_instance_of(TravelPay::Client)
           .to receive(:request_btsss_token)
-          .with('veis_token', 'vagov_token')
+          .with('veis_token', 'sts_token')
           .and_return('btsss_token')
 
         allow_any_instance_of(TravelPay::Client)
@@ -35,8 +39,12 @@ RSpec.describe TravelPay::ClaimsController, type: :request do
           .and_return('veis_token')
 
         allow_any_instance_of(TravelPay::Client)
+          .to receive(:request_sts_token)
+          .and_return('sts_token')
+
+        allow_any_instance_of(TravelPay::Client)
           .to receive(:request_btsss_token)
-          .with('veis_token', 'vagov_token')
+          .with('veis_token', 'sts_token')
           .and_return('btsss_token')
 
         allow_any_instance_of(TravelPay::Client)

@@ -58,6 +58,30 @@ module V2
       def retry_attempt_prefix(uuid:)
         "authentication_retry_limit_#{uuid}"
       end
+
+      def icn(uuid:)
+        fetch_attribute(uuid:, attribute: :icn)
+      end
+
+      def fetch_attribute(uuid:, attribute:)
+        identifiers = appointment_identifiers(uuid:)
+        return nil if identifiers.nil?
+
+        parsed_identifiers = Oj.load(identifiers).with_indifferent_access
+        parsed_identifiers.dig(:data, :attributes, attribute)
+      end
+
+      private
+
+      def appointment_identifiers(uuid:)
+        @appointment_identifiers ||= Hash.new do |h, key|
+          h[key] = Rails.cache.read(
+            "#{redis_session_prefix}_appointment_identifiers_#{key}",
+            namespace: 'check-in-lorota-v2-cache'
+          )
+        end
+        @appointment_identifiers[uuid]
+      end
     end
   end
 end

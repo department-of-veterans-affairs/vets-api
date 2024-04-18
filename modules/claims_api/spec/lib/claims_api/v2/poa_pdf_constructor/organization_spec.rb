@@ -46,9 +46,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
       },
       serviceOrganization: {
         poaCode: '456',
-        firstName: 'Bob',
-        lastName: 'Representative',
-        organizationName: 'I Help Vets LLC',
+        registrationNumber: '1234',
         address: {
           addressLine1: '2719 Hyperion Ave',
           city: 'Los Angeles',
@@ -83,8 +81,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
         'text_signatures' => {
           'page2' => [
             {
-              'signature' => "#{power_of_attorney.auth_headers['va_eauth_firstName']} " \
-                             "#{power_of_attorney.auth_headers['va_eauth_lastName']} - signed via api.va.gov",
+              'signature' => 'Lillian Disney - signed via api.va.gov',
               'x' => 35,
               'y' => 240
             },
@@ -94,7 +91,13 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
               'y' => 200
             }
           ]
-        }
+        },
+        'serviceOrganization' =>
+          {
+            'firstName' => 'Bob',
+            'lastName' => 'Representative',
+            'organizationName' => 'I Help Vets LLC'
+          }
       }
     )
 

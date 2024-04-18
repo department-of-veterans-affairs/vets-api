@@ -2,7 +2,7 @@
 CH33
 *START*
 <%= form_identifier %>
-JUN 2020
+OMB Control #: 2900-0878
 
 
               APPLICATION FOR EDITH NOURSE ROGERS STEM SCHOLARSHIP
@@ -69,8 +69,13 @@ Applicant has POA: <%= yesno(@stem_automated_decision.poa) %>
 Applicant School Email Address: <%= @applicant.schoolEmailAddress %>
 Applicant School ID: <%= @applicant.schoolStudentId %>
 
+<% if @applicant.isActiveDuty -%>
+As an active-duty service member, you have consulted with an Education Service
+Officer (ESO) regarding your education program.
+<% else -%>
       Certification and Signature of Applicant
 Signature of Applicant                                               Date
+<% end -%>
 
 
 <%= parse_with_template_path('footer') %>

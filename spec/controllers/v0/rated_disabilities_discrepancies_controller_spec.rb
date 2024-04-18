@@ -39,8 +39,15 @@ RSpec.describe V0::RatedDisabilitiesDiscrepanciesController, type: :controller d
         # Lighthouse should return 3 items, but filter out the inactive one, so when comparing
         # with EVSS (which should return 1 rating), there should be a discrepancy of 1 ratings
         expect(Rails.logger).to have_received(:info).with(
-          'Discrepancy of 1 disability ratings',
-          { message_type: 'lh.rated_disabilities.length_discrepancy', revision: 4 }
+          'Discrepancy between Lighthouse and EVSS disability ratings',
+          {
+            message_type: 'lh.rated_disabilities.length_discrepancy',
+            evss_length: 1,
+            evss_rating_ids: ['1'],
+            lighthouse_length: 2,
+            lighthouse_rating_ids: %w[1 2],
+            revision: 5
+          }
         )
       end
 
@@ -57,8 +64,15 @@ RSpec.describe V0::RatedDisabilitiesDiscrepanciesController, type: :controller d
         # so when comparing with EVSS (which should return 1 rating), there should be
         # a discrepancy of 2 ratings
         expect(Rails.logger).to have_received(:info).with(
-          'Discrepancy of 2 disability ratings',
-          { message_type: 'lh.rated_disabilities.length_discrepancy', revision: 4 }
+          'Discrepancy between Lighthouse and EVSS disability ratings',
+          {
+            message_type: 'lh.rated_disabilities.length_discrepancy',
+            evss_length: 1,
+            evss_rating_ids: ['1'],
+            lighthouse_length: 3,
+            lighthouse_rating_ids: %w[1 3 5],
+            revision: 5
+          }
         )
       end
     end
