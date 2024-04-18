@@ -62,12 +62,13 @@ describe SimpleFormsApi::PdfStamper do
           { type: :new_page },
           { type: :new_page },
           { type: :text, position: [50, 240] },
+          { type: :new_page },
           { type: :new_page }
         ]
       end
 
       it 'calls multistamp correctly' do
-        expect(described_class).to have_received(:multistamp).with(path, signature, page_config)
+        expect(described_class).to have_received(:multistamp).with(path, signature, page_config, nil)
       end
     end
   end

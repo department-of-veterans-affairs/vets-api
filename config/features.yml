@@ -152,10 +152,6 @@ features:
     actor_type: user
     description: Enables the unified experience version of the landing page.
     enable_in_development: true
-  check_in_experience_travel_claim_redis_client_refactor:
-    actor_type: user
-    description: Uses the refactored code for Travel Claim Redis client to fetch attributes
-    enable_in_development: true
   claim_letters_access:
     actor_type: user
     description: Enables users to access the claim letters page
@@ -1218,6 +1214,10 @@ features:
     actor_type: user
     description: Enables sleep apnea supplies to be ordered in the supply reorder tool / MDOT.
     enable_in_development: true
+  toe_dup_contact_info_call:
+    actor_type: user
+    description: Flag to use contact info call and modal
+    enable_in_development: true
   toe_short_circuit_bgs_failure:
     actor_type: user
     description: Flag to use begin rescue block for BGS call
@@ -1352,6 +1352,9 @@ features:
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API
+  ecc_benefits_intake_submission:
+    actor_type: user
+    description: Enable education and career counseling claim submissions to use Benefits Intake API
   virtual_agent_enable_param_error_detection:
     actor_type: user
     description: If enabled, Allows for the detection of errors in the chatbot params
