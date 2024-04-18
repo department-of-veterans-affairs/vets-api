@@ -1378,3 +1378,6 @@ features:
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
+  pension_sprint_19:
+    actor_type: user
+    description: Grouped feature flag for sprint reviews
