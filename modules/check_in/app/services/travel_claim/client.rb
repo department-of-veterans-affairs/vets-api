@@ -158,6 +158,26 @@ module TravelClaim
       }
     end
 
+    def auth_url
+      if btsss_ssm_urls_enabled? && settings.auth_url_v2.present?
+        settings.auth_url_v2 || settings.auth_url
+      else
+        settings.auth_url
+      end
+    end
+
+    def claims_url
+      if btsss_ssm_urls_enabled? && settings.claims_url_v2.present?
+        settings.claims_url_v2 || settings.claims_url
+      else
+        settings.claims_url
+      end
+    end
+
+    def btsss_ssm_urls_enabled?
+      Flipper.enabled?('check_in_experience_travel_btsss_ssm_urls_enabled') || false
+    end
+
     def mock_enabled?
       settings.mock || Flipper.enabled?('check_in_experience_mock_enabled') || false
     end
