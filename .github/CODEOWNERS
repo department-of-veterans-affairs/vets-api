@@ -265,6 +265,7 @@ app/models/identifier_index.rb @department-of-veterans-affairs/vsa-debt-resoluti
 app/models/inherited_proofing @department-of-veterans-affairs/octo-identity
 app/models/inherited_proof_verified_user_account.rb @department-of-veterans-affairs/octo-identity
 app/models/in_progress_form.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+app/models/ivc_champva_form.rb @department-of-veterans-affairs/champva-engineering @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/lighthouse_document.rb @department-of-veterans-affairs/backend-review-group
 app/models/maintenance_window.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/message_draft.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1109,6 +1110,7 @@ spec/factories/iam_user_identities.rb @department-of-veterans-affairs/octo-ident
 spec/factories/iam_users.rb @department-of-veterans-affairs/octo-identity
 spec/factories/inherited_proofing @department-of-veterans-affairs/octo-identity
 spec/factories/in_progress_forms @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/factories/ivc_champva_forms.rb @department-of-veterans-affairs/champva-engineering @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/lighthouse @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/maintenance_windows.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/message_drafts.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1458,6 +1460,7 @@ spec/models/iam_user_identity_spec.rb @department-of-veterans-affairs/octo-ident
 spec/models/inherited_proofing @department-of-veterans-affairs/octo-identity
 spec/models/inherited_proof_verified_user_account_spec.rb @department-of-veterans-affairs/octo-identity
 spec/models/in_progress_form_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/models/ivc_champva_forms_spec.rb @department-of-veterans-affairs/champva-engineering @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/message_spec.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/mhv_opt_in_flag_spec.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/mpi_data_spec.rb @department-of-veterans-affairs/octo-identity
