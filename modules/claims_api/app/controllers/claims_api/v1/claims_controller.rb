@@ -63,9 +63,11 @@ module ClaimsApi
       end
 
       def format_evss_errors(errors)
-        errors.map do |error|
-          formatted = error['key'] ? error['key'].gsub('.', '/') : error['key']
-          { status: 422, detail: "#{error['severity']} #{error['detail'] || error['text']}".squish, source: formatted }
+        errors.map do |err|
+          error = err.deep_symbolize_keys
+          # Some old saved error messages saved key is an integer, so need to call .to_s before .gsub
+          formatted = error[:key] ? error[:key].to_s.gsub('.', '/') : error[:key]
+          { status: 422, detail: "#{error[:severity]} #{error[:detail] || error[:text]}".squish, source: formatted }
         end
       end
     end
