@@ -50,7 +50,30 @@ module Mobile
             data = claims_adapter.parse(full_list)
           end
 
+          errors = errors.map { |err| simplify_error(err) }
+
           [data, errors]
+        end
+
+        # this is being done to fix a front end bug in which error details consisting of an array of objects causes
+        # the mobile app to crash
+        def simplify_error(err)
+          details = err[:error_details]
+          return err if details.is_a?(String)
+
+          raise StandardError('Invalid format') unless details.is_a?(Array)
+
+          messages = details.map do |ed|
+            message = ed['details'] || ed['text']
+            raise StandardError('Invalid format') unless message
+
+            message
+          end
+          err[:error_details] = messages.join('; ')
+          err
+        rescue => e
+          Rails.logger.error('explain error')
+          err
         end
 
         def get_claims(use_cache)
