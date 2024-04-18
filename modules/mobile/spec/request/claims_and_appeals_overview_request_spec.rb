@@ -485,6 +485,36 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
         end
       end
     end
+
+    describe 'EVSSClaim count' do
+      it 'creates record if it does not exist' do
+        VCR.use_cassette(good_claims_response_vcr_path) do
+          VCR.use_cassette('mobile/appeals/appeals') do
+            expect do
+              get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+            end.to change(EVSSClaim, :count)
+          end
+        end
+      end
+
+      it 'updates record if it does exist' do
+        VCR.use_cassette(good_claims_response_vcr_path) do
+          VCR.use_cassette('mobile/appeals/appeals') do
+            evss_id = lighthouse_flag ? 600_383_363 : 600_114_693
+            claim = EVSSClaim.create(user_uuid: sis_user.uuid,
+                                     user_account: sis_user.user_account,
+                                     evss_id:,
+                                     created_at: 1.week.ago,
+                                     updated_at: 1.week.ago,
+                                     data: {})
+            expect do
+              get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+              claim.reload
+            end.to change(claim, :updated_at)
+          end
+        end
+      end
+    end
   end
 end
 

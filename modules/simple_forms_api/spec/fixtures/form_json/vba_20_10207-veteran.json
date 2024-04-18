@@ -11,7 +11,8 @@
   },
   "living_situation": {
     "overnight": true,
-    "losing_home": true
+    "losing_home": true,
+    "other_risk": true
   },
   "other_housing_risks": "Other housing risks",
   "mailing_address_yes_no": true,
@@ -23,6 +24,7 @@
     "postal_code": "12345"
   },
   "veteran_phone": "1234567890",
+  "veteran_email_address": "email@vet.com",
   "other_reasons": {
     "financial_hardship": true,
     "als": true,
