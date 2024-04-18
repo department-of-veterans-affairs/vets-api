@@ -19,6 +19,7 @@ module VAOS
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
+      APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
 
       # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
@@ -89,7 +90,12 @@ module VAOS
         params = VAOS::V2::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
         params.compact_blank!
         with_monitoring do
-          response = perform(:post, appointments_base_path, params, headers)
+          response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
+                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
+                       perform(:post, "/vpg/v1/patients/#{user.icn}/appointments", params, headers)
+                     else
+                       perform(:post, appointments_base_path, params, headers)
+                     end
           convert_appointment_time(response.body)
           OpenStruct.new(response.body)
         rescue Common::Exceptions::BackendServiceException => e
