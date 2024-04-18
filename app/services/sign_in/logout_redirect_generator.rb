@@ -32,7 +32,7 @@ module SignIn
     end
 
     def logout_redirect_uri
-      @logout_redirect_uri ||= client_config.logout_redirect_uri
+      @logout_redirect_uri ||= client_config&.logout_redirect_uri
     end
 
     def logingov_service

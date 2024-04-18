@@ -5,8 +5,10 @@ require 'rx/client'
 
 RSpec.describe SignIn::ApplicationController, type: :controller do
   controller do
-    skip_before_action :authenticate, only: %w[index_optional_auth]
+    skip_before_action :authenticate, only: %w[index_optional_auth access_token_auth]
     before_action :load_user, only: %(index_optional_auth)
+    before_action :access_token_authenticate, only: %(access_token_auth)
+
     attr_reader :payload
 
     def index
@@ -14,6 +16,10 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     end
 
     def index_optional_auth
+      head :ok
+    end
+
+    def access_token_auth
       head :ok
     end
 
@@ -37,6 +43,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       get 'client_connection_failed' => 'sign_in/application#client_connection_failed'
       get 'index' => 'sign_in/application#index'
       get 'index_optional_auth' => 'sign_in/application#index_optional_auth'
+      get 'access_token_auth' => 'sign_in/application#access_token_auth'
     end
   end
 
@@ -350,6 +357,67 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         it 'does not log a warning to sentry' do
           expect(Rails.logger).not_to receive(:debug)
           subject
+        end
+      end
+    end
+  end
+
+  describe '#access_token_authenticate' do
+    subject { get :access_token_auth }
+
+    shared_context 'error response' do
+      it 'returns ok status' do
+        expect(subject).to have_http_status(:ok)
+      end
+    end
+
+    context 'when authorization header does not exist' do
+      let(:expected_error) { 'Access token JWT is malformed' }
+      let(:access_token) { nil }
+
+      context 'and access token cookie does not exist' do
+        let(:access_token_cookie) { nil }
+
+        it_behaves_like 'error response'
+      end
+
+      context 'and access token cookie exists' do
+        let(:access_token_cookie) { 'some-access-token' }
+
+        before do
+          cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME] = access_token_cookie
+        end
+
+        context 'and access_token is some arbitrary value' do
+          let(:access_token_cookie) { 'some-arbitrary-access-token' }
+
+          it_behaves_like 'error response'
+        end
+
+        context 'and access_token is an expired JWT' do
+          let(:access_token_object) { create(:access_token, expiration_time:) }
+          let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+          let(:expiration_time) { Time.zone.now - 1.day }
+          let(:expected_error) { 'Access token has expired' }
+          let(:expected_error_json) { { 'errors' => expected_error } }
+
+          it 'renders Access Token Expired error' do
+            expect(JSON.parse(subject.body)).to eq(expected_error_json)
+          end
+
+          it 'returns forbidden status' do
+            expect(subject).to have_http_status(:forbidden)
+          end
+        end
+
+        context 'and access_token is an active JWT' do
+          let(:access_token_object) { create(:access_token) }
+          let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+          let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
+
+          it 'returns ok status' do
+            expect(subject).to have_http_status(:ok)
+          end
         end
       end
     end

@@ -45,10 +45,11 @@ module AccreditedRepresentativePortal
     end
 
     def authn_context
-      if user_verification.credential_type == SignIn::Constants::Auth::IDME
-        SignIn::Constants::Auth::IDME_LOA3
-      else
+      case user_verification.credential_type
+      when SignIn::Constants::Auth::LOGINGOV
         SignIn::Constants::Auth::LOGIN_GOV_IAL2
+      when SignIn::Constants::Auth::IDME
+        SignIn::Constants::Auth::IDME_LOA3
       end
     end
 
