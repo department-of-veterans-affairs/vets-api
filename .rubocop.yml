@@ -9,6 +9,7 @@ require:
   - rubocop-rspec
   - rubocop-thread_safety
   - rubocop-factory_bot
+  - ./lib/custom_cops/enforce_sidekiq_policy.rb
 
 AllCops:
   NewCops: disable
@@ -349,3 +350,6 @@ Lint/EmptyBlock:
 
 Layout/EmptyLineBetweenDefs:
   AllowAdjacentOneLineDefs: true
+
+CustomCops/EnforceSidekiqPolicy:
+  Enabled: true
