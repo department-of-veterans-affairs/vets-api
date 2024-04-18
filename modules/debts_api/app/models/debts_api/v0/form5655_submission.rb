@@ -98,11 +98,8 @@ module DebtsApi
     end
 
     def upsert_in_progress_form
-      form = InProgressForm.find_by(form_id: '5655',
-                                    user_uuid:) || InProgressForm.new(
-                                      form_id: '5655', user_uuid:
-                                    )
-      form.user_account = UserVerification.from_user_uuid(user_uuid)&.user_account
+      form = InProgressForm.find_or_initialize_by(form_id: '5655', user_uuid:)
+      form.user_account = user_account_from_uuid(user_uuid)
       form.real_user_uuid = user_uuid
 
       form.update!(form_data: ipf_data, metadata: fresh_metadata)
@@ -124,6 +121,13 @@ module DebtsApi
         'lastUpdated' => Time.now.to_i,
         'inProgressFormId' => '5655'
       }
+    end
+
+    def user_account_from_uuid(user_uuid)
+      UserVerification.where(idme_uuid: user_uuid)
+                      .or(UserVerification.where(logingov_uuid: user_uuid))
+                      .or(UserVerification.where(backing_idme_uuid: user_uuid))
+                      .last&.user_account
     end
   end
 end

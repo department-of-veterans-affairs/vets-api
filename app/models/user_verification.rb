@@ -30,14 +30,6 @@ class UserVerification < ApplicationRecord
     user_verification
   end
 
-  def self.from_user_uuid(uuid)
-    find_by(idme_uuid: uuid) ||
-      find_by(logingov_uuid: uuid) ||
-      find_by(backing_idme_uuid: uuid) ||
-      find_by(mhv_uuid: uuid) ||
-      find_by(dslogon_uuid: uuid)
-  end
-
   def lock!
     update!(locked: true)
   end
