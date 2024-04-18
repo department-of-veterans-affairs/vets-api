@@ -1458,6 +1458,7 @@ spec/models/session_spec.rb @department-of-veterans-affairs/octo-identity @depar
 spec/models/sign_in @department-of-veterans-affairs/octo-identity
 spec/models/single_logout_request_spec.rb @department-of-veterans-affairs/octo-identity
 spec/models/spool_file_event_spec.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/models/supporting_evidence_attachment_spec.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/terms_of_use_agreement_spec.rb @department-of-veterans-affairs/octo-identity
 spec/models/triage_team_spec.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/user_acceptable_verified_credential_spec.rb @department-of-veterans-affairs/octo-identity
