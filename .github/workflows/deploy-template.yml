@@ -80,7 +80,7 @@ jobs:
           envs=( ${{ needs.prepare-values.outputs.environments }} )
           for env in ${envs[*]};
           do
-            yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".image.tag) |= "${{ github.sha }}"' $env/values.yaml
             yq e -i '(."vets-api".web.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ github.sha }}"' $env/values.yaml
             yq e -i '(."vets-api".web.dbMigrate.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ github.sha }}"' $env/values.yaml
             yq e -i '(."vets-api".worker.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ github.sha }}"' $env/values.yaml
