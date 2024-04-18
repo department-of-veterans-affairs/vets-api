@@ -35,16 +35,6 @@ module VBMS
 
     private
 
-    def send_error_to_sentry(error, saved_claim_id)
-      log_exception_to_sentry(
-        error,
-        {
-          claim_id: saved_claim_id
-        },
-        { team: 'vfs-ebenefits' }
-      )
-    end
-
     def upload_attachments
       claim.persistent_attachments.each do |attachment|
         next if attachment.completed_at.present?
