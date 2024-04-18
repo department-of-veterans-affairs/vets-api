@@ -83,10 +83,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
   end
 
   context 'when all retries are exhausted' do
-    let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 8675309) }
+    let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 123) }
     let(:retry_params) do
       {
-        'jid' => 8675309,
+        'jid' => 123,
         'error_class' => 'JennyNotFound',
         'args' => [form526_submission.id, form_attachment.guid]
       }
@@ -104,7 +104,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
           expect(Rails.logger).to receive(:warn).with(
             'Form526DocumentUploadFailureEmail retries exhausted',
             {
-              job_id: 8675309,
+              job_id: 123,
               error_class: 'JennyNotFound',
               timestamp: exhaustion_time,
               form526_submission_id: form526_submission.id,
