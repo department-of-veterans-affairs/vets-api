@@ -18,13 +18,13 @@ module ClaimsApi
       [ret].flatten
     end
 
-    # bad idea?
     def read_all_veteran_representatives_thread(ptcpnt_id:, type_codes: %w[21-22 21-22A])
       type_codes.each { validate! _1, ptcpnt_id }
 
       threads = []
       type_codes.each do |type_code|
         threads << Thread.new do # rubocop:disable ThreadSafety/NewThread
+          Thread.current.report_on_exception = false # don't log errors separately, the exception is raised in `.value`
           read_all_veteran_representatives(type_code:, ptcpnt_id:)
         end
       end
