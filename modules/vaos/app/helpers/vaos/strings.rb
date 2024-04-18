@@ -8,6 +8,7 @@ module VAOS
     # @param str [String] The string to be filtered.
     # @return [String] The filtered string containing only ASCII characters.
     # If the input is not a string, the method will return the input as is.
+    #
     def self.filter_ascii_characters(str)
       return str unless str.is_a?(String)
 
