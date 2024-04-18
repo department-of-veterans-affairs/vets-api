@@ -82,17 +82,17 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
       Flipper.disable(:accredited_representative_portal_pilot)
 
-      it 'returns a not found status for POST /accept' do
+      it 'returns a forbidden status for POST /accept' do
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{proc_id}/accept"
         expect(response).to have_http_status(:forbidden)
       end
 
-      it 'returns a not found status for POST /decline' do
+      it 'returns a forbidden status for POST /decline' do
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{proc_id}/decline"
         expect(response).to have_http_status(:forbidden)
       end
 
-      it 'returns a not found status for GET POA codes' do
+      it 'returns a forbidden status for GET POA codes' do
         get '/accredited_representative_portal/v0/power_of_attorney_requests', params: { poa_codes: 'XYZ,ABC' }
         expect(response).to have_http_status(:forbidden)
       end
