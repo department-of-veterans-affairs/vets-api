@@ -12,7 +12,7 @@ module SimpleFormsApi
 
     def facility_name(index)
       facility = @data['medical_treatments']&.[](index - 1)
-      "#{facility&.[]('facility_name')}\\n#{facility_address(index)}"
+      "#{facility&.[]('facility_name')}\\n#{facility_address(index)}" if facility
     end
 
     def facility_address(index)
@@ -39,12 +39,12 @@ module SimpleFormsApi
     end
 
     def requester_signature
-      @data['statement_of_truth_signature'] if @data['preparer_type'] == 'veteran'
+      @data['statement_of_truth_signature'] if %w[veteran non-veteran].include? @data['preparer_type']
     end
 
     def third_party_signature
-      @data['statement_of_truth_signature'] if @data['preparer_type'] != 'veteran' &&
-                                               @data['third_party_type'] != 'power-of-attorney'
+      @data['statement_of_truth_signature'] if %w[third-party-veteran
+                                                  third-party-non-veteran].include? @data['preparer_type']
     end
 
     def power_of_attorney_signature
@@ -82,10 +82,19 @@ module SimpleFormsApi
       end
     end
 
-    def submission_date_config
-      {
-        should_stamp_date?: false
-      }
+    def desired_stamps
+      coords = if %w[veteran non-veteran].include? data['preparer_type']
+                 [[50, 685]]
+               elsif data['third_party_type'] == 'power-of-attorney'
+                 [[50, 440]]
+               elsif %w[third-party-veteran third-party-non-veteran].include? data['preparer_type']
+                 [[50, 565]]
+               end
+      [{ coords:, text: data['statement_of_truth_signature'], page: 4 }]
+    end
+
+    def submission_date_stamps
+      []
     end
 
     def track_user_identity(confirmation_number); end

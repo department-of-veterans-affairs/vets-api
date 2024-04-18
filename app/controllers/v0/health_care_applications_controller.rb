@@ -3,6 +3,7 @@
 require 'hca/service'
 require 'bgs/service'
 require 'pdf_fill/filler'
+require 'lighthouse/facilities/v1/client'
 
 module V0
   class HealthCareApplicationsController < ApplicationController
@@ -11,7 +12,7 @@ module V0
     service_tag 'healthcare-application'
     FORM_ID = '1010ez'
 
-    skip_before_action(:authenticate, only: %i[create show enrollment_status healthcheck download_pdf])
+    skip_before_action(:authenticate, only: %i[create show enrollment_status healthcheck facilities])
 
     before_action :record_submission_attempt, only: :create
     before_action :load_user, only: %i[create enrollment_status]
@@ -68,12 +69,8 @@ module V0
       render(json: HCA::Service.new.health_check)
     end
 
-    def download_pdf
-      source_file_path = PdfFill::Filler.fill_form(health_care_application, SecureRandom.uuid, sign: false)
-      file_contents = File.read(source_file_path)
-      File.delete(source_file_path)
-
-      send_data file_contents, filename: file_name_for_pdf, type: 'application/pdf', disposition: 'attachment'
+    def facilities
+      render(json: lighthouse_facilities_service.get_facilities(lighthouse_facilities_params))
     end
 
     private
@@ -82,11 +79,26 @@ module V0
       @health_care_application ||= HealthCareApplication.new(params.permit(:form))
     end
 
-    def file_name_for_pdf
-      veteran_name = health_care_application.parsed_form.try(:[], 'veteranFullName')
-      first_name = veteran_name.try(:[], 'first') || 'First'
-      last_name = veteran_name.try(:[], 'last') || 'Last'
-      "10-10EZ_#{first_name}_#{last_name}.pdf"
+    def lighthouse_facilities_service
+      @lighthouse_facilities_service ||= Lighthouse::Facilities::V1::Client.new
+    end
+
+    def lighthouse_facilities_params
+      params.permit(
+        :zip,
+        :state,
+        :lat,
+        :long,
+        :radius,
+        :bbox,
+        :visn,
+        :type,
+        :services,
+        :mobile,
+        :page,
+        :per_page,
+        facilityIds: []
+      )
     end
 
     def record_submission_attempt

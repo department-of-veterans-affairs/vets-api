@@ -181,7 +181,7 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
     context 'when the user does have an associated email address' do
       it 'sends an email through va notify' do
         expect(VANotifyDdEmailJob).to receive(:send_to_emails).with(
-          user.all_emails, 'comp_and_pen'
+          user.all_emails
         )
 
         VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
