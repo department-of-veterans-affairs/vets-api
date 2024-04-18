@@ -137,8 +137,6 @@ module BenefitsClaims
       # Since Lighthouse needs 'currentVaEmployee', the following workaround renames it.
       fix_current_va_employee(body)
 
-      debugger
-
       response = config.post(
         path,
         body,
