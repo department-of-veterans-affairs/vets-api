@@ -9,7 +9,6 @@ Datadog.configure do |c|
     # Namespace our app
     c.service = 'vets-api'
     c.env = Settings.vsp_environment unless ENV['DD_ENV']
-    c.version = AppInfo::GIT_REVISION unless ENV['DD_VERSION']
 
     # Enable instruments
     c.tracing.instrument :rails
