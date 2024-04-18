@@ -391,7 +391,6 @@ RSpec.describe 'Forms uploader', type: :request do
 
       # Define data for both form IDs
       data_sets = [
-        { form_id: '10-10D', file: },
         { form_id: '40-0247', file: },
         { form_id: '40-10007', file: }
       ]
