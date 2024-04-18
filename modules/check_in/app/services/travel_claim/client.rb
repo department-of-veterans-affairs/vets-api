@@ -160,7 +160,7 @@ module TravelClaim
 
     def auth_url
       if btsss_ssm_urls_enabled? && settings.auth_url_v2.present?
-        settings.auth_url_v2 || settings.auth_url
+        settings.auth_url_v2
       else
         settings.auth_url
       end
@@ -168,7 +168,7 @@ module TravelClaim
 
     def claims_url
       if btsss_ssm_urls_enabled? && settings.claims_url_v2.present?
-        settings.claims_url_v2 || settings.claims_url
+        settings.claims_url_v2
       else
         settings.claims_url
       end
