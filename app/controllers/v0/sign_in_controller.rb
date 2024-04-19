@@ -7,7 +7,7 @@ module V0
     skip_before_action :authenticate,
                        only: %i[authorize callback token refresh revoke logout logingov_logout_proxy]
 
-    before_action :set_client_config, only: :authorize
+    before_action :set_client_config, only: %i[authorize logout]
 
     def authorize # rubocop:disable Metrics/MethodLength
       type = params[:type].presence
@@ -180,12 +180,9 @@ module V0
     end
 
     def logout # rubocop:disable Metrics/MethodLength
-      client_id = params[:client_id].presence
       anti_csrf_token = anti_csrf_token_param.presence
 
-      if client_config(client_id).blank?
-        raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
-      end
+      raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid' if @client_config.blank?
 
       unless load_user(skip_expiration_check: true)
         raise SignIn::Errors::LogoutAuthorizationError.new message: 'Unable to Authorize User'
@@ -198,7 +195,7 @@ module V0
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS)
 
       logout_redirect = SignIn::LogoutRedirectGenerator.new(user: @current_user,
-                                                            client_config: client_config(client_id)).perform
+                                                            client_config: @client_config).perform
 
       logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
     rescue SignIn::Errors::LogoutAuthorizationError, SignIn::Errors::SessionNotAuthorizedError => e
@@ -206,7 +203,7 @@ module V0
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
 
       logout_redirect = SignIn::LogoutRedirectGenerator.new(user: @current_user,
-                                                            client_config: client_config(client_id)).perform
+                                                            client_config: @client_config).perform
 
       logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
     rescue => e
