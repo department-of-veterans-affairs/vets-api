@@ -10,21 +10,15 @@ module Mobile
       class ClaimsIndexInterface
         CLAIMS_NOT_AUTHORIZED_MESSAGE = 'Forbidden: User is not authorized for claims'
         APPEALS_NOT_AUTHORIZED_MESSAGE = 'Forbidden: User is not authorized for appeals'
+
         def initialize(user)
           @current_user = user
         end
 
         def get_accessible_claims_appeals(use_cache)
-          data, errors = if claims_access? && appeals_access?
-                           get_claims_and_appeals(use_cache)
-                         elsif claims_access?
-                           get_claims(use_cache)
-                         elsif appeals_access?
-                           get_appeals(use_cache)
-                         else
-                           raise Pundit::NotAuthorizedError
-                         end
+          raise Pundit::NotAuthorizedError unless claims_access? || appeals_access?
 
+          data, errors = get_claims_and_appeals(use_cache)
           set_cache(data) unless errors.any?
 
           errors.push({ service: 'appeals', error_details: APPEALS_NOT_AUTHORIZED_MESSAGE }) unless appeals_access?
@@ -42,44 +36,25 @@ module Mobile
         def get_claims_and_appeals(use_cache)
           full_list = []
           errors = []
-          data = nil
-
           data = Mobile::V0::ClaimOverview.get_cached(@current_user) if use_cache
 
           unless data
-            claims, appeals = Parallel.map([service.get_all_claims, service.get_all_appeals], in_threads: 2, &:call)
-            claims[:errors].nil? ? full_list.push(*claims[:list]) : errors.push(claims[:errors])
-            appeals[:errors].nil? ? full_list.push(*appeals[:list]) : errors.push(appeals[:errors])
+            if claims_access? && appeals_access?
+              claims, appeals = Parallel.map([service.get_all_claims, service.get_all_appeals], in_threads: 2, &:call)
+            elsif claims_access?
+              claims = service.get_all_claims.call
+            elsif appeals_access?
+              appeals = service.get_all_appeals.call
+            end
+
+            if claims
+              claims[:errors].nil? ? full_list.push(*claims[:list]) : errors.push(claims[:errors])
+            end
+            if appeals
+              appeals[:errors].nil? ? full_list.push(*appeals[:list]) : errors.push(appeals[:errors])
+            end
+
             data = claims_adapter.parse(full_list)
-          end
-
-          [data, errors]
-        end
-
-        def get_claims(use_cache)
-          errors = []
-          data = nil
-
-          data = Mobile::V0::ClaimOverview.get_cached(@current_user) if use_cache
-          unless data
-            claims = service.get_all_claims.call
-            errors.push(claims[:errors]) unless claims[:errors].nil?
-            data = claims[:errors].nil? ? claims_adapter.parse(claims[:list]) : []
-          end
-
-          [data, errors]
-        end
-
-        def get_appeals(use_cache)
-          errors = []
-          data = nil
-
-          data = Mobile::V0::ClaimOverview.get_cached(@current_user) if use_cache
-
-          unless data
-            appeals = service.get_all_appeals.call
-            errors.push(appeals[:errors]) unless appeals[:errors].nil?
-            data = appeals[:errors].nil? ? claims_adapter.parse(appeals[:list]) : []
           end
 
           [data, errors]
@@ -91,8 +66,7 @@ module Mobile
 
         def claims_access?
           if claim_status_lighthouse?
-            @current_user.authorize(:lighthouse,
-                                    :access?)
+            @current_user.authorize(:lighthouse, :access?)
           else
             @current_user.authorize(:evss, :access?)
           end

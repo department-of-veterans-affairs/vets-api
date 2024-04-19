@@ -397,9 +397,6 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
 
         context 'appeals service succeed' do
           it 'appeals service succeed and caches appeals ' do
-            interface_class = Mobile::V0::LighthouseClaims::ClaimsIndexInterface
-            expect_any_instance_of(interface_class).not_to receive(:get_claims_and_appeals)
-
             VCR.use_cassette('mobile/appeals/appeals') do
               get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
             end
