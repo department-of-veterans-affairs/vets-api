@@ -36,11 +36,13 @@ class BenefitsIntakeStatusJob
       end.form_type
 
       if submission.dig('attributes', 'status') == 'error' || submission.dig('attributes', 'status') == 'expired'
-        log_result('failure', form_id)
-        handle_failure(submission)
+        form_submission_attempt = handle_failure(submission)
+        time_to_transition = (Time.now - form_submission_attempt.created_at).truncate
+        log_result('failure', form_id, time_to_transition)
       elsif submission.dig('attributes', 'status') == 'vbms'
-        log_result('success', form_id)
-        handle_success(submission)
+        form_submission_attempt = handle_success(submission)
+        time_to_transition = (Time.now - form_submission_attempt.created_at).truncate
+        log_result('success', form_id, time_to_transition)
       else
         log_result('pending', form_id)
       end
@@ -59,6 +61,7 @@ class BenefitsIntakeStatusJob
                               .order(created_at: :asc)
                               .last
     form_submission_attempt.fail!
+    form_submission_attempt
   end
 
   def handle_success(submission)
@@ -69,6 +72,7 @@ class BenefitsIntakeStatusJob
                               .order(created_at: :asc)
                               .last
     form_submission_attempt.vbms!
+    form_submission_attempt
   end
 
   def batch_process(pending_form_submissions)
@@ -86,9 +90,9 @@ class BenefitsIntakeStatusJob
     [total_handled, false]
   end
 
-  def log_result(result, form_id)
+  def log_result(result, form_id, time_to_transition = nil)
     StatsD.increment("#{STATS_KEY}.#{form_id}.#{result}")
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
-    Rails.logger.info('BenefitsIntakeStatusJob', result:, form_id:)
+    Rails.logger.info('BenefitsIntakeStatusJob', result:, form_id:, time_to_transition:)
   end
 end
