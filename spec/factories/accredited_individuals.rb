@@ -28,7 +28,7 @@ FactoryBot.define do
 
     trait :claims_agent do
       poa_code { Faker::Alphanumeric.alphanumeric(number: 3).upcase }
-      individual_type { 'attorney' }
+      individual_type { 'claims_agent' }
     end
   end
 end
