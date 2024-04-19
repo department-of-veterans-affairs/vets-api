@@ -9,13 +9,25 @@ module CheckIn
       include SentryLogging
       include Common::Client::Concerns::Monitoring
 
-      attr_reader :patient_icn, :token_service
+      attr_reader :check_in_session, :patient_icn
 
       STATSD_KEY_PREFIX = 'api.check_in.vaos'
 
-      def initialize(patient_icn:)
-        @patient_icn = patient_icn
-        @token_service = CheckIn::Map::TokenService.build({ patient_icn: })
+      ##
+      # Builds a Service instance
+      #
+      # @param opts [Hash] options to create the object
+      #
+      # @return [Service] an instance of this class
+      #
+      def self.build(opts = {})
+        new(opts)
+      end
+
+      def initialize(opts)
+        @check_in_session = opts[:check_in_session]
+        @patient_icn = ::V2::Lorota::RedisClient.build.get(check_in_uuid: check_in_session.uuid)
+
         super()
       end
 
@@ -33,6 +45,10 @@ module CheckIn
           'X-VAMF-JWT' => token_service.token,
           'X-Request-ID' => RequestStore.store['request_id']
         }
+      end
+
+      def token_service
+        @token_service ||= Map::TokenService.build(patient_icn:)
       end
 
       def referrer
