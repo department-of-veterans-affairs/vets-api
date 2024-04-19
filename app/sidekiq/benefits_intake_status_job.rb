@@ -37,11 +37,11 @@ class BenefitsIntakeStatusJob
 
       if submission.dig('attributes', 'status') == 'error' || submission.dig('attributes', 'status') == 'expired'
         form_submission_attempt = handle_failure(submission)
-        time_to_transition = (Time.now - form_submission_attempt.created_at).truncate
+        time_to_transition = (Time.zone.now - form_submission_attempt.created_at).truncate
         log_result('failure', form_id, time_to_transition)
       elsif submission.dig('attributes', 'status') == 'vbms'
         form_submission_attempt = handle_success(submission)
-        time_to_transition = (Time.now - form_submission_attempt.created_at).truncate
+        time_to_transition = (Time.zone.now - form_submission_attempt.created_at).truncate
         log_result('success', form_id, time_to_transition)
       else
         log_result('pending', form_id)
