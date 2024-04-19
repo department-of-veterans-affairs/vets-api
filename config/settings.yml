@@ -241,27 +241,28 @@ bip:
 
 # Settings for VAProfile
 vet360:
+  prefill: true
   url: "https://int.vet360.va.gov"
   contact_information:
-    cache_enabled: false
+    cache_enabled: true
     enabled: true
     timeout: 30
-    mock: false
+    mock: true
   demographics:
-    cache_enabled: false
+    cache_enabled: true
     enabled: true
     timeout: 30
     mock: true
   military_personnel:
-    cache_enabled: false
+    cache_enabled: true
     enabled: true
     timeout: 30
-    mock: false
+    mock: true
   veteran_status:
     cache_enabled: true
     enabled: true
     timeout: 30
-    mock: false
+    mock: true
   address_validation:
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
