@@ -27,7 +27,7 @@ module ClaimsApi
           log_outcome_for_claims_api('submit', 'success', resp, claim)
           resp # return is for v1 Sidekiq worker
         rescue => e
-          error_handler(e, claim, 'submit')
+          error_handler(e)
         end
       end
 
@@ -43,7 +43,7 @@ module ClaimsApi
           detail = e.respond_to?(:original_body) ? e.original_body : e
           log_outcome_for_claims_api('validate', 'error', detail, claim)
 
-          error_handler(e, claim, 'validate')
+          error_handler(e)
         end
       end
 
@@ -85,25 +85,17 @@ module ClaimsApi
         @auth_token ||= ClaimsApi::V2::BenefitsDocuments::Service.new.get_auth_token
       end
 
-      # v1/disability_compenstaion_controller expects different values then the docker container provides
-      def format_docker_container_error_for_v1(errors)
-        errors.each do |err|
-          # need to add a :detail key v1 looks for in it's error reporting, get :text key from docker container
-          err.merge!(detail: err[:text]).stringify_keys!
-        end
-      end
-
       def log_outcome_for_claims_api(action, status, response, claim)
         ClaimsApi::Logger.log('526_docker_container',
                               detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}", claim: claim&.id)
       end
 
-      def custom_error(error, claim, method)
-        ClaimsApi::CustomError.new(error, claim, method)
+      def custom_error(error)
+        ClaimsApi::CustomError.new(error)
       end
 
-      def error_handler(error, claim, method)
-        custom_error(error, claim, method).build_error
+      def error_handler(error)
+        custom_error(error).build_error
       end
     end
   end
