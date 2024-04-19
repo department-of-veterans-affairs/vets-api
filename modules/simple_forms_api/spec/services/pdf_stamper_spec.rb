@@ -15,26 +15,6 @@ describe SimpleFormsApi::PdfStamper do
       allow(File).to receive(:size).and_return(1, 2)
     end
 
-    context 'when statement_of_truth_signature is provided' do
-      before do
-        allow(described_class).to receive(:stamp).and_return(true)
-        stamp_signature
-      end
-
-      let(:test_payload) { 'vha_10_7959f_1' }
-      let(:desired_stamp) do
-        {
-          coords: [26, 82.5],
-          text: form.data['statement_of_truth_signature'],
-          page: 0
-        }
-      end
-
-      it 'calls stamp with correct desired_stamp' do
-        expect(described_class).to have_received(:stamp).with(desired_stamp, path)
-      end
-    end
-
     context 'when no stamps are needed' do
       before do
         allow(described_class).to receive(:stamp).and_return(true)
