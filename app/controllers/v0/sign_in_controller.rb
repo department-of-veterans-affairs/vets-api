@@ -30,12 +30,13 @@ module V0
                                                  type:,
                                                  client_state:).perform
       context = { type:, client_id:, acr:, operation: }
+      auth_service = SignIn::AuthenticationServiceRetriever.new(type:, client_config: @client_config).perform
 
       sign_in_logger.info('authorize', context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SUCCESS,
                        tags: ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}", "operation:#{operation}"])
 
-      render body: auth_service(type, client_id).render_auth(state:, acr: acr_for_type, operation:),
+      render body: auth_service.render_auth(state:, acr: acr_for_type, operation:),
              content_type: 'text/html'
     rescue SignIn::Errors::StandardError => e
       sign_in_logger.info('authorize error', { errors: e.message, client_id:, type:, acr: })
@@ -218,7 +219,11 @@ module V0
 
       raise SignIn::Errors::MalformedParamsError.new message: 'State is not defined' unless state
 
-      render body: auth_service(SignIn::Constants::Auth::LOGINGOV).render_logout_redirect(state),
+      auth_service = SignIn::AuthenticationServiceRetriever.new(
+        type: SignIn::Constants::Auth::LOGINGOV, client_config: nil
+      ).perform
+
+      render body: auth_service.render_logout_redirect(state),
              content_type: 'text/html'
     rescue => e
       sign_in_logger.info('logingov_logout_proxy error', { errors: e.message })
@@ -358,14 +363,6 @@ module V0
       cookies.delete(SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME)
       cookies.delete(SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME)
       cookies.delete(SignIn::Constants::Auth::INFO_COOKIE_NAME, domain: Settings.sign_in.info_cookie_domain)
-    end
-
-    def auth_service(type, client_id = nil)
-      SignIn::AuthenticationServiceRetriever.new(type:, client_config: client_config(client_id)).perform
-    end
-
-    def client_config(client_id)
-      @client_config ||= SignIn::ClientConfig.find_by(client_id:)
     end
 
     def set_client_config
