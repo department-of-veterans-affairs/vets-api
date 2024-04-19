@@ -354,4 +354,44 @@ RSpec.describe 'BGS Claims management', type: :request do
       end
     end
   end
+
+  # possible to have errors saved in production that were saved with this wrapper
+  # so need to make sure they do not break the formatter, even though the
+  # key of 400 will still show as the source, it will return the claim instead of saying 'not found'
+  context 'when a claim has an evss_response message with a key that is an integer' do
+    let(:err_message) do
+      [{
+        'key' => 400,
+        'severity' => 'FATAL',
+        'text' =>
+        { 'messages' =>
+          [{
+            'key' => 'form526.submit.establishClaim.serviceError',
+            'severity' => 'FATAL',
+            'text' => 'Claim not established. System error with BGS. GUID: 00797c5d-89d4-4da6-aab7-24b4ad0e4a4f'
+          }] }
+      }]
+    end
+
+    it 'shows correct error message despite the key being an integer' do
+      mock_acg(scopes) do |auth_header|
+        create(:auto_established_claim,
+               source: 'abraham lincoln',
+               auth_headers: auth_header,
+               evss_id: 600_118_851,
+               id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
+               status: 'errored',
+               evss_response: err_message)
+        VCR.use_cassette('bgs/claims/claim') do
+          headers = request_headers.merge(auth_header)
+          get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers:)
+          expect(response.status).not_to eq(404)
+          body = JSON.parse(response.body)
+          expect(body['errors'][0]['detail']).not_to eq('Claim not found')
+          expect(body['errors'][0]['source']).to eq('400')
+          expect(body['errors'][0]['detail']).to include('Claim not established')
+        end
+      end
+    end
+  end
 end

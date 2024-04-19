@@ -2,7 +2,7 @@
  "transportationExpenses":true,
  "plotExpenseResponsibility":true,
  "govtContributions":true,
- "amountGovtContribution":"50000",
+ "amountGovtContribution":"5000",
  "nationalOrFederal":true,
  "name":"name of cemetery",
  "finalRestingPlace":{"location":"other", "other":"other"},

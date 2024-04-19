@@ -39,6 +39,8 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 0 * * *', 'Crm::TopicsDataJob')
   # Update static data cache
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
+  # Update static data cache for form 526
+  mgr.register('0 3 * * *', 'Form526StatusPollingJob')
   # Updates status of FormSubmissions per call to Lighthouse Benefits Intake API
 
   # mgr.register('0 0 * * *', 'VRE::CreateCh31SubmissionsReportJob')

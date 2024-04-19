@@ -16,7 +16,6 @@ module ClaimsApi
         EOXML
 
       make_request(
-        endpoint:,
         action: 'updatePOARequest',
         body: body.to_s,
         key: 'POARequestUpdate'
