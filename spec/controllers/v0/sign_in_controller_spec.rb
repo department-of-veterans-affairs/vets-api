@@ -10,7 +10,9 @@ RSpec.describe V0::SignInController, type: :controller do
       get(:authorize, params: authorize_params)
     end
 
-    let!(:client_config) { create(:client_config, authentication:, pkce:) }
+    let!(:client_config) do
+      create(:client_config, authentication:, pkce:, credential_service_providers:, service_levels:)
+    end
     let(:authorize_params) do
       {}.merge(type)
         .merge(code_challenge)
@@ -26,6 +28,8 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
     let(:client_id) { { client_id: client_id_value } }
     let(:pkce) { true }
+    let(:credential_service_providers) { %w[idme logingov dslogon mhv] }
+    let(:service_levels) { %w[loa1 loa3 ial1 ial2 min] }
     let(:client_id_value) { client_config.client_id }
     let(:authentication) { SignIn::Constants::Auth::COOKIE }
     let(:client_state) { {} }
@@ -228,9 +232,10 @@ RSpec.describe V0::SignInController, type: :controller do
         it_behaves_like 'error response'
       end
 
-      context 'when type param is given but not in CSP_TYPES' do
-        let(:type_value) { 'some-undefined-type' }
+      context 'when type param is given but not in client credential_service_providers' do
+        let(:type_value) { 'idme' }
         let(:type) { { type: type_value } }
+        let(:credential_service_providers) { ['logingov'] }
         let(:expected_error) { 'Type is not valid' }
 
         it_behaves_like 'error response'
@@ -245,21 +250,22 @@ RSpec.describe V0::SignInController, type: :controller do
           it_behaves_like 'error response'
         end
 
-        context 'and acr param is given but not in ACR_VALUES' do
-          let(:acr_value) { 'some-undefiend-acr' }
+        context 'and acr param is given but not in client service_levels' do
+          let(:acr_value) { 'ial1' }
+          let(:service_levels) { ['ial2'] }
           let(:expected_error) { 'ACR is not valid' }
 
           it_behaves_like 'error response'
         end
 
-        context 'and acr param is given and in ACR_VALUES but not valid for logingov' do
+        context 'and acr param is given and in client service_levels but not valid for logingov' do
           let(:acr_value) { 'loa1' }
           let(:expected_error) { 'Invalid ACR for logingov' }
 
           it_behaves_like 'error response'
         end
 
-        context 'and acr param is given and in ACR_VALUES and valid for logingov' do
+        context 'and acr param is given and in client service_levels and valid for logingov' do
           let(:acr_value) { 'ial1' }
 
           context 'and code_challenge_method is not given' do
@@ -408,21 +414,22 @@ RSpec.describe V0::SignInController, type: :controller do
           it_behaves_like 'error response'
         end
 
-        context 'and acr param is given but not in ACR_VALUES' do
-          let(:acr_value) { 'some-undefiend-acr' }
+        context 'and acr param is given but not in client service_levels' do
+          let(:acr_value) { 'loa1' }
+          let(:service_levels) { ['loa3'] }
           let(:expected_error) { 'ACR is not valid' }
 
           it_behaves_like 'error response'
         end
 
-        context 'and acr param is given and in ACR_VALUES but not valid for type' do
+        context 'and acr param is given and in client service_levels but not valid for type' do
           let(:acr_value) { 'ial1' }
           let(:expected_error) { "Invalid ACR for #{type_value}" }
 
           it_behaves_like 'error response'
         end
 
-        context 'and acr param is given and in ACR_VALUES and valid for type' do
+        context 'and acr param is given and in client service_levels and valid for type' do
           let(:acr_value) { 'loa1' }
 
           context 'and code_challenge_method is not given' do
