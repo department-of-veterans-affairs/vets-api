@@ -8,7 +8,7 @@ RSpec.describe IvcChampva::VHA1010d do
       'veteran' => {
         'full_name' => { 'first' => 'John', 'middle' => 'P', 'last' => 'Doe' },
         'va_claim_number' => '123456789',
-        'address' => { 'postal_code' => '12345' }
+        'address' => { 'country' => 'USA', 'postal_code' => '12345' }
       },
       'form_number' => 'VHA1010d',
       'veteran_supporting_documents' => [
@@ -28,6 +28,7 @@ RSpec.describe IvcChampva::VHA1010d do
         'veteranLastName' => 'Doe',
         'fileNumber' => '123456789',
         'zipCode' => '12345',
+        'country' => 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => 'VHA1010d',
         'businessLine' => 'CMP'
