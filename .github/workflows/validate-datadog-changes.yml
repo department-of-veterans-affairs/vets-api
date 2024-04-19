@@ -31,4 +31,4 @@ jobs:
         working-directory: ./.github/scripts/validate-datadog-yaml
         run: |
               files=("${{steps.get_filenames.outputs.changedFiles}}")
-              python validate_yaml.py -s datadog-schema2.1.json -F $files
+              python validate_yaml.py -s datadog-schema2.2.json -F $files

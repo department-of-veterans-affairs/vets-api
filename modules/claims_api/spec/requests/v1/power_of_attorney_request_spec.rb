@@ -113,7 +113,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
             context 'when consumer is Veteran and missing EDIPI' do
               it 'catches a raised 422' do
                 mock_acg(scopes) do |auth_header|
-                  VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+                  VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
                     allow_any_instance_of(MPIData)
                       .to receive(:mvi_response).and_return(multi_profile)
                     post path, params: data, headers: auth_header

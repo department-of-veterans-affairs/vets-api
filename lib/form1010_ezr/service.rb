@@ -48,6 +48,9 @@ module Form1010Ezr
 
     # @param [HashWithIndifferentAccess] parsed_form JSON form data
     def submit_form(parsed_form)
+      # Log the 'veteranDateOfBirth' to ensure the frontend validation is working as intended
+      # REMOVE THE FOLLOWING TWO LINES OF CODE ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
+      @unprocessed_user_dob = parsed_form['veteranDateOfBirth'].clone
       parsed_form = configure_and_validate_form(parsed_form)
 
       if Flipper.enabled?(:ezr_async, @user)
@@ -92,6 +95,14 @@ module Form1010Ezr
       validation_errors = JSON::Validator.fully_validate(schema, parsed_form)
 
       if validation_errors.present?
+        # REMOVE THE FOLLOWING SIX LINES OF CODE ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
+        if validation_errors.find { |error| error.include?('veteranDateOfBirth') }.present?
+          PersonalInformationLog.create!(
+            data: @unprocessed_user_dob,
+            error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure"
+          )
+        end
+
         log_validation_errors(parsed_form)
 
         Rails.logger.error('10-10EZR form validation failed. Form does not match schema.')

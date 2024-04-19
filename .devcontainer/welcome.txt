@@ -1,0 +1,9 @@
+~~~~~~ Welcome to vets-api on codespaces! ~~~~~~
+
+For more information, see the codespaces README in docs/setup.
+
+~~~~~~ Quickstart ~~~~~
+
+To start vets-api, run this command:
+
+foreman start -m all=1,clamd=0,freshclam=0

@@ -24,6 +24,11 @@ module SimpleFormsApi
       }
     end
 
+    def zip_code_is_us_based
+      # TODO: Implement this
+      true
+    end
+
     def service(num, field, date)
       service_records = data.dig('application', 'veteran', 'service_records')
 
@@ -216,8 +221,8 @@ module SimpleFormsApi
 
     def track_user_identity(confirmation_number); end
 
-    def submission_date_config
-      { should_stamp_date?: false }
+    def submission_date_stamps
+      []
     end
 
     private

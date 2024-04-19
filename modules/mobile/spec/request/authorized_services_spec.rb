@@ -7,6 +7,8 @@ RSpec.describe 'user', type: :request do
   let!(:user) { sis_user }
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
+  before { Flipper.enable('va_online_scheduling') }
+
   describe 'GET /mobile/v0/user/authorized-services' do
     it 'includes a hash with all available services and a boolean value of if the user has access' do
       get '/mobile/v0/user/authorized-services', headers: sis_headers,

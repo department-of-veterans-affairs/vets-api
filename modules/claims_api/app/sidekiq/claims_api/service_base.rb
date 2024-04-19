@@ -53,6 +53,10 @@ module ClaimsApi
         error.original_body
       elsif error.respond_to? :message
         error.message
+      elsif error.respond_to? :errors
+        error.errors
+      elsif error.respond_to? :detailed_message
+        error.detailed_message
       else
         error
       end
@@ -122,6 +126,14 @@ module ClaimsApi
       ClaimsApi::Logger.log(self.class::LOG_TAG,
                             claim_id:,
                             detail:)
+    end
+
+    def extract_poa_code(poa_form_data)
+      if poa_form_data.key?('serviceOrganization')
+        poa_form_data['serviceOrganization']['poaCode']
+      elsif poa_form_data.key?('representative') # V2 2122a
+        poa_form_data['representative']['poaCode']
+      end
     end
   end
 end

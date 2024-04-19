@@ -4,9 +4,11 @@ require 'json_marshal/marshaller'
 
 module AppealsApi
   class SupplementalClaim < ApplicationRecord
+    include AppealScopes
     include ScStatus
     include PdfOutputPrep
     include ModelValidations
+
     required_claimant_headers %w[X-VA-NonVeteranClaimant-First-Name X-VA-NonVeteranClaimant-Last-Name]
 
     attr_readonly :auth_headers
@@ -255,21 +257,7 @@ module AppealsApi
         return if auth_headers.blank? # Go no further if we've removed PII
 
         if status == 'submitted' && email_present?
-          if Flipper.enabled? :decision_review_use_appeal_submitted_job
-            AppealsApi::AppealSubmittedJob.perform_async(id, self.class.name, appellant_local_time.iso8601)
-          else
-            AppealsApi::AppealReceivedJob.perform_async(
-              {
-                receipt_event: 'sc_received',
-                email_identifier:,
-                first_name: veteran.first_name,
-                date_submitted: appellant_local_time.iso8601,
-                guid: id,
-                claimant_email: claimant.email,
-                claimant_first_name: claimant.first_name
-              }.deep_stringify_keys
-            )
-          end
+          AppealsApi::AppealReceivedJob.perform_async(id, self.class.name, appellant_local_time.iso8601)
         end
       end
     end

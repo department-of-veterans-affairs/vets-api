@@ -34,15 +34,31 @@ module SimpleFormsApi
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
         'fileNumber' => @data.dig('veteran', 'ssn'),
-        'zipCode' => @data.dig('veteran', 'address', 'postal_code') || '00000',
+        'zipCode' => @data.dig('veteran', 'address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
     end
 
-    def submission_date_config
-      { should_stamp_date?: false }
+    def zip_code_is_us_based
+      @data.dig('veteran', 'address', 'country') == 'USA'
+    end
+
+    def desired_stamps
+      return [] unless data
+
+      [].tap do |stamps|
+        stamps << { coords: [73, 390], text: 'X' } unless data.dig('previous_sah_application',
+                                                                   'has_previous_sah_application')
+        stamps << { coords: [73, 355], text: 'X' } unless data.dig('previous_hi_application',
+                                                                   'has_previous_hi_application')
+        stamps << { coords: [73, 320], text: 'X' } unless data.dig('living_situation', 'is_in_care_facility')
+      end.compact
+    end
+
+    def submission_date_stamps
+      []
     end
 
     def track_user_identity(confirmation_number); end

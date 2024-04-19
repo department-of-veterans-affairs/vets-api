@@ -6,8 +6,8 @@ module AskVAApi
       around_action :handle_exceptions
       before_action :get_inquiries_by_icn, only: [:index]
       before_action :get_inquiry_by_id, only: [:show]
-      skip_before_action :authenticate, only: %i[unauth_create upload_attachment]
-      skip_before_action :verify_authenticity_token, only: %i[unauth_create upload_attachment]
+      skip_before_action :authenticate, only: %i[unauth_create upload_attachment test_create]
+      skip_before_action :verify_authenticity_token, only: %i[unauth_create upload_attachment test_create]
 
       def index
         render json: @user_inquiries.payload, status: @user_inquiries.status
@@ -15,6 +15,14 @@ module AskVAApi
 
       def show
         render json: @inquiry.payload, status: @inquiry.status
+      end
+
+      def test_create
+        service = Crm::Service.new(icn: nil)
+        payload = { reply: params[:reply] }
+        response = service.call(endpoint: params[:endpoint], method: :put, payload:)
+
+        render json: response.to_json, status: :ok
       end
 
       def create
@@ -46,6 +54,11 @@ module AskVAApi
         render json: serializer.serializable_hash, status: :ok
       end
 
+      def create_reply
+        response = Correspondences::Creator.new(message: params[:reply], inquiry_id: params[:id], service: nil).call
+        render json: response.to_json, status: :ok
+      end
+
       private
 
       def inquiry_params
@@ -54,14 +67,11 @@ module AskVAApi
 
       def get_inquiry_by_id
         inq = retriever.fetch_by_id(id: params[:id])
-
-        raise InvalidInquiryError if inq.is_a?(Hash)
-
         @inquiry = Result.new(payload: Inquiries::Serializer.new(inq).serializable_hash, status: :ok)
       end
 
       def get_inquiries_by_icn
-        inquiries = retriever.fetch_by_icn
+        inquiries = retriever.call
         @user_inquiries = Result.new(payload: Inquiries::Serializer.new(inquiries).serializable_hash, status: :ok)
       end
 
@@ -84,11 +94,11 @@ module AskVAApi
       end
 
       def retriever
-        @retriever ||= Inquiries::Retriever.new(icn: current_user.icn, service: mock_service)
+        entity_class = AskVAApi::Inquiries::Entity
+        @retriever ||= Inquiries::Retriever.new(icn: current_user.icn, user_mock_data: params[:mock], entity_class:)
       end
 
       Result = Struct.new(:payload, :status, keyword_init: true)
-      class InvalidInquiryError < StandardError; end
       class InvalidAttachmentError < StandardError; end
     end
   end

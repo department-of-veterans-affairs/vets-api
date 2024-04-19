@@ -165,6 +165,16 @@ RSpec.describe 'military_information', type: :request do
                  'honorableServiceIndicator' => nil }] } } }
       end
 
+      context 'when user does not have access' do
+        let!(:user) { sis_user(edipi: nil) }
+
+        it 'returns forbidden' do
+          get '/mobile/v0/military-service-history', headers: sis_headers
+
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
       context 'with multiple military service episodes' do
         it 'matches the mobile service history schema' do
           VCR.use_cassette('mobile/va_profile/post_read_service_histories_200') do
@@ -223,7 +233,6 @@ RSpec.describe 'military_information', type: :request do
       context 'when military history discharge code is unknown' do
         it 'logs an error and sets discharge values to nil' do
           VCR.use_cassette('mobile/va_profile/post_read_service_histories_200_unknown_discharge_code') do
-            expect(Rails.logger).to receive(:error).with('Invalid discharge code', { code: 'Unknown' })
             get '/mobile/v0/military-service-history', headers: sis_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_unknown_discharge)
@@ -240,15 +249,6 @@ RSpec.describe 'military_information', type: :request do
       it 'returns not found when requesting non-existent path' do
         get '/mobile/v0/military-service-history/doesnt-exist'
         expect(response).to have_http_status(:not_found)
-      end
-    end
-
-    context 'with a user not authorized' do
-      let!(:user) { sis_user(edipi: nil) }
-
-      it 'returns a forbidden response' do
-        get '/mobile/v0/military-service-history', headers: sis_headers
-        expect(response).to have_http_status(:forbidden)
       end
     end
   end

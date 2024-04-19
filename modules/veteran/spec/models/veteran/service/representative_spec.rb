@@ -25,50 +25,31 @@ describe Veteran::Service::Representative, type: :model do
   end
 
   describe 'finding by identity' do
-    let(:rep) do
+    let(:representative) do
       FactoryBot.create(:representative,
-                        basic_attributes.merge!(ssn: identity.ssn, dob: identity.birth_date))
+                        basic_attributes)
     end
 
     before do
       identity
-      rep
+      representative
     end
 
-    describe 'finding by all fields' do
-      it 'finds a user by name, ssn, and dob' do
+    describe 'finding by the name' do
+      it 'finds a user' do
         expect(Veteran::Service::Representative.for_user(
           first_name: identity.first_name,
-          last_name: identity.last_name,
-          dob: identity.birth_date,
-          ssn: identity.ssn
-        ).id).to eq(rep.id)
+          last_name: identity.last_name
+        ).id).to eq(representative.id)
       end
 
       it 'finds right user when 2 with the same name exist' do
         FactoryBot.create(:representative,
-                          basic_attributes.merge!(ssn: '123-45-6789', dob: '1929-10-01'))
-        expect(Veteran::Service::Representative.for_user(
-          first_name: identity.first_name,
-          last_name: identity.last_name,
-          dob: identity.birth_date,
-          ssn: identity.ssn
-        ).id).to eq(rep.id)
-      end
-    end
-
-    describe 'finding by the name only' do
-      it 'finds a user by name fields' do
-        rep = FactoryBot.create(:representative, first_name: 'Bob', last_name: 'Smith')
-        identity = FactoryBot.create(:user_identity, first_name: rep.first_name, last_name: rep.last_name)
-        Veteran::Service::Representative.for_user(
-          first_name: identity.first_name,
-          last_name: identity.last_name
-        )
+                          basic_attributes)
         expect(Veteran::Service::Representative.for_user(
           first_name: identity.first_name,
           last_name: identity.last_name
-        ).id).to eq(rep.id)
+        ).id).to eq(representative.id)
       end
     end
   end
@@ -118,26 +99,26 @@ describe Veteran::Service::Representative, type: :model do
     describe '#set_full_name' do
       context 'creating a new representative' do
         it 'sets the full_name attribute as first_name + last_name' do
-          rep = described_class.new(representative_id: 'abc', poa_codes: ['123'], first_name: 'Joe',
-                                    last_name: 'Smith')
+          representative = described_class.new(representative_id: 'abc', poa_codes: ['123'], first_name: 'Joe',
+                                               last_name: 'Smith')
 
-          expect(rep.full_name).to be_nil
+          expect(representative.full_name).to be_nil
 
-          rep.save!
+          representative.save!
 
-          expect(rep.reload.full_name).to eq('Joe Smith')
+          expect(representative.reload.full_name).to eq('Joe Smith')
         end
       end
 
       context 'updating an existing representative' do
         it 'sets the full_name attribute as first_name + last_name' do
-          rep = create(:representative, first_name: 'Joe', last_name: 'Smith')
+          representative = create(:representative, first_name: 'Joe', last_name: 'Smith')
 
-          expect(rep.full_name).to eq('Joe Smith')
+          expect(representative.full_name).to eq('Joe Smith')
 
-          rep.update(first_name: 'Bob')
+          representative.update(first_name: 'Bob')
 
-          expect(rep.reload.full_name).to eq('Bob Smith')
+          expect(representative.reload.full_name).to eq('Bob Smith')
         end
       end
     end

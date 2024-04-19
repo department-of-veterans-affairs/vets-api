@@ -7,7 +7,7 @@ module Crm
     attr_reader :icn, :logger, :settings, :base_uri, :token
 
     BASE_URI = 'https://dev.integration.d365.va.gov'
-    VEIS_API_PATH = 'veis/vagov.lob.ava/api'
+    VEIS_API_PATH = 'eis/vagov.lob.ava/api'
 
     def_delegators :settings,
                    :base_url,

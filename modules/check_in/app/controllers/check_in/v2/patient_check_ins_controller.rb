@@ -7,7 +7,8 @@ module CheckIn
       after_action :after_logger, only: %i[show create]
 
       def show
-        check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id], handoff: handoff? },
+        check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id], handoff: handoff?,
+                                                              facility_type: params[:facilityType] },
                                                       jwt: low_auth_token)
 
         unless check_in_session.authorized?
@@ -16,13 +17,11 @@ module CheckIn
 
         check_in_data = ::V2::Lorota::Service.build(check_in: check_in_session).check_in_data
 
-        if Flipper.enabled?('check_in_experience_45_minute_reminder')
-          if call_set_echeckin_started?(check_in_data)
-            ::V2::Chip::Service.build(check_in: check_in_session).set_echeckin_started
-            params[:set_e_checkin_started_called] = false
-          else
-            params[:set_e_checkin_started_called] = true
-          end
+        if call_set_echeckin_started?(check_in_data)
+          ::V2::Chip::Service.build(check_in: check_in_session).set_echeckin_started
+          params[:set_e_checkin_started_called] = false
+        else
+          params[:set_e_checkin_started_called] = true
         end
 
         render json: check_in_data

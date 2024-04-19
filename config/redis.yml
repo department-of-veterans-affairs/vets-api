@@ -197,6 +197,9 @@ test:
   <<: *defaults
   redis:
     inherit_socket: true
+    url: <%= Settings.redis.app_data.url %>
+  sidekiq:
+    url: <%= Settings.redis.sidekiq.url %>
 
 production:
   <<: *defaults

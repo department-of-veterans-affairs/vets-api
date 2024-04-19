@@ -39,8 +39,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               },
               representative: {
                 poaCode: individual_poa_code,
-                firstName: 'my',
-                lastName: 'name',
+                registrationNumber: '12345',
                 type: 'ATTORNEY',
                 address: {
                   addressLine1: '123',
@@ -69,8 +68,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               },
               representative: {
                 poaCode: individual_poa_code,
-                firstName: 'my',
-                lastName: 'name',
+                registrationNumber: '12345',
                 type: 'ATTORNEY',
                 address: {
                   addressLine1: '123',
@@ -81,8 +79,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
                 }
               },
               claimant: {
-                firstName: 'first',
-                lastName: 'last',
+                claimantId: '1013062086V794840',
                 address: {
                   addressLine1: '123',
                   city: 'city',
@@ -112,15 +109,16 @@ RSpec.describe 'Power Of Attorney', type: :request do
         context 'when provided' do
           context 'when valid' do
             it 'returns a 202' do
-              mock_ccg(scopes) do |auth_header|
-                expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
-                  .and_return(bgs_poa)
-                allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
-                  .and_return({ person_poa_history: nil })
+              VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                mock_ccg(scopes) do |auth_header|
+                  expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                    .and_return(bgs_poa)
+                  allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                    .and_return({ person_poa_history: nil })
 
-                post appoint_individual_path, params: data.to_json, headers: auth_header
-
-                expect(response).to have_http_status(:accepted)
+                  post appoint_individual_path, params: data.to_json, headers: auth_header
+                  expect(response).to have_http_status(:accepted)
+                end
               end
             end
           end
@@ -147,8 +145,9 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
               it 'returns a 202 when all conditionally required data is present' do
                 mock_ccg(scopes) do |auth_header|
-                  post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
-
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                    post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
+                  end
                   expect(response).to have_http_status(:accepted)
                 end
               end
@@ -156,9 +155,9 @@ RSpec.describe 'Power Of Attorney', type: :request do
               it 'returns a 422 if claimant.address.addressLine1 is not provided' do
                 mock_ccg(scopes) do |auth_header|
                   claimant_data[:data][:attributes][:claimant][:address][:addressLine1] = nil
-
-                  post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
-
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                    post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
+                  end
                   expect(response).to have_http_status(:unprocessable_entity)
                   response_body = JSON.parse(response.body)
                   expect(response_body['errors'][0]['detail']).to eq(
@@ -170,9 +169,9 @@ RSpec.describe 'Power Of Attorney', type: :request do
               it 'returns a 422 if claimant.address.city is not provided' do
                 mock_ccg(scopes) do |auth_header|
                   claimant_data[:data][:attributes][:claimant][:address][:city] = nil
-
-                  post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
-
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                    post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
+                  end
                   expect(response).to have_http_status(:unprocessable_entity)
                   response_body = JSON.parse(response.body)
                   expect(response_body['errors'][0]['detail']).to eq(
@@ -184,9 +183,9 @@ RSpec.describe 'Power Of Attorney', type: :request do
               it 'returns a 422 if claimant.address.stateCode is not provided' do
                 mock_ccg(scopes) do |auth_header|
                   claimant_data[:data][:attributes][:claimant][:address][:stateCode] = nil
-
-                  post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
-
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                    post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
+                  end
                   expect(response).to have_http_status(:unprocessable_entity)
                   response_body = JSON.parse(response.body)
                   expect(response_body['errors'][0]['detail']).to eq(
@@ -198,9 +197,9 @@ RSpec.describe 'Power Of Attorney', type: :request do
               it 'returns a 422 if claimant.address.country is not provided' do
                 mock_ccg(scopes) do |auth_header|
                   claimant_data[:data][:attributes][:claimant][:address][:country] = nil
-
-                  post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
-
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                    post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
+                  end
                   expect(response).to have_http_status(:unprocessable_entity)
                   response_body = JSON.parse(response.body)
                   expect(response_body['errors'][0]['detail']).to eq(
@@ -212,9 +211,9 @@ RSpec.describe 'Power Of Attorney', type: :request do
               it 'returns a 422 if claimant.address.zipCode is not provided' do
                 mock_ccg(scopes) do |auth_header|
                   claimant_data[:data][:attributes][:claimant][:address][:zipCode] = nil
-
-                  post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
-
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                    post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
+                  end
                   expect(response).to have_http_status(:unprocessable_entity)
                   response_body = JSON.parse(response.body)
                   expect(response_body['errors'][0]['detail']).to eq(
@@ -224,16 +223,17 @@ RSpec.describe 'Power Of Attorney', type: :request do
               end
 
               it 'returns a 422 if claimant.relationship is not provided' do
-                mock_ccg(scopes) do |auth_header|
-                  claimant_data[:data][:attributes][:claimant][:relationship] = nil
+                VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                  mock_ccg(scopes) do |auth_header|
+                    claimant_data[:data][:attributes][:claimant][:relationship] = nil
 
-                  post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
-
-                  expect(response).to have_http_status(:unprocessable_entity)
-                  response_body = JSON.parse(response.body)
-                  expect(response_body['errors'][0]['detail']).to eq(
-                    "If claimant is present 'relationship' must be filled in"
-                  )
+                    post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
+                    expect(response).to have_http_status(:unprocessable_entity)
+                    response_body = JSON.parse(response.body)
+                    expect(response_body['errors'][0]['detail']).to eq(
+                      "If claimant is present 'relationship' must be filled in"
+                    )
+                  end
                 end
               end
             end
@@ -257,8 +257,6 @@ RSpec.describe 'Power Of Attorney', type: :request do
               },
               representative: {
                 poaCode: individual_poa_code,
-                firstName: 'my',
-                lastName: 'name',
                 type: 'ATTORNEY',
                 address: {
                   addressLine1: '123',
@@ -348,10 +346,10 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
                     it 'returns a meaningful 404' do
                       mock_ccg(%w[claim.write claim.read]) do |auth_header|
-                        detail = 'Could not find an Accredited Representative with code: aaa'
+                        detail = 'Could not find an Accredited Representative with registration number: 67890 ' \
+                                 'and poa code: aaa'
 
                         post validate2122a_path, params: request_body, headers: auth_header
-
                         response_body = JSON.parse(response.body)['errors'][0]
 
                         expect(response).to have_http_status(:not_found)
@@ -377,6 +375,45 @@ RSpec.describe 'Power Of Attorney', type: :request do
                         expect(response).to have_http_status(:ok)
                         expect(response_body['type']).to eq('form/21-22a/validation')
                         expect(response_body['attributes']['status']).to eq('valid')
+                      end
+                    end
+                  end
+
+                  context 'when no claimantId is provided and other claimant data is present' do
+                    let(:request_body) do
+                      Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                      'power_of_attorney', '2122a', 'valid.json').read
+                    end
+
+                    let(:claimant) do
+                      {
+                        email: 'lillian@disney.com',
+                        relationship: 'Spouse',
+                        address: {
+                          addressLine1: '2688 S Camino Real',
+                          city: 'Palm Springs',
+                          stateCode: 'CA',
+                          country: 'US',
+                          zipCode: '92264'
+                        },
+                        phone: {
+                          areaCode: '555',
+                          phoneNumber: '5551337'
+                        }
+                      }
+                    end
+                    let(:error_msg) { "If claimant is present 'claimantId' must be filled in" }
+
+                    it 'returns a meaningful 422' do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        json = JSON.parse(request_body)
+                        json['data']['attributes']['claimant'] = claimant
+                        request_body = json.to_json
+                        post validate2122a_path, params: request_body, headers: auth_header
+
+                        response_body = JSON.parse(response.body)['errors'][0]
+                        expect(response).to have_http_status(:unprocessable_entity)
+                        expect(response_body['detail']).to eq(error_msg)
                       end
                     end
                   end

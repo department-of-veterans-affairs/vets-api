@@ -17,7 +17,11 @@ module SimpleFormsApi
     def metadata
       {
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
+        'veteranMiddleName' => @data.dig('veteran', 'full_name', 'middle'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
+        'sponsorFirstName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'first'),
+        'sponsorMiddleName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'middle'),
+        'sponsorLastName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'last'),
         'fileNumber' => @data.dig('veteran', 'va_claim_number').presence || @data.dig('veteran', 'ssn_or_tin'),
         'zipCode' => @data.dig('veteran', 'address', 'postal_code') || '00000',
         'source' => 'VA Platform Digital Forms',
@@ -26,6 +30,11 @@ module SimpleFormsApi
         'ssn_or_tin' => @data.dig('veteran', 'ssn_or_tin'),
         'uuid' => @uuid
       }
+    end
+
+    def zip_code_is_us_based
+      # TODO: Implement this
+      true
     end
 
     def handle_attachments(file_path)
@@ -47,8 +56,8 @@ module SimpleFormsApi
       file_paths
     end
 
-    def submission_date_config
-      { should_stamp_date?: false }
+    def submission_date_stamps
+      []
     end
 
     def track_user_identity(confirmation_number)

@@ -10,10 +10,12 @@ AskVAApi::Engine.routes.draw do
     get '/inquiries/:id', to: 'inquiries#show'
     get '/inquiries/:id/status', to: 'inquiries#status'
     get '/download_attachment', to: 'inquiries#download_attachment'
+    get '/profile', to: 'inquiries#profile'
     post '/inquiries/auth', to: 'inquiries#create'
     post '/inquiries', to: 'inquiries#unauth_create'
     post '/upload_attachment', to: 'inquiries#upload_attachment'
-    get '/profile', to: 'inquiries#profile'
+    post '/inquiries/:id/reply/new', to: 'inquiries#create_reply'
+    post '/test_create', to: 'inquiries#test_create'
 
     # static_data
     get '/categories', to: 'static_data#categories'

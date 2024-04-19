@@ -12,7 +12,7 @@
     "va_file_number": "123456789"
   },
   "living_situation": {
-    "NONE": true
+    "none": true
   },
   "mailing_address_yes_no": true,
   "non_veteran_mailing_address": {
@@ -37,13 +37,13 @@
   },
   "veteran_insurance_file_number": "987654321",
   "other_reasons": {
-    "FINANCIAL_HARDSHIP": true,
-    "ALS": true,
-    "TERMINAL_ILLNESS": true,
-    "VSI_SI": true,
-    "OVER_85": true,
-    "FORMER_POW": true,
-    "MEDAL_AWARD": true
+    "financial_hardship": true,
+    "als": true,
+    "terminal_illness": true,
+    "vsi_si": true,
+    "over_85": true,
+    "former_pow": true,
+    "medal_award": true
   },
   "pow_confinement_start_date": "2013-01-01",
   "pow_confinement_end_date": "2013-01-02",
@@ -52,7 +52,7 @@
   "pow_confinement2_end_date": "2013-01-04",
   "medical_treatments": [
     {
-      "facility_name": "Guido’s Trailer",
+      "facility_name": "Facility Name1",
       "facility_address": {
         "country": "USA",
         "street": "123 Any St",
@@ -60,10 +60,10 @@
         "state": "CA",
         "postal_code": "12345"
       },
-      "startDate": "2013-01-05"
+      "start_date": "2013-01-05"
     },
     {
-      "facility_name": "Guido’s Garage",
+      "facility_name": "Facility Name2",
       "facility_address": {
         "country": "USA",
         "street": "123 Any St",
