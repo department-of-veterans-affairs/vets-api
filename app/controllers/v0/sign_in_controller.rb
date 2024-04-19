@@ -180,23 +180,20 @@ module V0
         raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
       end
 
-      user_verification = nil
-
       if (session = SignIn::OAuthSession.find_by(handle: @access_token&.session_handle))
-        user_verification = session.user_verification
+        credential_type = session.user_verification.credential_type
         client_id = session.client_id if client_id.blank?
         anti_csrf_token = anti_csrf_token_param.presence
 
         SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token:).perform
         delete_cookies if token_cookies
-        logout_redirect = SignIn::LogoutRedirectGenerator.new(user_verification:,
+        logout_redirect = SignIn::LogoutRedirectGenerator.new(credential_type:,
                                                               client_config: client_config(client_id)).perform
         sign_in_logger.info('logout', @access_token.to_s)
         StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS)
       else
-        user_verification = OpenStruct.new(credential_type: nil)
         delete_cookies if token_cookies
-        logout_redirect = SignIn::LogoutRedirectGenerator.new(user_verification:,
+        logout_redirect = SignIn::LogoutRedirectGenerator.new(credential_type: nil,
                                                               client_config: client_config(client_id)).perform
         sign_in_logger.info('logout error', { errors: 'No valid Session found' })
         StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
@@ -207,7 +204,8 @@ module V0
       sign_in_logger.info('logout error', { errors: e.message })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
 
-      logout_redirect = SignIn::LogoutRedirectGenerator.new(user_verification:,
+      credential_type = nil unless defined?(credential_type)
+      logout_redirect = SignIn::LogoutRedirectGenerator.new(credential_type:,
                                                             client_config: client_config(client_id)).perform
 
       logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)

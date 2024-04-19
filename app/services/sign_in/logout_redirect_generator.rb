@@ -4,10 +4,10 @@ require 'sign_in/logingov/service'
 
 module SignIn
   class LogoutRedirectGenerator
-    attr_reader :user_verification, :client_config
+    attr_reader :credential_type, :client_config
 
-    def initialize(user_verification:, client_config:)
-      @user_verification = user_verification
+    def initialize(credential_type:, client_config:)
+      @credential_type = credential_type
       @client_config = client_config
     end
 
@@ -28,7 +28,7 @@ module SignIn
     end
 
     def authenticated_with_logingov?
-      user_verification.credential_type == Constants::Auth::LOGINGOV
+      credential_type == Constants::Auth::LOGINGOV
     end
 
     def logout_redirect_uri
