@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-require 'nokogiri'
-
 module ClaimsApi
   class SoapErrorHandler
     # list of fault codes: https://hub.verj.io/ebase/doc/SOAP_Faults.htm
 
-    def handle_errors(response)
-      @hash = Hash.from_xml(response.body)
+    def handle_errors!(body)
+      @hash = body
 
       return if @hash&.dig('Envelope', 'Body', 'Fault').blank?
 
