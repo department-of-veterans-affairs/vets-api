@@ -71,7 +71,7 @@ jobs:
           fetch-depth: 1
           path: vsp-infra-application-manifests
 
-      - name: Update vets-api image name in Manifest repo for parent helm
+      - name: Update vets-api image and version name in Manifest repo for parent helm
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
@@ -80,7 +80,10 @@ jobs:
           envs=( ${{ needs.prepare-values.outputs.environments }} )
           for env in ${envs[*]};
           do
-            yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".image.tag) |= "${{ github.sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".web.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ github.sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".web.dbMigrate.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ github.sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".worker.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ github.sha }}"' $env/values.yaml
           done
           git diff
 
