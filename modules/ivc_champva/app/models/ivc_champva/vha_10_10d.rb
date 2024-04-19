@@ -23,6 +23,7 @@ module IvcChampva
         'sponsorLastName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'last'),
         'fileNumber' => @data.dig('veteran', 'va_claim_number').presence || @data.dig('veteran', 'ssn_or_tin'),
         'zipCode' => @data.dig('veteran', 'address', 'postal_code') || '00000',
+        'country' => @data.dig('veteran', 'address', 'country') || 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP',
