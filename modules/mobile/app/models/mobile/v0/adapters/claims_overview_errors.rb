@@ -21,6 +21,10 @@ module Mobile
           else
             error.message
           end
+        rescue => e
+          # remove rescue once it's confirmed that plucking does not cause errors
+          Rails.logger.error('Claims overview error detail parsing error', e)
+          'Unknown Error'
         end
       end
     end
