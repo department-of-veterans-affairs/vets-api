@@ -17,9 +17,8 @@ x-app: &common
   restart: unless-stopped
   volumes:
     - "../vets-api-mockdata:/cache"
-    - .:/app:cached
+    - .:/srv/vets-api/src:cached
     - shared-vol:/tmp
-  working_dir: /app
   depends_on:
     - clamav
     - postgres

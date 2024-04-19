@@ -19,9 +19,9 @@ ENV RAILS_ENV=$RAILS_ENV \
   BUNDLER_VERSION=2.4.9
 
 RUN groupadd --gid $USER_ID nonroot \
-  && useradd --uid $USER_ID --gid nonroot --shell /bin/bash --create-home nonroot --home-dir /app
+  && useradd --uid $USER_ID --gid nonroot --shell /bin/bash --create-home nonroot --home-dir /srv/vets-api
 
-WORKDIR /app
+WORKDIR /srv/vets-api/src
 
 RUN echo "deb http://ftp.debian.org/debian testing main contrib non-free" >> /etc/apt/sources.list
 RUN apt-get update
