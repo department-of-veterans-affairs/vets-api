@@ -5,8 +5,10 @@ require 'sign_in/logger'
 module V0
   class SignInController < SignIn::ApplicationController
     skip_before_action :authenticate,
-                       only: %i[authorize callback token refresh revoke logout logingov_logout_proxy]
+                       only: %i[authorize callback token refresh revoke revoke_all_sessions logout
+                                logingov_logout_proxy]
     before_action -> { access_token_authenticate(skip_expiration_check: true) }, only: %i[logout]
+    before_action :access_token_authenticate, only: %i[revoke_all_sessions]
 
     def authorize # rubocop:disable Metrics/MethodLength
       type = params[:type].presence
@@ -162,7 +164,9 @@ module V0
     end
 
     def revoke_all_sessions
-      SignIn::RevokeSessionsForUser.new(user_account: @current_user.user_account).perform
+      session = SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
+      user_account = UserAccount.find(session.user_account_id)
+      SignIn::RevokeSessionsForUser.new(user_account:).perform
 
       sign_in_logger.info('revoke all sessions', @access_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS)
