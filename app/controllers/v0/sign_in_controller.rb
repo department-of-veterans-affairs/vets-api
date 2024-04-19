@@ -58,20 +58,24 @@ module V0
       SignIn::StatePayloadVerifier.new(state_payload:).perform
 
       handle_credential_provider_error(error, state_payload&.type) if error
-      service_token_response = auth_service(state_payload.type, state_payload.client_id).token(code)
 
+      client_configuration = SignIn::ClientConfig.find_by(client_id: state_payload.client_id)
+      authentication_service = SignIn::AuthenticationServiceRetriever.new(
+        type: state_payload.type, client_config: client_configuration
+      ).perform
+      service_token_response = authentication_service.token(code)
       raise SignIn::Errors::CodeInvalidError.new message: 'Code is not valid' unless service_token_response
 
-      user_info = auth_service(state_payload.type,
-                               state_payload.client_id).user_info(service_token_response[:access_token])
+      user_info = authentication_service.user_info(service_token_response[:access_token])
+
       credential_level = SignIn::CredentialLevelCreator.new(requested_acr: state_payload.acr,
                                                             type: state_payload.type,
                                                             logingov_acr: service_token_response[:logingov_acr],
                                                             user_info:).perform
       if credential_level.can_uplevel_credential?
-        render_uplevel_credential(state_payload)
+        render_uplevel_credential(state_payload, client_configuration, authentication_service)
       else
-        create_login_code(state_payload, user_info, credential_level)
+        create_login_code(state_payload, user_info, credential_level, authentication_service)
       end
     rescue SignIn::Errors::StandardError => e
       sign_in_logger.info('callback error', { errors: e.message,
@@ -269,10 +273,11 @@ module V0
     end
 
     def handle_pre_login_error(error, client_id)
-      if cookie_authentication?(client_id)
+      client_configuration = @client_config || SignIn::ClientConfig.find_by(client_id:)
+      if client_configuration&.cookie_auth?
         error_code = error.try(:code) || SignIn::Constants::ErrorCode::INVALID_REQUEST
         params_hash = { auth: 'fail', code: error_code, request_id: request.request_id }
-        render body: SignIn::RedirectUrlGenerator.new(redirect_uri: client_config(client_id).redirect_uri,
+        render body: SignIn::RedirectUrlGenerator.new(redirect_uri: client_configuration.redirect_uri,
                                                       params_hash:).perform,
                content_type: 'text/html'
       else
@@ -296,21 +301,19 @@ module V0
       end
     end
 
-    def render_uplevel_credential(state_payload)
+    def render_uplevel_credential(state_payload, client_config, auth_service)
       acr_for_type = SignIn::AcrTranslator.new(acr: state_payload.acr, type: state_payload.type, uplevel: true).perform
       state = SignIn::StatePayloadJwtEncoder.new(code_challenge: state_payload.code_challenge,
                                                  code_challenge_method: SignIn::Constants::Auth::CODE_CHALLENGE_METHOD,
                                                  acr: state_payload.acr,
-                                                 client_config: client_config(state_payload.client_id),
+                                                 client_config:,
                                                  type: state_payload.type,
                                                  client_state: state_payload.client_state).perform
-      render body: auth_service(state_payload.type, state_payload.client_id).render_auth(state:, acr: acr_for_type),
-             content_type: 'text/html'
+      render body: auth_service.render_auth(state:, acr: acr_for_type), content_type: 'text/html'
     end
 
-    def create_login_code(state_payload, user_info, credential_level) # rubocop:disable Metrics/MethodLength
-      user_attributes = auth_service(state_payload.type,
-                                     state_payload.client_id).normalized_attributes(user_info, credential_level)
+    def create_login_code(state_payload, user_info, credential_level, auth_service) # rubocop:disable Metrics/MethodLength
+      user_attributes = auth_service.normalized_attributes(user_info, credential_level)
       verified_icn = SignIn::AttributeValidator.new(user_attributes:).perform
       user_code_map = SignIn::UserCodeMapCreator.new(
         user_attributes:, state_payload:, verified_icn:, request_ip: request.remote_ip
@@ -362,10 +365,6 @@ module V0
 
     def auth_service(type, client_id = nil)
       SignIn::AuthenticationServiceRetriever.new(type:, client_config: client_config(client_id)).perform
-    end
-
-    def cookie_authentication?(client_id)
-      client_config(client_id)&.cookie_auth?
     end
 
     def client_config(client_id)
