@@ -6,7 +6,7 @@ module IvcChampva
   class PdfFiller
     attr_accessor :form, :form_number, :name
 
-    TEMPLATE_BASE = Rails.root.join('modules', 'simple_forms_api', 'templates')
+    TEMPLATE_BASE = Rails.root.join('modules', 'ivc_champva', 'templates')
 
     def initialize(form_number:, form:, name: nil)
       @form = form
