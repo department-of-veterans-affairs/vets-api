@@ -12,10 +12,28 @@ require_relative 'local_bgs/miscellaneous_operations'
 
 module ClaimsApi
   class LocalBGS
+    class << self
+      def breakers_service
+        url = URI.parse(Settings.bgs.url)
+        matcher = proc do |request_env|
+          request_env.url.host == url.host &&
+            request_env.url.port == url.port &&
+            request_env.url.path =~ /^#{url.path}/
+        end
+
+        Breakers::Service.new(
+          name: 'BGS/Claims',
+          request_matcher: matcher
+        )
+      end
+    end
+
     attr_accessor :external_uid, :external_key
 
-    # rubocop:disable Metrics/MethodLength
-    def initialize(external_uid:, external_key:)
+    def initialize( # rubocop:disable Metrics/MethodLength
+      external_uid: Settings.bgs.external_uid,
+      external_key: Settings.bgs.external_key
+    )
       @client_ip =
         if Rails.env.test?
           # For all intents and purposes, BGS behaves identically no matter what
@@ -43,70 +61,79 @@ module ClaimsApi
       @env = Settings.bgs.env
       @mock_response_location = Settings.bgs.mock_response_location
       @mock_responses = Settings.bgs.mock_responses
-      @external_uid = external_uid || Settings.bgs.external_uid
-      @external_key = external_key || Settings.bgs.external_key
+      @external_uid = external_uid
+      @external_key = external_key
       @forward_proxy_url = Settings.bgs.url
       @timeout = Settings.bgs.timeout || 120
-    end
-    # rubocop:enable Metrics/MethodLength
-
-    def self.breakers_service
-      url = Settings.bgs.url
-      path = URI.parse(url).path
-      host = URI.parse(url).host
-      port = URI.parse(url).port
-      matcher = proc do |request_env|
-        request_env.url.host == host &&
-          request_env.url.port == port &&
-          request_env.url.path =~ /^#{path}/
-      end
-
-      Breakers::Service.new(
-        name: 'BGS/Claims',
-        request_matcher: matcher
-      )
-    end
-
-    def bean_name
-      raise 'Not Implemented'
+      @url = Settings.bgs.url
     end
 
     def healthcheck(endpoint)
-      connection = Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode })
-      wsdl = connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
-      wsdl.status
+      response = fetch_wsdl(endpoint)
+      response.status
+    end
+
+    def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
+      begin
+        wsdl =
+          log_duration(event: 'connection_wsdl_get', endpoint:) do
+            fetch_wsdl(endpoint).body
+          end
+
+        request_body =
+          log_duration(event: 'built_request', endpoint:, action:) do
+            wsdl_body = Hash.from_xml(wsdl)
+            namespace = wsdl_body.dig('definitions', 'targetNamespace').to_s
+
+            wrap_request_body(
+              body,
+              action:,
+              namespace:,
+              namespaces:
+            )
+          end
+
+        response =
+          log_duration(event: 'connection_post', endpoint:, action:) do
+            connection.post(endpoint) do |req|
+              req.body = request_body
+
+              req.headers.merge!(
+                'Content-Type' => 'text/xml;charset=UTF-8',
+                'Host' => "#{@env}.vba.va.gov",
+                'Soapaction' => %("#{action}")
+              )
+            end
+          end
+      rescue Faraday::TimeoutError, Faraday::ConnectionFailed => e
+        detail = "local BGS Faraday Timeout: #{e.message}"
+        ClaimsApi::Logger.log('local_bgs', retry: true, detail:)
+
+        raise ::Common::Exceptions::BadGateway
+      end
+
+      log_duration(event: 'parsed_response', key:) do
+        response_body = Hash.from_xml(response.body)
+        soap_error_handler.handle_errors!(response_body)
+
+        unwrap_response_body(
+          response_body,
+          transform: transform_response,
+          action:,
+          key:
+        )
+      end
     end
 
     private
 
-    def header # rubocop:disable Metrics/MethodLength
-      # Stock XML structure {{{
-      header = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <env:Header>
-          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
-            <wsse:UsernameToken>
-              <wsse:Username></wsse:Username>
-            </wsse:UsernameToken>
-            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-              <vaws:CLIENT_MACHINE></vaws:CLIENT_MACHINE>
-              <vaws:STN_ID></vaws:STN_ID>
-              <vaws:applicationName></vaws:applicationName>
-              <vaws:ExternalUid ></vaws:ExternalUid>
-              <vaws:ExternalKey></vaws:ExternalKey>
-            </vaws:VaServiceHeaders>
-          </wsse:Security>
-        </env:Header>
-      EOXML
-
-      { Username: @client_username, CLIENT_MACHINE: @client_ip,
-        STN_ID: @client_station_id, applicationName: @application,
-        ExternalUid: @external_uid, ExternalKey: @external_key }.each do |k, v|
-        header.xpath(".//*[local-name()='#{k}']")[0].content = v
+    def fetch_wsdl(endpoint)
+      connection.get(endpoint) do |req|
+        req.params['WSDL'] = nil
       end
-      header.to_s
     end
 
-    def full_body(action:, body:, namespace:, namespaces:)
+    def wrap_request_body(body, action:, namespace:, namespaces:) # rubocop:disable Metrics/MethodLength
       namespaces =
         namespaces.map do |aliaz, path|
           uri = URI(namespace)
@@ -114,26 +141,41 @@ module ClaimsApi
           %(xmlns:#{aliaz}="#{uri}")
         end
 
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
+      <<~EOXML
         <?xml version="1.0" encoding="UTF-8"?>
-          <env:Envelope
-            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tns="#{namespace}"
-            xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
-            #{namespaces.join("\n")}
-          >
-          #{header}
+        <env:Envelope
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:tns="#{namespace}"
+          xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+          #{namespaces.join("\n")}
+        >
+          <env:Header>
+            <wsse:Security
+              xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+            >
+              <wsse:UsernameToken>
+                <wsse:Username>#{@client_username}</wsse:Username>
+              </wsse:UsernameToken>
+              <vaws:VaServiceHeaders
+                xmlns:vaws="http://vbawebservices.vba.va.gov/vawss"
+              >
+                <vaws:CLIENT_MACHINE>#{@client_ip}</vaws:CLIENT_MACHINE>
+                <vaws:STN_ID>#{@client_station_id}</vaws:STN_ID>
+                <vaws:applicationName>#{@application}</vaws:applicationName>
+                <vaws:ExternalUid>#{@external_uid}</vaws:ExternalUid>
+                <vaws:ExternalKey>#{@external_key}</vaws:ExternalKey>
+              </vaws:VaServiceHeaders>
+            </wsse:Security>
+          </env:Header>
           <env:Body>
             <tns:#{action}>#{body}</tns:#{action}>
           </env:Body>
-          </env:Envelope>
+        </env:Envelope>
       EOXML
-      body.to_s
     end
 
-    def parsed_response(response, action:, key:, transform:)
-      body = Hash.from_xml(response.body)
+    def unwrap_response_body(body, action:, key:, transform:)
       keys = ['Envelope', 'Body', "#{action}Response"]
       keys << key if key.present?
 
@@ -146,43 +188,17 @@ module ClaimsApi
       end
     end
 
-    def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
-      connection = log_duration event: 'establish_ssl_connection' do
-        Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
+    def soap_error_handler
+      ClaimsApi::SoapErrorHandler.new
+    end
+
+    def connection
+      @connection ||=
+        Faraday.new(@url, ssl: { verify_mode: @ssl_verify_mode }) do |f|
           f.use :breakers
           f.adapter Faraday.default_adapter
+          f.options.timeout = @timeout
         end
-      end
-      connection.options.timeout = @timeout
-
-      begin
-        wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
-          connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
-        end
-
-        url = "#{Settings.bgs.url}/#{endpoint}"
-        namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace').to_s
-        body = full_body(action:, body:, namespace:, namespaces:)
-        headers = {
-          'Content-Type' => 'text/xml;charset=UTF-8',
-          'Host' => "#{@env}.vba.va.gov",
-          'Soapaction' => %("#{action}")
-        }
-
-        response = log_duration(event: 'connection_post', endpoint:, action:) do
-          connection.post(url, body, headers)
-        end
-      rescue Faraday::TimeoutError, Faraday::ConnectionFailed => e
-        ClaimsApi::Logger.log('local_bgs',
-                              retry: true,
-                              detail: "local BGS Faraday Timeout: #{e.message}")
-        raise ::Common::Exceptions::BadGateway
-      end
-      soap_error_handler.handle_errors(response) if response
-
-      log_duration(event: 'parsed_response', key:) do
-        parsed_response(response, action:, key:, transform: transform_response)
-      end
     end
 
     def log_duration(event: 'default', **extra_params)
@@ -197,10 +213,6 @@ module ClaimsApi
       ClaimsApi::Logger.log 'local_bgs', **event_for_log
       StatsD.measure("api.claims_api.local_bgs.#{event}.duration", duration, tags: {})
       result
-    end
-
-    def soap_error_handler
-      ClaimsApi::SoapErrorHandler.new
     end
   end
 end
