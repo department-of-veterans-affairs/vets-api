@@ -127,49 +127,4 @@ describe ClaimsApi::VeteranRepresentativeService, metadata do
       end
     end
   end
-
-  describe '#read_all_veteran_representatives_thread' do
-    subject do
-      service = described_class.new(**header_params)
-      service.read_all_veteran_representatives_thread(**params)
-    end
-
-    describe 'with valid params' do
-      let(:header_params) do
-        {
-          external_uid: 'xUid',
-          external_key: 'xKey'
-        }
-      end
-
-      describe 'when both calls succeed' do
-        let(:params) do
-          { ptcpnt_id: '600043201' }
-        end
-
-        it 'returns all poa requests' do
-          use_bgs_cassette('valid_individual') do
-            use_bgs_cassette('valid_org') do
-              expect(subject.size).to eq(10)
-            end
-          end
-        end
-      end
-
-      describe 'when one call fails' do
-        let(:params) do
-          { ptcpnt_id: '600043201', type_codes: %w[fake_invalid 21-22] }
-        end
-
-        it 'raises an exception' do
-          # note, bad_request was recorded by skipping validation to force a bad response
-          use_bgs_cassette('bad_request') do
-            use_bgs_cassette('valid_org') do
-              expect { subject }.to raise_error(Common::Exceptions::ServiceError)
-            end
-          end
-        end
-      end
-    end
-  end
 end
