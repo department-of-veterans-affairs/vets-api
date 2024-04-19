@@ -1669,6 +1669,8 @@ brd:
 
 
 travel_pay:
+  sts:
+    service_account_id: ~
   mock: true
   veis:
     client_id: ~
