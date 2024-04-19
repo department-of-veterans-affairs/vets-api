@@ -193,12 +193,12 @@ RSpec.describe 'payment information', type: :request do
     context 'when the user does have an associated email address' do
       subject do
         VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
-          put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers:
+          put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers: sis_headers(json: true)
         end
       end
 
       it 'calls VA Notify background job to send an email' do
-        user.all_emails do |email|
+        user.all_emails.each do |email|
           expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, nil)
         end
 
