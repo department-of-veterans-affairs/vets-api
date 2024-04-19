@@ -30,7 +30,6 @@ RSpec.describe 'breakers', type: :request do
     # Not clearing the breakers would cause subsequent RX calls to fail after the breaker is
     # triggered in this group.
 
-    # fakeredis/rspec has a `before` callback, but it's for the suite, not each example. Oops.
     Breakers.client.redis_connection.redis.flushdb
   end
 

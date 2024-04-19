@@ -183,7 +183,7 @@ Lint/ConstantDefinitionInBlock:
   Exclude:
     - 'app/policies/mhv_health_records_policy.rb'
     - 'app/policies/mhv_medical_records_policy.rb'
-    - 'app/policies/mhv_messaging_policy.rb'
+    - 'app/policies/legacy_mhv_messaging_policy.rb'
     - 'app/policies/mhv_prescriptions_policy.rb'
     - 'config/initializers/flipper.rb'
     - 'config/initializers/zcta.rb'
@@ -744,12 +744,13 @@ RSpec/PendingWithoutReason:
     - 'spec/requests/authentication/standard_authentication_spec.rb'
     - 'spec/requests/breakers_integration_spec.rb'
     - 'spec/sidekiq/facilities/mental_health_reload_job_spec.rb'
+    - 'modules/claims_api/spec/requests/v1/disability_compensation_request_spec.rb'
 
 # Offense count: 630
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: ResponseMethods.
 # ResponseMethods: response, last_response
-RSpec/Rails/HaveHttpStatus:
+RSpecRails/HaveHttpStatus:
   Exclude:
     - 'modules/appeals_api/spec/controllers/application_controller_spec.rb'
     - 'modules/appeals_api/spec/requests/higher_level_reviews/v0/higher_level_reviews_controller_spec.rb'
@@ -836,7 +837,7 @@ RSpec/Rails/HaveHttpStatus:
 # Offense count: 264
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: Inferences.
-RSpec/Rails/InferredSpecType:
+RSpecRails/InferredSpecType:
   Enabled: false
 
 # Offense count: 26

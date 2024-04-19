@@ -13,11 +13,12 @@ module ClaimsApi
 
       ssn = poa_form.auth_headers['va_eauth_pnid']
       file_number = service.people.find_by_ssn(ssn)[:file_nbr] # rubocop:disable Rails/DynamicFindBy
+      poa_code = extract_poa_code(poa_form.form_data)
 
       response = service.vet_record.update_birls_record(
         file_number:,
         ssn:,
-        poa_code: poa_form.form_data['serviceOrganization']['poaCode']
+        poa_code:
       )
 
       if response[:return_code] == 'BMOD0001'

@@ -24,7 +24,11 @@ module TermsOfUse
 
     def perform
       response = update_provisioning
-      raise(Errors::ProvisionerError, 'Agreement not accepted') if response[:agreement_signed].blank?
+
+      if response[:agreement_signed].blank?
+        Rails.logger.error('[TermsOfUse] [Provisioner] update_provisioning error', { icn:, response: })
+        raise(Errors::ProvisionerError, 'Agreement not accepted')
+      end
 
       ActiveModel::Type::Boolean.new.cast(response[:agreement_signed])
     rescue Common::Client::Errors::ClientError => e

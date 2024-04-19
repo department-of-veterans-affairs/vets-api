@@ -7,7 +7,6 @@ RSpec.describe AskVAApi::Correspondences::Entity do
 
   let(:info) do
     {
-      InquiryId: '1',
       Id: '1',
       ModifiedOn: '1/2/23',
       StatusReason: 'Completed/Sent',
@@ -26,7 +25,6 @@ RSpec.describe AskVAApi::Correspondences::Entity do
 
   it 'creates an correspondence' do
     expect(correspondence).to have_attributes(
-      inquiry_id: info[:InquiryId],
       id: info[:Id],
       modified_on: info[:ModifiedOn],
       status_reason: info[:StatusReason],

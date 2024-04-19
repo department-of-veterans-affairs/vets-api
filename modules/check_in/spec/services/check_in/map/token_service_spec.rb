@@ -41,7 +41,7 @@ describe CheckIn::Map::TokenService do
       end
 
       it 'returns token from redis' do
-        expect(subject.build.token).to eq(access_token)
+        expect(subject.build(opts).token).to eq(access_token)
       end
     end
 
@@ -52,7 +52,7 @@ describe CheckIn::Map::TokenService do
       end
 
       it 'returns token by calling client' do
-        expect(subject.build.token).to eq(access_token)
+        expect(subject.build(opts).token).to eq(access_token)
       end
     end
   end

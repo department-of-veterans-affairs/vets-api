@@ -24,7 +24,7 @@ module Vye
       end
 
       def load_user_info
-        @user_info = Vye::UserInfo.find_and_update_icn(user: current_user)
+        @user_info = Vye::UserProfile.find_and_update_icn(user: current_user)&.active_user_info
       end
     end
   end

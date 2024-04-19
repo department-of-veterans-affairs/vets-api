@@ -11,7 +11,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   let(:mock_inquiries) do
     JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['Data']
   end
-  let(:valid_id) { mock_inquiries.first['Id'] }
+  let(:valid_id) { mock_inquiries.first['InquiryNumber'] }
   let(:invalid_id) { 'invalid-id' }
 
   before do
@@ -100,8 +100,20 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     end
   end
 
+  describe 'POST #test_create' do
+    before do
+      allow_any_instance_of(Crm::Service).to receive(:call).and_return({ message: 'success' })
+      post '/ask_va_api/v0/test_create',
+           params: { 'reply' => 'test', 'endpoint' => 'inquiries/id/reply/new' },
+           as: :json
+    end
+
+    it 'response with 200' do
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
   describe 'GET #show' do
-    let(:id) { valid_id }
     let(:expected_response) do
       { 'data' =>
         { 'id' => '1',
@@ -113,7 +125,6 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
               'id' => '1',
               'type' => 'correspondence',
               'attributes' => {
-                'inquiry_id' => '1',
                 'message_type' => '722310001: Response from VA',
                 'modified_on' => '1/2/23',
                 'status_reason' => 'Completed/Sent',
@@ -139,37 +150,104 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     end
 
     context 'when user is signed in' do
-      before do
-        sign_in(authorized_user)
-        get "#{inquiry_path}/#{id}", params: { mock: true }
+      context 'when mock is given' do
+        before do
+          sign_in(authorized_user)
+          get "#{inquiry_path}/#{valid_id}", params: { mock: true }
+        end
+
+        it { expect(response).to have_http_status(:ok) }
+        it { expect(JSON.parse(response.body)).to eq(expected_response) }
       end
 
-      it { expect(response).to have_http_status(:ok) }
-      it { expect(JSON.parse(response.body)).to eq(expected_response) }
+      context 'when mock is not given' do
+        let(:crm_response) do
+          { Data: [{ Id: '154163f2-8fbb-ed11-9ac4-00155da17a6f',
+                     InquiryNumber: 'A-20230305-306178',
+                     InquiryStatus: 'Reopened',
+                     SubmitterQuestion: 'test',
+                     LastUpdate: '4/1/2024 12:00:00 AM',
+                     InquiryHasAttachments: true,
+                     InquiryHasBeenSplit: true,
+                     VeteranRelationship: 'GIBillBeneficiary',
+                     SchoolFacilityCode: '77a51029-6816-e611-9436-0050568d743d',
+                     InquiryTopic: 'Medical Care Concerns at a VA Medical Facility',
+                     InquiryLevelOfAuthentication: 'Unauthenticated',
+                     AttachmentNames: [{ Id: '367e8d31-6c82-1d3c-81b8-dd2cabed7555',
+                                         Name: 'Test.txt' }] }] }
+        end
+        let(:expected_response) do
+          { 'data' =>
+            { 'id' => '154163f2-8fbb-ed11-9ac4-00155da17a6f',
+              'type' => 'inquiry',
+              'attributes' =>
+              { 'inquiry_number' => 'A-20230305-306178',
+                'attachments' => [{ 'Id' => '367e8d31-6c82-1d3c-81b8-dd2cabed7555', 'Name' => 'Test.txt' }],
+                'correspondences' =>
+                { 'data' =>
+                  [{ 'id' => '154163f2-8fbb-ed11-9ac4-00155da17a6f',
+                     'type' => 'correspondence',
+                     'attributes' =>
+                     { 'message_type' => nil,
+                       'modified_on' => nil,
+                       'status_reason' => nil,
+                       'description' => nil,
+                       'enable_reply' => nil,
+                       'attachments' => [{ 'Id' => '367e8d31-6c82-1d3c-81b8-dd2cabed7555',
+                                           'Name' => 'Test.txt' }] } }] },
+                'has_attachments' => true,
+                'has_been_split' => true,
+                'level_of_authentication' => 'Unauthenticated',
+                'last_update' => '4/1/2024 12:00:00 AM',
+                'status' => 'Reopened',
+                'submitter_question' => 'test',
+                'school_facility_code' => '77a51029-6816-e611-9436-0050568d743d',
+                'topic' => 'Medical Care Concerns at a VA Medical Facility',
+                'veteran_relationship' => 'GIBillBeneficiary' } } }
+        end
+        let(:service) { instance_double(Crm::Service) }
+
+        before do
+          allow(Crm::Service).to receive(:new).and_return(service)
+          allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+          allow(service).to receive(:call).and_return(crm_response)
+          sign_in(authorized_user)
+          get "#{inquiry_path}/#{valid_id}"
+        end
+
+        it { expect(response).to have_http_status(:ok) }
+        it { expect(JSON.parse(response.body)).to eq(expected_response) }
+      end
 
       context 'when the id is invalid' do
-        let(:id) { invalid_id }
+        let(:crm_response) do
+          { Data: nil,
+            Message: 'Data Validation: No Inquiries found by ID A-20230305-30617',
+            ExceptionOccurred: true,
+            ExceptionMessage: 'Data Validation: No Inquiries found by ID A-20230305-30617',
+            MessageId: 'e6024ccb-e19b-4bc6-990c-667e7ebab4ec' }
+        end
+        let(:service) { instance_double(Crm::Service) }
 
-        it { expect(response).to have_http_status(:bad_request) }
+        before do
+          allow(Crm::Service).to receive(:new).and_return(service)
+          allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+          allow(service).to receive(:call).and_return(crm_response)
+          sign_in(authorized_user)
+          get "#{inquiry_path}/#{invalid_id}"
+        end
 
-        it_behaves_like 'common error handling', :bad_request, 'invalid_inquiry_error',
-                        'AskVAApi::V0::InquiriesController::InvalidInquiryError'
+        it { expect(response).to have_http_status(:unprocessable_entity) }
+
+        it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                        'AskVAApi::Inquiries::InquiriesRetrieverError: ' \
+                        'Data Validation: No Inquiries found by ID A-20230305-30617'
       end
-    end
-
-    context 'when an error occur' do
-      before do
-        allow(Crm::Service).to receive(:new).and_raise(ErrorHandler::ServiceError)
-        sign_in(authorized_user)
-        get "#{inquiry_path}/#{id}"
-      end
-
-      it { expect(JSON.parse(response.body)).to eq('error' => 'ErrorHandler::ServiceError') }
     end
 
     context 'when user is not signed in' do
       before do
-        get "#{inquiry_path}/#{id}"
+        get "#{inquiry_path}/#{valid_id}"
       end
 
       it { expect(response).to have_http_status(:unauthorized) }
@@ -269,7 +347,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     end
   end
 
-  describe 'GET /profile' do
+  describe 'GET #profile' do
     context 'when a user is signed in' do
       before do
         sign_in(authorized_user)
@@ -312,6 +390,43 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
                       'AskVAApi::Profile::InvalidInquiryError: No Contact found'
+    end
+  end
+
+  describe 'GET #status' do
+    before do
+      allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+      allow_any_instance_of(Crm::Service)
+        .to receive(:call).and_return({
+                                        Status: 'Reopened',
+                                        Message: nil,
+                                        ExceptionOccurred: false,
+                                        ExceptionMessage: nil,
+                                        MessageId: 'c6252e77-cf7f-48b6-96be-1b43d8e9905c'
+                                      })
+      sign_in(authorized_user)
+      get "/ask_va_api/v0/inquiries/#{valid_id}/status"
+    end
+
+    it 'returns the status for the given inquiry id' do
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)['data']).to eq({ 'id' => nil,
+                                                        'type' => 'inquiry_status',
+                                                        'attributes' => { 'status' => 'Reopened' } })
+    end
+  end
+
+  describe 'POST #create_reply' do
+    let(:payload) { { 'reply' => 'this is my reply' } }
+
+    before do
+      allow_any_instance_of(Crm::Service).to receive(:call).and_return({ Data: { Id: '123' } })
+      sign_in(authorized_user)
+      post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
+    end
+
+    it 'returns status 200' do
+      expect(response).to have_http_status(:ok)
     end
   end
 end

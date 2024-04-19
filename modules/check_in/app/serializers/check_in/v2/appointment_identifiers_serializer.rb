@@ -21,7 +21,7 @@ module CheckIn
       end
 
       attribute :icn do |object|
-        object.payload.dig(:demographics, :icn)
+        object.payload.dig(:demographics, :icn) || object.payload[:appointments].first[:icn]
       end
 
       attribute :mobilePhone do |object|

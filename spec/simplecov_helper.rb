@@ -58,7 +58,7 @@ class SimpleCovHelper
 
   def self.add_modules
     # Modules
-    add_group 'AccreditedRepresentatives', 'modules/accredited_representatives/'
+    add_group 'AccreditedRepresentativePortal', 'modules/accredited_representative_portal/'
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'AskVAApi', 'modules/ask_va_api/'
     add_group 'Avs', 'modules/avs/'
@@ -68,6 +68,7 @@ class SimpleCovHelper
     add_group 'DebtsApi', 'modules/debts_api/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
+    add_group 'IvcChampva', 'modules/ivc_champva/'
     add_group 'RepresentationManagement', 'modules/representation_management/'
     add_group 'SimpleFormsApi', 'modules/simple_forms_api/'
     add_group 'HealthQuest', 'modules/health_quest'

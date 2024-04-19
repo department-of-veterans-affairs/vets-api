@@ -137,19 +137,22 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           let(:open_claims_cassette) { 'evss/claims/claims' }
 
           before do
-            allow(StatsD).to receive(:distribution)
+            allow(Rails.logger).to receive(:info)
             Timecop.freeze('2018-09-28T13:00:00ZZ')
           end
 
           after { Timecop.return }
 
-          it 'reports the expected stats for EP 400 merge eligibility' do
+          it 'logs the expected data for EP 400 merge eligibility' do
             subject.perform_async(submission.id)
             VCR.use_cassette('virtual_regional_office/contention_classification') do
               described_class.drain
             end
-            expect(StatsD).to have_received(:distribution).with('worker.ep_merge.pending_ep_count', 1)
-            expect(StatsD).to have_received(:distribution).with('worker.ep_merge.pending_ep_age', 365)
+            expect(Rails.logger).to have_received(:info).with('EP Merge total open EPs', id: submission.id, count: 1)
+            expect(Rails.logger).to have_received(:info).with(
+              'EP Merge open EP eligibility',
+              { id: submission.id, feature_enabled: true, pending_ep_age: 365, pending_ep_status: 'UNDER REVIEW' }
+            )
           end
 
           context 'when EP400 merge API call is enabled' do
@@ -211,6 +214,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         subject.perform_async(submission.id)
         expect { described_class.drain }.not_to change(backup_klass.jobs, :size)
         expect(Form526JobStatus.last.status).to eq 'success'
+      end
+
+      it 'transitions to delivered_to_primary' do
+        subject.perform_async(submission.id)
+        described_class.drain
+        submission.reload
+        expect(submission.aasm_state).to eq('delivered_to_primary')
       end
 
       it 'submits successfully without calling classification service' do
@@ -604,6 +614,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           subject.perform_async(submission.id)
           described_class.drain
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+        end
+      end
+    end
+
+    describe 'form526 state transitioning' do
+      context 'with a non-retryable error' do
+        it 'transitions the submission to failure state' do
+          allow_any_instance_of(Form526Submission).to receive(:prepare_for_evss!).and_raise(StandardError)
+          subject.perform_async(submission.id)
+          described_class.drain
+          submission.reload
+          expect(submission.aasm_state).to eq 'failed_primary_delivery'
         end
       end
     end

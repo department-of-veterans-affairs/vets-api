@@ -4,12 +4,14 @@ require 'rails_helper'
 
 require 'evss/disability_compensation_auth_headers' # required to build a Form526Submission
 require 'sidekiq/form526_backup_submission_process/submit'
+require 'disability_compensation/factories/api_provider_factory'
 
 RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   subject { described_class }
 
   before do
     Sidekiq::Job.clear_all
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -34,15 +36,16 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     end
   end
 
-  context 'catastrophic failure state' do
+  context 'on failure' do
     describe 'when all retries are exhausted' do
-      let!(:form526_submission) { create(:form526_submission) }
+      let!(:form526_submission) { create(:form526_submission, aasm_state: 'failed_primary_delivery') }
       let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
       it 'updates a StatsD counter and updates the status on an exhaustion event' do
-        subject.within_sidekiq_retries_exhausted_block({ 'jid' => form526_job_status.job_id }) do
+        args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
+        subject.within_sidekiq_retries_exhausted_block(args) do
           expect(StatsD).to receive(:increment).with("#{subject::STATSD_KEY_PREFIX}.exhausted")
-          expect(Rails).to receive(:logger).and_call_original
+          expect(Rails).to receive(:logger).twice.and_call_original
         end
         form526_job_status.reload
         expect(form526_job_status.status).to eq(Form526JobStatus::STATUS[:exhausted])
@@ -57,7 +60,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
         allow(Settings.form526_backup).to receive(:enabled).and_return(true)
       end
 
-      let!(:submission) { create :form526_submission, :with_everything }
+      let!(:submission) { create :form526_submission, :with_everything, aasm_state: 'failed_primary_delivery' }
       let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
 
       context 'successfully' do
@@ -111,6 +114,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
                 expect(job_status.status).to eq('success')
                 submission = Form526Submission.last
                 expect(submission.backup_submitted_claim_id).not_to be(nil)
+                expect(submission.aasm_state).to eq('delivered_to_backup')
               end
             end
           end
@@ -195,6 +199,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
               expect(job_status.status).to eq('success')
               submission = Form526Submission.last
               expect(submission.backup_submitted_claim_id).not_to be(nil)
+              expect(submission.aasm_state).to eq('delivered_to_backup')
             end
           end
         end

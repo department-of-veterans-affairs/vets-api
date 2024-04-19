@@ -14,7 +14,7 @@ module AsyncTransaction
       where('created_at < ?', DELETE_COMPLETED_AFTER.ago).where(status: COMPLETED)
     }
 
-    serialize :metadata, JsonMarshal::Marshaller
+    serialize :metadata, coder: JsonMarshal::Marshaller
 
     has_kms_key
     has_encrypted :metadata, key: :kms_key, **lockbox_options

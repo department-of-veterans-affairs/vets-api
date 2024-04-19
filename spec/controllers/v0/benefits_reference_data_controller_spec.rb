@@ -11,7 +11,7 @@ RSpec.describe V0::BenefitsReferenceDataController, type: :controller do
 
   describe '#get_data' do
     it 'gets data from lighthouse when valid path end-point is provided' do
-      VCR.use_cassette('lighthouse/benefits_reference_data/200_response') do
+      VCR.use_cassette('lighthouse/benefits_reference_data/200_disabilities_response') do
         get(:get_data, params: { path: 'disabilities' })
       end
       expect(response.status).to eq(200)

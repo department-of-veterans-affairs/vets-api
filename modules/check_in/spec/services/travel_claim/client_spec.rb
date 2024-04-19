@@ -10,7 +10,6 @@ describe TravelClaim::Client do
 
   before do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_increase_timeout).and_return(true)
   end
 
   describe '.build' do
@@ -189,13 +188,14 @@ describe TravelClaim::Client do
 
     context 'when call to claims service times out' do
       let(:resp) { Faraday::Response.new(response_body: 'BTSSS timeout error', status: 408) }
+      let(:err_msg) { { message: 'BTSSS Timeout Error', uuid: } }
 
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(Faraday::TimeoutError)
       end
 
       it 'logs message and raises exception' do
-        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry)
+        expect(Rails.logger).to receive(:error).with(err_msg)
 
         response = subject.submit_claim(token: access_token, patient_icn: icn, appointment_date: appt_date)
         expect(response.status).to eq(resp.status)
@@ -305,13 +305,14 @@ describe TravelClaim::Client do
 
     context 'when call to claims service times out' do
       let(:resp) { Faraday::Response.new(response_body: 'BTSSS timeout error', status: 408) }
+      let(:err_msg) { { message: 'BTSSS Timeout Error', uuid: } }
 
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(Faraday::TimeoutError)
       end
 
       it 'logs message and raises exception' do
-        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry)
+        expect(Rails.logger).to receive(:error).with(err_msg)
 
         response = subject.submit_claim_v2(token, opts)
         expect(response.status).to eq(resp.status)

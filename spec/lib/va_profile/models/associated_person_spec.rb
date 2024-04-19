@@ -35,15 +35,12 @@ describe VAProfile::Models::AssociatedPerson do
     it 'titlecases family_name' do
       expect(subject.family_name).to eq('Williams')
     end
-
-    it 'titlecases relationship' do
-      expect(subject.relationship).to eq('Unrelated Friend')
-    end
   end
 
   context 'Virtus::Attribute, String type attributes' do
     %i[
       contact_type
+      relationship
       address_line1
       address_line2
       address_line3

@@ -2,21 +2,36 @@
 
 module TravelPay
   class ClaimsController < ApplicationController
-    ##
-    # For now, index is integrated with PING endpoint until
-    # upstream API is more complete.
+    before_action :authorize
+
     def index
-      veis_response = client.request_veis_token
+      veis_token = client.request_veis_token
 
-      veis_token = veis_response.body['access_token']
+      sts_token = client.request_sts_token(@current_user)
+      btsss_token = client.request_btsss_token(veis_token, sts_token)
 
-      btsss_ping_response = client.ping(veis_token)
+      begin
+        claims = client.get_claims(veis_token, btsss_token)
+      rescue Faraday::Error => e
+        raise common_exception(e)
+      end
 
-      render json: { data: "Received ping from upstream server with status #{btsss_ping_response.status}." }
+      render json: claims, each_serializer: TravelPay::ClaimSerializer, status: :ok
     end
 
+    private
+
     def client
-      TravelPay::Client.new
+      @client ||= TravelPay::Client.new
+    end
+
+    def common_exception(e)
+      case e
+      when Faraday::ResourceNotFound
+        Common::Exceptions::ResourceNotFound.new
+      else
+        Common::Exceptions::InternalServerError.new
+      end
     end
   end
 end

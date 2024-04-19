@@ -45,6 +45,22 @@ RSpec.describe CentralMail::DatestampPdf do
         File.delete(out_path)
       end
 
+      it 'adds text with a datestamp for all forms except 40-10007 with expected formatting' do
+        out_path = instance.run(text: 'Received via vets.gov', x: 10, y: 10, timestamp: Time.zone.local(2024, 1, 30))
+        pdf_reader = PDF::Reader.new(out_path)
+        expect(pdf_reader.pages[0].text).to eq('Received via vets.gov 2024-01-30. Confirmation=VETS-XX-1234')
+        File.delete(out_path)
+      end
+
+      it 'adds text with a datestamp for form 40-10007 with expected formatting' do
+        @file_path = 'tmp/vba_40_10007-stamped.pdf'
+        Prawn::Document.new.render_file @file_path
+        out_path = instance.run(text: 'Received via vets.gov', x: 10, y: 10, timestamp: Time.zone.local(2024, 1, 30))
+        pdf_reader = PDF::Reader.new(out_path)
+        expect(pdf_reader.pages[0].text).to eq('Received via vets.gov 01/30/2024. Confirmation=VETS-XX-1234')
+        File.delete(out_path)
+      end
+
       context 'with no additional text' do
         let(:opt) do
           {}

@@ -4,6 +4,9 @@ require 'benefits_intake_service/service'
 
 class BenefitsIntakeStatusJob
   include Sidekiq::Job
+
+  sidekiq_options retry: false
+
   STATS_KEY = 'api.benefits_intake.submission_status'
   MAX_BATCH_SIZE = 1000
 

@@ -14,49 +14,71 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
     end
     let(:disabilities_data) do
       [
-        { name: 'Hypertension', diagnostic_code: 7101, rating_percentage: 20 },
         { name: 'Tinnitus', diagnostic_code: 6260, rating_percentage: 10 },
+        { name: 'Hypertension', diagnostic_code: 7101, rating_percentage: 20 },
         { name: 'Vertigo', diagnostic_code: 6204, rating_percentage: 30 }
       ]
     end
 
-    context 'with disability_526_maximum_rating_api disabled' do
-      before { Flipper.disable(:disability_526_maximum_rating_api) }
+    context 'with disability_526_maximum_rating_api_all_conditions disabled' do
+      before { Flipper.disable(:disability_526_maximum_rating_api_all_conditions) }
 
-      it 'mutates just the tinnitus disability with hardcoded max rating' do
-        subject
-        max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
-        expect(max_ratings).to eq([nil, 10, nil])
+      it 'mutates just the tinnitus disability max rating from VRO' do
+        VCR.use_cassette('virtual_regional_office/max_ratings') do
+          subject
+          max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
+          expect(max_ratings).to eq([10, nil, nil])
+        end
       end
-    end
 
-    context 'with disability_526_maximum_rating_api enabled' do
-      before { Flipper.enable(:disability_526_maximum_rating_api) }
-      after { Flipper.disable(:disability_526_maximum_rating_api) }
+      context 'when a disabilities response has two rated disabilities with same diagnostic code' do
+        let(:disabilities_data) do
+          [
+            { name: 'Tinnitus', diagnostic_code: 6260, rating_percentage: 10 },
+            { name: 'Tinnitus', diagnostic_code: 6260, rating_percentage: 10 }
+          ]
+        end
 
-      context 'when a disabilities response contains rating for a disability' do
-        it 'mutates just the rated disability with a max rating' do
+        it 'mutates both rated disabilities with max ratings from VRO' do
           VCR.use_cassette('virtual_regional_office/max_ratings') do
             subject
             max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
-            expect(max_ratings).to eq([nil, 10, nil])
+            expect(max_ratings).to eq([10, 10])
+          end
+        end
+      end
+    end
+
+    context 'with disability_526_maximum_rating_api_all_conditions enabled' do
+      before { Flipper.enable(:disability_526_maximum_rating_api_all_conditions) }
+      after { Flipper.disable(:disability_526_maximum_rating_api_all_conditions) }
+
+      context 'when a disabilities response does not contains rating any disability' do
+        it 'mutates none of the disabilities with a max rating' do
+          VCR.use_cassette('virtual_regional_office/max_ratings_none') do
+            subject
+            max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
+            expect(max_ratings).to eq([nil, nil, nil])
           end
         end
       end
 
-      context 'when a disabilities response does not contains rating any disability' do
-        let(:disabilities_data) do
-          [
-            { name: 'Hypertension', diagnostic_code: 7101, rating_percentage: 20 },
-            { name: 'Vertigo', diagnostic_code: 6204, rating_percentage: 30 }
-          ]
-        end
-
-        it 'mutates none of the disabilities with a max rating' do
+      context 'when a disabilities response contains rating for a single disability' do
+        it 'mutates just the rated disability with a max rating' do
           VCR.use_cassette('virtual_regional_office/max_ratings') do
             subject
             max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
-            expect(max_ratings).to eq([nil, nil])
+            expect(max_ratings).to eq([10, nil, nil])
+          end
+        end
+      end
+
+      context 'when a disabilities response contains rating for a multiple disabilities' do
+        it 'mutates just the rated disabilities with a max rating' do
+          VCR.use_cassette('virtual_regional_office/max_ratings_multiple') do
+            subject
+            max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
+            expect(max_ratings).to eq([10, 60, nil])
           end
         end
       end
@@ -66,11 +88,9 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
           let(:rated_disabilities) { nil }
 
           it 'mutates only the valid disability with a max rating' do
-            VCR.use_cassette('virtual_regional_office/max_ratings') do
-              subject
-              max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
-              expect(max_ratings).to eq([])
-            end
+            subject
+            max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
+            expect(max_ratings).to eq([])
           end
         end
 

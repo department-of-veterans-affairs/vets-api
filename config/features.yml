@@ -15,6 +15,14 @@ features:
   this_is_only_a_test:
     actor_type: user
     description: Used in feature_toggles_controller_spec.
+  accredited_representative_portal_frontend:
+    actor_type: user
+    description: Enables the frontend of the accredited representative portal
+    enable_in_development: true
+  accredited_representative_portal_api:
+    actor_type: user
+    description: Enables the endpoints of the accredited representative portal
+    enable_in_development: true
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
@@ -65,12 +73,10 @@ features:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
     enable_in_development: true
-  cerner_transition_556_t30:
+  ezr_tera_enabled:
     actor_type: user
-    description: This will control the content that will be in effect 30 days prior to transition.
-  cerner_transition_556_t5:
-    actor_type: user
-    description: This will control the content that will be in effect 5 days prior to transition.
+    description: Enables Toxic Exposure questions for 10-10EZR applicants.
+    enable_in_development: true
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
@@ -146,21 +152,9 @@ features:
     actor_type: user
     description: Enables the unified experience version of the landing page.
     enable_in_development: true
-  check_in_experience_travel_claim_redis_client_refactor:
-    actor_type: user
-    description: Uses the refactored code for Travel Claim Redis client to fetch attributes
-    enable_in_development: true
-  check_in_experience_travel_claim_increase_timeout:
-    actor_type: user
-    description: Increases the timeout for BTSSS submit claim request to 120 seconds
-    enable_in_development: true
   claim_letters_access:
     actor_type: user
     description: Enables users to access the claim letters page
-    enable_in_development: true
-  cst_use_lighthouse:
-    actor_type: user
-    description: When enabled, claims status tool uses the Lighthouse API instead of EVSS
     enable_in_development: true
   cst_use_lighthouse_5103:
     actor_type: user
@@ -182,14 +176,14 @@ features:
     actor_type: user
     description: When enabled, the Download Decision Letters feature includes 5103 letters
     enable_in_development: true
-  cst_use_new_claim_cards:
-    actor_type: user
-    description: When enabled, claims status tool uses the new claim card designs
-    enable_in_development: true
   cst_use_claim_details_v2:
     actor_type: user
     description: When enabled, claims status tool uses the new claim details design
     enable_in_development: true
+  cst_use_dd_rum:
+    actor_type: user
+    description: When enabled, claims status tool uses DataDog's Real User Monitoring logging
+    enable_in_development: false
   coe_access:
     actor_type: user
     description: Feature gates the certificate of eligibility application
@@ -322,6 +316,9 @@ features:
   decision_review_delay_evidence:
     actor_type: user
     description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself
+  decision_review_updated_pii_rules:
+    actor_type: user
+    description: Uses udpated rules for when to clear PII from appeals_api records
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -354,9 +351,9 @@ features:
     actor_type: user
     description: enables displaying a short education blurb alongside rated disabilities already at maximum rating.
     enable_in_development: true
-  disability_526_maximum_rating_api:
+  disability_526_maximum_rating_api_all_conditions:
     actor_type: user
-    description: enables sending disability diagnostic codes to VRO Max CFI API to get the corresponding maximum ratings.
+    description: enables calls to VRO Max CFI API for all conditions, otherwise only calls for select conditions are made
     enable_in_development: false
   disability_526_ep_merge_api:
     actor_type: user
@@ -364,6 +361,9 @@ features:
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
+  disability_526_improved_autosuggestions_add_disabilities_page:
+    actor_type: user
+    description: enables new version of add disabilities page, with updates to content and search functionality
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
@@ -468,6 +468,10 @@ features:
     actor_type: user
     description: Enables flagging feature for Find a Representative frontend
     enable_in_development: true
+  representative_status_enabled:
+    actor_type: user
+    description: Enables flagging feature for Find a Representative frontend
+    enable_in_development: true
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
@@ -541,6 +545,9 @@ features:
   form2010206:
     actor_type: user
     description: If enabled shows the digital form experience for form 20-10206
+  form2010207:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 20-10207
   form210845:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-0845
@@ -663,6 +670,10 @@ features:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
     enable_in_development: true
+  mhv_sm_session_policy:
+    actor_type: user
+    description: changes secure messaging policy to use sm sessions endpoint for authorization
+    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
@@ -742,26 +753,22 @@ features:
     actor_type: user
     description: Logs decision letter info on both claims and decision letter endpoint
     enable_in_development: true
+  mobile_sm_session_policy:
+    actor_type: user
+    description: changes secure messaging policy to use sm sessions endpoint for authorization
+    enable_in_development: true
+  mobile_v1_lighthouse_facilities:
+    actor_type: user
+    description: change mobile lighthouse facility calls to use new v1 endpoint
+    enable_in_development: true
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
       [Front-end only] When enabled, the 10-10EZ will collect a home and mailing address for the veteran
       vs only collecting a single, "permanent" address.
-  omni_channel_link:
-    actor_type: user
-    description: This determines the visibility of the OmniChannel link in the claim status tool
-    enable_in_development: true
   organic_conversion_experiment:
     actor_type: user
     description: Toggle to enable login.gov create account experiment
-  reactivation_experiment_initial_gate:
-    actor_type: user
-    description:
-      Toggle to enable all users to enter the eligibility check portion of the flow.  This only be set to
-      enabled for one (1) week at the longest, starting 20JULY2023 or 21JULY2023 depending on deployment timing.
-  reactivation_experiment_rate_limit:
-    actor_type: user
-    description: Toggle to control the amount of eligible users entering the send_email portion of the flow.
   pdf_warning_banner:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
@@ -772,6 +779,9 @@ features:
       Toggle for the entire pre-entry covid 19 self-screener available at /covid19screener and to be used by visitors
       to VHA facilities in lieu of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products team.
+  profile_ppiu_reject_requests:
+    actor_type: user
+    description: When enabled, requests to the PPIU controller will return a routing error.
   profile_enhanced_military_info:
     actor_type: user
     description: When enabled, /v1/profile/military_info endpoint will return all military information for a user.
@@ -788,9 +798,9 @@ features:
     actor_type: user
     description: When enabled, profile service history will include military academy attendance.
     enable_in_development: true
-  profile_hide_direct_deposit_comp_and_pen:
+  profile_hide_direct_deposit:
     actor_type: user
-    description: Hides disability comp and pen section of the Profile - Direct Deposit page during a service outage
+    description: Hides the Profile - Direct Deposit page content during a service outage
     enable_in_development: false
   profile_show_credential_retirement_messaging:
     actor_type: user
@@ -798,6 +808,9 @@ features:
   profile_show_direct_deposit_single_form:
     actor_type: user
     description: Show/hide the single direct deposit form in profile for all users
+  profile_show_direct_deposit_single_form_uat:
+    actor_type: user
+    description: Show/hide the single direct deposit form just for users during UAT only
   profile_show_direct_deposit_single_form_alert:
     actor_type: user
     description: Show/hide an alert with information around migrating to a single direct deposit form in profile
@@ -878,14 +891,6 @@ features:
     actor_type: user
     description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
     enable_in_development: true
-  representatives_portal_frontend:
-    actor_type: user
-    description: Enables the frontend of the representatives portal
-    enable_in_development: true
-  representatives_portal_api:
-    actor_type: user
-    description: Enables the representatives endpoint
-    enable_in_development: true
   schema_contract_appointments_index:
     actor_type: user
     description: Enables schema validation for the appointments service index fetch.
@@ -945,7 +950,15 @@ features:
     actor_type: user
     description: Displays an alert to users on 1990EZ intro page that the Backend Service is Down.
     enable_in_development: false
+  show_meb_1990EZ_R6_maintenance_message:
+    actor_type: user
+    description: Displays an alert to users on 1990EZ intro page that the Backend Service is Down.
+    enable_in_development: false
   show_meb_1990E_maintenance_alert:
+    actor_type: user
+    description: Displays an alert to users on 1990E intro page that the Backend Service is Down.
+    enable_in_development: false
+  show_meb_1990E_R6_maintenance_message:
     actor_type: user
     description: Displays an alert to users on 1990E intro page that the Backend Service is Down.
     enable_in_development: false
@@ -968,6 +981,10 @@ features:
     actor_type: user
     description: enables exclusion period checks
     enable_in_development: false
+  meb_auto_populate_relinquishment_date:
+    actor_type: user
+    description: Flag to autofill datepicker for reliinquishment date
+    enable_in_development: true
   show_forms_app:
     actor_type: user
     description: Enables the TOE form to be displayed.
@@ -1026,10 +1043,6 @@ features:
   va_online_scheduling_cancel:
     actor_type: user
     description: Allows veterans to cancel VA appointments
-    enable_in_development: true
-  va_online_scheduling_clinic_filtering:
-    actor_type: user
-    description: Allows clinic selection filtering by stop codes
     enable_in_development: true
   va_online_scheduling_community_care:
     actor_type: user
@@ -1091,10 +1104,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for VAOS direct scheduling & appointment request clinic filtering
-  va_online_scheduling_appointment_list:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for the new appointment List feature
   va_online_scheduling_breadcrumb_url_update:
     actor_type: user
     enable_in_development: true
@@ -1111,10 +1120,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for proof of concept to help Veteran contact a facility when the type of care is not available
-  va_online_scheduling_required_schedulable_param:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle that requires the inclusion of a new 'schedulable' boolean param for fetching facilities
   va_online_scheduling_after_visit_summary:
     actor_type: user
     enable_in_development: true
@@ -1131,9 +1136,36 @@ features:
     actor_type: user
     enable_in_development: true
     description: Allows appointment cancellations to be routed to Oracle Health sites.
+  va_online_scheduling_enable_OH_eligibility:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for routing eligibility requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
+  va_online_scheduling_enable_OH_requests:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for routing new appointment requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
+  va_online_scheduling_enable_OH_slots_search:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for routing slots search requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
+  va_online_scheduling_datadog_RUM:
+    actor_type: user
+    description: Enables datadog Real User Monitoring.
+    enable_in_development: true
+  va_online_scheduling_use_vpg:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for routing appointment requests to the VetsAPI Gateway Service(VPG) instead of vaos-service.
+  va_online_scheduling_appointment_details_redesign:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for redesigning the appointment details page.
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
+  va_burial_v2:
+    actor_type: user
+    description: Allows us to toggle between 21-P530 and 21-P530V2
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
@@ -1189,9 +1221,17 @@ features:
     actor_type: user
     description: Enables sleep apnea supplies to be ordered in the supply reorder tool / MDOT.
     enable_in_development: true
+  toe_dup_contact_info_call:
+    actor_type: user
+    description: Flag to use contact info call and modal
+    enable_in_development: true
   toe_short_circuit_bgs_failure:
     actor_type: user
     description: Flag to use begin rescue block for BGS call
+    enable_in_development: true
+  toe_light_house_dgi_direct_deposit:
+    actor_type: user
+    description: Uses lighthouse api for direct deposit information in TOE.
     enable_in_development: true
   move_form_back_button:
     actor_type: user
@@ -1250,6 +1290,12 @@ features:
   disability_compensation_remove_pciu:
     actor_type: user
     description: If enabled, VA Profile is used to populate contact information- without PCIU calls (status quo)
+  disability_compensation_lighthouse_brd:
+    actor_type: user
+    description: If enabled uses the lighthouse Benefits Reference Data service
+  disability_compensation_lighthouse_generate_pdf:
+    actor_type: user
+    description: If enabled uses the lighthouse Benefits Claims service to generate a 526 pdf
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
@@ -1276,6 +1322,10 @@ features:
   nod_callbacks_endpoint:
     actor_type: user
     description: NOD VANotify notification callbacks endpoint
+    enable_in_development: true
+  pension_ipf_callbacks_endpoint:
+    actor_type: user
+    description: Pension IPF VANotify notification callbacks endpoint
     enable_in_development: true
   hlr_browser_monitoring_enabled:
     actor_type: user
@@ -1306,6 +1356,12 @@ features:
   pension_claim_submission_to_lighthouse:
     actor_type: user
     description: Pension claim submission uses Lighthouse API
+  central_mail_benefits_intake_submission:
+    actor_type: user
+    description: Enable central mail claims submission uses Benefits Intake API
+  ecc_benefits_intake_submission:
+    actor_type: user
+    description: Enable education and career counseling claim submissions to use Benefits Intake API
   virtual_agent_enable_param_error_detection:
     actor_type: user
     description: If enabled, Allows for the detection of errors in the chatbot params
@@ -1320,12 +1376,6 @@ features:
     description: >-
       Master toggle for the VYE (Verify Your Enrollment) project.
       If enabled, requests will be allowed to reach the controllers, otherwise a 400 (Bad Request) will be returned.
-  yellow_ribbon_degree_filter:
-    actor_type: user
-    description: Enable the degree type filter for the Find a Yellow Ribbon school search
-  yellow_ribbon_search_enhancement:
-    actor_type: user
-    description: Enable changes to Find a Yellow Ribbon school search functionality
   travel_pay_power_switch:
     actor_type: user
     description: >-
