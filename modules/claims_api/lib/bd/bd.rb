@@ -85,7 +85,7 @@ module ClaimsApi
     end
 
     def generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
-      if doc_type == 'L122' && original_filename.blank?
+      if doc_type == 'L122'
         "#{veteran_name}_#{claim_id}_526EZ.pdf"
       else
         filename = get_original_supporting_doc_file_name(original_filename)
