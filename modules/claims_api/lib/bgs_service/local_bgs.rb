@@ -8,7 +8,7 @@
 
 require 'claims_api/claim_logger'
 require 'claims_api/error/soap_error_handler'
-require_relative 'local_bgs/miscellaneous_operations'
+require 'bgs_service/bgs_helpers'
 
 module ClaimsApi
   class LocalBGS

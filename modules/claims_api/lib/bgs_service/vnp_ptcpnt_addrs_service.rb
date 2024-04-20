@@ -2,6 +2,8 @@
 
 module ClaimsApi
   class VnpPtcpntAddrsService < ClaimsApi::LocalBGS
+    include ClaimsApi::BGSHelpers
+
     def vnp_ptcpnt_addrs_create(options)
       arg_strg = convert_nil_values(options)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML

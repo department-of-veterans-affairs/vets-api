@@ -2,6 +2,8 @@
 
 module ClaimsApi
   class VnpPtcpntService < ClaimsApi::LocalBGS
+    include ClaimsApi::BGSHelpers
+
     # vnpPtcpntCreate - This service is used to create VONAPP participant information
     def vnp_ptcpnt_create(options)
       arg_strg = convert_nil_values(options)

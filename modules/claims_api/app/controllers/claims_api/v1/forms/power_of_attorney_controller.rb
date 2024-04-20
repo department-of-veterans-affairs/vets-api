@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'bgs/power_of_attorney_verifier'
-require 'bgs_service/local_bgs'
+require 'bgs_service/miscellaneous_bgs_operations'
 
 module ClaimsApi
   module V1
@@ -227,7 +227,7 @@ module ClaimsApi
 
         def find_by_ssn(ssn)
           # rubocop:disable Rails/DynamicFindBy
-          ClaimsApi::LocalBGS.new(
+          ClaimsApi::MiscellaneousBGSOperations.new(
             external_uid: target_veteran.participant_id,
             external_key: target_veteran.participant_id
           ).find_by_ssn(ssn)

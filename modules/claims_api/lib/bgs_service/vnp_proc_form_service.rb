@@ -2,6 +2,8 @@
 
 module ClaimsApi
   class VnpProcFormService < ClaimsApi::LocalBGS
+    include ClaimsApi::BGSHelpers
+
     FORM_TYPE_CD = '21-22'
 
     def vnp_proc_form_create(options)

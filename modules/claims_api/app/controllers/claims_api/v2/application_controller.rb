@@ -5,7 +5,7 @@ require 'evss/auth_headers'
 require 'token_validation/v2/client'
 require 'claims_api/error/error_handler'
 require 'claims_api/claim_logger'
-require 'bgs_service/local_bgs'
+require 'bgs_service/miscellaneous_bgs_operations'
 require 'claims_api/form_schemas'
 require 'claims_api/v2/benefits_documents/service'
 require 'bd/bd'
@@ -81,7 +81,7 @@ module ClaimsApi
       end
 
       def local_bgs_service
-        @local_bgs_service ||= ClaimsApi::LocalBGS.new(
+        @local_bgs_service ||= ClaimsApi::MiscellaneousBGSOperations.new(
           external_uid: target_veteran.participant_id,
           external_key: target_veteran.participant_id
         )

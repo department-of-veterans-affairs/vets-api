@@ -95,7 +95,7 @@ module ClaimsApi
 
         def local_bgs_service
           external_key = target_veteran.participant_id.to_s
-          @local_bgs_service ||= ClaimsApi::LocalBGS.new(
+          @local_bgs_service ||= ClaimsApi::MiscellaneousBGSOperations.new(
             external_uid: external_key,
             external_key:
           )
