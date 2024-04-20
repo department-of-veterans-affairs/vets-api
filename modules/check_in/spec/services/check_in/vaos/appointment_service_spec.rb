@@ -3,17 +3,17 @@
 require 'rails_helper'
 
 describe CheckIn::VAOS::AppointmentService do
-  subject { described_class.new(patient_icn:) }
+  subject { described_class }
 
+  let(:uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
+  let(:check_in_session) { CheckIn::V2::Session.build(data: { uuid: }) }
   let(:patient_icn) { '123' }
   let(:token) { 'test_token' }
   let(:request_id) { SecureRandom.uuid }
 
-  describe '#initialize' do
-    it 'returns an instance of service' do
-      service_obj = subject
-      expect(service_obj).to be_an_instance_of(CheckIn::VAOS::AppointmentService)
-      expect(service_obj.token_service).to be_an_instance_of(CheckIn::Map::TokenService)
+  describe '.build' do
+    it 'returns an instance of Service' do
+      expect(subject.build(check_in_session:)).to be_an_instance_of(described_class)
     end
   end
 
@@ -42,21 +42,27 @@ describe CheckIn::VAOS::AppointmentService do
     let(:faraday_response) { double('Faraday::Response') }
     let(:faraday_env) { double('Faraday::Env', status: 200, body: appointments_response.to_json) }
 
+    before do
+      allow_any_instance_of(V2::Lorota::RedisClient).to receive(:get).with(check_in_uuid: uuid)
+                                                                     .and_return(patient_icn)
+      allow_any_instance_of(CheckIn::Map::TokenService).to receive(:token)
+        .and_return(token)
+    end
+
     context 'when vaos returns successful response' do
       before do
-        allow_any_instance_of(CheckIn::Map::TokenService).to receive(:token)
-          .and_return(token)
-        allow_any_instance_of(Faraday::Connection).to receive(:get).with('/vaos/v1/patients/123/appointments',
-                                                                         { start: start_date, end: end_date,
-                                                                           statuses: })
-                                                                   .and_return(faraday_response)
+        allow_any_instance_of(Faraday::Connection).to receive(:get)
+          .with("/vaos/v1/patients/#{patient_icn}/appointments",
+                { start: start_date, end: end_date, statuses: })
+          .and_return(faraday_response)
         allow(faraday_response).to receive(:env).and_return(faraday_env)
       end
 
       it 'returns appointments' do
-        response = subject.get_appointments(DateTime.parse(start_date).in_time_zone,
-                                            DateTime.parse(end_date).in_time_zone,
-                                            statuses)
+        svc = subject.build(check_in_session:)
+        response = svc.get_appointments(DateTime.parse(start_date).in_time_zone,
+                                        DateTime.parse(end_date).in_time_zone,
+                                        statuses)
         expect(response).to eq(appointments_response)
       end
     end
@@ -66,8 +72,6 @@ describe CheckIn::VAOS::AppointmentService do
       let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
 
       before do
-        allow_any_instance_of(CheckIn::Map::TokenService).to receive(:token)
-          .and_return(token)
         allow_any_instance_of(Faraday::Connection).to receive(:get).with('/vaos/v1/patients/123/appointments',
                                                                          { start: start_date, end: end_date,
                                                                            statuses: })
@@ -75,10 +79,11 @@ describe CheckIn::VAOS::AppointmentService do
       end
 
       it 'throws exception' do
+        svc = subject.build(check_in_session:)
         expect do
-          subject.get_appointments(DateTime.parse(start_date).in_time_zone,
-                                   DateTime.parse(end_date).in_time_zone,
-                                   statuses)
+          svc.get_appointments(DateTime.parse(start_date).in_time_zone,
+                               DateTime.parse(end_date).in_time_zone,
+                               statuses)
         end.to(raise_error do |error|
           expect(error).to be_a(Common::Exceptions::BackendServiceException)
         end)
