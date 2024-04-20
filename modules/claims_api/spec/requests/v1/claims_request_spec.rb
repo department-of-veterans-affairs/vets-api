@@ -34,7 +34,7 @@ RSpec.describe 'BGS Claims management', type: :request do
   end
   let(:claims_service) do
     if Flipper.enabled? :claims_status_v1_bgs_enabled
-      ClaimsApi::LocalBGS
+      ClaimsApi::MiscellaneousBGSOperations
     else
       ClaimsApi::UnsynchronizedEVSSClaimService
     end

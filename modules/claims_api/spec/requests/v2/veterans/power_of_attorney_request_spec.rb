@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../../rails_helper'
 require 'token_validation/v2/client'
-require 'bgs_service/local_bgs'
+require 'bgs_service/miscellaneous_bgs_operations'
 
 RSpec.describe 'Power Of Attorney', type: :request do
   let(:veteran_id) { '1013062086V794840' }
@@ -14,7 +14,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
   let(:individual_poa_code) { 'A1H' }
   let(:organization_poa_code) { '083' }
   let(:bgs_poa) { { person_org_name: "#{individual_poa_code} name-here" } }
-  let(:local_bgs) { ClaimsApi::LocalBGS }
+  let(:local_bgs) { ClaimsApi::MiscellaneousBGSOperations }
 
   describe 'PowerOfAttorney' do
     before do

@@ -3,12 +3,12 @@
 require 'rails_helper'
 require_relative '../../../rails_helper'
 require 'token_validation/v2/client'
-require 'bgs_service/local_bgs'
+require 'bgs_service/miscellaneous_bgs_operations'
 
 RSpec.describe 'IntentToFiles', type: :request do
   let(:veteran_id) { '1013062086V794840' }
   let(:iws) do
-    ClaimsApi::LocalBGS
+    ClaimsApi::MiscellaneousBGSOperations
   end
 
   describe 'IntentToFiles' do
