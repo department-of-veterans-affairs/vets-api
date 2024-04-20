@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class ManageRepresentativeService < ClaimsApi::LocalBGS
+  module ManageRepresentativeService
     def update_poa_request(representative:, proc_id:)
       body =
         Nokogiri::XML::DocumentFragment.parse <<~EOXML
