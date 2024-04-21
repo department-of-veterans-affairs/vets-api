@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'bgs_service/manage_representative_service'
-
 module ClaimsApi
   module V2
     class PowerOfAttorneyRequestsController < ClaimsApi::V2::ApplicationController

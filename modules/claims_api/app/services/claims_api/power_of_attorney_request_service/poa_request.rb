@@ -16,6 +16,12 @@ module ClaimsApi
         ].freeze
       end
 
+      class << self
+        def load(data)
+          new(data)
+        end
+      end
+
       Veteran =
         Data.define(
           :first_name,
@@ -67,9 +73,7 @@ module ClaimsApi
       end
 
       def declined_reason
-        if status == Statuses::DECLINED # rubocop:disable Style/IfUnlessModifier
-          @data['declinedReason']
-        end
+        @data['declinedReason'] if status == Statuses::DECLINED
       end
 
       def authorizes_address_changing?
@@ -138,14 +142,12 @@ module ClaimsApi
           end
 
           def boolean(value)
+            # `else` => `nil`
             case value
             when 'Y'
               true
             when 'N'
               false
-            else # rubocop:disable Style/EmptyElse
-              # Just to be explicit.
-              nil
             end
           end
         end

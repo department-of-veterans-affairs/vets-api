@@ -70,7 +70,7 @@ http_interactions:
           <env:Body>
             <tns:readPOARequest>
               <data:SecondaryStatusList>
-                <SecondaryStatus>new</SecondaryStatus>
+                <SecondaryStatus>New</SecondaryStatus>
               </data:SecondaryStatusList>
               <data:POACodeList>
                 <POACode>1</POACode>
@@ -119,9 +119,7 @@ http_interactions:
               xmlns:ns1="http://www.w3.org/2003/05/soap-envelope"
             >
               <faultcode>ns0:Server</faultcode>
-              <faultstring>
-                No Record Found
-              </faultstring>
+              <faultstring>No Record Found</faultstring>
               <detail>
                 <ns0:MessageException
                   xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
@@ -130,17 +128,13 @@ http_interactions:
                   <faultCode>Client</faultCode>
                   <fieldName>POACodeList</fieldName>
                   <functionName>readPOARequest</functionName>
-                  <jrnDate>
-                    Wed Mar 27 19:10:07 CDT 2024
-                  </jrnDate>
+                  <jrnDate>Wed Mar 27 19:10:07 CDT 2024</jrnDate>
                   <jrnExtnlKeyTxt>xKey</jrnExtnlKeyTxt>
                   <jrnExtnlUserId>xUid</jrnExtnlUserId>
                   <jrnLocationId>281</jrnLocationId>
                   <jrnObjectId>VAgovAPI</jrnObjectId>
                   <jrnUserId>VAgovAPI</jrnUserId>
-                  <message>
-                    No Record Found
-                  </message>
+                  <message>No Record Found</message>
                   <reason>NO_RECORD_FOUND</reason>
                   <service>ManageRepresentativeService</service>
                 </ns0:MessageException>

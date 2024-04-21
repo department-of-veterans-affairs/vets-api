@@ -70,10 +70,10 @@ http_interactions:
           <env:Body>
             <tns:readPOARequest>
               <data:SecondaryStatusList>
-                <SecondaryStatus>new</SecondaryStatus>
-                <SecondaryStatus>pending</SecondaryStatus>
-                <SecondaryStatus>accepted</SecondaryStatus>
-                <SecondaryStatus>declined</SecondaryStatus>
+                <SecondaryStatus>New</SecondaryStatus>
+                <SecondaryStatus>Pending</SecondaryStatus>
+                <SecondaryStatus>Accepted</SecondaryStatus>
+                <SecondaryStatus>Declined</SecondaryStatus>
               </data:SecondaryStatusList>
               <data:POACodeList>
                 <POACode>012</POACode>

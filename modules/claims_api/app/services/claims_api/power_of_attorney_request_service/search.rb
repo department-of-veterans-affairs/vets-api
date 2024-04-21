@@ -1,27 +1,56 @@
 # frozen_string_literal: true
 
-require 'bgs_service/manage_representative_service'
-
 module ClaimsApi
   module PowerOfAttorneyRequestService
     module Search
       class << self
-        def perform
+        def perform(**)
+          query = Query.build!(**)
+          poa_requests = make_request(query)
+          poa_requests.map do |data|
+            PoaRequest.load(data)
+          end
+        end
+
+        private
+
+        def make_request(body)
           response =
-            ManageRepresentativeService::ReadPoaRequest.call(
-              statuses: PoaRequest::Statuses::ALL,
-              poa_codes: ['012']
+            LocalBGS.new.make_request(
+              endpoint: 'VDC/ManageRepresentativeService',
+              namespaces: { 'data' => '/data' },
+              action: 'readPOARequest',
+              error_handler: ErrorHandler,
+              transform_response: false,
+              body:,
             )
 
-          # `Array.wrap` (the `ActiveSupport` core extension with nicer behavior
-          # than Ruby core) because upstream invocation of `Hash.from_xml` has
-          # different output depending on the cardinality of sibling XML
-          # elements for a given kind:
-          #    0 => Absent
-          #    1 => Object
-          #   >1 => Array
-          poa_requests = response['poaRequestRespondReturnVOList']
-          Array.wrap(poa_requests).map { |data| PoaRequest.new(data) }
+          # `Array.wrap` to normalize around variable XML sibling cardinality.
+          Array.wrap(response.dig(
+            'POARequestRespondReturnVO',
+            'poaRequestRespondReturnVOList'
+          ))
+        rescue ErrorHandler::NoRecordFoundError
+          []
+        end
+
+        module ErrorHandler
+          # Nested this constant to indicate that it is just an implementation
+          # detail rather than a genuine error that callers interact with.
+          NoRecordFoundError = Class.new(RuntimeError)
+
+          class << self
+            def handle_errors!(fault)
+              # What fault data is the best indicator for this?
+              if 'No Record Found'.in?(fault.string)
+                raise NoRecordFoundError
+              end
+
+              SoapErrorHandler.handle_errors!(
+                fault
+              )
+            end
+          end
         end
       end
     end
