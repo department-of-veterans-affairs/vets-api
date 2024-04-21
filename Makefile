@@ -29,6 +29,7 @@ SECURITY     := "bin/rails security"
 
 # cribbed from https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html and https://news.ycombinator.com/item?id=11195539
 help:  ## Prints out documentation for available commands
+
 	@awk -F ':|##' \
 		'/^[^\t].+?:.*?##/ {\
 			printf "\033[36m%-30s\033[0m %s\n", $$1, $$NF \
