@@ -73,10 +73,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 0832461353f871b688b0c231ecf9bdbfb1f9145a
+  revision: 7176cb057f11f66f16889005a1873a084bad188c
   branch: master
   specs:
-    vets_json_schema (22.0.3)
+    vets_json_schema (22.1.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -256,7 +256,7 @@ GEM
       aws-sdk-core (~> 3, >= 3.192.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.8)
-    aws-sdk-sns (1.72.0)
+    aws-sdk-sns (1.73.0)
       aws-sdk-core (~> 3, >= 3.191.0)
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.8.0)
@@ -317,7 +317,7 @@ GEM
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
-    coverband (6.0.2)
+    coverband (6.1.0)
       redis (>= 3.0)
     crack (1.0.0)
       bigdecimal

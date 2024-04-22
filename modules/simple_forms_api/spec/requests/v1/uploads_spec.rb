@@ -5,7 +5,7 @@ require 'simple_forms_api_submission/metadata_validator'
 require 'common/file_helpers'
 
 RSpec.describe 'Forms uploader', type: :request do
-  non_ivc_forms = [
+  forms = [
     # TODO: Restore this test when we release 26-4555 to production.
     # 'vba_26_4555.json',
     'vba_21_4142.json',
@@ -21,14 +21,8 @@ RSpec.describe 'Forms uploader', type: :request do
     'vba_20_10207-non-veteran.json'
   ]
 
-  authenticated_non_ivc_forms = non_ivc_forms - %w[vba_40_0247.json vba_21_10210.json vba_21p_0847.json
-                                                   vba_40_10007.json]
-
-  ivc_forms = [
-    'vha_10_10d.json',
-    'vha_10_7959f_1.json',
-    'vha_10_7959f_2.json'
-  ]
+  authenticated_forms = forms - %w[vba_40_0247.json vba_21_10210.json vba_21p_0847.json
+                                   vba_40_10007.json]
 
   describe '#submit' do
     context 'going to Lighthouse Benefits Intake API' do
@@ -47,7 +41,7 @@ RSpec.describe 'Forms uploader', type: :request do
         Common::FileHelpers.delete_file_if_exists(metadata_file)
       end
 
-      non_ivc_forms.each do |form|
+      forms.each do |form|
         fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
         data = JSON.parse(fixture_path.read)
 
@@ -69,7 +63,7 @@ RSpec.describe 'Forms uploader', type: :request do
         end
       end
 
-      authenticated_non_ivc_forms.each do |form|
+      authenticated_forms.each do |form|
         fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
         data = JSON.parse(fixture_path.read)
 
@@ -219,26 +213,9 @@ RSpec.describe 'Forms uploader', type: :request do
       end
     end
 
-    context 'going to S3' do
-      ivc_forms.each do |form|
-        fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
-        data = JSON.parse(fixture_path.read)
-
-        it 'uploads a PDF file to S3' do
-          allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-          allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
-
-          post '/simple_forms_api/v1/simple_forms', params: data
-
-          expect(response).to have_http_status(:ok)
-        end
-      end
-    end
-
     context 'going to Lighthouse Benefits Claims API' do
       before do
         allow(Common::VirusScan).to receive(:scan).and_return(true)
-        allow_any_instance_of(Common::VirusScan).to receive(:scan).and_return(true)
         VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response')
         VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension')
         VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor')
@@ -414,7 +391,6 @@ RSpec.describe 'Forms uploader', type: :request do
 
       # Define data for both form IDs
       data_sets = [
-        { form_id: '10-10D', file: },
         { form_id: '40-0247', file: },
         { form_id: '40-10007', file: }
       ]
