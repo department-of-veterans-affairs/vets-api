@@ -229,13 +229,13 @@ module V0
       if client_config(client_id).blank?
         raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
       end
-      unless SignIn::Constants::Auth::CSP_TYPES.include?(type)
+      unless client_config(client_id).valid_credential_service_provider?(type)
         raise SignIn::Errors::MalformedParamsError.new message: 'Type is not valid'
       end
       unless SignIn::Constants::Auth::OPERATION_TYPES.include?(operation)
         raise SignIn::Errors::MalformedParamsError.new message: 'Operation is not valid'
       end
-      unless SignIn::Constants::Auth::ACR_VALUES.include?(acr)
+      unless client_config(client_id).valid_service_level?(acr)
         raise SignIn::Errors::MalformedParamsError.new message: 'ACR is not valid'
       end
     end

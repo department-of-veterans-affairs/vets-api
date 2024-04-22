@@ -28,78 +28,62 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
   end
 
   describe 'errors are funneled as service errors and set to raise and not re-try' do
-    context 'claim_establisher sends a backend exception' do
-      let(:message) { OpenStruct.new(status: 500, detail: nil, code: 'VA900', source: '') }
-      let(:backend_error) { Common::Exceptions::BackendServiceException.new(backtrace.backtrace, message) }
-      let(:backend_error_submit) { ClaimsApi::CustomError.new(backend_error, claim, 'submit') }
+    context 'no longer wraps the error and sets the key as an integer' do
+      error_original_body = {
+        messages: [
+          {
+            'key' => 'form526.submit.establishClaim.serviceError',
+            'severity' => 'FATAL',
+            'text' => 'Claim not established. System error with BGS. GUID: 00797c5d-89d4-4da6-aab7-24b4ad0e4a4f'
+          }
+        ]
+      }
 
-      it 'handles it as a service error' do
+      let(:backend_error) do
+        Common::Exceptions::BackendServiceException.new(
+          backtrace.backtrace,
+          {},
+          400,
+          error_original_body
+        )
+      end
+
+      let(:backend_error_submit) { ClaimsApi::CustomError.new(backend_error) }
+
+      it 'correctly set the key as the string value from the error message' do
         backend_error_submit.build_error
-        backend_error_submit.send(:build_error)
       rescue => e
-        expect(e.errors[0]['detail']).to include 'BackendServiceException'
+        expect(e.key).to be_a(String)
+        expect(e.key).not_to be_an_instance_of(Integer)
       end
     end
 
-    context 'claim_establisher sends a Faraday ConnectionFailed' do
-      let(:faraday_error) { Faraday::ConnectionFailed.new(backtrace) }
-      let(:faraday_error_submit) { ClaimsApi::CustomError.new(faraday_error, claim, 'validate') }
+    context 'the BRLS file number is the wrong size' do
+      error_original_body = {
+        messages: [
+          {
+            'key' => 'header.va_eauth_birlsfilenumber.Invalid',
+            'severity' => 'ERROR',
+            'text' => 'Size must be between 8 and 9'
+          }
+        ]
+      }
 
-      it 'handles the faraday error correctly' do
-        faraday_error_submit.build_error
-        faraday_error_submit.send(:build_error)
-      rescue => e
-        expect(e.errors[0]['detail']).to include 're-tryable'
+      let(:backend_error) do
+        Common::Exceptions::BackendServiceException.new(
+          backtrace.backtrace,
+          { status: 400, detail: nil, code: 'VA900', source: nil },
+          400,
+          error_original_body
+        )
       end
-    end
 
-    context 'claim_establisher sends a Faraday::ServerError' do
-      let(:faraday_error) { Faraday::ServerError.new(backtrace) }
-      let(:faraday_error_submit) { ClaimsApi::CustomError.new(faraday_error, claim, 'validate') }
+      let(:backend_error_submit) { ClaimsApi::CustomError.new(backend_error) }
 
-      it 'handles the faraday error correctly' do
-        faraday_error_submit.build_error
-        faraday_error_submit.send(:build_error)
+      it 'sets the evss_response to the original body error message' do
+        backend_error_submit.build_error
       rescue => e
-        expect(e.errors[0]['detail']).to include 're-tryable'
-      end
-    end
-  end
-
-  describe 'errors are funneled as re-tryable' do
-    context 'claim_establisher sends a ActiveRecord::RecordInvalid' do
-      let(:active_record_error) { ActiveRecord::RecordInvalid.new(claim) }
-      let(:active_record_error_submit) { ClaimsApi::CustomError.new(active_record_error, claim, 'submit') }
-
-      it 'handles it as a client exception' do
-        active_record_error_submit.build_error
-        active_record_error_submit.send(:build_error)
-      rescue => e
-        expect(e.errors[0]['detail']).to include 'client exception'
-      end
-    end
-
-    context 'claim_establisher sends a Faraday::BadRequestError' do
-      let(:bad_request_error) { Faraday::BadRequestError.new(claim) }
-      let(:bad_request_error_submit) { ClaimsApi::CustomError.new(bad_request_error, claim, 'submit') }
-
-      it 'handles it as a client exception' do
-        bad_request_error_submit.build_error
-        bad_request_error_submit.send(:build_error)
-      rescue => e
-        expect(e.errors[0]['detail']).to include 'client exception'
-      end
-    end
-
-    context 'claim_establisher sends a Faraday::UnprocessableEntityError' do
-      let(:unprocessable_error) { Faraday::UnprocessableEntityError.new(claim) }
-      let(:unprocessable_error_submit) { ClaimsApi::CustomError.new(unprocessable_error, claim, 'submit') }
-
-      it 'handles it as a client exception' do
-        unprocessable_error_submit.build_error
-        unprocessable_error_submit.send(:build_error)
-      rescue => e
-        expect(e.errors[0]['detail']).to include 'client exception'
+        expect(e.original_body[0]).to eq(error_original_body[:messages][0].deep_symbolize_keys)
       end
     end
   end
