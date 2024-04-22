@@ -992,7 +992,7 @@ RSpec.describe FormProfile, type: :model do
         'state' => user.address[:state],
         'country' => user.address[:country],
         'postal_code' => user.address[:postal_code][0..4]
-      },
+      }
     }
   end
 
