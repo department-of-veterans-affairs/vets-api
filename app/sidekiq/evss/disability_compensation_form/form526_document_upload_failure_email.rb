@@ -5,8 +5,7 @@ require 'va_notify/service'
 module EVSS
   module DisabilityCompensationForm
     class Form526DocumentUploadFailureEmail < Job
-      STATSD_SENT_METRIC_KEY = 'api.form_526.veteran_notifications.document_upload_failure_email.success'
-      STATSD_EXHAUSTED_METRIC_KEY = 'api.form_526.veteran_notifications.document_upload_failure_email.exhausted'
+      STATSD_METRIC_PREFIX  = 'api.form_526.veteran_notifications.document_upload_failure_email'
 
       # retry for one day
       sidekiq_options retry: 14
@@ -39,12 +38,11 @@ module EVSS
           { job_id:, timestamp:, form526_submission_id:, error_class:, supporting_evidence_attachment_guid: }
         )
 
-        StatsD.increment(STATSD_EXHAUSTED_METRIC_KEY)
+        StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted")
       rescue => e
         ::Rails.logger.error(
           'Failure in Form526DocumentUploadFailureEmail#sidekiq_retries_exhausted',
           {
-            messaged_content: e.message,
             job_id:,
             submission_id: form526_submission_id,
             supporting_evidence_attachment_guid:,
@@ -61,7 +59,7 @@ module EVSS
         submission = Form526Submission.find(form526_submission_id)
         send_notification_mailer(submission, supporting_evidence_attachment_guid)
 
-        StatsD.increment(STATSD_SENT_METRIC_KEY)
+        StatsD.increment("#{STATSD_METRIC_PREFIX}.success")
       rescue => e
         retryable_error_handler(e)
       end
