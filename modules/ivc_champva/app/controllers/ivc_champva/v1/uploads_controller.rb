@@ -29,7 +29,7 @@ module IvcChampva
       end
 
       def submit_supporting_documents
-        if %w[10-10D 10-7959F-2].include?(params[:form_id])
+        if %w[10-10D 10-7959C 10-7959F-2].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
