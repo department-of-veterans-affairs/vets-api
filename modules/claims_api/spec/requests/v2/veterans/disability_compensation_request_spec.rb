@@ -3946,4 +3946,16 @@ RSpec.describe 'Disability Claims', type: :request do
       end
     end
   end
+
+  describe 'POST #synchronous' do
+    let(:synchronous_path) { "/services/claims/v2/veterans/#{veteran_id}/526/synchronous" }
+
+    context 'when the endpoint is hit' do
+      it 'returns an empty test object' do
+        post synchronous_path, headers: auth_header
+
+        expect(response).to eq({})
+      end
+    end
+  end
 end
