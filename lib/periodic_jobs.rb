@@ -148,7 +148,9 @@ PERIODIC_JOBS = lambda { |mgr|
   # Daily/weekly report of unsuccessful benefits intake submissions
   mgr.register('0 2 1 * *', 'VBADocuments::ReportMonthlySubmissions')
   # Monthly report of benefits intake submissions
-  mgr.register('0 2,9,16 * * 1-5', 'VBADocuments::SlackNotifier')
+  mgr.register('0 2,8,9,11,13,15,17,19,21 * * 1-5', 'VBADocuments::SlackNotifier')
+  # Notifies slack channel if BI uploads start to expire with no S3 file uploads provided
+  mgr.register('15 * * * *', 'VBADocuments::SlackExpiredNotifier')
   # Notifies slack channel if certain benefits states get stuck
   mgr.register('0 2,9,16 * * 1-5', 'VBADocuments::FlipperStatusAlert')
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled

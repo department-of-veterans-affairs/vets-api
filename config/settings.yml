@@ -600,7 +600,7 @@ vba_documents:
     default_alert_email: ""
     in_flight_notification_hung_time_in_days: 14
     renotification_in_minutes: 240
-    update_stalled_notification_in_minutes: 180
+    update_stalled_notification_in_minutes: 5
   webhooks:
     registration_next_run_in_minutes: 15
     registration_max_retries: 3
