@@ -11,7 +11,7 @@ module ClaimsApi
       EOXML
 
       make_request(
-        endpoint:,
+        namespace: 'data',
         action: 'createVeteranRepresentative',
         body: body.to_s,
         key: 'VeteranRepresentative'

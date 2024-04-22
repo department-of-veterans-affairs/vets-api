@@ -199,7 +199,7 @@ RSpec.describe 'payment information', type: :request do
 
       it 'calls VA Notify background job to send an email' do
         user.all_emails.each do |email|
-          expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, nil)
+          expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, 'comp_and_pen')
         end
 
         subject

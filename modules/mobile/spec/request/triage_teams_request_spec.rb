@@ -9,12 +9,10 @@ RSpec.describe 'Mobile Triage Teams Integration', type: :request do
   let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type: 'Premium') }
 
   before do
-    Flipper.enable_actor(:mobile_sm_session_policy, user)
     Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
   end
 
   after do
-    Flipper.disable(:mobile_sm_session_policy)
     Timecop.return
   end
 

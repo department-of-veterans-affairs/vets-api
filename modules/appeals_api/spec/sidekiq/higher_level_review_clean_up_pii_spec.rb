@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii, type: :job do
+describe AppealsApi::HigherLevelReviewCleanUpPii, type: :job do
   let(:service) { instance_double(AppealsApi::RemovePii) }
 
   describe '#perform' do
@@ -12,7 +12,7 @@ describe AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii, type: :job do
     end
 
     context 'when pii_expunge flag is enabled' do
-      before { Flipper.enable :decision_review_nod_pii_expunge_enabled }
+      before { Flipper.enable :decision_review_hlr_pii_expunge_enabled }
 
       it 'calls AppealsApi::RemovePii' do
         described_class.new.perform
@@ -21,7 +21,7 @@ describe AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii, type: :job do
     end
 
     context 'when pii_expunge flag is disabled' do
-      before { Flipper.disable :decision_review_nod_pii_expunge_enabled }
+      before { Flipper.disable :decision_review_hlr_pii_expunge_enabled }
 
       it 'does not call AppealsApi::RemovePii' do
         described_class.new.perform
