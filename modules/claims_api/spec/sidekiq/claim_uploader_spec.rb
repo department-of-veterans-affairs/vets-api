@@ -136,7 +136,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
       allow(Tempfile).to receive(:new).and_return tf
       allow(Flipper).to receive(:enabled?).with(:claims_claim_uploader_use_bd).and_return true
 
-      args = { claim: auto_claim, doc_type: 'L122', pdf_path: tf.path }
+      args = { claim: auto_claim, doc_type: 'L122', original_filename: 'extras.pdf', pdf_path: tf.path }
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload).with(args).and_return true
       subject.new.perform(auto_claim.id)
     end
@@ -147,7 +147,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
       allow(Flipper).to receive(:enabled?).with(:claims_claim_uploader_use_bd).and_return true
 
       args = { claim: supporting_document.auto_established_claim, doc_type: 'L023',
-               pdf_path: tf.path }
+               original_filename: 'extras.pdf', pdf_path: tf.path }
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload).with(args).and_return true
       subject.new.perform(supporting_document.id)
     end
