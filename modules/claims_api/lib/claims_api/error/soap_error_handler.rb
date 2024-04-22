@@ -1,30 +1,24 @@
 # frozen_string_literal: true
 
 module ClaimsApi
+  # list of fault codes: https://hub.verj.io/ebase/doc/SOAP_Faults.htm
+  #
+  # TODO: Some (or all) of these cases should be handled in consumers and not in
+  # a central location.
   class SoapErrorHandler
-    # list of fault codes: https://hub.verj.io/ebase/doc/SOAP_Faults.htm
-
-    def handle_errors!(body)
-      @hash = body
-
-      return if @hash&.dig('Envelope', 'Body', 'Fault').blank?
-
-      get_fault_info
+    class << self
+      def handle_errors!(fault)
+        new(fault).handle_errors!
+      end
     end
 
-    def get_fault_info
-      fault = @hash&.dig('Envelope', 'Body', 'Fault')
-      @fault_code = fault&.dig('faultcode')&.split(':')&.dig(1)
-      @fault_string = fault&.dig('faultstring')
-      @fault_message = fault&.dig('detail', 'MessageException') || fault&.dig('detail', 'MessageFaultException')
-      return {} if @fault_string.include?('IntentToFileWebService') && @fault_string.include?('not found')
-
-      get_exception
+    def initialize(fault)
+      @fault = fault
     end
 
-    private
+    def handle_errors!
+      return if not_error?
 
-    def get_exception
       if not_found?
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found.')
       elsif bnft_claim_not_found?
@@ -39,16 +33,23 @@ module ClaimsApi
       end
     end
 
+    private
+
+    def not_error?
+      @fault.string.include?('IntentToFileWebService') &&
+        @fault.string.include?('not found')
+    end
+
     def not_found?
       errors = ['bnftClaimId-->bnftClaimId/text()', 'not found', 'No Person found']
-      has_errors = errors.any? { |error| @fault_string.include? error }
+      has_errors = errors.any? { |error| @fault.string.include? error }
       soap_logging('404') if has_errors
       has_errors
     end
 
     def bnft_claim_not_found?
       errors = ['No BnftClaim found']
-      has_errors = errors.any? { |error| @fault_string.include? error }
+      has_errors = errors.any? { |error| @fault.string.include? error }
       soap_logging('404') if has_errors
       has_errors
     end
@@ -57,7 +58,7 @@ module ClaimsApi
       errors = ['java.sql', 'MessageException', 'Validation errors', 'Exception Description',
                 'does not have necessary info', 'Error committing transaction', 'Transaction Rolledback',
                 'Unexpected error', 'XML reader error', 'could not be converted']
-      has_errors = errors.any? { |error| @fault_string.include? error }
+      has_errors = errors.any? { |error| @fault.string.include? error }
       soap_logging('422') if has_errors
       has_errors
     end
@@ -65,8 +66,8 @@ module ClaimsApi
     def soap_logging(status_code)
       ClaimsApi::Logger.log('soap_error_handler',
                             detail: "Returning #{status_code} via local_bgs & soap_error_handler, " \
-                                    "fault_string: #{@fault_string}, with message: #{@fault_message}, " \
-                                    "and fault_code: #{@fault_code}.")
+                                    "fault_string: #{@fault.string}, with message: #{@fault.message}, " \
+                                    "and fault_code: #{@fault.code}.")
     end
   end
 end
