@@ -175,7 +175,7 @@ module TravelClaim
     end
 
     def btsss_ssm_urls_enabled?
-      settings.mock || Flipper.enabled?('check_in_experience_travel_btsss_ssm_urls_enabled') || false
+      Flipper.enabled?('check_in_experience_travel_btsss_ssm_urls_enabled') || false
     end
 
     def mock_enabled?
