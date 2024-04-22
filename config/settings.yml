@@ -1635,6 +1635,9 @@ ivc_forms:
     enabled: true
     region: "region"
 
+ivc_champva_ohi:
+  prefill: true
+
 coverband:
   github_organization: ~
   github_team: ~

@@ -101,13 +101,15 @@ class FormProfile
     vre_readiness: ['28-1900'],
     coe: ['26-1880'],
     adapted_housing: ['26-4555'],
-    intent_to_file: ['21-0966']
+    intent_to_file: ['21-0966'],
+    ivc_champva_ohi: ['10-7959C'],
   }.freeze
 
   FORM_ID_TO_CLASS = {
     '0873' => ::FormProfiles::VA0873,
     '1010EZ' => ::FormProfiles::VA1010ez,
     '10-10EZR' => ::FormProfiles::VA1010ezr,
+    '10-7959C' => ::FormProfiles::VHA107959c,
     '10182' => ::FormProfiles::VA10182,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,

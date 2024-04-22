@@ -977,6 +977,25 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v10_7959c_expected) do
+    {
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.suffix
+      },
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.address[:city],
+        'state' => user.address[:state],
+        'country' => user.address[:country],
+        'postal_code' => user.address[:postal_code][0..4]
+      },
+    }
+  end
+
   describe '#initialize_military_information', skip_va_profile: true do
     context 'with military_information vaprofile' do
       it 'prefills military data from va profile' do
@@ -1560,6 +1579,7 @@ RSpec.describe FormProfile, type: :model do
           28-1900
           26-1880
           26-4555
+          10-7959c
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
