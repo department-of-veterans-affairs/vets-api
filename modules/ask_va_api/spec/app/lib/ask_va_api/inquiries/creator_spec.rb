@@ -19,12 +19,14 @@ RSpec.describe AskVAApi::Inquiries::Creator do
         allow(service).to receive(:call).with(endpoint:, method: :put,
                                               payload: { params: }).and_return({
                                                                                  Data: {
-                                                                                   InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1'
+                                                                                   InquiryNumber: '530d56a8-affd-ee11' \
+                                                                                                  '-a1fe-001dd8094ff1'
                                                                                  },
                                                                                  Message: '',
                                                                                  ExceptionOccurred: false,
                                                                                  ExceptionMessage: '',
-                                                                                 MessageId: 'b8ebd8e7-3bbf-49c5-aff0-99503e50ee27'
+                                                                                 MessageId: 'b8ebd8e7-3bbf-49c5' \
+                                                                                            '-aff0-99503e50ee27'
                                                                                })
       end
 

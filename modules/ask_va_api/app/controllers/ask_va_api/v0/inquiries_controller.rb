@@ -97,104 +97,60 @@ module AskVAApi
 
       def inquiry_params
         params.permit(
-          :AreYouTheDependent,
-          :AttachmentPresent,
-          :BranchOfService,
-          :City,
-          :ContactMethod,
-          :Country,
-          :DaytimePhone,
-          :DependantCity,
-          :DependantCountry,
-          :DependantDayTimePhone,
-          :DependantDOB,
-          :DependantEmail,
-          :DependantFirstName,
-          :DependantGender,
-          :DependantLastName,
-          :DependantMiddleName,
-          :DependantProvince,
-          :DependantRelationship,
-          :DependantSSN,
-          :DependantState,
-          :DependantStreetAddress,
-          :DependantZipCode,
-          :EmailAddress,
-          :EmailConfirmation,
-          :FirstName,
-          :Gender,
-          :InquiryAbout,
-          :InquiryCategory,
-          :InquirySource,
-          :InquirySubtopic,
-          :InquirySummary,
-          :InquiryTopic,
-          :InquiryType,
-          :IsVAEmployee,
-          :IsVeteran,
-          :IsVeteranAnEmployee,
-          :IsVeteranDeceased,
-          :LevelOfAuthentication,
-          :MedicalCenter,
-          :MiddleName,
-          :PreferredName,
-          :Pronouns,
-          :StreetAddress2,
-          :Submitter,
-          :SubmitterDependent,
-          :SubmitterDOB,
-          :SubmitterGender,
-          :SubmitterProvince,
-          :SubmitterSSN,
-          :SubmitterState,
-          :SubmitterStateOfResidency,
-          :SubmitterStateOfSchool,
-          :SubmitterStateProperty,
-          :SubmitterStreetAddress,
-          :SubmitterVetCenter,
-          :SubmitterZipCodeOfResidency,
-          :SubmitterQuestion,
-          :Suffix,
-          :SupervisorFlag,
-          :VaEmployeeTimeStamp,
-          :VeteranCity,
-          :VeteranClaimNumber,
-          :VeteranCountry,
-          :VeteranDateOfDeath,
-          :VeteranDOB,
-          :VeteranDodIdEdipiNumber,
-          :VeteranEmail,
-          :VeteranEmailConfirmation,
-          :VeteranEnrolled,
-          :VeteranFirstName,
-          :VeteranICN,
-          :VeteranLastName,
-          :VeteranMiddleName,
-          :VeteranPhone,
-          :VeteranPreferedName,
-          :VeteranPronouns,
-          :VeteranProvince,
-          :VeteranRelationship,
-          :VeteranServiceEndDate,
-          :VeteranServiceNumber,
-          :VeteranServiceStartDate,
-          :VeteranSSN,
-          :VeteransState,
-          :VeteranStreetAddress,
-          :VeteranSuffix,
-          :VeteranSuiteAptOther,
-          :VeteranZipCode,
-          :WhoWasTheirCounselor,
-          :YourLastName,
-          :ZipCode,
-          school_obj: %i[
-            City
-            InstitutionName
-            RegionalOffice
-            SchoolFacilityCode
-            StateAbbreviation
-          ]
+          *base_parameters,
+          *dependant_parameters,
+          *submitter_parameters,
+          *veteran_parameters,
+          school_obj: school_parameters
         ).to_h
+      end
+
+      def base_parameters
+        %i[
+          AreYouTheDependent AttachmentPresent BranchOfService City ContactMethod Country
+          DaytimePhone EmailAddress EmailConfirmation FirstName Gender InquiryAbout
+          InquiryCategory InquirySource InquirySubtopic InquirySummary InquiryTopic
+          InquiryType IsVAEmployee IsVeteran IsVeteranAnEmployee IsVeteranDeceased
+          LevelOfAuthentication MedicalCenter MiddleName PreferredName Pronouns
+          StreetAddress2 SupervisorFlag VaEmployeeTimeStamp ZipCode
+        ]
+      end
+
+      def dependant_parameters
+        %i[
+          DependantCity DependantCountry DependantDayTimePhone DependantDOB
+          DependantEmail DependantFirstName DependantGender DependantLastName
+          DependantMiddleName DependantProvince DependantRelationship DependantSSN
+          DependantState DependantStreetAddress DependantZipCode
+        ]
+      end
+
+      def submitter_parameters
+        %i[
+          Submitter SubmitterDependent SubmitterDOB SubmitterGender SubmitterProvince
+          SubmitterSSN SubmitterState SubmitterStateOfResidency SubmitterStateOfSchool
+          SubmitterStateProperty SubmitterStreetAddress SubmitterVetCenter
+          SubmitterZipCodeOfResidency SubmitterQuestion
+        ]
+      end
+
+      def veteran_parameters
+        %i[
+          VeteranCity VeteranClaimNumber VeteranCountry VeteranDateOfDeath
+          VeteranDOB VeteranDodIdEdipiNumber VeteranEmail VeteranEmailConfirmation
+          VeteranEnrolled VeteranFirstName VeteranICN VeteranLastName VeteranMiddleName
+          VeteranPhone VeteranPreferedName VeteranPronouns VeteranProvince
+          VeteranRelationship VeteranServiceEndDate VeteranServiceNumber
+          VeteranServiceStartDate VeteranSSN VeteransState VeteranStreetAddress
+          VeteranSuffix VeteranSuiteAptOther VeteranZipCode WhoWasTheirCounselor
+          YourLastName
+        ]
+      end
+
+      def school_parameters
+        %i[
+          City InstitutionName RegionalOffice SchoolFacilityCode StateAbbreviation
+        ]
       end
 
       Result = Struct.new(:payload, :status, keyword_init: true)
