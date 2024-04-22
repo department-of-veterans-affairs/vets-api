@@ -109,7 +109,7 @@ module ClaimsApi
         end
 
         def synchronous
-          render json: { test: 'test' }
+          render json: {}
         end
 
         private
