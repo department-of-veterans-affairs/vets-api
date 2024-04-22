@@ -20,6 +20,7 @@ x-app: &common
     - "../vets-api-mockdata:/cache"
     - .:/srv/vets-api/src:cached
     - shared-vol:/tmp
+  working_dir: /app
   depends_on:
     - clamav
     - postgres
