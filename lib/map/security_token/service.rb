@@ -14,7 +14,7 @@ module MAP
                            config.token_path,
                            token_params(application, icn),
                            { 'Content-Type' => 'application/x-www-form-urlencoded',
-                             'X-B3-Sampled' => '1',})
+                             'X-B3-Sampled' => '1' })
         sts_token = parse_response(response, application, icn)
         Rails.logger.info("#{config.logging_prefix} token success", { application:, icn: })
         sts_token
