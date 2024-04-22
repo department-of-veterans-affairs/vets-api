@@ -11,48 +11,81 @@ module V0
     before_action :terms_authenticate
 
     def latest
-      terms_of_use_agreement = get_terms_of_use_agreements_for_version(params[:version]).last
-      render_success(terms_of_use_agreement, :ok)
+      terms_of_use_agreement = find_latest_agreement_by_version(params[:version])
+      render_success(action: 'latest', body: { terms_of_use_agreement: })
     end
 
     def accept
-      terms_of_use_agreement = TermsOfUse::Acceptor.new(user_account: current_user.user_account,
-                                                        common_name: current_user.common_name,
-                                                        version: params[:version]).perform!
+      terms_of_use_agreement = acceptor.perform!
+
       recache_user
-      render_success(terms_of_use_agreement, :created)
+      render_success(action: 'accept', body: { terms_of_use_agreement: }, status: :created)
     rescue TermsOfUse::Errors::AcceptorError => e
-      render_error(e.message)
+      render_error(action: 'accept', message: e.message)
+    end
+
+    def accept_and_provision
+      terms_of_use_agreement = acceptor(async: false).perform!
+
+      if terms_of_use_agreement.accepted? && provisioner.perform
+        create_cerner_cookie
+        recache_user
+        render_success(action: 'accept_and_provision', body: { terms_of_use_agreement:, provisioned: true },
+                       status: :created)
+      else
+        render_error(action: 'accept_and_provision', message: 'Failed to accept and provision')
+      end
+    rescue TermsOfUse::Errors::AcceptorError => e
+      render_error(action: 'accept_and_provision', message: e.message)
     end
 
     def decline
-      terms_of_use_agreement = TermsOfUse::Decliner.new(user_account: current_user.user_account,
-                                                        common_name: current_user.common_name,
-                                                        version: params[:version]).perform!
+      terms_of_use_agreement = decliner.perform!
+
       recache_user
-      render_success(terms_of_use_agreement, :created)
+      render_success(action: 'decline', body: { terms_of_use_agreement: }, status: :created)
     rescue TermsOfUse::Errors::DeclinerError => e
-      render_error(e.message)
+      render_error(action: 'decline', message: e.message)
     end
 
     def update_provisioning
-      provisioner = TermsOfUse::Provisioner.new(icn: current_user.icn,
-                                                first_name: current_user.first_name,
-                                                last_name: current_user.last_name,
-                                                mpi_gcids: current_user.mpi_gcids)
       if provisioner.perform
         create_cerner_cookie
-        Rails.logger.info('[TermsOfUseAgreementsController] update_provisioning success', { icn: current_user.icn })
-        render json: { provisioned: true }, status: :ok
+        render_success(action: 'update_provisioning', body: { provisioned: true }, status: :ok)
       else
-        Rails.logger.error('[TermsOfUseAgreementsController] update_provisioning error', { icn: current_user.icn })
-        render_error('Failed to provision')
+        render_error(action: 'update_provisioning', message: 'Failed to provision')
       end
     rescue TermsOfUse::Errors::ProvisionerError => e
-      render_error(e.message)
+      render_error(action: 'update_provisioning', message: e.message)
     end
 
     private
+
+    def acceptor(async: true)
+      TermsOfUse::Acceptor.new(
+        user_account: current_user.user_account,
+        common_name: current_user.common_name,
+        version: params[:version],
+        async:
+      )
+    end
+
+    def decliner
+      TermsOfUse::Decliner.new(
+        user_account: current_user.user_account,
+        common_name: current_user.common_name,
+        version: params[:version]
+      )
+    end
+
+    def provisioner
+      TermsOfUse::Provisioner.new(
+        icn: current_user.icn,
+        first_name: current_user.first_name,
+        last_name: current_user.last_name,
+        mpi_gcids: current_user.mpi_gcids
+      )
+    end
 
     def recache_user
       current_user.needs_accepted_terms_of_use = current_user.user_account&.needs_accepted_terms_of_use?
@@ -68,8 +101,8 @@ module V0
       }
     end
 
-    def get_terms_of_use_agreements_for_version(version)
-      current_user.user_account.terms_of_use_agreements.where(agreement_version: version)
+    def find_latest_agreement_by_version(version)
+      current_user.user_account.terms_of_use_agreements.where(agreement_version: version).last
     end
 
     def authenticate_one_time_terms_code
@@ -85,12 +118,14 @@ module V0
       raise Common::Exceptions::Unauthorized unless @current_user
     end
 
-    def render_success(terms_of_use_agreement, status)
-      render json: { terms_of_use_agreement: }, status:
+    def render_success(action:, body:, status: :ok)
+      Rails.logger.info("[TermsOfUseAgreementsController] #{action} success", { icn: current_user.icn })
+      render json: body, status:
     end
 
-    def render_error(message)
-      render json: { error: message }, status: :unprocessable_entity
+    def render_error(action:, message:, status: :unprocessable_entity)
+      Rails.logger.error("[TermsOfUseAgreementsController] #{action} error: #{message}", { icn: current_user.icn })
+      render json: { error: message }, status:
     end
   end
 end
