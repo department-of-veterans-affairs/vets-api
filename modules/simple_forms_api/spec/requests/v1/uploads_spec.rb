@@ -5,7 +5,7 @@ require 'simple_forms_api_submission/metadata_validator'
 require 'common/file_helpers'
 
 RSpec.describe 'Forms uploader', type: :request do
-  non_ivc_forms = [
+  forms = [
     # TODO: Restore this test when we release 26-4555 to production.
     # 'vba_26_4555.json',
     'vba_21_4142.json',
@@ -21,102 +21,109 @@ RSpec.describe 'Forms uploader', type: :request do
     'vba_20_10207-non-veteran.json'
   ]
 
-  authenticated_non_ivc_forms = non_ivc_forms - %w[vba_40_0247.json vba_21_10210.json vba_21p_0847.json
-                                                   vba_40_10007.json]
-
-  ivc_forms = [
-    'vha_10_10d.json',
-    'vha_10_7959f_1.json',
-    'vha_10_7959f_2.json'
-  ]
+  authenticated_forms = forms - %w[vba_40_0247.json vba_21_10210.json vba_21p_0847.json
+                                   vba_40_10007.json]
 
   describe '#submit' do
-    let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
-    let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
+    context 'going to Lighthouse Benefits Intake API' do
+      let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
+      let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
 
-    before { allow(Common::FileHelpers).to receive(:random_file_path).and_return(file_seed) }
+      before do
+        VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+        VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+        allow(Common::FileHelpers).to receive(:random_file_path).and_return(file_seed)
+      end
 
-    after { Common::FileHelpers.delete_file_if_exists(metadata_file) }
+      after do
+        VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+        VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+        Common::FileHelpers.delete_file_if_exists(metadata_file)
+      end
 
-    non_ivc_forms.each do |form|
-      fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
-      data = JSON.parse(fixture_path.read)
+      forms.each do |form|
+        fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
+        data = JSON.parse(fixture_path.read)
 
-      it 'makes the request' do
-        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
-            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+        it 'makes the request' do
+          allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
 
+          post '/simple_forms_api/v1/simple_forms', params: data
+
+          expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'saves a FormSubmissionAttempt' do
+          allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+
+          expect do
             post '/simple_forms_api/v1/simple_forms', params: data
-
-            expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
-            expect(response).to have_http_status(:ok)
-          end
+          end.to change(FormSubmissionAttempt, :count).by(1)
         end
       end
 
-      it 'saves a FormSubmissionAttempt' do
-        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+      authenticated_forms.each do |form|
+        fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
+        data = JSON.parse(fixture_path.read)
+
+        context 'authenticated user' do
+          before do
+            user = create(:user)
+            sign_in_as(user)
+            create(:in_progress_form, user_uuid: user.uuid, form_id: data['form_number'])
+          end
+
+          it 'clears the InProgressForm' do
             allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
 
             expect do
               post '/simple_forms_api/v1/simple_forms', params: data
-            end.to change(FormSubmissionAttempt, :count).by(1)
+            end.to change(InProgressForm, :count).by(-1)
           end
         end
       end
-    end
 
-    authenticated_non_ivc_forms.each do |form|
-      fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
-      data = JSON.parse(fixture_path.read)
+      context 'request with intent to file' do
+        context 'authenticated' do
+          before do
+            sign_in
+            allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+            allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+          end
 
-      context 'authenticated user' do
-        before do
-          user = create(:user)
-          sign_in_as(user)
-          create(:in_progress_form, user_uuid: user.uuid, form_id: data['form_number'])
-        end
+          context 'third party' do
+            let(:expiration_date) { Time.zone.now }
 
-        it 'clears the InProgressForm' do
-          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
-              allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+            before do
+              allow_any_instance_of(ActiveSupport::TimeZone).to receive(:now).and_return(expiration_date)
+            end
 
-              expect do
+            %w[THIRD_PARTY_VETERAN THIRD_PARTY_SURVIVING_DEPENDENT].each do |identification|
+              it 'returns an expiration date' do
+                fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                               'vba_21_0966.json')
+                data = JSON.parse(fixture_path.read)
+                data['preparer_identification'] = identification
+
                 post '/simple_forms_api/v1/simple_forms', params: data
-              end.to change(InProgressForm, :count).by(-1)
+
+                parsed_response_body = JSON.parse(response.body)
+                parsed_expiration_date = Time.zone.parse(parsed_response_body['expiration_date'])
+                expect(parsed_expiration_date.to_s).to eq (expiration_date + 1.year).to_s
+              end
             end
           end
         end
-      end
-    end
 
-    ivc_forms.each do |form|
-      fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
-      data = JSON.parse(fixture_path.read)
+        context 'unauthenticated' do
+          let(:expiration_date) { Time.zone.now }
 
-      it 'uploads a PDF file to S3' do
-        allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
+          before do
+            allow_any_instance_of(ActiveSupport::TimeZone).to receive(:now).and_return(expiration_date)
+          end
 
-        post '/simple_forms_api/v1/simple_forms', params: data
-
-        expect(response).to have_http_status(:ok)
-      end
-    end
-
-    describe 'request with intent to file unauthenticated' do
-      let(:expiration_date) { Time.zone.now }
-
-      before do
-        allow_any_instance_of(ActiveSupport::TimeZone).to receive(:now).and_return(expiration_date)
-      end
-
-      it 'returns an expiration date' do
-        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+          it 'returns an expiration date' do
             fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                            'vba_21_0966.json')
             data = JSON.parse(fixture_path.read)
@@ -129,112 +136,118 @@ RSpec.describe 'Forms uploader', type: :request do
           end
         end
       end
+
+      context 'request with attached documents' do
+        it 'appends the attachments to the 40-0247 PDF' do
+          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                         'vba_40_0247_with_supporting_document.json')
+          pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
+          data = JSON.parse(fixture_path.read)
+          attachment = double
+          allow(attachment).to receive(:to_pdf).and_return(pdf_path)
+
+          expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
+
+          post '/simple_forms_api/v1/simple_forms', params: data
+
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'appends the attachments to the 40-10007 PDF' do
+          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                         'vba_40_10007_with_supporting_document.json')
+          pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
+          data = JSON.parse(fixture_path.read)
+          attachment = double
+          allow(attachment).to receive(:to_pdf).and_return(pdf_path)
+          expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
+          post '/simple_forms_api/v1/simple_forms', params: data
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'LOA3 authenticated' do
+        before do
+          sign_in
+          allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+          allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+        end
+
+        it 'stamps the LOA3 text on the PDF' do
+          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                         'vba_21_4142.json')
+          data = JSON.parse(fixture_path.read)
+
+          allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+          expect_any_instance_of(SimpleFormsApi::PdfFiller).to receive(:generate).with(3)
+
+          post '/simple_forms_api/v1/simple_forms', params: data
+        end
+      end
+
+      context 'transliterating fields' do
+        context 'transliteration succeeds' do
+          it 'responds with ok' do
+            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                           'form_with_accented_chars_21_0966.json')
+            data = JSON.parse(fixture_path.read)
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(response).to have_http_status(:ok)
+          end
+        end
+
+        context 'transliteration fails' do
+          it 'responds with an error' do
+            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                           'form_with_non_latin_chars_21_0966.json')
+            data = JSON.parse(fixture_path.read)
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(response).to have_http_status(:error)
+            expect(response.body).to include('not compatible with the Windows-1252 character set')
+          end
+        end
+      end
     end
 
-    describe 'authenticated' do
+    context 'going to Lighthouse Benefits Claims API' do
       before do
-        sign_in
-        allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
-        allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+        allow(Common::VirusScan).to receive(:scan).and_return(true)
+        VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response')
+        VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension')
+        VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor')
+        VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response')
       end
 
-      describe 'request with intent to file' do
-        describe 'veteran' do
-          it 'makes the request with an intent to file' do
-            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
-              VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
-                VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor') do
-                  VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
-                    fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                                   'vba_21_0966-min.json')
-                    data = JSON.parse(fixture_path.read)
-                    data['preparer_identification'] = 'VETERAN'
+      after do
+        VCR.eject_cassette('lighthouse/benefits_claims/intent_to_file/404_response')
+        VCR.eject_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension')
+        VCR.eject_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor')
+        VCR.eject_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response')
+      end
 
-                    post '/simple_forms_api/v1/simple_forms', params: data
+      context 'authenticated' do
+        before do
+          sign_in
+          allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+          allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+        end
 
-                    expect(response).to have_http_status(:ok)
-                  end
-                end
-              end
+        context 'request with intent to file' do
+          context 'veteran' do
+            it 'makes the request with an intent to file' do
+              fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                             'vba_21_0966-min.json')
+              data = JSON.parse(fixture_path.read)
+              data['preparer_identification'] = 'VETERAN'
+
+              post '/simple_forms_api/v1/simple_forms', params: data
+
+              expect(response).to have_http_status(:ok)
             end
-          end
-        end
-
-        describe 'third party' do
-          let(:expiration_date) { Time.zone.now }
-
-          before do
-            allow_any_instance_of(ActiveSupport::TimeZone).to receive(:now).and_return(expiration_date)
-          end
-
-          %w[THIRD_PARTY_VETERAN THIRD_PARTY_SURVIVING_DEPENDENT].each do |identification|
-            it 'returns an expiration date' do
-              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-                VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
-                  fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                                 'vba_21_0966.json')
-                  data = JSON.parse(fixture_path.read)
-                  data['preparer_identification'] = identification
-
-                  post '/simple_forms_api/v1/simple_forms', params: data
-
-                  parsed_response_body = JSON.parse(response.body)
-                  parsed_expiration_date = Time.zone.parse(parsed_response_body['expiration_date'])
-                  expect(parsed_expiration_date.to_s).to eq (expiration_date + 1.year).to_s
-                end
-              end
-            end
-          end
-        end
-      end
-
-      it 'stamps the LOA3 text on the PDF' do
-        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
-            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                           'vba_21_4142.json')
-            data = JSON.parse(fixture_path.read)
-            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-            expect_any_instance_of(SimpleFormsApi::PdfFiller).to receive(:generate).with(3)
-
-            post '/simple_forms_api/v1/simple_forms', params: data
-          end
-        end
-      end
-    end
-
-    describe 'request with attached documents' do
-      it 'appends the attachments to the 40-0247 PDF' do
-        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
-            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                           'vba_40_0247_with_supporting_document.json')
-            pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
-            data = JSON.parse(fixture_path.read)
-            attachment = double
-            allow(attachment).to receive(:to_pdf).and_return(pdf_path)
-
-            expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
-
-            post '/simple_forms_api/v1/simple_forms', params: data
-
-            expect(response).to have_http_status(:ok)
-          end
-        end
-      end
-
-      it 'appends the attachments to the 40-10007 PDF' do
-        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
-            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                           'vba_40_10007_with_supporting_document.json')
-            pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
-            data = JSON.parse(fixture_path.read)
-            attachment = double
-            allow(attachment).to receive(:to_pdf).and_return(pdf_path)
-            expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
-            post '/simple_forms_api/v1/simple_forms', params: data
-            expect(response).to have_http_status(:ok)
           end
         end
       end
@@ -368,37 +381,6 @@ RSpec.describe 'Forms uploader', type: :request do
         end
       end
     end
-
-    describe 'transliterating fields' do
-      context 'transliteration succeeds' do
-        it 'responds with ok' do
-          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
-              fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                             'form_with_accented_chars_21_0966.json')
-              data = JSON.parse(fixture_path.read)
-
-              post '/simple_forms_api/v1/simple_forms', params: data
-
-              expect(response).to have_http_status(:ok)
-            end
-          end
-        end
-      end
-
-      context 'transliteration fails' do
-        it 'responds with an error' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'form_with_non_latin_chars_21_0966.json')
-          data = JSON.parse(fixture_path.read)
-
-          post '/simple_forms_api/v1/simple_forms', params: data
-
-          expect(response).to have_http_status(:error)
-          expect(response.body).to include('not compatible with the Windows-1252 character set')
-        end
-      end
-    end
   end
 
   describe '#submit_supporting_documents' do
@@ -409,7 +391,6 @@ RSpec.describe 'Forms uploader', type: :request do
 
       # Define data for both form IDs
       data_sets = [
-        { form_id: '10-10D', file: },
         { form_id: '40-0247', file: },
         { form_id: '40-10007', file: }
       ]
@@ -429,80 +410,91 @@ RSpec.describe 'Forms uploader', type: :request do
 
   describe '#get_intents_to_file' do
     before do
+      VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response')
+      VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response_pension')
+      VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response_survivor')
       sign_in
       allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
     end
 
+    after do
+      VCR.eject_cassette('lighthouse/benefits_claims/intent_to_file/404_response')
+      VCR.eject_cassette('lighthouse/benefits_claims/intent_to_file/404_response_pension')
+      VCR.eject_cassette('lighthouse/benefits_claims/intent_to_file/404_response_survivor')
+    end
+
     describe 'no intents on file' do
       it 'returns no intents' do
-        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
-          VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response_pension') do
-            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response_survivor') do
-              get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
+        get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
 
-              parsed_response = JSON.parse(response.body)
-              expect(parsed_response['compensation_intent']).to eq nil
-              expect(parsed_response['pension_intent']).to eq nil
-              expect(parsed_response['survivor_intent']).to eq nil
-              expect(response).to have_http_status(:ok)
-            end
-          end
-        end
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['compensation_intent']).to eq nil
+        expect(parsed_response['pension_intent']).to eq nil
+        expect(parsed_response['survivor_intent']).to eq nil
+        expect(response).to have_http_status(:ok)
       end
     end
 
     describe 'compensation intent on file' do
-      it 'returns a compensation intent' do
-        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response') do
-          VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response_pension') do
-            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response_survivor') do
-              get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
+      before do
+        VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/200_response')
+      end
 
-              parsed_response = JSON.parse(response.body)
-              expect(parsed_response['compensation_intent']['type']).to eq 'compensation'
-              expect(parsed_response['pension_intent']).to eq nil
-              expect(parsed_response['survivor_intent']).to eq nil
-              expect(response).to have_http_status(:ok)
-            end
-          end
-        end
+      after do
+        VCR.eject_cassette('lighthouse/benefits_claims/intent_to_file/200_response')
+      end
+
+      it 'returns a compensation intent' do
+        get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['compensation_intent']['type']).to eq 'compensation'
+        expect(parsed_response['pension_intent']).to eq nil
+        expect(parsed_response['survivor_intent']).to eq nil
+        expect(response).to have_http_status(:ok)
       end
     end
 
     describe 'pension intent on file' do
-      it 'returns a pension intent' do
-        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
-          VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
-            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response_survivor') do
-              get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
+      before do
+        VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension')
+      end
 
-              parsed_response = JSON.parse(response.body)
-              expect(parsed_response['compensation_intent']).to eq nil
-              expect(parsed_response['pension_intent']['type']).to eq 'pension'
-              expect(parsed_response['survivor_intent']).to eq nil
-              expect(response).to have_http_status(:ok)
-            end
-          end
-        end
+      after do
+        VCR.eject_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension')
+      end
+
+      it 'returns a pension intent' do
+        get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['compensation_intent']).to eq nil
+        expect(parsed_response['pension_intent']['type']).to eq 'pension'
+        expect(parsed_response['survivor_intent']).to eq nil
+        expect(response).to have_http_status(:ok)
       end
     end
 
     describe 'both intents on file' do
-      it 'returns a pension intent' do
-        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response') do
-          VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
-            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response_survivor') do
-              get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
+      before do
+        VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/200_response')
+        VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension')
+      end
 
-              parsed_response = JSON.parse(response.body)
-              expect(parsed_response['compensation_intent']['type']).to eq 'compensation'
-              expect(parsed_response['pension_intent']['type']).to eq 'pension'
-              expect(parsed_response['survivor_intent']).to eq nil
-              expect(response).to have_http_status(:ok)
-            end
-          end
-        end
+      after do
+        VCR.eject_cassette('lighthouse/benefits_claims/intent_to_file/200_response')
+        VCR.eject_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension')
+      end
+
+      it 'returns a pension intent' do
+        get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['compensation_intent']['type']).to eq 'compensation'
+        expect(parsed_response['pension_intent']['type']).to eq 'pension'
+        expect(parsed_response['survivor_intent']).to eq nil
+        expect(response).to have_http_status(:ok)
       end
     end
   end

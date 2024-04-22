@@ -132,6 +132,10 @@ features:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
     enable_in_development: true
+  check_in_experience_travel_btsss_ssm_urls_enabled:
+    actor_type: user
+    description: Uses environment variables populated from SSM Param Store for BTSSS URLs.
+    enable_in_development: true
   check_in_experience_cerner_travel_claims_enabled:
     actor_type: user
     description: Enables travel claims filing for Oracle Health (Cerner) sites
@@ -151,10 +155,6 @@ features:
   check_in_experience_unified_landing_page:
     actor_type: user
     description: Enables the unified experience version of the landing page.
-    enable_in_development: true
-  check_in_experience_travel_claim_redis_client_refactor:
-    actor_type: user
-    description: Uses the refactored code for Travel Claim Redis client to fetch attributes
     enable_in_development: true
   claim_letters_access:
     actor_type: user
@@ -802,9 +802,9 @@ features:
     actor_type: user
     description: When enabled, profile service history will include military academy attendance.
     enable_in_development: true
-  profile_hide_direct_deposit_comp_and_pen:
+  profile_hide_direct_deposit:
     actor_type: user
-    description: Hides disability comp and pen section of the Profile - Direct Deposit page during a service outage
+    description: Hides the Profile - Direct Deposit page content during a service outage
     enable_in_development: false
   profile_show_credential_retirement_messaging:
     actor_type: user
@@ -812,6 +812,9 @@ features:
   profile_show_direct_deposit_single_form:
     actor_type: user
     description: Show/hide the single direct deposit form in profile for all users
+  profile_show_direct_deposit_single_form_uat:
+    actor_type: user
+    description: Show/hide the single direct deposit form just for users during UAT only
   profile_show_direct_deposit_single_form_alert:
     actor_type: user
     description: Show/hide an alert with information around migrating to a single direct deposit form in profile
@@ -1141,6 +1144,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for routing eligibility requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
+  va_online_scheduling_enable_OH_requests:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for routing new appointment requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
   va_online_scheduling_enable_OH_slots_search:
     actor_type: user
     enable_in_development: true
@@ -1217,6 +1224,10 @@ features:
   supply_reordering_sleep_apnea_enabled:
     actor_type: user
     description: Enables sleep apnea supplies to be ordered in the supply reorder tool / MDOT.
+    enable_in_development: true
+  toe_dup_contact_info_call:
+    actor_type: user
+    description: Flag to use contact info call and modal
     enable_in_development: true
   toe_short_circuit_bgs_failure:
     actor_type: user
@@ -1349,9 +1360,16 @@ features:
   pension_claim_submission_to_lighthouse:
     actor_type: user
     description: Pension claim submission uses Lighthouse API
+  pension_multiresponse_styles:
+    actor_type: user
+    description: Pension uses updated styles for single-page multiresponses
+    enable_in_development: true
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API
+  ecc_benefits_intake_submission:
+    actor_type: user
+    description: Enable education and career counseling claim submissions to use Benefits Intake API
   virtual_agent_enable_param_error_detection:
     actor_type: user
     description: If enabled, Allows for the detection of errors in the chatbot params
