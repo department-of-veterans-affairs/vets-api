@@ -1,4 +1,4 @@
-FROM ruby:3.2.3-slim-bookworm AS rubyimg
+FROM ruby:3.2.3-slim-bullseye AS rubyimg
 FROM rubyimg AS modules
 
 WORKDIR /tmp
@@ -23,9 +23,10 @@ RUN groupadd --gid $USER_ID nonroot \
 
 WORKDIR /app
 
-RUN apt-get update --fix-missing
-RUN apt-get install -y poppler-utils build-essential libpq-dev git curl wget ca-certificates-java file \
-  imagemagick pdftk \
+RUN echo "deb http://ftp.debian.org/debian testing main contrib non-free" >> /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get install -y -t testing poppler-utils build-essential libpq-dev git curl wget ca-certificates-java file
+RUN dpkg --configure -a && apt-get install -y -t bullseye imagemagick pdftk \
   && apt-get clean \
   && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
