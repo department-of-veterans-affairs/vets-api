@@ -397,39 +397,16 @@ describe Mobile::V0::UserAccessibleServices, aggregate_failures: true, type: :mo
       before { Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z')) }
       after { Timecop.return }
 
-      context 'when using old authorization policy' do
-        before { Flipper.disable(:mobile_sm_session_policy) }
-
-        context 'when user does not have mhv_messaging access' do
-          it 'is false' do
-            expect(user_services.service_auth_map[:secureMessaging]).to be(false)
-          end
-        end
-
-        context 'when user does have mhv_messaging access' do
-          let(:user) { build(:user, :mhv) }
-
-          it 'is true' do
-            expect(user_services.service_auth_map[:secureMessaging]).to be_truthy
-          end
+      context 'when user does not have mhv_messaging access' do
+        it 'is false' do
+          expect(user_services.service_auth_map[:secureMessaging]).to be(false)
         end
       end
 
-      context 'when using new session authorization policy' do
-        before { Flipper.enable_actor(:mobile_sm_session_policy, user) }
-        after { Flipper.disable(:mobile_sm_session_policy) }
-
-        context 'when user does not have mhv_messaging access' do
-          it 'is false' do
-            expect(user_services.service_auth_map[:secureMessaging]).to be(false)
-          end
-        end
-
-        context 'when user does have mhv_messaging access' do
-          it 'is true' do
-            VCR.use_cassette('sm_client/session') do
-              expect(user_services.service_auth_map[:secureMessaging]).to be_truthy
-            end
+      context 'when user does have mhv_messaging access' do
+        it 'is true' do
+          VCR.use_cassette('sm_client/session') do
+            expect(user_services.service_auth_map[:secureMessaging]).to be_truthy
           end
         end
       end
