@@ -191,7 +191,69 @@
             }
           ]
         }
-      ]
+      ],
+      "toxicExposure": {
+        "gulfWar1990": {
+          "iraq": true,
+          "kuwait": true,
+          "qatar": true
+        },
+        "gulfWar1990Details": {
+          "iraq": {
+            "startDate": "1991-03-01",
+            "endDate": "1992-01-01"
+          },
+          "qatar": {
+            "startDate": "1991-02-12",
+            "endDate": "1991-06-01"
+          },
+          "kuwait": {
+            "startDate": "1991-03-15"
+          }
+        },
+        "herbicide": {
+          "cambodia": true,
+          "guam": true,
+          "laos": true
+        },
+        "herbicideDetails": {
+          "cambodia": {
+            "startDate": "1991-03-01",
+            "endDate": "1992-01-01"
+          },
+          "guam": {
+            "startDate": "1991-02-12",
+            "endDate": "1991-06-01"
+          },
+          "laos": {
+            "startDate": "1991-03-15"
+          }
+        },
+        "otherHerbicideLocations": "freeform text field.",
+        "otherExposures": {
+          "asbestos": true,
+          "radiation": true,
+          "mustardgas": false
+        },
+        "otherExposureDetails": {
+          "asbestos": {
+            "startDate": "1991-03-01",
+            "endDate": "1992-01-01"
+          },
+          "radiation": {
+            "startDate": "1991-03-01",
+            "endDate": "1992-01-01"
+          },
+        },
+        "specifyOtherExposures": {
+          "description": "Lead, burn pits",
+          "startDate": "1991-03-01",
+          "endDate": "1992-01-01"
+        },
+        "toxicExposureConditions": {
+          "deviatedseptum": true
+        }
+      }
     }
   },
   "form526_uploads": [

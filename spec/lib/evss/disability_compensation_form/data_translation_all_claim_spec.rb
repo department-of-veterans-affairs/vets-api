@@ -1451,6 +1451,36 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     end
   end
 
+  describe '#add_toxic_exposure' do
+    let(:form_content) do
+      {
+        'form526' => {
+          'toxicExposure' => {
+            'gulfWar1990' => {
+              'iraq' => true,
+              'kuwait' => true,
+              'qatar' => true
+            }
+          }
+        }
+      }
+    end
+
+    it 'returns toxic exposure' do
+      expect(subject.send(:add_toxic_exposure)).to eq(
+        {
+          'toxicExposure' => {
+            'gulfWar1990' => {
+              'iraq' => true,
+              'kuwait' => true,
+              'qatar' => true
+            }
+          }
+        }
+      )
+    end
+  end
+
   describe '#application_expiration_date' do
     it 'returns the application creation date + 365 days' do
       expect(subject.send(:application_expiration_date)).to eq '2021-11-05T18:19:50Z'
