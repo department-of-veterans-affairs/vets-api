@@ -67,89 +67,193 @@ describe VAOS::V2::AppointmentsService do
       FactoryBot.build(:appointment_form_v2, :community_cares, user:).attributes
     end
 
-    context 'when va appointment create request is valid' do
-      # appointment created using the Jacqueline Morgan user
+    context 'using VAOS' do
+      before do
+        Flipper.disable(:va_online_scheduling_use_vpg)
+        Flipper.disable(:va_online_scheduling_enable_OH_requests)
+      end
 
-      it 'returns the created appointment - va - booked' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M',
-                         match_requests_on: %i[method path query]) do
-          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+      context 'when va appointment create request is valid' do
+        # appointment created using the Jacqueline Morgan user
+
+        it 'returns the created appointment - va - booked' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M',
                            match_requests_on: %i[method path query]) do
-            allow(Rails.logger).to receive(:info).at_least(:once)
-            response = subject.post_appointment(va_booked_request_body)
-            expect(response[:id]).to be_a(String)
-            expect(response[:local_start_time])
-              .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              allow(Rails.logger).to receive(:info).at_least(:once)
+              response = subject.post_appointment(va_booked_request_body)
+              expect(response[:id]).to be_a(String)
+              expect(response[:local_start_time])
+                .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+            end
+          end
+        end
+
+        it 'returns the created appointment and logs data' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_and_logs_data',
+                           match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              response = subject.post_appointment(va_booked_request_body)
+              expect(response[:id]).to be_a(String)
+              expect(response[:local_start_time])
+                .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+            end
+          end
+        end
+
+        it 'returns the created appointment-va-proposed-clinic' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_va_proposed_clinic_200',
+                           match_requests_on: %i[method path query]) do
+            response = subject.post_appointment(va_proposed_clinic_request_body)
+            expect(response[:id]).to eq('70065')
           end
         end
       end
 
-      it 'returns the created appointment and logs data' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_and_logs_data',
-                         match_requests_on: %i[method path query]) do
-          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+      context 'when cc appointment create request is valid' do
+        it 'returns the created appointment - cc - proposed' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200_2222022',
                            match_requests_on: %i[method path query]) do
-            response = subject.post_appointment(va_booked_request_body)
-            expect(response[:id]).to be_a(String)
-            expect(response[:local_start_time])
-              .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              response = subject.post_appointment(community_cares_request_body)
+              expect(response[:id]).to be_a(String)
+              expect(response.dig(:requested_periods, 0, :local_start_time))
+                .to eq(DateTime.parse('2021-06-15T06:00:00-06:00'))
+            end
           end
         end
       end
 
-      it 'returns the created appointment-va-proposed-clinic' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_va_proposed_clinic_200',
-                         match_requests_on: %i[method path query]) do
-          response = subject.post_appointment(va_proposed_clinic_request_body)
-          expect(response[:id]).to eq('70065')
+      context 'when the patientIcn is missing' do
+        it 'raises a backend exception' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_400', match_requests_on: %i[method path query]) do
+            expect { subject.post_appointment(community_cares_request_body) }.to raise_error(
+              Common::Exceptions::BackendServiceException
+            )
+          end
         end
       end
-    end
 
-    context 'when cc appointment create request is valid' do
-      it 'returns the created appointment - cc - proposed' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200_2222022',
-                         match_requests_on: %i[method path query]) do
-          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
-                           match_requests_on: %i[method path query]) do
-            response = subject.post_appointment(community_cares_request_body)
-            expect(response[:id]).to be_a(String)
-            expect(response.dig(:requested_periods, 0, :local_start_time))
-              .to eq(DateTime.parse('2021-06-15T06:00:00-06:00'))
+      context 'when the patientIcn is missing on a direct scheduling submission' do
+        it 'raises a backend exception and logs error details' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_400', match_requests_on: %i[method path query]) do
+            allow(Rails.logger).to receive(:warn).at_least(:once)
+            expect { subject.post_appointment(va_booked_request_body) }.to raise_error(
+              Common::Exceptions::BackendServiceException
+            )
+            expect(Rails.logger).to have_received(:warn).with('Direct schedule submission error',
+                                                              any_args).at_least(:once)
+          end
+        end
+      end
+
+      context 'when the upstream server returns a 500' do
+        it 'raises a backend exception' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_500', match_requests_on: %i[method path query]) do
+            expect { subject.post_appointment(community_cares_request_body) }.to raise_error(
+              Common::Exceptions::BackendServiceException
+            )
           end
         end
       end
     end
 
-    context 'when the patientIcn is missing' do
-      it 'raises a backend exception' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_400', match_requests_on: %i[method path query]) do
-          expect { subject.post_appointment(community_cares_request_body) }.to raise_error(
-            Common::Exceptions::BackendServiceException
-          )
+    context 'using VPG' do
+      before do
+        Flipper.enable(:va_online_scheduling_use_vpg)
+        Flipper.enable(:va_online_scheduling_enable_OH_requests)
+      end
+
+      context 'when va appointment create request is valid' do
+        # appointment created using the Jacqueline Morgan user
+
+        it 'returns the created appointment - va - booked' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M_vpg',
+                           match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              allow(Rails.logger).to receive(:info).at_least(:once)
+              response = subject.post_appointment(va_booked_request_body)
+              expect(response[:id]).to be_a(String)
+              expect(response[:local_start_time])
+                .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+            end
+          end
+        end
+
+        it 'returns the created appointment and logs data' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_and_logs_data_vpg',
+                           match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              response = subject.post_appointment(va_booked_request_body)
+              expect(response[:id]).to be_a(String)
+              expect(response[:local_start_time])
+                .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+            end
+          end
+        end
+
+        it 'returns the created appointment-va-proposed-clinic' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_va_proposed_clinic_200_vpg',
+                           match_requests_on: %i[method path query]) do
+            response = subject.post_appointment(va_proposed_clinic_request_body)
+            expect(response[:id]).to eq('70065')
+          end
         end
       end
-    end
 
-    context 'when the patientIcn is missing on a direct scheduling submission' do
-      it 'raises a backend exception and logs error details' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_400', match_requests_on: %i[method path query]) do
-          allow(Rails.logger).to receive(:warn).at_least(:once)
-          expect { subject.post_appointment(va_booked_request_body) }.to raise_error(
-            Common::Exceptions::BackendServiceException
-          )
-          expect(Rails.logger).to have_received(:warn).with('Direct schedule submission error',
-                                                            any_args).at_least(:once)
+      context 'when cc appointment create request is valid' do
+        it 'returns the created appointment - cc - proposed' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200_2222022_vpg',
+                           match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              response = subject.post_appointment(community_cares_request_body)
+              expect(response[:id]).to be_a(String)
+              expect(response.dig(:requested_periods, 0, :local_start_time))
+                .to eq(DateTime.parse('2021-06-15T06:00:00-06:00'))
+            end
+          end
         end
       end
-    end
 
-    context 'when the upstream server returns a 500' do
-      it 'raises a backend exception' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_500', match_requests_on: %i[method path query]) do
-          expect { subject.post_appointment(community_cares_request_body) }.to raise_error(
-            Common::Exceptions::BackendServiceException
-          )
+      context 'when the patientIcn is missing' do
+        it 'raises a backend exception' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_400_vpg',
+                           match_requests_on: %i[method path query]) do
+            expect { subject.post_appointment(community_cares_request_body) }.to raise_error(
+              Common::Exceptions::BackendServiceException
+            )
+          end
+        end
+      end
+
+      context 'when the patientIcn is missing on a direct scheduling submission' do
+        it 'raises a backend exception and logs error details' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_400_vpg',
+                           match_requests_on: %i[method path query]) do
+            allow(Rails.logger).to receive(:warn).at_least(:once)
+            expect { subject.post_appointment(va_booked_request_body) }.to raise_error(
+              Common::Exceptions::BackendServiceException
+            )
+            expect(Rails.logger).to have_received(:warn).with('Direct schedule submission error',
+                                                              any_args).at_least(:once)
+          end
+        end
+      end
+
+      context 'when the upstream server returns a 500' do
+        it 'raises a backend exception' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_500_vpg',
+                           match_requests_on: %i[method path query]) do
+            expect { subject.post_appointment(community_cares_request_body) }.to raise_error(
+              Common::Exceptions::BackendServiceException
+            )
+          end
         end
       end
     end
