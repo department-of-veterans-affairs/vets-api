@@ -4,6 +4,9 @@
 PERIODIC_JOBS = lambda { |mgr|
   mgr.tz = ActiveSupport::TimeZone.new('America/New_York')
 
+  mgr.register("* * * * *", 'LoadAverageDaysForClaimCompletionJob')
+
+
   mgr.register('*/15 * * * *', 'CovidVaccine::ScheduledBatchJob')
   mgr.register('*/15 * * * *', 'CovidVaccine::ExpandedScheduledSubmissionJob')
   mgr.register('*/30 * * * *', 'SidekiqAlive::CleanupQueues')
