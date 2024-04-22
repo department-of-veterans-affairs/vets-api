@@ -6,51 +6,44 @@ RSpec.describe AskVAApi::Inquiries::Creator do
   let(:icn) { '123456' }
   let(:service) { instance_double(Crm::Service) }
   let(:creator) { described_class.new(icn:, service:) }
-  let(:params) { { first_name: 'Fake', last_name: 'Smith' } }
+  let(:params) { { FirstName: 'Fake', YourLastName: 'Smith' } }
   let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
 
   before do
     allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
   end
 
-  describe '#initialize' do
-    context 'when service is provided' do
-      it 'uses the provided service' do
-        expect(creator.service).to eq(service)
-      end
-    end
-
-    context 'when service is not provided' do
-      let(:creator) { described_class.new(icn:) }
-
-      it 'sets a default service' do
-        expect(creator.service).to be_a(Crm::Service)
-      end
-    end
-  end
-
   describe '#call' do
     context 'when the API call is successful' do
       before do
-        allow(service).to receive(:call).with(endpoint:, method: :post,
-                                              payload: { params: }).and_return({ message: 'Inquiry has been created',
-                                                                                 status: :ok })
+        allow(service).to receive(:call).with(endpoint:, method: :put,
+                                              payload: { params: }).and_return({
+                                                                                 Data: {
+                                                                                   InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1'
+                                                                                 },
+                                                                                 Message: '',
+                                                                                 ExceptionOccurred: false,
+                                                                                 ExceptionMessage: '',
+                                                                                 MessageId: 'b8ebd8e7-3bbf-49c5-aff0-99503e50ee27'
+                                                                               })
       end
 
       it 'posts data to the service and returns the response' do
-        expect(creator.call(params:)).to eq({ message: 'Inquiry has been created', status: :ok })
+        expect(creator.call(params:)).to eq({ InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1' })
       end
     end
 
     context 'when the API call fails' do
       before do
-        allow(service).to receive(:call).and_raise(StandardError)
-        allow(ErrorHandler).to receive(:handle_service_error)
+        allow(service).to receive(:call).and_return({ Data: nil,
+                                                      Message: 'Data Validation: missing InquiryCategory',
+                                                      ExceptionOccurred: true,
+                                                      ExceptionMessage: 'Data Validation: missing InquiryCategory',
+                                                      MessageId: '13bc59ea-c90a-4d48-8979-fe71e0f7ddeb' })
       end
 
-      it 'rescues the error and calls ErrorHandler' do
-        expect { creator.call(params:) }.not_to raise_error
-        expect(ErrorHandler).to have_received(:handle_service_error).with(instance_of(StandardError))
+      it 'raise InquiriesCreatorError' do
+        expect { creator.call(params:) }.to raise_error(ErrorHandler::ServiceError)
       end
     end
   end
