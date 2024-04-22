@@ -91,10 +91,6 @@ module IvcChampva
           { form_number: params[:form_number] }
         )
       end
-
-      def should_authenticate
-        true
-      end
     end
   end
 end

@@ -901,6 +901,36 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#filter_reason_code_text' do
+    let(:request_object_body) { { reason_code: { text: "This is\t a test\n\r" } } }
+    let(:request_object_body_with_non_ascii) { { reason_code: { text: 'Thïs ïs ä tést' } } }
+    let(:request_object_body_without_text) { { reason_code: {} } }
+
+    context 'when the request object body reason code text contains ASCII characters only' do
+      it 'returns the same text' do
+        expect(subject.send(:filter_reason_code_text, request_object_body)).to eq("This is\t a test\n\r")
+      end
+    end
+
+    context 'when the request object body reason code text contains non-ASCII characters' do
+      it 'returns the text with non-ASCII characters filtered out' do
+        expect(subject.send(:filter_reason_code_text, request_object_body_with_non_ascii)).to eq('Ths s  tst')
+      end
+    end
+
+    context 'when the request object body reason code does not contain a text field' do
+      it 'returns nil' do
+        expect(subject.send(:filter_reason_code_text, request_object_body_without_text)).to be_nil
+      end
+    end
+
+    context 'when nil is passed in for the request object body' do
+      it 'returns nil' do
+        expect(subject.send(:filter_reason_code_text, nil)).to be_nil
+      end
+    end
+  end
+
   describe '#page_params' do
     context 'when per_page is positive' do
       context 'when per_page is positive' do
