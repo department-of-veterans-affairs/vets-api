@@ -132,6 +132,10 @@ features:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
     enable_in_development: true
+  check_in_experience_travel_btsss_ssm_urls_enabled:
+    actor_type: user
+    description: Uses environment variables populated from SSM Param Store for BTSSS URLs.
+    enable_in_development: true
   check_in_experience_cerner_travel_claims_enabled:
     actor_type: user
     description: Enables travel claims filing for Oracle Health (Cerner) sites
@@ -1356,6 +1360,10 @@ features:
   pension_claim_submission_to_lighthouse:
     actor_type: user
     description: Pension claim submission uses Lighthouse API
+  pension_multiresponse_styles:
+    actor_type: user
+    description: Pension uses updated styles for single-page multiresponses
+    enable_in_development: true
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API
