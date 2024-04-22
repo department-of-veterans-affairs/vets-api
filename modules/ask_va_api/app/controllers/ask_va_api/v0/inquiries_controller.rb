@@ -26,12 +26,13 @@ module AskVAApi
       end
 
       def create
-        render json: { message: 'success' }, status: :created
+        response = Inquiries::Creator.new(icn: current_user.icn).call(params: inquiry_params)
+        render json: response.to_json, status: :created
       end
 
       def unauth_create
         response = Inquiries::Creator.new(icn: nil).call(params: inquiry_params)
-        render json: { message: response }, status: :created
+        render json: response.to_json, status: :created
       end
 
       def upload_attachment
@@ -60,10 +61,6 @@ module AskVAApi
       end
 
       private
-
-      def inquiry_params
-        params.permit(:first_name, :last_name).to_h
-      end
 
       def get_inquiry_by_id
         inq = retriever.fetch_by_id(id: params[:id])
@@ -96,6 +93,108 @@ module AskVAApi
       def retriever
         entity_class = AskVAApi::Inquiries::Entity
         @retriever ||= Inquiries::Retriever.new(icn: current_user.icn, user_mock_data: params[:mock], entity_class:)
+      end
+
+      def inquiry_params
+        params.permit(
+          :AreYouTheDependent,
+          :AttachmentPresent,
+          :BranchOfService,
+          :City,
+          :ContactMethod,
+          :Country,
+          :DaytimePhone,
+          :DependantCity,
+          :DependantCountry,
+          :DependantDayTimePhone,
+          :DependantDOB,
+          :DependantEmail,
+          :DependantFirstName,
+          :DependantGender,
+          :DependantLastName,
+          :DependantMiddleName,
+          :DependantProvince,
+          :DependantRelationship,
+          :DependantSSN,
+          :DependantState,
+          :DependantStreetAddress,
+          :DependantZipCode,
+          :EmailAddress,
+          :EmailConfirmation,
+          :FirstName,
+          :Gender,
+          :InquiryAbout,
+          :InquiryCategory,
+          :InquirySource,
+          :InquirySubtopic,
+          :InquirySummary,
+          :InquiryTopic,
+          :InquiryType,
+          :IsVAEmployee,
+          :IsVeteran,
+          :IsVeteranAnEmployee,
+          :IsVeteranDeceased,
+          :LevelOfAuthentication,
+          :MedicalCenter,
+          :MiddleName,
+          :PreferredName,
+          :Pronouns,
+          :StreetAddress2,
+          :Submitter,
+          :SubmitterDependent,
+          :SubmitterDOB,
+          :SubmitterGender,
+          :SubmitterProvince,
+          :SubmitterSSN,
+          :SubmitterState,
+          :SubmitterStateOfResidency,
+          :SubmitterStateOfSchool,
+          :SubmitterStateProperty,
+          :SubmitterStreetAddress,
+          :SubmitterVetCenter,
+          :SubmitterZipCodeOfResidency,
+          :SubmitterQuestion,
+          :Suffix,
+          :SupervisorFlag,
+          :VaEmployeeTimeStamp,
+          :VeteranCity,
+          :VeteranClaimNumber,
+          :VeteranCountry,
+          :VeteranDateOfDeath,
+          :VeteranDOB,
+          :VeteranDodIdEdipiNumber,
+          :VeteranEmail,
+          :VeteranEmailConfirmation,
+          :VeteranEnrolled,
+          :VeteranFirstName,
+          :VeteranICN,
+          :VeteranLastName,
+          :VeteranMiddleName,
+          :VeteranPhone,
+          :VeteranPreferedName,
+          :VeteranPronouns,
+          :VeteranProvince,
+          :VeteranRelationship,
+          :VeteranServiceEndDate,
+          :VeteranServiceNumber,
+          :VeteranServiceStartDate,
+          :VeteranSSN,
+          :VeteransState,
+          :VeteranStreetAddress,
+          :VeteranSuffix,
+          :VeteranSuiteAptOther,
+          :VeteranZipCode,
+          :WhoWasTheirCounselor,
+          :YourLastName,
+          :ZipCode,
+          school_obj: %i[
+            City
+            InstitutionName
+            RegionalOffice
+            SchoolFacilityCode
+            StateAbbreviation
+          ]
+        ).to_h
       end
 
       Result = Struct.new(:payload, :status, keyword_init: true)
