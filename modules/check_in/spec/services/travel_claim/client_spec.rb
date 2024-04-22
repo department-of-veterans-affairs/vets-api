@@ -10,6 +10,7 @@ describe TravelClaim::Client do
 
   before do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_travel_btsss_ssm_urls_enabled').and_return(false)
   end
 
   describe '.build' do
