@@ -18,7 +18,10 @@ x-app: &common
   volumes:
     - "../vets-api-mockdata:/cache"
     - .:/srv/vets-api/src:cached
+    - dev_bundle:/usr/local/bundle
     - shared-vol:/tmp
+    - ../.secret:/srv/vets-api/secret:cached
+    - ../.pki:/srv/vets-api/pki:cached
   depends_on:
     - clamav
     - postgres
@@ -63,3 +66,4 @@ services:
 
 volumes:
  shared-vol:
+ dev_bundle:
