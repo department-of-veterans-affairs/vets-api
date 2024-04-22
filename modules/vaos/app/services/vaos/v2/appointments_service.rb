@@ -19,6 +19,7 @@ module VAOS
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
+      APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
 
       # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
@@ -86,10 +87,18 @@ module VAOS
       end
 
       def post_appointment(request_object_body)
+        filtered_reason_code_text = filter_reason_code_text(request_object_body)
+        request_object_body[:reason_code][:text] = filtered_reason_code_text if filtered_reason_code_text.present?
+
         params = VAOS::V2::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
         params.compact_blank!
         with_monitoring do
-          response = perform(:post, appointments_base_path, params, headers)
+          response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
+                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
+                       perform(:post, "/vpg/v1/patients/#{user.icn}/appointments", params, headers)
+                     else
+                       perform(:post, appointments_base_path, params, headers)
+                     end
           convert_appointment_time(response.body)
           OpenStruct.new(response.body)
         rescue Common::Exceptions::BackendServiceException => e
@@ -269,6 +278,18 @@ module VAOS
         return false if appt.nil? || appt[:status].nil? || appt[:start].nil?
 
         appt[:status] == 'booked' && appt[:start].to_datetime.past?
+      end
+
+      # Filters out non-ASCII characters from the reason code text field in the request object body.
+      #
+      # @param request_object_body [Hash, ActionController::Parameters] The request object body containing
+      # the reason code text field.
+      #
+      # @return [String, nil] The filtered reason text, or nil if the reason code text is not present or nil.
+      #
+      def filter_reason_code_text(request_object_body)
+        text = request_object_body&.dig(:reason_code, :text)
+        VAOS::Strings.filter_ascii_characters(text) if text.present?
       end
 
       # Checks if the appointment is booked.

@@ -3946,4 +3946,19 @@ RSpec.describe 'Disability Claims', type: :request do
       end
     end
   end
+
+  describe 'POST #synchronous' do
+    let(:veteran_id) { '1012832025V743496' }
+    let(:synchronous_path) { "/services/claims/v2/veterans/#{veteran_id}/526/synchronous" }
+
+    context 'when the endpoint is hit' do
+      it 'returns an empty test object' do
+        mock_ccg(scopes) do |auth_header|
+          post synchronous_path, params: {}.to_json, headers: auth_header
+
+          expect(JSON.parse(response.body)).to eq({})
+        end
+      end
+    end
+  end
 end

@@ -7,8 +7,8 @@ module SignIn
     redis_key :code
 
     attribute :code, String
-    attribute :user_uuid, String
+    attribute :user_account_uuid, String
 
-    validates(:code, :user_uuid, presence: true)
+    validates(:code, :user_account_uuid, presence: true)
   end
 end
