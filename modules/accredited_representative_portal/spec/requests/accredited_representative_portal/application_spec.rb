@@ -11,7 +11,6 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
 
     let(:arp_client_id) { 'arp' }
     let(:invalid_client_id) { 'invalid' }
-
     let(:valid_access_token) { create(:access_token, audience: [arp_client_id]) }
     let(:invalid_access_token) { create(:access_token, audience: [invalid_client_id]) }
     let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: valid_access_token).perform }
@@ -36,7 +35,6 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
 
       context 'with a valid audience' do
         it 'allows access' do
-          Flipper.enable(:accredited_representative_portal_pilot)
           expect(subject).to have_http_status(:ok)
         end
       end
@@ -59,14 +57,6 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
           expect(subject).to have_http_status(:unauthorized)
           expect(subject.body).to eq(expected_response_body)
           expect(Rails.logger).to have_received(:error).with(expected_log_message, expected_log_payload)
-        end
-      end
-
-      context 'when the pilot is disabled' do
-        it 'returns a forbidden status for GET /arbitrary' do
-          Flipper.disable(:accredited_representative_portal_pilot)
-          get '/accredited_representative_portal/arbitrary'
-          expect(response).to have_http_status(:forbidden)
         end
       end
     end
