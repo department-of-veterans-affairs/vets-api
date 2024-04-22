@@ -165,7 +165,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
         ]
       }
       args = { claim: supporting_document.auto_established_claim, doc_type: 'L023',
-               pdf_path: tf.path }
+               original_filename: 'extras.pdf', pdf_path: tf.path }
       allow_any_instance_of(ClaimsApi::BD).to(
         receive(:upload).with(args).and_raise(Common::Exceptions::BackendServiceException.new(
                                                 '', {}, 500, body
