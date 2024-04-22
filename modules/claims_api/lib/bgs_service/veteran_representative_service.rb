@@ -10,7 +10,7 @@ module ClaimsApi
     def make_request(namespace:, **args)
       super(
         endpoint: 'VDC/VeteranRepresentativeService',
-        namespaces: { namespace => '/data' }, # data ?
+        namespaces: { namespace => '/data' },
         transform_response: false,
         **args
       )
