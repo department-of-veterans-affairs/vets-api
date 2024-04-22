@@ -12,18 +12,26 @@ require 'bgs_service/bgs_helpers'
 
 module ClaimsApi
   class LocalBGS
+    Fault =
+      Data.define(
+        :code,
+        :string,
+        :message
+      ) 
+
     class << self
       def breakers_service
         url = URI.parse(Settings.bgs.url)
-        matcher = proc do |request_env|
-          request_env.url.host == url.host &&
-            request_env.url.port == url.port &&
-            request_env.url.path =~ /^#{url.path}/
-        end
+        request_matcher =
+          proc do |request_env|
+            request_env.url.host == url.host &&
+              request_env.url.port == url.port &&
+              request_env.url.path =~ /^#{url.path}/
+          end
 
         Breakers::Service.new(
           name: 'BGS/Claims',
-          request_matcher: matcher
+          request_matcher:
         )
       end
     end
@@ -69,11 +77,14 @@ module ClaimsApi
     end
 
     def healthcheck(endpoint)
-      response = fetch_wsdl(endpoint)
-      response.status
+      fetch_wsdl(endpoint).status
     end
 
-    def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
+    def make_request( # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
+      endpoint:, action:, body:, key: nil, namespaces: {},
+      error_handler: ClaimsApi::SoapErrorHandler,
+      transform_response: true
+    )
       begin
         wsdl =
           log_duration(event: 'connection_wsdl_get', endpoint:) do
@@ -97,7 +108,6 @@ module ClaimsApi
           log_duration(event: 'connection_post', endpoint:, action:) do
             connection.post(endpoint) do |req|
               req.body = request_body
-
               req.headers.merge!(
                 'Content-Type' => 'text/xml;charset=UTF-8',
                 'Host' => "#{@env}.vba.va.gov",
@@ -114,7 +124,7 @@ module ClaimsApi
 
       log_duration(event: 'parsed_response', key:) do
         response_body = Hash.from_xml(response.body)
-        soap_error_handler.handle_errors!(response_body)
+        handle_errors!(response_body, error_handler:)
 
         unwrap_response_body(
           response_body,
@@ -188,8 +198,24 @@ module ClaimsApi
       end
     end
 
-    def soap_error_handler
-      ClaimsApi::SoapErrorHandler.new
+    def handle_errors!(body, error_handler:)
+      data = body.dig('Envelope', 'Body', 'Fault').to_h
+      return if data.blank?
+
+      message =
+        data.dig('detail', 'MessageException') ||
+          data.dig('detail', 'MessageFaultException')
+
+      fault =
+        Fault.new(
+          code: data['faultcode'].to_s.split(':').last,
+          string: data['faultstring'],
+          message:
+        )
+
+      error_handler.handle_errors!(
+        fault
+      )
     end
 
     def connection
