@@ -3954,9 +3954,9 @@ RSpec.describe 'Disability Claims', type: :request do
     context 'when the endpoint is hit' do
       it 'returns an empty test object' do
         mock_ccg(scopes) do |auth_header|
-          post synchronous_path, headers: auth_header
+          post synchronous_path, params: {}.to_json, headers: auth_header
 
-          expect(response).to eq({})
+          expect(JSON.parse(response.body)).to eq({})
         end
       end
     end
