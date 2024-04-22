@@ -17,8 +17,7 @@ module V0
 
     def accept
       terms_of_use_agreement = acceptor.perform!
-
-      recache_user
+      recache_user unless terms_code_temporary_auth?
       render_success(action: 'accept', body: { terms_of_use_agreement: }, status: :created)
     rescue TermsOfUse::Errors::AcceptorError => e
       render_error(action: 'accept', message: e.message)
@@ -26,10 +25,9 @@ module V0
 
     def accept_and_provision
       terms_of_use_agreement = acceptor(async: false).perform!
-
       if terms_of_use_agreement.accepted? && provisioner.perform
         create_cerner_cookie
-        recache_user
+        recache_user unless terms_code_temporary_auth?
         render_success(action: 'accept_and_provision', body: { terms_of_use_agreement:, provisioned: true },
                        status: :created)
       else
@@ -41,8 +39,7 @@ module V0
 
     def decline
       terms_of_use_agreement = decliner.perform!
-
-      recache_user
+      recache_user unless terms_code_temporary_auth?
       render_success(action: 'decline', body: { terms_of_use_agreement: }, status: :created)
     rescue TermsOfUse::Errors::DeclinerError => e
       render_error(action: 'decline', message: e.message)
@@ -63,8 +60,8 @@ module V0
 
     def acceptor(async: true)
       TermsOfUse::Acceptor.new(
-        user_account: current_user.user_account,
-        common_name: current_user.common_name,
+        user_account: @user_account,
+        common_name:,
         version: params[:version],
         async:
       )
@@ -72,18 +69,18 @@ module V0
 
     def decliner
       TermsOfUse::Decliner.new(
-        user_account: current_user.user_account,
-        common_name: current_user.common_name,
+        user_account: @user_account,
+        common_name:,
         version: params[:version]
       )
     end
 
     def provisioner
       TermsOfUse::Provisioner.new(
-        icn: current_user.icn,
-        first_name: current_user.first_name,
-        last_name: current_user.last_name,
-        mpi_gcids: current_user.mpi_gcids
+        icn: @user_account.icn,
+        first_name: mpi_profile.given_names.first,
+        last_name: mpi_profile.family_name,
+        mpi_gcids: mpi_profile.full_mvi_ids
       )
     end
 
@@ -102,29 +99,51 @@ module V0
     end
 
     def find_latest_agreement_by_version(version)
-      current_user.user_account.terms_of_use_agreements.where(agreement_version: version).last
+      @user_account.terms_of_use_agreements.where(agreement_version: version).last
     end
 
     def authenticate_one_time_terms_code
       terms_code_container = SignIn::TermsCodeContainer.find(params[:terms_code])
-      @current_user = User.find(terms_code_container.user_uuid)
+      return unless terms_code_container
+
+      @user_account = UserAccount.find(terms_code_container.user_account_uuid)
     ensure
       terms_code_container&.destroy
     end
 
-    def terms_authenticate
-      params[:terms_code].present? ? authenticate_one_time_terms_code : load_user(skip_terms_check: true)
+    def authenticate_current_user
+      load_user(skip_terms_check: true)
+      return unless current_user
 
-      raise Common::Exceptions::Unauthorized unless @current_user
+      @user_account = current_user.user_account
+    end
+
+    def terms_code_temporary_auth?
+      params[:terms_code].present?
+    end
+
+    def terms_authenticate
+      terms_code_temporary_auth? ? authenticate_one_time_terms_code : authenticate_current_user
+
+      raise Common::Exceptions::Unauthorized unless @user_account
+    end
+
+    def mpi_profile
+      @mpi_profile ||= MPI::Service.new.find_profile_by_identifier(identifier: @user_account.icn,
+                                                                   identifier_type: MPI::Constants::ICN)&.profile
+    end
+
+    def common_name
+      "#{mpi_profile.given_names.first} #{mpi_profile.family_name}"
     end
 
     def render_success(action:, body:, status: :ok)
-      Rails.logger.info("[TermsOfUseAgreementsController] #{action} success", { icn: current_user.icn })
+      Rails.logger.info("[TermsOfUseAgreementsController] #{action} success", { icn: @user_account.icn })
       render json: body, status:
     end
 
     def render_error(action:, message:, status: :unprocessable_entity)
-      Rails.logger.error("[TermsOfUseAgreementsController] #{action} error: #{message}", { icn: current_user.icn })
+      Rails.logger.error("[TermsOfUseAgreementsController] #{action} error: #{message}", { icn: @user_account.icn })
       render json: { error: message }, status:
     end
   end
