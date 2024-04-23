@@ -437,7 +437,6 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         context 'and access_token is an active JWT' do
           let(:access_token_object) { create(:access_token) }
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-          let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
 
           it 'returns ok status' do
             expect(subject).to have_http_status(:ok)
