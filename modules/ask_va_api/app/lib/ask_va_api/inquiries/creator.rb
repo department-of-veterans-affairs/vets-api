@@ -13,8 +13,8 @@ module AskVAApi
         @service = service || default_service
       end
 
-      def call(params:)
-        post_data(payload: { params: })
+      def call(payload:)
+        post_data(payload:)
       rescue => e
         ErrorHandler.handle_service_error(e)
       end
