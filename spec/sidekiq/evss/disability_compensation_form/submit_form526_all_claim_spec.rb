@@ -34,6 +34,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
              saved_claim_id: saved_claim.id)
     end
     let(:open_claims_cassette) { 'evss/claims/claims_without_open_compensation_claims' }
+    let(:caseflow_cassette) { 'caseflow/appeals' }
     let(:rated_disabilities_cassette) { 'evss/disability_compensation_form/rated_disabilities' }
     let(:submit_form_cassette) { 'evss/disability_compensation_form/submit_form_v2' }
     let(:lh_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload_location' }
@@ -41,7 +42,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     let(:lh_intake_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload' }
     let(:lh_submission) { 'lighthouse/benefits_claims/submit526/200_response' }
     let(:cassettes) do
-      [open_claims_cassette, rated_disabilities_cassette, submit_form_cassette, lh_upload, evss_get_pdf,
+      [open_claims_cassette, caseflow_cassette, rated_disabilities_cassette,
+       submit_form_cassette, lh_upload, evss_get_pdf,
        lh_intake_upload, lh_submission]
     end
     let(:backup_klass) { Sidekiq::Form526BackupSubmissionProcess::Submit }
@@ -151,7 +153,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             expect(Rails.logger).to have_received(:info).with('EP Merge total open EPs', id: submission.id, count: 1)
             expect(Rails.logger).to have_received(:info).with(
               'EP Merge open EP eligibility',
-              { id: submission.id, feature_enabled: true, pending_ep_age: 365, pending_ep_status: 'UNDER REVIEW' }
+              { id: submission.id, feature_enabled: true, open_claim_review: false,
+                pending_ep_age: 365, pending_ep_status: 'UNDER REVIEW' }
             )
           end
 
@@ -175,6 +178,32 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
           context 'when pending claim has lifecycle status not considered open for EP400 merge' do
             let(:open_claims_cassette) { 'evss/claims/claims_pending_decision_approval' }
+
+            it 'does not save any claim ID for EP400 merge' do
+              subject.perform_async(submission.id)
+              VCR.use_cassette('virtual_regional_office/contention_classification') do
+                described_class.drain
+              end
+              submission.reload
+              expect(submission.read_metadata(:ep_merge_pending_claim_id)).to be_nil
+            end
+          end
+
+          context 'when an EP 030 or 040 is included in the list of open claims' do
+            let(:open_claims_cassette) { 'evss/claims/claims_with_open_040' }
+
+            it 'does not save any claim ID for EP400 merge' do
+              subject.perform_async(submission.id)
+              VCR.use_cassette('virtual_regional_office/contention_classification') do
+                described_class.drain
+              end
+              submission.reload
+              expect(submission.read_metadata(:ep_merge_pending_claim_id)).to be_nil
+            end
+          end
+
+          context 'when Caseflow appeals status API returns an open claim review' do
+            let(:caseflow_cassette) { 'caseflow/appeals_with_hlr_only' }
 
             it 'does not save any claim ID for EP400 merge' do
               subject.perform_async(submission.id)

@@ -41,7 +41,7 @@ class VANotifyDdEmailJob
 
   def template_type(dd_type)
     return 'direct_deposit_edu' if dd_type&.to_sym == :ch33
-    return 'direct_deposit_comp_pen' if dd_type&.to_sym == :comp_pen
+    return 'direct_deposit_comp_pen' if %i[comp_pen comp_and_pen].include? dd_type&.to_sym
 
     'direct_deposit'
   end
