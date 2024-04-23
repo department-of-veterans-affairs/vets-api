@@ -33,11 +33,11 @@ describe FacilitiesApi::V2::Lighthouse::Facility, team: :facilities, type: :mode
           facility_type: nil,
           facility_type_prefix: 'abc',
           feedback: {
-            'health': {
-              'primary_care_urgent': 0.8700000047683716,
-              'primary_care_routine': 0.8700000047683716
+            health: {
+              primary_care_urgent: 0.8700000047683716,
+              primary_care_routine: 0.8700000047683716
             },
-            'effective_date': '2024-02-08'
+            effective_date: '2024-02-08'
           },
           hours: nil,
           id: 'abc_123',
