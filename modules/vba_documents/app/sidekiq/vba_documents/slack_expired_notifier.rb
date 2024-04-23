@@ -54,7 +54,7 @@ module VBADocuments
       # sort by Consumer expired Rate, build slack reporting string
       slack_details = "\n\t(Consumer, Expired Rate)\n"
       exp_rate.sort_by { |e| -e[1] }.each do |cr|
-        slack_details << "\t#{cr[0]}: #{ActiveSupport::NumberHelper.number_to_percentage(cr[1], precision: 1)}\n"
+        slack_details += "\t#{cr[0]}: #{ActiveSupport::NumberHelper.number_to_percentage(cr[1], precision: 1)}\n"
       end
 
       slack_details
