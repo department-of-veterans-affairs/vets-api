@@ -115,6 +115,7 @@ module TravelPay
       service_account_id = Settings.travel_pay.sts.service_account_id
       host_baseurl = build_host_baseurl({ ip_form: false })
       audience_baseurl = build_host_baseurl({ ip_form: true })
+      scopes = Settings.travel_pay.sts.scope.blank? ? [] : [Settings.travel_pay.sts.scope]
 
       current_time = Time.now.to_i
       jti = SecureRandom.uuid
@@ -125,7 +126,7 @@ module TravelPay
         'aud' => "#{audience_baseurl}/v0/sign_in/token",
         'iat' => current_time,
         'exp' => current_time + 300,
-        'scopes' => [],
+        'scopes' => scopes,
         'service_account_id' => service_account_id,
         'jti' => jti,
         'user_attributes' => { 'icn' => user.icn }
@@ -137,9 +138,11 @@ module TravelPay
       host = Settings.hostname
 
       if env == 'localhost'
-        return 'http://127.0.0.1:3000' if config[:ip_form]
-
-        'http://localhost:3000'
+        if config[:ip_form]
+          return 'http://127.0.0.1:3000'
+        else
+          return 'http://localhost:3000'
+        end
       end
 
       "https://#{host}"

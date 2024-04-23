@@ -6,7 +6,7 @@ module IvcChampva
   class PdfFiller
     attr_accessor :form, :form_number, :name
 
-    TEMPLATE_BASE = Rails.root.join('modules', 'simple_forms_api', 'templates')
+    TEMPLATE_BASE = Rails.root.join('modules', 'ivc_champva', 'templates')
 
     def initialize(form_number:, form:, name: nil)
       @form = form
@@ -32,7 +32,7 @@ module IvcChampva
     end
 
     def mapped_data
-      template = Rails.root.join('modules', 'simple_forms_api', 'app', 'form_mappings', "#{form_number}.json.erb").read
+      template = Rails.root.join('modules', 'ivc_champva', 'app', 'form_mappings', "#{form_number}.json.erb").read
       b = binding
       b.local_variable_set(:data, form)
       result = ERB.new(template).result(b)
