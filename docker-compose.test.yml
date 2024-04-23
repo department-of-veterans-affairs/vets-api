@@ -43,4 +43,3 @@ services:
       - redis
 volumes:
   test_bundle:
-
