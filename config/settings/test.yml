@@ -107,10 +107,7 @@ bgs:
   client_station_id: 281
   client_username: VAgovAPI
   url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447
-# Put this in `config/settings/test.local.yml` and then erb-template in
-# `Settings.bgs.url` to cassettes that are run with the VCR option `erb: true`.
-# `BGSClientHelpers#use_bgs_cassette` provides erb-templating enabled cassettes
-# and supplies a template local `bgs_base_url`.
+# You can use this in `config/settings/test.local.yml`.
 # bgs:
 #   url: https://localhost:4447
 #   ssl_verify_mode: "none"

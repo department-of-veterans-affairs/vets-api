@@ -19,11 +19,6 @@ module BGSClientHelpers
     end
 
   VCR_OPTIONS = {
-    # Allows the same cassette to match in different test environments when the
-    # base URL for BGS differs between them.
-    #   https://benoittgt.github.io/vcr/#/cassettes/dynamic_erb?id=pass-arguments-to-the-erb-using-gt-
-    erb: { bgs_base_url: Settings.bgs.url },
-
     # Consider matching on `:headers` too?
     match_requests_on: [
       :method, :uri,
@@ -43,12 +38,9 @@ module BGSClientHelpers
   # Then, HTTP interactions that occur within the block supplied to this method
   # will be captured by VCR cassettes that have the following convenient
   # properties:
-  #   - They will be nicely organized at `bgs/:service/:operation/:name`
+  #   - They will be nicely organized at `claims_api/bgs/:service/:operation/:name`
   #   - Cassette matching will be done on canonicalized XML bodies, so
   #     reformatting cassettes for human readability won't defeat matching
-  #   - ERB templating will be enabled with a value `bgs_base_url` supplied so
-  #     that the same cassette will function without modification in multiple
-  #     environments like CI and locally
   def use_bgs_cassette(name, &)
     metadata = RSpec.current_example.metadata[:bgs].to_h
     service, operation = metadata.values_at(:service, :operation)
@@ -60,7 +52,7 @@ module BGSClientHelpers
       HEREDOC
     end
 
-    name = File.join('bgs', service, operation, name)
+    name = File.join('claims_api/bgs', service, operation, name)
     VCR.use_cassette(name, VCR_OPTIONS, &)
   end
 end

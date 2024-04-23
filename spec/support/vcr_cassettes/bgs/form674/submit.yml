@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcWebServiceBeanV2/VnpProcServiceV2?WSDL
+    uri: <BGS_BASE_URL>/VnpProcWebServiceBeanV2/VnpProcServiceV2?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -171,7 +171,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:07 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcWebServiceBeanV2/VnpProcServiceV2
+    uri: <BGS_BASE_URL>/VnpProcWebServiceBeanV2/VnpProcServiceV2
     body:
       encoding: UTF-8
       string: |-
@@ -227,7 +227,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:08 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcFormWebServiceBean/VnpProcFormService?WSDL
+    uri: <BGS_BASE_URL>/VnpProcFormWebServiceBean/VnpProcFormService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -373,7 +373,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:09 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcFormWebServiceBean/VnpProcFormService
+    uri: <BGS_BASE_URL>/VnpProcFormWebServiceBean/VnpProcFormService
     body:
       encoding: UTF-8
       string: |-
@@ -429,7 +429,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:10 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntWebServiceBean/VnpPtcpntService?WSDL
+    uri: <BGS_BASE_URL>/VnpPtcpntWebServiceBean/VnpPtcpntService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -598,7 +598,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:11 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntWebServiceBean/VnpPtcpntService
+    uri: <BGS_BASE_URL>/VnpPtcpntWebServiceBean/VnpPtcpntService
     body:
       encoding: UTF-8
       string: |-
@@ -654,7 +654,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:12 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/StandardDataWebServiceBean/StandardDataWebService?WSDL
+    uri: <BGS_BASE_URL>/StandardDataWebServiceBean/StandardDataWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -1528,7 +1528,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:13 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/StandardDataWebServiceBean/StandardDataWebService
+    uri: <BGS_BASE_URL>/StandardDataWebServiceBean/StandardDataWebService
     body:
       encoding: UTF-8
       string: |-
@@ -1584,7 +1584,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:14 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService?WSDL
+    uri: <BGS_BASE_URL>/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -1753,7 +1753,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:15 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
+    uri: <BGS_BASE_URL>/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
     body:
       encoding: UTF-8
       string: |-
@@ -1810,7 +1810,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:16 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/RORoutingServiceWS/RORoutingService?WSDL
+    uri: <BGS_BASE_URL>/RORoutingServiceWS/RORoutingService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -1890,7 +1890,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:16 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/RORoutingServiceWS/RORoutingService
+    uri: <BGS_BASE_URL>/RORoutingServiceWS/RORoutingService
     body:
       encoding: UTF-8
       string: |-
@@ -1946,7 +1946,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:17 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPersonWebServiceBean/VnpPersonService?WSDL
+    uri: <BGS_BASE_URL>/VnpPersonWebServiceBean/VnpPersonService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -2115,7 +2115,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:18 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPersonWebServiceBean/VnpPersonService
+    uri: <BGS_BASE_URL>/VnpPersonWebServiceBean/VnpPersonService
     body:
       encoding: UTF-8
       string: |-
@@ -2171,7 +2171,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:19 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService?WSDL
+    uri: <BGS_BASE_URL>/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -2340,7 +2340,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:20 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService
+    uri: <BGS_BASE_URL>/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService
     body:
       encoding: UTF-8
       string: |-
@@ -2396,7 +2396,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:20 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntWebServiceBean/VnpPtcpntService?WSDL
+    uri: <BGS_BASE_URL>/VnpPtcpntWebServiceBean/VnpPtcpntService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -2565,7 +2565,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:21 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntWebServiceBean/VnpPtcpntService
+    uri: <BGS_BASE_URL>/VnpPtcpntWebServiceBean/VnpPtcpntService
     body:
       encoding: UTF-8
       string: |-
@@ -2621,7 +2621,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:22 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPersonWebServiceBean/VnpPersonService?WSDL
+    uri: <BGS_BASE_URL>/VnpPersonWebServiceBean/VnpPersonService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -2790,7 +2790,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:23 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPersonWebServiceBean/VnpPersonService
+    uri: <BGS_BASE_URL>/VnpPersonWebServiceBean/VnpPersonService
     body:
       encoding: UTF-8
       string: |-
@@ -2846,7 +2846,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:24 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService?WSDL
+    uri: <BGS_BASE_URL>/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -3015,7 +3015,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:24 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
+    uri: <BGS_BASE_URL>/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
     body:
       encoding: UTF-8
       string: |-
@@ -3072,7 +3072,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:25 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntRlnshpWebServiceBean/VnpPtcpntRlnshpService?WSDL
+    uri: <BGS_BASE_URL>/VnpPtcpntRlnshpWebServiceBean/VnpPtcpntRlnshpService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -3241,7 +3241,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:26 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntRlnshpWebServiceBean/VnpPtcpntRlnshpService
+    uri: <BGS_BASE_URL>/VnpPtcpntRlnshpWebServiceBean/VnpPtcpntRlnshpService
     body:
       encoding: UTF-8
       string: |-
@@ -3297,7 +3297,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:27 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpChildSchoolWebServiceBean/VnpChildSchoolService?WSDL
+    uri: <BGS_BASE_URL>/VnpChildSchoolWebServiceBean/VnpChildSchoolService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -3466,7 +3466,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:28 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpChildSchoolWebServiceBean/VnpChildSchoolService
+    uri: <BGS_BASE_URL>/VnpChildSchoolWebServiceBean/VnpChildSchoolService
     body:
       encoding: UTF-8
       string: |-
@@ -3529,7 +3529,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:29 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpChildStudentWebServiceBean/VnpChildStudentService?WSDL
+    uri: <BGS_BASE_URL>/VnpChildStudentWebServiceBean/VnpChildStudentService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -3698,7 +3698,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:30 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpChildStudentWebServiceBean/VnpChildStudentService
+    uri: <BGS_BASE_URL>/VnpChildStudentWebServiceBean/VnpChildStudentService
     body:
       encoding: UTF-8
       string: |-
@@ -3756,7 +3756,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:30 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpBnftClaimWebServiceBean/VnpBnftClaimService?WSDL
+    uri: <BGS_BASE_URL>/VnpBnftClaimWebServiceBean/VnpBnftClaimService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -3925,7 +3925,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:31 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpBnftClaimWebServiceBean/VnpBnftClaimService
+    uri: <BGS_BASE_URL>/VnpBnftClaimWebServiceBean/VnpBnftClaimService
     body:
       encoding: UTF-8
       string: |-
@@ -3981,7 +3981,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:32 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/BenefitClaimServiceBean/BenefitClaimWebService?WSDL
+    uri: <BGS_BASE_URL>/BenefitClaimServiceBean/BenefitClaimWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -4334,7 +4334,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:33 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/BenefitClaimServiceBean/BenefitClaimWebService
+    uri: <BGS_BASE_URL>/BenefitClaimServiceBean/BenefitClaimWebService
     body:
       encoding: UTF-8
       string: |-
@@ -4861,7 +4861,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:53 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpBnftClaimWebServiceBean/VnpBnftClaimService?WSDL
+    uri: <BGS_BASE_URL>/VnpBnftClaimWebServiceBean/VnpBnftClaimService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -5030,7 +5030,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:53 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpBnftClaimWebServiceBean/VnpBnftClaimService
+    uri: <BGS_BASE_URL>/VnpBnftClaimWebServiceBean/VnpBnftClaimService
     body:
       encoding: UTF-8
       string: |-
@@ -5086,7 +5086,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:55 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcWebServiceBeanV2/VnpProcServiceV2?WSDL
+    uri: <BGS_BASE_URL>/VnpProcWebServiceBeanV2/VnpProcServiceV2?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -5255,7 +5255,7 @@ http_interactions:
   recorded_at: Wed, 21 Oct 2020 13:18:55 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcWebServiceBeanV2/VnpProcServiceV2
+    uri: <BGS_BASE_URL>/VnpProcWebServiceBeanV2/VnpProcServiceV2
     body:
       encoding: UTF-8
       string: |-

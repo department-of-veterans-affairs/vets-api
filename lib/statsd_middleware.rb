@@ -95,6 +95,8 @@ class StatsdMiddleware
     messages
     mhv-inherited-proofing
     mhv-landing-page
+    mhv-secure-messaging
+    mhv-secure-messaging-pilot
     mock-alternate-header-0845
     mock-form
     mock-form-patterns-v3

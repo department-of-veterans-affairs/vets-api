@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 ENGINE_ROOT = File.expand_path('../..', __dir__)
-ENGINE_PATH = File.expand_path('../../lib/inprogforms/engine', __dir__)
+ENGINE_PATH = File.expand_path('../../lib/in_progress_forms/engine', __dir__)
 
 # Set up gems listed in the Gemfile.
 ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../../Gemfile', __dir__)

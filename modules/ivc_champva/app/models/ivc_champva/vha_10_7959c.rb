@@ -17,6 +17,7 @@ module IvcChampva
         'veteranLastName' => @data.dig('applicants', 'full_name', 'last'),
         'fileNumber' => @data.dig('applicants', 'ssn_or_tin'),
         'zipCode' => @data.dig('applicants', 'address', 'postal_code') || '00000',
+        'country' => @data.dig('applicants', 'address', 'country') || 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'

@@ -176,7 +176,6 @@ describe 'metadata request api', type: :request do
 
       context 'v1' do
         it_behaves_like 'a healthcheck', '/services/appeals/v1/healthcheck'
-        it_behaves_like 'a healthcheck', '/services/appeals/v1/appeals_healthcheck'
       end
 
       context 'segmented APIs' do
@@ -210,8 +209,6 @@ describe 'metadata request api', type: :request do
       end
 
       context 'v1' do
-        it_behaves_like 'an upstream healthcheck (caseflow)', '/services/appeals/v1/appeals_upstream_healthcheck'
-
         it 'checks the status of both services individually' do
           VCR.use_cassette('caseflow/health-check') do
             allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(true)

@@ -6,14 +6,15 @@ module TermsOfUse
   class Acceptor
     include ActiveModel::Validations
 
-    attr_reader :user_account, :icn, :common_name, :version
+    attr_reader :user_account, :icn, :common_name, :version, :async
 
     validates :user_account, :icn, :common_name, :version, presence: true
 
-    def initialize(user_account:, common_name:, version:)
+    def initialize(user_account:, common_name:, version:, async: true)
       @user_account = user_account
       @common_name = common_name
       @version = version
+      @async = async
       @icn = user_account&.icn
 
       validate!
@@ -22,13 +23,16 @@ module TermsOfUse
     end
 
     def perform!
-      terms_of_use_agreement.accepted!
-      update_sign_up_service
+      if async
+        asynchronous_update
+      else
+        synchronous_update
+      end
 
       Logger.new(terms_of_use_agreement:).perform
 
       terms_of_use_agreement
-    rescue ActiveRecord::RecordInvalid => e
+    rescue ActiveRecord::RecordInvalid, StandardError => e
       log_and_raise_acceptor_error(e)
     end
 
@@ -38,8 +42,14 @@ module TermsOfUse
       @terms_of_use_agreement ||= user_account.terms_of_use_agreements.new(agreement_version: version)
     end
 
-    def update_sign_up_service
+    def asynchronous_update
+      terms_of_use_agreement.accepted!
       SignUpServiceUpdaterJob.perform_async(attr_package_key)
+    end
+
+    def synchronous_update
+      terms_of_use_agreement.accepted!
+      SignUpServiceUpdaterJob.new.perform(attr_package_key)
     end
 
     def log_and_raise_acceptor_error(error)

@@ -13,6 +13,8 @@ FactoryBot.define do
     last_signed_in { Time.zone.now }
     authn_context { LOA::IDME_LOA3_VETS }
     loa { { current: LOA::THREE, highest: LOA::THREE } }
+    ogc_number { '123456789' }
+    poa_codes { %w[1234 5678] }
     sign_in {
       { service_name: SignIn::Constants::Auth::IDME, client_id: SecureRandom.uuid,
         auth_broker: SignIn::Constants::Auth::BROKER_CODE }

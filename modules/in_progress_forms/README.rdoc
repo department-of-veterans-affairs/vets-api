@@ -1,10 +1,10 @@
-= InProgForms
+= InProgressForms
 TODO: Short description and motivation.
 
 == Installation
 Ensure the following line is in the root project's Gemfile:
 
-  gem 'inprogforms', path: 'modules/inprogforms'
+  gem 'in_progress_forms', path: 'modules/in_progress_forms'
 
 == License
 This module is open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

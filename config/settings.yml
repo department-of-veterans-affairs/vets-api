@@ -79,10 +79,13 @@ sign_in:
   vaweb_client_id: vaweb
   vamobile_client_id: vamobile
   arp_client_id: arp
+  sts_client:
+    key_path: spec/fixtures/sign_in/sts_client.pem
 
 terms_of_use:
   current_version: v1
   provisioner_cookie_domain: localhost
+  enabled_clients: vaweb, mhv, myvahealth
 
 lockbox:
   master_key: "0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9"
@@ -610,7 +613,7 @@ ask_va_api:
     client_id: client_id
     client_secret: secret
     resource: resource
-    veis_api_path: veis/vagov.lob.ava/api
+    veis_api_path: eis/vagov.lob.ava/api
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     ocp_apim_subscription_key: subscription_key
     redis_token_expiry: 3540 # 59 minutes
@@ -985,6 +988,12 @@ lighthouse:
       rsa_key: ~
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausln2mo4jCAYRrlR2p7/v1/token
     use_mocks: false
+  benefits_intake:
+    host: https://sandbox-api.va.gov
+    path: /services/vba_documents
+    version: v1
+    use_mocks: false
+    api_key: ~
   letters_generator:
     url: https://sandbox-api.va.gov
     path: /services/va-letter-generator/v1/
@@ -1272,6 +1281,7 @@ vanotify:
         in_progress_reminder_email_generic: fake_template_id
         covid_vaccine_registration: fake_template_id
         covid_vaccine_expanded_registration: fake_template_id
+        direct_deposit: direct_deposit_template_id
         direct_deposit_edu: edu_template_id
         direct_deposit_comp_pen: comp_pen_template_id
         login_reactivation_email: reactivation_email_test_b
@@ -1443,8 +1453,10 @@ check_in:
     service_name: MAP-API
   travel_reimbursement_api:
     auth_url: https://login.microsoftonline.us
+    auth_url_v2: ~
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     claims_url: https://dev.integration.d365.va.gov
+    claims_url_v2: ~
     claims_base_path: EC/ClaimIngestSvc
     redis_token_expiry: 3540 # 59 minutes
     service_name: BTSSS-API
@@ -1657,6 +1669,9 @@ brd:
 
 
 travel_pay:
+  sts:
+    service_account_id: ~
+  mock: true
   veis:
     client_id: ~
     client_secret: ~
