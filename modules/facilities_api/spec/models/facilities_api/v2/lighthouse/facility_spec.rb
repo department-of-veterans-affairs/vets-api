@@ -2,26 +2,25 @@
 
 require 'rails_helper'
 
-describe FacilitiesApi::V2::Lighthouse::Facility, type: :model, team: :facilities do
+describe FacilitiesApi::V2::Lighthouse::Facility, team: :facilities, type: :model do
   context 'Creating' do
     let(:attributes) do
       {
         'attributes' => {
           'satisfaction' => {
-            'health': {
-              'primary_care_urgent': 0.8700000047683716,
-              'primary_care_routine': 0.8700000047683716
+            health: {
+              primary_care_urgent: 0.8700000047683716,
+              primary_care_routine: 0.8700000047683716
             },
-            'effective_date': '2024-02-08'
-          },
-          'wait_times' => nil
+            effective_date: '2024-02-08'
+          }
         },
         'id' => 'abc_123',
         'type' => 'va_facilities'
       }
     end
 
-    it 'has the object defaults' do
+    it 'has object defaults' do
       facility = FacilitiesApi::V2::Lighthouse::Facility.new(attributes)
       expect(facility.attributes).to match(
         {
