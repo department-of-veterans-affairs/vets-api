@@ -125,7 +125,7 @@ endif
 
 .PHONY: up
 up: db  ## Starts the server and associated services with docker-compose
-	@$(BASH_DEV) "rm -f tmp/pids/server.pid && bundle exec rails s -b 0.0.0.0"
+	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start -m all=1"
 
 # NATIVE COMMANDS
 .PHONY: native-up
