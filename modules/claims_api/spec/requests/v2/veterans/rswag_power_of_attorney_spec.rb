@@ -352,7 +352,8 @@ describe 'PowerOfAttorney',
             Veteran::Service::Organization.create!(poa: organization_poa_code,
                                                    name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS",
                                                    phone: '555-555-5555')
-            Veteran::Service::Representative.create!(representative_id: '999999999999', poa_codes: [organization_poa_code],
+            Veteran::Service::Representative.create!(representative_id: '999999999999',
+                                                     poa_codes: [organization_poa_code],
                                                      first_name: 'Firstname', last_name: 'Lastname',
                                                      phone: '555-555-5555')
 
