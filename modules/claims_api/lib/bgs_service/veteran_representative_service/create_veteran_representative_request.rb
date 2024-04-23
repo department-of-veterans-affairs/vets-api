@@ -14,7 +14,7 @@ module ClaimsApi
         namespace: 'data',
         action: 'createVeteranRepresentative',
         body: body.to_s,
-        key: 'VeteranRepresentative'
+        key: 'VeteranRepresentativeReturn'
       )
     end
   end
