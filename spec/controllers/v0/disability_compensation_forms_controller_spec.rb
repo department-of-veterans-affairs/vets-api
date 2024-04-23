@@ -123,10 +123,4 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
       end
     end
   end
-
-  describe 'submit_all_claim' do
-    it 'returns a job Id' do
-      post(:submit_all_claim)
-    end
-  end
 end
