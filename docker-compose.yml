@@ -59,4 +59,3 @@ services:
 
 volumes:
  shared-vol:
- 

@@ -21,4 +21,3 @@ services:
       - 33100:3310
 volumes:
  shared-vol:
- 
