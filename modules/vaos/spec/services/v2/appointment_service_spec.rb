@@ -632,8 +632,16 @@ describe VAOS::V2::AppointmentsService do
       }
     end
 
+    let(:manila_appt_req) do
+      {
+        id: '12345',
+        location_id: '358',
+        requested_periods: [{ start: '2024-12-20T00:00:00Z', end: '2024-12-20T11:59:59.999Z' }]
+      }
+    end
+
     context 'when appt location id is 358' do
-      it 'logs the appt location id, timezone info, and appt start time' do
+      it 'logs the appt location id, timezone info, utc/local times of appt' do
         allow_any_instance_of(VAOS::V2::AppointmentsService)
           .to receive(:get_facility_timezone_memoized)
           .and_return('Asia/Manila')
@@ -644,7 +652,34 @@ describe VAOS::V2::AppointmentsService do
                                                           {
                                                             location_id: '358',
                                                             facility_timezone: 'Asia/Manila',
-                                                            appt_start_time: '2024-12-20T00:00:00Z'
+                                                            appt_start_time_utc: '2024-12-20T00:00:00Z',
+                                                            appt_start_time_local: subject.send(
+                                                              :convert_utc_to_local_time,
+                                                              manila_appt[:start],
+                                                              'Asia/Manila'
+                                                            )
+                                                          }.to_json)
+      end
+
+      it 'logs the appt location id, timezone info, utc/local times of appt request' do
+        allow_any_instance_of(VAOS::V2::AppointmentsService)
+          .to receive(:get_facility_timezone_memoized)
+          .and_return('Asia/Manila')
+        allow(Rails.logger).to receive(:info)
+
+        subject.send(:convert_appointment_time, manila_appt_req)
+        expect(Rails.logger).to have_received(:info).with('Timezone info for Manila Philippines location_id 358',
+                                                          {
+                                                            location_id: '358',
+                                                            facility_timezone: 'Asia/Manila',
+                                                            appt_start_time_utc: '2024-12-20T00:00:00Z',
+                                                            appt_start_time_local: subject.send(
+                                                              :convert_utc_to_local_time, manila_appt_req.dig(
+                                                                                            :requested_periods,
+                                                                                            0,
+                                                                                            :start
+                                                                                          ), 'Asia/Manila'
+                                                            )
                                                           }.to_json)
       end
     end

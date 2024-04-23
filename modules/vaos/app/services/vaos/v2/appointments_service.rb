@@ -411,24 +411,35 @@ module VAOS
       def convert_appointment_time(appt)
         if !appt[:start].nil?
           facility_timezone = get_facility_timezone_memoized(appt[:location_id])
-          if appt[:location_id] == MANILA_PHILIPPINES_FACILITY_ID
-            Rails.logger.info(
-              "Timezone info for Manila Philippines location_id #{appt[:location_id]}",
-              {
-                location_id: appt[:location_id],
-                facility_timezone:,
-                appt_start_time: appt[:start]
-              }.to_json
-            )
-          end
           appt[:local_start_time] = convert_utc_to_local_time(appt[:start], facility_timezone)
+
+          if appt[:location_id] == MANILA_PHILIPPINES_FACILITY_ID
+            log_timezone_info(appt[:location_id], facility_timezone, appt[:start], appt[:local_start_time])
+          end
+
         elsif !appt.dig(:requested_periods, 0, :start).nil?
           appt[:requested_periods].each do |period|
             facility_timezone = get_facility_timezone_memoized(appt[:location_id])
             period[:local_start_time] = convert_utc_to_local_time(period[:start], facility_timezone)
+
+            if appt[:location_id] == MANILA_PHILIPPINES_FACILITY_ID
+              log_timezone_info(appt[:location_id], facility_timezone, period[:start], period[:local_start_time])
+            end
           end
         end
         appt
+      end
+
+      def log_timezone_info(appt_location_id, facility_timezone, appt_start_time_utc, appt_start_time_local)
+        Rails.logger.info(
+          "Timezone info for Manila Philippines location_id #{appt_location_id}",
+          {
+            location_id: appt_location_id,
+            facility_timezone:,
+            appt_start_time_utc:,
+            appt_start_time_local:
+          }.to_json
+        )
       end
 
       # Returns a local [DateTime] object converted from UTC using the facility's timezone offset.
