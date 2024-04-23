@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/adhocteam/connect_vbms
-  revision: f23a0c80dfa5f9e9d8052205d90c68b42c5d00c7
-  tag: v0.2.0.rc
+  revision: 6e5dc751afaf0da9c7cbc10c94b909f114f3a156
+  tag: v2.0.0.rc
   specs:
-    connect_vbms (1.4.0)
+    connect_vbms (2.0.0.rc)
       httpclient (~> 2.8.0)
       httpi (~> 2.4)
       mail
