@@ -14,6 +14,8 @@ x-app: &common
     "Settings.redis.app_data.url": "redis://redis:6379"
     "Settings.redis.sidekiq.url": "redis://redis:6379"
     "Settings.redis.rails_cache.url": "redis://redis:6379"
+    "Settings.saml_ssoe.idp_metadata_file": "config/ssoe_idp_sqa_metadata_isam.xml"
+    "Settings.betamocks.cache_dir": "config/vets-api-mockdata"
   image: vets-api:${DOCKER_IMAGE:-latest}
   restart: unless-stopped
   volumes:
