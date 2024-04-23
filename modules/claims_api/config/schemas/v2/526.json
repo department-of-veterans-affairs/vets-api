@@ -98,7 +98,6 @@
               "description": "State for the Veteran's current mailing address.",
               "type": "string",
               "pattern": "^[a-z,A-Z]{2}$",
-              "maxLength": 1000,
               "example": "OR"
             },
             "country": {
@@ -194,7 +193,6 @@
           "description": "State for the Veteran's new address.",
           "type": "string",
           "pattern": "^$|^[a-z,A-Z]{2}$",
-          "maxLength": 1000,
           "example": "OR"
         },
         "country": {
