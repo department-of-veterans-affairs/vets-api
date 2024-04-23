@@ -2427,9 +2427,6 @@ RSpec.describe V0::SignInController, type: :controller do
     end
 
     context 'when successfully authenticated' do
-      let!(:user) do
-        create(:user, :loa3, :api_auth, uuid: access_token_object.user_uuid, logingov_uuid:)
-      end
       let(:statsd_success) { SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS }
       let(:logingov_uuid) { 'some-logingov-uuid' }
       let(:expected_log) { '[SignInService] [V0::SignInController] logout' }
@@ -2464,7 +2461,6 @@ RSpec.describe V0::SignInController, type: :controller do
       end
 
       context 'and authenticated credential is Login.gov' do
-        let!(:user) { create(:user, :ial1, uuid: access_token_object.user_uuid) }
         let(:user_verification) { create(:logingov_user_verification, user_account:) }
 
         context 'and client configuration has not configured a logout redirect uri' do
@@ -2538,33 +2534,16 @@ RSpec.describe V0::SignInController, type: :controller do
 
       context 'and client_id is not present' do
         let(:client_id_value) { nil }
+        let(:expected_error_status) { :bad_request }
+        let(:expected_error) { SignIn::Errors::MalformedParamsError }
+        let(:expected_error_message) { 'Client id is not valid' }
 
-        context 'and client configuration has not configured a logout redirect uri' do
-          let(:logout_redirect_uri) { nil }
-          let(:expected_status) { :ok }
-
-          it 'returns ok status' do
-            expect(subject).to have_http_status(expected_status)
-          end
-        end
-
-        context 'and client configuration has configured a logout redirect uri' do
-          let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
-          let(:expected_status) { :redirect }
-
-          it 'returns redirect status' do
-            expect(subject).to have_http_status(expected_status)
-          end
-
-          it 'redirects to the configured logout redirect uri' do
-            expect(subject).to redirect_to(logout_redirect_uri)
-          end
-        end
+        it_behaves_like 'error response'
       end
     end
 
     context 'when not successfully authenticated' do
-      let(:expected_error) { 'No valid Session found' }
+      let(:expected_error) { 'Unable to authorize access token' }
 
       context 'and the access token is expired' do
         let(:expiration_time) { Time.zone.now - SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
@@ -2606,18 +2585,18 @@ RSpec.describe V0::SignInController, type: :controller do
 
         context 'and client_id is not present' do
           let(:client_id_value) { nil }
-          let(:expected_status) { :ok }
+          let(:expected_error_status) { :bad_request }
+          let(:expected_error) { SignIn::Errors::MalformedParamsError }
+          let(:expected_error_message) { 'Client id is not valid' }
 
-          it 'returns ok status' do
-            expect(subject).to have_http_status(expected_status)
-          end
+          it_behaves_like 'error response'
         end
       end
 
       context 'and the access token is invalid' do
         let(:access_token) { 'some-invalid-access-token' }
         let(:expected_error) { SignIn::Errors::LogoutAuthorizationError }
-        let(:expected_error_message) { 'No valid Session found' }
+        let(:expected_error_message) { 'Unable to authorize access token' }
 
         it_behaves_like 'authorization error response'
       end

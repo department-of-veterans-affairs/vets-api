@@ -178,7 +178,9 @@ module V0
 
     def logout # rubocop:disable Metrics/MethodLength
       client_id = params[:client_id].presence
-      if client_id && client_config(client_id).blank?
+      anti_csrf_token = anti_csrf_token_param.presence
+
+      if client_config(client_id).blank?
         raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
       end
 
@@ -188,16 +190,15 @@ module V0
 
       session = SignIn::OAuthSession.find_by(handle: @access_token&.session_handle)
       credential_type = session.user_verification.credential_type
-      client_id = session.client_id if client_id.blank?
-      anti_csrf_token = anti_csrf_token_param.presence
 
       SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token:).perform
       delete_cookies if token_cookies
-      logout_redirect = SignIn::LogoutRedirectGenerator.new(credential_type:,
-                                                            client_config: client_config(client_id)).perform
+
       sign_in_logger.info('logout', @access_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS)
 
+      logout_redirect = SignIn::LogoutRedirectGenerator.new(credential_type:,
+                                                            client_config: client_config(client_id)).perform
       logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
     rescue SignIn::Errors::LogoutAuthorizationError, SignIn::Errors::SessionNotAuthorizedError => e
       sign_in_logger.info('logout error', { errors: e.message })

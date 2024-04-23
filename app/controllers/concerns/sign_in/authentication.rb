@@ -38,7 +38,7 @@ module SignIn
       access_token.present?
     rescue Errors::AccessTokenExpiredError => e
       render json: { errors: e }, status: :forbidden
-    rescue Errors::StandardError
+    rescue Errors::StandardError => e
       handle_authenticate_error(e)
     end
 
