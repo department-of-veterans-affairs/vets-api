@@ -94,6 +94,17 @@ Rails.application.reloader.to_prepare do
 
     duration = end_time - start_time
     StatsD.measure('facilities.lighthouse', duration, tags: ['facilities.lighthouse'])
+    end
+
+  ActiveSupport::Notifications.subscribe(
+    'lighthouse.facilities.v2.request.faraday'
+  ) do |_, start_time, end_time, _, payload|
+    payload_statuses = ["http_status:#{payload.status}"]
+    StatsD.increment('facilities.lighthouse.v2.response.failures', tags: payload_statuses) unless payload.success?
+    StatsD.increment('facilities.lighthouse.v2.response.total', tags: payload_statuses)
+
+    duration = end_time - start_time
+    StatsD.measure('facilities.lighthouse.v2', duration, tags: ['facilities.lighthouse'])
   end
 
   # IAM SSOe session metrics
