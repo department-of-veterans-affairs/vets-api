@@ -99,7 +99,7 @@ module Mobile
             names, appointment_missing_providers =
               provider_names_proxy.form_names_from_appointment_practitioners_list(practitioners_list)
             appt[:healthcare_provider] = names
-            missing_providers << appointment_missing_providers
+            missing_providers.concat(appointment_missing_providers) unless names
           end
 
           [appointments, missing_providers]

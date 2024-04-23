@@ -13,6 +13,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
     before do
       Flipper.enable('va_online_scheduling')
       allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+      allow(Rails.logger).to receive(:info)
       Timecop.freeze(Time.zone.parse('2022-01-01T19:25:00Z'))
     end
 
@@ -97,6 +98,9 @@ RSpec.describe 'vaos v2 appointments', type: :request do
             end
           end
         end
+        expect(response).to have_http_status(:multi_status)
+        expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error',
+                                                          errors: [{ missing_facilities: ['983'] }])
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
         location = response.parsed_body.dig('data', 0, 'attributes', 'location')
         expect(location).to eq({ 'id' => nil,
@@ -155,6 +159,10 @@ RSpec.describe 'vaos v2 appointments', type: :request do
             end
           end
         end
+        expect(response).to have_http_status(:multi_status)
+        expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error',
+                                                          errors: [{ missing_facilities: ['999AA'] },
+                                                                   { missing_clinics: ['999'] }])
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
         expect(response.parsed_body.dig('data', 0, 'attributes', 'healthcareService')).to be_nil
       end
@@ -187,6 +195,14 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         end
 
         expect(response).to have_http_status(:multi_status)
+        appointment_error = { errors: [{ appointment_errors: [{ system: 'the system',
+                                                                id: 'id-string',
+                                                                status: 'status-string',
+                                                                code: 0,
+                                                                trace_id: 'traceId-string',
+                                                                message: 'msg-string',
+                                                                detail: 'detail-string' }] }] }
+        expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error', appointment_error)
         expect(response.parsed_body['data'].count).to eq(1)
         expect(response.parsed_body['meta']).to include(
           {
@@ -285,8 +301,10 @@ RSpec.describe 'vaos v2 appointments', type: :request do
               end
             end
           end
-          expect(response).to have_http_status(:ok)
+          expect(response).to have_http_status(:multi_status)
           expect(appointment['attributes']['healthcareProvider']).to be_nil
+          expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error',
+                                                            errors: [{ missing_providers: ['1407938061'] }])
         end
 
         it 'falls back to nil when provider service returns 500' do
@@ -302,8 +320,10 @@ RSpec.describe 'vaos v2 appointments', type: :request do
               end
             end
           end
-          expect(response).to have_http_status(:ok)
+          expect(response).to have_http_status(:multi_status)
           expect(appointment['attributes']['healthcareProvider']).to be_nil
+          expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error',
+                                                            errors: [{ missing_providers: ['1407938061'] }])
         end
       end
 
