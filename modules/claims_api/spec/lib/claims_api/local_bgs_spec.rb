@@ -7,7 +7,7 @@ require 'claims_api/error/soap_error_handler'
 describe ClaimsApi::MiscellaneousBGSOperations do
   subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
 
-  let(:soap_error_handler) { ClaimsApi::SoapErrorHandler.new }
+  let(:soap_error_handler) { ClaimsApi::SoapErrorHandler }
 
   describe '#find_poa_by_participant_id' do
     it 'responds as expected, with extra ClaimsApi::Logger logging' do
@@ -17,7 +17,8 @@ describe ClaimsApi::MiscellaneousBGSOperations do
         # 2: built_request - how long to build the request
         # 3: connection_post - how long does the post itself take for the request cycle
         # 4: parsed_response - how long to parse the response
-        expect(ClaimsApi::Logger).to receive(:log).exactly(4).times
+        # 5: transformed_response - how long to transform the response
+        expect(ClaimsApi::Logger).to receive(:log).exactly(5).times
         result = subject.find_poa_by_participant_id('does-not-matter')
         expect(result).to be_a Hash
         expect(result[:end_date]).to eq '08/26/2020'
@@ -42,7 +43,7 @@ describe ClaimsApi::MiscellaneousBGSOperations do
     it 'triggers StatsD measurements' do
       VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id',
                        allow_playback_repeats: true) do
-        %w[connection_wsdl_get built_request connection_post parsed_response].each do |event|
+        %w[connection_wsdl_get built_request connection_post parsed_response transformed_response].each do |event|
           expect { subject.find_poa_by_participant_id('does-not-matter') }
             .to trigger_statsd_measure("api.claims_api.local_bgs.#{event}.duration")
         end
