@@ -21,21 +21,20 @@ class LoadAverageDaysForClaimCompletionJob
   def load_average_days
     rtn = connection.get('/disability/after-you-file-claim/').body
     matches = AVERAGE_DAYS_REGEX.match(rtn)
-    if matches.present? and matches.length >= 1
+    if matches.present? && matches.length >= 1
       rec = AverageDaysForClaimCompletion.new
       rec.average_days = matches[1].to_f
       rec.save!
     else
-      logger.error("Unable to load average days, possibly the page has changed and the regex no longer matches!")
+      logger.error('Unable to load average days, possibly the page has changed and the regex no longer matches!')
     end
-  rescue Faraday::ClientError => error
-    logger.error("Unable to load average days: #{error.message}")
+  rescue Faraday::ClientError => e
+    logger.error("Unable to load average days: #{e.message}")
   end
 
   def perform
-    logger.info("Beginning: LoadAverageDaysForClaimCompletionJob")
+    logger.info('Beginning: LoadAverageDaysForClaimCompletionJob')
     load_average_days
-    logger.info("Completing: LoadAverageDaysForClaimCompletionJob")
+    logger.info('Completing: LoadAverageDaysForClaimCompletionJob')
   end
-
 end
