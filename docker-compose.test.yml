@@ -36,8 +36,6 @@ x-app: &common
 services:
   redis:
     image: redis:6.2-alpine
-    ports:
-      - 6379:6379
   postgres:
     command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c max_connections=200
     environment:
