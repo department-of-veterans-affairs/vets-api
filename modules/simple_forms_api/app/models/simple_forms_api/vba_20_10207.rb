@@ -3,6 +3,7 @@
 module SimpleFormsApi
   class VBA2010207
     include Virtus.model(nullify_blank: true)
+    STATS_KEY = 'api.simple_forms_api.20_10207'
 
     attribute :data
 
@@ -97,7 +98,11 @@ module SimpleFormsApi
       []
     end
 
-    def track_user_identity(confirmation_number); end
+    def track_user_identity(confirmation_number)
+      identity = "#{data['preparer_type']} #{data['third_party_type']}"
+      StatsD.increment("#{STATS_KEY}.#{identity}")
+      Rails.logger.info('Simple forms api - 20-10207 submission user identity', identity:, confirmation_number:)
+    end
 
     private
 
