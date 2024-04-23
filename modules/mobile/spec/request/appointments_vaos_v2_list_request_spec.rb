@@ -85,6 +85,14 @@ RSpec.describe 'vaos v2 appointments', type: :request do
                                  'url' => nil,
                                  'code' => nil })
         expect(physical_location).to eq('MTZ OPC, LAB')
+        expect(response.parsed_body['meta']).to eq({
+                                                     'pagination' => { 'currentPage' => 1,
+                                                                       'perPage' => 10,
+                                                                       'totalPages' => 1,
+                                                                       'totalEntries' => 1 },
+                                                     'upcomingAppointmentsCount' => 0,
+                                                     'upcomingDaysLimit' => 7
+                                                   })
       end
     end
 
