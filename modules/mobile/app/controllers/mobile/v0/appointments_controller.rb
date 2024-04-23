@@ -91,7 +91,7 @@ module Mobile
           Rails.logger.info('Mobile Appointment Partial Error', errors: failures)
 
           {
-            errors: failures
+            errors: [{ source: 'VA Service' }]
           }
         end
       end

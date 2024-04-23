@@ -43,12 +43,7 @@ data:
       friendly_location_name: null
       locationId: '938'
 meta:
-  errors: [
-            { appointmentErrors: [{system: "the system", id: "id-string", status: "status-string", code: 0, traceId: "traceId-string", message: "msg-string", detail: "detail-string"}]},
-            { missingFacilities: [934, 302, 201]},
-            { missingClinics: [934, 302, 201]},
-            { missingProviders: [934, 302, 201]},
-          ]
+  errors: [{source: "VA Service"}]
   checkinWindow:
     minutesBefore: 45
     minutesAfter: 15
