@@ -44,9 +44,7 @@ describe 'Supplemental Claims', openapi_spec:, type: :request do
           value: FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200995.json')
         },
         'all fields used' => {
-          value: FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200995_extra.json').tap do |data|
-            data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
-          end
+          value: FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200995_extra.json')
         }
       }
 
@@ -93,12 +91,7 @@ describe 'Supplemental Claims', openapi_spec:, type: :request do
         let(:'X-VA-NonVeteranClaimant-First-Name') { 'first' }
         let(:'X-VA-NonVeteranClaimant-Middle-Initial') { 'm' }
         let(:'X-VA-NonVeteranClaimant-Last-Name') { 'last' }
-
-        let(:sc_body) do
-          fixture_as_json('decision_reviews/v2/valid_200995_extra.json').tap do |data|
-            data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
-          end
-        end
+        let(:sc_body) { fixture_as_json('decision_reviews/v2/valid_200995_extra.json') }
 
         schema '$ref' => '#/components/schemas/scCreateResponse'
 
@@ -113,7 +106,6 @@ describe 'Supplemental Claims', openapi_spec:, type: :request do
         let(:sc_body) do
           fixture_as_json('decision_reviews/v2/valid_200995_extra.json').tap do |data|
             data.dig('data', 'attributes')&.delete('form5103Acknowledged')
-            data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
           end
         end
 
@@ -205,9 +197,7 @@ describe 'Supplemental Claims', openapi_spec:, type: :request do
           value: FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200995.json')
         },
         'all fields used' => {
-          value: FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200995_extra.json').tap do |data|
-            data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
-          end
+          value: FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200995_extra.json')
         }
       }
 
@@ -249,11 +239,7 @@ describe 'Supplemental Claims', openapi_spec:, type: :request do
       end
 
       response '200', 'Valid maximum' do
-        let(:sc_body) do
-          fixture_as_json('decision_reviews/v2/valid_200995_extra.json').tap do |data|
-            data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
-          end
-        end
+        let(:sc_body) { fixture_as_json('decision_reviews/v2/valid_200995_extra.json') }
 
         let(:'X-VA-NonVeteranClaimant-First-Name') { 'first' }
         let(:'X-VA-NonVeteranClaimant-Last-Name') { 'last' }

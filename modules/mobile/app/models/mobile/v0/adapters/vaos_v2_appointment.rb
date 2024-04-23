@@ -95,7 +95,7 @@ module Mobile
             facility_id:,
             sta6aid: facility_id,
             healthcare_provider: appointment[:healthcare_provider],
-            healthcare_service:,
+            healthcare_service: nil, # set to nil until we decide what the purpose of this field was meant to be
             location:,
             physical_location: appointment[:physical_location],
             minutes_duration: minutes_duration(appointment[:minutes_duration]),
@@ -122,6 +122,7 @@ module Mobile
 
           Mobile::V0::Appointment.new(adapted_appointment)
         end
+
         # rubocop:enable Metrics/MethodLength
 
         private
@@ -203,15 +204,8 @@ module Mobile
 
         def cancellation_reason(cancellation_reason)
           if cancellation_reason.nil?
-            if status == STATUSES[:cancelled]
-              Rails.logger.info('cancelled appt missing cancellation reason with debug info',
-                                type: appointment_type,
-                                kind: appointment[:kind],
-                                vista_status: appointment.dig(:extension, :vista_status),
-                                facility_id:,
-                                clinic: appointment[:clinic])
-              return CANCELLATION_REASON[:prov]
-            end
+            return CANCELLATION_REASON[:prov] if status == STATUSES[:cancelled]
+
             return nil
           end
 
@@ -264,7 +258,9 @@ module Mobile
           @start_date_utc ||= begin
             start = appointment[:start]
             if start.nil?
-              sorted_dates = requested_periods.map { |period| time_to_datetime(period[:start]) }.sort
+              sorted_dates = requested_periods.map do |period|
+                time_to_datetime(period[:start])
+              end.sort
               future_dates = sorted_dates.select { |period| period > DateTime.now }
               future_dates.any? ? future_dates.first : sorted_dates.first
             else
@@ -394,6 +390,7 @@ module Mobile
             location
           end
         end
+
         # rubocop:enable Metrics/MethodLength
 
         def parse_phone(phone)

@@ -5,6 +5,7 @@ module Mobile
     class AppointmentsController < ApplicationController
       UPCOMING_DAYS_LIMIT = 7
 
+      before_action { authorize }
       after_action :clear_appointments_cache, only: %i[cancel create]
 
       def index
@@ -131,6 +132,19 @@ module Mobile
 
       def appointments_cache_interface
         @appointments_cache_interface ||= Mobile::AppointmentsCacheInterface.new
+      end
+
+      def authorize
+        raise_access_denied unless current_user.authorize(:vaos, :access?)
+        raise_access_denied_no_icn if current_user.icn.blank?
+      end
+
+      def raise_access_denied
+        raise Common::Exceptions::Forbidden, detail: 'You do not have access to online scheduling'
+      end
+
+      def raise_access_denied_no_icn
+        raise Common::Exceptions::Forbidden, detail: 'No patient ICN found'
       end
     end
   end

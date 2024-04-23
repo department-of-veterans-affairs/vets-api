@@ -50,7 +50,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                            'facility_id' => '442',
                                            'sta6aid' => '442',
                                            'healthcare_provider' => nil,
-                                           'healthcare_service' => 'Friendly Name Optometry',
+                                           'healthcare_service' => nil,
                                            'location' => {
                                              'id' => '442',
                                              'name' => 'Cheyenne VA Medical Center',
@@ -107,7 +107,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                         'facility_id' => '442',
                                         'sta6aid' => '442',
                                         'healthcare_provider' => nil,
-                                        'healthcare_service' => 'Friendly Name Optometry',
+                                        'healthcare_service' => nil,
                                         'location' => {
                                           'id' => '442',
                                           'name' => 'Cheyenne VA Medical Center',
@@ -156,7 +156,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
     it 'has expected fields' do
       expect(booked_cc[:status]).to eq('BOOKED')
       expect(booked_cc[:appointment_type]).to eq('COMMUNITY_CARE')
-      expect(booked_cc[:healthcare_service]).to eq('CC practice name')
       expect(booked_cc[:location][:name]).to eq('CC practice name')
       expect(booked_cc[:friendly_location_name]).to eq('CC practice name')
       expect(booked_cc[:type_of_care]).to eq('Primary Care')
@@ -169,7 +168,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                         'facility_id' => '552',
                                         'sta6aid' => '552',
                                         'healthcare_provider' => nil,
-                                        'healthcare_service' => 'CC practice name',
+                                        'healthcare_service' => nil,
                                         'location' => {
                                           'id' => nil,
                                           'name' => 'CC practice name',
@@ -287,7 +286,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(proposed_va[:is_pending]).to eq(true)
       expect(proposed_va[:status]).to eq('SUBMITTED')
       expect(proposed_va[:appointment_type]).to eq('VA')
-      expect(proposed_va[:healthcare_service]).to eq('Friendly Name Optometry')
       expect(proposed_va[:location][:name]).to eq('Cheyenne VA Medical Center')
       expect(proposed_va[:proposed_times]).to eq([{ "date": '09/28/2021', "time": 'AM' }])
       expect(proposed_va.as_json).to eq({
@@ -299,7 +297,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'facility_id' => '442',
                                           'sta6aid' => '442',
                                           'healthcare_provider' => nil,
-                                          'healthcare_service' => 'Friendly Name Optometry',
+                                          'healthcare_service' => nil,
                                           'location' => {
                                             'id' => '442',
                                             'name' => 'Cheyenne VA Medical Center',
@@ -361,7 +359,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                        'facility_id' => '442',
                                        'sta6aid' => '442',
                                        'healthcare_provider' => nil,
-                                       'healthcare_service' => 'Friendly Name Optometry',
+                                       'healthcare_service' => nil,
                                        'location' => {
                                          'id' => '442',
                                          'name' => 'Cheyenne VA Medical Center',

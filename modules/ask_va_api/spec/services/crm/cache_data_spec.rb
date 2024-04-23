@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Crm::CacheData do
   let(:service) { double('Crm::Service') }
-  let(:cache_client) { double('RedisClient') }
+  let(:cache_client) { double('AskVAApi::RedisClient') }
   let(:cache_data_instance) { Crm::CacheData.new(service:, cache_client:) }
   let(:cache_data) { { topics: [{ id: 1, name: 'Topic 1' }] } }
 

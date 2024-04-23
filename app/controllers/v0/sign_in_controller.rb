@@ -223,25 +223,19 @@ module V0
       render json: { errors: e }, status: :bad_request
     end
 
-    def introspect
-      render json: @current_user, serializer: SignIn::IntrospectSerializer, status: :ok
-    rescue SignIn::Errors::StandardError => e
-      render json: { errors: e }, status: :unauthorized
-    end
-
     private
 
     def validate_authorize_params(type, client_id, acr, operation)
       if client_config(client_id).blank?
         raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
       end
-      unless SignIn::Constants::Auth::CSP_TYPES.include?(type)
+      unless client_config(client_id).valid_credential_service_provider?(type)
         raise SignIn::Errors::MalformedParamsError.new message: 'Type is not valid'
       end
       unless SignIn::Constants::Auth::OPERATION_TYPES.include?(operation)
         raise SignIn::Errors::MalformedParamsError.new message: 'Operation is not valid'
       end
-      unless SignIn::Constants::Auth::ACR_VALUES.include?(acr)
+      unless client_config(client_id).valid_service_level?(acr)
         raise SignIn::Errors::MalformedParamsError.new message: 'ACR is not valid'
       end
     end
@@ -318,10 +312,10 @@ module V0
       user_attributes = auth_service(state_payload.type,
                                      state_payload.client_id).normalized_attributes(user_info, credential_level)
       verified_icn = SignIn::AttributeValidator.new(user_attributes:).perform
-      user_code_map = SignIn::UserCreator.new(user_attributes:,
-                                              state_payload:,
-                                              verified_icn:,
-                                              request_ip: request.ip).perform
+      user_code_map = SignIn::UserCodeMapCreator.new(
+        user_attributes:, state_payload:, verified_icn:, request_ip: request.remote_ip
+      ).perform
+
       context = {
         type: state_payload.type,
         client_id: state_payload.client_id,

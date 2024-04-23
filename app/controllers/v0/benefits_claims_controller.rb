@@ -34,6 +34,8 @@ module V0
                             num_contentions: claim_info['contentions'].count,
                             ep_code: claim_info['endProductCode'],
                             claim_id: params[:id] })
+      log_evidence_requests(params[:id], claim_info)
+
       tap_claims([claim['data']])
 
       render json: claim
@@ -76,6 +78,19 @@ module V0
             data: {}
           )
         end
+      end
+    end
+
+    def log_evidence_requests(claim_id, claim_info)
+      tracked_items = claim_info['trackedItems']
+
+      tracked_items.each do |ti|
+        ::Rails.logger.info('Evidence Request Types',
+                            { message_type: 'lh.cst.evidence_requests',
+                              claim_id:,
+                              tracked_item_id: ti['id'],
+                              tracked_item_type: ti['displayName'],
+                              tracked_item_status: ti['status'] })
       end
     end
   end

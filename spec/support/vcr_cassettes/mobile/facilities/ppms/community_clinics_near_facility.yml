@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://some.fakesite.com/dws/v1.0/FacilityServiceLocator?address=41.148027,-104.786258&homeHealthSearch=0&maxResults=10&pageNumber=1&pageSize=10&radius=60&specialtycode1=213E00000X&specialtycode2=213EG0000X&specialtycode3=213EP1101X&specialtycode4=213ES0131X&specialtycode5=213ES0103X&telehealthSearch=0
+    uri: https://some.fakesite.com/dws/v1.0/FacilityServiceLocator?address=37.032058,-94.770661&homeHealthSearch=0&maxResults=10&pageNumber=1&pageSize=10&radius=60&specialtycode1=213E00000X&specialtycode2=213EG0000X&specialtycode3=213EP1101X&specialtycode4=213ES0131X&specialtycode5=213ES0103X&telehealthSearch=0
     body:
       encoding: US-ASCII
       string: ''

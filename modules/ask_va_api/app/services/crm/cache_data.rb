@@ -4,7 +4,7 @@ module Crm
   class CacheData
     attr_reader :cache_client, :service
 
-    def initialize(service: Service.new(icn: nil), cache_client: RedisClient.new)
+    def initialize(service: Service.new(icn: nil), cache_client: AskVAApi::RedisClient.new)
       @cache_client = cache_client
       @service = service
     end

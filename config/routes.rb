@@ -18,7 +18,6 @@ Rails.application.routes.draw do
   post '/v0/sign_in/refresh', to: 'v0/sign_in#refresh'
   post '/v0/sign_in/revoke', to: 'v0/sign_in#revoke'
   post '/v0/sign_in/token', to: 'v0/sign_in#token'
-  get '/v0/sign_in/introspect', to: 'v0/sign_in#introspect'
   get '/v0/sign_in/logout', to: 'v0/sign_in#logout'
   get '/v0/sign_in/logingov_logout_proxy', to: 'v0/sign_in#logingov_logout_proxy'
   get '/v0/sign_in/revoke_all_sessions', to: 'v0/sign_in#revoke_all_sessions'
@@ -93,12 +92,6 @@ Rails.application.routes.draw do
     end
     get 'benefits_reference_data/*path', to: 'benefits_reference_data#get_data'
 
-    resources :financial_status_reports, only: %i[create] do
-      collection do
-        get :download_pdf
-      end
-    end
-
     post '/mvi_users/:id', to: 'mpi_users#submit'
 
     resource :decision_review_evidence, only: :create
@@ -121,7 +114,7 @@ Rails.application.routes.draw do
         get(:healthcheck)
         get(:enrollment_status)
         get(:rating_info)
-        post(:download_pdf)
+        get(:facilities)
       end
     end
 
@@ -154,6 +147,8 @@ Rails.application.routes.draw do
 
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
+
+    get 'average_days_for_claim_completion', to: 'average_days_for_claim_completion#index'
 
     get 'virtual_agent_claim_letters', to: 'virtual_agent_claim_letters#index'
     get 'virtual_agent_claim_letters/:document_id', to: 'virtual_agent_claim_letters#show'
@@ -290,11 +285,8 @@ Rails.application.routes.draw do
     resources :gi_bill_feedbacks, only: %i[create show]
 
     namespace :profile do
-      resource :alternate_phone, only: %i[show create]
-      resource :email, only: %i[show create]
       resource :full_name, only: :show
       resource :personal_information, only: :show
-      resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
       resources :connected_applications, only: %i[index destroy]
       resource :valid_va_file_number, only: %i[show]
@@ -302,6 +294,7 @@ Rails.application.routes.draw do
       resource :military_occupations, only: :show
 
       # Lighthouse
+      resource :direct_deposits, only: %i[show update]
       namespace :direct_deposits do
         resource :disability_compensations, only: %i[show update]
       end
@@ -377,6 +370,7 @@ Rails.application.routes.draw do
 
     get 'terms_of_use_agreements/:version/latest', to: 'terms_of_use_agreements#latest'
     post 'terms_of_use_agreements/:version/accept', to: 'terms_of_use_agreements#accept'
+    post 'terms_of_use_agreements/:version/accept_and_provision', to: 'terms_of_use_agreements#accept_and_provision'
     post 'terms_of_use_agreements/:version/decline', to: 'terms_of_use_agreements#decline'
     put 'terms_of_use_agreements/update_provisioning', to: 'terms_of_use_agreements#update_provisioning'
 
@@ -440,6 +434,7 @@ Rails.application.routes.draw do
 
     scope format: false do
       resources :nod_callbacks, only: [:create]
+      resources :pension_ipf_callbacks, only: [:create]
     end
   end
 
@@ -456,7 +451,7 @@ Rails.application.routes.draw do
   end
 
   # Modules
-  mount AccreditedRepresentatives::Engine, at: '/accredited_representatives'
+  mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
   mount CheckIn::Engine, at: '/check_in'
@@ -465,6 +460,7 @@ Rails.application.routes.draw do
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'
+  mount IvcChampva::Engine, at: '/ivc_champva'
   mount RepresentationManagement::Engine, at: '/representation_management'
   mount SimpleFormsApi::Engine, at: '/simple_forms_api'
   mount HealthQuest::Engine, at: '/health_quest'

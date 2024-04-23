@@ -10,7 +10,7 @@
     "second": "22",
     "third": "4444"
   },
-  "vaClaimsHistory": 0,
+  "vaClaimsHistory": 1,
   "vaFileNumber": "12345678",
   "veteranDateOfBirth": {
     "month": "01",
@@ -55,30 +55,29 @@
       "year": "1973"
     }
   },
-  "socialSecurityDisability": 1,
-  "medicalCondition": 1,
-  "nursingHome": 0,
+  "socialSecurityDisability": 2,
+  "medicalCondition": 2,
+  "nursingHome": 1,
   "medicaidCoverage": false,
-  "medicaidStatus": 0,
-  "specialMonthlyPension": 1,
-  "vaTreatmentHistory": 0,
+  "medicaidStatus": 1,
+  "specialMonthlyPension": 2,
+  "vaTreatmentHistory": 1,
   "vaMedicalCenters": [
     {
       "medicalCenter": "Dallas VA Medical Center"
     }
   ],
-  "federalTreatmentHistory": 0,
+  "federalTreatmentHistory": 1,
   "federalMedicalCenters": [
     {
       "medicalCenter": "Memphis Health Care"
     }
   ],
-  "currentEmployment": 0,
+  "currentEmployment": 1,
   "currentEmployers": [
     {
       "jobType": "Customer service",
-      "jobHoursWeek": 20,
-      "jobTitle": "Manager"
+      "jobHoursWeek": "20"
     }
   ],
   "maritalStatus": 1,
@@ -141,7 +140,7 @@
     "second": "22",
     "third": "4444"
   },
-  "spouseIsVeteran": 0,
+  "spouseIsVeteran": 1,
   "spouseVaFileNumber": "23423444",
   "spouseAddress": {
     "street": "123 7th st",
@@ -245,6 +244,7 @@
         "stepchild": "Off"
       },
       "previouslyMarried": 1,
+      "disabled": "Off",
       "married": true,
       "fullName": {
         "first": "Emily",
@@ -259,7 +259,6 @@
       "fullNameOverflow": "Emily Anne Doe",
       "childDateOfBirthOverflow": "03-03-2000",
       "childSocialSecurityNumberOverflow": "333224444",
-      "disabled": "Off",
       "attendingCollege": "Off",
       "childNotInHousehold": 1,
       "childStatusOverflow": "Biological, previously married, does not live with you but contributes",
@@ -279,6 +278,7 @@
         "stepchild": "Off"
       },
       "previouslyMarried": "Off",
+      "disabled": "Off",
       "attendingCollege": 1,
       "fullName": {
         "first": "Bobby",
@@ -293,7 +293,6 @@
       "fullNameOverflow": "Bobby Nolan Doe",
       "childDateOfBirthOverflow": "09-22-2005",
       "childSocialSecurityNumberOverflow": "333224444",
-      "disabled": "Off",
       "childNotInHousehold": "Off",
       "childStatusOverflow": "Adopted, 18-23 years old (in school)",
       "monthlyPayment": {},
@@ -345,7 +344,7 @@
       "monthlyPaymentOverflow": "$2,300.00"
     }
   ],
-  "totalNetWorth": 1,
+  "totalNetWorth": 2,
   "netWorthEstimation": {
     "part_cents": "00",
     "part_two": "1",
@@ -579,15 +578,15 @@
       "paymentAmountOverflow": "$100.00"
     }
   ],
-  "transferredAssets": 0,
-  "homeOwnership": 0,
-  "homeAcreageMoreThanTwo": 0,
+  "transferredAssets": 1,
+  "homeOwnership": 1,
+  "homeAcreageMoreThanTwo": 1,
   "homeAcreageValue": {
     "part_cents": "00",
     "part_two": "75",
     "part_one": "000"
   },
-  "landMarketable": 0,
+  "landMarketable": 1,
   "receivesIncome": true,
   "incomeSources": [
     {
@@ -673,7 +672,7 @@
   "noRapidProcessing": 1,
   "statementOfTruthCertified": true,
   "statementOfTruthSignature": "John Edmund Doe",
-  "pow": 0,
+  "pow": 1,
   "placeOfSeparationLineOne": "West Brookfield, M",
   "placeOfSeparationLineTwo": "A",
   "previousEmployers": null,
@@ -692,10 +691,10 @@
     "marriageType": 1,
     "otherExplanation": "Other reason"
   },
-  "additionalMarriages": 1,
-  "additionalSpouseMarriages": 1,
+  "additionalMarriages": 2,
+  "additionalSpouseMarriages": 2,
   "dependentChildrenInHousehold": "2",
-  "dependentsNotWithYouAtSameAddress": 0,
+  "dependentsNotWithYouAtSameAddress": 1,
   "custodians": [
     {
       "first": "Joe",
@@ -715,8 +714,8 @@
       "dependentsWithCustodianOverflow": "Emily Anne Doe"
     }
   ],
-  "moreThanFourIncomeSources": 1,
-  "hasAnyExpenses": 0,
+  "moreThanFourIncomeSources": 2,
+  "hasAnyExpenses": 1,
   "signatureDate": {
     "month": "12",
     "day": "31",

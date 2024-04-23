@@ -155,6 +155,25 @@ RSpec.describe Form1010Ezr::Service do
           end
         end
       end
+
+      context 'when the form includes TERA info' do
+        let(:form) { get_fixture('form1010_ezr/valid_form_with_tera') }
+
+        it 'returns a success object', run_at: 'Wed, 13 Mar 2024 18:14:49 GMT' do
+          VCR.use_cassette(
+            'form1010_ezr/authorized_submit_with_tera',
+            { match_requests_on: %i[method uri body], erb: true }
+          ) do
+            expect(submit_form(form)).to eq(
+              {
+                success: true,
+                formSubmissionId: 433_956_488,
+                timestamp: '2024-03-13T13:14:50.252-05:00'
+              }
+            )
+          end
+        end
+      end
     end
 
     context 'when an error occurs' do
@@ -193,6 +212,24 @@ RSpec.describe Form1010Ezr::Service do
           expect do
             submit_form(form)
           end.to raise_error(StandardError)
+        end
+
+        # REMOVE THIS TEST ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
+        context "when the error pertains to the Veteran's DOB" do
+          before do
+            allow(JSON::Validator).to receive(:fully_validate).and_return(['veteranDateOfBirth error'])
+          end
+
+          it 'adds to the PersonalInformationLog and saves the unprocessed DOB' do
+            expect { submit_form(form) }.to raise_error do |e|
+              personal_information_log =
+                PersonalInformationLog.find_by(error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure")
+
+              expect(personal_information_log.present?).to eq(true)
+              expect(personal_information_log.data).to eq(form['veteranDateOfBirth'])
+              expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
+            end
+          end
         end
       end
 

@@ -4,9 +4,11 @@ require 'json_marshal/marshaller'
 
 module AppealsApi
   class SupplementalClaim < ApplicationRecord
+    include AppealScopes
     include ScStatus
     include PdfOutputPrep
     include ModelValidations
+
     required_claimant_headers %w[X-VA-NonVeteranClaimant-First-Name X-VA-NonVeteranClaimant-Last-Name]
 
     attr_readonly :auth_headers
@@ -36,8 +38,8 @@ module AppealsApi
     scope :v2, -> { where(api_version: 'V2') }
     scope :v0, -> { where(api_version: 'V0') }
 
-    serialize :auth_headers, JsonMarshal::Marshaller
-    serialize :form_data, JsonMarshal::Marshaller
+    serialize :auth_headers, coder: JsonMarshal::Marshaller
+    serialize :form_data, coder: JsonMarshal::Marshaller
     has_kms_key
     has_encrypted :auth_headers, :form_data, key: :kms_key, **lockbox_options
 
@@ -65,17 +67,14 @@ module AppealsApi
     def assign_metadata
       return unless %w[v2 v0].include?(api_version&.downcase)
 
-      # retain original incoming non-pii form_data in metadata since this model's form_data is eventually removed
-      self.metadata = if Flipper.enabled?(:decision_review_sc_pact_act_boolean)
-                        { form_data: { evidence_type:, potential_pact_act: }, pact: { potential_pact_act: } }
-                      else
-                        { form_data: { evidence_type: } }
-                      end
-      metadata['form_data']['benefit_type'] = benefit_type
-      metadata['central_mail_business_line'] = lob
-      metadata['potential_write_in_issue_count'] = contestable_issues.filter do |issue|
-        issue['attributes']['ratingIssueReferenceId'].blank?
-      end.count
+      self.metadata = {
+        central_mail_business_line: lob,
+        form_data: { benefit_type:, evidence_type: },
+        non_veteran_claimant: non_veteran_claimant?,
+        potential_write_in_issue_count: contestable_issues.filter do |issue|
+          issue['attributes']['ratingIssueReferenceId'].blank?
+        end.count
+      }
     end
 
     def veteran
@@ -94,8 +93,12 @@ module AppealsApi
       )
     end
 
+    def non_veteran_claimant?
+      claimant.signing_appellant?
+    end
+
     def signing_appellant
-      claimant.signing_appellant? ? claimant : veteran
+      non_veteran_claimant? ? claimant : veteran
     end
 
     def appellant_local_time
@@ -144,10 +147,6 @@ module AppealsApi
 
     def claimant_type_other_text
       data_attributes['claimantTypeOtherValue']&.strip
-    end
-
-    def potential_pact_act
-      data_attributes&.dig('potentialPactAct') ? true : false
     end
 
     def alternate_signer_first_name
@@ -258,17 +257,7 @@ module AppealsApi
         return if auth_headers.blank? # Go no further if we've removed PII
 
         if status == 'submitted' && email_present?
-          AppealsApi::AppealReceivedJob.perform_async(
-            {
-              receipt_event: 'sc_received',
-              email_identifier:,
-              first_name: veteran.first_name,
-              date_submitted: appellant_local_time.iso8601,
-              guid: id,
-              claimant_email: claimant.email,
-              claimant_first_name: claimant.first_name
-            }.deep_stringify_keys
-          )
+          AppealsApi::AppealReceivedJob.perform_async(id, self.class.name, appellant_local_time.iso8601)
         end
       end
     end
@@ -296,6 +285,14 @@ module AppealsApi
       }[benefit_type]
     end
 
+    def email_identifier
+      return { id_type: 'email', id_value: signing_appellant.email } if signing_appellant.email.present?
+
+      icn = mpi_veteran.mpi_icn
+
+      icn.present? ? { id_type: 'ICN', id_value: icn } : {}
+    end
+
     private
 
     #  Must supply non-veteran claimantType if claimant fields present
@@ -314,14 +311,6 @@ module AppealsApi
         last_name: veteran.last_name,
         birth_date: veteran.birth_date.iso8601
       )
-    end
-
-    def email_identifier
-      return { id_type: 'email', id_value: signing_appellant.email } if signing_appellant.email.present?
-
-      icn = mpi_veteran.mpi_icn
-
-      { id_type: 'ICN', id_value: icn } if icn.present?
     end
 
     def data_attributes

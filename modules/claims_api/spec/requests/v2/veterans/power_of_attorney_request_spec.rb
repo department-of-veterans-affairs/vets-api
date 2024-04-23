@@ -8,7 +8,9 @@ require 'bgs_service/local_bgs'
 RSpec.describe 'Power Of Attorney', type: :request do
   let(:veteran_id) { '1013062086V794840' }
   let(:get_poa_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney" }
+  let(:request_rep_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney-request" }
   let(:scopes) { %w[system/claim.write system/claim.read] }
+  let(:invalid_post_scopes) { %w[system/claim.read] }
   let(:individual_poa_code) { 'A1H' }
   let(:organization_poa_code) { '083' }
   let(:bgs_poa) { { person_org_name: "#{individual_poa_code} name-here" } }
@@ -135,6 +137,31 @@ RSpec.describe 'Power Of Attorney', type: :request do
           get "#{get_poa_path}/123456", params: nil, headers: auth_header
 
           expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+
+    describe 'request_representative' do
+      let(:request_body) do
+        Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                        'power_of_attorney', 'request_representative', 'valid.json').read
+      end
+
+      context 'when the request data is a valid json object' do
+        it 'returns a meaningful 201' do
+          mock_ccg_for_fine_grained_scope(scopes) do |auth_header|
+            post request_rep_path, params: request_body, headers: auth_header
+            expect(response).to have_http_status(:created)
+          end
+        end
+      end
+
+      context 'when the request scope is wrong' do
+        it 'returns a 401' do
+          mock_ccg_for_fine_grained_scope(invalid_post_scopes) do |auth_header|
+            post request_rep_path, params: request_body, headers: auth_header
+            expect(response).to have_http_status(:unauthorized)
+          end
         end
       end
     end

@@ -16,7 +16,7 @@ module Mobile
     end
 
     def authorize
-      raise_access_denied unless current_user.authorize(:mhv_messaging, :access?)
+      raise_access_denied unless mhv_messaging_authorized?
     end
 
     def raise_access_denied
@@ -42,6 +42,12 @@ module Mobile
         page: params[:page],
         per_page: params[:per_page] || 100
       }
+    end
+
+    private
+
+    def mhv_messaging_authorized?
+      current_user.authorize(:mhv_messaging, :mobile_access?)
     end
   end
 end

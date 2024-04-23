@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/sm_client_helpers'
 
 RSpec.describe 'Fetching user data' do
   include SchemaMatchers
+  include SM::ClientHelpers
 
   context 'GET /v0/user - when an LOA 3 user is logged in' do
     let(:mhv_user) { build(:user, :mhv) }
@@ -11,6 +13,7 @@ RSpec.describe 'Fetching user data' do
     let(:edipi) { '1005127153' }
 
     before do
+      allow(SM::Client).to receive(:new).and_return(authenticated_client)
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
       create(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)

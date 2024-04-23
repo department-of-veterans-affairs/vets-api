@@ -28,6 +28,7 @@ module MedicalRecords
     HEIGHT = '8302-2' # Height
     TEMPERATURE = '8310-5' # Temperature
     WEIGHT = '29463-7' # Weight
+    PULSE_OXIMETRY = '59408-5,2708-6, ' # Oxygen saturation in Arterial blood
 
     # LOINC codes for labs & tests
     MICROBIOLOGY = '79381-0' # Gastrointestinal pathogens panel
@@ -88,11 +89,8 @@ module MedicalRecords
 
     def list_allergies
       bundle = fhir_search(FHIR::AllergyIntolerance,
-                           {
-                             search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active',
-                                                     'verification-status:not': 'entered-in-error' } },
-                             headers: { 'Cache-Control': 'no-cache' }
-                           })
+                           search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active',
+                                                   'verification-status:not': 'entered-in-error' } })
       sort_bundle(bundle, :recordedDate, :desc)
     end
 
@@ -102,10 +100,7 @@ module MedicalRecords
 
     def list_vaccines
       bundle = fhir_search(FHIR::Immunization,
-                           {
-                             search: { parameters: { patient: patient_fhir_id, 'status:not': 'entered-in-error' } },
-                             headers: { 'Cache-Control': 'no-cache' }
-                           })
+                           search: { parameters: { patient: patient_fhir_id, 'status:not': 'entered-in-error' } })
       sort_bundle(bundle, :occurrenceDateTime, :desc)
     end
 
@@ -114,9 +109,10 @@ module MedicalRecords
     end
 
     def list_vitals
-      loinc_codes = "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT}"
+      # loinc_codes =
+      #   "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT},#{PULSE_OXIMETRY}"
       bundle = fhir_search(FHIR::Observation,
-                           search: { parameters: { patient: patient_fhir_id, code: loinc_codes,
+                           search: { parameters: { patient: patient_fhir_id, category: 'vital-signs',
                                                    'status:not': 'entered-in-error' } })
       sort_bundle(bundle, :effectiveDateTime, :desc)
     end
@@ -137,11 +133,8 @@ module MedicalRecords
     def list_clinical_notes
       loinc_codes = "#{PHYSICIAN_PROCEDURE_NOTE},#{DISCHARGE_SUMMARY},#{CONSULT_RESULT}"
       bundle = fhir_search(FHIR::DocumentReference,
-                           {
-                             search: { parameters: { patient: patient_fhir_id, type: loinc_codes,
-                                                     'status:not': 'entered-in-error' } },
-                             headers: { 'Cache-Control': 'no-cache' }
-                           })
+                           search: { parameters: { patient: patient_fhir_id, type: loinc_codes,
+                                                   'status:not': 'entered-in-error' } })
 
       # Sort the bundle of notes based on the date field appropriate to each note type.
       sort_bundle_with_criteria(bundle, :desc) do |resource|
@@ -281,7 +274,11 @@ module MedicalRecords
     # @return [FHIR::ClientReply]
     #
     def fhir_search_query(fhir_model, params)
+      default_headers = { 'Cache-Control': 'no-cache' }
+      params[:headers] = default_headers.merge(params.fetch(:headers, {}))
+
       params[:search][:parameters].merge!(_count: DEFAULT_COUNT)
+
       result = fhir_client.search(fhir_model, params)
       handle_api_errors(result) if result.resource.nil?
       result

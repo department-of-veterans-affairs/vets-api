@@ -3,6 +3,7 @@
 module SimpleFormsApi
   class VBA210845
     include Virtus.model(nullify_blank: true)
+    STATS_KEY = 'api.simple_forms_api.21_0845'
 
     attribute :data
 
@@ -17,12 +18,18 @@ module SimpleFormsApi
         'fileNumber' => @data['veteran_va_file_number'].presence || @data['veteran_ssn'],
         'zipCode' => @data.dig('authorizer_address', 'postal_code') ||
           @data.dig('person_address', 'postal_code') ||
-          @data.dig('organization_address', 'postal_code') ||
-          '00000',
+          @data.dig('organization_address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
+    end
+
+    def zip_code_is_us_based
+      @data.dig('authorizer_address',
+                'country') == 'USA' || @data.dig('person_address',
+                                                 'country') == 'USA' || @data.dig('organization_address',
+                                                                                  'country') == 'USA'
     end
 
     def words_to_remove
@@ -30,16 +37,32 @@ module SimpleFormsApi
         person_address + organization_address
     end
 
-    def submission_date_config
-      {
-        should_stamp_date?: true,
-        page_number: 1,
-        title_coords: [460, 710],
-        text_coords: [460, 690]
-      }
+    def desired_stamps
+      [{ coords: [50, 240], text: data['statement_of_truth_signature'], page: 2 }]
     end
 
-    def track_user_identity; end
+    def submission_date_stamps
+      [
+        {
+          coords: [460, 710],
+          text: 'Application Submitted:',
+          page: 1,
+          font_size: 12
+        },
+        {
+          coords: [460, 690],
+          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          page: 1,
+          font_size: 12
+        }
+      ]
+    end
+
+    def track_user_identity(confirmation_number)
+      identity = "#{data['authorizer_type']} #{data['third_party_type']}"
+      StatsD.increment("#{STATS_KEY}.#{identity}")
+      Rails.logger.info('Simple forms api - 21-0845 submission user identity', identity:, confirmation_number:)
+    end
 
     private
 

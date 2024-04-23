@@ -61,6 +61,7 @@ class StatsdMiddleware
     avs
     burial-poc-v6
     burials
+    burials-v2
     check-in
     claims-status
     coe
@@ -94,6 +95,8 @@ class StatsdMiddleware
     messages
     mhv-inherited-proofing
     mhv-landing-page
+    mhv-secure-messaging
+    mhv-secure-messaging-pilot
     mock-alternate-header-0845
     mock-form
     mock-form-patterns-v3

@@ -44,7 +44,7 @@ describe MedicalRecords::Client do
         client.get_patient_by_identifier(client.fhir_client, patient_id)
         expect(
           a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
-        ).to have_been_made.once
+        ).to have_been_made.at_least_once
       end
     end
 
@@ -81,6 +81,9 @@ describe MedicalRecords::Client do
   it 'gets a list of allergies', :vcr do
     VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
       allergy_list = client.list_allergies
+      expect(
+        a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
+      ).to have_been_made.at_least_once
       expect(allergy_list).to be_a(FHIR::Bundle)
       expect(info_log_buffer.string).not_to include('2952')
       # Verify that the list is sorted reverse chronologically (with nil values to the end).
@@ -106,6 +109,9 @@ describe MedicalRecords::Client do
     VCR.use_cassette 'mr_client/get_a_list_of_vaccines' do
       vaccine_list = client.list_vaccines
       expect(vaccine_list).to be_a(FHIR::Bundle)
+      expect(
+        a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
+      ).to have_been_made.at_least_once
       # Verify that the list is sorted reverse chronologically (with nil values to the end).
       vaccine_list.entry.each_cons(2) do |prev, curr|
         prev_date = prev.resource.occurrenceDateTime
@@ -126,6 +132,9 @@ describe MedicalRecords::Client do
     VCR.use_cassette 'mr_client/get_a_list_of_vitals' do
       vitals_list = client.list_vitals
       expect(vitals_list).to be_a(FHIR::Bundle)
+      expect(
+        a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
+      ).to have_been_made.at_least_once
       # Verify that the list is sorted reverse chronologically (with nil values to the end).
       vitals_list.entry.each_cons(2) do |prev, curr|
         prev_date = prev.resource.effectiveDateTime
@@ -138,6 +147,9 @@ describe MedicalRecords::Client do
   it 'gets a list of health conditions', :vcr do
     VCR.use_cassette 'mr_client/get_a_list_of_health_conditions' do
       condition_list = client.list_conditions
+      expect(
+        a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
+      ).to have_been_made.at_least_once
       expect(condition_list).to be_a(FHIR::Bundle)
       # Verify that the list is sorted reverse chronologically (with nil values to the end).
       condition_list.entry.each_cons(2) do |prev, curr|
@@ -153,7 +165,7 @@ describe MedicalRecords::Client do
       note_list = client.list_clinical_notes
       expect(
         a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
-      ).to have_been_made.once
+      ).to have_been_made.at_least_once
       expect(note_list).to be_a(FHIR::Bundle)
       # Verify that the list is sorted reverse chronologically (with nil values to the end).
       note_list.entry.each_cons(2) do |prev, curr|

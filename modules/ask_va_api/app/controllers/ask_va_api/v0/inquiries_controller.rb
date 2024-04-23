@@ -6,8 +6,8 @@ module AskVAApi
       around_action :handle_exceptions
       before_action :get_inquiries_by_icn, only: [:index]
       before_action :get_inquiry_by_id, only: [:show]
-      skip_before_action :authenticate, only: %i[unauth_create upload_attachment]
-      skip_before_action :verify_authenticity_token, only: %i[unauth_create upload_attachment]
+      skip_before_action :authenticate, only: %i[unauth_create upload_attachment test_create]
+      skip_before_action :verify_authenticity_token, only: %i[unauth_create upload_attachment test_create]
 
       def index
         render json: @user_inquiries.payload, status: @user_inquiries.status
@@ -17,13 +17,22 @@ module AskVAApi
         render json: @inquiry.payload, status: @inquiry.status
       end
 
+      def test_create
+        service = Crm::Service.new(icn: nil)
+        payload = { reply: params[:reply] }
+        response = service.call(endpoint: params[:endpoint], method: :put, payload:)
+
+        render json: response.to_json, status: :ok
+      end
+
       def create
-        render json: { message: 'success' }, status: :created
+        response = Inquiries::Creator.new(icn: current_user.icn).call(params: inquiry_params)
+        render json: response.to_json, status: :created
       end
 
       def unauth_create
         response = Inquiries::Creator.new(icn: nil).call(params: inquiry_params)
-        render json: { message: response }, status: :created
+        render json: response.to_json, status: :created
       end
 
       def upload_attachment
@@ -40,22 +49,26 @@ module AskVAApi
         render json: get_profile.payload, status: get_profile.status
       end
 
-      private
-
-      def inquiry_params
-        params.permit(:first_name, :last_name).to_h
+      def status
+        stat = Inquiries::Status::Retriever.new(icn: current_user.icn).call(inquiry_number: params[:id])
+        serializer = Inquiries::Status::Serializer.new(stat)
+        render json: serializer.serializable_hash, status: :ok
       end
+
+      def create_reply
+        response = Correspondences::Creator.new(message: params[:reply], inquiry_id: params[:id], service: nil).call
+        render json: response.to_json, status: :ok
+      end
+
+      private
 
       def get_inquiry_by_id
         inq = retriever.fetch_by_id(id: params[:id])
-
-        raise InvalidInquiryError if inq.is_a?(Hash)
-
         @inquiry = Result.new(payload: Inquiries::Serializer.new(inq).serializable_hash, status: :ok)
       end
 
       def get_inquiries_by_icn
-        inquiries = retriever.fetch_by_icn
+        inquiries = retriever.call
         @user_inquiries = Result.new(payload: Inquiries::Serializer.new(inquiries).serializable_hash, status: :ok)
       end
 
@@ -78,11 +91,69 @@ module AskVAApi
       end
 
       def retriever
-        @retriever ||= Inquiries::Retriever.new(icn: current_user.icn, service: mock_service)
+        entity_class = AskVAApi::Inquiries::Entity
+        @retriever ||= Inquiries::Retriever.new(icn: current_user.icn, user_mock_data: params[:mock], entity_class:)
+      end
+
+      def inquiry_params
+        params.permit(
+          *base_parameters,
+          *dependant_parameters,
+          *submitter_parameters,
+          *veteran_parameters,
+          school_obj: school_parameters
+        ).to_h
+      end
+
+      def base_parameters
+        %i[
+          AreYouTheDependent AttachmentPresent BranchOfService City ContactMethod Country
+          DaytimePhone EmailAddress EmailConfirmation FirstName Gender InquiryAbout
+          InquiryCategory InquirySource InquirySubtopic InquirySummary InquiryTopic
+          InquiryType IsVAEmployee IsVeteran IsVeteranAnEmployee IsVeteranDeceased
+          LevelOfAuthentication MedicalCenter MiddleName PreferredName Pronouns
+          StreetAddress2 SupervisorFlag VaEmployeeTimeStamp ZipCode
+        ]
+      end
+
+      def dependant_parameters
+        %i[
+          DependantCity DependantCountry DependantDayTimePhone DependantDOB
+          DependantEmail DependantFirstName DependantGender DependantLastName
+          DependantMiddleName DependantProvince DependantRelationship DependantSSN
+          DependantState DependantStreetAddress DependantZipCode
+        ]
+      end
+
+      def submitter_parameters
+        %i[
+          Submitter SubmitterDependent SubmitterDOB SubmitterGender SubmitterProvince
+          SubmitterSSN SubmitterState SubmitterStateOfResidency SubmitterStateOfSchool
+          SubmitterStateProperty SubmitterStreetAddress SubmitterVetCenter
+          SubmitterZipCodeOfResidency SubmitterQuestion
+        ]
+      end
+
+      def veteran_parameters
+        %i[
+          VeteranCity VeteranClaimNumber VeteranCountry VeteranDateOfDeath
+          VeteranDOB VeteranDodIdEdipiNumber VeteranEmail VeteranEmailConfirmation
+          VeteranEnrolled VeteranFirstName VeteranICN VeteranLastName VeteranMiddleName
+          VeteranPhone VeteranPreferedName VeteranPronouns VeteranProvince
+          VeteranRelationship VeteranServiceEndDate VeteranServiceNumber
+          VeteranServiceStartDate VeteranSSN VeteransState VeteranStreetAddress
+          VeteranSuffix VeteranSuiteAptOther VeteranZipCode WhoWasTheirCounselor
+          YourLastName
+        ]
+      end
+
+      def school_parameters
+        %i[
+          City InstitutionName RegionalOffice SchoolFacilityCode StateAbbreviation
+        ]
       end
 
       Result = Struct.new(:payload, :status, keyword_init: true)
-      class InvalidInquiryError < StandardError; end
       class InvalidAttachmentError < StandardError; end
     end
   end

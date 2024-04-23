@@ -1,0 +1,69 @@
+{
+  "form_number": "20-10207",
+  "preparer_type": "veteran",
+  "veteran_full_name": {
+    "first": "John",
+    "last": "Veteran"
+  },
+  "veteran_date_of_birth": "1980-01-01",
+  "veteran_id": {
+    "ssn": "321540987"
+  },
+  "living_situation": {
+    "overnight": true,
+    "losing_home": true,
+    "other_risk": true
+  },
+  "other_housing_risks": "Other housing risks",
+  "mailing_address_yes_no": true,
+  "veteran_mailing_address": {
+    "country": "USA",
+    "street": "123 Any St",
+    "city": "Anytown",
+    "state": "CA",
+    "postal_code": "12345"
+  },
+  "veteran_phone": "1234567890",
+  "veteran_email_address": "email@vet.com",
+  "other_reasons": {
+    "financial_hardship": true,
+    "als": true,
+    "terminal_illness": true,
+    "vsi_si": true,
+    "former_pow": true,
+    "medal_award": true,
+    "over_85": true
+  },
+  "pow_confinement_start_date": "2018-01-01",
+  "pow_confinement_end_date": "2018-02-03",
+  "pow_multiple_confinements": true,
+  "pow_confinement2start_date": "2018-11-01",
+  "pow_confinement2end_date": "2018-11-12",
+  "medical_treatments": [
+    {
+      "facility_name": "Facility Name1",
+      "facility_address": {
+        "country": "USA",
+        "street": "123 Any St",
+        "city": "Anytown",
+        "state": "CA",
+        "postal_code": "12345"
+      },
+      "start_date": "2013-01-05"
+    },
+    {
+      "facility_name": "Facility Name2",
+      "facility_address": {
+        "country": "USA",
+        "street": "123 Any St",
+        "city": "Anytown",
+        "state": "CA",
+        "postal_code": "12345"
+      },
+      "start_date": "2013-01-06"
+    }
+  ],
+  "point_of_contact_name": "Pointy McPointersons",
+  "point_of_contact_phone": "098-765-4321",
+  "statement_of_truth_signature": "John Veteran"
+}

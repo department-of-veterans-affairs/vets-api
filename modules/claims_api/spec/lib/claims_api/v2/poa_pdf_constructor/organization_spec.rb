@@ -6,23 +6,25 @@ require_relative '../../../../support/pdf_matcher'
 
 describe ClaimsApi::V2::PoaPdfConstructor::Organization do
   let(:temp) { create(:power_of_attorney, :with_full_headers) }
+  let(:invalid_temp) { create(:power_of_attorney, :with_full_headers) }
 
   before do
     Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
     temp.form_data = {
       veteran: {
         address: {
-          numberAndStreet: '2719 Hyperion Ave',
+          addressLine1: '2719 Hyperion Ave',
           city: 'Los Angeles',
-          state: 'CA',
+          stateCode: 'CA',
           country: 'US',
-          zipFirstFive: '92264'
+          zipCode: '92264'
         },
         phone: {
           areaCode: '555',
           phoneNumber: '5551337'
         },
-        email: 'test@example.com'
+        email: 'test@example.com',
+        insuranceNumber: 'Ar67346578674'
       },
       claimant: {
         firstName: 'Lillian',
@@ -31,11 +33,11 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
         email: 'lillian@disney.com',
         relationship: 'Spouse',
         address: {
-          numberAndStreet: '2688 S Camino Real',
+          addressLine1: '2688 S Camino Real',
           city: 'Palm Springs',
-          state: 'CA',
+          stateCode: 'CA',
           country: 'US',
-          zipFirstFive: '92264'
+          zipCode: '92264'
         },
         phone: {
           areaCode: '555',
@@ -44,22 +46,20 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
       },
       serviceOrganization: {
         poaCode: '456',
-        firstName: 'Bob',
-        lastName: 'Representative',
-        organizationName: 'I Help Vets LLC',
+        registrationNumber: '1234',
         address: {
-          numberAndStreet: '2719 Hyperion Ave',
+          addressLine1: '2719 Hyperion Ave',
           city: 'Los Angeles',
-          state: 'CA',
+          stateCode: 'CA',
           country: 'US',
-          zipFirstFive: '92264'
+          zipCode: '92264'
         },
         jobTitle: 'Veteran Service Officer',
         email: 'example@test.com'
       },
       recordConsent: true,
       consentAddressChange: true,
-      consentLimits: ['DRUG ABUSE', 'SICKLE CELL']
+      consentLimits: %w[DRUG_ABUSE SICKLE_CELL]
     }
     temp.save
   end
@@ -81,8 +81,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
         'text_signatures' => {
           'page2' => [
             {
-              'signature' => "#{power_of_attorney.auth_headers['va_eauth_firstName']} " \
-                             "#{power_of_attorney.auth_headers['va_eauth_lastName']} - signed via api.va.gov",
+              'signature' => 'Lillian Disney - signed via api.va.gov',
               'x' => 35,
               'y' => 240
             },
@@ -92,7 +91,13 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
               'y' => 200
             }
           ]
-        }
+        },
+        'serviceOrganization' =>
+          {
+            'firstName' => 'Bob',
+            'lastName' => 'Representative',
+            'organizationName' => 'I Help Vets LLC'
+          }
       }
     )
 

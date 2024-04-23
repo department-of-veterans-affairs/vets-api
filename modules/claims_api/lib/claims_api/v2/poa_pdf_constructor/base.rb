@@ -78,7 +78,7 @@ module ClaimsApi
         def stringify_address(address)
           return if address.nil?
 
-          "#{address['numberAndStreet']}, #{address['city']} #{address['state']} #{address['zipFirstFive']}"
+          "#{address['addressLine1']}, #{address['city']} #{address['stateCode']} #{address['zipCode']}"
         end
 
         private

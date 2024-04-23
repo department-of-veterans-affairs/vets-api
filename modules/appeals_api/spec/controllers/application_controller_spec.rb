@@ -55,7 +55,10 @@ describe AppealsApi::ApplicationController, type: :controller do
         end
 
         it 'allows requests that came through the gateway' do
-          get(:index, params: { source: 'some-source-value' })
+          request.headers['X-Consumer-Username'] = 'some-username'
+          request.headers['X-Consumer-ID'] = 'some-id'
+
+          get(:index)
 
           expect(response).to have_http_status(:ok)
         end

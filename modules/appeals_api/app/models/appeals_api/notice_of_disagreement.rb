@@ -5,6 +5,7 @@ require 'common/exceptions'
 
 module AppealsApi
   class NoticeOfDisagreement < ApplicationRecord
+    include AppealScopes
     include NodStatus
     include PdfOutputPrep
     include ModelValidations
@@ -52,8 +53,8 @@ module AppealsApi
       nil
     end
 
-    serialize :auth_headers, JsonMarshal::Marshaller
-    serialize :form_data, JsonMarshal::Marshaller
+    serialize :auth_headers, coder: JsonMarshal::Marshaller
+    serialize :form_data, coder: JsonMarshal::Marshaller
     has_kms_key
     has_encrypted :auth_headers, :form_data, key: :kms_key, **lockbox_options
 
@@ -98,8 +99,12 @@ module AppealsApi
       )
     end
 
+    def non_veteran_claimant?
+      claimant.signing_appellant?
+    end
+
     def signing_appellant
-      claimant.signing_appellant? ? claimant : veteran
+      non_veteran_claimant? ? claimant : veteran
     end
 
     def appellant_local_time
@@ -204,10 +209,13 @@ module AppealsApi
     end
 
     def assign_metadata
-      metadata['central_mail_business_line'] = lob
-      metadata['potential_write_in_issue_count'] = contestable_issues.filter do |issue|
-        issue['attributes']['ratingIssueReferenceId'].blank?
-      end.count
+      self.metadata = {
+        central_mail_business_line: lob,
+        non_veteran_claimant: non_veteran_claimant?,
+        potential_write_in_issue_count: contestable_issues.filter do |issue|
+          issue['attributes']['ratingIssueReferenceId'].blank?
+        end.count
+      }
     end
 
     def accepts_evidence?
@@ -262,17 +270,7 @@ module AppealsApi
         return if auth_headers.blank? # Go no further if we've removed PII
 
         if status == 'submitted' && email_present?
-          AppealsApi::AppealReceivedJob.perform_async(
-            {
-              receipt_event: 'nod_received',
-              email_identifier:,
-              first_name: veteran_first_name,
-              date_submitted: veterans_local_time.iso8601,
-              guid: id,
-              claimant_email: claimant.email,
-              claimant_first_name: claimant.first_name
-            }.deep_stringify_keys
-          )
+          AppealsApi::AppealReceivedJob.perform_async(id, self.class.name, appellant_local_time.iso8601)
         end
       end
     end
@@ -286,6 +284,14 @@ module AppealsApi
       evidence_submissions&.each(&:submit_to_central_mail!)
     end
 
+    def email_identifier
+      return { id_type: 'email', id_value: email } if email.present?
+
+      icn = mpi_veteran.mpi_icn
+
+      icn.present? ? { id_type: 'ICN', id_value: icn } : {}
+    end
+
     private
 
     def mpi_veteran
@@ -295,14 +301,6 @@ module AppealsApi
         last_name: veteran_last_name,
         birth_date: veteran_birth_date.iso8601
       )
-    end
-
-    def email_identifier
-      return { id_type: 'email', id_value: email } if email.present?
-
-      icn = mpi_veteran.mpi_icn
-
-      { id_type: 'ICN', id_value: icn } if icn.present?
     end
 
     def data_attributes

@@ -110,23 +110,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      describe 'GET v0/sign_in/introspect' do
-        let(:access_token_object) { create(:access_token) }
-        let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-        let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid, middle_name: 'leo') }
-
-        it 'returns user attributes' do
-          expect(subject).to validate(
-            :get,
-            '/v0/sign_in/introspect',
-            200,
-            '_headers' => {
-              'Authorization' => "Bearer #{access_token}"
-            }
-          )
-        end
-      end
-
       describe 'POST v0/sign_in/revoke' do
         let(:user_verification) { create(:user_verification) }
         let(:validated_credential) { create(:validated_credential, user_verification:, client_config:) }
@@ -742,7 +725,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             VCR.use_cassette('bgs/people_service/person_data') do
               expect(subject).to validate(
                 :post,
-                '/v0/financial_status_reports',
+                '/debts_api/v0/financial_status_reports',
                 200,
                 headers.merge(
                   '_data' => fsr_data
@@ -968,6 +951,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         # TODO: remove Flipper feature toggle when lighthouse provider is implemented
         Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider_foreground')
         Flipper.disable('disability_compensation_prevent_submission_job')
+        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
       end
 
       let(:form526v2) do
@@ -1181,6 +1165,11 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'PPIU' do
       let(:mhv_user) { create(:user, :loa3) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:profile_ppiu_reject_requests, instance_of(User))
+                                            .and_return(false)
+      end
 
       it 'supports getting payment information' do
         expect(subject).to validate(:get, '/v0/ppiu/payment_information', 401)
@@ -1875,13 +1864,24 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'Lighthouse Benefits Reference Data' do
-      it 'gets data from endpoint' do
-        VCR.use_cassette('lighthouse/benefits_reference_data/200_response') do
+      it 'gets disabilities data from endpoint' do
+        VCR.use_cassette('lighthouse/benefits_reference_data/200_disabilities_response') do
           expect(subject).to validate(
             :get,
             '/v0/benefits_reference_data/{path}',
             200,
             headers.merge('path' => 'disabilities')
+          )
+        end
+      end
+
+      it 'gets intake-sites data from endpoint' do
+        VCR.use_cassette('lighthouse/benefits_reference_data/200_intake_sites_response') do
+          expect(subject).to validate(
+            :get,
+            '/v0/benefits_reference_data/{path}',
+            200,
+            headers.merge('path' => 'intake-sites')
           )
         end
       end
@@ -2297,27 +2297,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'profiles' do
       let(:mhv_user) { create(:user, :loa3) }
 
-      it 'supports getting email address data' do
-        expect(subject).to validate(:get, '/v0/profile/email', 401)
-        VCR.use_cassette('evss/pciu/email') do
-          expect(subject).to validate(:get, '/v0/profile/email', 200, headers)
-        end
-      end
-
-      it 'supports getting primary phone number data' do
-        expect(subject).to validate(:get, '/v0/profile/primary_phone', 401)
-        VCR.use_cassette('evss/pciu/primary_phone') do
-          expect(subject).to validate(:get, '/v0/profile/primary_phone', 200, headers)
-        end
-      end
-
-      it 'supports getting alternate phone number data' do
-        expect(subject).to validate(:get, '/v0/profile/alternate_phone', 401)
-        VCR.use_cassette('evss/pciu/alternate_phone') do
-          expect(subject).to validate(:get, '/v0/profile/alternate_phone', 200, headers)
-        end
-      end
-
       it 'supports getting service history data' do
         expect(subject).to validate(:get, '/v0/profile/service_history', 401)
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
@@ -2331,51 +2310,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           VCR.use_cassette('va_profile/demographics/demographics') do
             expect(subject).to validate(:get, '/v0/profile/personal_information', 200, headers)
           end
-        end
-      end
-
-      it 'supports posting primary phone number data' do
-        expect(subject).to validate(:post, '/v0/profile/primary_phone', 401)
-
-        VCR.use_cassette('evss/pciu/post_primary_phone') do
-          phone = build(:phone_number, :nil_effective_date)
-
-          expect(subject).to validate(
-            :post,
-            '/v0/profile/primary_phone',
-            200,
-            headers.merge('_data' => phone.as_json)
-          )
-        end
-      end
-
-      it 'supports posting alternate phone number data' do
-        expect(subject).to validate(:post, '/v0/profile/alternate_phone', 401)
-
-        VCR.use_cassette('evss/pciu/post_alternate_phone') do
-          phone = build(:phone_number, :nil_effective_date)
-
-          expect(subject).to validate(
-            :post,
-            '/v0/profile/alternate_phone',
-            200,
-            headers.merge('_data' => phone.as_json)
-          )
-        end
-      end
-
-      it 'supports posting email address data' do
-        expect(subject).to validate(:post, '/v0/profile/email', 401)
-
-        VCR.use_cassette('evss/pciu/post_email_address') do
-          email_address = build(:email_address)
-
-          expect(subject).to validate(
-            :post,
-            '/v0/profile/email',
-            200,
-            headers.merge('_data' => email_address.as_json)
-          )
         end
       end
 
@@ -2966,20 +2900,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    describe 'when EVSS authorization requirements are not met' do
-      let(:unauthorized_evss_user) { build(:unauthorized_evss_user, :loa3) }
-      let(:headers) { { '_headers' => { 'Cookie' => sign_in(unauthorized_evss_user, nil, true) } } }
-
-      it 'supports returning a custom 403 Forbidden response', :aggregate_failures do
-        expect(subject).to validate(:get, '/v0/profile/email', 403, headers)
-        expect(subject).to validate(:get, '/v0/profile/primary_phone', 403, headers)
-        expect(subject).to validate(:get, '/v0/profile/alternate_phone', 403, headers)
-        expect(subject).to validate(:post, '/v0/profile/email', 403, headers)
-        expect(subject).to validate(:post, '/v0/profile/primary_phone', 403, headers)
-        expect(subject).to validate(:post, '/v0/profile/alternate_phone', 403, headers)
-      end
-    end
-
     describe 'when MVI returns an unexpected response body' do
       it 'supports returning a custom 502 response' do
         allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return({
@@ -3497,7 +3417,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     it 'tests all documented routes' do
       # exclude these route as they return binaries
       subject.untested_mappings.delete('/v0/letters/{id}')
-      subject.untested_mappings.delete('/v0/financial_status_reports/download_pdf')
+      subject.untested_mappings.delete('/debts_api/v0/financial_status_reports/download_pdf')
       subject.untested_mappings.delete('/v0/form1095_bs/download_pdf/{tax_year}')
       subject.untested_mappings.delete('/v0/form1095_bs/download_txt/{tax_year}')
       subject.untested_mappings.delete('/v0/claim_letters/{document_id}')

@@ -17,6 +17,20 @@ describe AppealsApi::HigherLevelReview, type: :model do
       expect(hlr.metadata['form_data']['benefit_type']).to eq('fiduciary')
     end
 
+    describe 'non-veteran claimant flag' do
+      it 'saves non-veteran claimant status to metadata' do
+        expect(hlr.metadata['non_veteran_claimant']).to eq(false)
+      end
+
+      describe 'with non-veteran claimant' do
+        let(:hlr) { create(opts[:extra_factory]) }
+
+        it 'saves non-veteran claimant status to metadata' do
+          expect(hlr.metadata['non_veteran_claimant']).to eq(true)
+        end
+      end
+    end
+
     describe 'potential_write_in_issue_count' do
       it 'saves the correct value to metadata' do
         expect(hlr.metadata['potential_write_in_issue_count']).to eq(3)
@@ -119,6 +133,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
     include_examples 'HLR metadata',
                      factory: :higher_level_review_v0,
+                     extra_factory: :extra_higher_level_review_v0,
                      form_data_fixture: 'higher_level_reviews/v0/valid_200996.json'
 
     describe '#veteran_icn' do
@@ -180,6 +195,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
     include_examples 'HLR metadata',
                      factory: :higher_level_review_v2,
+                     extra_factory: :extra_higher_level_review_v2,
                      form_data_fixture: 'decision_reviews/v2/valid_200996.json'
 
     describe '#veteran_icn' do

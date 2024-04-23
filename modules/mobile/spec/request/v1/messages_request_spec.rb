@@ -2,40 +2,47 @@
 
 require 'rails_helper'
 require_relative '../../support/helpers/sis_session_helper'
-require_relative '../../support/helpers/mobile_sm_client_helper'
 
 RSpec.describe 'Mobile Messages V1 Integration', type: :request do
-  include Mobile::MessagingClientHelper
-
-  let!(:user) { sis_user(:mhv, :api_auth, mhv_correlation_id: '123', mhv_account_type:) }
+  let!(:user) { sis_user(:mhv, :api_auth, mhv_correlation_id: '123', mhv_account_type: 'Premium') }
 
   before do
-    allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)
-    allow(Mobile::V0::Messaging::Client).to receive(:new).and_return(authenticated_client)
+    Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
   end
 
-  context 'Basic User' do
-    let(:mhv_account_type) { 'Basic' }
+  after do
+    Timecop.return
+  end
 
-    it 'is not authorized' do
+  context 'when user does not have access' do
+    let!(:user) { sis_user(:mhv, mhv_account_type: 'Free') }
+
+    it 'returns forbidden' do
       get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers
+
+      expect(response).to have_http_status(:forbidden)
+    end
+  end
+
+  context 'when not authorized' do
+    it 'responds with 403 error' do
+      VCR.use_cassette('mobile/messages/session_error') do
+        get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers
+      end
       expect(response).not_to be_successful
       expect(response).to have_http_status(:forbidden)
     end
   end
 
-  context 'Advanced User' do
-    let(:mhv_account_type) { 'Advanced' }
-
-    it 'is not authorized' do
-      get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers
-      expect(response).not_to be_successful
-      expect(response).to have_http_status(:forbidden)
+  context 'when authorized' do
+    before do
+      VCR.insert_cassette('sm_client/session')
     end
-  end
 
-  context 'Premium User' do
-    let(:mhv_account_type) { 'Premium' }
+    after do
+      VCR.eject_cassette
+    end
+
     let(:thread_response) do
       { 'data' =>
           [
@@ -144,7 +151,7 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
         expect(response.parsed_body['data'].any? { |m| m['id'] == thread_id.to_s }).to be true
       end
 
-      it 'filters the provided message' do
+      it 'filters the provided message when excludeProvidedMessage is true' do
         VCR.use_cassette('mobile/messages/v1_get_thread') do
           get "/mobile/v1/messaging/health/messages/#{thread_id}/thread",
               headers: sis_headers,
@@ -154,6 +161,18 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
         expect(response).to be_successful
         expect(response.parsed_body['data']).to eq(thread_response['data'].filter { |m| m['id'] != thread_id.to_s })
         expect(response.parsed_body['data'].any? { |m| m['id'] == thread_id.to_s }).to be false
+      end
+
+      it 'does not filter the provided message when excludeProvidedMessage is false' do
+        VCR.use_cassette('mobile/messages/v1_get_thread') do
+          get "/mobile/v1/messaging/health/messages/#{thread_id}/thread",
+              headers: sis_headers,
+              params: { excludeProvidedMessage: false }
+        end
+
+        expect(response).to be_successful
+        expect(response.parsed_body).to eq(thread_response)
+        expect(response.parsed_body['data'].any? { |m| m['id'] == thread_id.to_s }).to be true
       end
 
       it 'provides a count in the meta of read' do

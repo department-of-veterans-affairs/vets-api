@@ -2,7 +2,6 @@
 
 require 'bgs/services'
 require 'mpi/service'
-require 'evss/service'
 require 'bgs_service/local_bgs'
 
 OkComputer.mount_at = false
@@ -22,20 +21,6 @@ class BaseCheck < OkComputer::Check
   def process_failure
     mark_failure
     mark_message "#{name} is unavailable"
-  end
-end
-
-class EvssCheck < BaseCheck
-  def check
-    Settings.evss.mock_claims || EVSS::Service.service_is_up? ? process_success : process_failure
-  rescue
-    process_failure
-  end
-
-  protected
-
-  def name
-    'EVSS'
   end
 end
 
@@ -115,7 +100,6 @@ class VbmsCheck < BaseCheck
   end
 end
 
-OkComputer::Registry.register 'evss', EvssCheck.new
 OkComputer::Registry.register 'mpi', MpiCheck.new
 OkComputer::Registry.register 'bgs-vet_record', BgsCheck.new('vet_record')
 OkComputer::Registry.register 'bgs-corporate_update', BgsCheck.new('corporate_update')

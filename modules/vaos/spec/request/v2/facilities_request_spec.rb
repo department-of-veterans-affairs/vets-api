@@ -7,7 +7,6 @@ RSpec.describe 'facilities', type: :request do
 
   before do
     Flipper.enable('va_online_scheduling')
-    Flipper.enable('va_online_scheduling_required_schedulable_param')
     sign_in_as(user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end

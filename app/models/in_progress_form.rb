@@ -32,7 +32,7 @@ class InProgressForm < ApplicationRecord
   scope :not_submitted, -> { where.not("metadata -> 'submission' ->> 'status' = ?", 'applicationSubmitted') }
   scope :unsubmitted_fsr, -> { for_form('5655').not_submitted }
   attribute :user_uuid, CleanUUID.new
-  serialize :form_data, JsonMarshal::Marshaller
+  serialize :form_data, coder: JsonMarshal::Marshaller
   has_kms_key
   has_encrypted :form_data, key: :kms_key, **lockbox_options
   validates(:form_data, presence: true)
@@ -129,7 +129,7 @@ class InProgressForm < ApplicationRecord
 
   def default_expires_after
     case form_id
-    when '21-526EZ', '21P-527EZ'
+    when '21-526EZ', '21P-527EZ', '21P-530V2'
       1.year
     else
       60.days
