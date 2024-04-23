@@ -7,12 +7,14 @@ inherit_from:
 require:
   - rubocop-rails
   - rubocop-rspec
+  - rubocop-rspec_rails
   - rubocop-thread_safety
   - rubocop-factory_bot
 
 AllCops:
   NewCops: disable
   TargetRailsVersion: 6.1
+  TargetRubyVersion: 3.2
   Include:
     - '**/Dangerfile'
     - '**/Gemfile'
