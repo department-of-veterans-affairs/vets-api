@@ -20,90 +20,90 @@ RSpec.describe FacilitiesApi::V2::Lighthouse::Client, team: :facilities, vcr: vc
 
   let(:vha_358_attributes) do
     {
-      "id": "vha_358",
-      "type": "va_facilities",
-      "name": "Manila VA Clinic",
-      "facility_type": "va_health_facility",
-      "classification": "Other Outpatient Services (OOS)",
-      "parent": {
-        "id": "vha_358",
-        "link": "https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358"
+      id: "vha_358",
+      type: "va_facilities",
+      name: "Manila VA Clinic",
+      facility_type: "va_health_facility",
+      classification: "Other Outpatient Services (OOS)",
+      parent: {
+        id: "vha_358",
+        link: "https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358"
       },
-      "lat": 14.54408,
-      "long": 120.99139,
-      "time_zone": "Asia/Manila",
-      "address": {
-          "physical": {
-            "zip": "01302",
-            "city": "Pasay City",
-            "state": "PH",
-            "address1": "1501 Roxas Boulevard",
-            "address2": "NOX3 Seafront Compound"
+      lat: 14.54408,
+      long: 120.99139,
+      time_zone: "Asia/Manila",
+      address: {
+          physical: {
+            zip: "01302",
+            city: "Pasay City",
+            state: "PH",
+            address1: "1501 Roxas Boulevard",
+            address2: "NOX3 Seafront Compound"
           }
       },
-      "phone": {
-        "main": "808-433-5254",
-        "pharmacy": "808-433-5254",
-        "patientAdvocate": "808-433-5254",
-        "enrollmentCoordinator": "808-433-5254"
+      phone: {
+        main: "808-433-5254",
+        pharmacy: "808-433-5254",
+        patientAdvocate: "808-433-5254",
+        enrollmentCoordinator: "808-433-5254"
       },
-      "hours": {
-        "monday": "730AM-430PM",
-        "tuesday": "730AM-430PM",
-        "wednesday": "730AM-430PM",
-        "thursday": "730AM-430PM",
-        "friday": "730AM-430PM",
-        "saturday": "Closed",
-        "sunday": "Closed"
+      hours: {
+        monday: "730AM-430PM",
+        tuesday: "730AM-430PM",
+        wednesday: "730AM-430PM",
+        thursday: "730AM-430PM",
+        friday: "730AM-430PM",
+        saturday: "Closed",
+        sunday: "Closed"
       },
-      "services": {
-        "health":[
+      services: {
+        health:[
           {
-            "name": "Audiology",
-            "serviceId": "audiology",
-            "link": "https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services/audiology"
+            name: "Audiology",
+            serviceId: "audiology",
+            link: "https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services/audiology"
           },
           {
-            "name": "Cardiology",
-            "serviceId": "cardiology",
-            "link": "https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services/cardiology"
+            name: "Cardiology",
+            serviceId: "cardiology",
+            link: "https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services/cardiology"
           },
           {
-            "name": "Dermatology",
-            "serviceId": "dermatology",
-            "link": "https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services/dermatology"
+            name: "Dermatology",
+            serviceId: "dermatology",
+            link: "https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services/dermatology"
           },
           {
-            "name": "Gastroenterology",
-            "serviceId": "gastroenterology",
-            "link": "https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services/gastroenterology"
+            name: "Gastroenterology",
+            serviceId: "gastroenterology",
+            link: "https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services/gastroenterology"
           },
           {
-            "name": "MentalHealth",
-            "serviceId": "mentalHealth",
-            "link": "https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services/mentalHealth"
+            name: "MentalHealth",
+            serviceId: "mentalHealth",
+            link: "https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services/mentalHealth"
           },
           {
-            "name": "Ophthalmology",
-            "serviceId": "ophthalmology",
-            "link": "https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services/ophthalmology"
+            name: "Ophthalmology",
+            serviceId: "ophthalmology",
+            link: "https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services/ophthalmology"
           }
         ],
-        "link": "https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services",
-        "lastUpdated": "2024-04-17"
+        link: "https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services",
+        lastUpdated: "2024-04-17"
       },
-      "feedback": {
-        "health": {
-          "specialtyCareUrgent": 0.0,
-          "specialtyCareRoutine": 0.8399999737739563
+      feedback: {
+        health: {
+          specialtyCareUrgent: 0.0,
+          specialtyCareRoutine: 0.8399999737739563
         },
-        "effectiveDate": "2024-02-08"
+        effectiveDate: "2024-02-08"
       },
-      "mobile": false,
-      "operating_status": {
-        "code": "NORMAL"
+      mobile: false,
+      operating_status: {
+        code: "NORMAL"
       },
-      "visn": "21"
+      visn: "21"
     }.with_indifferent_access
   end
 
