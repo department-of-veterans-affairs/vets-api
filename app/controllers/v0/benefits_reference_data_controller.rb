@@ -6,6 +6,8 @@ module V0
     include ActionController::Serialization
     service_tag 'disability-application'
 
+    skip_before_action :authenticate 
+
     def get_data
       render json: benefits_reference_data_service
         .get_data(path: params[:path], params: request.query_parameters).body

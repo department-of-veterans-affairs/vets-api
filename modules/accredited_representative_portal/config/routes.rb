@@ -11,4 +11,6 @@ AccreditedRepresentativePortal::Engine.routes.draw do
 
     get 'user', to: 'representative_users#show'
   end
+
+  post '/accreditation/applications/form21a', to: 'application#form21a'
 end
