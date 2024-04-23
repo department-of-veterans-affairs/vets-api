@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-PDFTK_HOMEBREW_PATH = '/opt/homebrew/bin/pdftk'
-PDFTK_LOCAL_PATH    = '/usr/local/bin/pdftk'
+PDFTK_HOMEBREW_PATH = '/opt/homebrew/bin/pdftk' unless defined?(PDFTK_HOMEBREW_PATH)
+PDFTK_LOCAL_PATH    = '/usr/local/bin/pdftk' unless defined?(PDFTK_LOCAL_PATH)
 MODELS_PATH = 'modules/ivc_champva/app/models/ivc_champva'
 MAPPINGS_PATH = 'modules/ivc_champva/app/form_mappings'
 

@@ -26,12 +26,12 @@ module AskVAApi
       end
 
       def create
-        response = Inquiries::Creator.new(icn: current_user.icn).call(params: inquiry_params)
+        response = Inquiries::Creator.new(icn: current_user.icn).call(payload: inquiry_params)
         render json: response.to_json, status: :created
       end
 
       def unauth_create
-        response = Inquiries::Creator.new(icn: nil).call(params: inquiry_params)
+        response = Inquiries::Creator.new(icn: nil).call(payload: inquiry_params)
         render json: response.to_json, status: :created
       end
 
@@ -101,7 +101,7 @@ module AskVAApi
           *dependant_parameters,
           *submitter_parameters,
           *veteran_parameters,
-          school_obj: school_parameters
+          SchoolObj: school_parameters
         ).to_h
       end
 
@@ -112,7 +112,7 @@ module AskVAApi
           InquiryCategory InquirySource InquirySubtopic InquirySummary InquiryTopic
           InquiryType IsVAEmployee IsVeteran IsVeteranAnEmployee IsVeteranDeceased
           LevelOfAuthentication MedicalCenter MiddleName PreferredName Pronouns
-          StreetAddress2 SupervisorFlag VaEmployeeTimeStamp ZipCode
+          StreetAddress2 SupervisorFlag VaEmployeeTimeStamp ZipCode Suffix
         ]
       end
 
@@ -130,7 +130,7 @@ module AskVAApi
           Submitter SubmitterDependent SubmitterDOB SubmitterGender SubmitterProvince
           SubmitterSSN SubmitterState SubmitterStateOfResidency SubmitterStateOfSchool
           SubmitterStateProperty SubmitterStreetAddress SubmitterVetCenter
-          SubmitterZipCodeOfResidency SubmitterQuestion
+          SubmitterZipCodeOfResidency SubmitterQuestion SubmittersDodIdEdipiNumber
         ]
       end
 
@@ -143,7 +143,7 @@ module AskVAApi
           VeteranRelationship VeteranServiceEndDate VeteranServiceNumber
           VeteranServiceStartDate VeteranSSN VeteransState VeteranStreetAddress
           VeteranSuffix VeteranSuiteAptOther VeteranZipCode WhoWasTheirCounselor
-          YourLastName
+          YourLastName VeteranDodIdEdipiNumber
         ]
       end
 
