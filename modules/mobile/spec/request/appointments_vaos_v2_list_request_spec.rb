@@ -67,6 +67,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
             end
           end
         end
+        expect(response).to have_http_status(:ok)
         location = response.parsed_body.dig('data', 0, 'attributes', 'location')
         physical_location = response.parsed_body.dig('data', 0, 'attributes', 'physicalLocation')
         expect(response.body).to match_json_schema('VAOS_v2_appointments')

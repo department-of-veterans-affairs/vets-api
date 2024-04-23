@@ -69,27 +69,32 @@ describe Mobile::V2::Appointments::ProviderNames do
     end
 
     it 'returns names as first_name last_name' do
-      name = subject.form_names_from_appointment_practitioners_list(single_practitioner_with_name)
+      name, missing_providers = subject.form_names_from_appointment_practitioners_list(single_practitioner_with_name)
       expect(name).to eq('CAROLYN KNIEFEL')
+      expect(missing_providers).to eq([])
     end
 
     it 'handles partial names predictably' do
       partial_name_data = single_practitioner_with_name.first
       partial_name_data[:name].delete(:given)
-      name = subject.form_names_from_appointment_practitioners_list([partial_name_data])
+      name, missing_providers = subject.form_names_from_appointment_practitioners_list([partial_name_data])
       expect(name).to eq('KNIEFEL')
+      expect(missing_providers).to eq([])
     end
 
     it 'aggregates multiple names as a comma separated list' do
-      name = subject.form_names_from_appointment_practitioners_list(multiple_practioners_with_names)
+      name, missing_providers = subject.form_names_from_appointment_practitioners_list(multiple_practioners_with_names)
       expect(name).to eq('CAROLYN KNIEFEL, MARCY NADEAU')
+      expect(missing_providers).to eq([])
     end
 
     it 'forms names from upstream when an identifier is found without a name' do
       allow_any_instance_of(VAOS::V2::MobilePPMSService).to\
         receive(:get_provider).with('1407938061').and_return(provider_response)
-      name = subject.form_names_from_appointment_practitioners_list(practitioner_without_name)
+      name, missing_providers = subject.form_names_from_appointment_practitioners_list(practitioner_without_name)
       expect(name).to eq('DEHGHAN, AMIR')
+      expect(missing_providers).to eq([])
+
     end
 
     it 'can request multiple upstream providers' do
@@ -107,8 +112,9 @@ describe Mobile::V2::Appointments::ProviderNames do
         receive(:get_provider).with('1407938061').and_return(provider_response)
       allow_any_instance_of(VAOS::V2::MobilePPMSService).to\
         receive(:get_provider).with('1407938062').and_return(second_provider_response)
-      name = subject.form_names_from_appointment_practitioners_list(multiple_practitioners_without_names)
+      name, missing_providers = subject.form_names_from_appointment_practitioners_list(multiple_practitioners_without_names)
       expect(name).to eq('DEHGHAN, AMIR, J. Jones')
+      expect(missing_providers).to eq([])
     end
 
     it 'only requests an upstream provider once' do
@@ -121,8 +127,10 @@ describe Mobile::V2::Appointments::ProviderNames do
     it 'returns nil when the ppms service raises an error' do
       allow_any_instance_of(VAOS::V2::MobilePPMSService).to\
         receive(:get_provider).and_raise(Common::Exceptions::BackendServiceException)
-      name = subject.form_names_from_appointment_practitioners_list(practitioner_without_name)
+      name, missing_providers = subject.form_names_from_appointment_practitioners_list(practitioner_without_name)
       expect(name).to be_nil
+      expect(missing_providers).to eq(["1407938061"])
+
     end
 
     it 'returns nil if the returned provider does not match the expected structure' do
@@ -130,8 +138,9 @@ describe Mobile::V2::Appointments::ProviderNames do
       allow_any_instance_of(VAOS::V2::MobilePPMSService).to\
         receive(:get_provider).with('1407938061').and_return(nameless_provider)
 
-      name = subject.form_names_from_appointment_practitioners_list(practitioner_without_name)
+      name, missing_providers = subject.form_names_from_appointment_practitioners_list(practitioner_without_name)
       expect(name).to be_nil
+      expect(missing_providers).to eq(["1407938061"])
     end
   end
 end
