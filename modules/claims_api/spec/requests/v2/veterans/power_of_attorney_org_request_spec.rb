@@ -17,7 +17,8 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
   describe 'PowerOfAttorney' do
     before do
-      Veteran::Service::Representative.create!(representative_id: '999999999999', poa_codes: [organization_poa_code],
+      Veteran::Service::Representative.create!(representative_id: '999999999999',
+                                               poa_codes: [organization_poa_code],
                                                first_name: 'George', last_name: 'Washington')
       Veteran::Service::Organization.create!(poa: organization_poa_code,
                                              name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
@@ -103,7 +104,8 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
       context 'multiple reps with same poa code and registration number' do
         let(:rep_id) do
-          Veteran::Service::Representative.create!(representative_id: '999999999999', poa_codes: [organization_poa_code],
+          Veteran::Service::Representative.create!(representative_id: '999999999999',
+                                                   poa_codes: [organization_poa_code],
                                                    first_name: 'George', last_name: 'Washington-test').id
         end
 
