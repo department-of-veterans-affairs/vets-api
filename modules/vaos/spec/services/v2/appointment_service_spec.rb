@@ -623,6 +623,33 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#convert_appointment_time' do
+    let(:manila_appt) do
+      {
+        id: '12345',
+        location_id: '358',
+        start: '2024-12-20T00:00:00Z'
+      }
+    end
+
+    context 'when appt location id is 358' do
+      it 'logs the appt location id, timezone info, and appt start time' do
+        allow_any_instance_of(VAOS::V2::AppointmentsService)
+          .to receive(:get_facility_timezone_memoized)
+          .and_return('Asia/Manila')
+        allow(Rails.logger).to receive(:info)
+
+        subject.send(:convert_appointment_time, manila_appt)
+        expect(Rails.logger).to have_received(:info).with('Timezone info for Manila Philippines location_id 358',
+                                                          {
+                                                            location_id: '358',
+                                                            facility_timezone: 'Asia/Manila',
+                                                            appt_start_time: '2024-12-20T00:00:00Z'
+                                                          }.to_json)
+      end
+    end
+  end
+
   describe '#convert_utc_to_local_time' do
     let(:start_datetime) { '2021-09-02T14:00:00Z'.to_datetime }
 

@@ -15,6 +15,7 @@ module VAOS
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
       AVS_APPT_TEST_ID = '192308'
+      MANILA_PHILIPPINES_FACILITY_ID = '358'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
@@ -410,6 +411,16 @@ module VAOS
       def convert_appointment_time(appt)
         if !appt[:start].nil?
           facility_timezone = get_facility_timezone_memoized(appt[:location_id])
+          if appt[:location_id] == MANILA_PHILIPPINES_FACILITY_ID
+            Rails.logger.info(
+              "Timezone info for Manila Philippines location_id #{appt[:location_id]}",
+              {
+                location_id: appt[:location_id],
+                facility_timezone:,
+                appt_start_time: appt[:start]
+              }.to_json
+            )
+          end
           appt[:local_start_time] = convert_utc_to_local_time(appt[:start], facility_timezone)
         elsif !appt.dig(:requested_periods, 0, :start).nil?
           appt[:requested_periods].each do |period|
