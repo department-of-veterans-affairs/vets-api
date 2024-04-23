@@ -11,6 +11,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
     let(:data) { submission.form['form526'] }
 
     it 'sets claimant_certification to true in the Lighthouse request body' do
+      debugger
       lh_request_body = transformer.transform(data)
       expect(lh_request_body.claimant_certification).to be(true)
     end
