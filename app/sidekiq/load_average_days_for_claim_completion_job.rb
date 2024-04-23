@@ -16,19 +16,26 @@ class LoadAverageDaysForClaimCompletionJob
     end
   end
 
-  AVERAGE_DAYS_REGEX = /(([0-9]{1,3}(\.[0-9]{1,2})) days)/
+  AVERAGE_DAYS_REGEX = /([0-9]{1,3}(\.[0-9]{1,2})) days/
 
   def load_average_days
     rtn = connection.get('/disability/after-you-file-claim/').body
-    rec = AverageDaysForClaimCompletion.new
-    rec.average_days = AVERAGE_DAYS_REGEX.match(rtn)[2].to_f
-    rec.save!
+    matches = AVERAGE_DAYS_REGEX.match(rtn)
+    if matches.present? and matches.length >= 1
+      rec = AverageDaysForClaimCompletion.new
+      rec.average_days = matches[1].to_f
+      rec.save!
+    else
+      logger.error("Unable to load average days, possibly the page has changed and the regex no longer matches!")
+    end
+  rescue Faraday::ClientError => error
+    logger.error("Unable to load average days: #{error.message}")
   end
 
   def perform
-    puts("Running LoadAverageDaysForClaimCompletionJob")
-    logger.info("Performing LoadAverageDaysForClaimCompletionJob")
+    logger.info("Beginning: LoadAverageDaysForClaimCompletionJob")
     load_average_days
+    logger.info("Completing: LoadAverageDaysForClaimCompletionJob")
   end
 
 end
