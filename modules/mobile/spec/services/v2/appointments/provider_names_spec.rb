@@ -94,7 +94,6 @@ describe Mobile::V2::Appointments::ProviderNames do
       name, missing_providers = subject.form_names_from_appointment_practitioners_list(practitioner_without_name)
       expect(name).to eq('DEHGHAN, AMIR')
       expect(missing_providers).to eq([])
-
     end
 
     it 'can request multiple upstream providers' do
@@ -129,8 +128,7 @@ describe Mobile::V2::Appointments::ProviderNames do
         receive(:get_provider).and_raise(Common::Exceptions::BackendServiceException)
       name, missing_providers = subject.form_names_from_appointment_practitioners_list(practitioner_without_name)
       expect(name).to be_nil
-      expect(missing_providers).to eq(["1407938061"])
-
+      expect(missing_providers).to eq(['1407938061'])
     end
 
     it 'returns nil if the returned provider does not match the expected structure' do
@@ -140,7 +138,7 @@ describe Mobile::V2::Appointments::ProviderNames do
 
       name, missing_providers = subject.form_names_from_appointment_practitioners_list(practitioner_without_name)
       expect(name).to be_nil
-      expect(missing_providers).to eq(["1407938061"])
+      expect(missing_providers).to eq(['1407938061'])
     end
   end
 end
