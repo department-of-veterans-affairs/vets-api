@@ -11,7 +11,8 @@
   },
   "living_situation": {
     "overnight": true,
-    "losing_home": true
+    "losing_home": true,
+    "other_risk": true
   },
   "other_housing_risks": "Other housing risks",
   "mailing_address_yes_no": true,

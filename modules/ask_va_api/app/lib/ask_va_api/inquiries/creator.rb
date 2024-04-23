@@ -2,6 +2,8 @@
 
 module AskVAApi
   module Inquiries
+    class InquiriesCreatorError < StandardError; end
+
     class Creator
       ENDPOINT = 'inquiries/new'
       attr_reader :icn, :service
@@ -13,7 +15,6 @@ module AskVAApi
 
       def call(params:)
         post_data(payload: { params: })
-        { message: 'Inquiry has been created', status: :ok }
       rescue => e
         ErrorHandler.handle_service_error(e)
       end
@@ -25,7 +26,16 @@ module AskVAApi
       end
 
       def post_data(payload: {})
-        service.call(endpoint: ENDPOINT, method: :post, payload:)
+        response = service.call(endpoint: ENDPOINT, method: :put, payload:)
+        handle_response_data(response)
+      end
+
+      def handle_response_data(response)
+        if response[:Data].nil?
+          raise InquiriesCreatorError, response[:Message]
+        else
+          response[:Data]
+        end
       end
     end
   end

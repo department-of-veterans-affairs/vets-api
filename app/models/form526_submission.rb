@@ -53,7 +53,7 @@ class Form526Submission < ApplicationRecord
     # - a successfully delivered submission has failed 3rd party validations on backup path
     # - requires remediation
     event :reject_from_backup do
-      transitions to: :failed_backup_delivery
+      transitions to: :rejected_by_backup
     end
 
     # - Submission has entered a manual remediation flow, e.g. failsafe, paper submission
@@ -128,6 +128,11 @@ class Form526Submission < ApplicationRecord
   belongs_to :user_account, dependent: nil, optional: true
 
   validates(:auth_headers_json, presence: true)
+
+  scope :pending_backup_submissions, lambda {
+    where(aasm_state: 'delivered_to_backup')
+      .where.not(backup_submitted_claim_id: nil)
+  }
 
   def log_status_change
     log_hash = {
