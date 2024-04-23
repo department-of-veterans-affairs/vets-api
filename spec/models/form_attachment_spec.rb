@@ -11,7 +11,7 @@ RSpec.describe FormAttachment do
     end
 
     describe '#unlock_pdf' do
-      let(:file_name) { 'locked_pdf_password_is_test.pdf' }
+      let(:file_name) { 'locked_pdf_password_is_test.Pdf' }
       let(:bad_password) { 'bad_pw' }
 
       context 'when provided password is incorrect' do

@@ -12,16 +12,19 @@ module Vye
       def tims_feed_filename = TIMS_FEED_FILENAME
 
       def bdn_import(data)
+        source = :bdn_feed
         data.each_line do |line|
-          parsed = BdnLineExtraction.new(line: line.chomp, result: {}, award_lines: [], awards: [])
+          line.chomp!
+          records = BdnLineExtraction.new(line:).attributes
+          Vye::LoadData.new(source:, records:)
+        end
+      end
 
-          profile = Vye::UserProfile.build(parsed.attributes[:profile])
-          info = profile.user_infos.build(parsed.attributes[:info])
-          info.address_changes.build({ origin: 'backend' }.merge(parsed.attributes[:address]))
-          parsed.attributes[:awards].each do |award|
-            info.awards.build(award)
-          end
-          profile.save!
+      def tims_import(data)
+        source = :tims_feed
+        data.each do |row|
+          records = TimsLineExtraction.new(row:).records
+          Vye::LoadData.new(source:, records:)
         end
       end
     end

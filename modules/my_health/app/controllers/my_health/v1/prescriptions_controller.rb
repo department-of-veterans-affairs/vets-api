@@ -50,14 +50,16 @@ module MyHealth
 
       def refill_prescriptions
         ids = params[:ids]
-        begin
-          ids.each do |id|
-            client.post_refill_rx(id)
-          end
+        successful_ids = []
+        failed_ids = []
+        ids.each do |id|
+          client.post_refill_rx(id)
+          successful_ids << id
         rescue => e
-          puts "Error refilling prescription: #{e.message}"
+          puts "Error refilling prescription with ID #{id}: #{e.message}"
+          failed_ids << id
         end
-        head :no_content
+        render json: { successful_ids:, failed_ids: }
       end
 
       def list_refillable_prescriptions

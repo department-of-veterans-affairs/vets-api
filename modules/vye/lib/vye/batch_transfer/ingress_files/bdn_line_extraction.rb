@@ -4,14 +4,16 @@ module Vye
   module BatchTransfer
     module IngressFiles
       BdnLineExtraction = Struct.new(:line, :result, :award_lines, :awards) do
-        def initialize(line:, result:, award_lines:, awards:)
-          super
+        def initialize(line:)
+          super(line:, result: {}, award_lines: [], awards: [])
 
           extract_main
           extract_award_lines
           extract_indicator
           extract_awards
         end
+
+        private
 
         def config
           @config ||= YAML.load_file Vye::Engine.root / 'config/bdn_line_extraction_config.yaml'
@@ -53,12 +55,14 @@ module Vye
           result.update(indicator: line.slice!(0...1).strip)
         end
 
+        public
+
         def attributes
           raise 'incomplete extraction' unless line.blank? && award_lines.all?(&:blank?)
 
           profile = result.slice(*config[:mappings][:profile])
           info = result.slice(*config[:mappings][:info])
-          address = result.slice(*config[:mappings][:address])
+          address = result.slice(*config[:mappings][:address]).merge(origin: 'backend')
 
           { profile:, info:, address:, awards: }
         end

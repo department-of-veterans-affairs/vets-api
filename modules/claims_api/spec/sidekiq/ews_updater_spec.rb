@@ -16,7 +16,7 @@ RSpec.describe ClaimsApi::EwsUpdater, type: :job do
 
   context 'when waiver consent is present and allowed' do
     it 'updates evidence waiver record for a qualifying ews submittal' do
-      VCR.use_cassette('bgs/benefit_claim/update_5103_claim') do
+      VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_claim') do
         subject.new.perform(ews.id)
         ews.reload
 

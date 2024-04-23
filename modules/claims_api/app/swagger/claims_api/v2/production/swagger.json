@@ -8753,6 +8753,14 @@
                     },
                     {
                       "title": "Unprocessable entity",
+                      "detail": "The property /representative did not contain the required key registrationNumber",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/representative"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
                       "detail": "The property / did not contain the required key veteran",
                       "status": "422",
                       "source": {
@@ -8815,7 +8823,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 67890 and poa code: 083",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/individual_controller.rb:35:in `validate_individual_poa_code!'"
                       }
@@ -9123,8 +9131,7 @@
                             "additionalProperties": false,
                             "required": [
                               "poaCode",
-                              "firstName",
-                              "lastName",
+                              "registrationNumber",
                               "type"
                             ],
                             "properties": {
@@ -9133,15 +9140,10 @@
                                 "type": "string",
                                 "example": "A1Q"
                               },
-                              "firstName": {
-                                "description": "First Name of the representative.",
+                              "registrationNumber": {
+                                "description": "Registration Number of representative.",
                                 "type": "string",
-                                "example": "John"
-                              },
-                              "lastName": {
-                                "description": "Last Name of the representative",
-                                "type": "string",
-                                "example": "Doe"
+                                "example": "12345"
                               },
                               "type": {
                                 "description": "Type of individual representative",
@@ -9196,11 +9198,6 @@
                                     "example": "6789"
                                   }
                                 }
-                              },
-                              "organizationName": {
-                                "description": "Name of the service organization.",
-                                "type": "string",
-                                "example": "I help vets LLC."
                               }
                             }
                           },
@@ -9254,8 +9251,7 @@
                       },
                       "representative": {
                         "poaCode": "083",
-                        "firstName": "my",
-                        "lastName": "name",
+                        "registrationNumber": "67890",
                         "type": "ATTORNEY",
                         "address": {
                           "addressLine1": "123",
@@ -9453,10 +9449,26 @@
                     },
                     {
                       "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization did not contain the required key registrationNumber",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
                       "detail": "The property / did not contain the required key veteran",
                       "status": "422",
                       "source": {
                         "pointer": "data/attributes/"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization/withoutPoaCode is not defined on the schema. Additional properties are not allowed",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization/withoutPoaCode"
                       }
                     }
                   ]
@@ -9515,7 +9527,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Organization with code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 67890 and poa code: 083",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/organization_controller.rb:35:in `validate_org_poa_code!'"
                       }
@@ -9696,6 +9708,11 @@
                                 "type": "string",
                                 "pattern": "^\\d{9}?$",
                                 "example": "123456789"
+                              },
+                              "insuranceNumber": {
+                                "type": "string",
+                                "maxLength": 60,
+                                "description": "Veteran's insurance number, if applicable. Include letter prefix."
                               }
                             }
                           },
@@ -9806,7 +9823,8 @@
                             "type": "object",
                             "additionalProperties": false,
                             "required": [
-                              "poaCode"
+                              "poaCode",
+                              "registrationNumber"
                             ],
                             "properties": {
                               "poaCode": {
@@ -9814,20 +9832,10 @@
                                 "type": "string",
                                 "example": "A1Q"
                               },
-                              "organizationName": {
-                                "description": "Name of the service organization.",
+                              "registrationNumber": {
+                                "description": "Registration Number of representative.",
                                 "type": "string",
-                                "example": "I help vets LLC."
-                              },
-                              "firstName": {
-                                "description": "First Name of the representative.",
-                                "type": "string",
-                                "example": "John"
-                              },
-                              "lastName": {
-                                "description": "Last Name of the representative",
-                                "type": "string",
-                                "example": "Doe"
+                                "example": "12345"
                               },
                               "jobTitle": {
                                 "description": "Job title of the representative.",
@@ -9888,7 +9896,8 @@
                         }
                       },
                       "serviceOrganization": {
-                        "poaCode": "083"
+                        "poaCode": "083",
+                        "registrationNumber": "67890"
                       }
                     }
                   }
@@ -10067,6 +10076,14 @@
                     },
                     {
                       "title": "Unprocessable entity",
+                      "detail": "The property /representative did not contain the required key registrationNumber",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/representative"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
                       "detail": "The property / did not contain the required key veteran",
                       "status": "422",
                       "source": {
@@ -10129,7 +10146,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 67890 and poa code: 083",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/individual_controller.rb:35:in `validate_individual_poa_code!'"
                       }
@@ -10437,8 +10454,7 @@
                             "additionalProperties": false,
                             "required": [
                               "poaCode",
-                              "firstName",
-                              "lastName",
+                              "registrationNumber",
                               "type"
                             ],
                             "properties": {
@@ -10447,15 +10463,10 @@
                                 "type": "string",
                                 "example": "A1Q"
                               },
-                              "firstName": {
-                                "description": "First Name of the representative.",
+                              "registrationNumber": {
+                                "description": "Registration Number of representative.",
                                 "type": "string",
-                                "example": "John"
-                              },
-                              "lastName": {
-                                "description": "Last Name of the representative",
-                                "type": "string",
-                                "example": "Doe"
+                                "example": "12345"
                               },
                               "type": {
                                 "description": "Type of individual representative",
@@ -10510,11 +10521,6 @@
                                     "example": "6789"
                                   }
                                 }
-                              },
-                              "organizationName": {
-                                "description": "Name of the service organization.",
-                                "type": "string",
-                                "example": "I help vets LLC."
                               }
                             }
                           },
@@ -10568,8 +10574,7 @@
                       },
                       "representative": {
                         "poaCode": "083",
-                        "firstName": "my",
-                        "lastName": "name",
+                        "registrationNumber": "67890",
                         "type": "ATTORNEY",
                         "address": {
                           "addressLine1": "123",
@@ -10758,10 +10763,26 @@
                     },
                     {
                       "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization did not contain the required key registrationNumber",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
                       "detail": "The property / did not contain the required key veteran",
                       "status": "422",
                       "source": {
                         "pointer": "data/attributes/"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization/withoutPoaCode is not defined on the schema. Additional properties are not allowed",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization/withoutPoaCode"
                       }
                     }
                   ]
@@ -10820,7 +10841,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Organization with code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 67890 and poa code: 083",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/organization_controller.rb:35:in `validate_org_poa_code!'"
                       }
@@ -11001,6 +11022,11 @@
                                 "type": "string",
                                 "pattern": "^\\d{9}?$",
                                 "example": "123456789"
+                              },
+                              "insuranceNumber": {
+                                "type": "string",
+                                "maxLength": 60,
+                                "description": "Veteran's insurance number, if applicable. Include letter prefix."
                               }
                             }
                           },
@@ -11111,7 +11137,8 @@
                             "type": "object",
                             "additionalProperties": false,
                             "required": [
-                              "poaCode"
+                              "poaCode",
+                              "registrationNumber"
                             ],
                             "properties": {
                               "poaCode": {
@@ -11119,20 +11146,10 @@
                                 "type": "string",
                                 "example": "A1Q"
                               },
-                              "organizationName": {
-                                "description": "Name of the service organization.",
+                              "registrationNumber": {
+                                "description": "Registration Number of representative.",
                                 "type": "string",
-                                "example": "I help vets LLC."
-                              },
-                              "firstName": {
-                                "description": "First Name of the representative.",
-                                "type": "string",
-                                "example": "John"
-                              },
-                              "lastName": {
-                                "description": "Last Name of the representative",
-                                "type": "string",
-                                "example": "Doe"
+                                "example": "12345"
                               },
                               "jobTitle": {
                                 "description": "Job title of the representative.",
@@ -11193,7 +11210,8 @@
                         }
                       },
                       "serviceOrganization": {
-                        "poaCode": "083"
+                        "poaCode": "083",
+                        "registrationNumber": "67890"
                       }
                     }
                   }

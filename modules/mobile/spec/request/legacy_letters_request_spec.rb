@@ -58,6 +58,15 @@ RSpec.describe 'letters', type: :request do
   end
 
   describe 'GET /mobile/v0/letters' do
+    context 'when user does not have access' do
+      let!(:user) { sis_user(participant_id: nil) }
+
+      it 'returns forbidden' do
+        get '/mobile/v0/letters', headers: sis_headers
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'with a valid evss response' do
       it 'matches the letters schema' do
         VCR.use_cassette('evss/letters/letters') do
@@ -100,6 +109,15 @@ RSpec.describe 'letters', type: :request do
   end
 
   describe 'GET /mobile/v0/letters/beneficiary' do
+    context 'when user does not have access' do
+      let!(:user) { sis_user(participant_id: nil) }
+
+      it 'returns forbidden' do
+        get '/mobile/v0/letters/beneficiary', headers: sis_headers
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'with a valid veteran response' do
       it 'matches the letter beneficiary schema' do
         VCR.use_cassette('evss/letters/beneficiary_veteran') do
@@ -142,6 +160,15 @@ RSpec.describe 'letters', type: :request do
   end
 
   describe 'POST /mobile/v0/letters/:type/download' do
+    context 'when user does not have access' do
+      let!(:user) { sis_user(participant_id: nil) }
+
+      it 'returns forbidden' do
+        post '/mobile/v0/letters/commissary/download', headers: sis_headers
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'with no options' do
       it 'downloads a PDF' do
         VCR.use_cassette('evss/letters/download') do

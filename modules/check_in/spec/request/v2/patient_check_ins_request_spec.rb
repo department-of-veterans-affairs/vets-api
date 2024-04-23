@@ -10,7 +10,6 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
     allow(Rails).to receive(:cache).and_return(memory_store)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
-    allow(Flipper).to receive(:enabled?).with('check_in_experience_45_minute_reminder').and_return(false)
 
     Rails.cache.clear
   end
@@ -183,146 +182,142 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
         end
 
         VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
-          get "/check_in/v2/patient_check_ins/#{id}"
+          VCR.use_cassette 'check_in/chip/set_echeckin_started/set_echeckin_started_200' do
+            VCR.use_cassette 'check_in/chip/token/token_200' do
+              get "/check_in/v2/patient_check_ins/#{id}"
+            end
+          end
         end
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)).to eq(resp)
       end
 
-      context 'when check_in_experience_45_minute_reminder feature flag is on' do
-        before do
-          allow(Flipper).to receive(:enabled?).with('check_in_experience_45_minute_reminder').and_return(true)
+      context 'for OH sites' do
+        let(:appointment) do
+          {
+            'appointmentIEN' => '4822366',
+            'clinicCreditStopCodeName' => '',
+            'clinicFriendlyName' => 'Endoscopy',
+            'clinicIen' => '32216049',
+            'clinicLocation' => '',
+            'clinicName' => 'Endoscopy',
+            'clinicPhoneNumber' => '909-825-7084',
+            'clinicStopCodeName' => 'Mental Health, Primary Care',
+            'doctorName' => 'Dr. Jones',
+            'facility' => 'Jerry L. Pettis Memorial Veterans Hospital',
+            'facilityAddress' => {
+              'city' => 'Loma Linda',
+              'state' => 'CA',
+              'street1' => '',
+              'street2' => '',
+              'street3' => '',
+              'zip' => '92357-1000'
+            },
+            'kind' => 'clinic',
+            'startTime' => '2024-02-14T22:10:00.000+00:00',
+            'stationNo' => '530',
+            'status' => 'Confirmed',
+            'timezone' => 'America/Los_Angeles'
+          }
+        end
+        let(:resp) do
+          {
+            'id' => id,
+            'payload' => {
+              'address' => '1166 6th Avenue 22, New York, NY 23423 US',
+              'demographics' => {},
+              'appointments' => [appointment],
+              'patientDemographicsStatus' => {},
+              'setECheckinStartedCalled' => nil
+            }
+          }
         end
 
-        context 'for OH sites' do
-          let(:appointment) do
-            {
-              'appointmentIEN' => '4822366',
-              'clinicCreditStopCodeName' => '',
-              'clinicFriendlyName' => 'Endoscopy',
-              'clinicIen' => '32216049',
-              'clinicLocation' => '',
-              'clinicName' => 'Endoscopy',
-              'clinicPhoneNumber' => '909-825-7084',
-              'clinicStopCodeName' => 'Mental Health, Primary Care',
-              'doctorName' => 'Dr. Jones',
-              'edipi' => '1000000105',
-              'facility' => 'Jerry L. Pettis Memorial Veterans Hospital',
-              'facilityAddress' => {
-                'city' => 'Loma Linda',
-                'state' => 'CA',
-                'street1' => '',
-                'street2' => '',
-                'street3' => '',
-                'zip' => '92357-1000'
-              },
-              'icn' => '1013220078V743173',
-              'kind' => 'clinic',
-              'startTime' => '2024-02-14T22:10:00.000+00:00',
-              'stationNo' => '530',
-              'status' => 'Confirmed',
-              'timezone' => 'America/Los_Angeles'
-            }
-          end
-          let(:resp) do
-            {
-              'id' => id,
-              'payload' => {
-                'address' => '1166 6th Avenue 22, New York, NY 23423 US',
-                'demographics' => {},
-                'appointments' => [appointment],
-                'patientDemographicsStatus' => {},
-                'setECheckinStartedCalled' => nil
-              }
-            }
+        it 'does not call set_echeckin_started' do
+          VCR.use_cassette 'check_in/lorota/token/token_200' do
+            post '/check_in/v2/sessions', **session_params
+            expect(response.status).to eq(200)
           end
 
-          it 'does not call set_echeckin_started' do
-            VCR.use_cassette 'check_in/lorota/token/token_200' do
-              post '/check_in/v2/sessions', **session_params
-              expect(response.status).to eq(200)
+          VCR.use_cassette('check_in/lorota/data/data_oracle_health_200', match_requests_on: [:host]) do
+            VCR.use_cassette 'check_in/chip/token/token_200' do
+              get "/check_in/v2/patient_check_ins/#{id}?facilityType=oh"
             end
+          end
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)).to eq(resp)
+        end
+      end
 
-            VCR.use_cassette('check_in/lorota/data/data_oracle_health_200', match_requests_on: [:host]) do
+      context 'when set_echeckin_started call succeeds' do
+        it 'calls set_echeckin_started and returns valid response' do
+          VCR.use_cassette 'check_in/lorota/token/token_200' do
+            post '/check_in/v2/sessions', **session_params
+            expect(response.status).to eq(200)
+          end
+
+          VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
+            VCR.use_cassette 'check_in/chip/set_echeckin_started/set_echeckin_started_200' do
               VCR.use_cassette 'check_in/chip/token/token_200' do
-                get "/check_in/v2/patient_check_ins/#{id}?facilityType=oh"
+                get "/check_in/v2/patient_check_ins/#{id}"
               end
             end
-            expect(response.status).to eq(200)
-            expect(JSON.parse(response.body)).to eq(resp)
           end
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)).to eq(resp)
+        end
+      end
+
+      context 'when setECheckinStartedCalled set to true' do
+        let(:resp_with_true_set_e_check_in) do
+          resp['payload']['setECheckinStartedCalled'] = true
+          resp
         end
 
-        context 'when set_echeckin_started call succeeds' do
-          it 'calls set_echeckin_started and returns valid response' do
-            VCR.use_cassette 'check_in/lorota/token/token_200' do
-              post '/check_in/v2/sessions', **session_params
-              expect(response.status).to eq(200)
-            end
+        it 'returns valid response without calling set_echeckin_started' do
+          VCR.use_cassette 'check_in/lorota/token/token_200' do
+            post '/check_in/v2/sessions', **session_params
+            expect(response.status).to eq(200)
+          end
 
-            VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
-              VCR.use_cassette 'check_in/chip/set_echeckin_started/set_echeckin_started_200' do
-                VCR.use_cassette 'check_in/chip/token/token_200' do
-                  get "/check_in/v2/patient_check_ins/#{id}"
-                end
+          VCR.use_cassette('check_in/lorota/data/data_with_echeckin_started_200', match_requests_on: [:host]) do
+            get "/check_in/v2/patient_check_ins/#{id}"
+          end
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)).to eq(resp_with_true_set_e_check_in)
+        end
+      end
+
+      context 'when set_echeckin_started call fails' do
+        let(:error_body) do
+          {
+            'errors' => [
+              {
+                'title' => 'Internal Server Error',
+                'detail' => 'Internal Server Error',
+                'code' => 'CHIP-API_500',
+                'status' => '500'
+              }
+            ]
+          }
+        end
+        let(:error_resp) { Faraday::Response.new(response_body: error_body, status: 500) }
+
+        it 'returns error response' do
+          VCR.use_cassette 'check_in/lorota/token/token_200' do
+            post '/check_in/v2/sessions', **session_params
+            expect(response.status).to eq(200)
+          end
+
+          VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
+            VCR.use_cassette 'check_in/chip/set_echeckin_started/set_echeckin_started_500' do
+              VCR.use_cassette 'check_in/chip/token/token_200' do
+                get "/check_in/v2/patient_check_ins/#{id}"
               end
             end
-            expect(response.status).to eq(200)
-            expect(JSON.parse(response.body)).to eq(resp)
           end
-        end
-
-        context 'when setECheckinStartedCalled set to true' do
-          let(:resp_with_true_set_e_check_in) do
-            resp['payload']['setECheckinStartedCalled'] = true
-            resp
-          end
-
-          it 'returns valid response without calling set_echeckin_started' do
-            VCR.use_cassette 'check_in/lorota/token/token_200' do
-              post '/check_in/v2/sessions', **session_params
-              expect(response.status).to eq(200)
-            end
-
-            VCR.use_cassette('check_in/lorota/data/data_with_echeckin_started_200', match_requests_on: [:host]) do
-              get "/check_in/v2/patient_check_ins/#{id}"
-            end
-            expect(response.status).to eq(200)
-            expect(JSON.parse(response.body)).to eq(resp_with_true_set_e_check_in)
-          end
-        end
-
-        context 'when set_echeckin_started call fails' do
-          let(:error_body) do
-            {
-              'errors' => [
-                {
-                  'title' => 'Internal Server Error',
-                  'detail' => 'Internal Server Error',
-                  'code' => 'CHIP-API_500',
-                  'status' => '500'
-                }
-              ]
-            }
-          end
-          let(:error_resp) { Faraday::Response.new(response_body: error_body, status: 500) }
-
-          it 'returns error response' do
-            VCR.use_cassette 'check_in/lorota/token/token_200' do
-              post '/check_in/v2/sessions', **session_params
-              expect(response.status).to eq(200)
-            end
-
-            VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
-              VCR.use_cassette 'check_in/chip/set_echeckin_started/set_echeckin_started_500' do
-                VCR.use_cassette 'check_in/chip/token/token_200' do
-                  get "/check_in/v2/patient_check_ins/#{id}"
-                end
-              end
-            end
-            expect(response.status).to eq(error_resp.status)
-            expect(response.body).to eq(error_resp.body.to_json)
-          end
+          expect(response.status).to eq(error_resp.status)
+          expect(response.body).to eq(error_resp.body.to_json)
         end
       end
     end
@@ -353,8 +348,12 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
         end
 
         VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
-          get "/check_in/v2/patient_check_ins/#{id}"
-          expect(response.status).to eq(200)
+          VCR.use_cassette 'check_in/chip/set_echeckin_started/set_echeckin_started_200' do
+            VCR.use_cassette 'check_in/chip/token/token_200' do
+              get "/check_in/v2/patient_check_ins/#{id}"
+              expect(response.status).to eq(200)
+            end
+          end
         end
 
         VCR.use_cassette('check_in/chip/check_in/check_in_200', match_requests_on: [:host]) do

@@ -28,7 +28,7 @@ module PdfFill
             question_num: 1,
             question_text: "DECEASED VETERAN'S FIRST NAME"
           },
-          'middle' => {
+          'middleInitial' => {
             key: 'form1[0].#subform[82].VeteransMiddleInitial1[0]',
             question_num: 1,
             limit: 1,
@@ -138,7 +138,7 @@ module PdfFill
             question_num: 7,
             question_text: "CLAIMANT'S FIRST NAME"
           },
-          'middle' => {
+          'middleInitial' => {
             key: 'form1[0].#subform[82].ClaimantsMiddleInitial1[0]'
           },
           'last' => {
@@ -270,10 +270,10 @@ module PdfFill
           'executor' => {
             key: 'form1[0].#subform[82].CheckboxExecutor[0]'
           },
-          'funeralHome' => {
+          'funeralDirector' => {
             key: 'form1[0].#subform[82].CheckboxFuneralHome[0]'
           },
-          'other' => {
+          'otherFamily' => {
             key: 'form1[0].#subform[82].CheckboxOther[0]'
           }
         },
@@ -317,10 +317,17 @@ module PdfFill
           },
           'rank' => {
             key: "form1[0].#subform[82].GRADE_RANK_OR_RATING[#{ITERATOR}]",
-            question_num: 11,
+            question_num: 14,
             question_suffix: 'D',
             question_text: 'GRADE, RANK OR RATING, ORGANIZATION AND BRANCH OF SERVICE',
             limit: 31
+          },
+          'unit' => {
+            key: "form1[0].#subform[82].GRADE_RANK_OR_RATING_UNIT[#{ITERATOR}]",
+            question_num: 14,
+            question_suffix: 'D',
+            question_text: 'UNIT',
+            limit: 0
           }
         },
         'previousNames' => {
@@ -439,6 +446,12 @@ module PdfFill
             question_suffix: 'B',
             question_text: "WHERE DID THE VETERAN'S DEATH OCCUR?",
             limit: 32
+          },
+          'placeAndLocation' => {
+            limit: 75,
+            question_num: 16,
+            question_text: "PLEASE PROVIDE VETERAN'S SPECIFIC PLACE OF DEATH INCLUDING THE NAME AND LOCATION OF THE NURSING HOME, VA MEDICAL CENTER OR STATE VETERAN FACILITY.",
+            key: 'form1[0].#subform[37].DeathOccurredPlaceAndLocation[1]'
           }
         },
         'hasPreviouslyReceivedAllowance' => {
@@ -519,10 +532,15 @@ module PdfFill
       }.freeze
       # rubocop:enable Layout/LineLength
 
+      def sanitize_phone(phone)
+        phone.gsub('-', '')
+      end
+
       def split_phone(hash, key)
         phone = hash[key]
         return if phone.blank?
 
+        phone = sanitize_phone(phone)
         hash[key] = {
           'first' => phone[0..2],
           'second' => phone[3..5],
@@ -570,7 +588,13 @@ module PdfFill
         location_of_death = @form_data['locationOfDeath']
         return if location_of_death.blank?
 
+        if location_of_death[location_of_death['location']].present? && location_of_death['location'] != 'other'
+          options = location_of_death[location_of_death['location']]
+          location_of_death['placeAndLocation'] = "#{options['facilityName']} - #{options['facilityLocation']}"
+        end
+
         location_of_death['location'] = 'nursingHomeUnpaid' if location_of_death['location'] == 'atHome'
+
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
       end
 
@@ -642,6 +666,17 @@ module PdfFill
         end.join('; ')
       end
 
+      def format_currency_spacing
+        return if @form_data['amountGovtContribution'].blank?
+
+        @form_data['amountGovtContribution'] = @form_data['amountGovtContribution'].rjust(5)
+      end
+
+      def set_state_to_no_if_national
+        national = @form_data['nationalOrFederal']
+        @form_data['cemetaryLocationQuestion'] = 'none' if national
+      end
+
       # rubocop:disable Metrics/MethodLength
       def merge_fields(_options = {})
         expand_signature(@form_data['claimantFullName'])
@@ -667,29 +702,33 @@ module PdfFill
           'child' => select_checkbox(relationship_to_veteran == 'child'),
           'executor' => select_checkbox(relationship_to_veteran == 'executor'),
           'parent' => select_checkbox(relationship_to_veteran == 'parent'),
-          'funeralHome' => select_checkbox(relationship_to_veteran == 'funeralHome'),
-          'other' => select_checkbox(relationship_to_veteran == 'other')
+          'funeralDirector' => select_checkbox(relationship_to_veteran == 'funeralDirector'),
+          'otherFamily' => select_checkbox(relationship_to_veteran == 'otherFamily')
         }
 
+        # special case for transportation being the only option selected.
         final_resting_place = @form_data.dig('finalRestingPlace', 'location')
-        @form_data['finalRestingPlace']['location'] = {
-          'cemetery' => select_checkbox(final_resting_place == 'cemetery'),
-          'privateResidence' => select_checkbox(final_resting_place == 'privateResidence'),
-          'mausoleum' => select_checkbox(final_resting_place == 'mausoleum'),
-          'other' => select_checkbox(final_resting_place == 'other')
-        }
+        if final_resting_place.present?
+          @form_data['finalRestingPlace']['location'] = {
+            'cemetery' => select_checkbox(final_resting_place == 'cemetery'),
+            'privateResidence' => select_checkbox(final_resting_place == 'privateResidence'),
+            'mausoleum' => select_checkbox(final_resting_place == 'mausoleum'),
+            'other' => select_checkbox(final_resting_place == 'other')
+          }
+        end
 
         expand_cemetery_location
+
+        # special case: the UI only has a 'yes' checkbox, so the PDF 'noTransportation' checkbox can never be true.
+        @form_data['hasTransportation'] = @form_data['transportation'] == true ? 'YES' : nil
 
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
         burial_expense_responsibility = @form_data['burialExpenseResponsibility']
         @form_data['hasBurialExpenseResponsibility'] = burial_expense_responsibility ? 'On' : nil
-        @form_data['noBurialExpenseResponsibility'] = burial_expense_responsibility ? nil : 'On'
 
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
         plot_expense_responsibility = @form_data['plotExpenseResponsibility']
         @form_data['hasPlotExpenseResponsibility'] = plot_expense_responsibility ? 'On' : nil
-        @form_data['noPlotExpenseResponsibility'] = plot_expense_responsibility ? nil : 'On'
 
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
         process_option = @form_data['processOption']
@@ -697,6 +736,7 @@ module PdfFill
         @form_data['noProcessOption'] = process_option ? nil : 'On'
 
         expand_confirmation_question
+        set_state_to_no_if_national
         expand_location_question
 
         split_phone(@form_data, 'claimantPhone')
@@ -713,12 +753,13 @@ module PdfFill
 
         convert_location_of_death
 
+        format_currency_spacing
+
         %w[
           nationalOrFederal
           govtContributions
           previouslyReceivedAllowance
           allowanceStatementOfTruth
-          transportation
         ].each do |attr|
           expand_checkbox_in_place(@form_data, attr)
         end

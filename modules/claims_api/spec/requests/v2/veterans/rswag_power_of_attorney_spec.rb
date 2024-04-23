@@ -57,8 +57,7 @@ describe 'PowerOfAttorney',
                                                  first_name: 'Firstname',
                                                  last_name: 'Lastname',
                                                  phone: '555-555-5555').save!
-            mock_ccg(scopes) do |auth_header|
-              Authorization = auth_header # rubocop:disable Naming/ConstantName
+            mock_ccg(scopes) do
               submit_request(example.metadata)
             end
           end
@@ -121,8 +120,7 @@ describe 'PowerOfAttorney',
                                                  first_name: 'Another',
                                                  last_name: 'Name',
                                                  phone: '222-222-2222').save!
-            mock_ccg(scopes) do |auth_header|
-              Authorization = auth_header # rubocop:disable Naming/ConstantName
+            mock_ccg(scopes) do
               submit_request(example.metadata)
             end
           end
@@ -191,8 +189,7 @@ describe 'PowerOfAttorney',
                                                  first_name: 'Firstname',
                                                  last_name: 'Lastname',
                                                  phone: '555-555-5555').save!
-            mock_ccg(scopes) do |auth_header|
-              Authorization = auth_header # rubocop:disable Naming/ConstantName
+            mock_ccg(scopes) do
               submit_request(example.metadata)
             end
           end
@@ -355,9 +352,11 @@ describe 'PowerOfAttorney',
             Veteran::Service::Organization.create!(poa: organization_poa_code,
                                                    name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS",
                                                    phone: '555-555-5555')
+            Veteran::Service::Representative.create!(representative_id: '67890', poa_codes: [organization_poa_code],
+                                                     first_name: 'Firstname', last_name: 'Lastname',
+                                                     phone: '555-555-5555')
 
-            mock_ccg(scopes) do |auth_header|
-              Authorization = auth_header # rubocop:disable Naming/ConstantName
+            mock_ccg(scopes) do
               submit_request(example.metadata)
             end
           end
@@ -413,10 +412,9 @@ describe 'PowerOfAttorney',
           end
 
           before do |example|
-            mock_ccg(scopes) do |auth_header|
+            mock_ccg(scopes) do
               allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
-              Authorization = auth_header # rubocop:disable Naming/ConstantName
               submit_request(example.metadata)
             end
           end
@@ -512,7 +510,7 @@ describe 'PowerOfAttorney',
           end
 
           before do |example|
-            Veteran::Service::Representative.new(representative_id: '12345',
+            Veteran::Service::Representative.new(representative_id: '67890',
                                                  poa_codes: [poa_code],
                                                  first_name: 'Firstname',
                                                  last_name: 'Lastname',
@@ -681,6 +679,9 @@ describe 'PowerOfAttorney',
 
           before do |example|
             Veteran::Service::Organization.create!(poa: poa_code)
+            Veteran::Service::Representative.create!(representative_id: '67890', poa_codes: [poa_code],
+                                                     first_name: 'Firstname', last_name: 'Lastname',
+                                                     phone: '555-555-5555')
 
             mock_ccg(scopes) do
               submit_request(example.metadata)
@@ -832,8 +833,7 @@ describe 'PowerOfAttorney',
                                                       'veterans', 'power_of_attorney', 'status.json')))
 
           before do |example|
-            mock_ccg(scopes) do |auth_header|
-              Authorization = auth_header # rubocop:disable Naming/ConstantName
+            mock_ccg(scopes) do
               submit_request(example.metadata)
             end
           end

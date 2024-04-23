@@ -4,7 +4,7 @@ Vets API requires:
 
 - Ruby 3.2.3
 - PostgreSQL 15.x (including PostGIS 3)
-- Redis 5.0.x
+- Redis 6.2.x
 
   The most up-to-date versions of each key dependency will be specified in the `docker-compose.yml` [file](https://github.com/department-of-veterans-affairs/vets-api/blob/master/docker-compose.yml) and the `Dockerfile`.
 

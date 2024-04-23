@@ -18,15 +18,9 @@ RSpec.describe DecisionReview::NodEmailLoaderJob, type: :job do
   end
   let(:get_s3_object) { Aws::S3::Types::GetObjectOutput.new(body: csv_data) }
   let(:s3_client) { instance_double(Aws::S3::Client) }
+  let(:s3_config) { { bucket: 'bucket', region: 'region', aws_access_key_id: 'key', aws_secret_access_key: 'secret' } }
 
   before do
-    allow(Settings).to receive(:decision_review).and_return(double)
-    allow(Settings.decision_review).to receive(:s3).and_return(double)
-    allow(Settings.decision_review.s3).to receive(:bucket).and_return('bucket')
-    allow(Settings.decision_review.s3).to receive(:region).and_return('region')
-    allow(Settings.decision_review.s3).to receive(:aws_access_key_id).and_return('key')
-    allow(Settings.decision_review.s3).to receive(:aws_secret_access_key).and_return('secret')
-
     allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
     allow(s3_client).to receive(:get_object).with(any_args).and_return(get_s3_object)
   end
@@ -44,7 +38,7 @@ RSpec.describe DecisionReview::NodEmailLoaderJob, type: :job do
         expect(DecisionReview::NodSendEmailJob).to receive(:perform_async)
           .with('test@test.test', template_id, { 'full_name' => 'GI Joe' }, 3)
 
-        subject.perform_async(file_name, template_id)
+        subject.perform_async(file_name, template_id, s3_config)
       end
     end
 
@@ -56,7 +50,7 @@ RSpec.describe DecisionReview::NodEmailLoaderJob, type: :job do
       it 'aborts the job and does not queue any NodSendEmailJob jobs' do
         expect(DecisionReview::NodSendEmailJob).not_to receive(:perform_async)
 
-        subject.perform_async(file_name, template_id)
+        subject.perform_async(file_name, template_id, s3_config)
       end
     end
   end

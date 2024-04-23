@@ -502,13 +502,16 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       context 'when user has not accepted the current terms of use' do
         let(:user) { build(:user, loa, uuid:, idme_uuid: uuid) }
+        let(:application) { 'some-applicaton' }
 
         before do
           SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: })
         end
 
-        context 'and authentication occurred with a application in TERMS_OF_USE_ENABLED_CLIENTS' do
-          let(:application) { SAML::URLService::TERMS_OF_USE_ENABLED_CLIENTS.first }
+        context 'and authentication occurred with a application in Settings.terms_of_use.enabled_clients' do
+          before do
+            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(application)
+          end
 
           it 'redirects to terms of use page' do
             expect(call_endpoint).to redirect_to(
@@ -517,8 +520,10 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
         end
 
-        context 'and authentication occurred with an application not in TERMS_OF_USE_ENABLED_CLIENTS' do
-          let(:application) { 'foobar' }
+        context 'and authentication occurred with an application not in Settings.terms_of_use.enabled_clients' do
+          before do
+            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return('')
+          end
 
           it 'redirects to expected auth page' do
             expect(call_endpoint).to redirect_to(expected_redirect_url)
@@ -540,13 +545,16 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       context 'when user has not accepted the current terms of use' do
         let(:user) { build(:user, loa, uuid:, idme_uuid: uuid) }
+        let(:application) { 'some-applicaton' }
 
         before do
           SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: })
         end
 
-        context 'and authentication occurred with a application in TERMS_OF_USE_ENABLED_CLIENTS' do
-          let(:application) { SAML::URLService::TERMS_OF_USE_ENABLED_CLIENTS.first }
+        context 'and authentication occurred with a application in Settings.terms_of_use.enabled_clients' do
+          before do
+            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(application)
+          end
 
           it 'redirects to terms of use page' do
             expect(call_endpoint).to redirect_to(
@@ -555,8 +563,10 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
         end
 
-        context 'and authentication occurred with an application not in TERMS_OF_USE_ENABLED_CLIENTS' do
-          let(:application) { 'foobar' }
+        context 'and authentication occurred with an application not in Settings.terms_of_use.enabled_clients' do
+          before do
+            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return('')
+          end
 
           it 'redirects to expected auth page' do
             expect(call_endpoint).to redirect_to(expected_redirect_url)
