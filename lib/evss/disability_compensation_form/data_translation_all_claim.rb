@@ -85,13 +85,29 @@ module EVSS
       end
 
       def overflow_text
-        return nil unless @has_form4142 || input_form['isTerminallyIll'].present?
-
         overflow = ''
         overflow += TERMILL_OVERFLOW_TEXT if input_form['isTerminallyIll'].present?
         overflow += FORM4142_OVERFLOW_TEXT if @has_form4142
+        overflow += attached_files_list
 
         overflow
+      end
+
+      def attached_files_list
+        if Flipper.enabled?(:form526_include_document_upload_list_in_overflow_text)
+          file_guids = input_form['attachments']&.pluck('confirmationCode')
+
+          if file_guids&.length
+            attachments = SupportingEvidenceAttachment.where(guid: file_guids)
+            list = "The veteran uploaded #{attachments.count} documents along with this claim. Review in VBMS eFolder:\n"
+            filenames = attachments.map(&:original_filename).sort
+            filenames.each { |filename| list += "#{filename}\n" }
+
+            return list
+          end
+        end
+
+        ''
       end
 
       ###

@@ -100,7 +100,71 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'adds the correct overflow text' do
-        expect(subject.send(:overflow_text)).to eq nil
+        expect(subject.send(:overflow_text)).to eq ''
+      end
+    end
+
+    describe 'veteran uploaded document list' do
+      subject { described_class.new(user, form_content, false) }
+
+      context 'when the veteran has uploaded documents to support the claim' do
+        let(:file1_guid) { SecureRandom.uuid }
+        let(:file2_guid) { SecureRandom.uuid }
+        let(:form_content) do
+          {
+            'form526' => {
+              'attachments' => [
+                { 'confirmationCode' => file1_guid },
+                { 'confirmationCode' => file2_guid }
+              ]
+            }
+          }
+        end
+
+        let!(:file1) do
+          create(
+            :supporting_evidence_attachment,
+            guid: file1_guid,
+            file_data: { filename: 'my_file_1.pdf' }.to_json
+          )
+        end
+
+        let!(:file2) do
+          create(
+            :supporting_evidence_attachment,
+            guid: file2_guid,
+            file_data: { filename: 'my_file_2.pdf' }.to_json
+          )
+        end
+
+        context 'when the form526_include_document_upload_list_in_overflow_text flipper is enabled' do
+          before do
+            Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
+          end
+
+          it 'includes a list of documents in the overflow text ordered alphabetically' do
+            expected_file_list = "The veteran uploaded 2 documents along with this claim. Review in VBMS eFolder:\n" \
+                                 "my_file_1.pdf\n" \
+                                 "my_file_2.pdf\n"
+            expect(subject.send(:overflow_text)).to eq(expected_file_list)
+          end
+        end
+
+        context 'when the form526_include_document_upload_list_in_overflow_text flipper is disabled' do
+          before do
+            Flipper.disable(:form526_include_document_upload_list_in_overflow_text)
+          end
+
+          it 'does not include the list of documents in the overflow text' do
+            expect(subject.send(:overflow_text)).to eq('')
+          end
+        end
+      end
+
+      context 'when the veteran has not uploaded documents to support the claim' do
+        it 'does not include the list of documents in the overflow text' do
+          expect(subject.send(:overflow_text)).to eq('')
+        end
       end
     end
   end
