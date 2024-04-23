@@ -17,7 +17,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
   describe 'PowerOfAttorney' do
     before do
-      Veteran::Service::Representative.create!(representative_id: '67890', poa_codes: [organization_poa_code],
+      Veteran::Service::Representative.create!(representative_id: '999999999999', poa_codes: [organization_poa_code],
                                                first_name: 'George', last_name: 'Washington')
       Veteran::Service::Organization.create!(poa: organization_poa_code,
                                              name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
@@ -39,7 +39,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               },
               serviceOrganization: {
                 poaCode: organization_poa_code.to_s,
-                registrationNumber: '67890'
+                registrationNumber: '999999999999'
               }
             }
           }
@@ -103,7 +103,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
       context 'multiple reps with same poa code and registration number' do
         let(:rep_id) do
-          Veteran::Service::Representative.create!(representative_id: '67890', poa_codes: [organization_poa_code],
+          Veteran::Service::Representative.create!(representative_id: '999999999999', poa_codes: [organization_poa_code],
                                                    first_name: 'George', last_name: 'Washington-test').id
         end
 
@@ -181,7 +181,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
                 it 'returns a meaningful 404' do
                   mock_ccg(%w[claim.write claim.read]) do |auth_header|
-                    detail = 'Could not find an Accredited Representative with registration number: 67890 ' \
+                    detail = 'Could not find an Accredited Representative with registration number: 999999999999 ' \
                              'and poa code: aaa'
 
                     post validate2122_path, params: request_body, headers: auth_header
