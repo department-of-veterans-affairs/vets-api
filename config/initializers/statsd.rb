@@ -94,7 +94,7 @@ Rails.application.reloader.to_prepare do
 
     duration = end_time - start_time
     StatsD.measure('facilities.lighthouse', duration, tags: ['facilities.lighthouse'])
-    end
+  end
 
   ActiveSupport::Notifications.subscribe(
     'lighthouse.facilities.v2.request.faraday'

@@ -8,11 +8,11 @@ describe FacilitiesApi::V2::Lighthouse::Facility, type: :model, team: :facilitie
       {
         'attributes' => {
           'satisfaction' => {
-            "health": {
-              "primary_care_urgent": 0.8700000047683716,
-              "primary_care_routine": 0.8700000047683716
+            'health': {
+              'primary_care_urgent': 0.8700000047683716,
+              'primary_care_routine': 0.8700000047683716
             },
-            "effective_date": "2024-02-08"
+            'effective_date': '2024-02-08'
           },
           'wait_times' => nil
         },
@@ -21,7 +21,7 @@ describe FacilitiesApi::V2::Lighthouse::Facility, type: :model, team: :facilitie
       }
     end
 
-    it 'object defaults' do
+    it 'has the object defaults' do
       facility = FacilitiesApi::V2::Lighthouse::Facility.new(attributes)
       expect(facility.attributes).to match(
         {
@@ -34,11 +34,11 @@ describe FacilitiesApi::V2::Lighthouse::Facility, type: :model, team: :facilitie
           facility_type: nil,
           facility_type_prefix: 'abc',
           feedback: {
-            "health": {
-              "primary_care_urgent": 0.8700000047683716,
-              "primary_care_routine": 0.8700000047683716
+            'health': {
+              'primary_care_urgent': 0.8700000047683716,
+              'primary_care_routine': 0.8700000047683716
             },
-            "effective_date": "2024-02-08"
+            'effective_date': '2024-02-08'
           },
           hours: nil,
           id: 'abc_123',
