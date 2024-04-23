@@ -8,7 +8,7 @@ RSpec.describe IvcChampva::VHA107959c do
       'applicants' => {
         'full_name' => { 'first' => 'John', 'middle' => 'P', 'last' => 'Doe' },
         'ssn_or_tin' => '123456789',
-        'address' => { 'postal_code' => '12345' }
+        'address' => { 'country' => 'USA', 'postal_code' => '12345' }
       },
       'form_number' => '10-7959C',
       'veteran_supporting_documents' => [
@@ -29,6 +29,7 @@ RSpec.describe IvcChampva::VHA107959c do
         'veteranLastName' => 'Doe',
         'fileNumber' => '123456789',
         'zipCode' => '12345',
+        'country' => 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => '10-7959C',
         'businessLine' => 'CMP'

@@ -10,12 +10,10 @@ RSpec.describe 'Mobile Message Attachments Integration', type: :request do
   let(:message_id) { 573_302 }
 
   before do
-    Flipper.enable_actor(:mobile_sm_session_policy, user)
     Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
   end
 
   after do
-    Flipper.disable(:mobile_sm_session_policy)
     Timecop.return
   end
 
