@@ -4,10 +4,24 @@ require 'rails_helper'
 
 RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
   let(:user) { create(:user) }
-  let(:user_account) { create(:user_account) }
+  let(:user_account) { create(:user_account, icn:) }
+  let(:icn) { user.icn }
+  let(:first_name) { user.first_name }
+  let(:last_name) { user.last_name }
   let!(:user_verification) { create(:user_verification, user_account:, idme_uuid: user.uuid) }
   let(:agreement_version) { 'v1' }
   let(:terms_code) { nil }
+  let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+  let(:mpi_profile) do
+    build(:mpi_profile,
+          icn:,
+          given_names: [first_name],
+          family_name: last_name)
+  end
+
+  before do
+    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(find_profile_response)
+  end
 
   describe 'GET #latest' do
     subject { get :latest, params: { version: agreement_version, terms_code: } }
@@ -60,7 +74,9 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
 
     context 'when user is authenticated with a one time terms code' do
       let(:terms_code) { SecureRandom.hex }
-      let!(:terms_code_container) { create(:terms_code_container, code: terms_code, user_uuid: user.uuid) }
+      let!(:terms_code_container) do
+        create(:terms_code_container, code: terms_code, user_account_uuid: user_account.id)
+      end
 
       it_behaves_like 'authenticated get latest agreement'
     end
@@ -116,17 +132,6 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
         end
       end
 
-      context 'when the user does not have a common_name' do
-        let(:user) { create(:user, first_name: nil, middle_name: nil, last_name: nil, suffix: nil) }
-        let(:expected_error) { 'Validation failed: Common name can\'t be blank' }
-
-        it 'returns an unprocessable_entity' do
-          subject
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(JSON.parse(response.body)['error']).to eq(expected_error)
-        end
-      end
-
       context 'when the agreement acceptance fails' do
         before do
           allow_any_instance_of(TermsOfUseAgreement).to receive(:accepted!).and_raise(ActiveRecord::RecordInvalid)
@@ -158,7 +163,9 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
 
     context 'when user is authenticated with a one time terms code' do
       let(:terms_code) { SecureRandom.hex }
-      let!(:terms_code_container) { create(:terms_code_container, code: terms_code, user_uuid: user.uuid) }
+      let!(:terms_code_container) do
+        create(:terms_code_container, code: terms_code, user_account_uuid: user_account.id)
+      end
 
       it_behaves_like 'authenticated agreements acceptance'
     end
@@ -214,17 +221,6 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
         end
       end
 
-      context 'when the user does not have a common_name' do
-        let(:user) { create(:user, first_name: nil, middle_name: nil, last_name: nil, suffix: nil) }
-        let(:expected_error) { 'Validation failed: Common name can\'t be blank' }
-
-        it 'returns an unprocessable_entity' do
-          subject
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(JSON.parse(response.body)['error']).to eq(expected_error)
-        end
-      end
-
       context 'when the agreement declination fails' do
         before do
           allow_any_instance_of(TermsOfUseAgreement).to receive(:declined!).and_raise(ActiveRecord::RecordInvalid)
@@ -256,7 +252,9 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
 
     context 'when user is authenticated with a one time terms code' do
       let(:terms_code) { SecureRandom.hex }
-      let!(:terms_code_container) { create(:terms_code_container, code: terms_code, user_uuid: user.uuid) }
+      let!(:terms_code_container) do
+        create(:terms_code_container, code: terms_code, user_account_uuid: user_account.id)
+      end
 
       it_behaves_like 'authenticated agreements decline'
     end
@@ -306,7 +304,7 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
 
       it 'logs the expected log' do
         subject
-        expect(Rails.logger).to have_received(:info).with(expected_log, { icn: user.icn })
+        expect(Rails.logger).to have_received(:info).with(expected_log, { icn: })
       end
     end
 
