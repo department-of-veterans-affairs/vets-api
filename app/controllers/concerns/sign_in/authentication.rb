@@ -34,7 +34,15 @@ module SignIn
       nil
     end
 
-    def access_token_authenticate(skip_expiration_check: false)
+    def access_token_authenticate
+      access_token.present?
+    rescue Errors::AccessTokenExpiredError => e
+      render json: { errors: e }, status: :forbidden
+    rescue Errors::StandardError
+      handle_authenticate_error(e)
+    end
+
+    def access_token_optional_authenticate(skip_expiration_check: false)
       access_token.present?
     rescue Errors::AccessTokenExpiredError => e
       render json: { errors: e }, status: :forbidden unless skip_expiration_check

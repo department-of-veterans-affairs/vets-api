@@ -7,8 +7,7 @@ module V0
     skip_before_action :authenticate,
                        only: %i[authorize callback token refresh revoke revoke_all_sessions logout
                                 logingov_logout_proxy]
-    before_action -> { access_token_authenticate(skip_expiration_check: true) }, only: %i[logout]
-    before_action :access_token_authenticate, only: %i[revoke_all_sessions]
+    before_action :access_token_authenticate, only: :revoke_all_sessions
 
     def authorize # rubocop:disable Metrics/MethodLength
       type = params[:type].presence
@@ -165,8 +164,7 @@ module V0
 
     def revoke_all_sessions
       session = SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
-      user_account = UserAccount.find(session.user_account_id)
-      SignIn::RevokeSessionsForUser.new(user_account:).perform
+      SignIn::RevokeSessionsForUser.new(user_account: session.user_account).perform
 
       sign_in_logger.info('revoke all sessions', @access_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS)
@@ -184,32 +182,27 @@ module V0
         raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
       end
 
-      if (session = SignIn::OAuthSession.find_by(handle: @access_token&.session_handle))
-        credential_type = session.user_verification.credential_type
-        client_id = session.client_id if client_id.blank?
-        anti_csrf_token = anti_csrf_token_param.presence
-
-        SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token:).perform
-        delete_cookies if token_cookies
-        logout_redirect = SignIn::LogoutRedirectGenerator.new(credential_type:,
-                                                              client_config: client_config(client_id)).perform
-        sign_in_logger.info('logout', @access_token.to_s)
-        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS)
-      else
-        delete_cookies if token_cookies
-        logout_redirect = SignIn::LogoutRedirectGenerator.new(credential_type: nil,
-                                                              client_config: client_config(client_id)).perform
-        sign_in_logger.info('logout error', { errors: 'No valid Session found' })
-        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
+      unless access_token_optional_authenticate(skip_expiration_check: true)
+        raise SignIn::Errors::LogoutAuthorizationError.new message: 'Unable to authorize access token'
       end
 
+      session = SignIn::OAuthSession.find_by(handle: @access_token&.session_handle)
+      credential_type = session.user_verification.credential_type
+      client_id = session.client_id if client_id.blank?
+      anti_csrf_token = anti_csrf_token_param.presence
+
+      SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token:).perform
+      delete_cookies if token_cookies
+      logout_redirect = SignIn::LogoutRedirectGenerator.new(credential_type:,
+                                                            client_config: client_config(client_id)).perform
+      sign_in_logger.info('logout', @access_token.to_s)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS)
+
       logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
-    rescue SignIn::Errors::SessionNotAuthorizedError => e
+    rescue SignIn::Errors::LogoutAuthorizationError, SignIn::Errors::SessionNotAuthorizedError => e
       sign_in_logger.info('logout error', { errors: e.message })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
-
-      credential_type = nil unless defined?(credential_type)
-      logout_redirect = SignIn::LogoutRedirectGenerator.new(credential_type:,
+      logout_redirect = SignIn::LogoutRedirectGenerator.new(credential_type: nil,
                                                             client_config: client_config(client_id)).perform
 
       logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
