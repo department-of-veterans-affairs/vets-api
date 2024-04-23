@@ -111,7 +111,8 @@ describe Mobile::V2::Appointments::ProviderNames do
         receive(:get_provider).with('1407938061').and_return(provider_response)
       allow_any_instance_of(VAOS::V2::MobilePPMSService).to\
         receive(:get_provider).with('1407938062').and_return(second_provider_response)
-      name, missing_providers = subject.form_names_from_appointment_practitioners_list(multiple_practitioners_without_names)
+      name, missing_providers =
+        subject.form_names_from_appointment_practitioners_list(multiple_practitioners_without_names)
       expect(name).to eq('DEHGHAN, AMIR, J. Jones')
       expect(missing_providers).to eq([])
     end
