@@ -3,6 +3,8 @@
 module ClaimsApi
   module BGSClient
     module ServiceAction
+      # TODO: consider service and action definitions separately? E.g. to power
+      # healthcheck in a non-duplicative fashion?
       Definition =
         Data.define(
           :service_path,

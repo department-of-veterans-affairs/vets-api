@@ -13,6 +13,8 @@ module ClaimsApi
       private_constant :Request
 
       class Request
+        attr_reader :external_id
+
         def initialize(definition:, external_id:)
           @definition = definition
           @external_id = external_id
@@ -75,10 +77,15 @@ module ClaimsApi
 
         def build_request_body(body, namespace:) # rubocop:disable Metrics/MethodLength
           namespaces =
-            @definition.service_namespaces.map do |aliaz, path|
-              uri = URI(namespace)
-              uri.path = path
-              %(xmlns:#{aliaz}="#{uri}")
+            {}.tap do |value|
+              namespace = URI(namespace)
+              value['tns'] = namespace
+
+              @definition.service_namespaces.to_h.each do |aliaz, path|
+                uri = namespace.clone
+                uri.path = path
+                value[aliaz] = uri
+              end
             end
 
           client_ip =
@@ -95,38 +102,23 @@ module ClaimsApi
                 .ip_address
             end
 
-          <<~EOXML
-            <?xml version="1.0" encoding="UTF-8"?>
-            <env:Envelope
-              xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xmlns:tns="#{namespace}"
-              xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
-              #{namespaces.join("\n")}
-            >
-              <env:Header>
-                <wsse:Security
-                  xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
-                >
-                  <wsse:UsernameToken>
-                    <wsse:Username>#{Settings.bgs.client_username}</wsse:Username>
-                  </wsse:UsernameToken>
-                  <vaws:VaServiceHeaders
-                    xmlns:vaws="http://vbawebservices.vba.va.gov/vawss"
-                  >
-                    <vaws:CLIENT_MACHINE>#{client_ip}</vaws:CLIENT_MACHINE>
-                    <vaws:STN_ID>#{Settings.bgs.client_station_id}</vaws:STN_ID>
-                    <vaws:applicationName>#{Settings.bgs.application}</vaws:applicationName>
-                    <vaws:ExternalUid>#{@external_id.external_uid}</vaws:ExternalUid>
-                    <vaws:ExternalKey>#{@external_id.external_key}</vaws:ExternalKey>
-                  </vaws:VaServiceHeaders>
-                </wsse:Security>
-              </env:Header>
-              <env:Body>
-                <tns:#{@definition.action_name}>#{body}</tns:#{@definition.action_name}>
-              </env:Body>
-            </env:Envelope>
-          EOXML
+          headers =
+            Envelope::Headers.new(
+              ip: client_ip,
+              username: Settings.bgs.client_username,
+              station_id: Settings.bgs.client_station_id,
+              application_name: Settings.bgs.application,
+              external_id:
+            )
+
+          action = @definition.action_name
+
+          Envelope.generate(
+            namespaces:,
+            headers:,
+            action:,
+            body:
+          )
         end
 
         def get_fault(body)
