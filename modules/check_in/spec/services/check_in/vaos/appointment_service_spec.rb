@@ -43,7 +43,7 @@ describe CheckIn::VAOS::AppointmentService do
     let(:faraday_env) { double('Faraday::Env', status: 200, body: appointments_response.to_json) }
 
     before do
-      allow_any_instance_of(V2::Lorota::RedisClient).to receive(:get).with(check_in_uuid: uuid)
+      allow_any_instance_of(V2::Lorota::RedisClient).to receive(:icn).with(uuid:)
                                                                      .and_return(patient_icn)
       allow_any_instance_of(CheckIn::Map::TokenService).to receive(:token)
         .and_return(token)

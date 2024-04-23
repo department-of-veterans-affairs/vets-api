@@ -19,7 +19,7 @@ describe CheckIn::VAOS::BaseService do
 
   describe '#initialize' do
     before do
-      allow_any_instance_of(V2::Lorota::RedisClient).to receive(:get).with(check_in_uuid: uuid)
+      allow_any_instance_of(V2::Lorota::RedisClient).to receive(:icn).with(uuid:)
                                                                      .and_return(patient_icn)
     end
 

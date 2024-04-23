@@ -26,7 +26,7 @@ module CheckIn
 
       def initialize(opts)
         @check_in_session = opts[:check_in_session]
-        @patient_icn = ::V2::Lorota::RedisClient.build.get(check_in_uuid: check_in_session.uuid)
+        @patient_icn = ::V2::Lorota::RedisClient.build.icn(uuid: check_in_session.uuid)
 
         super()
       end
