@@ -5,12 +5,12 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
-require 'bgs_service/miscellaneous_bgs_operations'
+require 'bgs_service/local_bgs'
 
 # doc generation for V2 ITFs temporarily disabled by API-13879
 describe 'PowerOfAttorney',
          openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
-  let(:local_bgs) { ClaimsApi::MiscellaneousBGSOperations }
+  let(:local_bgs) { ClaimsApi::LocalBGS }
 
   path '/veterans/{veteranId}/power-of-attorney' do
     get 'Find current Power of Attorney for a Veteran.' do

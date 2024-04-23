@@ -11,6 +11,7 @@ RSpec.describe ClaimsApi::EwsVBMSSidekiq do
 
     context 'when upload is successful' do
       it 'updates the Evidence Waiver Submission record' do
+        allow_any_instance_of(ClaimsApi::LocalBGS).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
         allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload!).and_return(
           {
             status: ClaimsApi::EvidenceWaiverSubmission::UPLOADED

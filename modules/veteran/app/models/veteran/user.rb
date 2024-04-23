@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'bgs_service/miscellaneous_bgs_operations'
+require 'bgs_service/local_bgs'
 
 # Veteran model
 module Veteran
@@ -54,7 +54,7 @@ module Veteran
 
     def local_bgs_service
       external_key = "#{@user.first_name} #{@user.last_name}"
-      @local_bgs_service ||= ClaimsApi::MiscellaneousBGSOperations.new(
+      @local_bgs_service ||= ClaimsApi::LocalBGS.new(
         external_uid: @user.mpi_icn,
         external_key: external_key.presence || @user.mpi_icn
       )

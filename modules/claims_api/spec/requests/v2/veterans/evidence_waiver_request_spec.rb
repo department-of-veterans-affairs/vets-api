@@ -28,7 +28,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
               it 'returns a 200' do
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
-                    allow_any_instance_of(ClaimsApi::MiscellaneousBGSOperations)
+                    allow_any_instance_of(ClaimsApi::LocalBGS)
                       .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
 
                     post sub_path, headers: auth_header
@@ -52,7 +52,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
             it 'returns a 404' do
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/benefit_claim/find_bnft_claim_400') do
-                  allow_any_instance_of(ClaimsApi::MiscellaneousBGSOperations)
+                  allow_any_instance_of(ClaimsApi::LocalBGS)
                     .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
 
                   post error_sub_path, headers: auth_header
@@ -67,11 +67,11 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
             it 'passes for a valid type' do
               bgs_claim_response = build(:bgs_response_with_one_lc_status).to_h
               bgs_claim_response[:benefit_claim_details_dto][:bnft_claim_type_cd] = '140ISCD'
-              expect_any_instance_of(ClaimsApi::MiscellaneousBGSOperations)
+              expect_any_instance_of(ClaimsApi::LocalBGS)
                 .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
 
               mock_ccg(scopes) do |auth_header|
-                allow_any_instance_of(ClaimsApi::MiscellaneousBGSOperations)
+                allow_any_instance_of(ClaimsApi::LocalBGS)
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
 
                 post sub_path, params: { sponsorIcn: sponsor_id }, headers: auth_header
@@ -83,7 +83,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
             it 'silently passes for an invalid type' do
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
-                  allow_any_instance_of(ClaimsApi::MiscellaneousBGSOperations)
+                  allow_any_instance_of(ClaimsApi::LocalBGS)
                     .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
                   post sub_path, params: { sponsorIcn: sponsor_id }, headers: auth_header
 

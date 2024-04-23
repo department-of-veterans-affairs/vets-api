@@ -3,12 +3,12 @@
 require 'swagger_helper'
 require 'rails_helper'
 require_relative '../../../rails_helper'
-require 'bgs_service/miscellaneous_bgs_operations'
+require 'bgs_service/local_bgs'
 
 describe 'Claims',
          openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
   let(:bcs) do
-    ClaimsApi::MiscellaneousBGSOperations
+    ClaimsApi::LocalBGS
   end
 
   before do

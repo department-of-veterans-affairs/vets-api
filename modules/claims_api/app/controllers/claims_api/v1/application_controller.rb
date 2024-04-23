@@ -130,7 +130,7 @@ module ClaimsApi
       end
 
       def local_bgs_service
-        @local_bgs_service ||= ClaimsApi::MiscellaneousBGSOperations.new(
+        @local_bgs_service ||= ClaimsApi::LocalBGS.new(
           external_uid: target_veteran.participant_id,
           external_key: target_veteran.participant_id
         )

@@ -9,9 +9,11 @@
 require 'claims_api/claim_logger'
 require 'claims_api/error/soap_error_handler'
 require 'bgs_service/bgs_helpers'
+require 'bgs_service/miscellaneous_bgs_operations'
 
 module ClaimsApi
   class LocalBGS
+    include ClaimsApi::MiscellaneousBGSOperations
     include ClaimsApi::BGSHelpers
 
     class << self
