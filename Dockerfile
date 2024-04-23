@@ -1,4 +1,4 @@
-FROM ruby:3.2.3-slim-bookworm AS rubyimg
+FROM ruby:3.3.1-slim-bookworm AS rubyimg
 FROM rubyimg AS modules
 
 WORKDIR /tmp

@@ -440,6 +440,7 @@ GEM
       faraday (>= 0.9.0)
     fastimage (2.3.1)
     ffi (1.16.3)
+    ffi (1.16.3-java)
     ffi-compiler (1.0.1)
       ffi (>= 1.0.0)
       rake
@@ -510,6 +511,12 @@ GEM
     google-cloud-env (2.1.1)
       faraday (>= 1.0, < 3.a)
     google-protobuf (4.26.1)
+      rake (>= 13)
+    google-protobuf (4.26.1-java)
+      ffi (~> 1)
+      ffi-compiler (~> 1)
+      rake (>= 13)
+    google-protobuf (4.26.1-x86_64-linux)
       rake (>= 13)
     googleauth (1.11.0)
       faraday (>= 1.0, < 3.a)
@@ -662,6 +669,10 @@ GEM
     no_proxy_fix (0.1.2)
     nokogiri (1.16.4)
       mini_portile2 (~> 2.8.2)
+      racc (~> 1.4)
+    nokogiri (1.16.4-java)
+      racc (~> 1.4)
+    nokogiri (1.16.4-x86_64-linux)
       racc (~> 1.4)
     nori (2.7.0)
       bigdecimal
@@ -1280,7 +1291,7 @@ DEPENDENCIES
   yard
 
 RUBY VERSION
-   ruby 3.2.3p157
+   ruby 3.3.1p55
 
 BUNDLED WITH
-   2.4.9
+   2.5.9
