@@ -235,7 +235,34 @@
       ],
       "properties": {
         "errors": {
-          "type": "null"
+          "type": "array",
+          "properties": {
+            "appointmentErrors": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "missingFacilities": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "missingClinics": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "missingProviders": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+
         },
         "pagination": {
           "type": "object",

@@ -87,20 +87,17 @@ module Mobile
       # The mobile app does not distinguish between VA and CC errors so we are only indicating that there are errors
       # If we ever want to distinguish be VA and CC errors, it will require coordination with the front-end team
       def partial_errors(failures)
-        if failures.present?
+        if failures.any?
+          Rails.logger.info('Mobile Appointment Partial Error', errors: failures)
+
           {
-            errors: [{ source: 'VA Service' }]
+            errors: failures
           }
         end
       end
 
       def get_response_status(failures)
-        case failures&.size
-        when 0, nil
-          :ok
-        else
-          :multi_status
-        end
+        failures.any? ? :multi_status : :ok
       end
 
       def filter_by_date_range(appointments)

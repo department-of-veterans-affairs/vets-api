@@ -24,13 +24,20 @@ module Mobile
           filterer = PresentationFilter.new(include_pending:)
           appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
 
-          appointments = merge_clinic_facility_address(appointments)
-          appointments = merge_auxiliary_clinic_info(appointments)
-          appointments = merge_provider_names(appointments)
+          appointments, missing_facilities = merge_clinic_facility_address(appointments)
+          appointments, missing_clinics = merge_auxiliary_clinic_info(appointments)
+          appointments, missing_providers = merge_provider_names(appointments)
 
           appointments = vaos_v2_to_v0_appointment_adapter.parse(appointments)
+          failures = [
+            { appointment_errors: Array.wrap(response[:meta][:failures]) },
+            { missing_facilities: },
+            { missing_clinics: },
+            { missing_providers: }
+          ]
+          failures.reject! { |failure| failure.values.first&.empty? }
 
-          [appointments.sort_by(&:start_date_utc), response[:meta][:failures]]
+          [appointments.sort_by(&:start_date_utc), failures]
         end
 
         private
@@ -43,12 +50,18 @@ module Mobile
             cached_facilities[facility_id] = appointments_helper.get_facility(facility_id)
           end
 
+          missing_facilities = []
+
           appointments.each do |appt|
             facility_id = appt[:location_id]
             next unless facility_id
 
             appt[:location] = cached_facilities[facility_id]
+
+            missing_facilities << facility_id unless cached_facilities[facility_id]
           end
+
+          [appointments, missing_facilities]
         end
 
         def merge_auxiliary_clinic_info(appointments)
@@ -59,6 +72,8 @@ module Mobile
             cached_clinics[clinic_id] = appointments_helper.get_clinic(location_id, clinic_id)
           end
 
+          missing_clinics = []
+
           appointments.each do |appt|
             clinic_id = appt[:clinic]
             next unless clinic_id
@@ -68,16 +83,26 @@ module Mobile
 
             physical_location = cached_clinics.dig(clinic_id, :physical_location)
             appt[:physical_location] = physical_location
+
+            missing_clinics << clinic_id unless cached_clinics[clinic_id]
           end
+          [appointments, missing_clinics]
         end
 
         def merge_provider_names(appointments)
           provider_names_proxy = ProviderNames.new(@user)
+          missing_providers = []
           appointments.each do |appt|
             practitioners_list = appt[:practitioners]
-            names = provider_names_proxy.form_names_from_appointment_practitioners_list(practitioners_list)
+            next unless practitioners_list
+
+            names, appointment_missing_providers =
+              provider_names_proxy.form_names_from_appointment_practitioners_list(practitioners_list)
             appt[:healthcare_provider] = names
+            missing_providers << appointment_missing_providers
           end
+
+          [appointments, missing_providers]
         end
 
         def appointments_helper
