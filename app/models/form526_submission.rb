@@ -80,7 +80,7 @@ class Form526Submission < ApplicationRecord
     end
 
     # A special state to indicate this was part of our remediation 'batching'
-    # process in 2023.  These were handled manually and are distinct fom `in_remediation`
+    # process in 2023.  These were handled manually and are distinct from `in_remediation`
     # in that they were not tracked at the time of remediation, but rather later in
     # the 2024 526 State audit.
     #
@@ -97,10 +97,10 @@ class Form526Submission < ApplicationRecord
     # Duplicates are identified by comparing form_json, using this script:
     # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/teams/benefits/scripts/526/submission_deduper.rb
     # The result of this script can be evaluated by a qualified stakeholder to make
-    # a judgement call on wether or not a submission is a 'perfect' duplicate.
+    # a judgement call on whether or not a submission is a 'perfect' duplicate.
     #
     # IF a submission is found to be an exact duplicate of another
-    # AND it's duplicate was previously submitted / remediated successfully
+    # AND its duplicate was previously submitted / remediated successfully
     # THEN we can ignore it as a duplicate
     event :ignore_as_duplicate do
       transitions to: :ignorable_duplicate
