@@ -7,7 +7,7 @@ module ClaimsApi
   class ClaimUploader < ClaimsApi::ServiceBase
     sidekiq_options retry: true, unique_until: :success
 
-    def perform(uuid)
+    def perform(uuid) # rubocop:disable Metrics/MethodLength
       claim_object = ClaimsApi::SupportingDocument.find_by(id: uuid) ||
                      ClaimsApi::AutoEstablishedClaim.find_by(id: uuid)
 
@@ -21,11 +21,12 @@ module ClaimsApi
       else
         auth_headers = auto_claim.auth_headers
         uploader = claim_object.uploader
-        uploader.retrieve_from_store!(claim_object.file_data['filename'])
+        original_filename = claim_object.file_data['filename']
+        uploader.retrieve_from_store!(original_filename)
         file_body = uploader.read
         ClaimsApi::Logger.log('lighthouse_claim_uploader', claim_id: auto_claim.id, attachment_id: uuid)
         if Flipper.enabled? :claims_claim_uploader_use_bd
-          bd_upload_body(auto_claim:, file_body:, doc_type:)
+          bd_upload_body(auto_claim:, file_body:, doc_type:, original_filename:)
         else
           EVSS::DocumentsService.new(auth_headers).upload(file_body, claim_upload_document(claim_object))
         end
@@ -34,19 +35,19 @@ module ClaimsApi
 
     private
 
-    def bd_upload_body(auto_claim:, file_body:, doc_type:)
+    def bd_upload_body(auto_claim:, file_body:, doc_type:, original_filename:)
       fh = Tempfile.new(['pdf_path', '.pdf'], binmode: true)
       begin
         fh.write(file_body)
         fh.close
-        claim_bd_upload_document(auto_claim, doc_type, fh.path)
+        claim_bd_upload_document(auto_claim, doc_type, fh.path, original_filename)
       ensure
         fh.unlink
       end
     end
 
-    def claim_bd_upload_document(claim, doc_type, pdf_path) # rubocop:disable Metrics/MethodLength
-      ClaimsApi::BD.new.upload(claim:, doc_type:, pdf_path:)
+    def claim_bd_upload_document(claim, doc_type, pdf_path, original_filename) # rubocop:disable Metrics/MethodLength
+      ClaimsApi::BD.new.upload(claim:, doc_type:, pdf_path:, original_filename:)
     # Temporary errors (returning HTML, connection timeout), retry call
     rescue Faraday::ParsingError, Faraday::TimeoutError => e
       message = get_error_message(e)
