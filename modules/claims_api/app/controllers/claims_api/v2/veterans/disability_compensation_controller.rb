@@ -29,24 +29,10 @@ module ClaimsApi
         end
 
         def submit
-          auto_claim = ClaimsApi::AutoEstablishedClaim.create(
-            status: ClaimsApi::AutoEstablishedClaim::PENDING,
-            auth_headers:, form_data: form_attributes,
-            flashes:,
-            cid: token&.payload&.[]('cid'), veteran_icn: target_veteran&.mpi&.icn,
-            validation_method: ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
-          )
-
-          if auto_claim.errors.present?
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
-              detail: auto_claim.errors.messages.to_s
-            )
-          end
-
-          track_pact_counter auto_claim
+          auto_claim = shared_submit_methods
 
           # This kicks off the first of three jobs required to fully establish the claim
-          process_claim(auto_claim) unless Flipper.enabled? :claims_load_testing
+          process_claim(auto_claim, 'perform_async') unless Flipper.enabled? :claims_load_testing
 
           render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
             auto_claim, root: :data
@@ -109,7 +95,33 @@ module ClaimsApi
         end
 
         def synchronous
-          render json: {}
+          auto_claim = shared_submit_methods
+          # This kicks off the first of three jobs required to fully establish the claim
+          process_claim(auto_claim, 'new.perform') unless Flipper.enabled? :claims_load_testing
+
+          render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
+            auto_claim, root: :data
+          ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)
+        end
+
+        def shared_submit_methods
+          auto_claim = ClaimsApi::AutoEstablishedClaim.create(
+            status: ClaimsApi::AutoEstablishedClaim::PENDING,
+            auth_headers:, form_data: form_attributes,
+            flashes:,
+            cid: token&.payload&.[]('cid'), veteran_icn: target_veteran&.mpi&.icn,
+            validation_method: ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
+          )
+
+          if auto_claim.errors.present?
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
+              detail: auto_claim.errors.messages.to_s
+            )
+          end
+
+          track_pact_counter auto_claim
+
+          auto_claim
         end
 
         private
@@ -132,11 +144,18 @@ module ClaimsApi
           { data: {} }
         end
 
-        def process_claim(auto_claim)
-          ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(
-            auto_claim.id,
-            veteran_middle_initial # PDF mapper just needs middle initial
-          )
+        def process_claim(auto_claim, perform_type)
+          if perform_type == 'perform_async'
+            ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(
+              auto_claim.id,
+              veteran_middle_initial # PDF mapper just needs middle initial
+            )
+          else
+            ClaimsApi::V2::DisabilityCompensationPdfGenerator.new.perform(
+              auto_claim.id,
+              veteran_middle_initial # PDF mapper just needs middle initial
+            )
+          end
         end
 
         # Only value required by background jobs that is missing in headers is middle name

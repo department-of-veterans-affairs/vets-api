@@ -3950,13 +3950,18 @@ RSpec.describe 'Disability Claims', type: :request do
   describe 'POST #synchronous' do
     let(:veteran_id) { '1012832025V743496' }
     let(:synchronous_path) { "/services/claims/v2/veterans/#{veteran_id}/526/synchronous" }
+    let(:data) do
+      Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
+                      'form_526_json_api.json').read
+    end
+    let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read }
 
     context 'when the endpoint is hit' do
       it 'returns an empty test object' do
         mock_ccg(scopes) do |auth_header|
-          post synchronous_path, params: {}.to_json, headers: auth_header
-
-          expect(JSON.parse(response.body)).to eq({})
+          post synchronous_path, params: data, headers: auth_header
+          parsed_res = JSON.parse(response.body)
+          expect(parsed_res['data']).to include('id')
         end
       end
     end
