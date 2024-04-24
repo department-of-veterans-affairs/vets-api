@@ -57,7 +57,12 @@ module AskVAApi
       end
 
       def handle_response_data(response)
-        response[:Data].presence || raise(InquiriesRetrieverError, response[:Message])
+        if response[:Data].nil?
+          error = JSON.parse(response[:body], symbolize_names: true)
+          raise InquiriesRetrieverError, error[:Message]
+        else
+          response[:Data]
+        end
       end
     end
   end
