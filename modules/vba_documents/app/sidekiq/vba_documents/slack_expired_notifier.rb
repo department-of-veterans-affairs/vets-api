@@ -29,7 +29,7 @@ module VBADocuments
       percent_expired = (expired_count.to_f / new_count) * 100.0
 
       if percent_expired > EXPIRED_THRESHOLD
-        message_time = created_at_range.first.in_time_zone("America/New_York")
+        message_time = created_at_range.first.in_time_zone('America/New_York')
                                        .strftime('%Y-%m-%d %I:%M:%S %p %Z')
         fail_rate = ActiveSupport::NumberHelper.number_to_percentage(percent_expired, precision: 1)
         message = "#{expired_count}(#{fail_rate}) " \

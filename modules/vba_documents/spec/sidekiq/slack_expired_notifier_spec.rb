@@ -51,7 +51,7 @@ RSpec.describe 'VBADocuments::SlackExpiredNotifier', type: :job do
     end
 
     it 'warns using slack' do
-      t = 1.hour.ago.in_time_zone("America/New_York").strftime('%Y-%m-%d %I:%M:%S %p %Z')
+      t = 1.hour.ago.in_time_zone('America/New_York').strftime('%Y-%m-%d %I:%M:%S %p %Z')
       @results = @job.perform
       expect(slack_messenger).to have_received(:notify!).once
       expect(VBADocuments::Slack::Messenger).to have_received(:new).with(
