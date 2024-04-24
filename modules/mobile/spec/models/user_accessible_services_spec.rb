@@ -8,6 +8,10 @@ describe Mobile::V0::UserAccessibleServices, aggregate_failures: true, type: :mo
   let(:non_lighthouse_user) { build(:user, :loa3, icn: nil, participant_id: nil) }
   let(:user_services) { Mobile::V0::UserAccessibleServices.new(user) }
 
+  before do
+    Flipper.disable(:profile_ppiu_reject_requests)
+  end
+
   describe '#authorized' do
     describe 'appeals' do
       context 'when user does not have appeals access' do
