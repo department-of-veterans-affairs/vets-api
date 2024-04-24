@@ -317,7 +317,7 @@ GEM
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
-    coverband (6.1.0)
+    coverband (6.1.1)
       redis (>= 3.0)
     crack (1.0.0)
       bigdecimal
@@ -692,7 +692,7 @@ GEM
     os (1.1.4)
     ox (2.14.18)
     parallel (1.24.0)
-    parallel_tests (4.6.1)
+    parallel_tests (4.7.0)
       parallel
     parser (3.3.0.5)
       ast (~> 2.4.1)
@@ -890,7 +890,7 @@ GEM
     rswag-ui (2.13.0)
       actionpack (>= 3.1, < 7.2)
       railties (>= 3.1, < 7.2)
-    rubocop (1.63.2)
+    rubocop (1.63.3)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
