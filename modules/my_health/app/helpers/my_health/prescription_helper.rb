@@ -18,26 +18,27 @@ module MyHealth
         data.reject { |item| item[:prescription_source] == 'NV' && item[:disp_status] != 'Active: Non-VA' }
       end
 
-      def sort_by(data, field1, field2 = nil, field3 = nil)
-        data.sort do |a, b|
-          field1_a, field1_b = populate_sort_vars(field1, a, b)
-          field2_a, field2_b = populate_sort_vars(field2, a, b)
-          field3_a, field3_b = populate_sort_vars(field3, a, b)
-          field1_descending, field2_descending, field3_descending = get_sort_order(field1, field2, field3)
-
-          comparison = compare_fields(field1_a, field1_b, field1_descending)
-          comparison = compare_fields(field2_a, field2_b, field2_descending) if comparison.zero? && field2.present?
-          comparison = compare_fields(field3_a, field3_b, field3_descending) if comparison.zero? && field3.present?
-
+      def sort_by(resource, sort_params)
+        sort_orders = get_sort_order(sort_params)
+        resource.data = resource.data.sort do |a, b|
+          comparison = 0
+          sort_params.each_with_index do |field, index|
+            field1_a, field1_b = populate_sort_vars(field, a, b)
+            comparison = compare_fields(field1_a, field1_b, sort_orders[index])
+            break if !comparison.zero? || field.nil?
+          end
           comparison
         end
+        sort_params.each_with_index do |field, index|
+          (resource.metadata[:sort] ||= {}).merge!({ field => sort_orders[index] ? 'DESC' : 'ASC' }) if field.present?
+        end
+        resource
       end
 
-      def get_sort_order(field1, field2, field3)
-        field1_descending = field1.to_s.start_with?('-')
-        field2_descending = field2.to_s.start_with?('-')
-        field3_descending = field3.to_s.start_with?('-')
-        [field1_descending, field2_descending, field3_descending]
+      def get_sort_order(fields)
+        fields.map do |field|
+          field.to_s.start_with?('-')
+        end
       end
 
       def compare_fields(field_a, field_b, descending)
@@ -68,8 +69,11 @@ module MyHealth
           else
             data[:orderable_item]
           end
-        else
+        when 'disp_status'
           data[:disp_status]
+        else
+          key = field.sub(/^-/, '')
+          data[key]
         end
       end
 
