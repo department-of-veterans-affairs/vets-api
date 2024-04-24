@@ -113,6 +113,15 @@ RSpec.describe BenefitsClaims::Service do
             expect(response.claim_id).to eq(1_234_567_890)
           end
         end
+
+        context 'when given the option to use generate pdf' do
+          it 'calls the generate pdf endpoint' do
+            VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response_generate_pdf') do
+              raw_response = @service.submit526({}, '', '', { generate_pdf: true })
+              expect(raw_response.body).to eq('No example available')
+            end
+          end
+        end
       end
     end
   end
