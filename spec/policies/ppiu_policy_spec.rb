@@ -5,6 +5,10 @@ require 'rails_helper'
 describe PPIUPolicy do
   let(:user) { build(:evss_user) }
 
+  before do
+    Flipper.disable(:profile_ppiu_reject_requests)
+  end
+
   permissions :access? do
     context 'with an idme user' do
       context 'with a loa1 user' do
@@ -71,6 +75,21 @@ describe PPIUPolicy do
       it 'disallows access' do
         VCR.use_cassette('evss/ppiu/pay_info_unauthorized') do
           expect(described_class).not_to permit(user, :ppiu)
+        end
+      end
+    end
+  end
+
+  context "PPIU rejection flag enabled" do
+    before do
+      Flipper.enable(:profile_ppiu_reject_requests)
+    end
+
+    context 'with a loa3 user' do
+      it 'rejects access' do
+        expect { PPIUPolicy.new(user, :ppiu).access? }.to raise_error Common::Exceptions::Forbidden do |e|
+          expect(e.errors.first.source).to eq('PPIU Policy')
+          expect(e.errors.first.detail).to eq('The EVSS PPIU endpoint will be decommissioned. Access is blocked.')
         end
       end
     end

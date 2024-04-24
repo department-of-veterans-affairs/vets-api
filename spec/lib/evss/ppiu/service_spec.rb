@@ -8,6 +8,10 @@ describe EVSS::PPIU::Service do
 
   let(:user) { build(:evss_user) }
 
+  before do
+    Flipper.disable(:profile_ppiu_reject_requests)
+  end
+
   describe 'with an unauthorized user' do
     before do
       expect_any_instance_of(PPIUPolicy).to receive(:access?).and_return(false)
@@ -194,6 +198,23 @@ describe EVSS::PPIU::Service do
                               'severity' => 'FATAL' }],
              'responses' => [] }
         )
+      end
+    end
+  end
+
+  context "PPIU rejection flag enabled" do
+    before do
+      Flipper.enable(:profile_ppiu_reject_requests)
+    end
+  
+    context 'with a loa3 user' do
+      it 'rejects access' do
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          expect { subject.get_payment_information }.to raise_error Common::Exceptions::Forbidden do |e|
+            expect(e.errors.first.source).to eq('PPIU Policy')
+            expect(e.errors.first.detail).to eq('The EVSS PPIU endpoint will be decommissioned. Access is blocked.')
+          end
+        end
       end
     end
   end

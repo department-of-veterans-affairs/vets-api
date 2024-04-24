@@ -31,7 +31,7 @@ PPIUPolicy = Struct.new(:user, :ppiu) do
   end
 
   def raise_error
-    message = 'The EVSS PPIU endpoint will be decommissioned. All requests are now blocked.'
-    raise Common::Exceptions::Forbidden, detail: message
+    message = 'The EVSS PPIU endpoint will be decommissioned. Access is blocked.'
+    raise Common::Exceptions::Forbidden.new(detail: message, source: 'PPIU Policy')
   end
 end
