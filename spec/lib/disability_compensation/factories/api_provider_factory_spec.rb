@@ -145,7 +145,7 @@ RSpec.describe ApiProviderFactory do
 
   context 'ppiu direct deposit' do
     before do
-      Flipper.enable(:profile_ppiu_reject_requests)
+      Flipper.disable(:profile_ppiu_reject_requests)
     end
 
     it 'provides an evss ppiu provider' do

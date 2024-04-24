@@ -16,6 +16,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     frozen_time = Time.zone.parse '2020-11-05 13:19:50 -0500'
     Timecop.freeze(frozen_time)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+    Flipper.disable(:profile_ppiu_reject_requests)
   end
 
   after { Timecop.return }

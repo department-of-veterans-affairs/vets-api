@@ -16,6 +16,7 @@ RSpec.describe 'Disability compensation form' do
   end
 
   before do
+    Flipper.disable(:profile_ppiu_reject_requests)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
     Flipper.disable('disability_compensation_prevent_submission_job')
     sign_in_as(user)

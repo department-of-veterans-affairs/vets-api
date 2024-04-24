@@ -40,6 +40,7 @@ RSpec.describe 'payment information', type: :request do
 
   before do
     Flipper.disable(:mobile_lighthouse_direct_deposit)
+    Flipper.disable(:profile_ppiu_reject_requests)
   end
 
   describe 'GET /mobile/v0/payment-information/benefits evss' do
