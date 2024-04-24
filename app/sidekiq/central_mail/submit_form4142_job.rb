@@ -131,7 +131,7 @@ module CentralMail
         attachments: [] # wipn8923 is this better than nil?
       }
 
-      @lighthouse_service.upload_doc(**paylod)
+      @lighthouse_service.upload_doc(**payload)
     end
 
     # Cannot move job straight to dead queue dynamically within an executing job
