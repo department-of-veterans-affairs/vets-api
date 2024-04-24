@@ -8,6 +8,7 @@ require 'simple_forms_api_submission/metadata_validator'
 require 'pdf_info'
 
 module Lighthouse
+  # [wipn8923] API template
   class SubmitBenefitsIntakeClaim
     include Sidekiq::Job
     include SentryLogging

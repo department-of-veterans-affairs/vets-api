@@ -21,17 +21,10 @@ module CentralMail
       }
     )
 
-    STATSD_KEY_PREFIX = 'worker.evss.submit_form4142'
+    CENTRAL_MAIL_STATSD_KEY_PREFIX = 'worker.evss.submit_form4142'
+    LIGHTHOUSE_STATSD_KEY_PREFIX = 'worker.lighthouse.submit_form4142'
 
-    # Sidekiq has built in exponential back-off functionality for retries
-    # A max retry attempt of 10 will result in a run time of ~8 hours
-    # This job is invoked from 526 background job, ICMHS is reliable
-    # and hence this value is set at a lower value
-    RETRY = 10
-
-    sidekiq_options retry: RETRY
-
-    class CentralMailResponseError < Common::Exceptions::BackendServiceException; end
+    class BenefitsIntake4142Error < StandardError; end
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']
@@ -51,6 +44,7 @@ module CentralMail
           form526_submission_id:
         }
       }
+      # [wipn8923] update use of statsD keys
       form_job_status.update(
         status: Form526JobStatus::STATUS[:exhausted],
         bgjob_errors: bgjob_errors.merge(new_error)
@@ -82,6 +76,7 @@ module CentralMail
     #
     # @param submission_id [Integer] the {Form526Submission} id
     #
+    # [wipn8923] job to update?
     def perform(submission_id)
       @submission_id = submission_id
 
@@ -90,7 +85,7 @@ module CentralMail
 
       with_tracking('Form4142 Submission', submission.saved_claim_id, submission.id) do
         @pdf_path = processor.pdf_path
-        response = upload_to_central_mail
+        response = upload_to_api
         handle_service_exception(response) if response.present? && response.status.between?(201, 600)
       end
     rescue => e
@@ -109,8 +104,29 @@ module CentralMail
       @processor ||= EVSS::DisabilityCompensationForm::Form4142Processor.new(submission, jid)
     end
 
+    def upload_to_api
+      if Flipper.enabled?(:disability_compensation_form_4142)
+        upload_to_lighthouse
+      else
+        upload_to_central_mail
+      end
+    end
+
     def upload_to_central_mail
       CentralMail::Service.new.upload(processor.request_body)
+    end
+
+    def upload_to_lighthouse
+      @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
+      payload = {
+        upload_url: @lighthouse_service.location,
+        file: { file: @pdf_path, file_name: @pdf_path.split('/').last },
+        metadata: generate_metadata.to_json,
+        attachments: [] # wipn8923 is this better than nil?
+      }
+      create_form_submission_attempt
+
+      @lighthouse_service.upload_doc(**paylod)
     end
 
     # Cannot move job straight to dead queue dynamically within an executing job
