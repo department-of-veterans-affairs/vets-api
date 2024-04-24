@@ -3,26 +3,31 @@
 module ClaimsApi
   module BGSClient
     module ServiceAction
-      # TODO: consider service and action definitions separately? E.g. to power
-      # healthcheck in a non-duplicative fashion?
-      Definition =
-        Data.define(
-          :service_path,
-          :service_namespaces,
-          :action_name
-        )
+      class Definition < Data.define(:service, :action)
+        Service = Data.define(:path, :namespaces)
+        Action = Data.define(:name)
 
-      module Definition::ManageRepresentativeService
-        service_definition = {
-          service_path: 'VDC/ManageRepresentativeService',
-          service_namespaces: { 'data' => '/data' }
-        }
+        class ManageRepresentativeService < Service
+          include Singleton
 
-        ReadPoaRequest =
-          Definition.new(
-            action_name: 'readPOARequest',
-            **service_definition
-          )
+          def initialize
+            super(
+              path: 'VDC/ManageRepresentativeService',
+              namespaces: { 'data' => '/data' }
+            )
+          end
+
+          class ReadPoaRequest < Definition
+            include Singleton
+
+            def initialize
+              super(
+                service: ManageRepresentativeService.instance,
+                action: Action.new(name: 'readPOARequest'),
+              )
+            end
+          end
+        end
       end
     end
   end

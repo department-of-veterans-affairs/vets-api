@@ -10,9 +10,9 @@ module ClaimsApi
           .perform(body)
       end
 
-      def healthcheck(service_path)
+      def healthcheck(definition)
         connection = build_connection
-        response = fetch_wsdl(connection, service_path)
+        response = fetch_wsdl(connection, definition.path)
         response.status
       end
 

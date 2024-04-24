@@ -27,7 +27,7 @@ module ClaimsApi
                 BGSClient.send(
                   :fetch_wsdl,
                   connection,
-                  @definition.service_path
+                  @definition.service.path
                 ).body
               end
 
@@ -40,8 +40,8 @@ module ClaimsApi
 
             response =
               log_duration('connection_post') do
-                connection.post(@definition.service_path) do |req|
-                  req.headers['Soapaction'] = %("#{@definition.action_name}")
+                connection.post(@definition.service.path) do |req|
+                  req.headers['Soapaction'] = %("#{@definition.action.name}")
                   req.body = request_body
                 end
               end
@@ -62,7 +62,7 @@ module ClaimsApi
                 value: fault
               )
             else
-              key = "#{@definition.action_name}Response"
+              key = "#{@definition.action.name}Response"
               value = action_body[key].to_h
 
               Result.new(
@@ -81,7 +81,7 @@ module ClaimsApi
               namespace = URI(namespace)
               value['tns'] = namespace
 
-              @definition.service_namespaces.to_h.each do |aliaz, path|
+              @definition.service.namespaces.to_h.each do |aliaz, path|
                 uri = namespace.clone
                 uri.path = path
                 value[aliaz] = uri
@@ -111,7 +111,7 @@ module ClaimsApi
               external_id:
             )
 
-          action = @definition.action_name
+          action = @definition.action.name
 
           Envelope.generate(
             namespaces:,
@@ -149,8 +149,8 @@ module ClaimsApi
           event = {
             # event should be first key in log, duration last
             event: event_name,
-            endpoint: @definition.service_path,
-            action: @definition.action_name,
+            endpoint: @definition.service.path,
+            action: @definition.action.name,
             duration:
           }
 

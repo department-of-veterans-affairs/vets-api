@@ -36,18 +36,40 @@ module ClaimsApi
     end
 
     def healthcheck(endpoint)
-      BGSClient.healthcheck(endpoint)
+      service =
+        BGSClient::ServiceAction::Definition::Service.new(
+          path: endpoint,
+          # Namespaces are only actually relevant when performing a service
+          # action request. We could easily slightly tweak the API to reflect
+          # that, but it's probably not horrible leaving it slightly funky here
+          # for vague aesthetic reasons.
+          namespaces: nil
+        )
+
+      BGSClient.healthcheck(
+        service
+      )
     end
 
     def make_request( # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
       endpoint:, action:, body:, key: nil,
       namespaces: {}, transform_response: true
     )
+      service =
+        BGSClient::ServiceAction::Definition::Service.new(
+          path: endpoint,
+          namespaces:
+        )
+
+      action =
+        BGSClient::ServiceAction::Definition::Action.new(
+          name: action
+        )
+
       definition =
         BGSClient::ServiceAction::Definition.new(
-          service_path: endpoint,
-          service_namespaces: namespaces,
-          action_name: action
+          service:,
+          action:
         )
 
       request =
