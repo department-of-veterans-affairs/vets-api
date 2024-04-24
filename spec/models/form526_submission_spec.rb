@@ -800,9 +800,15 @@ RSpec.describe Form526Submission do
       end
 
       it 'queues a 4142 job' do
+        if Flipper.enabled?(:submit_form_4142_using_lighthouse)
+          klass = Lighthouse::SubmitForm4142Job
+        else
+          klass = CentralMail::SubmitForm4142Job
+        end
+
         expect do
           subject.perform_ancillary_jobs(first_name)
-        end.to change(CentralMail::SubmitForm4142Job.jobs, :size).by(1)
+        end.to change(klass.jobs, :size).by(1)
       end
     end
 

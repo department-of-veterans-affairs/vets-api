@@ -381,19 +381,21 @@ class Form526Submission < ApplicationRecord
   #
   def perform_ancillary_jobs(first_name)
     workflow_batch = Sidekiq::Batch.new
+
     workflow_batch.on(
       :success,
       'Form526Submission#workflow_complete_handler',
       'submission_id' => id,
       'first_name' => first_name
     )
+
     workflow_batch.jobs do
-      submit_uploads if form[FORM_526_UPLOADS].present?
-      submit_form_4142 if form[FORM_4142].present?
-      submit_form_0781 if form[FORM_0781].present?
-      submit_form_8940 if form[FORM_8940].present?
+      submit_uploads          if form[FORM_526_UPLOADS].present?
+      submit_form_4142        if form[FORM_4142].present?      
+      submit_form_0781        if form[FORM_0781].present?
+      submit_form_8940        if form[FORM_8940].present?
       upload_bdd_instructions if bdd?
-      submit_flashes if form[FLASHES].present?
+      submit_flashes          if form[FLASHES].present?
       cleanup
     end
   end
@@ -477,7 +479,7 @@ class Form526Submission < ApplicationRecord
 
   def submit_form_4142
     if Flipper.enabled?(:submit_form_4142_using_lighthouse)
-      LightHouse::SubmitForm4142Job.perform_async(id)
+      Lighthouse::SubmitForm4142Job.perform_async(id)
     else
       CentralMail::SubmitForm4142Job.perform_async(id)
     end

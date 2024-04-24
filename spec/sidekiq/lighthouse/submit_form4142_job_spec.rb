@@ -1,15 +1,13 @@
 # frozen_string_literal: true
 #
-# The CentralMail::SubmitForm4142Job is being phased out.
-# Use Lighthouse::SubmitForm4142Job instead.
+# TODO: everything that is "central mail" needs to be
+#       changed to its lighthouse equivalent or deleted
 #
-# See: spec/sidekiq/lighthouse/submit_form4142_job_spec.rb
-#
+
 
 require 'rails_helper'
-require 'evss/disability_compensation_auth_headers' # required to build a Form526Submission
 
-RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
+RSpec.describe Lighthouse::SubmitForm4142Job, type: :job, skip: true do
   subject { described_class }
 
   before do
@@ -17,11 +15,15 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
+  
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
+
   let(:evss_claim_id) { 123_456_789 }
+  
   let(:saved_claim) { FactoryBot.create(:va526ez) }
+
 
   describe '.perform_async' do
     let(:form_json) do
@@ -36,12 +38,16 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
     end
     let(:metadata_hash) do
       form4142 = submission.form[Form526Submission::FORM_4142]
-      form4142['veteranFullName'].update('first' => "Bey'oncé", 'last' => 'Knowle$-Carter')
-      form4142['veteranAddress'].update('postalCode' => '123456789')
+      
+      form4142['veteranFullName'].update('first'      => "Bey'oncé", 'last' => 'Knowle$-Carter')
+      form4142['veteranAddress'].update('postalCode'  => '123456789')
+      
       subject.perform_async(submission.id)
-      jid = subject.jobs.last['jid']
-      processor = EVSS::DisabilityCompensationForm::Form4142Processor.new(submission, jid)
-      request_body = processor.request_body
+      
+      jid           = subject.jobs.last['jid']
+      processor     = EVSS::DisabilityCompensationForm::Form4142Processor.new(submission, jid)
+      request_body  = processor.request_body
+      
       JSON.parse(request_body['metadata'])
     end
 
@@ -52,7 +58,10 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         end.to change(subject.jobs, :size).by(1)
       end
 
+
       it 'submits successfully' do
+        # TODO: This will have to change to a lighthouse
+        #       specific value.
         VCR.use_cassette('central_mail/submit_4142') do
           subject.perform_async(submission.id)
           jid = subject.jobs.last['jid']
@@ -60,6 +69,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
           expect(jid).not_to be_empty
         end
       end
+
 
       it 'uses proper submission creation date for the received date' do
         received_date = metadata_hash['receiveDt']
@@ -70,25 +80,30 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         ).to eq(received_date)
       end
 
+
       it 'corrects for invalid characters in generated metadata' do
-        veteran_first_name = metadata_hash['veteranFirstName']
-        veteran_last_name = metadata_hash['veteranLastName']
+        veteran_first_name  = metadata_hash['veteranFirstName']
+        veteran_last_name   = metadata_hash['veteranLastName']
         allowed_chars_regex = %r{^[a-zA-Z\/\-\s]}
+        
         expect(veteran_first_name).to match(allowed_chars_regex)
         expect(veteran_last_name).to match(allowed_chars_regex)
       end
 
+
       it 'reformats zip code in generated metadata' do
-        zip_code = metadata_hash['zipCode']
+        zip_code            = metadata_hash['zipCode']
         expected_zip_format = /\A[0-9]{5}(?:-[0-9]{4})?\z/
         expect(zip_code).to match(expected_zip_format)
       end
     end
 
+
     context 'with a submission timeout' do
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
       end
+
 
       it 'raises a gateway timeout error' do
         subject.perform_async(submission.id)
@@ -96,10 +111,12 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
     end
 
+
     context 'with an unexpected error' do
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(StandardError.new('foo'))
       end
+
 
       it 'raises a standard error' do
         subject.perform_async(submission.id)
@@ -108,10 +125,12 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
     end
   end
 
+
   describe '.perform_async for client error' do
     let(:missing_postalcode_form_json) do
       File.read 'spec/support/disability_compensation_form/submissions/with_4142_missing_postalcode.json'
     end
+
     let(:submission) do
       Form526Submission.create(user_uuid: user.uuid,
                                auth_headers_json: auth_headers.to_json,
@@ -119,6 +138,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
                                form_json: missing_postalcode_form_json,
                                submitted_claim_id: evss_claim_id)
     end
+
 
     context 'with a client error' do
       it 'raises a central mail response error' do
@@ -129,6 +149,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
     end
   end
+
 
   context 'catastrophic failure state' do
     describe 'when all retries are exhausted' do

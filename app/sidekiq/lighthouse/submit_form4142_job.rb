@@ -21,9 +21,84 @@
     3. Include that library in the old JOB and the new JOB
     4. write some new specs.
 
-  Questions:
-    Should this new JOB ge generic for any PDF or just for a 4142?
-      Assume its just for a 4142.
+
+This is what the Form4142 looks like from the
+Form526Submission model which invokes this job:
+
+form[FORM_4142] -=> {"privacyAgreementAccepted"=>true,
+ "limitedConsent"=>"true",
+ "providerFacility"=>
+  [{"providerFacilityName"=>"provider 1",
+    "treatmentDateRange"=>
+     [{"from"=>"1980-1-1", "to"=>"1985-1-1"},
+      {"from"=>"1986-1-1", "to"=>"1987-1-1"}],
+    "providerFacilityAddress"=>
+     {"street"=>"123 Main Street",
+      "street2"=>"1B",
+      "city"=>"Baltimore",
+      "state"=>"MD",
+      "country"=>"USA",
+      "postalCode"=>"21200-1111"}},
+   {"providerFacilityName"=>"provider 2",
+    "treatmentDateRange"=>
+     [{"from"=>"1980-2-1", "to"=>"1985-2-1"},
+      {"from"=>"1986-2-1", "to"=>"1987-2-1"}],
+    "providerFacilityAddress"=>
+     {"street"=>"456 Main Street",
+      "street2"=>"1B",
+      "city"=>"Baltimore",
+      "state"=>"MD",
+      "country"=>"USA",
+      "postalCode"=>"21200-1111"}},
+   {"providerFacilityName"=>"provider 3",
+    "treatmentDateRange"=>
+     [{"from"=>"1980-3-1", "to"=>"1985-3-1"},
+      {"from"=>"1986-3-1", "to"=>"1987-3-1"}],
+    "providerFacilityAddress"=>
+     {"street"=>"789 Main Street",
+      "street2"=>"1B",
+      "city"=>"Baltimore",
+      "state"=>"MD",
+      "country"=>"USA",
+      "postalCode"=>"21200-1111"}},
+   {"providerFacilityName"=>"provider 4",
+    "treatmentDateRange"=>
+     [{"from"=>"1980-4-1", "to"=>"1985-4-1"},
+      {"from"=>"1986-4-1", "to"=>"1987-4-1"}],
+    "providerFacilityAddress"=>
+     {"street"=>"101 Main Street",
+      "street2"=>"1B",
+      "city"=>"Baltimore",
+      "state"=>"MD",
+      "country"=>"USA",
+      "postalCode"=>"21200-1111"}},
+   {"providerFacilityName"=>"provider 5",
+    "treatmentDateRange"=>
+     [{"from"=>"1980-5-1", "to"=>"1985-5-1"},
+      {"from"=>"1986-5-1", "to"=>"1987-5-1"}],
+    "providerFacilityAddress"=>
+     {"street"=>"102 Main Street",
+      "street2"=>"1B",
+      "city"=>"Baltimore",
+      "state"=>"MD",
+      "country"=>"USA",
+      "postalCode"=>"21200-1111"}}],
+ "vaFileNumber"=>"796068949",
+ "veteranSocialSecurityNumber"=>"796068949",
+ "veteranFullName"=>{"first"=>"Beyonce", "middle"=>nil, "last"=>"Knowles"},
+ "veteranDateOfBirth"=>"1809-02-12",
+ "veteranAddress"=>
+  {"city"=>"Portland",
+   "country"=>"USA",
+   "postalCode"=>"12345-6789",
+   "street"=>"1234 Couch Street",
+   "street2"=>"Apt. 22",
+   "state"=>"OR"},
+ "email"=>"test@email.com",
+ "veteranPhone"=>"2024561111",
+ "veteranServiceNumber"=>""
+}
+
 
 =end
 
@@ -63,19 +138,20 @@ module Lighthouse
     end
 
 
-    # SMELL:  Why did I name this param "as_pdf"
-    #         that is different than the central mail method
+    # form526_submission_id is the ActiveRecord primary
+    # key value to the Form526Submission table.
     #
-    def perform(form_4142_as_pdf)
-      # TODO: What kind of object is form_4142_as_pdf?
-      #       in CentralMail's job it is a submission_id
-      #
-      # TODO: who will kick-off this JOB?
-      #       comes out of the 526 model class
-      #       ?? and from the older CentralMail job ??
-      #
-      # TODO: what needs to be done to the object?
-      #       ??? good question ???
+    # This job is kicked-off by the Form526Submission model
+    # as part of a workflow batch of jobs to submit all the
+    # forms associated with the Form526 package.
+    #
+    def perform(form526_submission_id)
+      # TODO: How do you use the Lighthouse API to submit a
+      #       form?  
+      # TODO: In the old_perform below, the saved_claim_id
+      #       is used to get a SavedClaim model instance.
+      #       How does that differ from what is available via
+      #       the Form526Submission model?
     end
 
 
