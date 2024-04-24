@@ -20,17 +20,23 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
   describe '#call' do
     context 'when Crm raise an error' do
       let(:icn) { '123' }
-      let(:response) do
-        { Data: nil,
-          Message: 'Data Validation: No Contact found by ICN',
-          ExceptionOccurred: true,
-          ExceptionMessage: 'Data Validation: No Contact found by ICN',
-          MessageId: '2733ca25-7e64-4fbc-af2c-366f4bd2e3dc' }
+      let(:body) do
+        '{"Data":null,"Message":"Data Validation: No Inquiries found by ID A-20240423-30709"' \
+          ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Inquiries found by ' \
+          'ID A-20240423-30709","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
+      end
+      let(:failure) do
+        {
+          status: 400,
+          body:,
+          response_headers: nil,
+          url: nil
+        }
       end
 
       before do
         allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
-        allow(service).to receive(:call).and_return(response)
+        allow(service).to receive(:call).and_return(failure)
       end
 
       it 'raise CorrespondenceRetrieverrError' do
