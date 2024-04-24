@@ -13,6 +13,7 @@ RSpec.describe FormProfile, type: :model do
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+    Flipper.disable(:profile_ppiu_reject_requests)
   end
 
   let(:street_check) { build(:street_check) }

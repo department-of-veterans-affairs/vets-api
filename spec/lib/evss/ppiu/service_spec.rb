@@ -202,11 +202,11 @@ describe EVSS::PPIU::Service do
     end
   end
 
-  context "PPIU rejection flag enabled" do
+  context 'PPIU rejection flag enabled' do
     before do
       Flipper.enable(:profile_ppiu_reject_requests)
     end
-  
+
     context 'with a loa3 user' do
       it 'rejects access' do
         VCR.use_cassette('evss/ppiu/payment_information') do

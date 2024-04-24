@@ -80,7 +80,7 @@ describe PPIUPolicy do
     end
   end
 
-  context "PPIU rejection flag enabled" do
+  context 'PPIU rejection flag enabled' do
     before do
       Flipper.enable(:profile_ppiu_reject_requests)
     end
