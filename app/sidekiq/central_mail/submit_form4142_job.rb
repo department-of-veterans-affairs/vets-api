@@ -27,6 +27,7 @@ module CentralMail
     LIGHTHOUSE_STATSD_KEY_PREFIX = 'worker.lighthouse.submit_form4142'
 
     class BenefitsIntake4142Error < StandardError; end
+    class VeteranCountryNotDefined < StandardError; end
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']
@@ -124,14 +125,43 @@ module CentralMail
 
     def upload_to_lighthouse
       @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
+
       payload = {
         upload_url: @lighthouse_service.location,
         file: { file: @pdf_path, file_name: @pdf_path.split('/').last },
         metadata: generate_metadata.to_json,
-        attachments: [] # wipn8923 is this better than nil?
+        attachments: [] # [ wipn8923 ] TODO: is this better than nil?
       }
 
       @lighthouse_service.upload_doc(**payload)
+    end
+
+    def generate_metadata
+      vet_name = submission.full_name
+      filenumber = submission.auth_headers['va_eauth_birlsfilenumber']
+
+      metadata = {
+        'veteranFirstName' => vet_name[:first],
+        'veteranLastName' => vet_name[:last],
+        'zipCode' => determine_zip,
+        'source' => "Form526Submission va.gov",
+        'docType' => '4142',
+        'businessLine' => '',
+        'fileNumber' => filenumber # wipn8923 TODO: validate that this is correct
+      }
+
+      SimpleFormsApiSubmission::MetadataValidator
+        .validate(metadata, zip_code_is_us_based: usa_based?)
+    end
+
+    def usa_based?
+      country = (
+        subission.form.dig('form526', 'form526', 'veteran', 'currentMailingAddress', 'country') ||
+        subission.form.dig('form526', 'form526', 'veteran', 'mailingAddress', 'country')
+      )
+      raise VeteranCountryNotDefined if country.blank?
+
+      %w[USA US].include?(country.upcase)
     end
 
     # Cannot move job straight to dead queue dynamically within an executing job
