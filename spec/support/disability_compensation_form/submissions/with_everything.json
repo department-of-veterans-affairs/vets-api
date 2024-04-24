@@ -250,7 +250,7 @@
           "startDate": "1991-03-01",
           "endDate": "1992-01-01"
         },
-        "toxicExposureConditions": {
+        "conditions": {
           "deviatedseptum": true
         }
       }
