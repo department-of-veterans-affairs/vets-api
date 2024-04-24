@@ -34,12 +34,6 @@ module PdfFill
             limit: 1,
             question_text: "DECEASED VETERAN'S MIDDLE INITIAL"
           },
-          'middle' => {
-            key: 'form1[0].#subform[82].VeteransMiddleInitialNotReal[0]',
-            question_num: 1,
-            limit: 0,
-            question_text: "DECEASED VETERAN'S MIDDLE NAME"
-          },
           'last' => {
             key: 'form1[0].#subform[82].VeteransLastName[0]',
             limit: 18,
@@ -146,12 +140,6 @@ module PdfFill
           },
           'middleInitial' => {
             key: 'form1[0].#subform[82].ClaimantsMiddleInitial1[0]'
-          },
-          'middle' => {
-            key: 'form1[0].#subform[82].ClaimantsMiddleInitial1[0]',
-            limit: 0,
-            question_num: 7,
-            question_text: "CLAIMANT'S MIDDLE NAME"
           },
           'last' => {
             key: 'form1[0].#subform[82].ClaimantsLastName[0]',
@@ -282,10 +270,10 @@ module PdfFill
           'executor' => {
             key: 'form1[0].#subform[82].CheckboxExecutor[0]'
           },
-          'funeralHome' => {
+          'funeralDirector' => {
             key: 'form1[0].#subform[82].CheckboxFuneralHome[0]'
           },
-          'other' => {
+          'otherFamily' => {
             key: 'form1[0].#subform[82].CheckboxOther[0]'
           }
         },
@@ -631,6 +619,14 @@ module PdfFill
         @form_data['stateCemeteryOrTribalTrustZip'] = cemetery_location['zip'] if cemetery_location['zip'].present?
       end
 
+      def expand_tribal_land_location
+        cemetery_location = @form_data['tribalLandLocation']
+        return if cemetery_location.blank?
+
+        @form_data['stateCemeteryOrTribalTrustName'] = cemetery_location['name'] if cemetery_location['name'].present?
+        @form_data['stateCemeteryOrTribalTrustZip'] = cemetery_location['zip'] if cemetery_location['zip'].present?
+      end
+
       # VA file number can be up to 10 digits long; An optional leading 'c' or 'C' followed by
       # 7-9 digits. The file number field on the 4142 form has space for 9 characters so trim the
       # potential leading 'c' to ensure the file number will fit into the form without overflow.
@@ -666,7 +662,7 @@ module PdfFill
       def expand_location_question
         cemetery_location = @form_data['cemetaryLocationQuestion']
         @form_data['cemetaryLocationQuestionCemetery'] = select_checkbox(cemetery_location == 'cemetery')
-        @form_data['cemetaryLocationQuestionTribal'] = select_checkbox(cemetery_location == 'tribal')
+        @form_data['cemetaryLocationQuestionTribal'] = select_checkbox(cemetery_location == 'tribalLand')
         @form_data['cemetaryLocationQuestionNone'] = select_checkbox(cemetery_location == 'none')
       end
 
@@ -714,8 +710,8 @@ module PdfFill
           'child' => select_checkbox(relationship_to_veteran == 'child'),
           'executor' => select_checkbox(relationship_to_veteran == 'executor'),
           'parent' => select_checkbox(relationship_to_veteran == 'parent'),
-          'funeralHome' => select_checkbox(relationship_to_veteran == 'funeralHome'),
-          'other' => select_checkbox(relationship_to_veteran == 'other')
+          'funeralDirector' => select_checkbox(relationship_to_veteran == 'funeralDirector'),
+          'otherFamily' => select_checkbox(relationship_to_veteran == 'otherFamily')
         }
 
         # special case for transportation being the only option selected.
@@ -730,16 +726,18 @@ module PdfFill
         end
 
         expand_cemetery_location
+        expand_tribal_land_location
+
+        # special case: the UI only has a 'yes' checkbox, so the PDF 'noTransportation' checkbox can never be true.
+        @form_data['hasTransportation'] = @form_data['transportation'] == true ? 'YES' : nil
 
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
         burial_expense_responsibility = @form_data['burialExpenseResponsibility']
         @form_data['hasBurialExpenseResponsibility'] = burial_expense_responsibility ? 'On' : nil
-        @form_data['noBurialExpenseResponsibility'] = burial_expense_responsibility ? nil : 'On'
 
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
         plot_expense_responsibility = @form_data['plotExpenseResponsibility']
         @form_data['hasPlotExpenseResponsibility'] = plot_expense_responsibility ? 'On' : nil
-        @form_data['noPlotExpenseResponsibility'] = plot_expense_responsibility ? nil : 'On'
 
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
         process_option = @form_data['processOption']
@@ -771,7 +769,6 @@ module PdfFill
           govtContributions
           previouslyReceivedAllowance
           allowanceStatementOfTruth
-          transportation
         ].each do |attr|
           expand_checkbox_in_place(@form_data, attr)
         end

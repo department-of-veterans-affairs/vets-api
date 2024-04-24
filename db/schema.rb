@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_10_212727) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_17_130647) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -51,6 +51,81 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_10_212727) do
     t.index ["logingov_uuid"], name: "index_accounts_on_logingov_uuid", unique: true
     t.index ["sec_id"], name: "index_accounts_on_sec_id"
     t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
+  end
+
+  create_table "accredited_individuals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "ogc_id", null: false
+    t.string "registration_number", null: false
+    t.string "poa_code", limit: 3
+    t.string "individual_type", null: false
+    t.string "first_name"
+    t.string "middle_initial"
+    t.string "last_name"
+    t.string "full_name"
+    t.string "email"
+    t.string "phone"
+    t.string "address_type"
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "address_line3"
+    t.string "city"
+    t.string "country_code_iso3"
+    t.string "country_name"
+    t.string "county_name"
+    t.string "county_code"
+    t.string "international_postal_code"
+    t.string "province"
+    t.string "state_code"
+    t.string "zip_code"
+    t.string "zip_suffix"
+    t.jsonb "raw_address"
+    t.float "lat"
+    t.float "long"
+    t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["full_name"], name: "index_accredited_individuals_on_full_name"
+    t.index ["location"], name: "index_accredited_individuals_on_location", using: :gist
+    t.index ["poa_code"], name: "index_accredited_individuals_on_poa_code"
+    t.index ["registration_number", "individual_type"], name: "index_on_reg_num_and_type_for_accredited_individuals", unique: true
+  end
+
+  create_table "accredited_individuals_accredited_organizations", force: :cascade do |t|
+    t.uuid "accredited_individual_id", null: false
+    t.uuid "accredited_organization_id", null: false
+    t.index ["accredited_individual_id", "accredited_organization_id"], name: "index_accredited_on_indi_and_org_ids", unique: true
+    t.index ["accredited_individual_id"], name: "idx_on_accredited_individual_id_94f42eefad"
+    t.index ["accredited_organization_id"], name: "idx_on_accredited_organization_id_a394d1de51"
+  end
+
+  create_table "accredited_organizations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "ogc_id", null: false
+    t.string "poa_code", limit: 3, null: false
+    t.string "name"
+    t.string "phone"
+    t.string "address_type"
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "address_line3"
+    t.string "city"
+    t.string "country_code_iso3"
+    t.string "country_name"
+    t.string "county_name"
+    t.string "county_code"
+    t.string "international_postal_code"
+    t.string "province"
+    t.string "state_code"
+    t.string "zip_code"
+    t.string "zip_suffix"
+    t.jsonb "raw_address"
+    t.float "lat"
+    t.float "long"
+    t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["location"], name: "index_accredited_organizations_on_location", using: :gist
+    t.index ["name"], name: "index_accredited_organizations_on_name"
+    t.index ["poa_code"], name: "index_accredited_organizations_on_poa_code", unique: true
   end
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -203,6 +278,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_10_212727) do
     t.index ["transaction_id"], name: "index_async_transactions_on_transaction_id"
     t.index ["user_account_id"], name: "index_async_transactions_on_user_account_id"
     t.index ["user_uuid"], name: "index_async_transactions_on_user_uuid"
+  end
+
+  create_table "average_days_for_claim_completions", force: :cascade do |t|
+    t.float "average_days"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "base_facilities", id: false, force: :cascade do |t|
@@ -749,6 +830,20 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_10_212727) do
     t.index ["edipi"], name: "index_invalid_letter_address_edipis_on_edipi"
   end
 
+  create_table "ivc_champva_forms", force: :cascade do |t|
+    t.string "email"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "form_number"
+    t.string "file_name"
+    t.uuid "form_uuid"
+    t.string "s3_status"
+    t.string "pega_status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_ivc_champva_forms_on_email", unique: true
+  end
+
   create_table "maintenance_windows", id: :serial, force: :cascade do |t|
     t.string "pagerduty_id"
     t.string "external_service"
@@ -840,7 +935,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_10_212727) do
   end
 
   create_table "personal_information_logs", id: :serial, force: :cascade do |t|
-    t.jsonb "data", null: false
     t.string "error_class", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -1216,9 +1310,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_10_212727) do
     t.datetime "updated_at", null: false
     t.string "poa_codes", default: [], array: true
     t.string "user_types", default: [], array: true
-    t.text "ssn_ciphertext"
-    t.text "dob_ciphertext"
-    t.text "encrypted_kms_key"
     t.string "middle_initial"
     t.string "address_type"
     t.string "city"
@@ -1426,6 +1517,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_10_212727) do
   end
 
   add_foreign_key "account_login_stats", "accounts"
+  add_foreign_key "accredited_individuals_accredited_organizations", "accredited_individuals"
+  add_foreign_key "accredited_individuals_accredited_organizations", "accredited_organizations"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"

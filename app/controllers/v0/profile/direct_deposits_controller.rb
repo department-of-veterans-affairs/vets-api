@@ -11,13 +11,15 @@ module V0
     class DirectDepositsController < ApplicationController
       service_tag 'direct-deposit'
       before_action { authorize :lighthouse, :direct_deposit_access? }
-      before_action :payment_account, only: :update
-      before_action :control_information, only: :update
+
       after_action :log_sso_info, only: :update
 
       rescue_from(*Lighthouse::ServiceException::ERROR_MAP.values) do |exception|
         error = { status: exception.status_code, body: exception.errors.first }
         response = Lighthouse::DirectDeposit::ErrorParser.parse(error)
+
+        # temporary - will be removed after direct deposit merge is complete
+        update_error_code_prefix(response) if single_form_enabled?
 
         render status: response.status, json: response.body
       end
@@ -25,12 +27,19 @@ module V0
       def show
         response = client.get_payment_info
 
+        set_control_information(response.body[:control_information])
+        log_control_info(@control_information, 'Show')
+
         render status: response.status,
                json: response.body,
                serializer: DisabilityCompensationsSerializer
       end
 
       def update
+        set_control_information(control_info_params)
+        set_payment_account(payment_account_params)
+
+        log_control_info(@control_information, 'Update')
         response = client.update_payment_info(@payment_account)
         send_confirmation_email
 
@@ -41,16 +50,34 @@ module V0
 
       private
 
+      def log_control_info(control_info, action)
+        ::Rails.logger.info("Direct Deposit Control Info: #{action}",
+                            { benefit_type: control_info.benefit_type,
+                              updatable: control_info.account_updatable?,
+                              valid: control_info.valid?,
+                              restrictions: control_info.restrictions.join(', '),
+                              errors: control_info.errors.join(', ') })
+      end
+
+      def single_form_enabled?
+        Flipper.enabled?(:profile_show_direct_deposit_single_form, @current_user)
+      end
+
+      def update_error_code_prefix(response)
+        response.code = response.code.sub('cnp.payment', 'direct.deposit')
+      end
+
       def client
         @client ||= DirectDeposit::Client.new(@current_user.icn)
       end
 
-      def payment_account
-        @payment_account ||= Lighthouse::DirectDeposit::PaymentAccount.new(payment_account_params)
+      def set_payment_account(params)
+        @payment_account ||= Lighthouse::DirectDeposit::PaymentAccount.new(params)
       end
 
-      def control_information
-        @control_information ||= Lighthouse::DirectDeposit::ControlInformation.new(control_info_params)
+      def set_control_information(params)
+        @control_information ||= Lighthouse::DirectDeposit::ControlInformation.new
+        @control_information.assign_attributes(params)
       end
 
       def payment_account_params
@@ -73,11 +100,11 @@ module V0
                       :has_no_fiduciary_assigned,
                       :is_not_deceased,
                       :has_payment_address,
-                      :has_indentity)
+                      :has_identity)
       end
 
       def send_confirmation_email
-        VANotifyDdEmailJob.send_to_emails(current_user.all_emails, 'comp_and_pen')
+        VANotifyDdEmailJob.send_to_emails(current_user.all_emails)
       end
     end
   end
