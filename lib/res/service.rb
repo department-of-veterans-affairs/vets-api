@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'vre/configuration'
+require 'res/configuration'
 require 'common/client/base'
 
 # The RES::Service class is where we keep RES related endpoint calls and common methods

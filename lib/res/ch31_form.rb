@@ -13,7 +13,7 @@ module RES
     SENTRY_TAG = { team: 'vfs-ebenefits' }.freeze
 
     def initialize(user:, claim:)
-      super
+      super()
       @user = user
       @claim = claim
     end
@@ -58,19 +58,20 @@ module RES
         isMoving: form_data['isMoving'],
         mainPhone: form_data['mainPhone'],
         cellNumber: form_data['cellPhone'],
-        # internationalNumber: form_data['internationalNumber'],
+        internationalNumber: form_data['internationalNumber'],
         email: form_data['email'],
         documentId: form_data.dig('supportingDocuments', 0, 'documentId'), # or @claim.guid
-        receivedDate: @claim.created_at
+        receivedDate: @claim.created_at,
+        veteranAddress: mapped_address_hash(form_data['veteranAddress'])
       }
 
-      res_payload[:data].merge!(veteran_address(form_data))
-      res_payload[:data].merge!({ veteranInformation: adjusted_veteran_information })
-      res_payload[:data].merge!(new_address) if form_data['newAddress'].present?
+      res_payload.merge!({ veteranInformation: adjusted_veteran_information })
+      res_payload.merge!(new_address) if form_data['newAddress'].present?
 
       res_payload.to_json
     end
 
+    # TODO: determine need
     def veteran_address(form_data)
       vet_address = mapped_address_hash(form_data['veteranAddress'])
 
