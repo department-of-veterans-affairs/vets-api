@@ -82,15 +82,15 @@ describe TravelPay::Client do
             'data' => [
               {
                 'id' => 'uuid1',
-                'modified_on' => '2024-01-01'
+                'modifiedOn' => '2024-01-01'
               },
               {
                 'id' => 'uuid2',
-                'modified_on' => '2024-03-01'
+                'modifiedOn' => '2024-03-01'
               },
               {
                 'id' => 'uuid3',
-                'modified_on' => '2024-02-01'
+                'modifiedOn' => '2024-02-01'
               }
             ]
           }
@@ -101,7 +101,7 @@ describe TravelPay::Client do
 
       client = TravelPay::Client.new
       claims = client.get_claims('veis_token', 'btsss_token')
-      actual_claim_ids = claims.pluck(:id)
+      actual_claim_ids = claims[:data].pluck(:id)
 
       expect(actual_claim_ids).to eq(expected_ordered_ids)
     end
