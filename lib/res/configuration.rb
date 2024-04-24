@@ -16,11 +16,11 @@ module RES
     end
 
     def mock_enabled?
-      Settings.readiness_and_employment_system.mock_ch_31 || false
+      Settings.res.mock_ch_31 || false
     end
 
     def base_path
-      Settings.readiness_and_employment_system.base_url
+      Settings.res.base_url
     end
 
     def service_name

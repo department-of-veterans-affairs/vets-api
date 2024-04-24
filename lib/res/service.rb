@@ -21,14 +21,14 @@ module RES
 
     def request_headers
       {
-        'Appian-API-Key': Settings.readiness_and_employment_system.api_key
+        'Appian-API-Key': Settings.res.api_key
       }
     end
 
     private
 
     def end_point
-      "#{Settings.veteran_readiness_and_employment.base_url}/suite/webapi/form281900"
+      "#{Settings.res.base_url}/suite/webapi/form281900"
     end
   end
 end
