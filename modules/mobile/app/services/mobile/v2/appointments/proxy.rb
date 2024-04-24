@@ -36,6 +36,7 @@ module Mobile
             { missing_providers: }
           ]
           failures.reject! { |failure| failure.values.first&.empty? }
+          Rails.logger.info('Mobile Appointment Partial Error', errors: failures) if failures.any?
 
           [appointments.sort_by(&:start_date_utc), failures]
         end

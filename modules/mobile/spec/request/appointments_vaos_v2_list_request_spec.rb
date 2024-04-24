@@ -107,7 +107,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
             end
           end
         end
-        expect(response).to have_http_status(:multi_status)
+        expect(response).to have_http_status(:ok)
         expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error',
                                                           errors: [{ missing_facilities: ['983'] }])
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
@@ -168,7 +168,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
             end
           end
         end
-        expect(response).to have_http_status(:multi_status)
+        expect(response).to have_http_status(:ok)
         expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error',
                                                           errors: [{ missing_facilities: ['999AA'] },
                                                                    { missing_clinics: ['999'] }])
@@ -310,7 +310,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
               end
             end
           end
-          expect(response).to have_http_status(:multi_status)
+          expect(response).to have_http_status(:ok)
           expect(appointment['attributes']['healthcareProvider']).to be_nil
           expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error',
                                                             errors: [{ missing_providers: ['1407938061'] }])
@@ -329,7 +329,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
               end
             end
           end
-          expect(response).to have_http_status(:multi_status)
+          expect(response).to have_http_status(:ok)
           expect(appointment['attributes']['healthcareProvider']).to be_nil
           expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error',
                                                             errors: [{ missing_providers: ['1407938061'] }])
