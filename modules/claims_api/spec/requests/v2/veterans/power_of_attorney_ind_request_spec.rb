@@ -10,8 +10,8 @@ RSpec.describe 'Power Of Attorney', type: :request do
   let(:appoint_individual_path) { "/services/claims/v2/veterans/#{veteran_id}/2122a" }
   let(:validate2122a_path) { "/services/claims/v2/veterans/#{veteran_id}/2122a/validate" }
   let(:scopes) { %w[system/claim.write system/claim.read] }
-  let(:individual_poa_code) { 'A1H' }
-  let(:organization_poa_code) { '083' }
+  let(:individual_poa_code) { '072' }
+  let(:organization_poa_code) { '067' }
   let(:bgs_poa) { { person_org_name: "#{individual_poa_code} name-here" } }
   let(:local_bgs) { ClaimsApi::LocalBGS }
 
