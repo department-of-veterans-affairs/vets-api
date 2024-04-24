@@ -12,6 +12,15 @@ require 'bgs_service/bgs_helpers'
 require 'bgs_service/miscellaneous_bgs_operations'
 
 module ClaimsApi
+  # @deprecated Use {BGSClient.perform_request} instead. There ought to be a
+  #   clear separation between the single method that performs the transport to
+  #   BGS and any business logic that invokes said transport. By housing that
+  #   single method as an instance method of this class, we encouraged
+  #   business logic modules to inherit this class and then inevitably start to
+  #   conflate business logic back into the transport layer here. There was a
+  #   particularly easy temptation to put business object state validation as
+  #   well as the dumping and loading of business object state into this layer,
+  #   but that should live in the business logic layer and not here.
   class LocalBGS
     include ClaimsApi::MiscellaneousBGSOperations
     include ClaimsApi::BGSHelpers
