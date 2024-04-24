@@ -41,8 +41,12 @@ module ClaimsApi
             response =
               log_duration('connection_post') do
                 connection.post(@definition.service.path) do |req|
-                  req.headers['Soapaction'] = %("#{@definition.action.name}")
                   req.body = request_body
+                  req.headers.merge!(
+                    'Soapaction' => %("#{@definition.action.name}"),
+                    'Content-Type' => 'text/xml;charset=UTF-8',
+                    'Host' => "#{Settings.bgs.env}.vba.va.gov"
+                  )
                 end
               end
           rescue Faraday::TimeoutError, Faraday::ConnectionFailed => e
@@ -137,7 +141,16 @@ module ClaimsApi
         end
 
         def connection
-          @connection ||= BGSClient.send(:build_connection)
+          @connection ||=
+            BGSClient.send(:build_connection) do |conn|
+              # Should all of this connection configuration really not be
+              # involved in the BGS service healthcheck performed by
+              # `BGSClient.healthcheck`? Under the hood, that just fetches WSDL
+              # which we also do here but with "smarter" connection config.
+              conn.options.timeout = Settings.bgs.timeout || 120
+              conn.adapter Faraday.default_adapter
+              conn.use :breakers
+            end
         end
 
         def log_duration(event_name)
