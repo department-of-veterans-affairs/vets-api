@@ -30,7 +30,8 @@ module MyHealth
           comparison
         end
         sort_params.each_with_index do |field, index|
-          (resource.metadata[:sort] ||= {}).merge!({ field => sort_orders[index] ? 'DESC' : 'ASC' }) if field.present?
+          field_camelcase = field.sub(/^-/, '').gsub(/_([a-z])/) { ::Regexp.last_match(1).upcase }
+          (resource.metadata[:sort] ||= {}).merge!({ field_camelcase => sort_orders[index] ? 'DESC' : 'ASC' }) if field.present?
         end
         resource
       end
