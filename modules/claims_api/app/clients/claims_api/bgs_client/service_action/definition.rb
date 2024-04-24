@@ -3,30 +3,24 @@
 module ClaimsApi
   module BGSClient
     module ServiceAction
-      class Definition < Data.define(:service, :action)
-        Service = Data.define(:path, :namespaces)
-        Action = Data.define(:name)
+      class Definition <
+        Data.define(
+          :service_path,
+          :service_namespaces,
+          :action_name
+        )
 
-        class ManageRepresentativeService < Service
-          include Singleton
+        module ManageRepresentativeService
+          service = {
+            service_path: 'VDC/ManageRepresentativeService',
+            service_namespaces: { 'data' => '/data' }
+          }
 
-          def initialize
-            super(
-              path: 'VDC/ManageRepresentativeService',
-              namespaces: { 'data' => '/data' }
+          ReadPoaRequest =
+            Definition.new(
+              action_name: 'readPOARequest',
+              **service
             )
-          end
-
-          class ReadPoaRequest < Definition
-            include Singleton
-
-            def initialize
-              super(
-                service: ManageRepresentativeService.instance,
-                action: Action.new(name: 'readPOARequest'),
-              )
-            end
-          end
         end
       end
     end
