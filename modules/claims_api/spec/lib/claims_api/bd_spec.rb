@@ -24,7 +24,8 @@ describe ClaimsApi::BD do
     end
 
     it 'uploads an attachment to BD' do
-      result = subject.send(:generate_upload_body, claim:, doc_type: 'L023', pdf_path:)
+      result = subject.send(:generate_upload_body, claim:, doc_type: 'L023', original_filename: '21-526EZ.pdf',
+                                                   pdf_path:)
       js = JSON.parse(result[:parameters].read)
       expect(js['data']['docType']).to eq 'L023'
     end

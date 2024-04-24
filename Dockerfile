@@ -1,4 +1,9 @@
-FROM ruby:3.2.3-slim-bullseye AS rubyimg
+FROM ruby:3.2.3-slim-bookworm as rubyimg
+
+# XXX: using stretch here for pdftk dep, which is not availible after
+#      stretch (or in alpine) and is switched automatically to pdftk-java in buster
+#      https://github.com/department-of-veterans-affairs/va.gov-team/issues/3032
+
 FROM rubyimg AS modules
 
 WORKDIR /tmp
