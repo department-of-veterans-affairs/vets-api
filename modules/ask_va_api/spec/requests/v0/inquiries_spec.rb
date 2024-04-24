@@ -357,14 +357,24 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
     context 'when crm api fail' do
       context 'when the API call fails' do
+        let(:body) do
+          '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
+            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+            'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
+        end
+        let(:failure) do
+          {
+            status: 400,
+            body:,
+            response_headers: nil,
+            url: nil
+          }
+        end
+
         before do
           allow_any_instance_of(Crm::Service).to receive(:call)
             .with(endpoint:, method: :put,
-                  payload:).and_return({ Data: nil,
-                                         Message: 'Data Validation: missing InquiryCategory',
-                                         ExceptionOccurred: true,
-                                         ExceptionMessage: 'Data Validation: missing InquiryCategory',
-                                         MessageId: '13bc59ea-c90a-4d48-8979-fe71e0f7ddeb' })
+                  payload:).and_return(failure)
           sign_in(authorized_user)
           post '/ask_va_api/v0/inquiries/auth', params: payload
         end
@@ -404,14 +414,24 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
     context 'when crm api fail' do
       context 'when the API call fails' do
+        let(:body) do
+          '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
+            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+            'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
+        end
+        let(:failure) do
+          {
+            status: 400,
+            body:,
+            response_headers: nil,
+            url: nil
+          }
+        end
+
         before do
           allow_any_instance_of(Crm::Service).to receive(:call)
             .with(endpoint:, method: :put,
-                  payload:).and_return({ Data: nil,
-                                         Message: 'Data Validation: missing InquiryCategory',
-                                         ExceptionOccurred: true,
-                                         ExceptionMessage: 'Data Validation: missing InquiryCategory',
-                                         MessageId: '13bc59ea-c90a-4d48-8979-fe71e0f7ddeb' })
+                  payload:).and_return(failure)
           post '/ask_va_api/v0/inquiries', params: payload
         end
 
@@ -472,7 +492,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
   describe 'POST #test_create' do
     before do
-      allow_any_instance_of(Crm::Service).to receive(:call).and_return({ message: 'success' })
+      allow_any_instance_of(Crm::Service).to receive(:call).and_return({ body: { message: 'success' } })
       post '/ask_va_api/v0/test_create',
            params: { 'reply' => 'test', 'endpoint' => 'inquiries/id/reply/new' },
            as: :json
@@ -486,14 +506,50 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   describe 'POST #create_reply' do
     let(:payload) { { 'reply' => 'this is my reply' } }
 
-    before do
-      allow_any_instance_of(Crm::Service).to receive(:call).and_return({ Data: { Id: '123' } })
-      sign_in(authorized_user)
-      post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
+    context 'when successful' do
+      before do
+        allow_any_instance_of(Crm::Service).to receive(:call).and_return({ Data: { Id: '123' } })
+        sign_in(authorized_user)
+        post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
+      end
+
+      it 'returns status 200' do
+        expect(response).to have_http_status(:ok)
+      end
     end
 
-    it 'returns status 200' do
-      expect(response).to have_http_status(:ok)
+    context 'when crm api fail' do
+      context 'when the API call fails' do
+        let(:endpoint) { 'inquiries/123/reply/new' }
+        let(:body) do
+          '{"Data":null,"Message":"Data Validation: Missing Reply"' \
+            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: ' \
+            'Missing Reply","MessageId":"e2cbe041-df91-41f4-8bd2-8b6d9dbb2e38"}'
+        end
+        let(:failure) do
+          {
+            status: 400,
+            body:,
+            response_headers: nil,
+            url: nil
+          }
+        end
+
+        before do
+          sign_in(authorized_user)
+          allow_any_instance_of(Crm::Service).to receive(:call)
+            .with(endpoint:, method: :put,
+                  payload: { Reply: 'this is my reply' }).and_return(failure)
+          post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
+        end
+
+        it 'raise InquiriesCreatorError' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                        'AskVAApi::Correspondences::CorrespondencesCreatorError: Data Validation: Missing Reply'
+      end
     end
   end
 end
