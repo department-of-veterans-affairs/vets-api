@@ -18,34 +18,59 @@ module MyHealth
         data.reject { |item| item[:prescription_source] == 'NV' && item[:disp_status] != 'Active: Non-VA' }
       end
 
-      def last_refill_date_filter(resource)
-        sorted_data = resource.data.sort_by { |r| r[:sorted_dispensed_date] }.reverse
-        sort_metadata = {
-          'dispensed_date' => 'DESC',
-          'prescription_name' => 'ASC'
-        }
-        new_metadata = resource.metadata.merge('sort' => sort_metadata)
-        Common::Collection.new(PrescriptionDetails, data: sorted_data, metadata: new_metadata)
+      def sort_by(data, field1, field2 = nil, field3 = nil)
+        data.sort do |a, b|
+          field1_a, field1_b = populate_sort_vars(field1, a, b)
+          field2_a, field2_b = populate_sort_vars(field2, a, b)
+          field3_a, field3_b = populate_sort_vars(field3, a, b)
+          field1_descending, field2_descending, field3_descending = get_sort_order(field1, field2, field3)
+
+          comparison = compare_fields(field1_a, field1_b, field1_descending)
+          comparison = compare_fields(field2_a, field2_b, field2_descending) if comparison.zero? && field2.present?
+          comparison = compare_fields(field3_a, field3_b, field3_descending) if comparison.zero? && field3.present?
+
+          comparison
+        end
       end
 
-      def sort_by_prescription_name(resource)
-        sorted_data = resource.data.sort_by do |item|
-          sorting_key_primary = if item.disp_status == 'Active: Non-VA' && !item.prescription_name
-                                  item.orderable_item
-                                elsif !item.prescription_name.nil?
-                                  item.prescription_name
-                                else
-                                  '~'
-                                end
-          sorting_key_secondary = item.sorted_dispensed_date
-          [sorting_key_primary, sorting_key_secondary]
+      def get_sort_order(field1, field2, field3)
+        field1_descending = field1.to_s.start_with?('-')
+        field2_descending = field2.to_s.start_with?('-')
+        field3_descending = field3.to_s.start_with?('-')
+        [field1_descending, field2_descending, field3_descending]
+      end
+
+      def compare_fields(field_a, field_b, descending)
+        if field_a > field_b
+          descending ? -1 : 1
+        elsif field_a < field_b
+          descending ? 1 : -1
+        else
+          0
         end
-        sort_metadata = {
-          'prescription_name' => 'ASC',
-          'dispensed_date' => 'ASC'
-        }
-        new_metadata = resource.metadata.merge('sort' => sort_metadata)
-        Common::Collection.new(PrescriptionDetails, data: sorted_data, metadata: new_metadata)
+      end
+
+      def populate_sort_vars(field, a, b)
+        if field.nil?
+          [nil, nil]
+        else
+          [get_field_data(field, a), get_field_data(field, b)]
+        end
+      end
+
+      def get_field_data(field, data)
+        case field
+        when /dispensed_date/
+          data[:sorted_dispensed_date]
+        when 'prescription_name'
+          if data.disp_status != 'Active: Non-VA' || data.prescription_name
+            data[:prescription_name]
+          else
+            data[:orderable_item]
+          end
+        else
+          data[:disp_status]
+        end
       end
 
       def filter_data_by_refill_and_renew(data)
@@ -73,8 +98,7 @@ module MyHealth
       module_function :collection_resource,
                       :filter_data_by_refill_and_renew,
                       :filter_non_va_meds,
-                      :last_refill_date_filter,
-                      :sort_by_prescription_name
+                      :sort_by
     end
   end
 end
