@@ -619,6 +619,14 @@ module PdfFill
         @form_data['stateCemeteryOrTribalTrustZip'] = cemetery_location['zip'] if cemetery_location['zip'].present?
       end
 
+      def expand_tribal_land_location
+        cemetery_location = @form_data['tribalLandLocation']
+        return if cemetery_location.blank?
+
+        @form_data['stateCemeteryOrTribalTrustName'] = cemetery_location['name'] if cemetery_location['name'].present?
+        @form_data['stateCemeteryOrTribalTrustZip'] = cemetery_location['zip'] if cemetery_location['zip'].present?
+      end
+
       # VA file number can be up to 10 digits long; An optional leading 'c' or 'C' followed by
       # 7-9 digits. The file number field on the 4142 form has space for 9 characters so trim the
       # potential leading 'c' to ensure the file number will fit into the form without overflow.
@@ -654,7 +662,7 @@ module PdfFill
       def expand_location_question
         cemetery_location = @form_data['cemetaryLocationQuestion']
         @form_data['cemetaryLocationQuestionCemetery'] = select_checkbox(cemetery_location == 'cemetery')
-        @form_data['cemetaryLocationQuestionTribal'] = select_checkbox(cemetery_location == 'tribal')
+        @form_data['cemetaryLocationQuestionTribal'] = select_checkbox(cemetery_location == 'tribalLand')
         @form_data['cemetaryLocationQuestionNone'] = select_checkbox(cemetery_location == 'none')
       end
 
@@ -718,6 +726,7 @@ module PdfFill
         end
 
         expand_cemetery_location
+        expand_tribal_land_location
 
         # special case: the UI only has a 'yes' checkbox, so the PDF 'noTransportation' checkbox can never be true.
         @form_data['hasTransportation'] = @form_data['transportation'] == true ? 'YES' : nil
