@@ -10,21 +10,48 @@ RSpec.describe Lighthouse::DirectDeposit::ControlInformation do
     info.clear_restrictions
   end
 
+  context 'when clear_restrictions is called' do
+    it 'is updatable' do
+      expect(info.account_updatable?).to be(true)
+    end
+  end
+
   context 'when no restrictions' do
     it 'is updateable' do
       expect(info.account_updatable?).to be(true)
       expect(info.restrictions).to be_empty
     end
+
+    context 'and can_update_direct_deposit is false' do
+      it 'is invalid' do
+        info.is_edu_claim_available = true
+        info.can_update_direct_deposit = false
+
+        expect(info.valid?).to be(false)
+        expect(info.errors).to eq(['Has no restrictions. Account should be updatable.'])
+      end
+    end
   end
 
   context 'when there is a restriction' do
     it 'is not updateable' do
-      Lighthouse::DirectDeposit::ControlInformation::RESTRICTIONS.each do |name|
+      info.restrictions.each do |name|
         info.clear_restrictions
         info.send("#{name}=", false)
 
         expect(info.account_updatable?).to be(false)
         expect(info.restrictions).not_to be_empty
+      end
+    end
+
+    context 'and can_update_direct_deposit is true' do
+      it 'is invalid' do
+        info.is_corp_available = true
+        info.has_index = false
+        info.can_update_direct_deposit = true
+
+        expect(info.valid?).to be(false)
+        expect(info.errors).to eq(['Has restrictions. Account should not be updatable.'])
       end
     end
   end
@@ -43,30 +70,36 @@ RSpec.describe Lighthouse::DirectDeposit::ControlInformation do
     end
   end
 
-  context 'has no benefit type' do
+  context 'when no benefit type' do
     it 'is invalid' do
       expect(info.valid?).to be(false)
       expect(info.errors).to eq(['Missing benefit type. Must be either CnP or EDU benefits.'])
     end
   end
 
-  context 'has restrictions' do
-    it 'account should not be updatable' do
-      info.is_edu_claim_available = true
-      info.has_identity = false
-
-      expect(info.valid?).to be(false)
-      expect(info.errors).to eq(['Has restrictions. Account should not be updatable.'])
-    end
-  end
-
-  context 'has no restrictions' do
-    it 'account should be updatable' do
+  context 'benefit type' do
+    it 'returns a benefit type of cnp' do
       info.is_corp_available = true
-      info.can_update_direct_deposit = false
+      info.is_edu_claim_available = false
+      expect(info.benefit_type).to eq('cnp')
+    end
 
-      expect(info.valid?).to be(false)
-      expect(info.errors).to eq(['Has no restrictions. Account should be updatable.'])
+    it 'returns a benefit type of edu' do
+      info.is_corp_available = false
+      info.is_edu_claim_available = true
+      expect(info.benefit_type).to eq('edu')
+    end
+
+    it 'returns a benefit type of both' do
+      info.is_corp_available = true
+      info.is_edu_claim_available = true
+      expect(info.benefit_type).to eq('both')
+    end
+
+    it 'returns a benefit type of none' do
+      info.is_corp_available = false
+      info.is_edu_claim_available = false
+      expect(info.benefit_type).to eq('none')
     end
   end
 end
