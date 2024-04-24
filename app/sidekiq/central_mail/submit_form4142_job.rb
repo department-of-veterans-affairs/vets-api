@@ -44,13 +44,18 @@ module CentralMail
           form526_submission_id:
         }
       }
-      # [wipn8923] update use of statsD keys
       form_job_status.update(
         status: Form526JobStatus::STATUS[:exhausted],
         bgjob_errors: bgjob_errors.merge(new_error)
       )
 
-      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+      api_statsD_key = if Flipper.enabled?(:disability_compensation_form_4142)
+                         LIGHTHOUSE_STATSD_KEY_PREFIX
+                       else
+                         CENTRAL_MAIL_STATSD_KEY_PREFIX
+                       end
+
+      StatsD.increment("#{api_statsD_key}.exhausted")
 
       ::Rails.logger.warn(
         'Submit Form 4142 Retries exhausted',
@@ -76,7 +81,6 @@ module CentralMail
     #
     # @param submission_id [Integer] the {Form526Submission} id
     #
-    # [wipn8923] job to update?
     def perform(submission_id)
       @submission_id = submission_id
 

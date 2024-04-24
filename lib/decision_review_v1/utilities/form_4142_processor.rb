@@ -7,7 +7,6 @@ require 'simple_forms_api_submission/metadata_validator'
 
 module DecisionReviewV1
   module Processor
-    # [wipn8923] why is this being used in the backup path?
     class Form4142Processor
       # @return [Pathname] the generated PDF path
       attr_reader :pdf_path
