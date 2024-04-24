@@ -730,6 +730,9 @@ features:
     actor_type: user
     description: Enables/disables refill-related content for Medications on VA.gov
     enable_in_development: true
+  mhv_landing_page_enable_va_gov_health_tools_links:
+    actor_type: user
+    description: Enables VA.gov Health Tools links (Appts, SM, Rx, Records) on MHV-on-VA.gov Landing Page
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer experience (Identity)
