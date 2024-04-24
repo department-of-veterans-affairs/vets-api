@@ -88,11 +88,14 @@ module TravelPay
       end
 
       symbolized_body = response.body.deep_symbolize_keys
-      parse_claim_date = ->(c) { Date.parse(c[:modified_on]) }
+      parse_claim_date = ->(c) { Date.parse(c[:modifiedOn]) }
       symbolized_body[:data].sort_by(&parse_claim_date).reverse!
+      symbolized_body
     end
 
     def request_sts_token(user)
+      return nil if mock_enabled?
+
       host_baseurl = build_host_baseurl({ ip_form: false })
       private_key_file = Settings.sign_in.sts_client.key_path
       private_key = OpenSSL::PKey::RSA.new(File.read(private_key_file))
