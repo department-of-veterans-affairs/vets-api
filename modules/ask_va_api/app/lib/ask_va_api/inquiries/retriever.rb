@@ -2,51 +2,62 @@
 
 module AskVAApi
   module Inquiries
-    ENDPOINT = 'inquiries'
+    class InquiriesRetrieverError < StandardError; end
 
-    class Retriever
-      attr_reader :service, :icn
+    class Retriever < BaseRetriever
+      attr_reader :icn, :user_mock_data, :entity_class
 
-      def initialize(icn:, service: nil)
+      def initialize(user_mock_data:, entity_class:, icn: nil)
+        super(user_mock_data:, entity_class:)
         @icn = icn
-        @service = service || default_service
       end
 
       def fetch_by_id(id:)
-        validate_input(id, 'Invalid ID')
-        reply = Correspondences::Retriever.new(inquiry_id: id, service:).call
-        data = fetch_data(payload: { id: })
-        return {} if data.blank?
+        inq = fetch_data(id)
+        reply = fetch_correspondences(inquiry_id: id)
 
-        Entity.new(data, reply)
+        entity_class.new(inq.first, reply)
       rescue => e
-        ErrorHandler.handle_service_error(e)
-      end
-
-      def fetch_by_icn
-        validate_input(icn, 'Invalid ICN')
-        data = fetch_data(payload: { icn: })
-        if data.empty?
-          data
-        else
-          data.map { |inq| Entity.new(inq) }
-        end
-      rescue => e
-        ErrorHandler.handle_service_error(e)
+        ::ErrorHandler.handle_service_error(e)
       end
 
       private
 
-      def default_service
-        Crm::Service.new(icn:)
+      def fetch_data(id = nil)
+        if user_mock_data
+          data = read_mock_data('get_inquiries_mock_data.json')
+          filter_data(data, id)
+        else
+          endpoint = 'inquiries'
+          id ||= icn
+          payload = { id: }
+
+          response = Crm::Service.new(icn:).call(endpoint:, payload:)
+          handle_response_data(response)
+        end
       end
 
-      def fetch_data(payload: {})
-        service.call(endpoint: ENDPOINT, payload:)[:Data]
+      def fetch_correspondences(inquiry_id:)
+        Correspondences::Retriever.new(
+          inquiry_id:,
+          user_mock_data:,
+          entity_class: AskVAApi::Correspondences::Entity
+        ).call
       end
 
-      def validate_input(input, error_message)
-        raise ArgumentError, error_message if input.blank?
+      def read_mock_data(file_name)
+        data = File.read("modules/ask_va_api/config/locales/#{file_name}")
+        JSON.parse(data, symbolize_names: true)[:Data]
+      end
+
+      def filter_data(data, id = nil)
+        data.select do |inq|
+          id ? inq[:InquiryNumber] == id : inq[:Icn] == icn
+        end
+      end
+
+      def handle_response_data(response)
+        response[:Data].presence || raise(InquiriesRetrieverError, response[:Message])
       end
     end
   end

@@ -15,11 +15,13 @@ module CheckIn
 
         TravelClaimSubmissionWorker.perform_async(permitted_params[:uuid], permitted_params[:appointment_date])
 
+        logger.info({ message: 'Submitted travel claim to background worker' }.merge(permitted_params))
+
         render nothing: true, status: :accepted
       end
 
       def permitted_params
-        params.require(:travel_claims).permit(:uuid, :appointment_date, :facility_type)
+        params.require(:travel_claims).permit(:uuid, :appointment_date, :facility_type, :time_to_complete)
       end
 
       def authorize

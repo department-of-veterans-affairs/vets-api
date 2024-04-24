@@ -12,6 +12,7 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
     let(:response) { double('response') }
     let(:pdf_path) { 'random/path/to/pdf' }
     let(:location) { 'test_location' }
+    let(:user_uuid) { 123 }
 
     before do
       allow(job).to receive(:process_pdf).and_return(pdf_path)
@@ -25,31 +26,62 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       allow(service).to receive(:upload_doc).and_return(response)
     end
 
-    it 'submits the saved claim successfully' do
-      doc = { file: pdf_path, file_name: 'pdf' }
+    context 'user id is not nil' do
+      it 'submits the saved claim successfully' do
+        doc = { file: pdf_path, file_name: 'pdf' }
 
-      expect(claim).to receive(:to_pdf)
-      expect(job).to receive(:form_submission_polling)
-      expect(job).to receive(:process_pdf).with(pdf_path)
-      expect(job).to receive(:generate_form_metadata_lh).once
-      expect(service).to receive(:upload_doc).with(
-        upload_url: 'test_location', file: doc, metadata: anything, attachments: []
-      )
-      expect(job).to receive(:check_success).with(response)
+        expect(claim).to receive(:to_pdf)
+        expect(job).to receive(:form_submission_polling)
+        expect(job).to receive(:process_pdf).with(pdf_path)
+        expect(job).to receive(:generate_form_metadata_lh).once
+        expect(service).to receive(:upload_doc).with(
+          upload_url: 'test_location', file: doc, metadata: anything, attachments: []
+        )
+        expect(job).to receive(:check_success).with(response)
 
-      expect(job).to receive(:cleanup_file_paths)
+        expect(job).to receive(:cleanup_file_paths)
 
-      job.perform(claim.id)
+        job.perform(claim.id, :user_uuid)
+      end
+
+      it 'is unable to find saved_claim_id' do
+        allow(SavedClaim::Pension).to receive(:find).and_return(nil)
+
+        expect(claim).not_to receive(:to_pdf)
+        expect { job.perform(claim.id, :user_uuid) }.to raise_error(
+          Lighthouse::PensionBenefitIntakeJob::PensionBenefitIntakeError,
+          "Unable to find SavedClaim::Pension #{claim.id}"
+        )
+      end
     end
 
-    it 'is unable to find saved_claim_id' do
-      allow(SavedClaim::Pension).to receive(:find).and_return(nil)
+    context 'user id is nil' do
+      it 'submits the saved claim successfully' do
+        doc = { file: pdf_path, file_name: 'pdf' }
 
-      expect(claim).not_to receive(:to_pdf)
-      expect { job.perform(claim.id) }.to raise_error(
-        Lighthouse::PensionBenefitIntakeJob::PensionBenefitIntakeError,
-        "Unable to find SavedClaim::Pension #{claim.id}"
-      )
+        expect(claim).to receive(:to_pdf)
+        expect(job).to receive(:form_submission_polling)
+        expect(job).to receive(:process_pdf).with(pdf_path)
+        expect(job).to receive(:generate_form_metadata_lh).once
+        expect(service).to receive(:upload_doc).with(
+          upload_url: 'test_location', file: doc, metadata: anything, attachments: []
+        )
+        expect(job).to receive(:check_success).with(response)
+
+        expect(job).to receive(:cleanup_file_paths)
+
+        job.perform(claim.id, nil)
+      end
+
+      it 'is unable to find saved_claim_id' do
+        allow(SavedClaim::Pension).to receive(:find).and_return(nil)
+
+        expect(claim).not_to receive(:to_pdf)
+        expect { job.perform(claim.id, nil) }.to raise_error(
+          Lighthouse::PensionBenefitIntakeJob::PensionBenefitIntakeError,
+          "Unable to find SavedClaim::Pension #{claim.id}"
+        )
+      end
     end
     # perform
   end
@@ -170,10 +202,46 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
   end
 
   describe 'sidekiq_retries_exhausted block' do
-    it 'logs a distrinct error when retries are exhausted' do
-      Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block do
-        expect(Rails.logger).to receive(:error).exactly(:once)
-        expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+    context 'when retries are exhausted' do
+      it 'logs a distrinct error when no claim_id provided' do
+        Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block do
+          expect(Rails.logger).to receive(:error).exactly(:once).with(
+            'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
+            hash_including(:message, confirmation_number: nil, user_uuid: nil, claim_id: nil)
+          )
+          expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+        end
+      end
+
+      it 'logs a distrinct error when only claim_id provided' do
+        Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
+          expect(Rails.logger).to receive(:error).exactly(:once).with(
+            'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
+            hash_including(:message, confirmation_number: claim.confirmation_number,
+                                     user_uuid: nil, claim_id: claim.id)
+          )
+          expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+        end
+      end
+
+      it 'logs a distrinct error when claim_id and user_uuid provided' do
+        Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
+          expect(Rails.logger).to receive(:error).exactly(:once).with(
+            'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
+            hash_including(:message, confirmation_number: claim.confirmation_number, user_uuid: 2, claim_id: claim.id)
+          )
+          expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+        end
+      end
+
+      it 'logs a distrinct error when claim is not found' do
+        Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
+          expect(Rails.logger).to receive(:error).exactly(:once).with(
+            'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
+            hash_including(:message, confirmation_number: nil, user_uuid: 2, claim_id: claim.id - 1)
+          )
+          expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+        end
       end
     end
   end

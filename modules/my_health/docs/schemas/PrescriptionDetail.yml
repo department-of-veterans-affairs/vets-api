@@ -184,6 +184,22 @@ properties:
       tracking:
         type: boolean
         example: false
+      color:
+        type: string
+        nullable: true
+        example: "WHITE"
+      shape:
+        type: string
+        nullable: true
+        example: "OVAL"
+      frontImprint:
+        type: string
+        nullable: true
+        example: "9,3"
+      backImprint:
+        type: string
+        nullable: true
+        example: "1,1"
   links:
     type: object
     required:

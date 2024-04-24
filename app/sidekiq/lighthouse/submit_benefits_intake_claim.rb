@@ -32,12 +32,17 @@ module Lighthouse
     # rubocop:disable Metrics/MethodLength
     def perform(saved_claim_id)
       @claim = SavedClaim.find(saved_claim_id)
-      @pdf_path = process_record(@claim)
+
+      @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
+      @pdf_path = if @claim.form_id == '21P-530V2'
+                    process_record(@claim, @claim.created_at, @claim.form_id)
+                  else
+                    process_record(@claim)
+                  end
       @attachment_paths = @claim.persistent_attachments.map do |record|
         process_record(record)
       end
 
-      @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
       create_form_submission_attempt
 
       payload = {
@@ -72,26 +77,43 @@ module Lighthouse
         'veteranFirstName' => veteran_full_name['first'],
         'veteranLastName' => veteran_full_name['last'],
         'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-        'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
+        'zipCode' => address['postalCode'],
         'source' => "#{@claim.class} va.gov",
         'docType' => @claim.form_id,
         'businessLine' => @claim.business_line
       }
 
-      SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
+      SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: check_zipcode(address))
     end
 
-    def process_record(record)
+    # rubocop:disable Metrics/MethodLength
+    def process_record(record, timestamp = nil, form_id = nil)
       pdf_path = record.to_pdf
-      stamped_path = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
-      CentralMail::DatestampPdf.new(stamped_path).run(
+      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
+      stamped_path2 = CentralMail::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - va.gov Submission',
-        x: 429,
+        x: 400,
         y: 770,
         text_only: true
       )
+      if form_id.present? && ['21P-530V2'].include?(form_id)
+        CentralMail::DatestampPdf.new(stamped_path2).run(
+          text: 'Application Submitted on va.gov',
+          x: 425,
+          y: 675,
+          text_only: true, # passing as text only because we override how the date is stamped in this instance
+          timestamp:,
+          page_number: 5,
+          size: 9,
+          template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
+          multistamp: true
+        )
+      else
+        stamped_path2
+      end
     end
 
+    # rubocop:enable Metrics/MethodLength
     def split_file_and_path(path)
       { file: path, file_name: path.split('/').last }
     end
@@ -126,6 +148,10 @@ module Lighthouse
     def cleanup_file_paths
       Common::FileHelpers.delete_file_if_exists(@pdf_path) if @pdf_path
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
+    end
+
+    def check_zipcode(address)
+      address['country'].upcase.in?(%w[USA US])
     end
   end
 end

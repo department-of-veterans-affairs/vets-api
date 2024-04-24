@@ -115,7 +115,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               .and_return({ person_poa_history: nil })
             expect(ClaimsApi::V2::PoaFormBuilderJob).to receive(:perform_async) do |*args|
               expect(args[2]).to eq(rep_id)
-            end.and_call_original
+            end
 
             post appoint_organization_path, params: data.to_json, headers: auth_header
 
@@ -181,7 +181,8 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
                 it 'returns a meaningful 404' do
                   mock_ccg(%w[claim.write claim.read]) do |auth_header|
-                    detail = 'Could not retrieve Power of Attorney with registration number: 67890 and poa code: aaa'
+                    detail = 'Could not find an Accredited Representative with registration number: 67890 ' \
+                             'and poa code: aaa'
 
                     post validate2122_path, params: request_body, headers: auth_header
 
@@ -240,7 +241,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
                 let(:error_msg) { "If claimant is present 'claimantId' must be filled in" }
 
                 it 'returns a meaningful 422' do
-                  VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                     mock_ccg(%w[claim.write claim.read]) do |auth_header|
                       json = JSON.parse(request_body)
                       json['data']['attributes']['claimant'] = claimant

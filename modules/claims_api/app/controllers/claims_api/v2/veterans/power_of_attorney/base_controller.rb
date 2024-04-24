@@ -60,8 +60,6 @@ module ClaimsApi
         end
 
         def validate_registration_number!(form_number)
-          return if form_number != '2122' # Placeholder until API-33481
-
           base = form_number == '2122' ? 'serviceOrganization' : 'representative'
           rn = form_attributes.dig(base, 'registrationNumber')
           poa_code = form_attributes.dig(base, 'poaCode')
@@ -70,7 +68,8 @@ module ClaimsApi
                                                          rn).order(created_at: :desc).first
           if rep.nil?
             raise ::Common::Exceptions::ResourceNotFound.new(
-              detail: "Could not retrieve Power of Attorney with registration number: #{rn} and poa code: #{poa_code}"
+              detail: "Could not find an Accredited Representative with registration number: #{rn} " \
+                      "and poa code: #{poa_code}"
             )
           end
           rep.id

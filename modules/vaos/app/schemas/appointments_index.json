@@ -91,25 +91,22 @@
             }
           },
           "reason_code": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "coding": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "system": { "type": "string" },
-                      "code": { "type": "string" },
-                      "display": { "type": "string" }
-                    }
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "coding": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "system": { "type": "string" },
+                    "code": { "type": "string" },
+                    "display": { "type": "string" }
                   }
-                },
-                "text": { "type": "string" }
-              }
+                }
+              },
+              "text": { "type": "string" }
             }
           },
           "description": { "type": "string" },
@@ -135,7 +132,8 @@
           "practitioners": {
             "type": "array",
             "items": {
-              "type": "array",
+              "type": "object",
+              "additionalProperties": false,
               "properties": {
                 "identifier": {
                   "type": "array",
@@ -145,7 +143,10 @@
                     "required": ["system", "value"],
                     "properties": {
                       "system": { "type": "string" },
-                      "value": {"type": "string"}
+                      "value": {
+                        "type": "string",
+                        "nullable": true
+                      }
                     }
                   }
                 },
@@ -160,7 +161,7 @@
                     }
                   }
                 },
-                "practiceName": { "type": "string" },
+                "practice_name": { "type": "string" },
                 "address": {
                   "type": "object",
                   "additionalProperties": false,
@@ -175,13 +176,13 @@
                     },
                     "city": { "type": "string" },
                     "state": { "type": "string" },
-                    "postalCode": { "type": "string" },
+                    "postal_code": { "type": "string" },
                     "country": { "type": "string" },
                     "text": { "type": "string" }
                   }
                 },
-                "firstName": { "type": "string" },
-                "lastName": { "type": "string" }
+                "first_name": { "type": "string" },
+                "last_name": { "type": "string" }
               }
             }
           },
@@ -290,20 +291,20 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
-                  "sitecode": { "type": "string" },
-                  "confirmationCode": { "type": "string" },
+                  "site_code": { "type": "string" },
+                  "confirmation_code": { "type": "string" },
                   "address": {
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
-                      "streetAddress": { "type": "string" },
+                      "street_address": { "type": "string" },
                       "city": { "type": "string" },
                       "state": { "type": "string" },
-                      "zipCode": { "type": "string" },
+                      "zip_code": { "type": "string" },
                       "country": { "type": "string" },
-                      "latitude": { "type": "number" },
+                      "latitutde": { "type": "number" },
                       "longitude": { "type": "number" },
-                      "additionalDetails": { "type": "string" }
+                      "additional_details": { "type": "string" }
                     }
                   }
                 }
@@ -316,7 +317,10 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-              "ccLocation": {
+              "desired_date": {
+                "type": "string"
+              },
+              "cc_location": {
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
@@ -334,7 +338,7 @@
                       },
                       "city": { "type": "string" },
                       "state": { "type": "string" },
-                      "postalCode": { "type": "string" },
+                      "postal_code": { "type": "string" },
                       "country": { "type": "string" },
                       "text": { "type": "string" }
                     }
@@ -353,7 +357,54 @@
                       }
                     }
                   },
-                  "practiceName": { "type": "string" }
+                  "practice_name": { "type": "string" }
+                }
+              },
+              "cc_requested_cancellation": { "type": "boolean" },
+              "hsrm_tast_id": { "type": "string" },
+              "hsrm_consult_id": { "type": "string" },
+              "vista_status": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "cc_treating_specialty": { "type": "string" },
+              "modality": { "type": "string" },
+              "patient_has_mobile_gfe": { "type": "boolean" },
+              "pre_checkin_allowed": { "type": "boolean" },
+              "e_checkin_allowed": { "type": "boolean" },
+              "clinic": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "vista_site": {
+                    "type": "integer",
+                    "maxLength": 3,
+                    "minLength": 3
+                  },
+                  "id": { "type": "string" },
+                  "service_name": { "type": "string" },
+                  "physical_location": { "type": "string" },
+                  "phone_number": { "type": "string" },
+                  "station_id": { "type": "string" },
+                  "station_name": { "type": "string" },
+                  "primary_stop_code": {
+                    "type": "integer",
+                    "maxLength": 3,
+                    "minLength": 3
+                   },
+                   "primary_stop_code_name": { "type": "string" },
+                   "secondary_stop_code": {
+                    "type": "integer",
+                    "maxLength": 3,
+                    "minLength": 3
+                   },
+                   "secondary_stop_code_name": { "type": "string" },
+                   "patient_direct_scheduling": { "type": "boolean" },
+                   "patient_display": { "type": "boolean" },
+                   "char4": { "type": "string" },
+                   "active": { "type": "boolean" },
+                   "non_count": { "type": "boolean" },
+                   "future_booking_maximum_days": { "type": "integer" }
                 }
               }
             }

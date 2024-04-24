@@ -2,108 +2,48 @@
 
 require 'rails_helper'
 
-RSpec.describe 'SimpleFormsApi::VBA2010207' do
-  describe 'currently_homeless?' do
-    it 'returns true when the preparer is homeless' do
-      data = { 'living_situation' => { 'SHELTER' => true } }
+RSpec.describe SimpleFormsApi::VBA2010207 do
+  describe 'zip_code_is_us_based' do
+    subject(:zip_code_is_us_based) { described_class.new(data).zip_code_is_us_based }
 
-      form = SimpleFormsApi::VBA2010207.new(data)
+    context 'veteran address is present and in US' do
+      let(:data) { { 'veteran_mailing_address' => { 'country' => 'USA' } } }
 
-      expect(form.currently_homeless?).to eq(true)
+      it 'returns true' do
+        expect(zip_code_is_us_based).to eq(true)
+      end
     end
 
-    it 'returns false when the preparer is not homeless' do
-      data = { 'living_situation' => {} }
+    context 'veteran address is present and not in US' do
+      let(:data) { { 'veteran_mailing_address' => { 'country' => 'Canada' } } }
 
-      form = SimpleFormsApi::VBA2010207.new(data)
-
-      expect(form.currently_homeless?).to eq(false)
-    end
-  end
-
-  describe 'homeless_living_situation' do
-    it 'returns 0 when the preparer is in a shelter' do
-      data = { 'living_situation' => { 'SHELTER' => true } }
-
-      form = SimpleFormsApi::VBA2010207.new(data)
-
-      expect(form.homeless_living_situation).to eq(0)
+      it 'returns false' do
+        expect(zip_code_is_us_based).to eq(false)
+      end
     end
 
-    it 'returns 1 when the preparer is with a friend or family' do
-      data = { 'living_situation' => { 'FRIEND_OR_FAMILY' => true } }
+    context 'non-veteran address is present and in US' do
+      let(:data) { { 'non_veteran_mailing_address' => { 'country' => 'USA' } } }
 
-      form = SimpleFormsApi::VBA2010207.new(data)
-
-      expect(form.homeless_living_situation).to eq(1)
+      it 'returns true' do
+        expect(zip_code_is_us_based).to eq(true)
+      end
     end
 
-    it 'returns 2 when the preparer is in an overnight place' do
-      data = { 'living_situation' => { 'OVERNIGHT' => true } }
+    context 'non-veteran address is present and not in US' do
+      let(:data) { { 'non_veteran_mailing_address' => { 'country' => 'Canada' } } }
 
-      form = SimpleFormsApi::VBA2010207.new(data)
-
-      expect(form.homeless_living_situation).to eq(2)
+      it 'returns false' do
+        expect(zip_code_is_us_based).to eq(false)
+      end
     end
 
-    it 'returns nil when the preparer is not homeless' do
-      data = { 'living_situation' => {} }
+    context 'no valid address is given' do
+      let(:data) { {} }
 
-      form = SimpleFormsApi::VBA2010207.new(data)
-
-      expect(form.homeless_living_situation).to eq(nil)
-    end
-  end
-
-  describe 'at_risk_of_being_homeless?' do
-    it 'returns true when the preparer is at risk of being homeless' do
-      data = { 'living_situation' => { 'LOSING_HOME' => true } }
-
-      form = SimpleFormsApi::VBA2010207.new(data)
-
-      expect(form.at_risk_of_being_homeless?).to eq(true)
-    end
-
-    it 'returns false when the preparer is not at risk of being homeless' do
-      data = { 'living_situation' => {} }
-
-      form = SimpleFormsApi::VBA2010207.new(data)
-
-      expect(form.at_risk_of_being_homeless?).to eq(false)
-    end
-  end
-
-  describe 'risk_homeless_living_situation' do
-    it 'returns 0 when the preparer is losing their home' do
-      data = { 'living_situation' => { 'LOSING_HOME' => true } }
-
-      form = SimpleFormsApi::VBA2010207.new(data)
-
-      expect(form.risk_homeless_living_situation).to eq(0)
-    end
-
-    it 'returns 1 when the preparer is leaving a shelter' do
-      data = { 'living_situation' => { 'LEAVING_SHELTER' => true } }
-
-      form = SimpleFormsApi::VBA2010207.new(data)
-
-      expect(form.risk_homeless_living_situation).to eq(1)
-    end
-
-    it 'returns 2 when the preparer is experiencing another risk' do
-      data = { 'living_situation' => { 'OTHER_RISK' => true } }
-
-      form = SimpleFormsApi::VBA2010207.new(data)
-
-      expect(form.risk_homeless_living_situation).to eq(2)
-    end
-
-    it 'returns nil when the preparer is not at risk of being homeless' do
-      data = { 'living_situation' => {} }
-
-      form = SimpleFormsApi::VBA2010207.new(data)
-
-      expect(form.risk_homeless_living_situation).to eq(nil)
+      it 'returns false' do
+        expect(zip_code_is_us_based).to eq(false)
+      end
     end
   end
 
@@ -111,7 +51,7 @@ RSpec.describe 'SimpleFormsApi::VBA2010207' do
     statement_of_truth_signature = 'John Veteran'
     [
       { preparer_type: 'veteran', third_party_type: nil, expected: statement_of_truth_signature },
-      { preparer_type: 'non-veteran', third_party_type: nil, expected: nil },
+      { preparer_type: 'non-veteran', third_party_type: nil, expected: statement_of_truth_signature },
       { preparer_type: 'third-party-non-veteran', third_party_type: 'representative', expected: nil },
       { preparer_type: 'third-party-veteran', third_party_type: 'representative', expected: nil },
       { preparer_type: 'third-party-non-veteran', third_party_type: 'power-of-attorney', expected: nil }
@@ -138,12 +78,13 @@ RSpec.describe 'SimpleFormsApi::VBA2010207' do
     statement_of_truth_signature = 'John Veteran'
     [
       { preparer_type: 'veteran', third_party_type: nil, expected: nil },
-      { preparer_type: 'non-veteran', third_party_type: nil, expected: statement_of_truth_signature },
+      { preparer_type: 'non-veteran', third_party_type: nil, expected: nil },
       { preparer_type: 'third-party-non-veteran', third_party_type: 'representative',
         expected: statement_of_truth_signature },
       { preparer_type: 'third-party-veteran', third_party_type: 'representative',
         expected: statement_of_truth_signature },
-      { preparer_type: 'third-party-non-veteran', third_party_type: 'power-of-attorney', expected: nil }
+      { preparer_type: 'third-party-non-veteran', third_party_type: 'power-of-attorney',
+        expected: statement_of_truth_signature }
     ].each do |data|
       preparer_type = data[:preparer_type]
       third_party_type = data[:third_party_type]

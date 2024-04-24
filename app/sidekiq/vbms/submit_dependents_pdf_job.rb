@@ -29,22 +29,11 @@ module VBMS
       Rails.logger.info('VBMS::SubmitDependentsPdfJob succeeded!', { saved_claim_id: })
     rescue => e
       Rails.logger.warn('VBMS::SubmitDependentsPdfJob failed, retrying...', { saved_claim_id:, error: e.message })
-      send_error_to_sentry(e, saved_claim_id)
       @saved_claim_id = saved_claim_id
       raise
     end
 
     private
-
-    def send_error_to_sentry(error, saved_claim_id)
-      log_exception_to_sentry(
-        error,
-        {
-          claim_id: saved_claim_id
-        },
-        { team: 'vfs-ebenefits' }
-      )
-    end
 
     def upload_attachments
       claim.persistent_attachments.each do |attachment|

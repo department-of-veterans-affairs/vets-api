@@ -346,6 +346,24 @@ RSpec.describe 'prescriptions', type: :request do
           expect(response).to have_http_status(:unprocessable_entity)
           expect(JSON.parse(response.body)['errors'].first['code']).to eq('RX157')
         end
+
+        it 'includes prescription description fields' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription_v1') do
+            get '/my_health/v1/prescriptions/12284508'
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('my_health/prescriptions/v1/prescription_single')
+
+          response_data = JSON.parse(response.body)['data']
+          prescription_attributes = response_data['attributes']
+
+          expect(prescription_attributes).to include('shape')
+          expect(prescription_attributes).to include('color')
+          expect(prescription_attributes).to include('back_imprint')
+          expect(prescription_attributes).to include('front_imprint')
+        end
       end
     end
   end

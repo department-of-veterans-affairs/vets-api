@@ -20,20 +20,36 @@ module SimpleFormsApi
         'veteranFirstName' => data.dig('deceased_claimant_full_name', 'first'),
         'veteranLastName' => data.dig('deceased_claimant_full_name', 'last'),
         'fileNumber' => data['veteran_va_file_number'].presence || data['veteran_ssn'],
-        'zipCode' => data.dig('preparer_address', 'postal_code') || '00000',
+        'zipCode' => data.dig('preparer_address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
     end
 
-    def submission_date_config
-      {
-        should_stamp_date?: true,
-        page_number: 1,
-        title_coords: [460, 710],
-        text_coords: [460, 690]
-      }
+    def zip_code_is_us_based
+      @data.dig('preparer_address', 'country') == 'USA'
+    end
+
+    def desired_stamps
+      [{ coords: [50, 190], text: data['statement_of_truth_signature'], page: 1 }]
+    end
+
+    def submission_date_stamps
+      [
+        {
+          coords: [460, 710],
+          text: 'Application Submitted:',
+          page: 1,
+          font_size: 12
+        },
+        {
+          coords: [460, 690],
+          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          page: 1,
+          font_size: 12
+        }
+      ]
     end
 
     def track_user_identity(confirmation_number)
