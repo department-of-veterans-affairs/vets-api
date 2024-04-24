@@ -62,9 +62,7 @@ module EVSS
         output_form.update(translate_veteran)
         output_form.update(translate_treatments)
         output_form.update(translate_disabilities)
-        if Flipper.enabled?(:disability_526_toxic_exposure, @current_user)
-          output_form.update(add_toxic_exposure)
-        end
+        output_form.update(add_toxic_exposure) if Flipper.enabled?(:disability_526_toxic_exposure, @current_user)
 
         @translated_form
       end
