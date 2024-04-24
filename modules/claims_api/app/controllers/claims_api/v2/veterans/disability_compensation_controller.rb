@@ -32,7 +32,7 @@ module ClaimsApi
           auto_claim = shared_submit_methods
 
           # This kicks off the first of three jobs required to fully establish the claim
-          process_claim(auto_claim, 'perform_async') unless Flipper.enabled? :claims_load_testing
+          process_claim(auto_claim) unless Flipper.enabled? :claims_load_testing
 
           render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
             auto_claim, root: :data
@@ -97,7 +97,7 @@ module ClaimsApi
         def synchronous
           auto_claim = shared_submit_methods
           # This kicks off the first of three jobs required to fully establish the claim
-          process_claim(auto_claim, 'new.perform') unless Flipper.enabled? :claims_load_testing
+          process_claim(auto_claim, perform_async: false) unless Flipper.enabled? :claims_load_testing
 
           render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
             auto_claim, root: :data
@@ -144,8 +144,8 @@ module ClaimsApi
           { data: {} }
         end
 
-        def process_claim(auto_claim, perform_type)
-          if perform_type == 'perform_async'
+        def process_claim(auto_claim, perform_async = true) # rubocop:disable Style/OptionalBooleanParameter
+          if perform_async
             ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(
               auto_claim.id,
               veteran_middle_initial # PDF mapper just needs middle initial
@@ -153,7 +153,8 @@ module ClaimsApi
           else
             ClaimsApi::V2::DisabilityCompensationPdfGenerator.new.perform(
               auto_claim.id,
-              veteran_middle_initial # PDF mapper just needs middle initial
+              veteran_middle_initial, # PDF mapper just needs middle initial
+              false
             )
           end
         end

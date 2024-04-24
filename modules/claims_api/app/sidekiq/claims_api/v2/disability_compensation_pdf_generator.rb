@@ -9,7 +9,7 @@ module ClaimsApi
       EVSS_DOCUMENT_TYPE = 'L023'
       LOG_TAG = '526_v2_PDF_Generator_job'
 
-      def perform(claim_id, middle_initial) # rubocop:disable Metrics/MethodLength
+      def perform(claim_id, middle_initial, perform_async = true) # rubocop:disable Metrics/MethodLength,Style/OptionalBooleanParameter
         log_job_progress(claim_id,
                          "526EZ PDF generator started for claim #{claim_id}")
 
@@ -51,7 +51,7 @@ module ClaimsApi
         log_job_progress(claim_id,
                          '526EZ PDF generator job finished')
 
-        start_docker_container_job(auto_claim&.id) if auto_claim.status != errored_state_value
+        start_docker_container_job(auto_claim&.id, perform_async) if auto_claim.status != errored_state_value
       rescue Faraday::ParsingError, Faraday::TimeoutError => e
         set_errored_state_on_claim(auto_claim)
         error_message = get_error_message(e)
@@ -84,8 +84,12 @@ module ClaimsApi
 
       private
 
-      def start_docker_container_job(auto_claim)
-        docker_contaner_service.perform_async(auto_claim)
+      def start_docker_container_job(auto_claim, perform_async = true) # rubocop:disable Style/OptionalBooleanParameter
+        if perform_async
+          docker_contaner_service.perform_async(auto_claim)
+        else
+          docker_contaner_service.new.perform(auto_claim)
+        end
       end
 
       def docker_contaner_service
