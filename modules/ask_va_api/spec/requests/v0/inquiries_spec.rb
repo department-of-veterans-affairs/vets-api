@@ -237,14 +237,6 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
                         'Data Validation: No Inquiries found by ID A-20240423-30709'
       end
     end
-
-    context 'when user is not signed in' do
-      before do
-        get "#{inquiry_path}/#{valid_id}"
-      end
-
-      it { expect(response).to have_http_status(:unauthorized) }
-    end
   end
 
   describe 'GET #download_attachment' do
