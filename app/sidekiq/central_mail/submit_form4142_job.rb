@@ -85,8 +85,8 @@ module CentralMail
     def perform(submission_id)
       if Flipper.enabled?(:submit_form_4142_using_lighthouse)
         ::Rails.logger.warn(
-          "Submission of Form 21-4142 (ID: #{submission_id}) via CentralMail is deprecated.  Use Lighthouse",
-          {submission_id:}
+          "Submission of Form 21-4142 via CentralMail is deprecated.  Use Lighthouse",
+          { submission_id: }
         )
       end
 
