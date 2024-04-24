@@ -6072,7 +6072,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bcf33b41-f27f-429c-b860-f2b71567d87e",
+                    "id": "6be9b240-267c-4c9c-b8d5-af1cd4068308",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -8156,8 +8156,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-04-23",
-                      "expirationDate": "2025-04-23",
+                      "creationDate": "2024-04-24",
+                      "expirationDate": "2025-04-24",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -8975,7 +8975,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "48a79d49-eccd-4a89-adb8-e2c91ed3fab5",
+                    "id": "867b7baa-8dbe-4053-823f-788218fa6984",
                     "type": "individual",
                     "attributes": {
                       "code": "083",
@@ -9175,7 +9175,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 67890 and poa code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
                       }
@@ -9603,7 +9603,7 @@
                       },
                       "representative": {
                         "poaCode": "083",
-                        "registrationNumber": "67890",
+                        "registrationNumber": "999999999999",
                         "type": "ATTORNEY",
                         "address": {
                           "addressLine1": "123",
@@ -9671,7 +9671,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7610ed19-baac-46fe-8ba5-5aa3e64a92ff",
+                    "id": "c54cfb3e-8ec8-48ce-bb19-52847bdd9bde",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -9879,7 +9879,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 67890 and poa code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
                       }
@@ -10249,7 +10249,7 @@
                       },
                       "serviceOrganization": {
                         "poaCode": "083",
-                        "registrationNumber": "67890"
+                        "registrationNumber": "999999999999"
                       }
                     }
                   }
@@ -10498,7 +10498,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 67890 and poa code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
                       }
@@ -10926,7 +10926,7 @@
                       },
                       "representative": {
                         "poaCode": "083",
-                        "registrationNumber": "67890",
+                        "registrationNumber": "999999999999",
                         "type": "ATTORNEY",
                         "address": {
                           "addressLine1": "123",
@@ -11193,7 +11193,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 67890 and poa code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
                       }
@@ -11563,7 +11563,7 @@
                       },
                       "serviceOrganization": {
                         "poaCode": "083",
-                        "registrationNumber": "67890"
+                        "registrationNumber": "999999999999"
                       }
                     }
                   }
@@ -11631,11 +11631,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "09a36719-ad88-46b9-97d1-80a746ef9e81",
+                    "id": "af367b07-5484-4eb7-8a2b-3d4bf1ba447c",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-04-23",
+                      "dateRequestAccepted": "2024-04-24",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
