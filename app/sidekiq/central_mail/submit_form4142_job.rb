@@ -6,6 +6,7 @@ require 'evss/disability_compensation_form/metrics'
 require 'evss/disability_compensation_form/form4142_processor'
 require 'logging/third_party_transaction'
 
+# TODO: Update Namespace once we are 100% done with CentralMail here
 module CentralMail
   class SubmitForm4142Job < EVSS::DisabilityCompensationForm::Job
     extend Logging::ThirdPartyTransaction::MethodWrapper
@@ -16,6 +17,7 @@ module CentralMail
 
     wrap_with_logging(
       :upload_to_central_mail,
+      :upload_to_lighthouse,
       additional_instance_logs: {
         submission_id: [:submission_id]
       }
@@ -128,7 +130,6 @@ module CentralMail
         metadata: generate_metadata.to_json,
         attachments: [] # wipn8923 is this better than nil?
       }
-      create_form_submission_attempt
 
       @lighthouse_service.upload_doc(**paylod)
     end
