@@ -44,7 +44,7 @@ Rails.application.reloader.to_prepare do
   services = [
     BB::Configuration.instance.breakers_service,
     Caseflow::Configuration.instance.breakers_service,
-    ClaimsApi::LocalBGS.breakers_service
+    ClaimsApi::LocalBGS.breakers_service,
     CovidVaccine::V0::VetextConfiguration.instance.breakers_service,
     DebtManagementCenter::DebtsConfiguration.instance.breakers_service,
     DecisionReview::Configuration.instance.breakers_service,
