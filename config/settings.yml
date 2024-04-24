@@ -404,9 +404,6 @@ adapted_housing:
 intent_to_file:
   prefill: true
 
-ivc_champva:
-  prefill: true
-
 # Settings for Expiry Scanner
 expiry_scanner:
   slack:

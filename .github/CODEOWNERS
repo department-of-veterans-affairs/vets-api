@@ -664,7 +664,6 @@ config/form_profile_mappings/0873.yml @department-of-veterans-affairs/vfs-virtua
 config/form_profile_mappings/1010ez.yml @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/10-10EZR.yml @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/10182.yml @department-of-veterans-affairs/Benefits-Team-1 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-config/form_profile_mappings/10-7959F-1.yml @department-of-veterans-affairs/champva-engineering @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/20-0995.yml @department-of-veterans-affairs/Benefits-Team-1 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/20-0996.yml @department-of-veterans-affairs/Benefits-Team-1 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/21-526EZ.yml @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
