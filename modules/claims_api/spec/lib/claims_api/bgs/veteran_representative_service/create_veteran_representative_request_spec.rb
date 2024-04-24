@@ -135,7 +135,7 @@ describe ClaimsApi::VeteranRepresentativeService, metadata do
         end
 
         it 'raises Common::Exceptions::ServiceError' do
-          use_bgs_cassette('mpi_ptcpnt_id_insrtead_of_vnp_ptcpnt_id') do
+          use_bgs_cassette('mpi_ptcpnt_id_instead_of_vnp_ptcpnt_id') do
             expect { subject }.to raise_error(
               Common::Exceptions::ServiceError
             )
