@@ -97,7 +97,7 @@ module ClaimsApi
         def synchronous
           auto_claim = shared_submit_methods
           # This kicks off the first of three jobs required to fully establish the claim
-          process_claim(auto_claim, perform_async: false) unless Flipper.enabled? :claims_load_testing
+          process_claim(auto_claim, false) unless Flipper.enabled? :claims_load_testing
 
           render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
             auto_claim, root: :data
