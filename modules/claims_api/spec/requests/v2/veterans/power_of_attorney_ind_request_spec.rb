@@ -379,6 +379,27 @@ RSpec.describe 'Power Of Attorney', type: :request do
                     end
                   end
 
+                  context 'when the provided POA code is not a valid 2122a individual code' do
+                    let(:request_body) do
+                      Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                      'power_of_attorney', '2122a', 'invalid_poa.json').read
+                    end
+
+                    it 'returns a meaningful 404' do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        detail = 'Could not find an Accredited Representative with registration number: 999999999999 and poa code: aaa' # rubocop:disable Layout/LineLength
+
+                        post validate2122a_path, params: request_body, headers: auth_header
+                        response_body = JSON.parse(response.body)['errors'][0]
+
+                        expect(response).to have_http_status(:not_found)
+                        expect(response_body['title']).to eq('Resource not found')
+                        expect(response_body['status']).to eq('404')
+                        expect(response_body['detail']).to eq(detail)
+                      end
+                    end
+                  end
+
                   context 'when no claimantId is provided and other claimant data is present' do
                     let(:request_body) do
                       Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
