@@ -943,7 +943,15 @@ def build_valid_address_attributes(api_response)
     city: address['city'],
     state_code: address['state_province']['code'],
     zip_code: address['zip_code5'],
-    zip_suffix: address['zip_code4']
+    zip_suffix: address['zip_code4'],
+    province: nil,
+    country_code_iso3: nil,
+    country_name: nil,
+    county_name: nil,
+    county_code: nil,
+    lat: nil,
+    long: nil,
+    location: nil
   }
 end
 
@@ -956,10 +964,10 @@ def build_null_address_attributes
     address_line2: nil,
     address_line3: nil,
     city: nil,
-    province: nil,
     state_code: nil,
     zip_code: nil,
     zip_suffix: nil,
+    province: nil,
     country_code_iso3: nil,
     country_name: nil,
     county_name: nil,
