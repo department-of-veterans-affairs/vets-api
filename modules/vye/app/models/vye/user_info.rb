@@ -20,13 +20,15 @@ module Vye
     has_many :address_changes, dependent: :destroy
     has_many :awards, dependent: :destroy
     has_many :direct_deposit_changes, dependent: :destroy
-    has_many :verifications, dependent: :destroy
+
+    scope :with_bdn_clone_active, -> { where(bdn_clone_active: true) }
 
     enum mr_status: { active: 'A', expired: 'E' }
     enum indicator: { chapter1606: 'A', chapter1607: 'E', chapter30: 'B', D: 'D' }
 
     delegate :icn, to: :user_profile, allow_nil: true
-    delegate :pending_documents, to: :user_profile, allow_nil: true
+    delegate :pending_documents, to: :user_profile
+    delegate :verifications, to: :user_profile
 
     has_kms_key
     has_encrypted(:dob, :file_number, :stub_nm, key: :kms_key, **lockbox_options)
