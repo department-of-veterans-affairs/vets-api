@@ -4,9 +4,6 @@ class CreateAccreditedRepresentativePortalVerifiedRepresentatives < ActiveRecord
   def change
     create_table :accredited_representative_portal_verified_representatives do |t|
       t.string :ogc_registration_number, null: false
-      t.string :first_name
-      t.string :last_name
-      t.string :middle_initial
       t.string :email, null: false
 
       t.timestamps
