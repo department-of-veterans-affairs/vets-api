@@ -67,10 +67,12 @@ module MyHealth
         when /dispensed_date/
           data[:sorted_dispensed_date]
         when 'prescription_name'
-          if data.disp_status != 'Active: Non-VA' || data.prescription_name
+          if data[:disp_status] == 'Active: Non-VA' && data[:prescription_name].nil?
+            data[:orderable_item]
+          elsif !data[:prescription_name].nil?
             data[:prescription_name]
           else
-            data[:orderable_item]
+            '~'
           end
         when 'disp_status'
           data[:disp_status]
