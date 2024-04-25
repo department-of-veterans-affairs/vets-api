@@ -83,6 +83,8 @@ class EVSSClaimDocument < Common::Base
   private
 
   def content_type_matches_extension?
+    return unless file_obj
+
     true_mime_type = MimeMagic.by_magic(File.open(file_obj.tempfile.path)).to_s
 
     # MimeMagic cannot always determine the mime_type and will sometimes
