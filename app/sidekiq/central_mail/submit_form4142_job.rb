@@ -52,13 +52,13 @@ module CentralMail
         bgjob_errors: bgjob_errors.merge(new_error)
       )
 
-      api_statsD_key = if Flipper.enabled?(:disability_compensation_form_4142)
+      api_statsd_key = if Flipper.enabled?(:disability_compensation_form_4142)
                          LIGHTHOUSE_STATSD_KEY_PREFIX
                        else
                          CENTRAL_MAIL_STATSD_KEY_PREFIX
                        end
 
-      StatsD.increment("#{api_statsD_key}.exhausted")
+      StatsD.increment("#{api_statsd_key}.exhausted")
 
       ::Rails.logger.warn(
         'Submit Form 4142 Retries exhausted',
