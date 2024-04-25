@@ -106,7 +106,7 @@ RSpec.describe 'Documents management', type: :request do
       params = { file: tempfile, tracked_item_id:, document_type: }
       post('/v0/evss_claims/189625/documents', params:)
       expect(response.status).to eq(422)
-      expect(JSON.parse(response.body)['errors'][0]['title']).to eq(I18n.t('errors.messages.uploads.malformed_pdf'))
+      expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.malformed_pdf'))
     end
   end
 
