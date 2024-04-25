@@ -654,10 +654,6 @@ features:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
     enable_in_development: true
-  mhv_landing_page_enabled:
-    actor_type: user
-    description: Enables the My HealtheVet landing page on VA.gov
-    enable_in_development: true
   mhv_landing_page_show_priority_group:
     actor_type: user
     description: Shows Veterans their Priority Group on the MHV Landing Page
