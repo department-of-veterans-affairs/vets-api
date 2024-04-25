@@ -16,10 +16,21 @@ module AccreditedRepresentativePortal
   # This model may eventually be associated with AccreditedIndividuals to pull POA codes,
   # if they exist, based on the OGC registration number. It currently does so via a helper method.
   class VerifiedRepresentative < ApplicationRecord
+    EMAIL_CONFLICT_ERROR_MESSAGE =
+      'Conflict with multiple `AccreditedIndividuals` having the same email. ' \
+      'Please review before attempting to add this `VerifiedRepresentative` record.'
+
     validates :ogc_registration_number, presence: true, uniqueness: { case_sensitive: false }
     validates :first_name, presence: true
     validates :last_name, presence: true
     validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
+
+    before_save :validate_unique_accredited_individual_email
+
+    def validate_unique_accredited_individual_email
+      individuals = AccreditedIndividual.where(email:)
+      errors.add(:email, EMAIL_CONFLICT_ERROR_MESSAGE) if individuals.count > 1
+    end
 
     # NOTE: given there will be RepresentativeUsers who are not VerifiedRepresentatives,
     # it's okay for this to return nil

@@ -17,6 +17,25 @@ RSpec.describe AccreditedRepresentativePortal::VerifiedRepresentative, type: :mo
       expect(subject).to allow_value('test@example.com').for(:email)
       expect(subject).not_to allow_value('invalid_email').for(:email)
     end
+
+    describe '#validate_unique_accredited_individual_email' do
+      let!(:individual_one) { create(:accredited_individual, email: 'duplicate@example.com') }
+      let!(:individual_two) { create(:accredited_individual, email: 'duplicate@example.com') }
+
+      it 'adds an error on the verified representative email if accredited_individual duplicates are found' do
+        verified_rep = build(:verified_representative, email: 'duplicate@example.com')
+        verified_rep.validate_unique_accredited_individual_email
+        expect(verified_rep.errors[:email]).to include(
+          AccreditedRepresentativePortal::VerifiedRepresentative::EMAIL_CONFLICT_ERROR_MESSAGE
+        )
+      end
+
+      it 'does not add an error if the accredited_individual email is unique' do
+        verified_rep = build(:verified_representative, email: 'unique@example.com')
+        verified_rep.validate_unique_accredited_individual_email
+        expect(verified_rep.errors[:email]).to be_empty
+      end
+    end
   end
 
   describe '#poa_codes' do
