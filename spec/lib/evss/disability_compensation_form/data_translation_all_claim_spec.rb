@@ -185,12 +185,35 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
           end
 
-          it 'includes a list of documents in the overflow text ordered alphabetically' do
-            expected_file_list = 'The veteran uploaded 2 documents along with this claim. ' \
-                                 "Please verify in VBMS eFolder:\n" \
-                                 "my_file_1.pdf\n" \
-                                 "my_file_2.pdf\n"
-            expect(subject.send(:overflow_text)).to eq(expected_file_list)
+          context 'when there is less than 40 files present' do
+            it 'includes a list of documents in the overflow text ordered alphabetically' do
+              expected_file_list = 'The veteran uploaded 2 documents along with this claim. ' \
+                                   "Please verify in VBMS eFolder:\n" \
+                                   "my_file_1.pdf\n" \
+                                   "my_file_2.pdf\n"
+              expect(subject.send(:overflow_text)).to eq(expected_file_list)
+            end
+          end
+
+          context 'when there are more than 40 files present' do
+            it 'includes the document count but does not list the file names' do
+              attachments = []
+
+              41.times do
+                attachments << { 'confirmationCode' => SecureRandom.uuid }
+              end
+
+              form_content = {
+                'form526' => {
+                  'attachments' => attachments
+                }
+              }
+
+              subject = described_class.new(user, form_content, false)
+              expect(subject.send(:overflow_text)).to eq(
+                "The veteran uploaded 41 documents along with this claim. Please verify in VBMS eFolder\n"
+              )
+            end
           end
         end
 

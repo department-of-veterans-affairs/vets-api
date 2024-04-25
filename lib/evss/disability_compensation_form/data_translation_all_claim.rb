@@ -32,6 +32,11 @@ module EVSS
                                'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
       FORM0781_OVERFLOW_TEXT = "VA Form 0781/a has been completed by the applicant and sent to the VBMS eFolder\n"
 
+      # If the veteran submitted supplemental attachments for this claim,
+      # we list them in the form overflowText for the claim adjudicator to cross reference with the eFolder
+      # However, if the file list is long enough we don't want to take up too much space in the overflow text
+      MAX_VETERAN_UPLOADED_FILE_LIST_ATTACHMENTS = 40
+
       # EVSS validates this date using CST, at some point this may change to EST.
       EVSS_TZ = 'Central Time (US & Canada)'
 
@@ -99,19 +104,29 @@ module EVSS
       end
 
       def attached_files_list
-        file_guids = input_form['attachments']&.pluck('confirmationCode')
+        list = ''
+        attachments = input_form['attachments']
 
-        if file_guids&.length
-          attachments = SupportingEvidenceAttachment.where(guid: file_guids)
-          list = "The veteran uploaded #{attachments.count} documents along with this claim. " \
-                 "Please verify in VBMS eFolder:\n"
-          filenames = attachments.map(&:original_filename).sort
-          filenames.each { |filename| list += "#{filename}\n" }
+        if attachments&.length
+          if attachments.length <= MAX_VETERAN_UPLOADED_FILE_LIST_ATTACHMENTS
+            list += "The veteran uploaded #{attachments.length} documents along with this claim. " \
+                    "Please verify in VBMS eFolder:\n"
 
-          return list
+            file_guids = attachments&.pluck('confirmationCode')
+            attachment_files = SupportingEvidenceAttachment.where(guid: file_guids)
+            filenames = attachment_files.map(&:original_filename).sort
+
+            filenames.each { |filename| list += "#{filename}\n" }
+          else
+            # If the file list is too long, we only include the message
+            # This is to avoid overfilling the overflowText field
+            # We also don't end the instruction with a colon because we aren't listing filenames after it
+            list += "The veteran uploaded #{attachments.length} documents along with this claim. " \
+                    "Please verify in VBMS eFolder\n"
+          end
         end
 
-        ''
+        list
       end
 
       ###
