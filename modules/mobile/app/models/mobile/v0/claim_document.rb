@@ -10,6 +10,8 @@ module Mobile
       attribute :document_type, Types::Integer
       attribute :filename, Types::String
       attribute :upload_date, Types::Date
+      attribute :type, Types::String
+      attribute :date, Types::Date
     end
   end
 end

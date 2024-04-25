@@ -22,7 +22,7 @@ module Mobile
       attribute :claim_type, Types::String
       attribute :contention_list, Types::Array
       attribute :va_representative, Types::String
-      attribute :events_timeline, Types::Array.of(EventTimeline)
+      attribute :events_timeline, Types::Array.of(ClaimEventTimeline)
       attribute :updated_at, Types::Date
     end
   end

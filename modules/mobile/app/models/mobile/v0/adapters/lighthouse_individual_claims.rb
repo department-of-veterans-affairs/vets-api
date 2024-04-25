@@ -58,6 +58,7 @@ module Mobile
           attributes = claim.dig('data', 'attributes')
           phase_change_date = attributes.dig('claimPhaseDates', 'phaseChangeDate')
           events_timeline = events_timeline(attributes)
+          binding.pry
 
           Mobile::V0::Claim.new(
             {
@@ -112,13 +113,13 @@ module Mobile
 
           # sort to put events with uploaded == false on top and then by date
           events.compact.sort_by do |event|
-            upload_priority = if event[:uploaded] || !event.key?(:uploaded)
+            upload_priority = if event.try(:uploaded) || event.try(:uploaded).nil?
                                 0 # Lower priority for uploaded == true or key not present
                               else
                                 1 # Higher priority for uploaded == false
                               end
 
-            event_date = event[:date] || DEFAULT_DATE
+            event_date = event.date || DEFAULT_DATE
 
             [upload_priority, event_date]
           end.reverse
@@ -127,10 +128,24 @@ module Mobile
         def create_event_from_string_date(type, date)
           return nil unless date
 
-          {
+          ClaimEventTimeline.new(
             type:,
-            date: Date.strptime(date, '%Y-%m-%d')
-          }
+            date: Date.strptime(date, '%Y-%m-%d'),
+            tracked_item_id: nil,
+            description: nil,
+            display_name: nil,
+            overdue: nil,
+            status: nil,
+            uploaded: nil,
+            uploads_allowed: nil,
+            opened_date: nil,
+            requested_date: nil,
+            received_date: nil,
+            closed_date: nil,
+            suspense_date: nil,
+            documents: nil,
+            upload_date: nil
+          )
         end
 
         def create_events_for_tracked_items(attributes)
@@ -144,15 +159,11 @@ module Mobile
 
         def create_events_for_documents(attributes)
           untracked_documents = attributes['supportingDocuments'].select { |document| document['trackedItemId'].nil? }
-          documents_hash = create_documents(untracked_documents)
-          documents_hash.map do |document|
-            date = document[:upload_date] ? Date.strptime(document[:upload_date], '%Y-%m-%d') : nil
-            document.merge(type: :other_documents_list, date:)
-          end
+          create_documents(untracked_documents, false)
         end
 
         def create_tracked_item_event(tracked_item, tracked_item_documents)
-          documents = create_documents(tracked_item_documents)
+          documents = create_documents(tracked_item_documents, true)
 
           event = {
             type: LH_STATUS_TO_EVSS_TYPE[tracked_item['status'].to_sym],
@@ -171,20 +182,28 @@ module Mobile
             documents:,
             upload_date: latest_upload_date(documents)
           }
+
           event[:date] = Date.strptime(event.slice(*EVENT_DATE_FIELDS).values.compact.first, '%Y-%m-%d')
-          event
+          ClaimEventTimeline.new(event)
         end
 
-        def create_documents(documents)
+        def create_documents(documents, tracked)
           documents.map do |document|
-            {
+            document_hash = {
               tracked_item_id: document['trackedItemId'],
               file_type: document['documentTypeLabel'],
               # no document type field available
               document_type: nil,
               filename: document['originalFileName'],
-              upload_date: document['uploadDate']
+              upload_date: document['uploadDate'],
+              type: nil,
+              date: nil
             }
+            unless tracked
+              date = document[:upload_date] ? Date.strptime(document[:upload_date], '%Y-%m-%d') : nil
+              document_hash.merge!(type: :other_documents_list, date:)
+            end
+            ClaimDocument.new(document_hash)
           end
         end
 

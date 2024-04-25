@@ -26,6 +26,8 @@ RSpec.describe 'lighthouse individual claim', type: :request do
         VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
           get '/mobile/v0/claim/600117255', headers: sis_headers
         end
+        binding.pry
+
         tracked_item_with_no_docs = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').select do |event|
           event['trackedItemId'] == 360_055
         end.first

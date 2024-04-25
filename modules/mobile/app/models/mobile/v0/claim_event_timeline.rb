@@ -4,7 +4,7 @@ require 'common/models/resource'
 
 module Mobile
   module V0
-    class EventTimeline < Common::Resource
+    class ClaimEventTimeline < Common::Resource
       attribute :type, Types::String
       attribute :tracked_item_id, Types::Integer.optional
       attribute :description, Types::String.optional
@@ -20,7 +20,7 @@ module Mobile
       attribute :suspense_date, Types::Date.optional
       attribute :documents, Types::Array.of(ClaimDocument).optional
       attribute :upload_date, Types::Date.optional
-      attribute :date, Types::Date
+      attribute :date, Types::Date.optional
     end
   end
 end
