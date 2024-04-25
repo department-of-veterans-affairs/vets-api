@@ -42,6 +42,19 @@ RSpec.describe 'Documents management', type: :request do
     expect(args['tracked_item_id']).to be_nil
   end
 
+  context 'when content type and file extension don’t match' do
+    let(:file) { fixture_file_upload('html.txt', 'text/plain') }
+
+    it 'rejects files when the content type and extension don’t match' do
+      params = { file:, tracked_item_id:, document_type: }
+      post('/v0/evss_claims/189625/documents', params:)
+      expect(response.status).to eq(422)
+      expect(JSON.parse(response.body)['errors'].first['title']).to eq(
+        I18n.t('errors.messages.uploads.content_type_mismatch')
+      )
+    end
+  end
+
   context 'with unaccepted file_type' do
     let(:file) { fixture_file_upload('invalid_idme_cert.crt', 'application/x-x509-ca-cert') }
 
@@ -70,7 +83,7 @@ RSpec.describe 'Documents management', type: :request do
       expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
     end
 
-    it 'rejects locked PDFs with the incocorrect password' do
+    it 'rejects locked PDFs with the incorrect password' do
       params = { file: locked_file, tracked_item_id:, document_type:, password: 'bad' }
       post('/v0/evss_claims/189625/documents', params:)
 
@@ -93,7 +106,7 @@ RSpec.describe 'Documents management', type: :request do
       params = { file: tempfile, tracked_item_id:, document_type: }
       post('/v0/evss_claims/189625/documents', params:)
       expect(response.status).to eq(422)
-      expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.malformed_pdf'))
+      expect(JSON.parse(response.body)['errors'][0]['title']).to eq(I18n.t('errors.messages.uploads.malformed_pdf'))
     end
   end
 
