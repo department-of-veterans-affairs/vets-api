@@ -8,8 +8,6 @@ RSpec.describe AccreditedRepresentativePortal::VerifiedRepresentative, type: :mo
 
     it { is_expected.to validate_presence_of(:ogc_registration_number) }
     it { is_expected.to validate_uniqueness_of(:ogc_registration_number).case_insensitive }
-    it { is_expected.to validate_presence_of(:first_name) }
-    it { is_expected.to validate_presence_of(:last_name) }
     it { is_expected.to validate_presence_of(:email) }
     it { is_expected.to validate_uniqueness_of(:email) }
 
