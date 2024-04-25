@@ -47,11 +47,11 @@ RSpec.describe Vye::V1::VerificationsController, type: :request do
       describe 'in VYE' do
         let!(:user_profile) { FactoryBot.create(:vye_user_profile, icn: current_user.icn) }
         let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:) }
-        let!(:award) { FactoryBot.create(:vye_award, user_info:) }
+        let(:award) { FactoryBot.create(:vye_award, user_info:) }
 
         it 'creates a new verification' do
           post('/vye/v1/verify', params: {})
-
+          # puts JSON.pretty_generate(JSON.parse(response))
           expect(response).to have_http_status(:no_content)
         end
       end
@@ -63,7 +63,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :request do
       end
       let!(:user_profile) { FactoryBot.create(:vye_user_profile, icn: current_user.icn) }
       let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:) }
-      let!(:award) { create(:vye_award, user_info:) }
+      let(:award) { create(:vye_award, user_info:) }
 
       it 'creates a new verification' do
         post('/vye/v1/verify', params: ivr_params)
