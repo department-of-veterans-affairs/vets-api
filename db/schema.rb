@@ -130,9 +130,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_24_132512) do
 
   create_table "accredited_representative_portal_verified_representatives", force: :cascade do |t|
     t.string "ogc_registration_number", null: false
-    t.string "first_name"
-    t.string "last_name"
-    t.string "middle_initial"
     t.string "email", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
