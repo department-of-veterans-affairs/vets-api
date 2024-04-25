@@ -70,6 +70,7 @@ jobs:
           token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
           fetch-depth: 1
           path: vsp-infra-application-manifests
+          ref: refs/heads/main
 
       - name: Update vets-api image and version name in Manifest repo for parent helm
         env:
