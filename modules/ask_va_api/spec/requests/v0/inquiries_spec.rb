@@ -234,7 +234,11 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
         it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
                         'AskVAApi::Inquiries::InquiriesRetrieverError: ' \
-                        'Data Validation: No Inquiries found by ID A-20240423-30709'
+                        '{:status=>400, :body=>"{\"Data\":null,\"Message\":\"Data Validation: ' \
+                        'No Inquiries found by ID A-20240423-30709\",\"ExceptionOccurred\":' \
+                        'true,\"ExceptionMessage\":\"Data Validation: No Inquiries found by ID ' \
+                        'A-20240423-30709\",\"MessageId\":\"ca5b990a-63fe-407d-a364-46caffce12c1\"}",' \
+                        ' :response_headers=>nil, :url=>nil}'
       end
     end
   end
