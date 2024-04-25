@@ -2,9 +2,6 @@
 veteran:
   dateOfBirth: [identity_information, date_of_birth]
   fullName: [identity_information, full_name]
-  first: [identity_information, first]
-  middle: [identity_information, middle]
-  last: [identity_information, last]
 physicalAddress:
   street: [contact_information, address, street]
   street2: [contact_information, address, street2]
