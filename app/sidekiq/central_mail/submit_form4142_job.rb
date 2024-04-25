@@ -27,7 +27,6 @@ module CentralMail
     LIGHTHOUSE_STATSD_KEY_PREFIX = 'worker.lighthouse.submit_form4142'
 
     class BenefitsIntake4142Error < StandardError; end
-    class VeteranCountryNotDefined < StandardError; end
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']
@@ -143,7 +142,7 @@ module CentralMail
       metadata = {
         'veteranFirstName' => vet_name[:first],
         'veteranLastName' => vet_name[:last],
-        'zipCode' => submission.form.dig('form526', 'form526', 'veteran', 'currentMailingAddress', 'zipFirstFive'),
+        'zipCode' => determine_zip,
         'source' => "Form526Submission va.gov",
         'docType' => '4142',
         'businessLine' => '',
@@ -154,14 +153,19 @@ module CentralMail
         .validate(metadata, zip_code_is_us_based: usa_based?)
     end
 
+    def determine_zip
+      submission.form.dig('form526', 'form526', 'veteran', 'currentMailingAddress', 'zipFirstFive') ||
+      submission.form.dig('form526', 'form526', 'veteran', 'mailingAddress', 'zipFirstFive') ||
+      '00000'
+    end
+
     def usa_based?
       country = (
         submission.form.dig('form526', 'form526', 'veteran', 'currentMailingAddress', 'country') ||
         submission.form.dig('form526', 'form526', 'veteran', 'mailingAddress', 'country')
       )
-      raise VeteranCountryNotDefined if country.blank?
 
-      %w[USA US].include?(country.upcase)
+      %w[USA US].include?(country&.upcase)
     end
 
     # Cannot move job straight to dead queue dynamically within an executing job
