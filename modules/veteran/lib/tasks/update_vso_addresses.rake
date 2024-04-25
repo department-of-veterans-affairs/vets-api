@@ -921,7 +921,7 @@ end
 # Builds a hash of the standard address fields from the address validation response.
 # @param api_response [Hash] The response from the address validation service.
 # @return [Hash] A hash of the standard address fields.
-def build_address_attributes(api_response)
+def build_valid_address_attributes(api_response)
   address = api_response['candidate_addresses'].first['address']
 
   {
@@ -932,6 +932,29 @@ def build_address_attributes(api_response)
     state_code: address['state_province']['code'],
     zip_code: address['zip_code5'],
     zip_suffix: address['zip_code4']
+  }
+end
+
+# Builds a hash of all address fields and sets them to nil.
+# @return [Hash] A hash of all address fields.
+def build_null_address_attributes
+  {
+    address_type: nil,
+    address_line1: nil,
+    address_line2: nil,
+    address_line3: nil,
+    city: nil,
+    province: nil,
+    state_code: nil,
+    zip_code: nil,
+    zip_suffix: nil,
+    country_code_iso3: nil,
+    country_name: nil,
+    county_name: nil,
+    county_code: nil,
+    lat: nil,
+    long: nil,
+    location: nil
   }
 end
 
@@ -947,14 +970,16 @@ namespace :veteran do
     ADDRESSES.each do |org|
       candidate_address = build_validation_address(org)
       api_response = validate_address(candidate_address)
+      record = Veteran::Service::Organization.find(org[:poa])
 
       if address_valid?(api_response)
-        record = Veteran::Service::Organization.find(org[:poa])
-        record.update(build_address_attributes(api_response))
-        num_records_updated += 1
+        record.update(build_valid_address_attributes(api_response))
       else
+        record.update(build_null_address_attributes)
         num_invalid_addresses += 1
       end
+
+      num_records_updated += 1
     rescue ActiveRecord::RecordNotFound
       num_records_not_found += 1
     rescue => e
