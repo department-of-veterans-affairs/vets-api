@@ -988,6 +988,8 @@ end
 # For zsh (which requires escaping square brackets or quoting the entire command), use one of the following:
 #   bundle exec rake veteran:update_vso_addresses\[ADDRESS_BATCH2\]
 #   bundle exec rake 'veteran:update_vso_addresses[ADDRESS_BATCH2]'
+#
+# After running the task, please wait about 60 seconds before running it again to avoid rate limiting.
 namespace :veteran do
   desc 'Update VSO (organization) Addresses'
   task :update_vso_addresses, [:constant_name] => :environment do |_t, args|
