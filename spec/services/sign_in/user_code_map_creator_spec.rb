@@ -77,14 +77,16 @@ RSpec.describe SignIn::UserCodeMapCreator do
 
     context 'if client config enforced terms is set to va terms' do
       let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
+      let(:user_account_uuid) { user_verification.user_account.id }
 
       context 'and user needs accepted terms of use' do
         it 'sets terms_code on returned user code map' do
           expect(subject.terms_code).not_to eq(nil)
         end
 
-        it 'creates a terms code container associated with terms code' do
-          expect(SignIn::TermsCodeContainer.find(subject.terms_code)).not_to eq(nil)
+        it 'creates a terms code container associated with terms code and with expected user attributes' do
+          terms_code_container = SignIn::TermsCodeContainer.find(subject.terms_code)
+          expect(terms_code_container.user_account_uuid).to eq(user_account_uuid)
         end
       end
 

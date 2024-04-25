@@ -101,7 +101,8 @@ class FormProfile
     vre_readiness: ['28-1900'],
     coe: ['26-1880'],
     adapted_housing: ['26-4555'],
-    intent_to_file: ['21-0966']
+    intent_to_file: ['21-0966'],
+    ivc_champva: ['10-7959F-1']
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -138,7 +139,8 @@ class FormProfile
     '22-1990EZ' => ::FormProfiles::VA1990ez,
     '26-1880' => ::FormProfiles::VA261880,
     '26-4555' => ::FormProfiles::VA264555,
-    '21-0966' => ::FormProfiles::VA210966
+    '21-0966' => ::FormProfiles::VA210966,
+    '10-7959F-1' => ::FormProfiles::VA107959f1
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
@@ -272,9 +274,10 @@ class FormProfile
   def initialize_contact_information
     opt = {}
     opt.merge!(vets360_contact_info_hash) if vet360_contact_info
+    Rails.logger.info("User Vet360 Contact Info, Address? #{opt[:address].present?}
+      Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
 
     opt[:address] ||= user_address_hash
-
     opt[:email] ||= extract_pciu_data(:pciu_email)
     if opt[:home_phone].nil?
       opt[:home_phone] = pciu_primary_phone
@@ -293,6 +296,8 @@ class FormProfile
     @vet360_contact_info_retrieved = true
     if VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
       @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
+    else
+      Rails.logger.info('Vet360 Contact Info Null')
     end
     @vet360_contact_info
   end
