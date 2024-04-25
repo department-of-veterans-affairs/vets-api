@@ -3,7 +3,7 @@
 require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/service'
 
-ADDRESSES = [
+ADDRESS_BATCH1 = [
   {
     poa: '091',
     address_line1: '9129 Veterans Drive SW',
@@ -203,7 +203,10 @@ ADDRESSES = [
     state_code: 'FL',
     zip_code: '33731',
     zip_suffix: nil
-  },
+  }
+].freeze
+
+ADDRESS_BATCH2 = [
   {
     poa: '016',
     address_line1: 'Floyd Veterans Memorial Building',
@@ -403,7 +406,10 @@ ADDRESSES = [
     state_code: 'VA',
     zip_code: '22314',
     zip_suffix: nil
-  },
+  }
+].freeze
+
+ADDRESS_BATCH3 = [
   {
     poa: '035',
     address_line1: 'Bishop Henry Whipple Federal Building',
@@ -603,7 +609,10 @@ ADDRESSES = [
     state_code: 'ND',
     zip_code: '58104',
     zip_suffix: nil
-  },
+  }
+].freeze
+
+ADDRESS_BATCH4 = [
   {
     poa: '4R2',
     address_line1: '233 Unknow Road',
@@ -803,7 +812,10 @@ ADDRESSES = [
     state_code: 'PA',
     zip_code: '18705',
     zip_suffix: nil
-  },
+  }
+].freeze
+
+ADDRESS_BATCH5 = [
   {
     poa: 'J3C',
     address_line1: '8719 Colesville Road',
@@ -958,16 +970,36 @@ def build_null_address_attributes
   }
 end
 
+# Task: Update VSO (Veteran Service Organization) Addresses
+#
+# This task updates addresses for VSOs by validating them through the VAProfile address validation service.
+# It can be run with a default set of addresses or with a custom set specified by a constant.
+#
+# Usage:
+# To run this task with the default address set (ADDRESSES), use:
+#   bundle exec rake veteran:update_vso_addresses
+#
+# To run this task with a custom set of addresses defined by a constant (e.g., ADDRESS_BATCH2), you need to specify the constant name. # rubocop:disable Layout/LineLength
+# Note: The command syntax can differ slightly depending on your shell environment.
+#
+# For bash or similar shells, use:
+#   bundle exec rake 'veteran:update_vso_addresses[ADDRESS_BATCH2]'
+#
+# For zsh (which requires escaping square brackets or quoting the entire command), use one of the following:
+#   bundle exec rake veteran:update_vso_addresses\[ADDRESS_BATCH2\]
+#   bundle exec rake 'veteran:update_vso_addresses[ADDRESS_BATCH2]'
 namespace :veteran do
   desc 'Update VSO (organization) Addresses'
-  task update_vso_addresses: :environment do
+  task :update_vso_addresses, [:constant_name] => :environment do |_t, args|
+    constant_name = args[:constant_name] || 'ADDRESS_BATCH1'
+    addresses = Object.const_get(constant_name)
     num_records_updated = 0
     num_invalid_addresses = 0
     num_records_not_found = 0
     num_records_errored = 0
     errors = []
 
-    ADDRESSES.each do |org|
+    addresses.each do |org|
       candidate_address = build_validation_address(org)
       api_response = validate_address(candidate_address)
       record = Veteran::Service::Organization.find(org[:poa])
@@ -987,7 +1019,7 @@ namespace :veteran do
       errors << "Error updating organization address for POA in Organizations::UpdateNames: #{e.message}. POA: '#{org[:poa]}'." # rubocop:disable Layout/LineLength
     end
 
-    puts "Total number of records: #{ADDRESSES.size}"
+    puts "Total number of records: #{addresses.size}"
     puts "Number of records updated: #{num_records_updated}"
     puts "Number of invalid addresses: #{num_invalid_addresses}"
     puts "Number of records not found: #{num_records_not_found}"
