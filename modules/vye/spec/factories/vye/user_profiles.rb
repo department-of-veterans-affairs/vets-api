@@ -6,6 +6,6 @@ FactoryBot.define do
   factory :vye_user_profile, class: 'Vye::UserProfile' do
     ssn { (1..9).map(&digit).join }
     file_number { (1..9).map(&digit).join }
-    icn { SecureRandom.uuid }
+    icn { 'random-icn' }
   end
 end
