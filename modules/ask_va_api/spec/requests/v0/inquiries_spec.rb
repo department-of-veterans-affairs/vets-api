@@ -100,19 +100,6 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     end
   end
 
-  describe 'POST #test_create' do
-    before do
-      allow_any_instance_of(Crm::Service).to receive(:call).and_return({ message: 'success' })
-      post '/ask_va_api/v0/test_create',
-           params: { 'reply' => 'test', 'endpoint' => 'inquiries/id/reply/new' },
-           as: :json
-    end
-
-    it 'response with 200' do
-      expect(response).to have_http_status(:ok)
-    end
-  end
-
   describe 'GET #show' do
     let(:expected_response) do
       { 'data' =>
@@ -220,19 +207,25 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       end
 
       context 'when the id is invalid' do
-        let(:crm_response) do
-          { Data: nil,
-            Message: 'Data Validation: No Inquiries found by ID A-20230305-30617',
-            ExceptionOccurred: true,
-            ExceptionMessage: 'Data Validation: No Inquiries found by ID A-20230305-30617',
-            MessageId: 'e6024ccb-e19b-4bc6-990c-667e7ebab4ec' }
+        let(:body) do
+          '{"Data":null,"Message":"Data Validation: No Inquiries found by ID A-20240423-30709"' \
+            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Inquiries found by ' \
+            'ID A-20240423-30709","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
+        end
+        let(:failure) do
+          {
+            status: 400,
+            body:,
+            response_headers: nil,
+            url: nil
+          }
         end
         let(:service) { instance_double(Crm::Service) }
 
         before do
           allow(Crm::Service).to receive(:new).and_return(service)
           allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
-          allow(service).to receive(:call).and_return(crm_response)
+          allow(service).to receive(:call).and_return(failure)
           sign_in(authorized_user)
           get "#{inquiry_path}/#{invalid_id}"
         end
@@ -241,89 +234,9 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
         it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
                         'AskVAApi::Inquiries::InquiriesRetrieverError: ' \
-                        'Data Validation: No Inquiries found by ID A-20230305-30617'
+                        'Data Validation: No Inquiries found by ID A-20240423-30709'
       end
     end
-
-    context 'when user is not signed in' do
-      before do
-        get "#{inquiry_path}/#{valid_id}"
-      end
-
-      it { expect(response).to have_http_status(:unauthorized) }
-    end
-  end
-
-  describe 'POST #unauth_create' do
-    let(:params) { { first_name: 'Fake', last_name: 'Smith' } }
-    let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
-
-    before do
-      allow_any_instance_of(Crm::Service).to receive(:call).with(endpoint:, method: :post,
-                                                                 payload: { params: }).and_return('success')
-      post inquiry_path, params:
-    end
-
-    it { expect(response).to have_http_status(:created) }
-  end
-
-  describe 'POST #upload_attachment' do
-    let(:file_path) { 'modules/ask_va_api/config/locales/get_inquiries_mock_data.json' }
-    let(:base64_encoded_file) { Base64.strict_encode64(File.read(file_path)) }
-    let(:params) { { attachment: "data:image/png;base64,#{base64_encoded_file}", inquiry_id: '12345' } }
-
-    context 'when the file is valid' do
-      it 'returns an ok status' do
-        post('/ask_va_api/v0/upload_attachment', params:)
-        expect(response).to have_http_status(:ok)
-        expect(json_response[:message]).to eq('Attachment has been received')
-      end
-    end
-
-    context 'when no file is attached' do
-      it 'returns a bad request status' do
-        post '/ask_va_api/v0/upload_attachment', params: { inquiry_id: '12345' }
-        expect(response).to have_http_status(:bad_request)
-        expect(json_response[:message]).to eq('No file attached')
-      end
-    end
-
-    context 'when the file size exceeds the limit' do
-      let(:large_file) { double('File', size: 30.megabytes, content_type: 'application/pdf') }
-      let(:large_base64_encoded_file) { Base64.strict_encode64('a' * large_file.size) }
-      let(:large_file_params) do
-        { attachment: "data:application/pdf;base64,#{large_base64_encoded_file}", inquiry_id: '12345' }
-      end
-
-      before do
-        allow(File).to receive(:read).and_return('a' * large_file.size)
-        post '/ask_va_api/v0/upload_attachment', params: large_file_params
-      end
-
-      it 'returns an unprocessable entity status' do
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(json_response[:message]).to eq('File size exceeds the allowed limit')
-      end
-    end
-
-    # Helper method to parse JSON response
-    def json_response
-      JSON.parse(response.body, symbolize_names: true)
-    end
-  end
-
-  describe 'POST #create' do
-    let(:params) { { first_name: 'Fake', last_name: 'Smith' } }
-    let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
-
-    before do
-      allow_any_instance_of(Crm::Service).to receive(:call).with(endpoint:, method: :post,
-                                                                 payload: { params: }).and_return('success')
-      sign_in(authorized_user)
-      post '/ask_va_api/v0/inquiries/auth', params:
-    end
-
-    it { expect(response).to have_http_status(:created) }
   end
 
   describe 'GET #download_attachment' do
@@ -416,17 +329,225 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     end
   end
 
+  describe 'POST #create' do
+    let(:payload) { { FirstName: 'Fake', YourLastName: 'Smith' } }
+    let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
+
+    context 'when successful' do
+      before do
+        allow_any_instance_of(Crm::Service).to receive(:call)
+          .with(endpoint:, method: :put,
+                payload:).and_return({
+                                       Data: {
+                                         Id: '530d56a8-affd-ee11-a1fe-001dd8094ff1'
+                                       },
+                                       Message: '',
+                                       ExceptionOccurred: false,
+                                       ExceptionMessage: '',
+                                       MessageId: 'b8ebd8e7-3bbf-49c5-aff0-99503e50ee27'
+                                     })
+        sign_in(authorized_user)
+        post '/ask_va_api/v0/inquiries/auth', params: payload
+      end
+
+      it { expect(response).to have_http_status(:created) }
+    end
+
+    context 'when crm api fail' do
+      context 'when the API call fails' do
+        let(:body) do
+          '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
+            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+            'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
+        end
+        let(:failure) do
+          {
+            status: 400,
+            body:,
+            response_headers: nil,
+            url: nil
+          }
+        end
+
+        before do
+          allow_any_instance_of(Crm::Service).to receive(:call)
+            .with(endpoint:, method: :put,
+                  payload:).and_return(failure)
+          sign_in(authorized_user)
+          post '/ask_va_api/v0/inquiries/auth', params: payload
+        end
+
+        it 'raise InquiriesCreatorError' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                        'AskVAApi::Inquiries::InquiriesCreatorError: Data Validation: missing InquiryCategory'
+      end
+    end
+  end
+
+  describe 'POST #unauth_create' do
+    let(:payload) { { FirstName: 'Fake', YourLastName: 'Smith' } }
+    let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
+
+    context 'when successful' do
+      before do
+        allow_any_instance_of(Crm::Service).to receive(:call)
+          .with(endpoint:, method: :put,
+                payload:).and_return({
+                                       Data: {
+                                         Id: '530d56a8-affd-ee11-a1fe-001dd8094ff1'
+                                       },
+                                       Message: '',
+                                       ExceptionOccurred: false,
+                                       ExceptionMessage: '',
+                                       MessageId: 'b8ebd8e7-3bbf-49c5-aff0-99503e50ee27'
+                                     })
+        post inquiry_path, params: payload
+      end
+
+      it { expect(response).to have_http_status(:created) }
+    end
+
+    context 'when crm api fail' do
+      context 'when the API call fails' do
+        let(:body) do
+          '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
+            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+            'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
+        end
+        let(:failure) do
+          {
+            status: 400,
+            body:,
+            response_headers: nil,
+            url: nil
+          }
+        end
+
+        before do
+          allow_any_instance_of(Crm::Service).to receive(:call)
+            .with(endpoint:, method: :put,
+                  payload:).and_return(failure)
+          post '/ask_va_api/v0/inquiries', params: payload
+        end
+
+        it 'raise InquiriesCreatorError' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                        'AskVAApi::Inquiries::InquiriesCreatorError: Data Validation: missing InquiryCategory'
+      end
+    end
+  end
+
+  describe 'POST #upload_attachment' do
+    let(:file_path) { 'modules/ask_va_api/config/locales/get_inquiries_mock_data.json' }
+    let(:base64_encoded_file) { Base64.strict_encode64(File.read(file_path)) }
+    let(:params) { { attachment: "data:image/png;base64,#{base64_encoded_file}", inquiry_id: '12345' } }
+
+    context 'when the file is valid' do
+      it 'returns an ok status' do
+        post('/ask_va_api/v0/upload_attachment', params:)
+        expect(response).to have_http_status(:ok)
+        expect(json_response[:message]).to eq('Attachment has been received')
+      end
+    end
+
+    context 'when no file is attached' do
+      it 'returns a bad request status' do
+        post '/ask_va_api/v0/upload_attachment', params: { inquiry_id: '12345' }
+        expect(response).to have_http_status(:bad_request)
+        expect(json_response[:message]).to eq('No file attached')
+      end
+    end
+
+    context 'when the file size exceeds the limit' do
+      let(:large_file) { double('File', size: 30.megabytes, content_type: 'application/pdf') }
+      let(:large_base64_encoded_file) { Base64.strict_encode64('a' * large_file.size) }
+      let(:large_file_params) do
+        { attachment: "data:application/pdf;base64,#{large_base64_encoded_file}", inquiry_id: '12345' }
+      end
+
+      before do
+        allow(File).to receive(:read).and_return('a' * large_file.size)
+        post '/ask_va_api/v0/upload_attachment', params: large_file_params
+      end
+
+      it 'returns an unprocessable entity status' do
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json_response[:message]).to eq('File size exceeds the allowed limit')
+      end
+    end
+
+    # Helper method to parse JSON response
+    def json_response
+      JSON.parse(response.body, symbolize_names: true)
+    end
+  end
+
+  describe 'POST #test_create' do
+    before do
+      allow_any_instance_of(Crm::Service).to receive(:call).and_return({ body: { message: 'success' } })
+      post '/ask_va_api/v0/test_create',
+           params: { 'reply' => 'test', 'endpoint' => 'inquiries/id/reply/new' },
+           as: :json
+    end
+
+    it 'response with 200' do
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
   describe 'POST #create_reply' do
     let(:payload) { { 'reply' => 'this is my reply' } }
 
-    before do
-      allow_any_instance_of(Crm::Service).to receive(:call).and_return({ Data: { Id: '123' } })
-      sign_in(authorized_user)
-      post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
+    context 'when successful' do
+      before do
+        allow_any_instance_of(Crm::Service).to receive(:call).and_return({ Data: { Id: '123' } })
+        sign_in(authorized_user)
+        post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
+      end
+
+      it 'returns status 200' do
+        expect(response).to have_http_status(:ok)
+      end
     end
 
-    it 'returns status 200' do
-      expect(response).to have_http_status(:ok)
+    context 'when crm api fail' do
+      context 'when the API call fails' do
+        let(:endpoint) { 'inquiries/123/reply/new' }
+        let(:body) do
+          '{"Data":null,"Message":"Data Validation: Missing Reply"' \
+            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: ' \
+            'Missing Reply","MessageId":"e2cbe041-df91-41f4-8bd2-8b6d9dbb2e38"}'
+        end
+        let(:failure) do
+          {
+            status: 400,
+            body:,
+            response_headers: nil,
+            url: nil
+          }
+        end
+
+        before do
+          sign_in(authorized_user)
+          allow_any_instance_of(Crm::Service).to receive(:call)
+            .with(endpoint:, method: :put,
+                  payload: { Reply: 'this is my reply' }).and_return(failure)
+          post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
+        end
+
+        it 'raise InquiriesCreatorError' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                        'AskVAApi::Correspondences::CorrespondencesCreatorError: Data Validation: Missing Reply'
+      end
     end
   end
 end
