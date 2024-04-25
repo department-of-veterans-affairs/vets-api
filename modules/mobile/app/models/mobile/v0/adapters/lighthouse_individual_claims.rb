@@ -58,7 +58,6 @@ module Mobile
           attributes = claim.dig('data', 'attributes')
           phase_change_date = attributes.dig('claimPhaseDates', 'phaseChangeDate')
           events_timeline = events_timeline(attributes)
-          binding.pry
 
           Mobile::V0::Claim.new(
             {
@@ -113,7 +112,7 @@ module Mobile
 
           # sort to put events with uploaded == false on top and then by date
           events.compact.sort_by do |event|
-            upload_priority = if event.try(:uploaded) || event.try(:uploaded).nil?
+            upload_priority = if event.uploaded || event.uploaded.nil?
                                 0 # Lower priority for uploaded == true or key not present
                               else
                                 1 # Higher priority for uploaded == false
@@ -159,11 +158,15 @@ module Mobile
 
         def create_events_for_documents(attributes)
           untracked_documents = attributes['supportingDocuments'].select { |document| document['trackedItemId'].nil? }
-          create_documents(untracked_documents, false)
+          untracked_documents.map do |document|
+            date = document[:upload_date] ? Date.strptime(document[:upload_date], '%Y-%m-%d') : nil
+            create_event_from_string_date(:other_documents_list, date)
+          end
+
         end
 
         def create_tracked_item_event(tracked_item, tracked_item_documents)
-          documents = create_documents(tracked_item_documents, true)
+          documents = create_documents(tracked_item_documents)
 
           event = {
             type: LH_STATUS_TO_EVSS_TYPE[tracked_item['status'].to_sym],
@@ -187,7 +190,7 @@ module Mobile
           ClaimEventTimeline.new(event)
         end
 
-        def create_documents(documents, tracked)
+        def create_documents(documents)
           documents.map do |document|
             document_hash = {
               tracked_item_id: document['trackedItemId'],
@@ -196,13 +199,7 @@ module Mobile
               document_type: nil,
               filename: document['originalFileName'],
               upload_date: document['uploadDate'],
-              type: nil,
-              date: nil
             }
-            unless tracked
-              date = document[:upload_date] ? Date.strptime(document[:upload_date], '%Y-%m-%d') : nil
-              document_hash.merge!(type: :other_documents_list, date:)
-            end
             ClaimDocument.new(document_hash)
           end
         end
