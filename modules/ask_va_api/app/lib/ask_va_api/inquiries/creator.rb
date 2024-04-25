@@ -13,8 +13,8 @@ module AskVAApi
         @service = service || default_service
       end
 
-      def call(params:)
-        post_data(payload: { params: })
+      def call(payload:)
+        post_data(payload:)
       rescue => e
         ErrorHandler.handle_service_error(e)
       end
@@ -32,7 +32,8 @@ module AskVAApi
 
       def handle_response_data(response)
         if response[:Data].nil?
-          raise InquiriesCreatorError, response[:Message]
+          error = JSON.parse(response[:body], symbolize_names: true)
+          raise InquiriesCreatorError, error[:Message]
         else
           response[:Data]
         end

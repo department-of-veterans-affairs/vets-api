@@ -103,6 +103,10 @@ RSpec.describe Form526Submission do
         .to(:unprocessable).on_event(:mark_as_unprocessable)
       expect(submission).to transition_from(:unprocessed)
         .to(:in_remediation).on_event(:begin_remediation)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:processed_in_batch_remediation).on_event(:process_in_batch_remediation)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:ignorable_duplicate).on_event(:ignore_as_duplicate)
     end
   end
 

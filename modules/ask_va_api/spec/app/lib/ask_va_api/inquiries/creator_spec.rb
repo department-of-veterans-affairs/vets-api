@@ -6,7 +6,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
   let(:icn) { '123456' }
   let(:service) { instance_double(Crm::Service) }
   let(:creator) { described_class.new(icn:, service:) }
-  let(:params) { { FirstName: 'Fake', YourLastName: 'Smith' } }
+  let(:payload) { { FirstName: 'Fake', YourLastName: 'Smith' } }
   let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
 
   before do
@@ -17,35 +17,45 @@ RSpec.describe AskVAApi::Inquiries::Creator do
     context 'when the API call is successful' do
       before do
         allow(service).to receive(:call).with(endpoint:, method: :put,
-                                              payload: { params: }).and_return({
-                                                                                 Data: {
-                                                                                   InquiryNumber: '530d56a8-affd-ee11' \
-                                                                                                  '-a1fe-001dd8094ff1'
-                                                                                 },
-                                                                                 Message: '',
-                                                                                 ExceptionOccurred: false,
-                                                                                 ExceptionMessage: '',
-                                                                                 MessageId: 'b8ebd8e7-3bbf-49c5' \
-                                                                                            '-aff0-99503e50ee27'
-                                                                               })
+                                              payload:).and_return({
+                                                                     Data: {
+                                                                       InquiryNumber: '530d56a8-affd-ee11' \
+                                                                                      '-a1fe-001dd8094ff1'
+                                                                     },
+                                                                     Message: '',
+                                                                     ExceptionOccurred: false,
+                                                                     ExceptionMessage: '',
+                                                                     MessageId: 'b8ebd8e7-3bbf-49c5' \
+                                                                                '-aff0-99503e50ee27'
+                                                                   })
       end
 
       it 'posts data to the service and returns the response' do
-        expect(creator.call(params:)).to eq({ InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1' })
+        expect(creator.call(payload:)).to eq({ InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1' })
       end
     end
 
     context 'when the API call fails' do
+      let(:body) do
+        '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
+          ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+          'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
+      end
+      let(:failure) do
+        {
+          status: 400,
+          body:,
+          response_headers: nil,
+          url: nil
+        }
+      end
+
       before do
-        allow(service).to receive(:call).and_return({ Data: nil,
-                                                      Message: 'Data Validation: missing InquiryCategory',
-                                                      ExceptionOccurred: true,
-                                                      ExceptionMessage: 'Data Validation: missing InquiryCategory',
-                                                      MessageId: '13bc59ea-c90a-4d48-8979-fe71e0f7ddeb' })
+        allow(service).to receive(:call).and_return(failure)
       end
 
       it 'raise InquiriesCreatorError' do
-        expect { creator.call(params:) }.to raise_error(ErrorHandler::ServiceError)
+        expect { creator.call(payload:) }.to raise_error(ErrorHandler::ServiceError)
       end
     end
   end
