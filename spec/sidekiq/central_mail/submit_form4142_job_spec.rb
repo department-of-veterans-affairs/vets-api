@@ -1,3 +1,5 @@
+# spec/sidekiq/central_mail/submit_form4142_job_spec.rb
+#
 # frozen_string_literal: true
 
 require 'rails_helper'
@@ -8,6 +10,15 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
 
   before do
     Sidekiq::Job.clear_all
+    # Make Job use old CentralMail route for all tests
+    Flipper.disable(:disability_compensation_form_4142)
+  end
+
+describe "Test old CentralMail route" do
+
+  before do
+    # Make Job use old CentralMail route for all tests
+    Flipper.disable(:disability_compensation_form_4142)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -118,6 +129,12 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       it 'raises a central mail response error' do
         VCR.use_cassette('central_mail/submit_4142_400') do
           subject.perform_async(submission.id)
+          # begin # TDV
+          #   result = described_class.drain
+          # rescue => e
+          #   puts e.callback
+          #   raise e
+          # end
           expect { described_class.drain }.to raise_error(CentralMail::SubmitForm4142Job::CentralMailResponseError)
         end
       end
@@ -131,7 +148,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
 
       it 'updates a StatsD counter and updates the status on an exhaustion event' do
         subject.within_sidekiq_retries_exhausted_block({ 'jid' => form526_job_status.job_id }) do
-          expect(StatsD).to receive(:increment).with("#{subject::STATSD_KEY_PREFIX}.exhausted")
+          expect(StatsD).to receive(:increment).with("#{subject::CENTRAL_MAIL_STATSD_KEY_PREFIX}.exhausted")
           expect(Rails).to receive(:logger).and_call_original
         end
         form526_job_status.reload
@@ -139,4 +156,20 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
     end
   end
+
+
+# End of the Old CentralMail Route tests
+end
+
+describe "Test new Lighthouse route" do
+
+  before do
+    # Make Job use new Lighthouse route for all tests
+    Flipper.enable(:disability_compensation_form_4142)
+  end
+
+# End of the new Lighthouse Route tests
+end
+
+# End of the overall Spec
 end
