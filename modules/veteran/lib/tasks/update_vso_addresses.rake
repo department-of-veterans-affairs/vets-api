@@ -950,7 +950,7 @@ namespace :veteran do
 
       if address_valid?(api_response)
         record = Veteran::Service::Organization.find(org[:poa])
-        record.update(build_address(api_response))
+        record.update(build_address_attributes(api_response))
         num_records_updated += 1
       else
         num_invalid_addresses += 1
