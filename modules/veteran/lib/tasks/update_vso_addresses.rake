@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'va_profile/models/validation_address'
+require 'va_profile/address_validation/service'
+
 ADDRESSES = [
   {
     poa: '091',
@@ -878,33 +881,92 @@ ADDRESSES = [
     address_line3: nil,
     city: 'Cheyenne',
     state_code: 'WY',
-    zip_code: '82009'
+    zip_code: '82009',
+    zip_suffix: nil
   }
 ].freeze
+
+# Constructs a validation address object from the provided address data.
+# @param org [Hash] A hash containing the details of the organization's address.
+# @return [VAProfile::Models::ValidationAddress] A validation address object ready for address validation service.
+def build_validation_address(org)
+  VAProfile::Models::ValidationAddress.new(
+    address_pou: 'RESIDENCE/CHOICE',
+    address_line1: org[:address_line1],
+    address_line2: org[:address_line2],
+    address_line3: org[:address_line3],
+    city: org[:city],
+    state_code: org[:state_code],
+    zip_code: org[:zip_code],
+    zip_code_suffix: org[:zip_suffix],
+    country_code_iso3: 'US'
+  )
+end
+
+# Validates the given address using the VAProfile address validation service.
+# @param candidate_address [VAProfile::Models::ValidationAddress] The address to be validated.
+# @return [Hash] The response from the address validation service.
+def validate_address(candidate_address)
+  validation_service = VAProfile::AddressValidation::Service.new
+  validation_service.candidate(candidate_address)
+end
+
+# Checks if the address validation response is valid.
+# @param api_response [Hash] The response from the address validation service.
+# @return [Boolean] True if the address is valid, false otherwise.
+def address_valid?(api_response)
+  api_response.key?('candidate_addresses') && !api_response['candidate_addresses'].empty?
+end
+
+# Builds a hash of the standard address fields from the address validation response.
+# @param api_response [Hash] The response from the address validation service.
+# @return [Hash] A hash of the standard address fields.
+def build_address_attributes(api_response)
+  address = api_response['candidate_addresses'].first['address']
+
+  {
+    address_line1: address['address_line1'],
+    address_line2: address['address_line2'],
+    address_line3: address['address_line3'],
+    city: address['city'],
+    state_code: address['state_province']['code'],
+    zip_code: address['zip_code5'],
+    zip_suffix: address['zip_code4']
+  }
+end
 
 namespace :veteran do
   desc 'Update VSO (organization) Addresses'
   task update_vso_addresses: :environment do
     num_records_updated = 0
+    num_invalid_addresses = 0
     num_records_not_found = 0
     num_records_errored = 0
+    errors = []
 
     ADDRESSES.each do |org|
-      record = Veteran::Service::Organization.find(org[:poa])
-      record.update(address_line1: org[:address_line1], address_line2: org[:address_line2],
-                    address_line3: org[:address_line3], city: org[:city], state_code: org[:state_code], zip_code: org[:zip_code], zip_suffix: org[:zip_suffix]) # rubocop:disable Layout/LineLength
+      candidate_address = build_validation_address(org)
+      api_response = validate_address(candidate_address)
 
-      num_records_updated += 1
+      if address_valid?(api_response)
+        record = Veteran::Service::Organization.find(org[:poa])
+        record.update(build_address(api_response))
+        num_records_updated += 1
+      else
+        num_invalid_addresses += 1
+      end
     rescue ActiveRecord::RecordNotFound
       num_records_not_found += 1
     rescue => e
       num_records_errored += 1
-      puts "Error updating organization address for POA in Organizations::UpdateNames: #{e.message}. POA: '#{org[:poa]}'." # rubocop:disable Layout/LineLength
+      errors << "Error updating organization address for POA in Organizations::UpdateNames: #{e.message}. POA: '#{org[:poa]}'." # rubocop:disable Layout/LineLength
     end
 
     puts "Total number of records: #{ADDRESSES.size}"
     puts "Number of records updated: #{num_records_updated}"
+    puts "Number of invalid addresses: #{num_invalid_addresses}"
     puts "Number of records not found: #{num_records_not_found}"
     puts "Number of records errored: #{num_records_errored}"
+    puts "Errors:\n#{errors.join("\n")}"
   end
 end
