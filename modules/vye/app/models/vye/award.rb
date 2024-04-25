@@ -3,6 +3,7 @@
 module Vye
   class Vye::Award < ApplicationRecord
     belongs_to :user_info
+    has_many :verifications, dependent: :nullify
 
     enum cur_award_ind: { current: 'C', future: 'F', past: 'P' }
 
