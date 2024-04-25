@@ -1635,7 +1635,7 @@ ivc_forms:
     enabled: true
     region: "region"
 
-ivc_champva_ohi:
+ivc_champva:
   prefill: true
 
 coverband:

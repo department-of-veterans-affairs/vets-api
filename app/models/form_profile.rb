@@ -102,7 +102,7 @@ class FormProfile
     coe: ['26-1880'],
     adapted_housing: ['26-4555'],
     intent_to_file: ['21-0966'],
-    ivc_champva_ohi: ['10-7959C']
+    ivc_champva: ['10-7959F-1', '10-7959C']
   }.freeze
 
   FORM_ID_TO_CLASS = {
