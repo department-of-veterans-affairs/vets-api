@@ -201,7 +201,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       before { sign_in_as(dependent_user) }
 
       it 'returns a status of 200' do
-        VCR.use_cassette('lighthouse/benefits_claims/submit5103/200_response_dependent') do
+        VCR.use_cassette('lighthouse/benefits_claims/submit5103/200_response') do
           post(:submit5103, params: { id: '600397109' })
         end
 
@@ -220,10 +220,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
     context 'when LH takes too long to respond' do
       it 'returns a status of 504' do
-        # rubocop:disable Layout/LineLength
-        allow_any_instance_of(BenefitsClaims::Configuration).to receive(:post_with_params).and_raise(Faraday::TimeoutError)
-        # rubocop:enable Layout/LineLength
-
+        allow_any_instance_of(BenefitsClaims::Configuration).to receive(:post).and_raise(Faraday::TimeoutError)
         post(:submit5103, params: { id: '60038334' })
 
         expect(response).to have_http_status(:gateway_timeout)
