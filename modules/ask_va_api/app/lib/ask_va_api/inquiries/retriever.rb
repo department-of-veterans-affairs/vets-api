@@ -64,7 +64,7 @@ module AskVAApi
       end
 
       def handle_response_data(response)
-       response[:Data].presence || raise(InquiriesRetrieverError, response)
+        response[:Data].presence || raise(InquiriesRetrieverError, response)
       end
     end
   end
