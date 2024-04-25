@@ -104,6 +104,49 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
     end
 
+    describe 'form 0781/a' do
+      context 'when a form 0781/a is included with Form 526' do
+        let(:form_json) do
+          File.read('spec/support/disability_compensation_form/submissions/with_0781.json')
+        end
+
+        context 'when the form526_include_document_upload_list_in_overflow_text flipper is enabled' do
+          before do
+            Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
+          end
+
+          it 'includes a note in the overflow text' do
+            expected_note = "VA Form 0781/a has been completed by the applicant and sent to the VBMS eFolder\n"
+            expect(described_class.new(user, JSON.parse(form_json), false).send(:overflow_text)).to eq(expected_note)
+          end
+        end
+
+        context 'when the form526_include_document_upload_list_in_overflow_text flipper is disabled' do
+          before do
+            Flipper.disable(:form526_include_document_upload_list_in_overflow_text)
+          end
+
+          it 'does not include a note in the overflow text' do
+            expect(subject.send(:overflow_text)).to eq('')
+          end
+        end
+      end
+
+      context 'when a form 0781/a is not included with Form 526' do
+        before do
+          Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
+        end
+
+        let(:form_json) do
+          File.read('spec/support/disability_compensation_form/submissions/only_526.json')
+        end
+
+        it 'does not include a note in the overflow text' do
+          expect(subject.send(:overflow_text)).to eq('')
+        end
+      end
+    end
+
     describe 'veteran uploaded document list' do
       subject { described_class.new(user, form_content, false) }
 

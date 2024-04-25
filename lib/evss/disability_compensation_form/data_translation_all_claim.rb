@@ -30,6 +30,7 @@ module EVSS
                                "This applicant has indicated that they're terminally ill.\n"
       FORM4142_OVERFLOW_TEXT = 'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \
                                'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
+      FORM0781_OVERFLOW_TEXT = "VA Form 0781/a has been completed by the applicant and sent to the VBMS eFolder\n"
 
       # EVSS validates this date using CST, at some point this may change to EST.
       EVSS_TZ = 'Central Time (US & Canada)'
@@ -88,23 +89,25 @@ module EVSS
         overflow = ''
         overflow += TERMILL_OVERFLOW_TEXT if input_form['isTerminallyIll'].present?
         overflow += FORM4142_OVERFLOW_TEXT if @has_form4142
-        overflow += attached_files_list
+
+        if Flipper.enabled?(:form526_include_document_upload_list_in_overflow_text)
+          overflow += FORM0781_OVERFLOW_TEXT if @form_content.key?(Form526Submission::FORM_0781)
+          overflow += attached_files_list
+        end
 
         overflow
       end
 
       def attached_files_list
-        if Flipper.enabled?(:form526_include_document_upload_list_in_overflow_text)
-          file_guids = input_form['attachments']&.pluck('confirmationCode')
+        file_guids = input_form['attachments']&.pluck('confirmationCode')
 
-          if file_guids&.length
-            attachments = SupportingEvidenceAttachment.where(guid: file_guids)
-            list = "The veteran uploaded #{attachments.count} documents along with this claim. Review in VBMS eFolder:\n"
-            filenames = attachments.map(&:original_filename).sort
-            filenames.each { |filename| list += "#{filename}\n" }
+        if file_guids&.length
+          attachments = SupportingEvidenceAttachment.where(guid: file_guids)
+          list = "The veteran uploaded #{attachments.count} documents along with this claim. Review in VBMS eFolder:\n"
+          filenames = attachments.map(&:original_filename).sort
+          filenames.each { |filename| list += "#{filename}\n" }
 
-            return list
-          end
+          return list
         end
 
         ''
