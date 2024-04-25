@@ -92,9 +92,6 @@ class EVSSClaimDocument < Common::Base
 
     assumed_mime_type = MimeMagic.by_extension(extension).to_s
 
-    p "Assumed MIME Type: #{assumed_mime_type}"
-    p "True MIME Type: #{true_mime_type}"
-
     errors.add(:base, I18n.t('errors.messages.uploads.content_type_mismatch')) if true_mime_type != assumed_mime_type
   end
 
