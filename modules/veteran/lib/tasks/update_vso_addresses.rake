@@ -890,7 +890,7 @@ namespace :veteran do
     num_records_errored = 0
 
     ADDRESSES.each do |org|
-      record = Veteran::Service::Organization.find(org['POA'])
+      record = Veteran::Service::Organization.find(org[:poa])
       record.update(address_line1: org[:address_line1], address_line2: org[:address_line2],
                     address_line3: org[:address_line3], city: org[:city], state_code: org[:state_code], zip_code: org[:zip_code], zip_suffix: org[:zip_suffix]) # rubocop:disable Layout/LineLength
 
