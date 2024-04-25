@@ -143,7 +143,7 @@ module CentralMail
       metadata = {
         'veteranFirstName' => vet_name[:first],
         'veteranLastName' => vet_name[:last],
-        'zipCode' => determine_zip,
+        'zipCode' => submission.form.dig('form526', 'form526', 'veteran', 'currentMailingAddress', 'zipFirstFive'),
         'source' => "Form526Submission va.gov",
         'docType' => '4142',
         'businessLine' => '',
@@ -156,8 +156,8 @@ module CentralMail
 
     def usa_based?
       country = (
-        subission.form.dig('form526', 'form526', 'veteran', 'currentMailingAddress', 'country') ||
-        subission.form.dig('form526', 'form526', 'veteran', 'mailingAddress', 'country')
+        submission.form.dig('form526', 'form526', 'veteran', 'currentMailingAddress', 'country') ||
+        submission.form.dig('form526', 'form526', 'veteran', 'mailingAddress', 'country')
       )
       raise VeteranCountryNotDefined if country.blank?
 
