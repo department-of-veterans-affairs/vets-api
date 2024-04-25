@@ -242,6 +242,8 @@ RSpec.describe 'Disability compensation form' do
           post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('submit_disability_form')
+          form = Form526Submission.last.form
+          expect(form.dig('form526', 'form526', 'toxicExposure')).not_to eq(nil)
         end
 
         it 'matches the rated disabilites schema with camel-inflection' do

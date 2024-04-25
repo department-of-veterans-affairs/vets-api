@@ -9,11 +9,28 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
     sign_in_as(user)
     token = 'abcdefghijklmnop'
     allow_any_instance_of(DirectDeposit::Configuration).to receive(:access_token).and_return(token)
+    allow(Rails.logger).to receive(:info)
     Flipper.disable(:profile_show_direct_deposit_single_form)
   end
 
   describe '#show' do
     context 'when successful' do
+      it 'logs the control info' do
+        VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+          get(:show)
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(Rails.logger)
+          .to have_received(:info)
+          .with('Direct Deposit Control Info: Show',
+                { benefit_type: 'both',
+                  updatable: true,
+                  valid: true,
+                  restrictions: '',
+                  errors: '' })
+      end
+
       it 'returns a status of 200' do
         VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
           get(:show)
@@ -154,9 +171,34 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
         control_information: {
           can_update_direct_deposit: true,
           is_corp_available: true,
-          is_edu_claim_available: true
+          is_edu_claim_available: true,
+          is_corp_rec_found: true,
+          has_no_bdn_payments: true,
+          has_index: true,
+          is_competent: true,
+          has_mailing_address: true,
+          has_no_fiduciary_assigned: true,
+          is_not_deceased: true,
+          has_payment_address: true,
+          has_identity: true
         }
       }
+    end
+
+    it 'logs the control info' do
+      VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
+        put(:update, params:)
+      end
+
+      expect(response).to have_http_status(:ok)
+      expect(Rails.logger)
+        .to have_received(:info)
+        .with('Direct Deposit Control Info: Update',
+              { benefit_type: 'both',
+                updatable: true,
+                valid: true,
+                restrictions: '',
+                errors: '' })
     end
 
     it 'returns a status of 200' do
