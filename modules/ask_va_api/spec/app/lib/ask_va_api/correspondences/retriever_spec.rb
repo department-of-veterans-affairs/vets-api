@@ -18,15 +18,6 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
   end
 
   describe '#call' do
-    context 'when id is blank' do
-      let(:inquiry_id) { nil }
-
-      it 'raises an ArgumentError' do
-        expect { retriever.call }
-          .to raise_error(ErrorHandler::ServiceError, 'ArgumentError: Invalid Inquiry ID')
-      end
-    end
-
     context 'when Crm raise an error' do
       let(:endpoint) { 'inquiries/1/replies' }
       let(:response) do
@@ -42,8 +33,12 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
         allow(service).to receive(:call).and_return(response)
       end
 
-      it 'raise CorrespondenceRetrieverError' do
-        expect { retriever.call }.to raise_error(ErrorHandler::ServiceError)
+      it 'returns the error' do
+        expect(retriever.call).to eq({ Data: [],
+                                       Message: 'Data Validation: No Inquiry Found',
+                                       ExceptionOccurred: true,
+                                       ExceptionMessage: 'Data Validation: No Inquiry Found',
+                                       MessageId: '2d746074-9e5c-4987-a894-e3f834b156b5' })
       end
     end
 

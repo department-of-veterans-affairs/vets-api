@@ -3,22 +3,20 @@
 require 'rails_helper'
 
 RSpec.describe Vye::Verification, type: :model do
+  let(:user_info) { create(:vye_user_info) }
+
   describe 'create' do
-    let!(:user_profile) { FactoryBot.create(:vye_user_profile) }
-    let(:verification) { FactoryBot.build(:vye_verification, user_profile:) }
+    let(:attributes) { FactoryBot.attributes_for(:vye_verification, user_info:) }
 
     it 'creates a record' do
       expect do
-        verification.save!
+        Vye::Verification.create!(attributes)
       end.to change(Vye::Verification, :count).by(1)
     end
   end
 
   describe 'show todays verifications' do
-    let!(:user_profile) { FactoryBot.create(:vye_user_profile) }
-    let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:) }
-    let!(:award) { FactoryBot.create(:vye_award, user_info:) }
-    let!(:verification) { FactoryBot.create(:vye_verification, award:, user_profile:) }
+    let!(:verification) { FactoryBot.create(:vye_verification, user_info:) }
 
     before do
       ssn = '123456789'

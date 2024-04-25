@@ -164,6 +164,74 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
           end
         end
       end
+
+      context 'with Correspondences' do
+        let(:id) { '123' }
+        let(:response) do
+          { Data: [{ Id: '154163f2-8fbb-ed11-9ac4-00155da17a6f',
+                     InquiryNumber: 'A-20230305-306178',
+                     InquiryStatus: 'Reopened',
+                     SubmitterQuestion: 'test',
+                     LastUpdate: '4/1/2024 12:00:00 AM',
+                     InquiryHasAttachments: true,
+                     InquiryHasBeenSplit: true,
+                     VeteranRelationship: 'GIBillBeneficiary',
+                     SchoolFacilityCode: '77a51029-6816-e611-9436-0050568d743d',
+                     InquiryTopic: 'Medical Care Concerns at a VA Medical Facility',
+                     InquiryLevelOfAuthentication: 'Unauthenticated',
+                     AttachmentNames: [{ Id: '367e8d31-6c82-1d3c-81b8-dd2cabed7555',
+                                         Name: 'Test.txt' }] }] }
+        end
+
+        context 'when Correspondence::Retriever returns an error' do
+          before do
+            allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+            allow(service).to receive(:call).and_return(response)
+            allow_any_instance_of(AskVAApi::Correspondences::Retriever).to receive(:call)
+              .and_return({ Data: [],
+                            Message: 'Data Validation: No Inquiry Found',
+                            ExceptionOccurred: true,
+                            ExceptionMessage: 'Data Validation: No Inquiry Found',
+                            MessageId: '2d746074-9e5c-4987-a894-e3f834b156b5' })
+          end
+
+          it 'returns correspondences as an empty array' do
+            inquiry = retriever.fetch_by_id(id:)
+
+            expect(inquiry.correspondences).to eq([])
+          end
+        end
+
+        context 'when Correspondence::Retriever returns a success' do
+          let(:cor_info) do
+            {
+              Id: 'f4b12ee3-93bb-ed11-9886-001dd806a6a7',
+              ModifiedOn: '3/5/2023 8:25:49 PM',
+              StatusReason: 'Sent',
+              Description: 'Dear aminul, Thank you for submitting your ' \
+                           'Inquiry with the U.S. Department of Veteran Affairs.',
+              MessageType: 'Notification',
+              EnableReply: true,
+              AttachmentNames: nil
+            }
+          end
+
+          let(:correspondence) { AskVAApi::Correspondences::Entity.new(cor_info) }
+
+          before do
+            allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+            allow(service).to receive(:call).and_return(response)
+            allow_any_instance_of(AskVAApi::Correspondences::Retriever).to receive(:call)
+              .and_return([correspondence])
+          end
+
+          it 'returns correspondences as an empty array' do
+            inquiry = retriever.fetch_by_id(id:)
+
+            expect(inquiry.correspondences).to eq([correspondence])
+          end
+        end
+      end
     end
   end
 end
