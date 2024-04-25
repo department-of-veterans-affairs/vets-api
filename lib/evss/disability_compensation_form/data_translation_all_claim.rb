@@ -103,7 +103,8 @@ module EVSS
 
         if file_guids&.length
           attachments = SupportingEvidenceAttachment.where(guid: file_guids)
-          list = "The veteran uploaded #{attachments.count} documents along with this claim. Review in VBMS eFolder:\n"
+          list = "The veteran uploaded #{attachments.count} documents along with this claim. " \
+                 "Please verify in VBMS eFolder:\n"
           filenames = attachments.map(&:original_filename).sort
           filenames.each { |filename| list += "#{filename}\n" }
 

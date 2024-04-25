@@ -186,7 +186,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           end
 
           it 'includes a list of documents in the overflow text ordered alphabetically' do
-            expected_file_list = "The veteran uploaded 2 documents along with this claim. Review in VBMS eFolder:\n" \
+            expected_file_list = 'The veteran uploaded 2 documents along with this claim. ' \
+                                 "Please verify in VBMS eFolder:\n" \
                                  "my_file_1.pdf\n" \
                                  "my_file_2.pdf\n"
             expect(subject.send(:overflow_text)).to eq(expected_file_list)
