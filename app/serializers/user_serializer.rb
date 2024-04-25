@@ -8,7 +8,7 @@ class UserSerializer < ActiveModel::Serializer
 
   attributes :services, :account, :profile, :va_profile, :veteran_status,
              :in_progress_forms, :prefills_available, :vet360_contact_information,
-             :session
+             :session, :should_show_onboarding_screen
 
   def id
     nil
@@ -23,4 +23,6 @@ class UserSerializer < ActiveModel::Serializer
   delegate :prefills_available, to: :object
   delegate :services, to: :object
   delegate :session, to: :object
+  delegate :should_show_onboarding_screen, to: :object
+
 end

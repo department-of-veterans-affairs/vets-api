@@ -12,6 +12,9 @@
 # Sorted using http://yaml-sorter.herokuapp.com/
 
 features:
+  va_iir_veterans_onboarding_experience:
+    actor_type: user
+    description: Show the new Onboarding experience to veterans
   this_is_only_a_test:
     actor_type: user
     description: Used in feature_toggles_controller_spec.

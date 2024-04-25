@@ -7,7 +7,10 @@ RSpec.describe UserSerializer do
 
   let(:user) { create(:user, :loa3) }
   let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
-  let(:pre_serialized_profile) { Users::Profile.new(user).pre_serialize }
+  let(:pre_serialized_profile) do
+    user.identity.verified_at = Time.now
+    Users::Profile.new(user).pre_serialize
+  end
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
@@ -54,5 +57,9 @@ RSpec.describe UserSerializer do
 
   it 'returns serialized #session data' do
     expect(attributes['session']).to be_present
+  end
+
+  it 'returns #profile.should_show_onboarding_screen' do
+    expect(attributes['profile']['should_show_onboarding_screen']).to be_present
   end
 end

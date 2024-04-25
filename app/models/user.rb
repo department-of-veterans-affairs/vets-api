@@ -34,6 +34,7 @@ class User < Common::RedisStore
   attribute :fingerprint, String
   attribute :needs_accepted_terms_of_use, Boolean
   attribute :credential_lock, Boolean
+  attribute :should_show_onboarding_screen, Boolean
 
   def account
     @account ||= Identity::AccountCreator.new(self).call
@@ -101,6 +102,18 @@ class User < Common::RedisStore
   delegate :multifactor, to: :identity, allow_nil: true
   delegate :sign_in, to: :identity, allow_nil: true, prefix: true
   delegate :verified_at, to: :identity, allow_nil: true
+
+  def should_show_onboarding_screen
+    if Flipper.enabled?(:va_iir_veterans_onboarding_experience, self)
+      # make some check to determine if we should show the onboarding screen, ex:
+      # - `verified_at` less than 180 days ago
+      # - ??
+      return true
+    else
+      return false
+    end
+
+  end
 
   # Returns a Date string in iso8601 format, eg. '{year}-{month}-{day}'
   def birth_date

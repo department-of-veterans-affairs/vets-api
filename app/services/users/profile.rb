@@ -54,6 +54,7 @@ module Users
       scaffold.prefills_available = prefills_available
       scaffold.services = services
       scaffold.session = session_data
+      scaffold.should_show_onboarding_screen = user.should_show_onboarding_screen
     end
 
     def account
@@ -77,6 +78,7 @@ module Users
         loa: user.loa,
         multifactor: user.multifactor,
         verified: user.loa3?,
+        should_show_onboarding_screen: user.should_show_onboarding_screen,
         sign_in: user.identity.sign_in,
         authn_context: user.authn_context,
         inherited_proof_verified: user.inherited_proof_verified,
