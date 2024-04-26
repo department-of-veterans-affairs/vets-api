@@ -249,17 +249,32 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     end
 
     context 'when an error occurs' do
-      let(:error_message) { 'service error' }
+      let(:body) do
+        '{"Data":null,"Message":"Data Validation: Invalid OptionSet Name iris_branchofservic, valid' \
+          ' values are iris_inquiryabout, iris_inquirysource, iris_inquirytype, iris_levelofauthentication,' \
+          ' iris_suffix, iris_veteranrelationship, iris_branchofservice, iris_country, iris_province,' \
+          ' iris_responsetype, iris_dependentrelationship, statuscode, iris_messagetype","ExceptionOccurred":' \
+          'true,"ExceptionMessage":"Data Validation: Invalid OptionSet Name iris_branchofservic, valid' \
+          ' values are iris_inquiryabout, iris_inquirysource, iris_inquirytype, iris_levelofauthentication,' \
+          ' iris_suffix, iris_veteranrelationship, iris_branchofservice, iris_country, iris_province,' \
+          ' iris_responsetype, iris_dependentrelationship, statuscode, iris_messagetype","MessageId":' \
+          '"6dfa81bd-f04a-4f39-88c5-1422d88ed3ff"}'
+      end
+      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
       before do
-        allow_any_instance_of(AskVAApi::Optionset::Retriever)
-          .to receive(:call)
-          .and_raise(StandardError, 'standard error')
-        get optionset_path, params: { user_mock_data: true, mame: 'branchofservice' }
+        allow_any_instance_of(Crm::Service).to receive(:call)
+          .with(endpoint: 'optionset', payload: { name: 'iris_branchofservic' }).and_return(failure)
+        get optionset_path, params: { user_mock_data: nil, name: 'branchofservic' }
       end
 
-      it_behaves_like 'common error handling', :internal_server_error, 'unexpected_error',
-                      'standard error'
+      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                      'ErrorHandler::ServiceError: StandardError: Data Validation: ' \
+                      'Invalid OptionSet Name iris_branchofservic, valid values are ' \
+                      'iris_inquiryabout, iris_inquirysource, iris_inquirytype, ' \
+                      'iris_levelofauthentication, iris_suffix, iris_veteranrelationship, ' \
+                      'iris_branchofservice, iris_country, iris_province, iris_responsetype,' \
+                      ' iris_dependentrelationship, statuscode, iris_messagetype'
     end
   end
 
