@@ -52,7 +52,7 @@ module CentralMail
         bgjob_errors: bgjob_errors.merge(new_error)
       )
 
-      api_statsd_key = if Flipper.enabled?(:disability_compensation_form_4142)
+      api_statsd_key = if Flipper.enabled?(:disability_compensation_form4142_supplemental)
                          LIGHTHOUSE_STATSD_KEY_PREFIX
                        else
                          CENTRAL_MAIL_STATSD_KEY_PREFIX
@@ -112,7 +112,7 @@ module CentralMail
     end
 
     def upload_to_api
-      if Flipper.enabled?(:disability_compensation_form_4142)
+      if Flipper.enabled?(:disability_compensation_form4142_supplemental)
         upload_to_lighthouse
       else
         upload_to_central_mail
@@ -144,7 +144,7 @@ module CentralMail
         'veteranFirstName' => vet_name[:first],
         'veteranLastName' => vet_name[:last],
         'zipCode' => determine_zip,
-        'source' => "Form526Submission va.gov",
+        'source' => 'Form526Submission va.gov',
         'docType' => '4142',
         'businessLine' => '',
         'fileNumber' => filenumber # wipn8923 TODO: validate that this is correct
@@ -156,15 +156,14 @@ module CentralMail
 
     def determine_zip
       submission.form.dig('form526', 'form526', 'veteran', 'currentMailingAddress', 'zipFirstFive') ||
-      submission.form.dig('form526', 'form526', 'veteran', 'mailingAddress', 'zipFirstFive') ||
-      '00000'
+        submission.form.dig('form526', 'form526', 'veteran', 'mailingAddress', 'zipFirstFive') ||
+        '00000'
     end
 
     def usa_based?
-      country = (
+      country =
         submission.form.dig('form526', 'form526', 'veteran', 'currentMailingAddress', 'country') ||
         submission.form.dig('form526', 'form526', 'veteran', 'mailingAddress', 'country')
-      )
 
       %w[USA US].include?(country&.upcase)
     end
