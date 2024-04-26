@@ -56,13 +56,13 @@ module EVSS
         output_form['claimSubmissionSource'] = 'VA.gov'
         output_form.compact!
 
-        output_form.update(translate_banking_info)
+        # output_form.update(translate_banking_info)
         output_form.update(translate_service_pay)
         output_form.update(translate_service_info)
         output_form.update(translate_veteran)
         output_form.update(translate_treatments)
         output_form.update(translate_disabilities)
-        output_form.update(add_toxic_exposure) if Flipper.enabled?(:disability_526_toxic_exposure, @current_user)
+        output_form.update(add_toxic_exposure) if Flipper.enabled?(:disability_526_toxic_exposure, @user)
 
         @translated_form
       end
@@ -512,15 +512,20 @@ module EVSS
           if input_disability['classificationCode'].blank?
             input_disability['condition'] = scrub_disability_condition(input_disability['condition'])
           end
-
+          append_input_disability = nil
           case input_disability['cause']
           when 'NEW'
-            disabilities.append(map_new(input_disability))
+            append_input_disability = map_new(input_disability)
           when 'WORSENED'
-            disabilities.append(map_worsened(input_disability))
+            append_input_disability = map_worsened(input_disability)
           when 'VA'
-            disabilities.append(map_va(input_disability))
+            append_input_disability = map_va(input_disability)
           end
+
+          if Flipper.enabled?(:disability_526_toxic_exposure, @current_user)
+            append_input_disability['cause'] = input_disability['cause']
+          end
+          disabilities.append(append_input_disability)
         end
 
         disabilities
