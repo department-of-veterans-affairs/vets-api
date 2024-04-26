@@ -113,7 +113,7 @@ module Mobile
           # sort to put events with uploaded == false on top and then by date
           events.compact.sort_by do |event|
             upload_priority = if event.uploaded || event.uploaded.nil?
-                                0 # Lower priority for uploaded == true or key not present
+                                0 # Lower priority for uploaded == true or value nil
                               else
                                 1 # Higher priority for uploaded == false
                               end
