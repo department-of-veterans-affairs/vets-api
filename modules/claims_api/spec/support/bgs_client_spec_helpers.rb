@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module BGSClientHelpers
+module BGSClientSpecHelpers
   # If one finds this request matcher useful elsewhere in the future,
   # Rather than using a callable custom request matcher:
   #   https://benoittgt.github.io/vcr/#/request_matching/custom_matcher?id=use-a-callable-as-a-custom-request-matcher
@@ -57,5 +57,5 @@ module BGSClientHelpers
 end
 
 RSpec.configure do |config|
-  config.include BGSClientHelpers, :bgs
+  config.include BGSClientSpecHelpers, :bgs
 end
