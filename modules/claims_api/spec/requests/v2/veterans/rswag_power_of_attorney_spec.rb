@@ -101,6 +101,35 @@ describe 'PowerOfAttorney',
         end
       end
 
+      describe 'Getting a 404 response' do
+        response '404', 'Resource not found' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'power_of_attorney', 'default.json').read)
+
+          let(:veteranId) { 'xxx' } # rubocop:disable RSpec/VariableName
+
+          before do |example|
+            allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController).to receive(:show)
+              .and_raise(Common::Exceptions::ResourceNotFound)
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 404 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable Entity' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
