@@ -77,6 +77,10 @@ features:
     actor_type: user
     description: Enables Toxic Exposure questions for 10-10EZR applicants.
     enable_in_development: true
+  ezr_auth_only_enabled:
+    actor_type: user
+    description: Enables the auth-only experience, allowing only authenticated users to view any part of the form.
+    enable_in_development: true
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
@@ -730,6 +734,9 @@ features:
     actor_type: user
     description: Enables/disables refill-related content for Medications on VA.gov
     enable_in_development: true
+  mhv_landing_page_enable_va_gov_health_tools_links:
+    actor_type: user
+    description: Enables VA.gov Health Tools links (Appts, SM, Rx, Records) on MHV-on-VA.gov Landing Page
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer experience (Identity)

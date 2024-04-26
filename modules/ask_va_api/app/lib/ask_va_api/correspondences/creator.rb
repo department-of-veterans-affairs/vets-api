@@ -35,7 +35,8 @@ module AskVAApi
 
       def handle_response_data(response)
         if response[:Data].nil?
-          raise CorrespondencesCreatorError, response[:Message]
+          error = JSON.parse(response[:body], symbolize_names: true)
+          raise CorrespondencesCreatorError, error[:Message]
         else
           response[:Data]
         end
