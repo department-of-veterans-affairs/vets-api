@@ -51,7 +51,8 @@ module ClaimsApi
     def set_evss_response(auto_claim, error)
       auto_claim.evss_response = []
       error_messages = get_error_message(error)
-      error_messages.uniq.each do |error_message|
+      messages = error_messages[:messages].presence || error_messages
+      messages.uniq.each do |error_message|
         error_key = get_error_key(error_message)
         error_text = get_error_text(error_message)
         auto_claim.evss_response <<
@@ -109,7 +110,7 @@ module ClaimsApi
 
     def will_retry?(auto_claim, error)
       msg = if auto_claim.evss_response.present?
-              auto_claim.evss_response&.dig(0, 'text')
+              auto_claim.evss_response&.dig(0, 'key')
             elsif error.respond_to? :original_body
               get_error_key(error.original_body)
             else
