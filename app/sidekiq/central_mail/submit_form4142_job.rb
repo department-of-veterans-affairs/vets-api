@@ -26,8 +26,8 @@ module CentralMail
     CENTRAL_MAIL_STATSD_KEY_PREFIX = 'worker.evss.submit_form4142'
     LIGHTHOUSE_STATSD_KEY_PREFIX = 'worker.lighthouse.submit_form4142'
 
-    class BenefitsIntake4142Error < StandardError; end
-    class CentralMailResponseError < StandardError; end
+    class BenefitsIntake4142Error   < StandardError; end
+    class CentralMailResponseError  < Common::Exceptions::BackendServiceException; end
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']
@@ -179,7 +179,7 @@ module CentralMail
 
     def create_service_error(key, source, response, _error = nil)
       response_values = response_values(key, source, response.status, response.body)
-      CentralMailResponseError # TDV .new(key, response_values, nil, nil)
+      CentralMailResponseError.new(key, response_values, nil, nil)
     end
 
     def response_values(key, source, status, detail)
