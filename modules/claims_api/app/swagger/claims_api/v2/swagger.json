@@ -1,0 +1,93 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Benefits Claims",
+    "version": "v2",
+    "description": "## Background\n\nThe Benefits Claims API Version 2 lets internal consumers: \n\n-   Retrieve existing claim information, including status, by claim ID\n-   Automatically establish an Intent To File (21-0966) in VBMS\n-   Automatically establish a disability compensation claim (21-526EZ) in VBMS\n-   Digitally submit supporting documentation for disability compensation claims\n-   Retrieve the active Power of Attorney organization of individual with power of attorney for a Veteran\n-   Automatically establish a power of attorney appointment in VBMS for an accredited organization (VA Form 21-22).\n-   Automatically establish a power of attorney appointment in VBMS for an accredited individual (VA Form 21-22a).\n\nYou should use the [Benefits Claims API Version 1](https://developer.va.gov/explore/benefits/docs/claims?version=current) if you are a consumer outside of VA and do not have the necessary VA agreements to use this API.\n    \n## Technical Overview\n\nThis API accepts a payload of requests and responses with the payload identifying the claim and Veteran. Responses provide the submission’s processing status. Responses also provide a unique ID which can be used with the appropriate GET endpoint to return detailed, end-to-end claims status tracking. \n\nEnd-to-end claims tracking provides the status of claims as they move through the submission process, but does not return whether the claim was approved or denied. \n\n### Claim statuses\n\nClaims are first submitted by this API and then established in Veterans Benefits Management System (VBMS). A 200 response means that the claim was successfully submitted by the API. It does not mean VA has received the claim. Use the appropriate GET endpoint and the ID returned with your submission response to confirm the status of the submission. Statuses are:\n\n-   Pending - the claim is successfully submitted for processing\n-   Errored -  the submission encountered upstream errors\n-   Canceled -  the claim was identified as a duplicate or another issue caused the claim to be canceled. For duplicate claims,  the tracking of the claim's progress happens under a different Claim ID . \n\nOther statuses this API returns align with the [VA.gov](http://va.gov/) [claim status descriptions](https://www.va.gov/resources/what-your-claim-status-means/), which are:\n\n-   Claim received\n-   Initial review\n-   Evidence gathering, review, and decision\n-   Preparation for notification\n-   Complete\n\n### Finding a Veteran's unique VA ID\n\nThis API uses a unique Veteran identifier to identify the subject of each API request. This Veteran identifier can be retrieved by passing the Veteran’s first name, last name, DOB, and SSN to the ‘/veteran-id’ endpoint. This identifier should then be used as the Veteran ID parameter in request URLs.\n\nNote: though Veteran identifiers are typically static, they may change over time. If a specific Veteran ID suddenly responds with a ‘404 not found’ error, the identifier may have changed. It’s a good idea to periodically check the identifier for each Veteran.\n\n### Authentication and authorization\n\nThe authentication model for the Benefits Claims Version 2 is based on OAuth 2.0 / OpenID Connect and supports the [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials?api=claims).\n\n**Important**: To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Test data for sandbox environment use\n\nWe use mock [test data in the sandbox environment](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md). Sandbox test data and test users for the Benefits Claims API are valid for all versions of the API.\n"
+  },
+  "tags": [
+    {
+      "name": "Veteran Identifier",
+      "description": "Allows authenticated veterans and veteran representatives to retrieve a veteran's id."
+    },
+    {
+      "name": "Claims",
+      "description": "Allows authenticated and authorized users to access claims data for a given Veteran. No data is returned if the user is not authenticated and authorized.\n"
+    },
+    {
+      "name": "5103 Waiver",
+      "description": "Allows authenticated and authorized users to file a 5103 Notice Response on a claim."
+    },
+    {
+      "name": "Intent to File",
+      "description": "Allows authenticated and authorized users to automatically establish an Intent to File (21-0966) in VBMS.\n"
+    },
+    {
+      "name": "Disability Compensation Claims",
+      "description": "Allows authenticated and authorized users to automatically establish a Disability Compensation Claim (21-526EZ) in VBMS\n"
+    },
+    {
+      "name": "Power of Attorney",
+      "description": "Allows authenticated and authorized users to automatically establish power of attorney appointments to an organization or an individual. Organizations and individuals must be VA accredited representatives.\n"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearer_token": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "productionOauth": {
+        "type": "oauth2",
+        "description": "This API uses OAuth 2 with the client credential grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/client-credentials)",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://api.va.gov/oauth2/authorization",
+            "tokenUrl": "https://api.va.gov/oauth2/token",
+            "scopes": {
+              "system/claim.read": "Retrieve claim data",
+              "system/claim.write": "Submit claim data"
+            }
+          }
+        }
+      },
+      "sandboxOauth": {
+        "type": "oauth2",
+        "description": "This API uses OAuth 2 with the client credential grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/client-credentials)",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
+            "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
+            "scopes": {
+              "system/claim.read": "Retrieve claim data",
+              "system/claim.write": "Submit claim data"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+  },
+  "servers": [
+    {
+      "url": "https://sandbox-api.va.gov/services/claims/{version}",
+      "description": "VA.gov API sandbox environment",
+      "variables": {
+        "version": {
+          "default": "v2"
+        }
+      }
+    },
+    {
+      "url": "https://api.va.gov/services/claims/{version}",
+      "description": "VA.gov API production environment",
+      "variables": {
+        "version": {
+          "default": "v2"
+        }
+      }
+    }
+  ]
+}
