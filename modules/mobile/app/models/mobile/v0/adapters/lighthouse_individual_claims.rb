@@ -124,6 +124,7 @@ module Mobile
           end.reverse
         end
 
+        # rubocop:disable Metrics/MethodLength
         def create_event_from_string_date(type, date)
           return nil unless date
 
@@ -143,7 +144,10 @@ module Mobile
             closed_date: nil,
             suspense_date: nil,
             documents: nil,
-            upload_date: nil
+            upload_date: nil,
+            file_type: nil,
+            document_type: nil,
+            filename: nil
           )
         end
 
@@ -159,10 +163,28 @@ module Mobile
         def create_events_for_documents(attributes)
           untracked_documents = attributes['supportingDocuments'].select { |document| document['trackedItemId'].nil? }
           untracked_documents.map do |document|
-            date = document[:upload_date] ? Date.strptime(document[:upload_date], '%Y-%m-%d') : nil
-            create_event_from_string_date(:other_documents_list, date)
+            ClaimEventTimeline.new(
+              type: :other_documents_list,
+              date: nil,
+              tracked_item_id: document['trackedItemId'],
+              description: nil,
+              display_name: nil,
+              overdue: nil,
+              status: nil,
+              uploaded: nil,
+              uploads_allowed: nil,
+              opened_date: nil,
+              requested_date: nil,
+              received_date: nil,
+              closed_date: nil,
+              suspense_date: nil,
+              documents: nil,
+              upload_date: document['uploadDate'],
+              file_type: document['documentTypeLabel'],
+              document_type: nil,
+              filename: document['originalFileName']
+            )
           end
-
         end
 
         def create_tracked_item_event(tracked_item, tracked_item_documents)
@@ -183,12 +205,16 @@ module Mobile
             closed_date: tracked_item['closedDate'],
             suspense_date: tracked_item['suspenseDate'],
             documents:,
-            upload_date: latest_upload_date(documents)
+            upload_date: latest_upload_date(documents),
+            file_type: nil,
+            document_type: nil,
+            filename: nil
           }
 
           event[:date] = Date.strptime(event.slice(*EVENT_DATE_FIELDS).values.compact.first, '%Y-%m-%d')
           ClaimEventTimeline.new(event)
         end
+        # rubocop:enable Metrics/MethodLength
 
         def create_documents(documents)
           documents.map do |document|
@@ -198,7 +224,7 @@ module Mobile
               # no document type field available
               document_type: nil,
               filename: document['originalFileName'],
-              upload_date: document['uploadDate'],
+              upload_date: document['uploadDate']
             }
             ClaimDocument.new(document_hash)
           end

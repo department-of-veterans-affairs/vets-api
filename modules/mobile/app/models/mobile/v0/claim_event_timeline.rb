@@ -21,6 +21,9 @@ module Mobile
       attribute :documents, Types::Array.of(ClaimDocument).optional
       attribute :upload_date, Types::Date.optional
       attribute :date, Types::Date.optional
+      attribute :file_type, Types::String.optional
+      attribute :document_type, Types::String.optional
+      attribute :filename, Types::String.optional
     end
   end
 end
