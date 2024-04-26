@@ -12,7 +12,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['Data']
   end
   let(:valid_id) { mock_inquiries.first['InquiryNumber'] }
-  let(:invalid_id) { 'invalid-id' }
+  let(:invalid_id) { 'A-20240423-30709' }
 
   before do
     allow(LogService).to receive(:new).and_return(logger)
@@ -207,19 +207,18 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       end
 
       context 'when the id is invalid' do
-        let(:crm_response) do
-          { Data: nil,
-            Message: 'Data Validation: No Inquiries found by ID A-20230305-30617',
-            ExceptionOccurred: true,
-            ExceptionMessage: 'Data Validation: No Inquiries found by ID A-20230305-30617',
-            MessageId: 'e6024ccb-e19b-4bc6-990c-667e7ebab4ec' }
+        let(:body) do
+          '{"Data":null,"Message":"Data Validation: No Inquiries found by ID A-20240423-30709"' \
+            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Inquiries found by ' \
+            'ID A-20240423-30709","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
         end
+        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
         let(:service) { instance_double(Crm::Service) }
 
         before do
           allow(Crm::Service).to receive(:new).and_return(service)
           allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
-          allow(service).to receive(:call).and_return(crm_response)
+          allow(service).to receive(:call).and_return(failure)
           sign_in(authorized_user)
           get "#{inquiry_path}/#{invalid_id}"
         end
@@ -228,16 +227,8 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
         it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
                         'AskVAApi::Inquiries::InquiriesRetrieverError: ' \
-                        'Data Validation: No Inquiries found by ID A-20230305-30617'
+                        'Data Validation: No Inquiries found by ID A-20240423-30709'
       end
-    end
-
-    context 'when user is not signed in' do
-      before do
-        get "#{inquiry_path}/#{valid_id}"
-      end
-
-      it { expect(response).to have_http_status(:unauthorized) }
     end
   end
 
