@@ -53,22 +53,20 @@ module ClaimsApi
 
         start_docker_container_job(auto_claim&.id) if auto_claim.status != errored_state_value
       rescue Faraday::ParsingError, Faraday::TimeoutError => e
-        error_message = auto_claim.evss_response&.dig(0, 'text') if auto_claim.evss_response.present?
         set_evss_response(auto_claim, e)
         error_status = get_error_status_code(e)
 
         log_job_progress(claim_id,
-                         "526EZ PDF generator faraday error #{e.class}: #{error_status} #{error_message}")
+                         "526EZ PDF generator faraday error #{e.class}: #{error_status} #{auto_claim&.evss_response}")
         log_exception_to_sentry(e)
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
-        error_message = auto_claim.evss_response&.dig(0, 'text') if auto_claim.evss_response.present?
         set_evss_response(auto_claim, e)
         error_status = get_error_status_code(e)
 
         log_job_progress(claim_id,
-                         "526EZ PDF generator errored #{e.class}: #{error_status} #{error_message}")
+                         "526EZ PDF generator errored #{e.class}: #{error_status} #{auto_claim&.evss_response}")
         log_exception_to_sentry(e)
 
         raise e

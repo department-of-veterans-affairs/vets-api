@@ -37,18 +37,16 @@ module ClaimsApi
       rescue Faraday::ParsingError, Faraday::TimeoutError => e
         set_evss_response(auto_claim, e)
         error_status = get_error_status_code(e)
-        error_message = auto_claim.evss_response&.dig(0, 'text')
         log_job_progress(claim_id,
-                         "Docker container job errored #{e.class}: #{error_status} #{error_message}")
+                         "Docker container job errored #{e.class}: #{error_status} #{auto_claim&.evss_response}")
 
         log_exception_to_sentry(e)
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
         set_evss_response(auto_claim, e)
-        error_message = auto_claim.evss_response&.dig(0, 'text')
         log_job_progress(claim_id,
-                         "Docker container job errored #{e.class}: #{error_message}")
+                         "Docker container job errored #{e.class}: #{auto_claim&.evss_response}")
         log_exception_to_sentry(e)
         # if will_retry?
         if will_retry?(auto_claim, e)
