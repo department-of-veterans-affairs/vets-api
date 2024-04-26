@@ -7,7 +7,7 @@ require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_
 metadata = {
   bgs: {
     service: 'manage_representative_service',
-    operation: 'update_poa_request'
+    action: 'update_poa_request'
   }
 }
 

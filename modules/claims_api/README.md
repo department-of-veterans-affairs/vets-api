@@ -10,7 +10,7 @@ ssh -L 4447:localhost:4447 {{aws-url}}
 ssh -L 4431:localhost:4431 {{aws-url}}
 
 ## Testing
-### Unit testing BGS service operation wrappers
+### Unit testing BGS service action wrappers
 If using cassettes, make sure to only make or use ones under [spec/support/vcr_cassettes/claims_api](spec/support/vcr_cassettes/claims_api)
 Check out documentation in comments for the spec helper `BGSClientSpecHelpers#use_bgs_cassette`
 
