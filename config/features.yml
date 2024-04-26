@@ -164,6 +164,10 @@ features:
     actor_type: user
     description: Enables users to access the claim letters page
     enable_in_development: true
+  claims_api_local_bgs_refactor:
+    actor_type: user
+    description: Diverts codepath to LocalBGSRefactored
+    enable_in_development: true
   cst_use_lighthouse_5103:
     actor_type: user
     description: When enabled, claims status tool uses the Lighthouse API for the 5103 endpoint
