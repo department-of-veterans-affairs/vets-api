@@ -85,10 +85,10 @@ module ClaimsApi
       private
 
       def start_docker_container_job(auto_claim)
-        docker_contaner_service.perform_async(auto_claim)
+        docker_container_service.perform_async(auto_claim)
       end
 
-      def docker_contaner_service
+      def docker_container_service
         ClaimsApi::V2::DisabilityCompensationDockerContainerUpload
       end
 

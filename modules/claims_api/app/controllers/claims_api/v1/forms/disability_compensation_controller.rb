@@ -28,6 +28,7 @@ module ClaimsApi
         skip_before_action :validate_json_format, only: %i[upload_supporting_documents]
         before_action :verify_power_of_attorney!, if: :header_request?
         skip_before_action :validate_veteran_identifiers, only: %i[submit_form_526 validate_form_526]
+        before_action :edipi_check, only: %i[submit_form_526 upload_form_526]
 
         # POST to submit disability claim.
         #
