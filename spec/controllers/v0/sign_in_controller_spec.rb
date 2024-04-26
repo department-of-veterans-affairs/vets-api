@@ -2350,10 +2350,9 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
     let(:authorization) { "Bearer #{access_token}" }
     let(:oauth_session) do
-      create(:oauth_session, user_account:, user_verification:, client_id: client_config.client_id)
+      create(:oauth_session, user_verification:)
     end
-    let(:user_account) { create(:user_account) }
-    let(:user_verification) { create(:user_verification, user_account:) }
+    let(:user_verification) { create(:user_verification) }
     let(:access_token_object) do
       create(:access_token, session_handle: oauth_session.handle, client_id: client_config.client_id, expiration_time:)
     end
@@ -2461,7 +2460,7 @@ RSpec.describe V0::SignInController, type: :controller do
       end
 
       context 'and authenticated credential is Login.gov' do
-        let(:user_verification) { create(:logingov_user_verification, user_account:) }
+        let(:user_verification) { create(:logingov_user_verification) }
 
         context 'and client configuration has not configured a logout redirect uri' do
           let(:logout_redirect_uri) { nil }
