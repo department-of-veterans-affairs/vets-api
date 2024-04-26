@@ -43,7 +43,13 @@ module AskVAApi
       end
 
       def handle_response_data(response)
-        response[:Data].presence || response
+        case response
+        when Hash
+          response[:Data]
+        else
+          error = JSON.parse(response.body, symbolize_names: true)
+          error[:Message]
+        end
       end
     end
   end
