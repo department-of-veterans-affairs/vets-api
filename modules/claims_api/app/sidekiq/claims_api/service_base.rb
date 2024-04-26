@@ -50,6 +50,7 @@ module ClaimsApi
 
     def set_evss_response(auto_claim, error)
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+      auto_claim.save!
 
       auto_claim.evss_response = []
       error_messages = get_error_message(error)
