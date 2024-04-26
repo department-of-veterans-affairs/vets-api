@@ -37,7 +37,8 @@ module TravelPay
         req.headers['BTSSS-API-Client-Number'] = client_number.to_s
         req.body = { authJwt: sts_token }
       end
-      response.body['access_token']
+
+      response.body['data']['accessToken']
     end
 
     ##
