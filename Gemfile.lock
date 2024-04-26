@@ -249,8 +249,8 @@ GEM
       aws-partitions (~> 1, >= 1.651.0)
       aws-sigv4 (~> 1.8)
       jmespath (~> 1, >= 1.6.1)
-    aws-sdk-kms (1.79.0)
-      aws-sdk-core (~> 3, >= 3.191.0)
+    aws-sdk-kms (1.80.0)
+      aws-sdk-core (~> 3, >= 3.193.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-s3 (1.148.0)
       aws-sdk-core (~> 3, >= 3.193.0)
@@ -1280,7 +1280,7 @@ DEPENDENCIES
   yard
 
 RUBY VERSION
-   ruby 3.2.3p157
+   ruby 3.2.4p170
 
 BUNDLED WITH
    2.4.9
