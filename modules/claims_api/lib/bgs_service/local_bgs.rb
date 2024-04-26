@@ -404,19 +404,36 @@ module ClaimsApi
     # This has to come after all `LocalBGS` method definitions.
     prepend(
       Module.new do
+        class << self
+          def prepended(klass)
+            # This is just exposed so that we are able to stub the proxied
+            # method in `RSpec` when we desire.
+            klass.attr_reader :refactored
+          end
+        end
+
+        def initialize(...)
+          # There is no internal state that changes for instances of this class.
+          # It is properly stateless. This also means that there is no
+          # circumstance where state would ever need to be synchronized over
+          # time between the refactored and original instances of this module.
+          @refactored = LocalBGSRefactored.new(...)
+          super
+        end
+
         meths =
           LocalBGS.private_instance_methods(false) +
-          LocalBGS.instance_methods(false) -
-          [:initialize]
+          LocalBGS.instance_methods(false) - [
+            :initialize,
+            # These `attr_accessor` methods are not called anywhere as far as I
+            # can tell.
+            :external_uid,
+            :external_key
+          ]
 
         meths.each do |meth|
           define_method(meth) do |*args, **kwargs, &block|
             if Flipper.enabled?(:claims_api_local_bgs_refactor)
-              @refactored ||=
-                LocalBGSRefactored.new(
-                  external_uid:,
-                  external_key:
-                )
 
               @refactored.send(
                 meth,

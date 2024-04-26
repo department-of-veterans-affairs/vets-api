@@ -7,6 +7,14 @@ require 'claims_api/error/soap_error_handler'
 describe ClaimsApi::LocalBGS do
   subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
 
+  before do
+    allow(Flipper).to(
+      receive(:enabled?)
+        .with(:claims_api_local_bgs_refactor)
+        .and_return(false)
+    )
+  end
+
   let(:soap_error_handler) { ClaimsApi::SoapErrorHandler.new }
 
   describe '#find_poa_by_participant_id' do
