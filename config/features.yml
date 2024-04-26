@@ -372,6 +372,7 @@ features:
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
+    enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
