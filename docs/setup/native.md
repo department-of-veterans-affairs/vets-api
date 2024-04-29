@@ -2,8 +2,8 @@
 
 Vets API requires:
 
-- Ruby 3.2.3
-- PostgreSQL 14.x (including PostGIS 3.2)
+- Ruby 3.2.4
+- PostgreSQL 15.x (including PostGIS 3)
 - Redis 6.2.x
 
 The most up-to-date versions of each key dependency will be specified in the `docker-compose.yml` [file](https://github.com/department-of-veterans-affairs/vets-api/blob/master/docker-compose.yml) and the `Dockerfile`.
@@ -121,6 +121,7 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
 
    1. It is *_MUCH_* easier to use the [Postgres.app](https://postgresapp.com/downloads.html) which installs the correct combination of Postgresql and PostGIS versions.
 
+<<<<<<< HEAD
    - Download the Postgres.app with PostgreSQL 12, 13 and 14
    - Install Instructions here: https://postgresapp.com/downloads.html
    - `sudo mkdir -p /etc/paths.d && echo /Applications/Postgres.app/Contents/Versions/latest/bin | sudo tee /etc/paths.d/postgresapp`
@@ -129,6 +130,16 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
       - `brew install postgresql@14`
       - `brew services start postgresql@14`
       - Install the `pex` manager to add your Postgresql 14 extensions from [here](https://github.com/petere/pex#installation)
+=======
+   - Download the Postgres.app with PostgreSQL 15
+   - Install Instructions here: https://postgresapp.com/
+   - `sudo mkdir -p /etc/paths.d && echo /Applications/Postgres.app/Contents/Versions/latest/bin | sudo tee /etc/paths.d/postgresapp`
+   - `ARCHFLAGS="-arch x86_64" gem install pg -v 1.2.3`
+   2. Alternatively Postgresql 15 & PostGIS 3 can be installed with homebrew
+      - `brew install postgresql@15`
+      - `brew services start postgresql@15`
+      - Install the `pex` manager to add your Postgresql 15 extensions from [here](https://github.com/petere/pex#installation)
+>>>>>>> sjc-clamav-container
       - Install the `postgis` extension along with a number of patches using the instructions summarized [here](https://gist.github.com/skissane/0487c097872a7f6d0dcc9bcd120c2ccd):
       - ```bash
          PG_CPPFLAGS='-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include' CFLAGS='-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include' pex install postgis
@@ -172,7 +183,7 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
 2. Install PostGIS
 
    ```bash
-   sudo apt install -y postgresql-11-postgis-2.5
+   sudo apt install -y postgresql-15-postgis-3
    sudo -i -u postgres
 
    createuser postgis_test

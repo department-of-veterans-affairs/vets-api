@@ -46,14 +46,33 @@ module ClaimsApi
         def shared_form_validation(form_number)
           target_veteran
           # Custom validations for POA submission, we must check this first
-          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values
+          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(user_profile)
           # JSON validations for POA submission, will combine with previously captured errors and raise
           validate_json_schema(form_number.upcase)
+          @rep_id = validate_registration_number!(form_number)
+
+          add_claimant_data_to_form if user_profile
           # if we get here there were only validations file errors
           if @claims_api_forms_validation_errors
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
                   @claims_api_forms_validation_errors
           end
+        end
+
+        def validate_registration_number!(form_number)
+          base = form_number == '2122' ? 'serviceOrganization' : 'representative'
+          rn = form_attributes.dig(base, 'registrationNumber')
+          poa_code = form_attributes.dig(base, 'poaCode')
+          rep = ::Veteran::Service::Representative.where('? = ANY(poa_codes) AND representative_id = ?',
+                                                         poa_code,
+                                                         rn).order(created_at: :desc).first
+          if rep.nil?
+            raise ::Common::Exceptions::ResourceNotFound.new(
+              detail: "Could not find an Accredited Representative with registration number: #{rn} " \
+                      "and poa code: #{poa_code}"
+            )
+          end
+          rep.id
         end
 
         def submit_power_of_attorney(poa_code, form_number)
@@ -69,7 +88,7 @@ module ClaimsApi
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
           unless Settings.claims_api&.poa_v2&.disable_jobs
-            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number)
+            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @rep_id)
           end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
@@ -166,6 +185,30 @@ module ClaimsApi
                                 body: e.message)
 
           nil
+        end
+
+        def user_profile
+          return @user_profile if defined? @user_profile
+
+          @user_profile ||= fetch_claimant
+        end
+
+        def fetch_claimant
+          claimant_icn = form_attributes.dig('claimant', 'claimantId')
+          if claimant_icn.present?
+            mpi_profile = mpi_service.find_profile_by_identifier(identifier: claimant_icn,
+                                                                 identifier_type: MPI::Constants::ICN)
+          end
+        rescue ArgumentError
+          mpi_profile
+        end
+
+        def add_claimant_data_to_form
+          if user_profile&.status == :ok
+            first_name = user_profile.profile.given_names.first
+            last_name = user_profile.profile.family_name
+            form_attributes['claimant'].merge!(firstName: first_name, lastName: last_name)
+          end
         end
       end
     end

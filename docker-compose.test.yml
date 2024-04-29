@@ -1,61 +1,45 @@
 version: '3.4'
-
-x-app: &common
-  build:
-    args:
-      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
-    context: .
-  environment:
-    "Settings.database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
-    "Settings.test_database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}"
-    POSTGRES_HOST: "${POSTGRES_HOST:-postgres}"
-    POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
-    POSTGRES_USER: "${POSTGRES_USER:-postgres}"
-    POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
-    CI: "true"
-    RAILS_ENV: test
-    CC_TEST_REPORTER_ID: '0c396adc254b0317e2c3a89a1c929fd61270b133c944d3e9c0f13b3937a7ce45'
-    CHANGE_ID:           "${CHANGE_ID}"
-    GIT_URL:             "${GIT_URL}"
-    JENKINS_URL:         "${JENKINS_URL}"
-    DANGER_GITHUB_API_TOKEN: "${DANGER_GITHUB_API_TOKEN}"
-    BUNDLE_ENTERPRISE__CONTRIBSYS__COM: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
-  image: vets-api:${DOCKER_IMAGE:-latest}
-  volumes:
-    - "../vets-api-mockdata:/cache"
-    - .:/app:cached
-    - shared-vol:/tmp
-  working_dir: /app
-  depends_on:
-    - postgres
-    - redis
-  links:
-    - postgres
-    - redis
-
 services:
   redis:
-    image: redis:5.0-alpine
-    ports:
-      - 6379:6379
+    image: redis:6.2-alpine
   postgres:
+    image: mdillon/postgis:11-alpine
     command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c max_connections=200
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
-      PGDATA: /tmp
-    image: postgis/postgis:14-3.3-alpine
-    ports:
-      - 5432:5432
-    volumes:
-      - ./data:/var/lib/postgresql/data:cached
   web:
-    <<: *common
-    ports:
-      - 3000:3000
-  worker:
-    <<: *common
-    command: bundle exec sidekiq -q critical,4 -q tasker,3 -q default,2 -q low,1
-
+    build:
+      context: .
+      target: development
+      args:
+        sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
+        userid: "${VETS_API_USER_ID}"
+    image: "vets-api:${DOCKER_IMAGE:-latest}"
+    volumes:
+      - ".:/srv/vets-api/src"
+      - test_bundle:/usr/local/bundle
+    environment:
+      "Settings.database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
+      "Settings.test_database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}"
+      "Settings.redis.app_data.url": "redis://redis:6379"
+      "Settings.redis.sidekiq.url": "redis://redis:6379"
+      POSTGRES_HOST: "${POSTGRES_HOST:-postgres}"
+      POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
+      CI: "true"
+      RAILS_ENV: test
+      CC_TEST_REPORTER_ID: '0c396adc254b0317e2c3a89a1c929fd61270b133c944d3e9c0f13b3937a7ce45'
+      CHANGE_ID:           "${CHANGE_ID}"
+      GIT_URL:             "${GIT_URL}"
+      JENKINS_URL:         "${JENKINS_URL}"
+      DANGER_GITHUB_API_TOKEN: "${DANGER_GITHUB_API_TOKEN}"
+    depends_on:
+      - postgres
+      - redis
+    links:
+      - postgres
+      - redis
 volumes:
- shared-vol:
+  test_bundle:

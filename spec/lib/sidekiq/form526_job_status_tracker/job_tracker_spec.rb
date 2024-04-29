@@ -11,6 +11,10 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
     end
   end
 
+  before do
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
+  end
+
   context 'with an exhausted callback message' do
     let!(:form526_submission) { create :form526_submission }
     let!(:form526_job_status) do

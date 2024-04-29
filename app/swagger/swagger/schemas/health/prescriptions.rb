@@ -61,7 +61,7 @@ module Swagger
             property :quantity, type: :integer
             property :expiration_date, type: :string, format: :date
             property :dispensed_date, type: %i[string null], format: :date
-            property :sorted_dispensed_date, type: :string, format: :date
+            property :sorted_dispensed_date, type: %i[string null], format: :date
             property :station_number, type: :string
             property :is_refillable, type: :boolean
             property :is_trackable, type: :boolean

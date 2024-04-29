@@ -51,19 +51,12 @@ module MyHealth
       def filter_data_by_refill_and_renew(data)
         data.select do |item|
           disp_status = item[:disp_status]
-          refill_remaining = item[:refill_remaining]
           refill_history_expired_date = item[:rx_rf_records]&.[](0)&.[](1)&.[](0)&.[](:expiration_date)&.to_date
           expired_date = refill_history_expired_date || item[:expiration_date]&.to_date
-          dispensed_date = item[:sorted_dispensed_date]&.to_date || item[:dispensed_date]&.to_date
-          next true if item.is_refillable
-          next true if ['Active: On Hold', 'Active: Parked', 'Unknown'].include?(disp_status)
-          next true if disp_status == 'Discontinued' && valid_date_within_six_months?(dispensed_date)
-          next true if disp_status == 'Expired' && expired_date.present? && valid_date_within_six_months?(expired_date)
-          if disp_status == 'Active' && (refill_remaining.positive? || valid_date_within_six_months?(dispensed_date))
+          next true if ['Active', 'Active: Parked'].include?(disp_status)
+          if disp_status == 'Expired' && expired_date.present? && valid_date_within_cut_off_date?(expired_date)
             next true
           end
-          next true if ['Active: Submitted', 'Active: Refill in Process'].include?(disp_status) &&
-                       refill_remaining.zero? && valid_date_within_six_months?(dispensed_date)
 
           false
         end
@@ -71,10 +64,10 @@ module MyHealth
 
       private
 
-      def valid_date_within_six_months?(date)
-        six_months_from_today = Time.zone.today - 6.months
+      def valid_date_within_cut_off_date?(date)
+        cut_off_date = Time.zone.today - 120.days
         zero_date = Date.new(0, 1, 1)
-        date.present? && date != zero_date && date >= six_months_from_today
+        date.present? && date != zero_date && date >= cut_off_date
       end
 
       module_function :collection_resource,

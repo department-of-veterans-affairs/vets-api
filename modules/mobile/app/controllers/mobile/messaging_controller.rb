@@ -47,11 +47,7 @@ module Mobile
     private
 
     def mhv_messaging_authorized?
-      if Flipper.enabled?(:mobile_sm_session_policy, current_user)
-        current_user.authorize(:mhv_messaging, :mobile_access?)
-      else
-        current_user.authorize(:legacy_mhv_messaging, :access?)
-      end
+      current_user.authorize(:mhv_messaging, :mobile_access?)
     end
   end
 end

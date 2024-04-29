@@ -62,6 +62,7 @@ module EVSS
         output_form.update(translate_veteran)
         output_form.update(translate_treatments)
         output_form.update(translate_disabilities)
+        output_form.update(add_toxic_exposure) if Flipper.enabled?(:disability_526_toxic_exposure, @current_user)
 
         @translated_form
       end
@@ -627,6 +628,14 @@ module EVSS
             output_disability['secondaryDisabilities'].append(disability)
           end
         end
+      end
+
+      ###
+      # Toxic Exposure
+      ###
+
+      def add_toxic_exposure
+        { 'toxicExposure' => input_form['toxicExposure'] }
       end
 
       def application_expiration_date

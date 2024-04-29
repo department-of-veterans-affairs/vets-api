@@ -6,12 +6,46 @@ require 'appeals_api/health_checker'
 describe 'metadata request api', type: :request do
   RSpec.shared_examples 'a healthcheck' do |path|
     it 'returns a successful healthcheck' do
+      # stub successful s3 up call
+      s3_client = instance_double(Aws::S3::Client)
+      allow(s3_client).to receive(:head_bucket).with(anything).and_return(true)
+      s3_resource = instance_double(Aws::S3::Resource)
+      allow(s3_resource).to receive(:client).and_return(s3_client)
+      allow(Aws::S3::Resource).to receive(:new).with(anything).and_return(s3_resource)
+
       get path
 
       parsed_response = JSON.parse(response.body)
       expect(response).to have_http_status(:ok)
       expect(parsed_response['description']).to eq('Appeals API health check')
-      expect(parsed_response['status']).to eq('UP')
+      expect(parsed_response['status']).to eq('pass')
+      expect(parsed_response['time']).not_to be_nil
+    end
+  end
+
+  RSpec.shared_examples 'a failed healthcheck' do |path|
+    it 'returns a failed healthcheck due to s3' do
+      # Slack notification expected
+      messenger_instance = instance_double(AppealsApi::Slack::Messager)
+      expected_notify = { class: 'AppealsApi::MetadataController',
+                          warning: ':warning: ' \
+                                   'Appeals API healthcheck failed: unable to connect to AWS S3 bucket.' }
+      expect(AppealsApi::Slack::Messager).to receive(:new).with(expected_notify).and_return(messenger_instance)
+      expect(messenger_instance).to receive(:notify!).once
+
+      # stub failed s3 up call
+      s3_client = instance_double(Aws::S3::Client)
+      expect(s3_client).to receive(:head_bucket).with(anything).and_raise(StandardError)
+      s3_resource = instance_double(Aws::S3::Resource)
+      allow(s3_resource).to receive(:client).and_return(s3_client)
+      allow(Aws::S3::Resource).to receive(:new).with(anything).and_return(s3_resource)
+
+      get path
+
+      parsed_response = JSON.parse(response.body)
+      expect(response).to have_http_status(:service_unavailable)
+      expect(parsed_response['description']).to eq('Appeals API health check')
+      expect(parsed_response['status']).to eq('fail')
       expect(parsed_response['time']).not_to be_nil
     end
   end
@@ -142,7 +176,6 @@ describe 'metadata request api', type: :request do
 
       context 'v1' do
         it_behaves_like 'a healthcheck', '/services/appeals/v1/healthcheck'
-        it_behaves_like 'a healthcheck', '/services/appeals/v1/appeals_healthcheck'
       end
 
       context 'segmented APIs' do
@@ -151,6 +184,15 @@ describe 'metadata request api', type: :request do
         it_behaves_like 'a healthcheck', '/services/appeals/supplemental-claims/v0/healthcheck'
         it_behaves_like 'a healthcheck', '/services/appeals/appealable-issues/v0/healthcheck'
         it_behaves_like 'a healthcheck', '/services/appeals/legacy-appeals/v0/healthcheck'
+      end
+    end
+
+    describe '#failed_healthcheck' do
+      context 'v1' do
+        it_behaves_like 'a failed healthcheck', '/services/appeals/v1/healthcheck'
+        it_behaves_like 'a failed healthcheck', '/services/appeals/v2/healthcheck'
+        it_behaves_like 'a failed healthcheck', '/services/appeals/notice-of-disagreements/v0/healthcheck'
+        it_behaves_like 'a failed healthcheck', '/services/appeals/supplemental-claims/v0/healthcheck'
       end
     end
 
@@ -167,8 +209,6 @@ describe 'metadata request api', type: :request do
       end
 
       context 'v1' do
-        it_behaves_like 'an upstream healthcheck (caseflow)', '/services/appeals/v1/appeals_upstream_healthcheck'
-
         it 'checks the status of both services individually' do
           VCR.use_cassette('caseflow/health-check') do
             allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(true)

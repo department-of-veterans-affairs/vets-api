@@ -15,6 +15,7 @@
       "street": "111 Uni Drive"
     }
   },
+  "sponsorSocialSecurityNumber": "111223333",
   "oldSchool": {
     "name": "old school name",
     "address": {
@@ -45,7 +46,7 @@
   "benefit": "transferOfEntitlement",
   "benefitUpdate": "transferOfEntitlement",
   "changeAnotherBenefit": "Yes",
-  "benefitAppliedFor": "chapter35",
+  "benefitAppliedFor": "chapter30",
   "educationType": "tuitionTopUp",
   "educationTypeUpdate": "prepCourseForLoC",
   "educationObjective": "bachelor's degree",
@@ -62,6 +63,7 @@
     "married": true,
     "parentDependent": false
   },
+  "applicantServed": "Yes",
   "toursOfDuty": [{
     "dateRange": {
       "from": "2012-06-26",

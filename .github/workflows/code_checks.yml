@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ruby/setup-ruby@22fdc77bf4148f810455b226c90fb81b5cbc00a7
+      - uses: ruby/setup-ruby@1198b074305f9356bd56dd4b311757cc0dab2f1c
         with:
           bundler-cache: true
 

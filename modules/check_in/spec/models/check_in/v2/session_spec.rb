@@ -52,6 +52,10 @@ RSpec.describe CheckIn::V2::Session do
     it 'responds to handoff' do
       expect(subject.build({}).respond_to?(:handoff)).to be(true)
     end
+
+    it 'responds to facility_type' do
+      expect(subject.build({}).respond_to?(:facility_type)).to be(true)
+    end
   end
 
   describe '#valid?' do
