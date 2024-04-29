@@ -103,7 +103,3 @@ node_modules
 # Ignore public folder (used for local document uploads)
 public
 
-# Ignore any files within clamav_tmp
-
-clamav_tmp/*
-!/clamav_tmp/.keep
