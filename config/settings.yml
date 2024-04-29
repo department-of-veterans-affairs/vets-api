@@ -921,7 +921,7 @@ vetext:
 hqva_mobile:
   url: "https://veteran.apps.va.gov"
   mock: false
-  key_path: /srv/vets-api/secret/health-quest.key
+  key_path: /app/secret/health-quest.key
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
   facilities:
@@ -944,7 +944,7 @@ hqva_mobile:
     health_api: "health_api"
     pgd_api: "pgd_api"
     mock: false
-    key_path: /srv/vets-api/secret/health-quest.lighthouse.key
+    key_path: /app/secret/health-quest.lighthouse.key
     pgd_api_scopes:
       - "launch launch/patient"
       - "patient/Observation.read"
@@ -1041,7 +1041,7 @@ lighthouse:
       aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token"
       client_id: "0oaaxkp0aeXEJkMFw2p7"
       grant_type: "client_credentials"
-      api_key: /srv/vets-api/secret/lighthouse_fast_track_api.key
+      api_key: /app/secret/lighthouse_fast_track_api.key
   facilities:
     url: https://sandbox-api.va.gov
     api_key: fake_key
@@ -1078,7 +1078,7 @@ vbms:
   cert: vetsapi.client.vbms.aide.oit.va.gov.crt
   client_keyfile: vetsapi.client.vbms.aide.oit.va.gov.p12
   server_cert: vbms.aide.oit.va.gov.crt
-  environment_directory: /srv/vets-api/secret
+  environment_directory: /app/secret
   env: test
 
 vet_verification:
