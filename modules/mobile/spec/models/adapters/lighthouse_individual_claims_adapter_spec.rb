@@ -42,7 +42,7 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, aggregate_failures: t
   end
 
   it 'returns expected tracked items events in events_timeline field' do
-    tracked_items = gathering_of_evidence_claim[:events_timeline].select do |event|
+    tracked_items = gathering_of_evidence_claim[:events_timeline].filter_map do |event|
       event.to_h if %w[still_need_from_you_list received_from_you_list].include?(event[:type].to_s)
     end
 
