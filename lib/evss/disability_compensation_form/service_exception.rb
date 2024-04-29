@@ -34,6 +34,7 @@ module EVSS
         veteran: 'common.exceptions.validation_errors',
         MaxEPCode: 'evss.disability_compensation_form.max_ep_code',
         PIFInUse: 'evss.disability_compensation_form.pif_in_use',
+        refdataservice: 'refdataservice.errorResponse',
         default: 'evss.unmapped_service_exception'
       }.freeze
 
@@ -44,7 +45,7 @@ module EVSS
         (@key == 'evss.external_service_unavailable' && only_has_retriable_message_texts?) ||
           (@key == 'evss.disability_compensation_form.pif_in_use') ||
           (@key == 'evss.disability_compensation_form.ws_client_exception') ||
-          refdataservice_error?
+          (@key == 'refdataservice.errorResponse' && refdataservice_unreachable?)
       end
 
       def errors
@@ -61,16 +62,12 @@ module EVSS
         @messages.none? { |msg| msg['text'].include?('EP Code is not valid') }
       end
 
-      def refdataservice_error?
-        rds_error = '.refdataservice.errorResponse'
-        error_keys = [
-          "form526.disabilities.classificationCode#{rds_error}",
-          "form526.serviceInformation#{rds_error}",
-          "form526.serviceInformation.servicePeriods#{rds_error}",
-          "form526.veteran.changeOfAddress#{rds_error}",
-          "form526.veteran.currentMailingAddress#{rds_error}"
+      def refdataservice_unreachable?
+        texts = [
+          'Reference Data Service was unable to verify',
+          'Reference Data Service is unavailable to verify'
         ]
-        error_keys.any? { |error_key| @key.include?(error_key) }
+        @messages.all? { |msg| texts.include?(msg['text']) }
       end
 
       def i18n_key
