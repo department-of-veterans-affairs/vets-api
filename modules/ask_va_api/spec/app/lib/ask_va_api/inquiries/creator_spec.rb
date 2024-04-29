@@ -41,14 +41,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
           ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
           'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
       end
-      let(:failure) do
-        {
-          status: 400,
-          body:,
-          response_headers: nil,
-          url: nil
-        }
-      end
+      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
       before do
         allow(service).to receive(:call).and_return(failure)
