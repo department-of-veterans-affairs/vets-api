@@ -73,7 +73,7 @@ module ClaimsApi
       # @todo We could also introduce the notion of just the service definition
       #   in our central repository of definitions so that:
       #   1. Service action definitions and other code would be able to refer to
-      #      them 
+      #      them
       #   2. We could improve this API so that it doesn't need to receive
       #      extraneous action information.
       #  But this is fine for now.

@@ -4,8 +4,8 @@ module ClaimsApi
   class LocalBGSRefactored
     # list of fault codes: https://hub.verj.io/ebase/doc/SOAP_Faults.htm
     #
-    # TODO: Some (or all) of these cases should be handled in consumers and not in
-    # a central location.
+    # TODO: Some (or all) of these cases should be handled in consumers and not
+    # in a central location.
     class ErrorHandler
       class << self
         def handle_errors!(fault)

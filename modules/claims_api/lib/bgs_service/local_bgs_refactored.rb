@@ -6,9 +6,10 @@
 # Additionally, we waive copyright and related rights in the work
 # worldwide through the CC0 1.0 Universal public domain dedication.
 
-require 'claims_api/claim_logger'
 require 'bgs_service/local_bgs_refactored/error_handler'
 require 'bgs_service/local_bgs_refactored/miscellaneous'
+require 'claims_api/bgs_client'
+require 'claims_api/claim_logger'
 
 module ClaimsApi
   # @deprecated Use {BGSClient.perform_request} instead. There ought to be a
@@ -24,9 +25,7 @@ module ClaimsApi
     include Miscellaneous
 
     class << self
-      def breakers_service
-        BGSClient.breakers_service
-      end
+      delegate :breakers_service, to: BGSClient
     end
 
     attr_reader :external_id

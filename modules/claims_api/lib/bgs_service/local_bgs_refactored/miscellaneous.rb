@@ -140,8 +140,6 @@ module ClaimsApi
       end
       # END: switching v1 from evss to bgs. Delete after EVSS is no longer available. Fix controller first.
 
-      private
-
       def construct_itf_body(options)
         request_body = {
           itfTypeCd: options[:intent_to_file_type_code],

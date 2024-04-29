@@ -153,6 +153,9 @@ module ClaimsApi
             end
         end
 
+        # Use features of `SemanticLogger` like tags, metrics, benchmarking,
+        # appenders, etc rather than making bespoke implementations?
+        # https://logger.rocketjob.io/
         def log_duration(event_name)
           start = now
           result = yield
