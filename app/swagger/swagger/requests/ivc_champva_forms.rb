@@ -28,7 +28,7 @@ module Swagger
                 key :type, :array
                 items do
                   key :type, :string
-                  key :example, ['12345678-1234-5678-1234-567812345678_vha_10_10d-tmp.pdf', '12345678-1234-5678-1234-567812345678_vha10_10d_2-tmp.pdf']
+                  key :example, ['12345678-1234-5678_vha_10_10d-tmp.pdf', '12345678-1234-5678_vha10_10d_2-tmp.pdf']
                   key :description, 'List of file names associated with the form'
                 end
               end
