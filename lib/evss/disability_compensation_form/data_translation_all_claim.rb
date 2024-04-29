@@ -521,7 +521,7 @@ module EVSS
           end
           append_input_disability = map_disability(input_disability)
 
-          return if append_input_disability.present? # rubocop:disable Link/NonLocalExitFromIterator
+          break if append_input_disability.blank?
 
           if Flipper.enabled?(:disability_526_toxic_exposure, @user)
             append_input_disability['cause'] = input_disability['cause']
