@@ -31,9 +31,8 @@ module ClaimsApi
 
         def validate_individual_poa_code!(poa_code)
 
-          return if ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).any?
-
-          return if ::Veteran::Service::Organization.find_by(poa: poa_code).blank?
+          return if ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).any? &&
+            ::Veteran::Service::Organization.find_by(poa: poa_code).blank?
 
           raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
             detail: "Could not find an Accredited Representative with code: #{poa_code}"
