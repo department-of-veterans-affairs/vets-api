@@ -34,7 +34,6 @@ module Swagger
               end
               property :status do
                 key :type, :string
-                key :enum, ['pending', 'processing', 'processed']
                 key :example, 'processed'
                 key :description, 'Status of the form processing'
               end
@@ -53,7 +52,6 @@ module Swagger
               end
               property :status do
                 key :type, :string
-                key :enum, ['pending', 'processing', 'processed','error']
                 key :example, 'Invalid request'
                 key :description, 'Status of the form processing'
               end
@@ -72,7 +70,6 @@ module Swagger
               end
               property :status do
                 key :type, :string
-                key :enum, ['pending', 'processing', 'processed']
                 key :example, 'Internal server error'
                 key :description, 'Status of the form processing'
               end
