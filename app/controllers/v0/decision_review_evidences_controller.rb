@@ -22,7 +22,8 @@ module V0
         downstream_system: 'AWS S3',
         params: {
           # `form_attachment` is declared in `FormAttachmentCreate`, included above.
-          form_attachment_guid: form_attachment&.guid
+          form_attachment_guid: form_attachment&.guid,
+          encrypted: !filtered_params[:password].nil?
         }
       }
       super
