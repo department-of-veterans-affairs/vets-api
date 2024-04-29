@@ -99,6 +99,10 @@ binaries:
 
 clamav:
   mock: false
+  # host & port here are only used in development here:
+  # config/initializers/clamav.rb
+  host: 'clamav'
+  port: '3310'
 
 db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
 

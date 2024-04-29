@@ -596,8 +596,11 @@ GEM
       kramdown (~> 2.0)
     language_server-protocol (3.17.0.3)
     libdatadog (5.0.0.1.0)
+    libdatadog (5.0.0.1.0-aarch64-linux)
     libdatadog (5.0.0.1.0-x86_64-linux)
     libddwaf (1.14.0.0.0)
+      ffi (~> 1.0)
+    libddwaf (1.14.0.0.0-aarch64-linux)
       ffi (~> 1.0)
     libddwaf (1.14.0.0.0-java)
       ffi (~> 1.0)
@@ -1076,6 +1079,7 @@ GEM
     zeitwerk (2.6.13)
 
 PLATFORMS
+  aarch64-linux
   java
   ruby
   x64-mingw32
