@@ -36,18 +36,23 @@ module ClaimsApi
     end
 
     def healthcheck(endpoint)
-      service =
-        BGSClient::ServiceAction::Definition::Service.new(
-          path: endpoint,
-          # Namespaces are only actually relevant when performing a service
-          # action request. We could easily slightly tweak the API to reflect
-          # that, but it's probably not horrible leaving it slightly funky here
-          # for vague aesthetic reasons.
-          namespaces: nil
+      definition =
+        BGSClient::ServiceAction::Definition.new(
+          service_path: endpoint,
+          # We could introduce an idea of just the service definition, but for
+          # now the idea is to be able to pass a predefined value if we already
+          # have it, e.g.:
+          # ```
+          # BGSClient::ServiceAction::Definition::
+          #   ManageRepresentativeService::
+          #   ReadPoaRequest
+          # ```
+          service_namespaces: nil,
+          action_name: nil
         )
 
       BGSClient.healthcheck(
-        service
+        definition
       )
     end
 
@@ -55,21 +60,11 @@ module ClaimsApi
       endpoint:, action:, body:, key: nil,
       namespaces: {}, transform_response: true
     )
-      service =
-        BGSClient::ServiceAction::Definition::Service.new(
-          path: endpoint,
-          namespaces:
-        )
-
-      action =
-        BGSClient::ServiceAction::Definition::Action.new(
-          name: action
-        )
-
       definition =
         BGSClient::ServiceAction::Definition.new(
-          service:,
-          action:
+          service_path: endpoint,
+          service_namespaces: namespaces,
+          action_name: action
         )
 
       request =

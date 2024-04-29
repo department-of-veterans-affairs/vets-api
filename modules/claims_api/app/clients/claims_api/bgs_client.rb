@@ -22,21 +22,21 @@ module ClaimsApi
       #   definition =
       #     BGSClient::ServiceAction::Definition::
       #       ManageRepresentativeService::
-      #       ReadPoaRequest.instance
+      #       ReadPoaRequest
       #
       #   BGSClient.perform_request(
       #     definition:,
       #     body:
       #   )
       #
-      # @param definition [BGSClient::ServiceAction::Definition] a value object that
-      #   identifies a particular BGS SOAP service action by way of:
-      #   `{.service.path, .service.namespaces, .action.name}`
+      # @param definition [BGSClient::ServiceAction::Definition] a value object
+      #   that identifies a particular BGS SOAP service action by way of:
+      #   `{.service_path, .service_namespaces, .action_name}`
       #
       # @param body [String, #to_xml, #to_s] the action payload
       #
-      # @param external_id [BGSClient::ServiceAction::ExternalId] a value object that
-      #   arbitrarily self-identifies ourselves to BGS as its caller by:
+      # @param external_id [BGSClient::ServiceAction::ExternalId] a value object
+      #   that arbitrarily self-identifies ourselves to BGS as its caller by:
       #   `{.external_uid, .external_key}`
       #
       # @return [BGSClient::ServiceAction::Request::Result<Hash, BGSClient::ServiceAction::Request::Fault>]
@@ -53,24 +53,33 @@ module ClaimsApi
       end
 
       ##
-      # Reveals the momemtary health of a BGS service by attempting to request
+      # Reveals the momentary health of a BGS service by attempting to request
       # its WSDL and returning the HTTP status code of the response.
       #
       # @example
       #   definition =
       #     BGSClient::ServiceAction::Definition::
-      #       ManageRepresentativeService.instance
+      #       ManageRepresentativeService::
+      #       ReadPoaRequest
       #
       #   BGSClient.healthcheck(definition)
       #
-      # @param definition [ServiceAction::Definition::Service] a value object
-      #   that identifies a particular BGS SOAP service by way of:
-      #   `{.path, .namespaces}`
+      # @param definition [BGSClient::ServiceAction::Definition] a value object
+      #   that identifies a particular BGS SOAP service action by way of:
+      #   `{.service_path, .service_namespaces, .action_name}`
       #
       # @return [Integer] HTTP status code
+      #
+      # @todo We could also introduce the notion of just the service definition
+      #   in our central repository of definitions so that:
+      #   1. Service action definitions and other code would be able to refer to
+      #      them 
+      #   2. We could improve this API so that it doesn't need to receive
+      #      extraneous action information.
+      #  But this is fine for now.
       def healthcheck(definition)
         connection = build_connection
-        response = fetch_wsdl(connection, definition.path)
+        response = fetch_wsdl(connection, definition)
         response.status
       end
 
@@ -91,8 +100,8 @@ module ClaimsApi
 
       private
 
-      def fetch_wsdl(connection, service_path)
-        connection.get(service_path) do |req|
+      def fetch_wsdl(connection, definition)
+        connection.get(definition.service_path) do |req|
           req.params['WSDL'] = nil
         end
       end
