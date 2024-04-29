@@ -89,8 +89,8 @@ module TravelPay
 
       symbolized_body = response.body.deep_symbolize_keys
       parse_claim_date = ->(c) { Date.parse(c[:modifiedOn]) }
-      symbolized_body[:data].sort_by!(&parse_claim_date).reverse!
-      symbolized_body
+
+      { data: symbolized_body[:data].sort_by(&parse_claim_date).reverse! }
     end
 
     def request_sts_token(user)
