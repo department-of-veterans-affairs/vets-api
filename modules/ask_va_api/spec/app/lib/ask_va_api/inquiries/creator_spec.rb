@@ -36,12 +36,15 @@ RSpec.describe AskVAApi::Inquiries::Creator do
     end
 
     context 'when the API call fails' do
+      let(:body) do
+        '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
+          ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+          'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
+      end
+      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
+
       before do
-        allow(service).to receive(:call).and_return({ Data: nil,
-                                                      Message: 'Data Validation: missing InquiryCategory',
-                                                      ExceptionOccurred: true,
-                                                      ExceptionMessage: 'Data Validation: missing InquiryCategory',
-                                                      MessageId: '13bc59ea-c90a-4d48-8979-fe71e0f7ddeb' })
+        allow(service).to receive(:call).and_return(failure)
       end
 
       it 'raise InquiriesCreatorError' do

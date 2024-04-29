@@ -6,7 +6,7 @@ module AskVAApi
       around_action :handle_exceptions
       before_action :get_inquiries_by_icn, only: [:index]
       before_action :get_inquiry_by_id, only: [:show]
-      skip_before_action :authenticate, only: %i[unauth_create upload_attachment test_create]
+      skip_before_action :authenticate, only: %i[unauth_create upload_attachment test_create show]
       skip_before_action :verify_authenticity_token, only: %i[unauth_create upload_attachment test_create]
 
       def index
@@ -63,6 +63,8 @@ module AskVAApi
       private
 
       def get_inquiry_by_id
+        entity_class = AskVAApi::Inquiries::Entity
+        retriever = Inquiries::Retriever.new(user_mock_data: params[:mock], entity_class:)
         inq = retriever.fetch_by_id(id: params[:id])
         @inquiry = Result.new(payload: Inquiries::Serializer.new(inq).serializable_hash, status: :ok)
       end

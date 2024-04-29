@@ -34,15 +34,17 @@ describe SimpleFormsApi::PdfFiller do
 
   describe '#generate' do
     forms.each do |file_name|
-      context "when mapping the pdf data given JSON file: #{file_name}" do
-        let(:expected_pdf_path) { map_pdf_data(file_name) }
+      ActiveRecord::Base.transaction do
+        context "when mapping the pdf data given JSON file: #{file_name}" do
+          let(:expected_pdf_path) { map_pdf_data(file_name) }
 
-        # remove the pdf if it already exists
-        after { FileUtils.rm_f(expected_pdf_path) }
+          # remove the pdf if it already exists
+          after { FileUtils.rm_f(expected_pdf_path) }
 
-        context 'when a legitimate JSON payload is provided' do
-          it 'properly fills out the associated PDF' do
-            expect(File.exist?(expected_pdf_path)).to eq(true)
+          context 'when a legitimate JSON payload is provided' do
+            it 'properly fills out the associated PDF' do
+              expect(File.exist?(expected_pdf_path)).to eq(true)
+            end
           end
         end
       end

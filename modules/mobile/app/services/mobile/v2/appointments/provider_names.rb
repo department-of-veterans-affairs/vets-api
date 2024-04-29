@@ -20,10 +20,17 @@ module Mobile
           return nil if practitioners_list.blank?
 
           provider_names = []
+          missing_providers = []
           practitioners_list.each do |practitioner|
-            provider_names << find_provider_name(practitioner)
+            name, id = find_provider_name(practitioner)
+            if name
+              provider_names << name
+            else
+              missing_providers << id
+            end
           end
-          provider_names.compact.join(', ').presence
+          provider_names = provider_names.compact.join(', ').presence
+          [provider_names, missing_providers]
         end
 
         private
@@ -41,7 +48,7 @@ module Mobile
           name = provider_data&.name&.strip&.presence
           # cache even if it's nil to avoid duplicate requests
           @providers_cache[id] = name
-          name
+          [name, id]
         end
 
         def find_practitioner_name_in_list(practitioner)
