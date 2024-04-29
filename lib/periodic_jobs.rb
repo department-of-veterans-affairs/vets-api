@@ -4,8 +4,8 @@
 PERIODIC_JOBS = lambda { |mgr|
   mgr.tz = ActiveSupport::TimeZone.new('America/New_York')
 
-  # Runs at midnight every Sunday
-  mgr.register('0 0 * * 0', 'LoadAverageDaysForClaimCompletionJob')
+  # Runs at midnight every Tuesday
+  mgr.register('0 0 * * 2', 'LoadAverageDaysForClaimCompletionJob')
 
   mgr.register('*/15 * * * *', 'CovidVaccine::ScheduledBatchJob')
   mgr.register('*/15 * * * *', 'CovidVaccine::ExpandedScheduledSubmissionJob')
