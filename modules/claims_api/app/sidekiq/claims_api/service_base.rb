@@ -54,7 +54,7 @@ module ClaimsApi
 
       auto_claim.evss_response = []
       error_messages = get_error_message(error)
-      messages = error_messages[:messages].presence ? error_messages[:messages] : [error_messages]
+      messages = error_messages&.dig(0, :messages).presence ? error_messages[:messages] : [error_messages]
 
       messages.flatten.uniq.each do |error_message|
         error_key = get_error_key(error_message)
