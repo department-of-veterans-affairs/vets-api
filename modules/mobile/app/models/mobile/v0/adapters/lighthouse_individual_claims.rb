@@ -112,7 +112,7 @@ module Mobile
 
           # sort to put events with uploaded == false on top and then by date
           events.compact.sort_by do |event|
-            upload_priority = if event[:uploaded] || event.uploaded.nil?
+            upload_priority = if event[:uploaded] || event[:uploaded].nil?
                                 0 # Lower priority for uploaded == true or value nil
                               else
                                 1 # Higher priority for uploaded == false
@@ -129,24 +129,7 @@ module Mobile
 
           ClaimEventTimeline.new(
             type:,
-            date: Date.strptime(date, '%Y-%m-%d'),
-            tracked_item_id: nil,
-            description: nil,
-            display_name: nil,
-            overdue: nil,
-            status: nil,
-            uploaded: nil,
-            uploads_allowed: nil,
-            opened_date: nil,
-            requested_date: nil,
-            received_date: nil,
-            closed_date: nil,
-            suspense_date: nil,
-            documents: nil,
-            upload_date: nil,
-            file_type: nil,
-            document_type: nil,
-            filename: nil
+            date: Date.strptime(date, '%Y-%m-%d')
           )
         end
 
@@ -164,23 +147,9 @@ module Mobile
           untracked_documents.map do |document|
             ClaimEventTimeline.new(
               type: :other_documents_list,
-              date: nil,
               tracked_item_id: document['trackedItemId'],
-              description: nil,
-              display_name: nil,
-              overdue: nil,
-              status: nil,
-              uploaded: nil,
-              uploads_allowed: nil,
-              opened_date: nil,
-              requested_date: nil,
-              received_date: nil,
-              closed_date: nil,
-              suspense_date: nil,
-              documents: nil,
               upload_date: document['uploadDate'],
               file_type: document['documentTypeLabel'],
-              document_type: nil,
               filename: document['originalFileName']
             )
           end
@@ -204,10 +173,7 @@ module Mobile
             closed_date: tracked_item['closedDate'],
             suspense_date: tracked_item['suspenseDate'],
             documents:,
-            upload_date: latest_upload_date(documents),
-            file_type: nil,
-            document_type: nil,
-            filename: nil
+            upload_date: latest_upload_date(documents)
           }
 
           event[:date] = Date.strptime(event.slice(*EVENT_DATE_FIELDS).values.compact.first, '%Y-%m-%d')
