@@ -39,6 +39,7 @@ class SimpleCovHelper
 
   def self.add_filters
     add_filter 'app/controllers/concerns/accountable.rb'
+    add_filter 'config/initializers/clamscan.rb'
     add_filter 'lib/apps/configuration.rb'
     add_filter 'lib/apps/responses/response.rb'
     add_filter 'lib/config_helper.rb'
