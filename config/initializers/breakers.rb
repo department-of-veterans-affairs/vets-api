@@ -80,7 +80,7 @@ Rails.application.reloader.to_prepare do
     CovidVaccine::V0::VetextConfiguration.instance.breakers_service,
     VEText::Configuration.instance.breakers_service,
     PagerDuty::Configuration.instance.breakers_service,
-    ClaimsApi::LocalBGS.breakers_service
+    ClaimsApi::BGSClient.breakers_service
   ]
 
   services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled

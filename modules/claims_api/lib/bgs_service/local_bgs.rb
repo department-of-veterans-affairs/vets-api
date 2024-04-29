@@ -7,18 +7,6 @@ module ClaimsApi
   # Proxy class that switches at runtime between using `LocalBGSLegacy` and
   # `LocalBGSRefactored` depending on the value of our feature toggle.
   class LocalBGS
-    class << self
-      delegate :breakers_service, to: :proxied_class
-
-      def proxied_class
-        if Flipper.enabled?(:claims_api_local_bgs_refactor)
-          LocalBGSRefactored
-        else
-          LocalBGSLegacy
-        end
-      end
-    end
-
     legacy_ancestors =
       LocalBGSLegacy.ancestors -
       LocalBGSRefactored.ancestors
@@ -37,8 +25,7 @@ module ClaimsApi
         ancestor.instance_methods(false) - [:initialize]
       end
 
-    # This makes the assumption that, aside from the one class method
-    # `breakers_service`, we'll maintain compatibility for callers of
+    # This makes the assumption that we'll maintain compatibility for callers of
     # `LocalBGSLegacy` by considering only its public instance methods, and in
     # particular those not installed by framework-level ancestors. A "one-time"
     # check was performed to ensure that instance methods that callers invoke
@@ -53,11 +40,15 @@ module ClaimsApi
     )
 
     delegate(*common_api, to: :proxied)
-    delegate :proxied_class, to: :class
     attr_reader :proxied
 
     def initialize(...)
-      @proxied = proxied_class.new(...)
+      @proxied =
+        if Flipper.enabled?(:claims_api_local_bgs_refactor)
+          LocalBGSRefactored.new(...)
+        else
+          LocalBGSLegacy.new(...)
+        end
     end
   end
 end

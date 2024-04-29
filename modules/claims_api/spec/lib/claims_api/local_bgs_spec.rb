@@ -43,9 +43,9 @@ describe ClaimsApi::LocalBGS do
       end
 
       it 'hits breakers' do
-        ClaimsApi::LocalBGS.breakers_service.begin_forced_outage!
+        ClaimsApi::BGSClient.breakers_service.begin_forced_outage!
         expect { subject.find_poa_by_participant_id('also-does-not-matter') }.to raise_error(Breakers::OutageException)
-        ClaimsApi::LocalBGS.breakers_service.end_forced_outage!
+        ClaimsApi::BGSClient.breakers_service.end_forced_outage!
       end
     end
 

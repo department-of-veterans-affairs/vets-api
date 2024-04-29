@@ -50,23 +50,6 @@ module ClaimsApi
     end
     # rubocop:enable Metrics/MethodLength
 
-    def self.breakers_service
-      url = Settings.bgs.url
-      path = URI.parse(url).path
-      host = URI.parse(url).host
-      port = URI.parse(url).port
-      matcher = proc do |request_env|
-        request_env.url.host == host &&
-          request_env.url.port == port &&
-          request_env.url.path =~ /^#{path}/
-      end
-
-      Breakers::Service.new(
-        name: 'BGS/Claims',
-        request_matcher: matcher
-      )
-    end
-
     def bean_name
       raise 'Not Implemented'
     end

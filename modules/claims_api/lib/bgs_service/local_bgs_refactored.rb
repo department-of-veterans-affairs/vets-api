@@ -8,7 +8,6 @@
 
 require 'bgs_service/local_bgs_refactored/error_handler'
 require 'bgs_service/local_bgs_refactored/miscellaneous'
-require 'claims_api/bgs_client'
 require 'claims_api/claim_logger'
 
 module ClaimsApi
@@ -23,10 +22,6 @@ module ClaimsApi
   #   but that should live in the business logic layer and not here.
   class LocalBGSRefactored
     include Miscellaneous
-
-    class << self
-      delegate :breakers_service, to: BGSClient
-    end
 
     attr_reader :external_id
 
