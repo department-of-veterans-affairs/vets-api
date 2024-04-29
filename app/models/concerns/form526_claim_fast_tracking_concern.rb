@@ -115,7 +115,11 @@ module Form526ClaimFastTrackingConcern
     begin
       classification_updated = update_classification!
     rescue => e
-      Rails.logger.error "Contention Classification failed #{e.message}.", backtrace: e.backtrace
+      Rails.logger.error(
+          message: "Contention Classification failed #{e.message}.",
+          backtrace: e.backtrace,
+          submission_id: form526_submission_id
+        )
     end
 
     prepare_for_ep_merge! if disabilities.count == 1 && increase_only? && classification_updated
