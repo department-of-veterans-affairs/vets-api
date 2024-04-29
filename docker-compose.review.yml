@@ -40,7 +40,7 @@ services:
     ports:
       - 3310:3310
     volumes:
-     - shared-vol:/vets-api
+     - shared-vol:/app
   redis:
     image: redis:6.2-alpine
     restart: unless-stopped
