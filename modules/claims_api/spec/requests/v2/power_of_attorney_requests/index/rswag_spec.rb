@@ -11,7 +11,7 @@ metadata = {
   production: false,
   bgs: {
     service: 'manage_representative_service',
-    operation: 'read_poa_request'
+    action: 'read_poa_request'
   }
 }
 

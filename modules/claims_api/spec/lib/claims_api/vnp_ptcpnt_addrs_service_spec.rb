@@ -7,7 +7,7 @@ require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_
 metadata = {
   bgs: {
     service: 'vnp_ptcpnt_addrs_service',
-    operation: 'vnp_ptcpnt_addrs_create'
+    action: 'vnp_ptcpnt_addrs_create'
   }
 }
 

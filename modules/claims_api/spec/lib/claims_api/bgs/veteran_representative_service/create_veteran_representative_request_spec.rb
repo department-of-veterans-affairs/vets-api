@@ -7,7 +7,7 @@ require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_
 metadata = {
   bgs: {
     service: 'veteran_representative_service',
-    operation: 'create_veteran_representative'
+    action: 'create_veteran_representative'
   }
 }
 

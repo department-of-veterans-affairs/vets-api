@@ -26,32 +26,32 @@ module BGSClientSpecHelpers
   }.freeze
 
   # This convenience method affords a handful of quality of life improvements
-  # for developing BGS service operation wrappers. It makes development a less
+  # for developing BGS service action wrappers. It makes development a less
   # manual process. It also turns VCR cassettes into a human readable resource
   # that documents the behavior of BGS.
   #
   # In order to take advantage of this method, you will need to have supplied,
   # to your example or example group, metadata of this form:
-  #   `{ bgs: { service: "service", operation: "operation" } }`.
+  #   `{ bgs: { service: "service", action: "action" } }`.
   #
   # Then, HTTP interactions that occur within the block supplied to this method
   # will be captured by VCR cassettes that have the following convenient
   # properties:
-  #   - They will be nicely organized at `claims_api/bgs/:service/:operation/:name`
+  #   - They will be nicely organized at `claims_api/bgs/:service/:action/:name`
   #   - Cassette matching will be done on canonicalized XML bodies, so
   #     reformatting cassettes for human readability won't defeat matching
   def use_bgs_cassette(name, &)
     metadata = RSpec.current_example.metadata[:bgs].to_h
-    service, operation = metadata.values_at(:service, :operation)
+    service, action = metadata.values_at(:service, :action)
 
-    if service.blank? || operation.blank?
+    if service.blank? || action.blank?
       raise ArgumentError, <<~HEREDOC
         Must provide spec metadata of the form:
-          `{ bgs: { service: "service", operation: "operation" } }'
+          `{ bgs: { service: "service", action: "action" } }'
       HEREDOC
     end
 
-    name = File.join('claims_api/bgs', service, operation, name)
+    name = File.join('claims_api/bgs', service, action, name)
     VCR.use_cassette(name, VCR_OPTIONS, &)
   end
 end
