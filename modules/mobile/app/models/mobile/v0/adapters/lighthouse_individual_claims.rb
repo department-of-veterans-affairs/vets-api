@@ -123,7 +123,6 @@ module Mobile
           end.reverse
         end
 
-        # rubocop:disable Metrics/MethodLength
         def create_event_from_string_date(type, date)
           return nil unless date
 
@@ -179,7 +178,6 @@ module Mobile
           event[:date] = Date.strptime(event.slice(*EVENT_DATE_FIELDS).values.compact.first, '%Y-%m-%d')
           ClaimEventTimeline.new(event)
         end
-        # rubocop:enable Metrics/MethodLength
 
         def create_documents(documents)
           documents.map do |document|
