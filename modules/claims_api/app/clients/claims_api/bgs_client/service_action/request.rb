@@ -146,10 +146,11 @@ module ClaimsApi
               # Should all of this connection configuration really not be
               # involved in the BGS service healthcheck performed by
               # `BGSClient.healthcheck`? Under the hood, that just fetches WSDL
-              # which we also do here but with "smarter" connection config.
-              conn.options.timeout = Settings.bgs.timeout || 120
-              conn.adapter Faraday.default_adapter
+              # which we also do here but with this more sophisticated logic.
+              # Maybe we truly don't want `breakers` and `timeout` logic to
+              # impact our assessment of service health in that context?
               conn.use :breakers
+              conn.options.timeout = Settings.bgs.timeout || 120
             end
         end
 
