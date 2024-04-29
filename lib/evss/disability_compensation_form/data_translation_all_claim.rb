@@ -664,6 +664,14 @@ module EVSS
         end
       end
 
+      ###
+      # Toxic Exposure
+      ###
+
+      def add_toxic_exposure
+        { 'toxicExposure' => input_form['toxicExposure'] }
+      end
+
       def application_expiration_date
         1.year.from_now.iso8601
       end
