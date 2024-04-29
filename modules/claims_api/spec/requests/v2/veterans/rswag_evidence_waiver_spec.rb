@@ -57,11 +57,11 @@ describe 'EvidenceWaiver5103',
 
           before do |example|
             bgs_claim_response = build(:bgs_response_with_one_lc_status).to_h
-            expect_any_instance_of(ClaimsApi::LocalBGS)
+            expect_any_instance_of(ClaimsApi::MiscellaneousBGSOperations)
               .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
 
             mock_ccg(scopes) do
-              allow_any_instance_of(ClaimsApi::LocalBGS)
+              allow_any_instance_of(ClaimsApi::MiscellaneousBGSOperations)
                 .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
               submit_request(example.metadata)
             end
@@ -118,7 +118,7 @@ describe 'EvidenceWaiver5103',
 
           before do |example|
             mock_ccg(scopes) do
-              allow_any_instance_of(ClaimsApi::LocalBGS)
+              allow_any_instance_of(ClaimsApi::MiscellaneousBGSOperations)
                 .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(nil)
               submit_request(example.metadata)
             end

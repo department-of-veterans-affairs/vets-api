@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_api/v2/params_validation/intent_to_file'
-require 'bgs_service/local_bgs'
+require 'bgs_service/miscellaneous_bgs_operations'
 
 module ClaimsApi
   module V2

@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../../rails_helper'
 require 'token_validation/v2/client'
-require 'bgs_service/local_bgs'
+require 'bgs_service/miscellaneous_bgs_operations'
 
 RSpec.describe 'Claims', type: :request do
   let(:veteran_id) { '1013062086V794840' }
@@ -23,7 +23,7 @@ RSpec.describe 'Claims', type: :request do
                                 participant_ids: [])
     )
   end
-  let(:bcs) { ClaimsApi::LocalBGS }
+  let(:bcs) { ClaimsApi::MiscellaneousBGSOperations }
   let(:profile_for_claimant_on_behalf_of_veteran) do
     MPI::Responses::FindProfileResponse.new(
       status: :ok,

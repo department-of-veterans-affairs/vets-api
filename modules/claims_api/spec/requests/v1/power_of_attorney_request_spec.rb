@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../rails_helper'
-require 'bgs_service/local_bgs'
+require 'bgs_service/miscellaneous_bgs_operations'
 
 RSpec.describe 'Power of Attorney ', type: :request do
   let(:headers) do
@@ -20,7 +20,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       profile: FactoryBot.build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321])
     )
   end
-  let(:pws) { ClaimsApi::LocalBGS }
+  let(:pws) { ClaimsApi::MiscellaneousBGSOperations }
 
   before do
     stub_poa_verification
