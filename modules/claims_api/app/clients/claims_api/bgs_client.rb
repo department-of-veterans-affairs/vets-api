@@ -3,13 +3,71 @@
 module ClaimsApi
   module BGSClient
     class << self
-      def perform_request(definition:, body:, external_id: ServiceAction::ExternalId::DEFAULT)
+      ##
+      # Invokes the given BGS SOAP service action with the given payload and
+      # returns a result containing a success payload or a fault.
+      #
+      # @example Perform a request to BGS at:
+      #   /VDC/ManageRepresentativeService(readPOARequest)
+      #
+      #   body = <<~EOXML
+      #     <data:SecondaryStatusList>
+      #       <SecondaryStatus>New</SecondaryStatus>
+      #     </data:SecondaryStatusList>
+      #     <data:POACodeList>
+      #       <POACode>012</POACode>
+      #     </data:POACodeList>
+      #   EOXML
+      #
+      #   definition =
+      #     BGSClient::ServiceAction::Definition::
+      #       ManageRepresentativeService::
+      #       ReadPoaRequest.instance
+      #
+      #   BGSClient.perform_request(
+      #     definition:,
+      #     body:
+      #   )
+      #
+      # @param definition [BGSClient::ServiceAction::Definition] a value object that
+      #   identifies a particular BGS SOAP service action by way of:
+      #   `{.service.path, .service.namespaces, .action.name}`
+      #
+      # @param body [String, #to_xml, #to_s] the action payload
+      #
+      # @param external_id [BGSClient::ServiceAction::ExternalId] a value object that
+      #   arbitrarily self-identifies ourselves to BGS as its caller by:
+      #   `{.external_uid, .external_key}`
+      #
+      # @return [BGSClient::ServiceAction::Request::Result<Hash, BGSClient::ServiceAction::Request::Fault>]
+      #   the response payload of a successful request, or the fault object of a
+      #   failed request
+      def perform_request(
+        definition:, body:,
+        external_id: ServiceAction::ExternalId::DEFAULT
+      )
         ServiceAction
           .const_get(:Request)
           .new(definition:, external_id:)
           .perform(body)
       end
 
+      ##
+      # Reveals the momemtary health of a BGS service by attempting to request
+      # its WSDL and returning the HTTP status code of the response.
+      #
+      # @example
+      #   definition =
+      #     BGSClient::ServiceAction::Definition::
+      #       ManageRepresentativeService.instance
+      #
+      #   BGSClient.healthcheck(definition)
+      #
+      # @param definition [ServiceAction::Definition::Service] a value object
+      #   that identifies a particular BGS SOAP service by way of:
+      #   `{.path, .namespaces}`
+      #
+      # @return [Integer] HTTP status code
       def healthcheck(definition)
         connection = build_connection
         response = fetch_wsdl(connection, definition.path)
