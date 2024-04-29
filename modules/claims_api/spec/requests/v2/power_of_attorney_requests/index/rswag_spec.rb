@@ -4,7 +4,7 @@ require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require Rails.root.join('modules', 'claims_api', 'spec', 'rails_helper.rb')
-require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_helpers.rb')
+require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_spec_helpers.rb')
 
 metadata = {
   openapi_spec: Rswag::TextHelpers.new.claims_api_docs,
