@@ -109,8 +109,14 @@ describe 'PowerOfAttorney',
           let(:veteranId) { 'xxx' } # rubocop:disable RSpec/VariableName
 
           before do |example|
-            allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController).to receive(:show)
-              .and_raise(Common::Exceptions::ResourceNotFound)
+            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(nil)
+            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+              .and_return({ person_poa_history: nil })
+            Veteran::Service::Representative.new(representative_id: '12345',
+                                                 poa_codes: ['H1A'],
+                                                 first_name: 'Firstname',
+                                                 last_name: 'Lastname',
+                                                 phone: '555-555-5555').save!
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end

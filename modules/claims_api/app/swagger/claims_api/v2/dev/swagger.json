@@ -6072,7 +6072,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "85570baa-5023-485d-9616-014117c7f9c3",
+                    "id": "855164d6-8951-4a09-be99-efdb5b065a3b",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -8156,8 +8156,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-04-26",
-                      "expirationDate": "2025-04-26",
+                      "creationDate": "2024-04-29",
+                      "expirationDate": "2025-04-29",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -8874,9 +8874,9 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Resource not found",
+                      "detail": "Could not find Power of Attorney with id: ",
                       "source": {
-                        "pointer": "/Users/matthewchristianson/.rbenv/versions/3.2.3/lib/ruby/gems/3.2.0/gems/rspec-mocks-3.13.0/lib/rspec/mocks/message_expectation.rb:188:in `block in and_raise'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:23:in `show'"
                       }
                     }
                   ]
@@ -8937,7 +8937,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:130:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:132:in `representative'"
                       }
                     }
                   ]
@@ -9036,7 +9036,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7d13ac13-edf3-45e9-b5d4-5efece079c5b",
+                    "id": "adedb64b-7c09-45b0-9cea-a74bafd0e9fd",
                     "type": "individual",
                     "attributes": {
                       "code": "083",
@@ -9238,7 +9238,7 @@
                       "status": "404",
                       "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:72:in `validate_registration_number!'"
                       }
                     }
                   ]
@@ -9732,7 +9732,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4fa4f1ba-56e1-42da-990d-33b05503a01d",
+                    "id": "596240b5-d8b8-4230-b7e0-6a141340be44",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -9942,7 +9942,7 @@
                       "status": "404",
                       "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:72:in `validate_registration_number!'"
                       }
                     }
                   ]
@@ -10561,7 +10561,7 @@
                       "status": "404",
                       "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:72:in `validate_registration_number!'"
                       }
                     }
                   ]
@@ -11256,7 +11256,7 @@
                       "status": "404",
                       "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:72:in `validate_registration_number!'"
                       }
                     }
                   ]
@@ -11692,11 +11692,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d8d4b85e-53d1-490e-baee-22903dcf3661",
+                    "id": "f9e24aeb-aba0-4606-900d-c3abe508074e",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-04-26",
+                      "dateRequestAccepted": "2024-04-29",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
@@ -11858,7 +11858,7 @@
                       "status": "404",
                       "detail": "Could not find Power of Attorney with id: -1",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:32:in `status'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:34:in `status'"
                       }
                     }
                   ]

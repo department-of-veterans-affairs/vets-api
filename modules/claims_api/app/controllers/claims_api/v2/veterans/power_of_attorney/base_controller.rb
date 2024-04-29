@@ -20,7 +20,9 @@ module ClaimsApi
           poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
           data = poa_code.blank? ? {} : representative(poa_code).merge({ code: poa_code })
           if poa_code.blank?
-            render json: { data: }
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "Could not find Power of Attorney with id: #{params[:id]}"
+            )
           else
             render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(data, root: :data)
           end
