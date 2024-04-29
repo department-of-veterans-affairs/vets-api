@@ -106,8 +106,6 @@ describe 'PowerOfAttorney',
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                             'power_of_attorney', 'default.json').read)
 
-          let(:veteranId) { 'xxx' } # rubocop:disable RSpec/VariableName
-
           before do |example|
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(nil)
             allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
