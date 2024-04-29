@@ -100,7 +100,138 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'adds the correct overflow text' do
-        expect(subject.send(:overflow_text)).to eq nil
+        expect(subject.send(:overflow_text)).to eq ''
+      end
+    end
+
+    describe 'form 0781/a' do
+      context 'when a form 0781/a is included with Form 526' do
+        let(:form_json) do
+          File.read('spec/support/disability_compensation_form/submissions/with_0781.json')
+        end
+
+        context 'when the form526_include_document_upload_list_in_overflow_text flipper is enabled' do
+          before do
+            Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
+          end
+
+          it 'includes a note in the overflow text' do
+            expected_note = "VA Form 0781/a has been completed by the applicant and sent to the VBMS eFolder\n"
+            expect(described_class.new(user, JSON.parse(form_json), false).send(:overflow_text)).to eq(expected_note)
+          end
+        end
+
+        context 'when the form526_include_document_upload_list_in_overflow_text flipper is disabled' do
+          before do
+            Flipper.disable(:form526_include_document_upload_list_in_overflow_text)
+          end
+
+          it 'does not include a note in the overflow text' do
+            expect(subject.send(:overflow_text)).to eq('')
+          end
+        end
+      end
+
+      context 'when a form 0781/a is not included with Form 526' do
+        before do
+          Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
+        end
+
+        let(:form_json) do
+          File.read('spec/support/disability_compensation_form/submissions/only_526.json')
+        end
+
+        it 'does not include a note in the overflow text' do
+          expect(subject.send(:overflow_text)).to eq('')
+        end
+      end
+    end
+
+    describe 'veteran uploaded document list' do
+      subject { described_class.new(user, form_content, false) }
+
+      context 'when the veteran has uploaded documents to support the claim' do
+        let(:file1_guid) { SecureRandom.uuid }
+        let(:file2_guid) { SecureRandom.uuid }
+        let(:form_content) do
+          {
+            'form526' => {
+              'attachments' => [
+                { 'confirmationCode' => file1_guid },
+                { 'confirmationCode' => file2_guid }
+              ]
+            }
+          }
+        end
+
+        let!(:file1) do
+          create(
+            :supporting_evidence_attachment,
+            guid: file1_guid,
+            file_data: { filename: 'my_file_1.pdf' }.to_json
+          )
+        end
+
+        let!(:file2) do
+          create(
+            :supporting_evidence_attachment,
+            guid: file2_guid,
+            file_data: { filename: 'my_file_2.pdf' }.to_json
+          )
+        end
+
+        context 'when the form526_include_document_upload_list_in_overflow_text flipper is enabled' do
+          before do
+            Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
+          end
+
+          context 'when there is less than 40 files present' do
+            it 'includes a list of documents in the overflow text ordered alphabetically' do
+              expected_file_list = 'The veteran uploaded 2 documents along with this claim. ' \
+                                   "Please verify in VBMS eFolder:\n" \
+                                   "my_file_1.pdf\n" \
+                                   "my_file_2.pdf\n"
+              expect(subject.send(:overflow_text)).to eq(expected_file_list)
+            end
+          end
+
+          context 'when there are more than 40 files present' do
+            it 'includes the document count but does not list the file names' do
+              attachments = []
+
+              41.times do
+                attachments << { 'confirmationCode' => SecureRandom.uuid }
+              end
+
+              form_content = {
+                'form526' => {
+                  'attachments' => attachments
+                }
+              }
+
+              subject = described_class.new(user, form_content, false)
+              expect(subject.send(:overflow_text)).to eq(
+                "The veteran uploaded 41 documents along with this claim. Please verify in VBMS eFolder\n"
+              )
+            end
+          end
+        end
+
+        context 'when the form526_include_document_upload_list_in_overflow_text flipper is disabled' do
+          before do
+            Flipper.disable(:form526_include_document_upload_list_in_overflow_text)
+          end
+
+          it 'does not include the list of documents in the overflow text' do
+            expect(subject.send(:overflow_text)).to eq('')
+          end
+        end
+      end
+
+      context 'when the veteran has not uploaded documents to support the claim' do
+        it 'does not include the list of documents in the overflow text' do
+          expect(subject.send(:overflow_text)).to eq('')
+        end
       end
     end
   end
@@ -1448,36 +1579,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           expect(subject.send(:approximate_date, date)).to eq nil
         end
       end
-    end
-  end
-
-  describe '#add_toxic_exposure' do
-    let(:form_content) do
-      {
-        'form526' => {
-          'toxicExposure' => {
-            'gulfWar1990' => {
-              'iraq' => true,
-              'kuwait' => true,
-              'qatar' => true
-            }
-          }
-        }
-      }
-    end
-
-    it 'returns toxic exposure' do
-      expect(subject.send(:add_toxic_exposure)).to eq(
-        {
-          'toxicExposure' => {
-            'gulfWar1990' => {
-              'iraq' => true,
-              'kuwait' => true,
-              'qatar' => true
-            }
-          }
-        }
-      )
     end
   end
 

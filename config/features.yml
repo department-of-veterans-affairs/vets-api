@@ -484,6 +484,10 @@ features:
     actor_type: user
     description: Enables flagging feature for Find a Representative frontend
     enable_in_development: true
+  form526_include_document_upload_list_in_overflow_text:
+    actor_type: user
+    description: Appends a list of SupportingEvidenceAttachment filenames the veteran uploaded for a Form 526 into the overflow text in the form submission
+    enable_in_development: true
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
