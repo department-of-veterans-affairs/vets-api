@@ -56,7 +56,7 @@ module EVSS
         output_form['claimSubmissionSource'] = 'VA.gov'
         output_form.compact!
 
-        # output_form.update(translate_banking_info)
+        output_form.update(translate_banking_info)
         output_form.update(translate_service_pay)
         output_form.update(translate_service_info)
         output_form.update(translate_veteran)
