@@ -519,15 +519,9 @@ module EVSS
           if input_disability['classificationCode'].blank?
             input_disability['condition'] = scrub_disability_condition(input_disability['condition'])
           end
-          append_input_disability = nil
-          case input_disability['cause']
-          when 'NEW'
-            append_input_disability = map_new(input_disability)
-          when 'WORSENED'
-            append_input_disability = map_worsened(input_disability)
-          when 'VA'
-            append_input_disability = map_va(input_disability)
-          end
+          append_input_disability = map_disability(input_disability)
+
+          return if append_input_disability.present? # rubocop:disable Link/NonLocalExitFromIterator
 
           if Flipper.enabled?(:disability_526_toxic_exposure, @user)
             append_input_disability['cause'] = input_disability['cause']
@@ -536,6 +530,18 @@ module EVSS
         end
 
         disabilities
+      end
+
+      def map_disability(input_disability)
+        case input_disability['cause']
+        when 'NEW'
+          append_input_disability = map_new(input_disability)
+        when 'WORSENED'
+          append_input_disability = map_worsened(input_disability)
+        when 'VA'
+          append_input_disability = map_va(input_disability)
+        end
+        append_input_disability
       end
 
       def scrub_disability_condition(condition)
