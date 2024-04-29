@@ -23,7 +23,7 @@ module V0
         params: {
           # `form_attachment` is declared in `FormAttachmentCreate`, included above.
           form_attachment_guid: form_attachment&.guid,
-          encrypted: !filtered_params[:password].nil?
+          encrypted: filtered_params[:password].present?
         }
       }
       super
