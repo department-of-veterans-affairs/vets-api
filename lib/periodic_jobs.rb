@@ -17,12 +17,12 @@ PERIODIC_JOBS = lambda { |mgr|
   # Update NoticeOfDisagreement statuses with their Central Mail status
   mgr.register('15 * * * *', 'AppealsApi::SupplementalClaimUploadStatusBatch')
   # Update SupplementalClaim statuses with their Central Mail status
-  mgr.register('45 0 * * *', 'AppealsApi::HigherLevelReviewCleanUpWeekOldPii')
-  # Remove PII of HigherLevelReviews that have 1) reached one of the 'completed' statuses and 2) are a week old
-  mgr.register('45 0 * * *', 'AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii')
-  # Remove PII of NoticeOfDisagreements that have 1) reached one of the 'completed' statuses and 2) are a week old
+  mgr.register('45 0 * * *', 'AppealsApi::HigherLevelReviewCleanUpPii')
+  # Remove PII of HigherLevelReviews after they have been successfully processed by the VA
+  mgr.register('45 0 * * *', 'AppealsApi::NoticeOfDisagreementCleanUpPii')
+  # Remove PII of NoticeOfDisagreements after they have been successfully processed by the VA
   mgr.register('45 0 * * *', 'AppealsApi::SupplementalClaimCleanUpPii')
-  # Remove PII of SupplementalClaims that have 1) reached one of the 'completed' statuses and 2) are a week old
+  # Remove PII of SupplementalClaims after they have been successfully processed by the VA
   mgr.register('30 * * * *', 'AppealsApi::EvidenceSubmissionBackup')
   # Ensures that appeal evidence received "late" (after the appeal has reached "success") is submitted to Central Mail
   mgr.register('0 23 * * 1-5', 'AppealsApi::DecisionReviewReportDaily')

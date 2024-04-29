@@ -369,7 +369,8 @@ module V0
     end
 
     def client_config(client_id)
-      @client_config ||= SignIn::ClientConfig.find_by(client_id:)
+      @client_config ||= {}
+      @client_config[client_id] ||= SignIn::ClientConfig.find_by(client_id:)
     end
 
     def sign_in_logger

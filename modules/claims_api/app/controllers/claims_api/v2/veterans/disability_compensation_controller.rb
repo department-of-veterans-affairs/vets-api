@@ -108,6 +108,10 @@ module ClaimsApi
           end
         end
 
+        def synchronous
+          render json: {}
+        end
+
         private
 
         def generate_pdf_mapper_service(form_data, pdf_data_wrapper, auth_headers, middle_initial, created_at)

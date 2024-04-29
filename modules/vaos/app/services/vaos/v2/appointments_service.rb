@@ -15,10 +15,12 @@ module VAOS
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
       AVS_APPT_TEST_ID = '192308'
+      MANILA_PHILIPPINES_FACILITY_ID = '358'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
+      APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
 
       # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
@@ -92,7 +94,12 @@ module VAOS
         params = VAOS::V2::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
         params.compact_blank!
         with_monitoring do
-          response = perform(:post, appointments_base_path, params, headers)
+          response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
+                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
+                       perform(:post, "/vpg/v1/patients/#{user.icn}/appointments", params, headers)
+                     else
+                       perform(:post, appointments_base_path, params, headers)
+                     end
           convert_appointment_time(response.body)
           OpenStruct.new(response.body)
         rescue Common::Exceptions::BackendServiceException => e
@@ -405,13 +412,34 @@ module VAOS
         if !appt[:start].nil?
           facility_timezone = get_facility_timezone_memoized(appt[:location_id])
           appt[:local_start_time] = convert_utc_to_local_time(appt[:start], facility_timezone)
+
+          if appt[:location_id] == MANILA_PHILIPPINES_FACILITY_ID
+            log_timezone_info(appt[:location_id], facility_timezone, appt[:start], appt[:local_start_time])
+          end
+
         elsif !appt.dig(:requested_periods, 0, :start).nil?
           appt[:requested_periods].each do |period|
             facility_timezone = get_facility_timezone_memoized(appt[:location_id])
             period[:local_start_time] = convert_utc_to_local_time(period[:start], facility_timezone)
+
+            if appt[:location_id] == MANILA_PHILIPPINES_FACILITY_ID
+              log_timezone_info(appt[:location_id], facility_timezone, period[:start], period[:local_start_time])
+            end
           end
         end
         appt
+      end
+
+      def log_timezone_info(appt_location_id, facility_timezone, appt_start_time_utc, appt_start_time_local)
+        Rails.logger.info(
+          "Timezone info for Manila Philippines location_id #{appt_location_id}",
+          {
+            location_id: appt_location_id,
+            facility_timezone:,
+            appt_start_time_utc:,
+            appt_start_time_local:
+          }.to_json
+        )
       end
 
       # Returns a local [DateTime] object converted from UTC using the facility's timezone offset.
