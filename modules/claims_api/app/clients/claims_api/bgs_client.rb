@@ -107,13 +107,7 @@ module ClaimsApi
 
         Faraday.new(Settings.bgs.url) do |conn|
           conn.ssl.verify_mode = ssl_verify_mode
-          conn.options.timeout = Settings.bgs.timeout || 120
-          conn.use :breakers
-
-          conn.headers.merge!(
-            'Content-Type' => 'text/xml;charset=UTF-8',
-            'Host' => "#{Settings.bgs.env}.vba.va.gov"
-          )
+          yield(conn) if block_given?
         end
       end
     end
