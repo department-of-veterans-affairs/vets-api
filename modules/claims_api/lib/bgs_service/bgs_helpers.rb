@@ -27,5 +27,9 @@ module ClaimsApi
         jrn_obj_id: Settings.bgs.application
       }
     end
+
+    def to_camelcase(claim:)
+      claim.deep_transform_keys { |k| k.to_s.camelize(:lower) }
+    end
   end
 end
