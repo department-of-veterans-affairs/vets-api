@@ -4,7 +4,8 @@ module ClaimsApi
   module BGSClient
     class << self
       def perform_request(definition:, body:, external_id: ServiceAction::ExternalId::DEFAULT)
-        ServiceAction.const_get(:Request)
+        ServiceAction
+          .const_get(:Request)
           .new(definition:, external_id:)
           .perform(body)
       end
