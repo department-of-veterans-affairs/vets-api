@@ -29,23 +29,31 @@ describe Shrine::Plugins::ValidateVirusFree do
 
     context 'with errors' do
       before do
-        allow(Common::VirusScan).to receive(:scan).and_return(false)
+        allow(ClamScan.configuration).to receive(:client_location).and_return('found')
       end
 
       context 'while in development' do
         it 'logs an error message if clamd is not running' do
           expect(Rails.env).to receive(:development?).and_return(true)
           expect(Rails.logger).to receive(:error).with(/PLEASE START CLAMD/)
-          result = instance.validate_virus_free(message: 'nodename nor servname provided')
+          allow(ClamScan::Client).to receive(:scan)
+            .and_return(instance_double('ClamScan::Response',
+                                        safe?: false,
+                                        body: 'ERROR: Could not lookup : nodename nor servname provided, or not known'))
+
+          result = instance.validate_virus_free
           expect(result).to be(true)
         end
       end
 
       context 'with the default error message' do
         it 'adds an error if clam scan returns not safe' do
+          allow(ClamScan::Client).to receive(:scan)
+            .and_return(instance_double('ClamScan::Response', safe?: false, body: nil))
+
           result = instance.validate_virus_free
           expect(result).to be(false)
-          expect(instance.errors).to include(match(/Virus Found/))
+          expect(instance.errors).to eq(['virus or malware detected'])
         end
       end
 
@@ -53,6 +61,9 @@ describe Shrine::Plugins::ValidateVirusFree do
         let(:message) { 'oh noes!' }
 
         it 'adds an error with a custom error message if clam scan returns not safe' do
+          allow(ClamScan::Client).to receive(:scan)
+            .and_return(instance_double('ClamScan::Response', safe?: false))
+
           result = instance.validate_virus_free(message:)
           expect(result).to be(false)
           expect(instance.errors).to eq(['oh noes!'])
@@ -60,18 +71,21 @@ describe Shrine::Plugins::ValidateVirusFree do
       end
     end
 
-    context 'it returns safe' do
-      before do
-        allow(Common::VirusScan).to receive(:scan).and_return(true)
-      end
+    it 'does not add an error if clam scan returns safe' do
+      allow(ClamScan::Client).to receive(:scan)
+        .and_return(instance_double('ClamScan::Response', safe?: true))
 
-      it 'does not add an error if clam scan returns safe' do
-        allow_any_instance_of(ClamAV::PatchClient).to receive(:safe?).and_return(true)
+      expect(instance).not_to receive(:add_error_msg)
+      result = instance.validate_virus_free
+      expect(result).to be(true)
+    end
 
-        expect(instance).not_to receive(:add_error_msg)
-        result = instance.validate_virus_free
-        expect(result).to be(true)
-      end
+    it 'changes group permissions of the uploaded file' do
+      allow(ClamScan::Client).to receive(:scan)
+        .and_return(instance_double('ClamScan::Response', safe?: true))
+
+      expect(File).to receive(:chmod).with(0o640, 'foo/bar.jpg').and_return(1)
+      instance.validate_virus_free
     end
   end
 end
