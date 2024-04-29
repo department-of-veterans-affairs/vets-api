@@ -5,95 +5,76 @@ module Swagger
     module IvcChampvaForms
       include Swagger::Blocks
 
-      swagger_path '/v1/forms' do
+      swagger_path '/v0/ivc_champva_forms/status_updates' do
         operation :post do
-          key :summary, 'Creates a new form'
-          key :description, 'Endpoint for creating a new form'
-          key :tags, ['Forms']
-          consumes 'application/json'
-          parameter do
-            key :name, :form_creation_body
-            key :in, :body
-            key :description, 'JSON payload containing form data'
-            key :required, true
-            schema do
-              # Define schema for form creation payload
-            end
-          end
+          extend Swagger::Responses::AuthenticationError
 
-          response 201 do
-            key :description, 'Form created successfully'
-          end
-
-          response 400 do
-            key :description, 'Invalid request'
-            schema do
-              # Define schema for error response
-            end
-          end
-
-          response 500 do
-            key :description, 'Internal server error'
-            schema do
-              property :error_code do
-                key :type, :string
-                key :example, 'INTERNAL_SERVER_ERROR'
-                key :description, 'Error code indicating internal server error'
-              end
-              property :error_message do
-                key :type, :string
-                key :example, 'An unexpected error occurred'
-                key :description, 'Error message describing the issue'
-              end
-            end
-          end
-        end
-      end
-
-      swagger_path '/v1/forms/submit_supporting_documents' do
-        operation :post do
-          key :summary, 'Submits supporting documents for a form'
-          key :description, 'Endpoint for submitting supporting documents for a form'
-          key :tags, ['Forms']
-          consumes 'multipart/form-data'
-          parameter do
-            key :name, :form_documents_body
-            key :in, :formData
-            key :type, :file
-            key :description, 'Supporting document file(s) to submit'
-            key :required, true
-          end
-          parameter do
-            key :name, :form_id
-            key :in, :query
-            key :type, :string
-            key :description, 'ID of the form to submit supporting documents for'
-            key :required, true
-          end
+          key :description, 'Creates a new form'
+          key :operationId, 'Endpoint for creating a new form'
+          key :tags, %w[ivc_champva_forms]
+          parameter :authorization
 
           response 200 do
-            key :description, 'Supporting documents submitted successfully'
+            key :description, 'Response is OK'
+            schema do
+              key :type, :object
+              property :form_uuid do
+                key :type, :string
+                key :format, :uuid
+                key :example, '12345678-1234-5678-1234-567812345678'
+                key :description, 'UUID of the form'
+              end
+              property :file_names do
+                key :type, :array
+                items do
+                  key :type, :string
+                  key :example, ['12345678-1234-5678-1234-567812345678_vha_10_10d-tmp.pdf', '12345678-1234-5678-1234-567812345678_vha10_10d_2-tmp.pdf']
+                  key :description, 'List of file names associated with the form'
+                end
+              end
+              property :status do
+                key :type, :string
+                key :enum, ['pending', 'processing', 'processed']
+                key :example, 'processed'
+                key :description, 'Status of the form processing'
+              end
+            end
           end
 
           response 400 do
             key :description, 'Invalid request'
             schema do
-              # Define schema for error response
+              key :type, :object
+              property :errors do
+                key :type, :string
+                key :format, :string
+                key :example, 'Received a bad request response from the upstream server'
+                key :description, '400 error'
+              end
+              property :status do
+                key :type, :string
+                key :enum, ['pending', 'processing', 'processed','error']
+                key :example, 'Invalid request'
+                key :description, 'Status of the form processing'
+              end
             end
           end
 
           response 500 do
             key :description, 'Internal server error'
             schema do
-              property :error_code do
+              key :type, :object
+              property :form_uuid do
                 key :type, :string
-                key :example, 'INTERNAL_SERVER_ERROR'
-                key :description, 'Error code indicating internal server error'
+                key :format, :string
+                key :example, 'Temporary connectivity issues. Please try again'
+                key :description, '500 error'
               end
-              property :error_message do
+              property :status do
                 key :type, :string
-                key :example, 'An unexpected error occurred'
-                key :description, 'Error message describing the issue'
+                key :enum, ['pending', 'processing', 'processed']
+                key :example, 'Internal server error'
+                key :description, 'Status of the form processing'
               end
             end
           end

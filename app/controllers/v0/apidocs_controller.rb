@@ -54,6 +54,10 @@ module V0
         key :description, 'Creating and submitting compensation applications'
       end
       tag do
+        key :name, 'ivc_champva_forms'
+        key :description, 'Creating and submitting IVC Champva applications'
+      end
+      tag do
         key :name, 'prescriptions'
         key :description, 'Prescription refill/tracking operations'
       end
@@ -152,6 +156,7 @@ module V0
       Swagger::Requests::HCAAttachments,
       Swagger::Requests::InProgressForms,
       Swagger::Requests::IntentToFile,
+      Swagger::Requests::IvcChampvaForms,
       Swagger::Requests::Letters,
       Swagger::Requests::MaintenanceWindows,
       Swagger::Requests::MDOT::Supplies,
