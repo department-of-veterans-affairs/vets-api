@@ -77,6 +77,10 @@ features:
     actor_type: user
     description: Enables Toxic Exposure questions for 10-10EZR applicants.
     enable_in_development: true
+  ezr_auth_only_enabled:
+    actor_type: user
+    description: Enables the auth-only experience, allowing only authenticated users to view any part of the form.
+    enable_in_development: true
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
@@ -159,6 +163,10 @@ features:
   claim_letters_access:
     actor_type: user
     description: Enables users to access the claim letters page
+    enable_in_development: true
+  claims_api_local_bgs_refactor:
+    actor_type: user
+    description: Diverts codepath to LocalBGSRefactored
     enable_in_development: true
   cst_use_lighthouse_5103:
     actor_type: user

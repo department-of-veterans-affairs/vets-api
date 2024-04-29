@@ -12,7 +12,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['Data']
   end
   let(:valid_id) { mock_inquiries.first['InquiryNumber'] }
-  let(:invalid_id) { 'invalid-id' }
+  let(:invalid_id) { 'A-20240423-30709' }
 
   before do
     allow(LogService).to receive(:new).and_return(logger)
@@ -212,14 +212,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
             ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Inquiries found by ' \
             'ID A-20240423-30709","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
         end
-        let(:failure) do
-          {
-            status: 400,
-            body:,
-            response_headers: nil,
-            url: nil
-          }
-        end
+        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
         let(:service) { instance_double(Crm::Service) }
 
         before do
@@ -360,14 +353,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
             ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
             'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
         end
-        let(:failure) do
-          {
-            status: 400,
-            body:,
-            response_headers: nil,
-            url: nil
-          }
-        end
+        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
         before do
           allow_any_instance_of(Crm::Service).to receive(:call)
@@ -417,14 +403,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
             ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
             'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
         end
-        let(:failure) do
-          {
-            status: 400,
-            body:,
-            response_headers: nil,
-            url: nil
-          }
-        end
+        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
         before do
           allow_any_instance_of(Crm::Service).to receive(:call)
@@ -524,14 +503,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
             ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: ' \
             'Missing Reply","MessageId":"e2cbe041-df91-41f4-8bd2-8b6d9dbb2e38"}'
         end
-        let(:failure) do
-          {
-            status: 400,
-            body:,
-            response_headers: nil,
-            url: nil
-          }
-        end
+        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
         before do
           sign_in(authorized_user)
