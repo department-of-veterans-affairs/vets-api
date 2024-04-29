@@ -7,7 +7,7 @@ module Mobile
     class ClaimDocument < Common::Resource
       attribute :tracked_item_id, Types::Integer
       attribute :file_type, Types::String
-      attribute :document_type, Types::Integer
+      attribute :document_type, Types::Nil
       attribute :filename, Types::String
       attribute :upload_date, Types::Date
     end
