@@ -43,7 +43,8 @@ module EVSS
       def retryable?
         (@key == 'evss.external_service_unavailable' && only_has_retriable_message_texts?) ||
           (@key == 'evss.disability_compensation_form.pif_in_use') ||
-          (@key == 'evss.disability_compensation_form.ws_client_exception')
+          (@key == 'evss.disability_compensation_form.ws_client_exception') ||
+          refdataservice_error?
       end
 
       def errors
@@ -58,6 +59,18 @@ module EVSS
 
       def only_has_retriable_message_texts?
         @messages.none? { |msg| msg['text'].include?('EP Code is not valid') }
+      end
+
+      def refdataservice_error?
+        rds_error = '.refdataservice.errorResponse'
+        error_keys = [
+          "form526.disabilities.classificationCode#{rds_error}",
+          "form526.serviceInformation#{rds_error}",
+          "form526.serviceInformation.servicePeriods#{rds_error}",
+          "form526.veteran.changeOfAddress#{rds_error}",
+          "form526.veteran.currentMailingAddress#{rds_error}"
+        ]
+        error_keys.any? { |error_key| @key.include?(error_key) }
       end
 
       def i18n_key
