@@ -49,6 +49,9 @@ module ClaimsApi
     end
 
     def set_evss_response(auto_claim, error)
+      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+      auto_claim.save!
+      
       auto_claim.evss_response = []
       error_messages = get_error_message(error)
       messages = error_messages[:messages].presence || error_messages
@@ -61,7 +64,6 @@ module ClaimsApi
             'text' => error_text }
       end
 
-      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
 
       save_auto_claim!(auto_claim, auto_claim.status)
     end
