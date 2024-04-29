@@ -5,7 +5,7 @@ require 'va_notify/service'
 module EVSS
   module DisabilityCompensationForm
     class Form526DocumentUploadFailureEmail < Job
-      STATSD_METRIC_PREFIX  = 'api.form_526.veteran_notifications.document_upload_failure_email'
+      STATSD_METRIC_PREFIX = 'api.form_526.veteran_notifications.document_upload_failure_email'
 
       # retry for one day
       sidekiq_options retry: 14
