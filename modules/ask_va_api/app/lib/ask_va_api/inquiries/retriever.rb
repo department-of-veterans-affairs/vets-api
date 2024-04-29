@@ -38,11 +38,18 @@ module AskVAApi
       end
 
       def fetch_correspondences(inquiry_id:)
-        Correspondences::Retriever.new(
+        correspondences = Correspondences::Retriever.new(
           inquiry_id:,
           user_mock_data:,
           entity_class: AskVAApi::Correspondences::Entity
         ).call
+
+        case correspondences
+        when String
+          []
+        else
+          correspondences
+        end
       end
 
       def read_mock_data(file_name)
@@ -57,11 +64,12 @@ module AskVAApi
       end
 
       def handle_response_data(response)
-        if response[:Data].nil?
-          error = JSON.parse(response[:body], symbolize_names: true)
-          raise InquiriesRetrieverError, error[:Message]
-        else
+        case response
+        when Hash
           response[:Data]
+        else
+          error = JSON.parse(response.body, symbolize_names: true)
+          raise(InquiriesRetrieverError, error[:Message])
         end
       end
     end

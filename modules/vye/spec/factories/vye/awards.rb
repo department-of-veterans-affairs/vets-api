@@ -2,8 +2,6 @@
 
 FactoryBot.define do
   factory :vye_award, class: 'Vye::Award' do
-    association :user_info, factory: :vye_user_info
-
     cur_award_ind { Vye::Award.cur_award_inds.values.sample }
     award_begin_date { DateTime.now }
     award_end_date { DateTime.now + 1.month }

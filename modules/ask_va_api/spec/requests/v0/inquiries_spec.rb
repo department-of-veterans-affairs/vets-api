@@ -12,7 +12,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['Data']
   end
   let(:valid_id) { mock_inquiries.first['InquiryNumber'] }
-  let(:invalid_id) { 'invalid-id' }
+  let(:invalid_id) { 'A-20240423-30709' }
 
   before do
     allow(LogService).to receive(:new).and_return(logger)
@@ -212,14 +212,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
             ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Inquiries found by ' \
             'ID A-20240423-30709","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
         end
-        let(:failure) do
-          {
-            status: 400,
-            body:,
-            response_headers: nil,
-            url: nil
-          }
-        end
+        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
         let(:service) { instance_double(Crm::Service) }
 
         before do
@@ -244,17 +237,34 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
     before do
       sign_in(authorized_user)
-      get '/ask_va_api/v0/download_attachment', params: { id:, mock: true }
     end
 
-    it 'response with 200' do
-      expect(response).to have_http_status(:ok)
+    context 'when successful' do
+      before do
+        get '/ask_va_api/v0/download_attachment', params: { id:, mock: true }
+      end
+
+      it 'response with 200' do
+        expect(response).to have_http_status(:ok)
+      end
     end
 
-    context 'when attachment is not found' do
-      let(:id) { 'not_valid' }
+    context 'when Crm raise an error' do
+      let(:body) do
+        '{"Data":null,"Message":"Data Validation: Invalid GUID, Parsing Failed",' \
+          '"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: Invalid GUID,' \
+          ' Parsing Failed","MessageId":"c14c61c4-a3a8-4200-8c86-bdc09c261308"}'
+      end
+      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
-      it 'responds with 500' do
+      before do
+        allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
+        allow_any_instance_of(Crm::Service).to receive(:call)
+          .with(endpoint: 'attachment', payload: { id: '1' }).and_return(failure)
+        get '/ask_va_api/v0/download_attachment', params: { id:, mock: nil }
+      end
+
+      it 'raise the error' do
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
@@ -360,14 +370,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
             ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
             'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
         end
-        let(:failure) do
-          {
-            status: 400,
-            body:,
-            response_headers: nil,
-            url: nil
-          }
-        end
+        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
         before do
           allow_any_instance_of(Crm::Service).to receive(:call)
@@ -417,14 +420,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
             ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
             'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
         end
-        let(:failure) do
-          {
-            status: 400,
-            body:,
-            response_headers: nil,
-            url: nil
-          }
-        end
+        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
         before do
           allow_any_instance_of(Crm::Service).to receive(:call)
@@ -488,19 +484,6 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     end
   end
 
-  describe 'POST #test_create' do
-    before do
-      allow_any_instance_of(Crm::Service).to receive(:call).and_return({ body: { message: 'success' } })
-      post '/ask_va_api/v0/test_create',
-           params: { 'reply' => 'test', 'endpoint' => 'inquiries/id/reply/new' },
-           as: :json
-    end
-
-    it 'response with 200' do
-      expect(response).to have_http_status(:ok)
-    end
-  end
-
   describe 'POST #create_reply' do
     let(:payload) { { 'reply' => 'this is my reply' } }
 
@@ -524,14 +507,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
             ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: ' \
             'Missing Reply","MessageId":"e2cbe041-df91-41f4-8bd2-8b6d9dbb2e38"}'
         end
-        let(:failure) do
-          {
-            status: 400,
-            body:,
-            response_headers: nil,
-            url: nil
-          }
-        end
+        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
         before do
           sign_in(authorized_user)
