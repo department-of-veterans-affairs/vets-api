@@ -487,10 +487,17 @@ module EVSS
 
       def translate_disabilities
         rated_disabilities = input_form['ratedDisabilities'].deep_dup.presence || []
+
         # New primary disabilities need to be added first before handling secondary
         # disabilities because a new secondary disability can be added to a new
         # primary disability
         primary_disabilities = translate_new_primary_disabilities(rated_disabilities)
+
+        # NOTE: currently (4/29/24), the submit transformer in vets-website removes
+        # the structured relationship between a secondary disability and its primary.
+        # These always come in with cause="NEW", and their relationship reduced to
+        # having "Secondary to..." in the primaryDescription. Consequentially, the
+        # call to translate_new_secondary_disabilities() is always short-circuited
         disabilities = translate_new_secondary_disabilities(primary_disabilities)
 
         # Strip out disabilities with ActionType eq to `None` that do not have any
