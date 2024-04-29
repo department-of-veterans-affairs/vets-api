@@ -17,7 +17,7 @@ services:
         userid: "${VETS_API_USER_ID}"
     image: "vets-api:${DOCKER_IMAGE:-latest}"
     volumes:
-      - ".:/srv/vets-api/src"
+      - ".:/app"
       - test_bundle:/usr/local/bundle
     working_dir: /app
     environment:
