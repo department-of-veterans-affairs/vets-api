@@ -25,30 +25,6 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     end
   end
 
-  describe 'GET #index' do
-    let(:index_path) { '/ask_va_api/v0/static_data?key=name&value=irish_country' }
-    let(:expected_response) { 'pong' }
-    let(:authorized_user) do
-      build(:user, :accountable_with_sec_id,
-            icn: YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']['test_user_228_icn'])
-    end
-
-    before do
-      sign_in(authorized_user)
-      entity = OpenStruct.new(id: nil, info: 'pong')
-      allow_any_instance_of(Crm::Service).to receive(:call).and_return(entity)
-      get index_path
-    end
-
-    context 'when successful' do
-      it 'returns status of 200 and the correct response data' do
-        result = JSON.parse(response.body)['table']['info']
-        expect(response).to have_http_status(:ok)
-        expect(result).to eq(expected_response)
-      end
-    end
-  end
-
   describe 'GET #announcements' do
     let(:announcements_path) { '/ask_va_api/v0/announcements' }
     let(:expected_hash) do
@@ -249,17 +225,32 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     end
 
     context 'when an error occurs' do
-      let(:error_message) { 'service error' }
+      let(:body) do
+        '{"Data":null,"Message":"Data Validation: Invalid OptionSet Name iris_branchofservic, valid' \
+          ' values are iris_inquiryabout, iris_inquirysource, iris_inquirytype, iris_levelofauthentication,' \
+          ' iris_suffix, iris_veteranrelationship, iris_branchofservice, iris_country, iris_province,' \
+          ' iris_responsetype, iris_dependentrelationship, statuscode, iris_messagetype","ExceptionOccurred":' \
+          'true,"ExceptionMessage":"Data Validation: Invalid OptionSet Name iris_branchofservic, valid' \
+          ' values are iris_inquiryabout, iris_inquirysource, iris_inquirytype, iris_levelofauthentication,' \
+          ' iris_suffix, iris_veteranrelationship, iris_branchofservice, iris_country, iris_province,' \
+          ' iris_responsetype, iris_dependentrelationship, statuscode, iris_messagetype","MessageId":' \
+          '"6dfa81bd-f04a-4f39-88c5-1422d88ed3ff"}'
+      end
+      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
       before do
-        allow_any_instance_of(AskVAApi::Optionset::Retriever)
-          .to receive(:call)
-          .and_raise(StandardError, 'standard error')
-        get optionset_path, params: { user_mock_data: true, mame: 'branchofservice' }
+        allow_any_instance_of(Crm::Service).to receive(:call)
+          .with(endpoint: 'optionset', payload: { name: 'iris_branchofservic' }).and_return(failure)
+        get optionset_path, params: { user_mock_data: nil, name: 'branchofservic' }
       end
 
-      it_behaves_like 'common error handling', :internal_server_error, 'unexpected_error',
-                      'standard error'
+      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                      'ErrorHandler::ServiceError: StandardError: Data Validation: ' \
+                      'Invalid OptionSet Name iris_branchofservic, valid values are ' \
+                      'iris_inquiryabout, iris_inquirysource, iris_inquirytype, ' \
+                      'iris_levelofauthentication, iris_suffix, iris_veteranrelationship, ' \
+                      'iris_branchofservice, iris_country, iris_province, iris_responsetype,' \
+                      ' iris_dependentrelationship, statuscode, iris_messagetype'
     end
   end
 

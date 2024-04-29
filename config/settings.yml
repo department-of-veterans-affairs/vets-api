@@ -97,6 +97,13 @@ binaries:
   pdftk: pdftk
   clamdscan: /usr/bin/clamdscan
 
+clamav:
+  mock: false
+  # host & port here are only used in development here:
+  # config/initializers/clamav.rb
+  host: 'clamav'
+  port: '3310'
+
 db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
 
 database_url: postgis:///vets-api
@@ -402,6 +409,9 @@ adapted_housing:
   prefill: true
 
 intent_to_file:
+  prefill: true
+
+ivc_champva:
   prefill: true
 
 # Settings for Expiry Scanner
@@ -1457,8 +1467,10 @@ check_in:
     service_name: MAP-API
   travel_reimbursement_api:
     auth_url: https://login.microsoftonline.us
+    auth_url_v2: ~
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     claims_url: https://dev.integration.d365.va.gov
+    claims_url_v2: ~
     claims_base_path: EC/ClaimIngestSvc
     redis_token_expiry: 3540 # 59 minutes
     service_name: BTSSS-API
@@ -1671,6 +1683,8 @@ brd:
 
 
 travel_pay:
+  sts:
+    service_account_id: ~
   mock: true
   veis:
     client_id: ~
