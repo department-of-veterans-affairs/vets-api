@@ -235,7 +235,7 @@
       ],
       "properties": {
         "errors": {
-          "type": "null"
+          "type": ["array","null"]
         },
         "pagination": {
           "type": "object",

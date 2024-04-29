@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '~> 3.2.3'
+ruby '~> 3.2.4'
 
 # Modules
 path 'modules' do
@@ -55,7 +55,7 @@ gem 'bootsnap', require: false
 gem 'breakers'
 gem 'carrierwave'
 gem 'carrierwave-aws'
-gem 'clam_scan'
+gem 'clamav-client', require: 'clamav/client'
 gem 'combine_pdf'
 gem 'config'
 gem 'connect_vbms', git: 'https://github.com/adhocteam/connect_vbms', tag: 'v2.0.0.rc', require: 'vbms'
