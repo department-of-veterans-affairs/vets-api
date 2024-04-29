@@ -7,9 +7,8 @@
 # worldwide through the CC0 1.0 Universal public domain dedication.
 
 require 'claims_api/claim_logger'
-require 'bgs_service/bgs_helpers'
-require 'bgs_service/bgs_error_handler'
-require 'bgs_service/miscellaneous_bgs_operations'
+require 'bgs_service/local_bgs_refactored/error_handler'
+require 'bgs_service/local_bgs_refactored/miscellaneous'
 
 module ClaimsApi
   # @deprecated Use {BGSClient.perform_request} instead. There ought to be a
@@ -22,8 +21,7 @@ module ClaimsApi
   #   well as the dumping and loading of business object state into this layer,
   #   but that should live in the business logic layer and not here.
   class LocalBGSRefactored
-    include ClaimsApi::MiscellaneousBGSOperations
-    include ClaimsApi::BGSHelpers
+    include Miscellaneous
 
     class << self
       def breakers_service
@@ -91,7 +89,7 @@ module ClaimsApi
         return value
       end
 
-      BGSErrorHandler.handle_errors!(
+      ErrorHandler.handle_errors!(
         result.value
       )
 
