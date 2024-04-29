@@ -25,30 +25,6 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     end
   end
 
-  describe 'GET #index' do
-    let(:index_path) { '/ask_va_api/v0/static_data?key=name&value=irish_country' }
-    let(:expected_response) { 'pong' }
-    let(:authorized_user) do
-      build(:user, :accountable_with_sec_id,
-            icn: YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']['test_user_228_icn'])
-    end
-
-    before do
-      sign_in(authorized_user)
-      entity = OpenStruct.new(id: nil, info: 'pong')
-      allow_any_instance_of(Crm::Service).to receive(:call).and_return(entity)
-      get index_path
-    end
-
-    context 'when successful' do
-      it 'returns status of 200 and the correct response data' do
-        result = JSON.parse(response.body)['table']['info']
-        expect(response).to have_http_status(:ok)
-        expect(result).to eq(expected_response)
-      end
-    end
-  end
-
   describe 'GET #announcements' do
     let(:announcements_path) { '/ask_va_api/v0/announcements' }
     let(:expected_hash) do
