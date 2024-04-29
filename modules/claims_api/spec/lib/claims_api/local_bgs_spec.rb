@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs_service/miscellaneous_bgs_operations'
+require 'bgs_service/local_bgs'
 require 'claims_api/error/soap_error_handler'
 
-describe ClaimsApi::MiscellaneousBGSOperations do
+describe ClaimsApi::LocalBGS do
   subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
 
   let(:soap_error_handler) { ClaimsApi::SoapErrorHandler }

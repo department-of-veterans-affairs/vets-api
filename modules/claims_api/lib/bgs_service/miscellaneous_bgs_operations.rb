@@ -3,7 +3,7 @@
 require 'claims_api/evss_bgs_mapper'
 
 module ClaimsApi
-  class MiscellaneousBGSOperations < ClaimsApi::LocalBGS
+  module MiscellaneousBGSOperations # rubocop:disable Metrics/ModuleLength
     def find_poa_by_participant_id(id)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <ptcpntId />
