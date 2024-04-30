@@ -107,7 +107,7 @@ clamav:
 
 #### Mock ClamAV
 
-If you wish to mock ClamAV, please set the clamav mock setting to true in settings.local.yml. This will mock the clamav response in the [virus_scan code](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/lib/common/virus_scan.rb#L14-L23). 
+If you wish to mock ClamAV, please set the clamav mock setting to true in settings.local.yml. This will mock the clamav response in the [virus_scan code](https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/common/virus_scan.rb#L14-L23). 
 
 ```
 clamav:
@@ -152,12 +152,28 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
     brew bundle
     ```	 
 
-4. Install [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg)
+
+4. (Optional see Running Natively for more info) Enable ClamAV daemon:
+
+   ```bash
+   brew info clamav
+   # See the "Caveats" section: "To finish installation & run clamav you will need to edit the example conf files at `${conf_files_dir}`"
+   cd $(brew --prefix clamav)
+   touch clamd.sock
+   echo "LocalSocket $(brew --prefix clamav)" > clamd.conf
+   echo "DatabaseMirror database.clamav.net" > freshclam.conf
+   # Update the local ClamAV database
+   freshclam -v
+   ```
+
+   NOTE: Run with `/usr/local/sbin/clamd -c /usr/local/etc/clamav/clamd.conf` and you will also have to override (temporarily) the `config/clamd.conf` file with `-LocalSocket /usr/local/etc/clamav/clamd.sock`
+
+5. Install [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg)
 
    - `curl -o ~/Downloads/pdftk_download.pkg https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg`
    - `sudo installer -pkg ~/Downloads/pdftk_download.pkg -target /`
 
-5. continue with [Base setup](native.md#base-setup)
+6. continue with [Base setup](native.md#base-setup)
 
 ### Alternative (Ubuntu 20.04 LTS)
 
