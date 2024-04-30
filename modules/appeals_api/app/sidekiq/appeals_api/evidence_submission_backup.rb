@@ -16,6 +16,8 @@ module AppealsApi
     APPEAL_TYPES = [NoticeOfDisagreement.name, SupplementalClaim.name].freeze
     APPEAL_STATUSES = %w[complete error].freeze
 
+    MAX_APPEAL_AGE_HOURS = 24
+
     def perform
       return unless enabled?
 
@@ -42,9 +44,9 @@ module AppealsApi
         # if no status update to submitted record just use appeal created_at instead
         cm_submitted_time = es.supportable.created_at if cm_submitted_time.nil?
 
-        # convert seconds to hours, if the appeal is older than 24 hours, evidence submission
-        # needs to be uploaded to central mail
-        (Time.zone.now - cm_submitted_time) / 3600.0 >= 24
+        # convert seconds to hours, if the appeal is older than the MAX_APPEAL_AGE_HOURS threshold
+        # evidence submission needs to be uploaded to central mail
+        (Time.zone.now - cm_submitted_time) / 3600.0 >= MAX_APPEAL_AGE_HOURS
       end
     end
 
