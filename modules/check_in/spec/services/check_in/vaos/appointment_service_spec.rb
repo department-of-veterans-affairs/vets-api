@@ -37,10 +37,10 @@ describe CheckIn::VAOS::AppointmentService do
             minutesDuration: 30
           }
         ]
-      }.with_indifferent_access
+      }.to_json
     end
     let(:faraday_response) { double('Faraday::Response') }
-    let(:faraday_env) { double('Faraday::Env', status: 200, body: appointments_response.to_json) }
+    let(:faraday_env) { double('Faraday::Env', status: 200, body: appointments_response) }
 
     before do
       allow_any_instance_of(V2::Lorota::RedisClient).to receive(:icn).with(uuid:)
