@@ -9039,7 +9039,7 @@
                     "id": "adedb64b-7c09-45b0-9cea-a74bafd0e9fd",
                     "type": "individual",
                     "attributes": {
-                      "code": "083",
+                      "code": "067",
                       "name": "Firstname Lastname",
                       "phoneNumber": "555-555-5555"
                     }
@@ -9236,7 +9236,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 067",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:72:in `validate_registration_number!'"
                       }
@@ -9663,7 +9663,7 @@
                         }
                       },
                       "representative": {
-                        "poaCode": "083",
+                        "poaCode": "067",
                         "registrationNumber": "999999999999",
                         "type": "ATTORNEY",
                         "address": {
@@ -10559,7 +10559,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 067",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:72:in `validate_registration_number!'"
                       }
@@ -10986,7 +10986,7 @@
                         }
                       },
                       "representative": {
-                        "poaCode": "083",
+                        "poaCode": "067",
                         "registrationNumber": "999999999999",
                         "type": "ATTORNEY",
                         "address": {

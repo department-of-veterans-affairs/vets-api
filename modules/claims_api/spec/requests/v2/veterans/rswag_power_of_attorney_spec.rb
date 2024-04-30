@@ -198,7 +198,7 @@ describe 'PowerOfAttorney',
       parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a]
       description 'Updates current Power of Attorney for Veteran.'
       let(:scopes) { %w[system/claim.read system/system/claim.write] }
-      let(:poa_code) { '083' }
+      let(:poa_code) { '067' }
       let(:bgs_poa) { { person_org_name: "#{poa_code} name-here" } }
 
       describe 'Getting a successful response' do
@@ -531,7 +531,7 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a successful response' do
         response '200', 'Valid request response' do
-          let(:poa_code) { '083' }
+          let(:poa_code) { '067' }
 
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
                                             'power_of_attorney', '2122a', 'validate.json').read)

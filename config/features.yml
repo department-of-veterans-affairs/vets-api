@@ -380,6 +380,10 @@ features:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
     enable_in_development: true
+  disability_compensation_form4142_supplemental:
+    actor_type: user
+    description: Use Lighthouse API to submit supplemental Form 21-4142 from Form 526EZ submissions
+    enable_in_development: true
   disability_compensation_pif_fail_notification:
     actor_type: user
     description: enables sending notifications to vets if their 526 claim submission fails with PIF in Use Error
