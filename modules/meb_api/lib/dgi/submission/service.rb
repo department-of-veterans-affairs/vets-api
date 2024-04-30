@@ -14,7 +14,6 @@ module MebApi
         STATSD_KEY_PREFIX = 'api.dgi.submission'
 
         def submit_claim(params, response_data = nil)
-          Rails.logger.warn("DD response data in submission service: #{response_data}")
           response_data.present? ? update_dd_params(params, response_data) : params
           with_monitoring do
             headers = request_headers
@@ -51,12 +50,11 @@ module MebApi
         end
 
         def update_dd_params(params, dd_params)
-          account_number = params.dig(:direct_deposit, :account_number)
+          account_number = params.dig(:direct_deposit, :direct_deposit_account_number)
           check_masking = account_number&.include?('*')
-          Rails.logger.warn("account_number: #{account_number}")
           Rails.logger.warn("check_masking: #{check_masking}")
           if check_masking && Flipper.enabled?(:show_dgi_direct_deposit_1990EZ, @current_user)
-            Rails.logger.warn("In the IF dd_params&.payment_account: #{dd_params&.payment_account}")
+            Rails.logger.warn('INSIDE CHECK MASKING IF!!!!')
             params[:direct_deposit][:direct_deposit_account_number] =
               dd_params&.payment_account ? dd_params.payment_account[:account_number] : nil
             params[:direct_deposit][:direct_deposit_routing_number] =
