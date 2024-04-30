@@ -43,12 +43,11 @@ Rails.application.reloader.to_prepare do
   redis_namespace = Redis::Namespace.new('breakers', redis: $redis)
 
   services = [
-    BB::Configuration.instance.breakers_service,
-    Caseflow::Configuration.instance.breakers_service,
-    ClaimsApi::LocalBGS.breakers_service,
-    CovidVaccine::V0::VetextConfiguration.instance.breakers_service,
     DebtManagementCenter::DebtsConfiguration.instance.breakers_service,
+    Caseflow::Configuration.instance.breakers_service,
     DecisionReview::Configuration.instance.breakers_service,
+    Rx::Configuration.instance.breakers_service,
+    BB::Configuration.instance.breakers_service,
     EVSS::ClaimsService.breakers_service,
     EVSS::CommonService.breakers_service,
     EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service,
@@ -58,23 +57,16 @@ Rails.application.reloader.to_prepare do
     EVSS::GiBillStatus::Configuration.instance.breakers_service,
     EVSS::Dependents::Configuration.instance.breakers_service,
     EVSS::ReferenceData::Configuration.instance.breakers_service,
+    Gibft::Configuration.instance.breakers_service,
     Facilities::AccessWaitTimeConfiguration.instance.breakers_service,
     Facilities::AccessSatisfactionConfiguration.instance.breakers_service,
     GI::Configuration.instance.breakers_service,
-    Gibft::Configuration.instance.breakers_service,
     HCA::Configuration.instance.breakers_service,
-    IAMSSOeOAuth::Configuration.instance.breakers_service,
     MedicalRecords::Configuration.instance.breakers_service,
     MHVAC::Configuration.instance.breakers_service,
     MPI::Configuration.instance.breakers_service,
-    PagerDuty::Configuration.instance.breakers_service,
     Preneeds::Configuration.instance.breakers_service,
-    Rx::Configuration.instance.breakers_service,
-    Search::Configuration.instance.breakers_service,
-    SearchClickTracking::Configuration.instance.breakers_service,
-    SearchTypeahead::Configuration.instance.breakers_service,
     SM::Configuration.instance.breakers_service,
-    VAOS::Configuration.instance.breakers_service,
     VAProfile::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::ContactInformation::Configuration.instance.breakers_service,
     VAProfile::Communication::Configuration.instance.breakers_service,
@@ -82,7 +74,15 @@ Rails.application.reloader.to_prepare do
     VAProfile::HealthBenefit::Configuration.instance.breakers_service,
     VAProfile::MilitaryPersonnel::Configuration.instance.breakers_service,
     VAProfile::VeteranStatus::Configuration.instance.breakers_service,
-    VEText::Configuration.instance.breakers_service
+    Search::Configuration.instance.breakers_service,
+    SearchTypeahead::Configuration.instance.breakers_service,
+    SearchClickTracking::Configuration.instance.breakers_service,
+    VAOS::Configuration.instance.breakers_service,
+    IAMSSOeOAuth::Configuration.instance.breakers_service,
+    CovidVaccine::V0::VetextConfiguration.instance.breakers_service,
+    VEText::Configuration.instance.breakers_service,
+    PagerDuty::Configuration.instance.breakers_service,
+    ClaimsApi::LocalBGS.breakers_service
   ]
 
   services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled
