@@ -6,7 +6,7 @@ module AskVAApi
       around_action :handle_exceptions
       before_action :get_inquiries_by_icn, only: [:index]
       before_action :get_inquiry_by_id, only: [:show]
-      skip_before_action :authenticate, only: %i[unauth_create upload_attachment test_create]
+      skip_before_action :authenticate, only: %i[unauth_create upload_attachment test_create show]
       skip_before_action :verify_authenticity_token, only: %i[unauth_create upload_attachment test_create]
 
       def index
@@ -17,21 +17,14 @@ module AskVAApi
         render json: @inquiry.payload, status: @inquiry.status
       end
 
-      def test_create
-        service = Crm::Service.new(icn: nil)
-        payload = { reply: params[:reply] }
-        response = service.call(endpoint: params[:endpoint], method: :post, payload:)
-
-        render json: response.to_json, status: :ok
-      end
-
       def create
-        render json: { message: 'success' }, status: :created
+        response = Inquiries::Creator.new(icn: current_user.icn).call(payload: inquiry_params)
+        render json: response.to_json, status: :created
       end
 
       def unauth_create
-        response = Inquiries::Creator.new(icn: nil).call(params: inquiry_params)
-        render json: { message: response }, status: :created
+        response = Inquiries::Creator.new(icn: nil).call(payload: inquiry_params)
+        render json: response.to_json, status: :created
       end
 
       def upload_attachment
@@ -61,11 +54,9 @@ module AskVAApi
 
       private
 
-      def inquiry_params
-        params.permit(:first_name, :last_name).to_h
-      end
-
       def get_inquiry_by_id
+        entity_class = AskVAApi::Inquiries::Entity
+        retriever = Inquiries::Retriever.new(user_mock_data: params[:mock], entity_class:)
         inq = retriever.fetch_by_id(id: params[:id])
         @inquiry = Result.new(payload: Inquiries::Serializer.new(inq).serializable_hash, status: :ok)
       end
@@ -96,6 +87,64 @@ module AskVAApi
       def retriever
         entity_class = AskVAApi::Inquiries::Entity
         @retriever ||= Inquiries::Retriever.new(icn: current_user.icn, user_mock_data: params[:mock], entity_class:)
+      end
+
+      def inquiry_params
+        params.permit(
+          *base_parameters,
+          *dependant_parameters,
+          *submitter_parameters,
+          *veteran_parameters,
+          SchoolObj: school_parameters
+        ).to_h
+      end
+
+      def base_parameters
+        %i[
+          AreYouTheDependent AttachmentPresent BranchOfService City ContactMethod Country
+          DaytimePhone EmailAddress EmailConfirmation FirstName Gender InquiryAbout
+          InquiryCategory InquirySource InquirySubtopic InquirySummary InquiryTopic
+          InquiryType IsVAEmployee IsVeteran IsVeteranAnEmployee IsVeteranDeceased
+          LevelOfAuthentication MedicalCenter MiddleName PreferredName Pronouns
+          StreetAddress2 SupervisorFlag VaEmployeeTimeStamp ZipCode Suffix
+        ]
+      end
+
+      def dependant_parameters
+        %i[
+          DependantCity DependantCountry DependantDayTimePhone DependantDOB
+          DependantEmail DependantFirstName DependantGender DependantLastName
+          DependantMiddleName DependantProvince DependantRelationship DependantSSN
+          DependantState DependantStreetAddress DependantZipCode
+        ]
+      end
+
+      def submitter_parameters
+        %i[
+          Submitter SubmitterDependent SubmitterDOB SubmitterGender SubmitterProvince
+          SubmitterSSN SubmitterState SubmitterStateOfResidency SubmitterStateOfSchool
+          SubmitterStateProperty SubmitterStreetAddress SubmitterVetCenter
+          SubmitterZipCodeOfResidency SubmitterQuestion SubmittersDodIdEdipiNumber
+        ]
+      end
+
+      def veteran_parameters
+        %i[
+          VeteranCity VeteranClaimNumber VeteranCountry VeteranDateOfDeath
+          VeteranDOB VeteranDodIdEdipiNumber VeteranEmail VeteranEmailConfirmation
+          VeteranEnrolled VeteranFirstName VeteranICN VeteranLastName VeteranMiddleName
+          VeteranPhone VeteranPreferedName VeteranPronouns VeteranProvince
+          VeteranRelationship VeteranServiceEndDate VeteranServiceNumber
+          VeteranServiceStartDate VeteranSSN VeteransState VeteranStreetAddress
+          VeteranSuffix VeteranSuiteAptOther VeteranZipCode WhoWasTheirCounselor
+          YourLastName VeteranDodIdEdipiNumber
+        ]
+      end
+
+      def school_parameters
+        %i[
+          City InstitutionName RegionalOffice SchoolFacilityCode StateAbbreviation
+        ]
       end
 
       Result = Struct.new(:payload, :status, keyword_init: true)

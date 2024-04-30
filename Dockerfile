@@ -1,5 +1,4 @@
-ARG RELEASE=bullseye
-FROM ruby:3.2.3-slim-${RELEASE} as rubyimg
+FROM ruby:3.2.4-slim-bookworm as rubyimg
 
 # XXX: using stretch here for pdftk dep, which is not availible after
 #      stretch (or in alpine) and is switched automatically to pdftk-java in buster
@@ -18,21 +17,15 @@ RUN find modules -type f ! \( -name Gemfile -o -name "*.gemspec" -o -path "*/lib
 # shared build/settings for all child images, reuse these layers yo
 ###
 FROM rubyimg AS base
-ARG RELEASE
-ENV RELEASE="$RELEASE"
 
 ARG userid=993
 SHELL ["/bin/bash", "-c"]
 RUN groupadd -g $userid -r vets-api && \
     useradd -u $userid -r -m -d /srv/vets-api -g vets-api vets-api
-RUN echo "APT::Default-Release \"${RELEASE}\";" >> /etc/apt/apt.conf.d/99defaultrelease
-RUN mv /etc/apt/sources.list /etc/apt/sources.list.d/stable.list
-RUN echo "deb http://ftp.debian.org/debian testing main contrib non-free" >> /etc/apt/sources.list.d/testing.list
-RUN echo "deb http://deb.debian.org/debian unstable main" >> /etc/apt/sources.list.d/unstable.list
-RUN apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -t "${RELEASE}" \
-    dumb-init imagemagick pdftk poppler-utils curl libpq5 vim libboost-all-dev \
-    clamav clamdscan clamav-daemon
+RUN apt-get update --fix-missing
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates-java && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y dumb-init imagemagick pdftk poppler-utils curl \
+    libpq5 vim libboost-all-dev clamav clamdscan clamav-daemon
 
 # The pki work below is for parity with the non-docker BRD deploys to mount certs into
 # the container, we need to get rid of it and refactor the configuration bits into

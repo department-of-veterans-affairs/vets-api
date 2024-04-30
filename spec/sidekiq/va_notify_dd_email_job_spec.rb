@@ -64,6 +64,19 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
       end
     end
 
+    context 'with a dd type of comp_and_pen' do
+      it 'sends a confirmation email using the comp and pen template' do
+        allow(VaNotify::Service).to receive(:new)
+          .with(Settings.vanotify.services.va_gov.api_key).and_return(notification_client)
+
+        expect(notification_client).to receive(:send_email).with(
+          email_address: email, template_id: 'comp_pen_template_id'
+        )
+
+        described_class.new.perform(email, 'comp_and_pen')
+      end
+    end
+
     context 'without a dd type' do
       it 'sends a confirmation email using the direct_deposit template' do
         allow(VaNotify::Service).to receive(:new)
@@ -122,15 +135,27 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
       end
     end
 
-    context 'when dd_type is comp_pen' do
+    context 'when dd_type is unknown' do
       it 'returns the direct_deposit template' do
+        expect(job.template_type('fake')).to eq('direct_deposit')
+      end
+    end
+
+    context 'when dd_type is comp_pen' do
+      it 'returns the direct_deposit_comp_pen template' do
         expect(job.template_type('comp_pen')).to eq('direct_deposit_comp_pen')
       end
     end
 
+    context 'when dd_type is comp_and_pen' do
+      it 'returns the direct_deposit_comp_pen template' do
+        expect(job.template_type('comp_and_pen')).to eq('direct_deposit_comp_pen')
+      end
+    end
+
     context 'when dd_type is edu' do
-      it 'returns the direct_deposit template' do
-        expect(job.template_type('edu')).to eq('direct_deposit')
+      it 'returns the direct_deposit_edu template' do
+        expect(job.template_type('ch33')).to eq('direct_deposit_edu')
       end
     end
   end

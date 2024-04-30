@@ -44,7 +44,7 @@ describe TravelPay::Client do
         [
           200,
           { 'Content-Type': 'application/json' },
-          '{"access_token": "fake_btsss_token"}'
+          '{"data": {"accessToken": "fake_btsss_token"}}'
         ]
       end
 

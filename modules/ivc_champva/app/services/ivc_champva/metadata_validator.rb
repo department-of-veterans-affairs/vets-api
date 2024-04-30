@@ -2,11 +2,11 @@
 
 module IvcChampva
   class MetadataValidator
-    def self.validate(metadata, zip_code_is_us_based: true)
+    def self.validate(metadata)
       validate_first_name(metadata)
         .then { |m| validate_last_name(m) }
         .then { |m| validate_file_number(m) }
-        .then { |m| validate_zip_code(m, zip_code_is_us_based) }
+        .then { |m| validate_zip_code(m) }
         .then { |m| validate_source(m) }
         .then { |m| validate_doc_type(m) }
     end
@@ -36,9 +36,9 @@ module IvcChampva
       metadata
     end
 
-    def self.validate_zip_code(metadata, zip_code_is_us_based)
+    def self.validate_zip_code(metadata)
       zip_code = metadata['zipCode']
-      if zip_code_is_us_based
+      if metadata['country'] == 'USA' && !zip_code.nil?
         validate_presence_and_stringiness(zip_code, 'zip code')
         zip_code = zip_code.dup.gsub(/[^0-9]/, '')
         zip_code.insert(5, '-') if zip_code.match?(/\A[0-9]{9}\z/)

@@ -29,15 +29,17 @@ module AskVAApi
       def post_data(payload: {})
         endpoint = "inquiries/#{inquiry_id}/reply/new"
 
-        response = service.call(endpoint:, method: :post, payload:)
+        response = service.call(endpoint:, method: :put, payload:)
         handle_response_data(response)
       end
 
       def handle_response_data(response)
-        if response[:Data].nil?
-          raise CorrespondencesCreatorError, response[:Message]
-        else
+        case response
+        when Hash
           response[:Data]
+        else
+          error = JSON.parse(response.body, symbolize_names: true)
+          raise(CorrespondencesCreatorError, error[:Message])
         end
       end
     end

@@ -18,6 +18,7 @@ module SimpleFormsApi
 
       private
 
+      # rubocop:disable Metrics/MethodLength
       def scrub_pii(message)
         words_to_remove = aggregate_words(JSON.parse(params.to_json))
 
@@ -34,6 +35,8 @@ module SimpleFormsApi
           words_to_remove += SimpleFormsApi::VBA210845.new(params).words_to_remove
         when '40-0247'
           words_to_remove += SimpleFormsApi::VBA400247.new(params).words_to_remove
+        when '21-0966'
+          words_to_remove += SimpleFormsApi::VBA210966.new(params).words_to_remove
         else
           return "something has gone wrong with your form, #{params[:form_number]} and the entire " \
                  'error message has been redacted to keep PII from getting leaked'
@@ -41,6 +44,7 @@ module SimpleFormsApi
 
         remove_words(message, words_to_remove)
       end
+      # rubocop:enable Metrics/MethodLength
 
       def remove_words(message, words_to_remove)
         words_to_remove.compact.each do |word|

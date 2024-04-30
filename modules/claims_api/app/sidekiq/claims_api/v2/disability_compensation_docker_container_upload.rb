@@ -35,34 +35,27 @@ module ClaimsApi
         # now upload to benefits documents
         start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
       rescue Faraday::ParsingError, Faraday::TimeoutError => e
-        set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
         error_status = get_error_status_code(e)
-        error_message = get_error_message(e)
-
         log_job_progress(claim_id,
-                         "Docker container job errored #{e.class}: #{error_status} #{error_message}")
+                         "Docker container job errored #{e.class}: #{error_status} #{auto_claim&.evss_response}")
 
         log_exception_to_sentry(e)
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
-        set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
-        error_message = get_error_message(e)
-
         log_job_progress(claim_id,
-                         "Docker container job errored #{e.class}: #{error_message}")
+                         "Docker container job errored #{e.class}: #{auto_claim&.evss_response}")
         log_exception_to_sentry(e)
         # if will_retry?
-        if will_retry?(e)
+        if will_retry?(auto_claim, e)
           raise e
         else # form526.submit.noRetryError OR form526.InProcess error retruned
           {}
         end
       rescue => e
-        set_errored_state_on_claim(auto_claim)
-        set_evss_response(auto_claim, e)
+        set_evss_response(auto_claim, e) if auto_claim.evss_response.blank?
         log_job_progress(claim_id,
                          "Docker container job errored #{e.class}: #{e&.detailed_message}")
         log_exception_to_sentry(e)
@@ -76,21 +69,6 @@ module ClaimsApi
         return if flashes.blank?
 
         ClaimsApi::FlashUpdater.perform_async(flashes, auto_claim_id)
-      end
-
-      def set_evss_response(auto_claim, error)
-        error_message = get_error_message(error)
-        error_key = get_error_key(error_message)
-        error_text = get_error_text(error_message)
-
-        auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-        auto_claim.evss_response = [
-          { 'key' => error_key,
-            'severity' => 'FATAL',
-            'text' => error_text }
-        ]
-
-        save_auto_claim!(auto_claim, auto_claim.status)
       end
 
       def start_bd_uploader_job(auto_claim)
