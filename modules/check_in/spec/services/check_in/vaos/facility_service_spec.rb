@@ -51,8 +51,7 @@ describe CheckIn::VAOS::FacilityService do
       it 'returns facility' do
         svc = subject.build(facility_id:)
         response = svc.get_facility
-        expect(response.status).to eq(200)
-        expect(response.body).to eq(facility_response)
+        expect(response).to eq(facility_response)
       end
     end
 

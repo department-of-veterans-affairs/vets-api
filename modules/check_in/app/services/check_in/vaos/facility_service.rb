@@ -34,7 +34,8 @@ module CheckIn
 
       def get_facility
         with_monitoring do
-          perform(:get, facilities_base_path, {}, headers)
+          response = perform(:get, facilities_base_path, {}, headers)
+          response.body
         end
       end
 
