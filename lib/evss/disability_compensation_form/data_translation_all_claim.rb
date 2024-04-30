@@ -521,7 +521,7 @@ module EVSS
           end
           append_input_disability = map_disability(input_disability)
 
-          break if append_input_disability.blank?
+          next if append_input_disability.blank?
 
           if Flipper.enabled?(:disability_526_toxic_exposure, @user)
             append_input_disability['cause'] = input_disability['cause']
