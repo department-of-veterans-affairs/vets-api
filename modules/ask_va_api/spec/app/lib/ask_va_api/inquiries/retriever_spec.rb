@@ -7,6 +7,10 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
     described_class.new(user_mock_data:, entity_class: AskVAApi::Inquiries::Entity, icn:)
   end
 
+  def mock_response(status:, body:)
+    instance_double(Faraday::Response, status:, body: body.to_json)
+  end
+
   let(:service) { instance_double(Crm::Service) }
   let(:icn) { nil }
   let(:error_message) { 'Some error occurred' }
@@ -25,21 +29,14 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
           ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Inquiries found by ' \
           'ID A-20240423-30709","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
       end
-      let(:failure) do
-        {
-          status: 400,
-          body:,
-          response_headers: nil,
-          url: nil
-        }
-      end
+      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
       before do
         allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
         allow(service).to receive(:call).and_return(failure)
       end
 
-      it 'raise CorrespondenceRetrieverrError' do
+      it 'raise InquiriesRetrieverrError' do
         expect { retriever.call }.to raise_error(ErrorHandler::ServiceError)
       end
     end
@@ -188,11 +185,7 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
             allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
             allow(service).to receive(:call).and_return(response)
             allow_any_instance_of(AskVAApi::Correspondences::Retriever).to receive(:call)
-              .and_return({ Data: [],
-                            Message: 'Data Validation: No Inquiry Found',
-                            ExceptionOccurred: true,
-                            ExceptionMessage: 'Data Validation: No Inquiry Found',
-                            MessageId: '2d746074-9e5c-4987-a894-e3f834b156b5' })
+              .and_return('Data Validation: No Inquiry Found')
           end
 
           it 'returns correspondences as an empty array' do

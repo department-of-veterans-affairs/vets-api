@@ -45,7 +45,7 @@ module AskVAApi
         ).call
 
         case correspondences
-        when Hash
+        when String
           []
         else
           correspondences
@@ -64,7 +64,13 @@ module AskVAApi
       end
 
       def handle_response_data(response)
-        response[:Data].presence || raise(InquiriesRetrieverError, response)
+        case response
+        when Hash
+          response[:Data]
+        else
+          error = JSON.parse(response.body, symbolize_names: true)
+          raise(InquiriesRetrieverError, error[:Message])
+        end
       end
     end
   end
