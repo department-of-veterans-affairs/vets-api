@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs_service/local_bgs'
+require 'bgs_service/local_bgs_proxy'
 
-describe ClaimsApi::LocalBGS do
+describe ClaimsApi::LocalBGSProxy do
   subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
 
   before do

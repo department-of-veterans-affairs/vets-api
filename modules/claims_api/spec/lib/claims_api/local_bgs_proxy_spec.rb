@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs_service/local_bgs'
+require 'bgs_service/local_bgs_proxy'
 
-describe ClaimsApi::LocalBGS do
+describe ClaimsApi::LocalBGSProxy do
   subject do
     described_class.new(
       external_uid: nil,
@@ -77,7 +77,7 @@ describe ClaimsApi::LocalBGS do
       let(:toggle) { false }
 
       it_delegates_every_instance_method(
-        to: ClaimsApi::LocalBGSLegacy
+        to: ClaimsApi::LocalBGS
       )
     end
 
