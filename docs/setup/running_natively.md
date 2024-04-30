@@ -71,7 +71,7 @@ clamav:
 ENV['CLAMD_UNIX_SOCKET'] = '/usr/local/etc/clamav/clamd.sock'
 ```
 
-*Note you will need to comment this line out before committing again*
+*Note you will need to comment this line out before pushing to GitHub*
 
 1. In terminal run the following command
 ```
