@@ -33,7 +33,7 @@ they would be when running rails directly.
 
 - `rails console` -  runs an IRB like REPL in which all of the API's classes and environmental variables have been loaded.
 
-### ClamAV
+### Running with ClamAV
 
 #### Run with ClamAV containers (recommended)
 
