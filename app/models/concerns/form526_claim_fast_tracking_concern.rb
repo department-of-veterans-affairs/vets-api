@@ -26,6 +26,15 @@ module Form526ClaimFastTrackingConcern
   CLAIM_REVIEW_BASE_CODES = %w[030 040].freeze
   CLAIM_REVIEW_TYPES = %w[higherLevelReview supplementalClaim].freeze
 
+  def claim_age_in_days(pending_ep)
+    date = if pending_ep.respond_to?(:claim_date)
+             Date.strptime(pending_ep.claim_date, '%Y-%m-%d')
+           else
+             Date.strptime(pending_ep['date'], '%m/%d/%Y')
+           end
+    (Time.zone.today - date).round
+  end
+
   def send_rrd_alert_email(subject, message, error = nil, to = Settings.rrd.alerts.recipients)
     RrdAlertMailer.build(self, subject, message, error, to).deliver_now
   end
@@ -132,19 +141,19 @@ module Form526ClaimFastTrackingConcern
     Rails.logger.info('EP Merge total open EPs', id:, count: pending_eps.count)
     return unless pending_eps.count == 1
 
-    date = Date.strptime(pending_eps.first['date'], '%m/%d/%Y')
-    days_ago = (Time.zone.today - date).round
     feature_enabled = Flipper.enabled?(:disability_526_ep_merge_api, User.find(user_uuid))
     open_claim_review = open_claim_review?
     Rails.logger.info(
       'EP Merge open EP eligibility',
       { id:, feature_enabled:, open_claim_review:,
-        pending_ep_age: days_ago, pending_ep_status: pending_eps.first['status'] }
+        pending_ep_age: claim_age_in_days(pending_eps.first), pending_ep_status: pending_eps.first['status'] }
     )
     if feature_enabled && !open_claim_review
       save_metadata(ep_merge_pending_claim_id: pending_eps.first['id'])
       add_ep_merge_special_issue!
     end
+  rescue => e
+    Rails.logger.error("EP400 Merge eligibility failed #{e.message}.", backtrace: e.backtrace)
   end
 
   def get_claim_type
