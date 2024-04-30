@@ -4,6 +4,7 @@ require 'google/cloud/bigquery'
 
 module RepresentationManagement
   class BigqueryService
+    attr_reader :bigquery
     TABLE_NAME = 'flagged_veteran_representative_contact_data'
 
     def initialize
@@ -37,7 +38,7 @@ module RepresentationManagement
       # api docs - https://cloud.google.com/ruby/docs/reference/google-cloud-bigquery/latest/AUTHENTICATION#configuration
       Google::Cloud::Bigquery.configure do |config|
         config.project_id  = Settings.representation_management.bigquery.project_id
-        config.credentials = Settings.representation_management.bigquery.credentials
+        config.credentials = Settings.representation_management.bigquery.credentials.to_h
       end
 
       @bigquery = Google::Cloud::Bigquery.new
