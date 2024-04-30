@@ -32,14 +32,15 @@ module Mobile
 
         response = validation_service.address_suggestions(validated_address_params).as_json
         suggested_addresses = response.dig('response', 'addresses').map do |a|
-          address = OpenStruct.new(a['address'].merge(
-                                     'id' => SecureRandom.uuid,
-                                     'address_pou' => address_params[:address_pou],
-                                     'validation_key' => response['response']['validation_key'],
-                                     'address_meta' => a['address_meta_data'].symbolize_keys
-                                   ))
+          address = a['address'].symbolize_keys
+          address.merge!(
+            id: SecureRandom.uuid,
+            address_pou: address_params[:address_pou],
+            validation_key: response['response']['validation_key'],
+            address_meta: a['address_meta_data'].symbolize_keys
+          )
 
-          Mobile::V0::SuggestedAddress.new(address.to_h.symbolize_keys)
+          Mobile::V0::SuggestedAddress.new(address)
         end
 
         render json: Mobile::V0::SuggestedAddressSerializer.new(suggested_addresses)
