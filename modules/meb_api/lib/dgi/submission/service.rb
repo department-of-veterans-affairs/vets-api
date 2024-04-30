@@ -54,7 +54,7 @@ module MebApi
           check_masking = account_number&.include?('*')
           Rails.logger.warn("check_masking: #{check_masking}")
           if check_masking && Flipper.enabled?(:show_dgi_direct_deposit_1990EZ, @current_user)
-            Rails.logger.warn("INSIDE CHECK MASKING IF!!!!")
+            Rails.logger.warn('INSIDE CHECK MASKING IF!!!!')
             params[:direct_deposit][:direct_deposit_account_number] =
               dd_params&.payment_account ? dd_params.payment_account[:account_number] : nil
             params[:direct_deposit][:direct_deposit_routing_number] =
