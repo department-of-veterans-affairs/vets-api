@@ -6072,7 +6072,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6be9b240-267c-4c9c-b8d5-af1cd4068308",
+                    "id": "fe256259-ac70-4caf-a91e-0f217a5aff2a",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -8975,10 +8975,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "867b7baa-8dbe-4053-823f-788218fa6984",
+                    "id": "14195f7f-91be-4b80-a4a2-bccba1118f27",
                     "type": "individual",
                     "attributes": {
-                      "code": "083",
+                      "code": "067",
                       "name": "Firstname Lastname",
                       "phoneNumber": "555-555-5555"
                     }
@@ -9175,7 +9175,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 067",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
                       }
@@ -9602,7 +9602,7 @@
                         }
                       },
                       "representative": {
-                        "poaCode": "083",
+                        "poaCode": "067",
                         "registrationNumber": "999999999999",
                         "type": "ATTORNEY",
                         "address": {
@@ -9671,7 +9671,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c54cfb3e-8ec8-48ce-bb19-52847bdd9bde",
+                    "id": "a7979800-15b2-425f-b12f-3dcc369af6ed",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -10498,7 +10498,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 067",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
                       }
@@ -10925,7 +10925,7 @@
                         }
                       },
                       "representative": {
-                        "poaCode": "083",
+                        "poaCode": "067",
                         "registrationNumber": "999999999999",
                         "type": "ATTORNEY",
                         "address": {
@@ -11631,7 +11631,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "af367b07-5484-4eb7-8a2b-3d4bf1ba447c",
+                    "id": "49e19027-f055-4acd-853b-d9ca573eba1b",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
