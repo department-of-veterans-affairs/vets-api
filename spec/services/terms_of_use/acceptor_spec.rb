@@ -74,22 +74,59 @@ RSpec.describe TermsOfUse::Acceptor, type: :service do
         Digest::SHA256.hexdigest({ icn:, signature_name: common_name, version: }.to_json)
       end
 
-      before do
-        allow(TermsOfUse::SignUpServiceUpdaterJob).to receive(:perform_async)
+      context 'when async is true' do
+        before do
+          allow(TermsOfUse::SignUpServiceUpdaterJob).to receive(:perform_async)
+        end
+
+        it 'creates a new terms of use agreement with the given version' do
+          expect { acceptor.perform! }.to change { user_account.terms_of_use_agreements.count }.by(1)
+          expect(user_account.terms_of_use_agreements.last.agreement_version).to eq(version)
+        end
+
+        it 'marks the terms of use agreement as accepted' do
+          expect(acceptor.perform!).to be_accepted
+        end
+
+        it 'enqueues the SignUpServiceUpdaterJob with expected parameters' do
+          acceptor.perform!
+          expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:perform_async).with(expected_attr_key)
+        end
       end
 
-      it 'creates a new terms of use agreement with the given version' do
-        expect { acceptor.perform! }.to change { user_account.terms_of_use_agreements.count }.by(1)
-        expect(user_account.terms_of_use_agreements.last.agreement_version).to eq(version)
-      end
+      context 'when async is false' do
+        subject(:acceptor) { described_class.new(user_account:, common_name:, version:, async: false) }
 
-      it 'marks the terms of use agreement as accepted' do
-        expect(acceptor.perform!).to be_accepted
-      end
+        let(:sign_up_service_updater_job) { instance_double(TermsOfUse::SignUpServiceUpdaterJob, perform: nil) }
 
-      it 'enqueues the SignUpServiceUpdaterJob with expected parameters' do
-        acceptor.perform!
-        expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:perform_async).with(expected_attr_key)
+        before do
+          allow(TermsOfUse::SignUpServiceUpdaterJob).to receive(:new).and_return(sign_up_service_updater_job)
+          allow(sign_up_service_updater_job).to receive(:perform).with(expected_attr_key)
+        end
+
+        it 'calls the SignUpServiceUpdaterJob with expected parameters' do
+          acceptor.perform!
+          expect(sign_up_service_updater_job).to have_received(:perform).with(expected_attr_key)
+        end
+
+        it 'creates a new terms of use agreement with the given version' do
+          expect { acceptor.perform! }.to change { user_account.terms_of_use_agreements.count }.by(1)
+          expect(user_account.terms_of_use_agreements.last.agreement_version).to eq(version)
+        end
+
+        it 'marks the terms of use agreement as accepted' do
+          expect(acceptor.perform!).to be_accepted
+        end
+
+        context 'when the SignUpServiceUpdaterJob raises an error' do
+          before do
+            allow(TermsOfUse::SignUpServiceUpdaterJob).to receive(:new).and_raise(StandardError)
+          end
+
+          it 'raises an AcceptorError' do
+            expect { acceptor.perform! }.to raise_error(TermsOfUse::Errors::AcceptorError)
+          end
+        end
       end
     end
   end

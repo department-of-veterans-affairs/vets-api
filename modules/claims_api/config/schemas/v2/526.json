@@ -27,6 +27,7 @@
         "serviceNumber": {
           "type": ["null", "string"],
           "description": "Service identification number",
+          "maxLength": 1000,
           "nullable": true
         },
         "veteranNumber": {
@@ -47,6 +48,7 @@
               "type": ["string", "null"],
               "description": "Veteran's international phone number.",
               "example": "+44 20 1234 5678",
+              "maxLength": 1000,
               "nullable": true
             }
           }
@@ -89,6 +91,7 @@
               "description": "City for the Veteran's current mailing address.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+              "maxLength": 1000,
               "example": "Portland"
             },
             "state": {
@@ -100,6 +103,7 @@
             "country": {
               "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
               "type": "string",
+              "maxLength": 1000,
               "example": "USA"
             },
             "zipFirstFive": {
@@ -182,6 +186,7 @@
           "description": "City for the Veteran's new address.",
           "type": "string",
           "pattern": "^$|^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+          "maxLength": 1000,
           "example": "Portland"
         },
         "state": {
@@ -193,6 +198,7 @@
         "country": {
           "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
           "type": "string",
+          "maxLength": 1000,
           "example": "USA"
         },
         "zipFirstFive": {
@@ -314,6 +320,7 @@
               "description": "International phone of point of contact.",
               "type": ["string", "null"],
               "example": "+44 20 1234 5678",
+              "maxLength": 1000,
               "nullable": true
             }
           }
@@ -345,12 +352,14 @@
                   "type": ["string", "null"],
                   "nullable": true,
                   "description": "Approximate begin date for serving in Gulf War hazard location.",
+                  "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                   "example": "2018-06 or 2018"
                 },
                 "endDate": {
                   "type": ["string", "null"],
                   "nullable": true,
                   "description": "Approximate end date for serving in Gulf War hazard location.",
+                  "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                   "example": "2018-06 or 2018"
                 }
               }
@@ -373,6 +382,7 @@
               "type": ["string", "null"],
               "nullable": true,
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+              "maxLength": 5000,
               "description": "Other location(s) where Veteran served."
             },
             "serviceDates": {
@@ -427,6 +437,7 @@
               "type": ["string", "null"],
               "nullable": true,
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+              "maxLength": 5000,
               "description": "Exposure to asbestos."
             },
             "exposureDates": {
@@ -465,12 +476,14 @@
                 "type": ["string", "null"],
                 "nullable": true,
                 "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                "maxLength": 1000,
                 "description": "Hazard the Veteran was exposed to."
               },
               "exposureLocation": {
                 "type": ["string", "null"],
                 "nullable": true,
                 "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                "maxLength": 1000,
                 "description": "Location where the exposure happened."
               },
               "exposureDates": {
@@ -519,12 +532,14 @@
             "type": ["string", "null"],
             "description": "What caused the disability?",
             "nullable": true,
+            "maxLength": 1000,
             "examples": ["Agent Orange", "radiation", "burn pits"]
           },
           "serviceRelevance": {
             "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury. If the disabilityActionType is 'NEW', the serviceRelevance is required.",
             "type": ["string", "null"],
             "nullable": true,
+            "maxLength": 1000,
             "example": "Heavy equipment operator in service."
           },
           "approximateDate": {
@@ -583,12 +598,14 @@
                   "type": ["string", "null"],
                   "description": "What caused the disability?",
                   "nullable": true,
+                  "maxLength": 1000,
                   "examples": ["Agent Orange", "radiation", "burn pits"]
                 },
                 "serviceRelevance": {
                   "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
                   "type": ["string", "null"],
                   "nullable": true,
+                  "maxLength": 1000,
                   "example": "Heavy equipment operator in service."
                 },
                 "disabilityActionType": {
@@ -705,6 +722,7 @@
               "serviceBranch": {
                 "description": "Branch of service during period. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
                 "type": "string",
+                "maxLength": 1000,
                 "example": "Air Force"
               },
               "serviceComponent": {
@@ -774,10 +792,12 @@
             "unitName": {
               "type": ["string", "null"],
               "nullable": true,
+              "maxLength": 1000,
               "pattern": "^$|([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
             },
             "unitAddress": {
               "type": ["string", "null"],
+              "maxLength": 1000,
               "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "nullable": true
             },
@@ -878,6 +898,7 @@
         "futureMilitaryRetiredPayExplanation": {
           "description": "Explains why future pay will be received.",
           "type": ["string", "null"],
+          "maxLength": 1000,
           "example": "Will be retiring soon.",
           "nullable": true
         },
@@ -889,6 +910,7 @@
             "branchOfService": {
               "description": "Branch of service. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
               "type": ["string", "null"],
+              "maxLength": 1000,
               "nullable": true,
               "example": "Air Force"
             },
@@ -942,6 +964,7 @@
               "description": "Branch of service. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
               "type": ["string", "null"],
               "nullable": true,
+              "maxLength": 1000,
               "example": "Air Force"
             },
             "preTaxAmountReceived": {

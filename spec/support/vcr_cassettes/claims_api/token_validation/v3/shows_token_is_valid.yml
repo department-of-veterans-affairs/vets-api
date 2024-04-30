@@ -1,0 +1,23 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/internal/auth/v3/validation
+    body:
+      encoding: UTF-8
+      string: aud=https%3A%2F%2Fsandbox-api.va.gov%2Fservices%2Fclaims
+    headers:
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Content-Type:
+      - application/json
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"AT.taco-tuesday","type":"validated_token","attributes":{"jti":"AT.taco-tuesday","iss":"https://deptva-eval.okta.com/oauth2/ausdg7guis2TYDlFe2p7","aud":"https://sandbox-api.va.gov/services/claims","iat":1692121197,"exp":1692121497,"cid":"test-id-here","uid":null,"scp":["system/claim.write","system/claim.read"],"sub":"test-id-here","act":{"icn":null,"npi":null,"type":"system","sec_id":null,"vista_id":null,"first_name":null,"last_name":null,"middle_name":null},"launch":null,"ver":1}}}'
+  recorded_at: Tue, 15 Aug 2023 17:44:06 GMT
+recorded_with: VCR 6.2.0

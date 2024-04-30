@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ostruct'
+
 module VSPDanger
   HEAD_SHA = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
   BASE_SHA = 'origin/master'
@@ -218,11 +220,10 @@ module VSPDanger
           - #{app_files.join "\n- "}
         </details>
 
-        Database migrations do not run automatically with vets-api deployments. Application code must always be
-        backwards compatible with the DB, both before and after migrations have been run. For more info:
+        Application code must always be backwards compatible with the DB,
+        both before and after migrations have been run. For more info:
 
-        - [`vets-api` Database Migrations](https://depo-platform-documentation.scrollhelp.site/developer-docs/Vets-API-Database-Migrations.689832034.html)
-        - [`vets-api` Deployment Process](https://depo-platform-documentation.scrollhelp.site/infrastructure/Deployment-process.590970953.html)
+        - [vets-api Database Migrations](https://depo-platform-documentation.scrollhelp.site/developer-docs/Vets-API-Database-Migrations.689832034.html)
       EMSG
     end
 

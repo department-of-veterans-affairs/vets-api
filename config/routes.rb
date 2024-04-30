@@ -114,7 +114,7 @@ Rails.application.routes.draw do
         get(:healthcheck)
         get(:enrollment_status)
         get(:rating_info)
-        post(:download_pdf)
+        get(:facilities)
       end
     end
 
@@ -147,6 +147,8 @@ Rails.application.routes.draw do
 
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
+
+    get 'average_days_for_claim_completion', to: 'average_days_for_claim_completion#index'
 
     get 'virtual_agent_claim_letters', to: 'virtual_agent_claim_letters#index'
     get 'virtual_agent_claim_letters/:document_id', to: 'virtual_agent_claim_letters#show'
@@ -292,7 +294,7 @@ Rails.application.routes.draw do
       resource :military_occupations, only: :show
 
       # Lighthouse
-      resource :direct_deposits, only: %i[show update], controller: 'direct_deposits/disability_compensations'
+      resource :direct_deposits, only: %i[show update]
       namespace :direct_deposits do
         resource :disability_compensations, only: %i[show update]
       end
@@ -368,6 +370,7 @@ Rails.application.routes.draw do
 
     get 'terms_of_use_agreements/:version/latest', to: 'terms_of_use_agreements#latest'
     post 'terms_of_use_agreements/:version/accept', to: 'terms_of_use_agreements#accept'
+    post 'terms_of_use_agreements/:version/accept_and_provision', to: 'terms_of_use_agreements#accept_and_provision'
     post 'terms_of_use_agreements/:version/decline', to: 'terms_of_use_agreements#decline'
     put 'terms_of_use_agreements/update_provisioning', to: 'terms_of_use_agreements#update_provisioning'
 

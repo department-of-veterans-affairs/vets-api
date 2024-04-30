@@ -210,6 +210,51 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
     end
   end
 
+  describe 'GET facilities' do
+    it 'responds with facilities data' do
+      VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+        get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
+      end
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body[0]).to eq({ 'access' => nil,
+                                              'active_status' => nil,
+                                              'address' => {
+                                                'mailing' => { 'zip' => '66713', 'city' => 'Leavenworth',
+                                                               'state' => 'KS', 'address1' => '150 Muncie Rd' },
+                                                'physical' => { 'zip' => '66713', 'city' => 'Baxter Springs',
+                                                                'state' => 'KS',
+                                                                'address1' => 'Baxter Springs City Cemetery' }
+                                              },
+                                              'classification' => 'Soldiers Lot',
+                                              'detailed_services' => nil,
+                                              'distance' => nil,
+                                              'facility_type' => 'va_cemetery',
+                                              'facility_type_prefix' => 'nca',
+                                              'feedback' => nil,
+                                              'hours' =>
+                                               { 'monday' => 'Sunrise - Sundown',
+                                                 'tuesday' => 'Sunrise - Sundown',
+                                                 'wednesday' => 'Sunrise - Sundown',
+                                                 'thursday' => 'Sunrise - Sundown',
+                                                 'friday' => 'Sunrise - Sundown',
+                                                 'saturday' => 'Sunrise - Sundown',
+                                                 'sunday' => 'Sunrise - Sundown' },
+                                              'id' => 'nca_042',
+                                              'lat' => 37.0320575,
+                                              'long' => -94.7706605,
+                                              'mobile' => nil,
+                                              'name' => "Baxter Springs City Soldiers' Lot",
+                                              'operating_status' => { 'code' => 'NORMAL' },
+                                              'operational_hours_special_instructions' => nil,
+                                              'phone' => { 'fax' => '9137584136', 'main' => '9137584105' },
+                                              'services' => nil,
+                                              'type' => 'va_facilities',
+                                              'unique_id' => '042',
+                                              'visn' => nil,
+                                              'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp' })
+    end
+  end
+
   describe 'POST create' do
     subject do
       post(v0_health_care_applications_path,
