@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_17_130647) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_30_194448) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -1268,6 +1268,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_17_130647) do
     t.datetime "updated_at", null: false
     t.index ["device_id"], name: "index_veteran_device_records_on_device_id"
     t.index ["icn", "device_id"], name: "index_veteran_device_records_on_icn_and_device_id", unique: true
+  end
+
+  create_table "veteran_onboardings", force: :cascade do |t|
+    t.string "icn"
+    t.boolean "display_onboarding_flow", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["icn"], name: "index_veteran_onboardings_on_icn", unique: true
   end
 
   create_table "veteran_organizations", id: false, force: :cascade do |t|

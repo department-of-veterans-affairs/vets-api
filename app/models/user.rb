@@ -375,6 +375,16 @@ class User < Common::RedisStore
     @identity ||= UserIdentity.find(uuid)
   end
 
+  def onboarding
+    if Flipper.enabled?(:veteran_onboarding_beta_flow, self)
+      @onboarding ||= VeteranOnboarding.find_or_create_by(icn: icn)
+    end
+  end
+
+  # VeteranOnboarding attributes & methods
+  delegate :show_onboarding_flow_on_login, to: :onboarding, allow_nil: true
+
+
   def vet360_contact_info
     return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && vet360_id.present?
 
