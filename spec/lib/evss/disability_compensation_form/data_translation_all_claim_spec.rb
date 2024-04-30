@@ -16,6 +16,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     frozen_time = Time.zone.parse '2020-11-05 13:19:50 -0500'
     Timecop.freeze(frozen_time)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+    Flipper.disable('disability_526_toxic_exposure')
   end
 
   after { Timecop.return }
@@ -1203,6 +1204,21 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           }
         ]
       end
+
+      it 'adds the cause field if the TE flag is ON' do
+        Flipper.enable('disability_526_toxic_exposure')
+        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
+          {
+            'disabilityActionType' => 'NEW',
+            'name' => 'new condition',
+            'classificationCode' => 'Test Code',
+            'specialIssues' => ['POW'],
+            'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description",
+            'cause' => 'NEW'
+          }
+        ]
+        Flipper.disable('disability_526_toxic_exposure')
+      end
     end
 
     context 'when there is a WORSENED disability' do
@@ -1234,6 +1250,22 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               "Worsened because of military service\nworsened condition description: worsened effects"
           }
         ]
+      end
+
+      it 'adds the cause field if the TE flag is ON' do
+        Flipper.enable('disability_526_toxic_exposure')
+        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
+          {
+            'disabilityActionType' => 'NEW',
+            'name' => 'worsened condition',
+            'classificationCode' => 'Test Code',
+            'specialIssues' => ['POW'],
+            'serviceRelevance' =>
+              "Worsened because of military service\nworsened condition description: worsened effects",
+            'cause' => 'WORSENED'
+          }
+        ]
+        Flipper.disable('disability_526_toxic_exposure')
       end
     end
 
@@ -1268,6 +1300,23 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               "Location: va location\nTimeFrame: the third of october"
           }
         ]
+      end
+
+      it 'adds the cause field if the TE flag is ON' do
+        Flipper.enable('disability_526_toxic_exposure')
+        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
+          {
+            'disabilityActionType' => 'NEW',
+            'name' => 'va condition',
+            'classificationCode' => 'Test Code',
+            'specialIssues' => ['POW'],
+            'serviceRelevance' =>
+              "Caused by VA care\nEvent: va condition description\n"\
+              "Location: va location\nTimeFrame: the third of october",
+            'cause' => 'VA'
+          }
+        ]
+        Flipper.disable('disability_526_toxic_exposure')
       end
     end
 
