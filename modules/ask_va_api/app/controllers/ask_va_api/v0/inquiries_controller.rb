@@ -17,14 +17,6 @@ module AskVAApi
         render json: @inquiry.payload, status: @inquiry.status
       end
 
-      def test_create
-        service = Crm::Service.new(icn: nil)
-        payload = { reply: params[:reply] }
-        response = service.call(endpoint: params[:endpoint], method: :put, payload:)
-
-        render json: response.to_json, status: :ok
-      end
-
       def create
         response = Inquiries::Creator.new(icn: current_user.icn).call(payload: inquiry_params)
         render json: response.to_json, status: :created
