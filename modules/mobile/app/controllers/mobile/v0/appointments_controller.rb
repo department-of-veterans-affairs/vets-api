@@ -99,7 +99,7 @@ module Mobile
       end
 
       def appointment_errors?(failures)
-        failures.any? { |failure| failure[:appointment_errors].present? }
+        Array.wrap(failures).any? { |failure| failure[:appointment_errors].present? }
       end
 
       def filter_by_date_range(appointments)
