@@ -27,17 +27,19 @@ module Mobile
       end
 
       def validate
-        address = VAProfile::Models::ValidationAddress.new(address_params)
-        raise Common::Exceptions::ValidationErrors, address unless address.valid?
+        validated_address_params = VAProfile::Models::ValidationAddress.new(address_params)
+        raise Common::Exceptions::ValidationErrors, validated_address_params unless validated_address_params.valid?
 
-        response = validation_service.address_suggestions(address).as_json
+        response = validation_service.address_suggestions(validated_address_params).as_json
         suggested_addresses = response.dig('response', 'addresses').map do |a|
-          OpenStruct.new(a['address'].merge(
-                           'id' => SecureRandom.uuid,
-                           'address_pou' => address_params[:address_pou],
-                           'validation_key' => response['response']['validation_key'],
-                           'address_meta' => a['address_meta_data']
-                         ))
+          address = OpenStruct.new(a['address'].merge(
+                                     'id' => SecureRandom.uuid,
+                                     'address_pou' => address_params[:address_pou],
+                                     'validation_key' => response['response']['validation_key'],
+                                     'address_meta' => a['address_meta_data'].symbolize_keys
+                                   ))
+
+          Mobile::V0::SuggestedAddress.new(address.to_h.symbolize_keys)
         end
 
         render json: Mobile::V0::SuggestedAddressSerializer.new(suggested_addresses)

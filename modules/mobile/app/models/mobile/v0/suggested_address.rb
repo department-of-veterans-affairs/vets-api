@@ -18,15 +18,11 @@ module Mobile
       attribute :state_code, Types::String.optional.default(nil)
       attribute :zip_code, Types::String.optional.default(nil)
       attribute :zip_code_suffix, Types::String.optional.default(nil)
-      attribute :meta do |address|
-        {
-          address: address.address_meta,
-          validation_key: address.validation_key
-        }
-      end
-
-      def initialize(address)
-        
+      attribute :validation_key, Types::Integer
+      attribute :address_meta do
+        attribute :confidence_score, Types::Float
+        attribute :address_type, Types::String
+        attribute :delivery_point_validation, Types::String
       end
     end
   end
