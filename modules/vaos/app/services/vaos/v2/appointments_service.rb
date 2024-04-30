@@ -534,7 +534,7 @@ module VAOS
       # @return [nil]
       #
       def log_partial_errors(response)
-        return unless response&.status == 200
+        return unless response.status == 200
 
         failures_dup = response.body[:failures].deep_dup
         failures_dup.each do |failure|
