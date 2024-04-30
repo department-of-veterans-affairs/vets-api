@@ -24,7 +24,7 @@
 
   "features": {
     "ghcr.io/devcontainers-contrib/features/ruby-asdf:0": {
- 			"version": "3.2.4"
+      "version": "3.2.4"
  		},
     "ghcr.io/robbert229/devcontainer-features/postgresql-client:1": {
       "version": "15"
@@ -33,10 +33,10 @@
       "version": "6.2"
     },
     "ghcr.io/devcontainers/features/sshd:1": {
-        "version": "latest"
+      "version": "latest"
     },
     "ghcr.io/devcontainers/features/github-cli:1": {
-        "version": "latest"
+      "version": "latest"
     }
   },
 
