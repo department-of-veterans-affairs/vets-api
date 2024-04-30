@@ -1,0 +1,5 @@
+#!/bin/bash
+# frozen_string_literal: true
+
+echo 'Fake scanning file with fake_clamdscan script'
+exit 0
