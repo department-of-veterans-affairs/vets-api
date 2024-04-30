@@ -3,6 +3,7 @@
 module AskVAApi
   module Attachments
     ENDPOINT = 'attachment'
+    class AttachmentsRetrieverError < StandardError; end
 
     class Retriever
       attr_reader :id, :service
@@ -29,11 +30,22 @@ module AskVAApi
       end
 
       def fetch_data(payload: {})
-        service.call(endpoint: ENDPOINT, payload:)[:Data]
+        response = service.call(endpoint: ENDPOINT, payload:)
+        handle_response_data(response)
       end
 
       def validate_input(input, error_message)
         raise ArgumentError, error_message if input.blank?
+      end
+
+      def handle_response_data(response)
+        case response
+        when Hash
+          response[:Data]
+        else
+          error = JSON.parse(response.body, symbolize_names: true)
+          raise(AttachmentsRetrieverError, error[:Message])
+        end
       end
     end
   end
