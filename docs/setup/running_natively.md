@@ -65,6 +65,14 @@ clamav:
   mock: false
 ```
 
+1. Uncomment socket env var in `config/initializers/clamav.rb`
+
+```
+ENV['CLAMD_UNIX_SOCKET'] = '/usr/local/etc/clamav/clamd.sock'
+```
+
+*Note you will need to comment this line out before committing again*
+
 1. In terminal run the following command
 ```
 foreman start -m all=1
