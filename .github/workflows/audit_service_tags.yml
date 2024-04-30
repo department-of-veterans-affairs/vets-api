@@ -36,9 +36,10 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           build-args: |
-            BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-            USER_ID=${{ env.VETS_API_USER_ID }}
+            sidekiq_license=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+            userid=${{ env.VETS_API_USER_ID }}
           context: .
+          target: builder
           push: false
           load: true
           tags: vets-api
@@ -47,8 +48,8 @@ jobs:
 
       - name: Setup Database
         run: |
-             docker-compose -f docker-compose.test.yml run web bash \
-             -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 13 -e 'bin/rails db:reset'"
+             docker-compose -f docker-compose.test.yml run vets-api bash \
+             -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -n 13 -e 'bin/rails db:reset'"
 
       - name: Get changed files
         run: |
@@ -59,6 +60,6 @@ jobs:
 
       - name: Run service tags audit controllers task
         run: |
-             docker-compose -f docker-compose.test.yml run -e CHANGED_FILES=${{ env.CHANGED_FILES }} web bash \
+             docker-compose -f docker-compose.test.yml run -e CHANGED_FILES=${{ env.CHANGED_FILES }} vets-api bash \
              -c "CI=true DISABLE_BOOTSNAP=true bundle exec rake service_tags:audit_controllers_ci"
 
