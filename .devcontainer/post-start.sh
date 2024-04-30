@@ -2,6 +2,7 @@
 
 echo "Ensuring ruby is up to date..."
 export PATH="${HOME}/.asdf/shims:${HOME}/.asdf/bin:${PATH}"
+asdf plugin update ruby
 asdf install ruby $( cat .ruby-version )
 asdf global ruby $( cat .ruby-version )
 
