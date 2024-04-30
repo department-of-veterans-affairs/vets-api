@@ -6,11 +6,11 @@
   # The relative path to department-of-veterans-affairs/vets-api-mockdata
   # cache_dir: ../vets-api-mockdata
 
-# binaries:
-  # For NATIVE and DOCKER installation
+# clamav:
   # A "virus scanner" that always returns success for development purposes
-  # NOTE: You may need to specify a full path instead of a relative path
-  # clamdscan: ./bin/fake_clamdscan
+  # mock: true
+  # host: '0.0.0.0'
+  # port: '33100'
 
 # NOTE: This file is excluded by railsconfig in the test env.
 # Use config/settings/test.local.yml instead.
