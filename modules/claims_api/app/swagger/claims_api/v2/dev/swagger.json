@@ -69,6 +69,289 @@
     }
   },
   "paths": {
+    "/power-of-attorney-requests": {
+      "get": {
+        "summary": "Search for Power of Attorney requests.",
+        "tags": [
+          "Power of Attorney"
+        ],
+        "operationId": "searchPowerOfAttorneyRequests",
+        "security": [
+          {
+            "productionOauth": [
+              "system/claim.read",
+              "system/system/claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "system/claim.read",
+              "system/system/claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Faceted, paginated, and sorted search of Power of Attorney requests",
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": 12345,
+                      "type": "powerOfAttorneyRequest",
+                      "attributes": {
+                        "status": "Declined",
+                        "declinedReason": "Because I felt like it",
+                        "powerOfAttorneyCode": "012",
+                        "submittedAt": "2024-04-10T04:51:12Z",
+                        "acceptedOrDeclinedAt": "2024-04-10T04:51:12Z",
+                        "isAddressChangingAuthorized": true,
+                        "isTreatmentDisclosureAuthorized": false,
+                        "veteran": {
+                          "firstName": "Firstus",
+                          "middleName": null,
+                          "lastName": "Lastus",
+                          "participantId": 600043200
+                        },
+                        "representative": {
+                          "firstName": "Primero",
+                          "lastName": "Ultimo",
+                          "email": "primero.ultimo@vsorg.org"
+                        },
+                        "claimant": {
+                          "firstName": "Alpha",
+                          "lastName": "Omega",
+                          "participantId": 23456,
+                          "relationshipToVeteran": "Cousin"
+                        },
+                        "claimantAddress": {
+                          "city": "Baltimore",
+                          "state": "MD",
+                          "zip": "21218",
+                          "country": "US",
+                          "militaryPostOffice": null,
+                          "militaryPostalCode": null
+                        }
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "description": "List of Power of Attorney requests satisfying the given search",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "id",
+                          "attributes"
+                        ],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "powerOfAttorneyRequest"
+                            ]
+                          },
+                          "id": {
+                            "type": "integer",
+                            "description": "The ID of the form application process that uniquely identifies this Power of Attorney request",
+                            "format": "int64"
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "status",
+                              "submittedAt",
+                              "acceptedOrDeclinedAt",
+                              "declinedReason",
+                              "isAddressChangingAuthorized",
+                              "isTreatmentDisclosureAuthorized",
+                              "powerOfAttorneyCode",
+                              "veteran",
+                              "representative",
+                              "claimant",
+                              "claimantAddress"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "description": "The Power of Attorney request's current status",
+                                "enum": [
+                                  "New",
+                                  "Pending",
+                                  "Accepted",
+                                  "Declined"
+                                ]
+                              },
+                              "submittedAt": {
+                                "type": "string",
+                                "description": "UTC datetime at which the Power of Attorney request was submitted",
+                                "format": "date-time"
+                              },
+                              "acceptedOrDeclinedAt": {
+                                "type": "string",
+                                "description": "UTC datetime at which the Power of Attorney request was accepted or declined",
+                                "nullable": true,
+                                "format": "date-time"
+                              },
+                              "declinedReason": {
+                                "type": "string",
+                                "description": "The reason given by the representative for declining the Power of Attorney request",
+                                "nullable": true
+                              },
+                              "isAddressChangingAuthorized": {
+                                "type": "boolean",
+                                "description": "Whether the representative is authorized to change the claimant's address"
+                              },
+                              "isTreatmentDisclosureAuthorized": {
+                                "type": "boolean",
+                                "description": "Whether the representative is authorized to receive disclosures of the Veteran's treatment records"
+                              },
+                              "powerOfAttorneyCode": {
+                                "type": "string",
+                                "description": "The code that indicates an individual or organization's ability to be granted Power of Attorney for a Veteran"
+                              },
+                              "veteran": {
+                                "type": "object",
+                                "description": "The Veteran for whom Power of Attorney is being requested",
+                                "additionalProperties": false,
+                                "required": [
+                                  "firstName",
+                                  "middleName",
+                                  "lastName",
+                                  "participantId"
+                                ],
+                                "properties": {
+                                  "firstName": {
+                                    "type": "string"
+                                  },
+                                  "middleName": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "lastName": {
+                                    "type": "string"
+                                  },
+                                  "participantId": {
+                                    "type": "integer",
+                                    "description": "The identifier of the Veteran as executor of this form application process",
+                                    "format": "int64",
+                                    "nullable": true
+                                  }
+                                }
+                              },
+                              "representative": {
+                                "type": "object",
+                                "description": "The representative to whom this Power of Attorney request is being submitted",
+                                "additionalProperties": false,
+                                "required": [
+                                  "firstName",
+                                  "lastName",
+                                  "email"
+                                ],
+                                "properties": {
+                                  "firstName": {
+                                    "type": "string"
+                                  },
+                                  "lastName": {
+                                    "type": "string"
+                                  },
+                                  "email": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "claimant": {
+                                "type": "object",
+                                "description": "If applicable, the individual that executed this form application process for the Veteran",
+                                "additionalProperties": false,
+                                "nullable": true,
+                                "required": [
+                                  "firstName",
+                                  "lastName",
+                                  "participantId",
+                                  "relationshipToVeteran"
+                                ],
+                                "properties": {
+                                  "firstName": {
+                                    "type": "string"
+                                  },
+                                  "lastName": {
+                                    "type": "string"
+                                  },
+                                  "participantId": {
+                                    "type": "integer",
+                                    "description": "The identifier of the individual as executor of this form application process",
+                                    "format": "int64"
+                                  },
+                                  "relationshipToVeteran": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "claimantAddress": {
+                                "type": "object",
+                                "description": "The mailing address of the individual as executor of this form application process",
+                                "additionalProperties": false,
+                                "required": [
+                                  "city",
+                                  "state",
+                                  "zip",
+                                  "country",
+                                  "militaryPostOffice",
+                                  "militaryPostalCode"
+                                ],
+                                "properties": {
+                                  "city": {
+                                    "type": "string"
+                                  },
+                                  "state": {
+                                    "type": "string"
+                                  },
+                                  "zip": {
+                                    "type": "string"
+                                  },
+                                  "country": {
+                                    "type": "string"
+                                  },
+                                  "militaryPostOffice": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "militaryPostalCode": {
+                                    "type": "string",
+                                    "nullable": true
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/veteran-id:find": {
       "post": {
         "summary": "Retrieve Veteran ID.",
@@ -684,7 +967,7 @@
                       "lighthouseId": null,
                       "maxEstClaimDate": null,
                       "minEstClaimDate": null,
-                      "status": "COMPLETE",
+                      "status": "CANCELED",
                       "submitterApplicationCode": "EBN",
                       "submitterRoleCode": "VET",
                       "supportingDocuments": [
@@ -1342,6 +1625,7 @@
                                 "serviceNumber": {
                                   "type": "string",
                                   "description": "Service identification number",
+                                  "maxLength": 1000,
                                   "nullable": true
                                 },
                                 "veteranNumber": {
@@ -1362,6 +1646,7 @@
                                       "type": "string",
                                       "description": "Veteran's international phone number.",
                                       "example": "+44 20 1234 5678",
+                                      "maxLength": 1000,
                                       "nullable": true
                                     }
                                   }
@@ -1404,6 +1689,7 @@
                                       "description": "City for the Veteran's current mailing address.",
                                       "type": "string",
                                       "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                      "maxLength": 1000,
                                       "example": "Portland"
                                     },
                                     "state": {
@@ -1415,6 +1701,7 @@
                                     "country": {
                                       "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                       "type": "string",
+                                      "maxLength": 1000,
                                       "example": "USA"
                                     },
                                     "zipFirstFive": {
@@ -1500,6 +1787,7 @@
                                   "description": "City for the Veteran's new address.",
                                   "type": "string",
                                   "pattern": "^$|^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                  "maxLength": 1000,
                                   "example": "Portland"
                                 },
                                 "state": {
@@ -1511,6 +1799,7 @@
                                 "country": {
                                   "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                   "type": "string",
+                                  "maxLength": 1000,
                                   "example": "USA"
                                 },
                                 "zipFirstFive": {
@@ -1630,6 +1919,7 @@
                                       "description": "International phone of point of contact.",
                                       "type": "string",
                                       "example": "+44 20 1234 5678",
+                                      "maxLength": 1000,
                                       "nullable": true
                                     }
                                   }
@@ -1664,12 +1954,14 @@
                                           "type": "string",
                                           "nullable": true,
                                           "description": "Approximate begin date for serving in Gulf War hazard location.",
+                                          "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                           "example": "2018-06 or 2018"
                                         },
                                         "endDate": {
                                           "type": "string",
                                           "nullable": true,
                                           "description": "Approximate end date for serving in Gulf War hazard location.",
+                                          "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                           "example": "2018-06 or 2018"
                                         }
                                       }
@@ -1695,6 +1987,7 @@
                                       "type": "string",
                                       "nullable": true,
                                       "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "maxLength": 5000,
                                       "description": "Other location(s) where Veteran served."
                                     },
                                     "serviceDates": {
@@ -1748,6 +2041,7 @@
                                       "type": "string",
                                       "nullable": true,
                                       "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "maxLength": 5000,
                                       "description": "Exposure to asbestos."
                                     },
                                     "exposureDates": {
@@ -1786,12 +2080,14 @@
                                         "type": "string",
                                         "nullable": true,
                                         "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                        "maxLength": 1000,
                                         "description": "Hazard the Veteran was exposed to."
                                       },
                                       "exposureLocation": {
                                         "type": "string",
                                         "nullable": true,
                                         "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                        "maxLength": 1000,
                                         "description": "Location where the exposure happened."
                                       },
                                       "exposureDates": {
@@ -1843,6 +2139,7 @@
                                     "type": "string",
                                     "description": "What caused the disability?",
                                     "nullable": true,
+                                    "maxLength": 1000,
                                     "examples": [
                                       "Agent Orange",
                                       "radiation",
@@ -1853,6 +2150,7 @@
                                     "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury. If the disabilityActionType is 'NEW', the serviceRelevance is required.",
                                     "type": "string",
                                     "nullable": true,
+                                    "maxLength": 1000,
                                     "example": "Heavy equipment operator in service."
                                   },
                                   "approximateDate": {
@@ -1915,6 +2213,7 @@
                                           "type": "string",
                                           "description": "What caused the disability?",
                                           "nullable": true,
+                                          "maxLength": 1000,
                                           "examples": [
                                             "Agent Orange",
                                             "radiation",
@@ -1925,6 +2224,7 @@
                                           "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
                                           "type": "string",
                                           "nullable": true,
+                                          "maxLength": 1000,
                                           "example": "Heavy equipment operator in service."
                                         },
                                         "disabilityActionType": {
@@ -2057,6 +2357,7 @@
                                       "serviceBranch": {
                                         "description": "Branch of service during period. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
                                         "type": "string",
+                                        "maxLength": 1000,
                                         "example": "Air Force"
                                       },
                                       "serviceComponent": {
@@ -2136,10 +2437,12 @@
                                     "unitName": {
                                       "type": "string",
                                       "nullable": true,
+                                      "maxLength": 1000,
                                       "pattern": "^$|([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
                                     },
                                     "unitAddress": {
                                       "type": "string",
+                                      "maxLength": 1000,
                                       "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                       "nullable": true
                                     },
@@ -2249,6 +2552,7 @@
                                 "futureMilitaryRetiredPayExplanation": {
                                   "description": "Explains why future pay will be received.",
                                   "type": "string",
+                                  "maxLength": 1000,
                                   "example": "Will be retiring soon.",
                                   "nullable": true
                                 },
@@ -2260,6 +2564,7 @@
                                     "branchOfService": {
                                       "description": "Branch of service. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
                                       "type": "string",
+                                      "maxLength": 1000,
                                       "nullable": true,
                                       "example": "Air Force"
                                     },
@@ -2315,6 +2620,7 @@
                                       "description": "Branch of service. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
                                       "type": "string",
                                       "nullable": true,
+                                      "maxLength": 1000,
                                       "example": "Air Force"
                                     },
                                     "preTaxAmountReceived": {
@@ -2602,6 +2908,7 @@
                               "serviceNumber": {
                                 "type": "string",
                                 "description": "Service identification number",
+                                "maxLength": 1000,
                                 "nullable": true
                               },
                               "veteranNumber": {
@@ -2622,6 +2929,7 @@
                                     "type": "string",
                                     "description": "Veteran's international phone number.",
                                     "example": "+44 20 1234 5678",
+                                    "maxLength": 1000,
                                     "nullable": true
                                   }
                                 }
@@ -2664,6 +2972,7 @@
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                    "maxLength": 1000,
                                     "example": "Portland"
                                   },
                                   "state": {
@@ -2675,6 +2984,7 @@
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                     "type": "string",
+                                    "maxLength": 1000,
                                     "example": "USA"
                                   },
                                   "zipFirstFive": {
@@ -2760,6 +3070,7 @@
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
                                 "pattern": "^$|^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                "maxLength": 1000,
                                 "example": "Portland"
                               },
                               "state": {
@@ -2771,6 +3082,7 @@
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "example": "USA"
                               },
                               "zipFirstFive": {
@@ -2890,6 +3202,7 @@
                                     "description": "International phone of point of contact.",
                                     "type": "string",
                                     "example": "+44 20 1234 5678",
+                                    "maxLength": 1000,
                                     "nullable": true
                                   }
                                 }
@@ -2924,12 +3237,14 @@
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate begin date for serving in Gulf War hazard location.",
+                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                         "example": "2018-06 or 2018"
                                       },
                                       "endDate": {
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate end date for serving in Gulf War hazard location.",
+                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                         "example": "2018-06 or 2018"
                                       }
                                     }
@@ -2955,6 +3270,7 @@
                                     "type": "string",
                                     "nullable": true,
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "maxLength": 5000,
                                     "description": "Other location(s) where Veteran served."
                                   },
                                   "serviceDates": {
@@ -3008,6 +3324,7 @@
                                     "type": "string",
                                     "nullable": true,
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "maxLength": 5000,
                                     "description": "Exposure to asbestos."
                                   },
                                   "exposureDates": {
@@ -3046,12 +3363,14 @@
                                       "type": "string",
                                       "nullable": true,
                                       "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "maxLength": 1000,
                                       "description": "Hazard the Veteran was exposed to."
                                     },
                                     "exposureLocation": {
                                       "type": "string",
                                       "nullable": true,
                                       "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "maxLength": 1000,
                                       "description": "Location where the exposure happened."
                                     },
                                     "exposureDates": {
@@ -3103,6 +3422,7 @@
                                   "type": "string",
                                   "description": "What caused the disability?",
                                   "nullable": true,
+                                  "maxLength": 1000,
                                   "examples": [
                                     "Agent Orange",
                                     "radiation",
@@ -3113,6 +3433,7 @@
                                   "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury. If the disabilityActionType is 'NEW', the serviceRelevance is required.",
                                   "type": "string",
                                   "nullable": true,
+                                  "maxLength": 1000,
                                   "example": "Heavy equipment operator in service."
                                 },
                                 "approximateDate": {
@@ -3175,6 +3496,7 @@
                                         "type": "string",
                                         "description": "What caused the disability?",
                                         "nullable": true,
+                                        "maxLength": 1000,
                                         "examples": [
                                           "Agent Orange",
                                           "radiation",
@@ -3185,6 +3507,7 @@
                                         "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
                                         "type": "string",
                                         "nullable": true,
+                                        "maxLength": 1000,
                                         "example": "Heavy equipment operator in service."
                                       },
                                       "disabilityActionType": {
@@ -3317,6 +3640,7 @@
                                     "serviceBranch": {
                                       "description": "Branch of service during period. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
                                       "type": "string",
+                                      "maxLength": 1000,
                                       "example": "Air Force"
                                     },
                                     "serviceComponent": {
@@ -3396,10 +3720,12 @@
                                   "unitName": {
                                     "type": "string",
                                     "nullable": true,
+                                    "maxLength": 1000,
                                     "pattern": "^$|([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
                                   },
                                   "unitAddress": {
                                     "type": "string",
+                                    "maxLength": 1000,
                                     "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "nullable": true
                                   },
@@ -3509,6 +3835,7 @@
                               "futureMilitaryRetiredPayExplanation": {
                                 "description": "Explains why future pay will be received.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "example": "Will be retiring soon.",
                                 "nullable": true
                               },
@@ -3520,6 +3847,7 @@
                                   "branchOfService": {
                                     "description": "Branch of service. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
                                     "type": "string",
+                                    "maxLength": 1000,
                                     "nullable": true,
                                     "example": "Air Force"
                                   },
@@ -3575,6 +3903,7 @@
                                     "description": "Branch of service. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
                                     "type": "string",
                                     "nullable": true,
+                                    "maxLength": 1000,
                                     "example": "Air Force"
                                   },
                                   "preTaxAmountReceived": {
@@ -4407,6 +4736,7 @@
                               "serviceNumber": {
                                 "type": "string",
                                 "description": "Service identification number",
+                                "maxLength": 1000,
                                 "nullable": true
                               },
                               "veteranNumber": {
@@ -4427,6 +4757,7 @@
                                     "type": "string",
                                     "description": "Veteran's international phone number.",
                                     "example": "+44 20 1234 5678",
+                                    "maxLength": 1000,
                                     "nullable": true
                                   }
                                 }
@@ -4469,6 +4800,7 @@
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                    "maxLength": 1000,
                                     "example": "Portland"
                                   },
                                   "state": {
@@ -4480,6 +4812,7 @@
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                     "type": "string",
+                                    "maxLength": 1000,
                                     "example": "USA"
                                   },
                                   "zipFirstFive": {
@@ -4565,6 +4898,7 @@
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
                                 "pattern": "^$|^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                "maxLength": 1000,
                                 "example": "Portland"
                               },
                               "state": {
@@ -4576,6 +4910,7 @@
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "example": "USA"
                               },
                               "zipFirstFive": {
@@ -4695,6 +5030,7 @@
                                     "description": "International phone of point of contact.",
                                     "type": "string",
                                     "example": "+44 20 1234 5678",
+                                    "maxLength": 1000,
                                     "nullable": true
                                   }
                                 }
@@ -4729,12 +5065,14 @@
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate begin date for serving in Gulf War hazard location.",
+                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                         "example": "2018-06 or 2018"
                                       },
                                       "endDate": {
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate end date for serving in Gulf War hazard location.",
+                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                         "example": "2018-06 or 2018"
                                       }
                                     }
@@ -4760,6 +5098,7 @@
                                     "type": "string",
                                     "nullable": true,
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "maxLength": 5000,
                                     "description": "Other location(s) where Veteran served."
                                   },
                                   "serviceDates": {
@@ -4813,6 +5152,7 @@
                                     "type": "string",
                                     "nullable": true,
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "maxLength": 5000,
                                     "description": "Exposure to asbestos."
                                   },
                                   "exposureDates": {
@@ -4851,12 +5191,14 @@
                                       "type": "string",
                                       "nullable": true,
                                       "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "maxLength": 1000,
                                       "description": "Hazard the Veteran was exposed to."
                                     },
                                     "exposureLocation": {
                                       "type": "string",
                                       "nullable": true,
                                       "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "maxLength": 1000,
                                       "description": "Location where the exposure happened."
                                     },
                                     "exposureDates": {
@@ -4908,6 +5250,7 @@
                                   "type": "string",
                                   "description": "What caused the disability?",
                                   "nullable": true,
+                                  "maxLength": 1000,
                                   "examples": [
                                     "Agent Orange",
                                     "radiation",
@@ -4918,6 +5261,7 @@
                                   "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury. If the disabilityActionType is 'NEW', the serviceRelevance is required.",
                                   "type": "string",
                                   "nullable": true,
+                                  "maxLength": 1000,
                                   "example": "Heavy equipment operator in service."
                                 },
                                 "approximateDate": {
@@ -4980,6 +5324,7 @@
                                         "type": "string",
                                         "description": "What caused the disability?",
                                         "nullable": true,
+                                        "maxLength": 1000,
                                         "examples": [
                                           "Agent Orange",
                                           "radiation",
@@ -4990,6 +5335,7 @@
                                         "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
                                         "type": "string",
                                         "nullable": true,
+                                        "maxLength": 1000,
                                         "example": "Heavy equipment operator in service."
                                       },
                                       "disabilityActionType": {
@@ -5122,6 +5468,7 @@
                                     "serviceBranch": {
                                       "description": "Branch of service during period. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
                                       "type": "string",
+                                      "maxLength": 1000,
                                       "example": "Air Force"
                                     },
                                     "serviceComponent": {
@@ -5201,10 +5548,12 @@
                                   "unitName": {
                                     "type": "string",
                                     "nullable": true,
+                                    "maxLength": 1000,
                                     "pattern": "^$|([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
                                   },
                                   "unitAddress": {
                                     "type": "string",
+                                    "maxLength": 1000,
                                     "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "nullable": true
                                   },
@@ -5314,6 +5663,7 @@
                               "futureMilitaryRetiredPayExplanation": {
                                 "description": "Explains why future pay will be received.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "example": "Will be retiring soon.",
                                 "nullable": true
                               },
@@ -5325,6 +5675,7 @@
                                   "branchOfService": {
                                     "description": "Branch of service. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
                                     "type": "string",
+                                    "maxLength": 1000,
                                     "nullable": true,
                                     "example": "Air Force"
                                   },
@@ -5380,6 +5731,7 @@
                                     "description": "Branch of service. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
                                     "type": "string",
                                     "nullable": true,
+                                    "maxLength": 1000,
                                     "example": "Air Force"
                                   },
                                   "preTaxAmountReceived": {
@@ -5720,7 +6072,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "cf532e4e-e89e-4f9c-aebd-ce8361336a41",
+                    "id": "6be9b240-267c-4c9c-b8d5-af1cd4068308",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -7804,8 +8156,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-03-26",
-                      "expirationDate": "2025-03-26",
+                      "creationDate": "2024-04-24",
+                      "expirationDate": "2025-04-24",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -8524,7 +8876,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:112:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:130:in `representative'"
                       }
                     }
                   ]
@@ -8623,7 +8975,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "29b16b36-3108-411f-9f5f-2c1c2e147ea3",
+                    "id": "867b7baa-8dbe-4053-823f-788218fa6984",
                     "type": "individual",
                     "attributes": {
                       "code": "083",
@@ -8823,9 +9175,9 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 67890 and poa code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/individual_controller.rb:35:in `validate_individual_poa_code!'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
                       }
                     }
                   ]
@@ -9251,7 +9603,7 @@
                       },
                       "representative": {
                         "poaCode": "083",
-                        "registrationNumber": "67890",
+                        "registrationNumber": "999999999999",
                         "type": "ATTORNEY",
                         "address": {
                           "addressLine1": "123",
@@ -9319,7 +9671,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a7114d11-8ffd-4545-ad99-d70e74991e11",
+                    "id": "c54cfb3e-8ec8-48ce-bb19-52847bdd9bde",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -9527,9 +9879,9 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 67890 and poa code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/organization_controller.rb:35:in `validate_org_poa_code!'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
                       }
                     }
                   ]
@@ -9708,6 +10060,11 @@
                                 "type": "string",
                                 "pattern": "^\\d{9}?$",
                                 "example": "123456789"
+                              },
+                              "insuranceNumber": {
+                                "type": "string",
+                                "maxLength": 60,
+                                "description": "Veteran's insurance number, if applicable. Include letter prefix."
                               }
                             }
                           },
@@ -9892,7 +10249,7 @@
                       },
                       "serviceOrganization": {
                         "poaCode": "083",
-                        "registrationNumber": "67890"
+                        "registrationNumber": "999999999999"
                       }
                     }
                   }
@@ -10141,9 +10498,9 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 67890 and poa code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/individual_controller.rb:35:in `validate_individual_poa_code!'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
                       }
                     }
                   ]
@@ -10569,7 +10926,7 @@
                       },
                       "representative": {
                         "poaCode": "083",
-                        "registrationNumber": "67890",
+                        "registrationNumber": "999999999999",
                         "type": "ATTORNEY",
                         "address": {
                           "addressLine1": "123",
@@ -10836,9 +11193,9 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 67890 and poa code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/organization_controller.rb:35:in `validate_org_poa_code!'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
                       }
                     }
                   ]
@@ -11017,6 +11374,11 @@
                                 "type": "string",
                                 "pattern": "^\\d{9}?$",
                                 "example": "123456789"
+                              },
+                              "insuranceNumber": {
+                                "type": "string",
+                                "maxLength": 60,
+                                "description": "Veteran's insurance number, if applicable. Include letter prefix."
                               }
                             }
                           },
@@ -11201,7 +11563,7 @@
                       },
                       "serviceOrganization": {
                         "poaCode": "083",
-                        "registrationNumber": "67890"
+                        "registrationNumber": "999999999999"
                       }
                     }
                   }
@@ -11269,11 +11631,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7b0c58e1-4bf7-413c-a3ab-c8f6b95208b0",
+                    "id": "af367b07-5484-4eb7-8a2b-3d4bf1ba447c",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-03-26",
+                      "dateRequestAccepted": "2024-04-24",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"

@@ -2,37 +2,54 @@
 
 module AskVAApi
   module Correspondences
-    ENDPOINT = 'replies'
-
     class Retriever
-      attr_reader :inquiry_id, :service
+      attr_reader :inquiry_id, :entity_class, :user_mock_data
 
-      def initialize(inquiry_id:, service: nil)
+      def initialize(inquiry_id:, user_mock_data:, entity_class:)
+        @user_mock_data = user_mock_data
+        @entity_class = entity_class
         @inquiry_id = inquiry_id
-        @service = service || default_service
       end
 
       def call
-        validate_input(inquiry_id, 'Invalid Inquiry ID')
-        fetch_data(payload: { InquiryId: inquiry_id }).map do |cor|
-          Entity.new(cor)
+        case fetch_data
+        when Array
+          fetch_data.map { |data| entity_class.new(data) }
+        else
+          fetch_data
         end
-      rescue => e
-        ErrorHandler.handle_service_error(e)
       end
 
       private
 
-      def default_service
-        Crm::Service.new(icn: nil)
+      def fetch_data
+        if user_mock_data
+          data = File.read('modules/ask_va_api/config/locales/get_replies_mock_data.json')
+
+          data = JSON.parse(data, symbolize_names: true)[:Data]
+          filter_data(data)
+        else
+          endpoint = "inquiry/#{inquiry_id}/replies"
+
+          response = Crm::Service.new(icn: nil).call(endpoint:)
+          handle_response_data(response)
+        end
       end
 
-      def fetch_data(payload: {})
-        service.call(endpoint: ENDPOINT, payload:)[:Data]
+      def filter_data(data)
+        data.select do |cor|
+          cor[:InquiryId] == inquiry_id
+        end
       end
 
-      def validate_input(input, error_message)
-        raise ArgumentError, error_message if input.blank?
+      def handle_response_data(response)
+        case response
+        when Hash
+          response[:Data]
+        else
+          error = JSON.parse(response.body, symbolize_names: true)
+          error[:Message]
+        end
       end
     end
   end

@@ -5,7 +5,7 @@ require 'debts_api/v0/fsr_form_transform/expense_calculator'
 module DebtsApi
   module V0
     module FsrFormTransform
-      class EnhancedExpenceCalculator
+      class EnhancedExpenseCalculator
         RENT = 'Rent'
         MORTGAGE_PAYMENT = 'Mortgage payment'
         FOOD = 'Food'
@@ -18,8 +18,8 @@ module DebtsApi
           @old_food_attr = @form.dig('expenses', 'food')
           @credit_card_bills = @form.dig('expenses', 'creditCardBills') || []
           @other_expenses = @form['otherExpenses'].deep_dup || []
-          @installment_contracts = @form['installmentContracts']
-          @utility_records = @form['utilityRecords']
+          @installment_contracts = @form['installmentContracts'] || []
+          @utility_records = @form['utilityRecords'] || []
 
           @filtered_expenses = [].concat(
             exclude_by(@other_expenses, [FOOD]),

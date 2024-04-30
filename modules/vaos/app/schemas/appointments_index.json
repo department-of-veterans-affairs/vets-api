@@ -143,7 +143,10 @@
                     "required": ["system", "value"],
                     "properties": {
                       "system": { "type": "string" },
-                      "value": {"type": "string"}
+                      "value": {
+                        "type": "string",
+                        "nullable": true
+                      }
                     }
                   }
                 },

@@ -19,7 +19,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
     before do
       Veteran::Service::Representative.create!(representative_id: '12345', poa_codes: [individual_poa_code],
                                                first_name: 'Abraham', last_name: 'Lincoln')
-      Veteran::Service::Representative.create!(representative_id: '67890', poa_codes: [organization_poa_code],
+      Veteran::Service::Representative.create!(representative_id: '999999999999', poa_codes: [organization_poa_code],
                                                first_name: 'George', last_name: 'Washington')
     end
 
@@ -109,7 +109,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
         context 'when provided' do
           context 'when valid' do
             it 'returns a 202' do
-              VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+              VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                 mock_ccg(scopes) do |auth_header|
                   expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
                     .and_return(bgs_poa)
@@ -145,7 +145,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
               it 'returns a 202 when all conditionally required data is present' do
                 mock_ccg(scopes) do |auth_header|
-                  VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                     post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
                   end
                   expect(response).to have_http_status(:accepted)
@@ -155,7 +155,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               it 'returns a 422 if claimant.address.addressLine1 is not provided' do
                 mock_ccg(scopes) do |auth_header|
                   claimant_data[:data][:attributes][:claimant][:address][:addressLine1] = nil
-                  VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                     post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
                   end
                   expect(response).to have_http_status(:unprocessable_entity)
@@ -169,7 +169,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               it 'returns a 422 if claimant.address.city is not provided' do
                 mock_ccg(scopes) do |auth_header|
                   claimant_data[:data][:attributes][:claimant][:address][:city] = nil
-                  VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                     post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
                   end
                   expect(response).to have_http_status(:unprocessable_entity)
@@ -183,7 +183,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               it 'returns a 422 if claimant.address.stateCode is not provided' do
                 mock_ccg(scopes) do |auth_header|
                   claimant_data[:data][:attributes][:claimant][:address][:stateCode] = nil
-                  VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                     post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
                   end
                   expect(response).to have_http_status(:unprocessable_entity)
@@ -197,7 +197,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               it 'returns a 422 if claimant.address.country is not provided' do
                 mock_ccg(scopes) do |auth_header|
                   claimant_data[:data][:attributes][:claimant][:address][:country] = nil
-                  VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                     post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
                   end
                   expect(response).to have_http_status(:unprocessable_entity)
@@ -211,7 +211,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               it 'returns a 422 if claimant.address.zipCode is not provided' do
                 mock_ccg(scopes) do |auth_header|
                   claimant_data[:data][:attributes][:claimant][:address][:zipCode] = nil
-                  VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                     post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
                   end
                   expect(response).to have_http_status(:unprocessable_entity)
@@ -223,7 +223,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               end
 
               it 'returns a 422 if claimant.relationship is not provided' do
-                VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+                VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                   mock_ccg(scopes) do |auth_header|
                     claimant_data[:data][:attributes][:claimant][:relationship] = nil
 
@@ -346,7 +346,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
                     it 'returns a meaningful 404' do
                       mock_ccg(%w[claim.write claim.read]) do |auth_header|
-                        detail = 'Could not find an Accredited Representative with registration number: 67890 ' \
+                        detail = 'Could not find an Accredited Representative with registration number: 999999999999 ' \
                                  'and poa code: aaa'
 
                         post validate2122a_path, params: request_body, headers: auth_header

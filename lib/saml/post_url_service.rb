@@ -63,8 +63,7 @@ module SAML
     end
 
     def terms_of_use_redirect_url
-      application = @tracker&.payload_attr(:application) || 'vaweb'
-      if enabled_tou_clients.include?(application)
+      if terms_of_use_enabled_application
         Rails.logger.info('Redirecting to /terms-of-use', type: :ssoe)
         add_query(terms_of_use_url, { redirect_url: login_redirect_url })
       else
@@ -78,6 +77,32 @@ module SAML
     end
 
     private
+
+    def terms_of_use_enabled_application
+      cache_key = "terms_of_use_redirect_user_#{user.uuid}"
+      cached_application = retrieve_and_delete_terms_of_use_redirect_user(cache_key)
+      current_application = @tracker&.payload_attr(:application)
+      write_terms_of_use_redirect_user(cache_key, current_application) if should_cache_application?(current_application)
+      terms_of_use_redirect_enabled?(cached_application, current_application)
+    end
+
+    def terms_of_use_redirect_enabled?(cached_application, current_application)
+      enabled_tou_clients.include?(cached_application || current_application || 'vaweb')
+    end
+
+    def should_cache_application?(application)
+      enabled_tou_clients.include?(application)
+    end
+
+    def retrieve_and_delete_terms_of_use_redirect_user(cache_key)
+      application = Rails.cache.read(cache_key)
+      Rails.cache.delete(cache_key)
+      application
+    end
+
+    def write_terms_of_use_redirect_user(cache_key, application)
+      Rails.cache.write(cache_key, application, expires_in: 5.minutes)
+    end
 
     def terms_of_use_url
       if Settings.review_instance_slug.present?
@@ -114,11 +139,7 @@ module SAML
     end
 
     def enabled_tou_clients
-      if Settings.vsp_environment == 'production'
-        TERMS_OF_USE_ENABLED_CLIENTS
-      else
-        TERMS_OF_USE_ENABLED_CLIENTS_LOWERS
-      end
+      Settings.terms_of_use.enabled_clients.split(',').collect(&:strip)
     end
   end
 end

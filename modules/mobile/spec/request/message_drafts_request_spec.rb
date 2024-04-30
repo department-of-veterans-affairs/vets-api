@@ -15,12 +15,10 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
   let(:draft_signature_only) { attributes_for(:message, body: '\n\n\n\nSignature\nExample', subject: 'Subject 1') }
 
   before do
-    Flipper.enable_actor(:mobile_sm_session_policy, user)
     Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
   end
 
   after do
-    Flipper.disable(:mobile_sm_session_policy)
     Timecop.return
   end
 
