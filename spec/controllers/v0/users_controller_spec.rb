@@ -78,6 +78,26 @@ RSpec.describe V0::UsersController, type: :controller do
       expect(claims).to be(nil)
     end
 
+    context 'onboarding' do
+      it 'returns a JSON user with onboarding information when the feature toggle is enabled' do
+        Flipper.enable(:veteran_onboarding_beta_flow, user)
+        get :show
+        json = json_body_for(response)
+        expect(response).to be_successful
+        onboarding = json.dig('attributes', 'onboarding')
+        expect(onboarding['show']).to be(true)
+      end
+
+      it 'returns a JSON user without onboarding information when the feature toggle is disabled' do
+        Flipper.disable(:veteran_onboarding_beta_flow)
+        get :show
+        json = json_body_for(response)
+        expect(response).to be_successful
+        onboarding = json.dig('attributes', 'onboarding')
+        expect(onboarding).to be(nil)
+      end
+    end
+
     context 'when profile claims enabled' do
       before do
         Flipper.enable(:profile_user_claims)
