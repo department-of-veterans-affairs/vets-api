@@ -1248,6 +1248,5 @@ RSpec.describe User, type: :model do
       Flipper.disable(:veteran_onboarding_beta_flow)
       expect(user.show_onboarding_flow_on_login).to be_falsey
     end
-
   end
 end
