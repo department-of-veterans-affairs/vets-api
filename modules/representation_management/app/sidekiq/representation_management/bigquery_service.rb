@@ -16,7 +16,7 @@ module RepresentationManagement
     end
 
     def create_table
-      dataset = bigquery.dataset(DATASET_ID)
+      dataset = @bigquery.dataset(DATASET_ID)
 
       unless dataset
         raise "Dataset not found with ID #{DATASET_ID}"
@@ -34,7 +34,6 @@ module RepresentationManagement
     rescue StandardError => e
       puts "Failed to create table: #{e.message}"
     end
-
 
     def insert(data) # rubocop:disable Rails/Delegate
       table.insert(data) # rubocop:disable Rails/SkipsModelValidations
@@ -54,12 +53,16 @@ module RepresentationManagement
       @bigquery = Google::Cloud::Bigquery.new
     end
 
+    def table
+      dataset.table(TABLE_ID)
+    end
+
     def dataset
       @dataset ||= @bigquery.dataset(DATASET_ID)
     end
 
-    def table
-      dataset.table(TABLE_ID)
+    def rows(records)
+      records.map(&:to_h)
     end
   end
 end
