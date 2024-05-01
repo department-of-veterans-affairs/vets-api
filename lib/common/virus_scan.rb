@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'clamav/commands/patch_scan_command'
+require 'clamav/patch_client'
+
 module Common
   module VirusScan
     module_function
@@ -8,10 +11,15 @@ module Common
       # `clamd` runs within service group, needs group read
       File.chmod(0o640, file_path)
 
-      # NOTE: If using custom_args, no other arguments can be passed to
-      # ClamScan::Client.scan. All other arguments will be ignored
-      args = ['-c', Rails.root.join('config', 'clamd.conf').to_s, file_path]
-      ClamScan::Client.scan(custom_args: args)
+      if mock_enabled?
+        true
+      else
+        ClamAV::PatchClient.new.safe?(file_path) # patch to call our class
+      end
+    end
+
+    def mock_enabled?
+      Settings.clamav.mock
     end
   end
 end
