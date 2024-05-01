@@ -72,9 +72,9 @@ module EVSS
         # We need to obscure the original filename since it may contain PII
         obscured_filename = form_attachment.obscured_filename
 
-        email_address = submission.get_email_address
+        email_address = submission.veteran_email_address
         first_name = submission.get_first_name
-        date_submitted = submission.get_formatted_creation_time
+        date_submitted = submission.format_creation_time_for_mailers
         @notify_client.send_email(
           email_address:,
           template_id: mailer_template_id,

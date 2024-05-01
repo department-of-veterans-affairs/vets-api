@@ -456,11 +456,11 @@ class Form526Submission < ApplicationRecord
     }
   end
 
-  def get_email_address
+  def veteran_email_address
     form.dig('form526', 'form526', 'veteran', 'emailAddress')
   end
 
-  def get_formatted_creation_time
+  def format_creation_time_for_mailers
     # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
     created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
   end
