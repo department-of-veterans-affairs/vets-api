@@ -1,76 +1,65 @@
 {
   "form_number": "10-7959C",
-  "applicants": {
-    "address": {
-      "country": "USA",
-      "street": "2 Second St",
-      "city": "Town",
-      "state": "LA",
-      "postal_code": "16542"
-    },
-    "full_name": {
-      "first": "Applicant",
-      "middle": "C",
-      "last": "Onceler"
-    },
-    "ssn_or_tin": "123456644",
-    "home_phone": "6543219877"
+  "applicant_ssn": "234234234",
+  "applicant_name": {
+    "first": "Jimmy",
+    "last": "Alvin"
   },
-
-  "is_new_address": "T",
-  "male_or_female": "M",
-
-  "part_a": {
-    "has_part_a": "T",
-    "part_a_effective_date": "2010-05-05",
-    "part_a_carrier": "United Health"
+  "applicant_dob": "1958-01-01",
+  "applicant_address": {
+    "country": "USA",
+    "street": "456 Street Circle",
+    "city": "Anyburg",
+    "state": "AK",
+    "postal_code": "12323"
   },
-  "part_b": {
-    "has_part_b": "F",
-    "part_b_effective_date": "2010-05-05",
-    "part_d_carrier": "United Health"
+  "applicant_phone": "3331233456",
+  "applicant_medicare_status": true,
+  "applicant_medicare_part_a_carrier": "Test A Carrier",
+  "applicant_medicare_part_b_carrier": "Test B Carrier",
+  "applicant_medicare_part_a_effective_date": "2010-01-01",
+  "applicant_medicare_part_b_effective_date": "2010-01-01",
+  "applicant_medicare_pharmacy_benefits": false,
+  "applicant_medicare_advantage": true,
+  "applicant_medicare_status_d": true,
+  "applicant_medicare_part_d_carrier": "Test D Carrier",
+  "applicant_medicare_part_d_effective_date": "2010-01-01",
+  "applicant_has_primary": true,
+  "applicant_primary_provider": "Primary Provider",
+  "applicant_primary_effective_date": "2010-01-01",
+  "applicant_primary_expiration_date": "2010-01-01",
+  "applicant_primary_through_employer": false,
+  "applicant_primary_has_prescription": true,
+  "applicant_primary_eob": "noEob",
+  "applicant_primary_insurance_type": { "hmo": true, "medigap": true },
+  "primary_medigap_plan": "medigapPlanA",
+  "primary_additional_comments": "Additional primary comment",
+  "applicant_has_secondary": true,
+  "applicant_secondary_provider": "Secondary Provider",
+  "applicant_secondary_effective_date": "2010-01-01",
+  "applicant_secondary_expiration_date": "2010-01-01",
+  "applicant_secondary_through_employer": true,
+  "applicant_secondary_has_prescription": true,
+  "applicant_secondary_eob": "hasEob",
+  "applicant_secondary_insurance_type": { "ppo": true, "medigap": true },
+  "secondary_medigap_plan": "medigapPlanM",
+  "secondary_additional_comments": "Additional secondary comment",
+  "certifier_relationship": {
+    "relationship_to_applicants": "other",
+    "other_relationship_to_applicants": "Another relationship"
   },
-  "part_d": {
-    "has_part_d": "F",
-    "part_b_effective_date": "2010-05-05",
-    "part_d_carrier": "United Health"
+  "certifier_name": { "first": "Certifier", "last": "Jones" },
+  "certifier_phone": "5551231234",
+  "certifier_email": "certifier@email.gov",
+  "certifier_address": {
+    "country": "USA",
+    "street": "123 Street Lane",
+    "city": "Anytown",
+    "state": "AL",
+    "postal_code": "12345"
   },
-  "has_pharmacy_benefits": "F",
-  "has_medicare_advantage": "F",
-  "has_other_health_insurance": "F",
-
-  "other_health_insurance1": {
-    "name_of_health_insurance": "Blue Cross",
-    "date_health_insurance": "2010-02-02",
-    "terminate_date_health_insurance": "2012-09-09",
-    "does_insurance": "F",
-    "does_prescription": "F",
-    "does_explain": "F",
-    "is_hmo": true,
-    "is_ppo": false,
-    "is_medicaid": false,
-    "is_rx_discount": false,
-    "is_medigap": false,
-    "is_medigap_type": "A",
-    "is_other_type": false,
-    "comments": "many stuff to say. Mary had a little lamb. Gingerbread man ate my muffins"
-  },
-
-  "other_health_insurance2": {
-    "name_of_health_insurance": "Aetna",
-    "date_health_insurance": "2010-02-02",
-    "terminate_date_health_insurance": "2012-09-09",
-    "does_insurance": "F",
-    "does_prescription": "F",
-    "does_explain": "F",
-    "is_hmo": true,
-    "is_ppo": false,
-    "is_medicaid": false,
-    "is_rx_discount": false,
-    "is_medigap": false,
-    "is_medigap_type": "A",
-    "is_other_type": false,
-    "comments": "Row row row your boat gently down the stream. Oh McDonald had a farm eee yaaa"
-  },
-  "statement_of_truth_signature": "Veteran B Surname"
+  "certifier_role": "other",
+  "consent_to_mail_missing_required_files": true,
+  "statement_of_truth_certified": true,
+  "statement_of_truth_signature": "Certifier Jones"
 }
