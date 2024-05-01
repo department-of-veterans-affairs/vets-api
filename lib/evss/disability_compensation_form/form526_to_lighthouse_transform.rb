@@ -6,11 +6,13 @@ module EVSS
   module DisabilityCompensationForm
     class Form526ToLighthouseTransform
       TOXIC_EXPOSURE_CAUSE_MAP = {
-        'NEW': 'My condition was caused by an injury or exposure during my military service.',
-        'WORSENED': 'My condition existed before I served in the military, but it got worse because of my military service.',
-        'VA': 'My condition was caused by an injury or event that happened when I was receiving VA care.',
-        'SECONDARY': 'My condition was caused by another service-connected disability I already have. (For example, I have a limp that caused lower-back problems.)'
-      }
+        NEW: 'My condition was caused by an injury or exposure during my military service.',
+        WORSENED: 'My condition existed before I served in the military, but it got worse because of my military ' \
+                  'service.',
+        VA: 'My condition was caused by an injury or event that happened when I was receiving VA care.',
+        SECONDARY: 'My condition was caused by another service-connected disability I already have. (For example, I ' \
+                   'have a limp that caused lower-back problems.)'
+      }.freeze
 
       # takes known EVSS Form526Submission format and converts it to a Lighthouse request body
       # evss_data will look like JSON.parse(form526_submission.form_data)
@@ -339,11 +341,13 @@ module EVSS
         end
       end
 
+      # rubocop:disable Naming/PredicateName
       def is_related_to_toxic_exposure(condition_name, toxic_exposure_conditions)
         regex_non_word = /[^\w]/
         normalized_condition_name = condition_name.gsub(regex_non_word, '').downcase
         toxic_exposure_conditions[normalized_condition_name].present?
       end
+      # rubocop:enable Naming/PredicateName
 
       def transform_secondary_disabilities(disability_source)
         disability_source['secondaryDisabilities'].map do |secondary_disability_source|

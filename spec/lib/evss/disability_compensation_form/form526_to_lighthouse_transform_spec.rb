@@ -218,7 +218,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(results[2].exposure_or_event_or_injury).to eq(cause_map[:WORSENED])
       expect(results.last.exposure_or_event_or_injury).to eq(cause_map[:SECONDARY])
     end
-
   end
 
   describe 'transform direct deposit' do
