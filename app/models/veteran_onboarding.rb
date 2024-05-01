@@ -8,7 +8,7 @@
 # Table name: veteran_onboardings
 #
 #  id                      :bigint           not null, primary key
-#  icn                     :string          not null, unique
+#  icn                     :string           not null, unique
 #  display_onboarding_flow :boolean          default(TRUE)
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null
