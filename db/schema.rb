@@ -133,6 +133,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_25_232006) do
     t.string "email", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_verified_representatives_on_email", unique: true
+    t.index ["ogc_registration_number"], name: "index_verified_representatives_on_ogc_number", unique: true
   end
 
   create_table "active_storage_attachments", force: :cascade do |t|
