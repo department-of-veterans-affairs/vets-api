@@ -520,22 +520,33 @@ module VAOS
       def partial_errors(response)
         return { failures: [] } if response.body[:failures].blank?
 
-        response.body[:failures].each do |failure|
-          detail = failure[:detail]
-          failure[:detail] = VAOS::Anonymizers.anonymize_icns(detail) if detail.present?
-        end
-
-        if response.status == 200
-          log_message_to_sentry(
-            'VAOS::V2::AppointmentService#get_appointments has response errors.',
-            :info,
-            failures: response.body[:failures].to_json
-          )
-        end
+        log_partial_errors(response)
 
         {
           failures: response.body[:failures]
         }
+      end
+
+      # Logs partial errors from a response.
+      #
+      # @param response [Faraday::Env] The response object containing the status and body.
+      #
+      # @return [nil]
+      #
+      def log_partial_errors(response)
+        return unless response.status == 200
+
+        failures_dup = response.body[:failures].deep_dup
+        failures_dup.each do |failure|
+          detail = failure[:detail]
+          failure[:detail] = VAOS::Anonymizers.anonymize_icns(detail) if detail.present?
+        end
+
+        log_message_to_sentry(
+          'VAOS::V2::AppointmentService#get_appointments has response errors.',
+          :info,
+          failures: failures_dup.to_json
+        )
       end
 
       def appointments_base_path
