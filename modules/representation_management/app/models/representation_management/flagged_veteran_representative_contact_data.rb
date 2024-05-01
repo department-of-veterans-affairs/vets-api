@@ -8,5 +8,17 @@ module RepresentationManagement
     validates :ip_address, :representative_id, :flag_type, :flagged_value, presence: true
     validates :ip_address,
               uniqueness: { scope: %i[representative_id flag_type flagged_value_updated_at], message: 'Combination of ip_address, representative_id, flag_type, and flagged_value_updated_at must be unique' } # rubocop:disable Rails/I18nLocaleTexts,Layout/LineLength
+
+    def to_h
+      {
+        ip_address: ip_address,
+        representative_id: representative_id,
+        flag_type: flag_type,
+        flagged_value: flagged_value,
+        flagged_value_updated_at: flagged_value_updated_at,
+        created_at: created_at,
+        updated_at: updated_at
+      }
+    end
   end
 end
