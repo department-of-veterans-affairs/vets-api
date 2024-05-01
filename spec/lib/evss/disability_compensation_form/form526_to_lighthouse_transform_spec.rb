@@ -7,7 +7,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
   let(:transformer) { subject }
 
   describe '#transform' do
-    let(:submission) { create(:form526_submission, :with_everything) }
+    let(:submission) { create(:form526_submission, :with_everything_toxic_exposure) }
     let(:data) { submission.form['form526'] }
 
     it 'sets claimant_certification to true in the Lighthouse request body' do
@@ -182,12 +182,16 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
   end
 
   describe 'transform disabilities' do
-    let(:submission) { create(:form526_submission, :with_everything) }
+    let(:submission) { create(:form526_submission, :with_everything_toxic_exposure) }
     let(:data) { submission.form['form526']['form526']['disabilities'] }
+    let(:submission_without_te) { create(:form526_submission, :with_everything) }
+    let(:data_without_te) { submission_without_te.form['form526']['form526']['disabilities'] }
 
     it 'sets disabilities correctly' do
-      result = transformer.send(:transform_disabilities, data)
-      expect(result.length).to eq(1)
+      results = transformer.send(:transform_disabilities, data_without_te, nil)
+      expect(results.length).to eq(1)
+      expect(results.first.exposure_or_event_or_injury).to eq(nil)
+      expect(results.first.is_related_to_toxic_exposure).to eq(nil)
     end
 
     it 'converts approximate dates' do
@@ -197,6 +201,24 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.send(:convert_approximate_date, JSON.parse({ month: '03', year: '1973' }.to_json))
       expect(result).to eq('1973-03')
     end
+
+    it 'sets the is related to toxic exposure flag when matching to TE conditions' do
+      toxic_exposure_conditions = submission.form['form526']['form526']['toxicExposure']['conditions']
+      results = transformer.send(:transform_disabilities, data, toxic_exposure_conditions)
+      expect(results.first.is_related_to_toxic_exposure).to eq(true)
+      expect(results.last.is_related_to_toxic_exposure).to eq(false)
+    end
+
+    it 'sets the exposure or event or injury according to the cause' do
+      toxic_exposure_conditions = submission.form['form526']['form526']['toxicExposure']['conditions']
+      results = transformer.send(:transform_disabilities, data, toxic_exposure_conditions)
+      cause_map = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform::TOXIC_EXPOSURE_CAUSE_MAP
+      expect(results.first.exposure_or_event_or_injury).to eq(cause_map[:VA])
+      expect(results[1].exposure_or_event_or_injury).to eq(cause_map[:NEW])
+      expect(results[2].exposure_or_event_or_injury).to eq(cause_map[:WORSENED])
+      expect(results.last.exposure_or_event_or_injury).to eq(cause_map[:SECONDARY])
+    end
+
   end
 
   describe 'transform direct deposit' do
