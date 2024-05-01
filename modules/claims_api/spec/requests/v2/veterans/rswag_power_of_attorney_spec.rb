@@ -107,9 +107,10 @@ describe 'PowerOfAttorney',
                                             'power_of_attorney', 'default.json').read)
 
           before do |example|
-            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(nil)
+            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
+
             Veteran::Service::Representative.new(representative_id: '12345',
                                                  poa_codes: ['H1A'],
                                                  first_name: 'Firstname',
