@@ -126,6 +126,11 @@ module CentralMail
     def upload_to_lighthouse
       @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
 
+      Rails.logger.info(
+        'Successful Form4142 Submission to Lighthouse',
+        { benefits_intake_uuid: @lighthouse_service.uuid, submission_id: submission.id }
+      )
+
       payload = {
         upload_url: @lighthouse_service.location,
         file: { file: @pdf_path, file_name: @pdf_path.split('/').last },
@@ -133,12 +138,7 @@ module CentralMail
         attachments: []
       }
 
-      response = @lighthouse_service.upload_doc(**payload)
-      Rails.logger.info(
-        'Successful Form4142 Submission to Lighthouse',
-        { benefits_intake_uuid: @lighthouse_service.uuid, submission_id: submission.id }
-      )
-      response
+      @lighthouse_service.upload_doc(**payload)
     end
 
     def generate_metadata
