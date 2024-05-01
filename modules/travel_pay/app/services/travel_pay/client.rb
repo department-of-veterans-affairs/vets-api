@@ -27,6 +27,8 @@ module TravelPay
     # @return [Faraday::Response]
     #
     def request_btsss_token(veis_token, sts_token)
+      return nil if mock_enabled?
+
       btsss_url = Settings.travel_pay.base_url
       api_key = Settings.travel_pay.subscription_key
       client_number = Settings.travel_pay.client_number
