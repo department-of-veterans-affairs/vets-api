@@ -89,7 +89,7 @@ module ClaimsApi
         end
       end
 
-      def docker_contaner_service
+      def docker_container_service
         ClaimsApi::V2::DisabilityCompensationDockerContainerUpload
       end
 
