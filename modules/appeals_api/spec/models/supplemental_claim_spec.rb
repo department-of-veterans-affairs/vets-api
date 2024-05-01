@@ -458,14 +458,14 @@ describe AppealsApi::SupplementalClaim, type: :model do
     describe 'before_update' do
       before { allow(supplemental_claim).to receive(:submit_evidence_to_central_mail!) }
 
-      context 'when the status has changed to "success"' do
+      context 'when the status has changed to "complete"' do
         let(:supplemental_claim) { create(:supplemental_claim, status: 'processing') }
 
         context 'and the delay evidence feature is enabled' do
           before { Flipper.enable(:decision_review_delay_evidence) }
 
           it 'calls "#submit_evidence_to_central_mail!"' do
-            supplemental_claim.update(status: 'success')
+            supplemental_claim.update(status: 'complete')
 
             expect(supplemental_claim).to have_received(:submit_evidence_to_central_mail!)
           end
@@ -475,7 +475,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
           before { Flipper.disable(:decision_review_delay_evidence) }
 
           it 'does not call "#submit_evidence_to_central_mail!"' do
-            supplemental_claim.update(status: 'success')
+            supplemental_claim.update(status: 'complete')
 
             expect(supplemental_claim).not_to have_received(:submit_evidence_to_central_mail!)
           end
