@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_01_164745) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_01_183550) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -1474,6 +1474,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_01_164745) do
     t.date "transact_date"
     t.string "trace"
     t.index ["user_info_id"], name: "index_vye_verifications_on_user_info_id"
+    t.index ["user_profile_id"], name: "index_vye_verifications_on_user_profile_id"
   end
 
   create_table "webhooks_notification_attempt_assocs", id: false, force: :cascade do |t|
