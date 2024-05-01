@@ -329,7 +329,6 @@ module EVSS
           dis.service_relevance = disability_source['serviceRelevance'] || ''
           dis.rated_disability_id = disability_source['ratedDisabilityId'] if disability_source['ratedDisabilityId']
           dis.diagnostic_code = disability_source['diagnosticCode'] if disability_source['diagnosticCode']
-          # put a note here too
           if disability_source['secondaryDisabilities']
             dis.secondary_disabilities = transform_secondary_disabilities(disability_source)
           end
