@@ -8,7 +8,7 @@ Vets API requires:
 
 The most up-to-date versions of each key dependency will be specified in the `docker-compose.yml` [file](https://github.com/department-of-veterans-affairs/vets-api/blob/master/docker-compose.yml) and the `Dockerfile`.
 
-## Installing Ruby Version Manager
+## Installing a Ruby Version Manager
 
 We suggest using a Ruby version manager such as `rbenv`, `asdf`, `rvm`, or `chruby` to install and maintain your version of Ruby.
 
@@ -23,7 +23,9 @@ If the repo's Ruby version is updated later, you will need to install the newer 
 
 If you see an error like `Error running '__rvm_make -j10'` while installing a ruby version, this usually occurs because of a mismatch with the openssl package. 
 
-Depending on the exact error, it might be resolved by adding the openssl path for example: `rvm install 3.2.4 -C --with-openssl-dir=/opt/homebrew/opt/openssl@3.1`
+Many of these types of errors occur because either the openssl path needs to be specified or there's a compatibility issue with the ruby version and the install openssl version. They may get resolved by explicitly adding the directory or trying newer openssl version.    
+
+For example: `rvm install 3.2.4 -C --with-openssl-dir=/$(brew --prefix openssl@3)`
 
 ## Base Setup
 
@@ -93,6 +95,8 @@ We use the `config` gem to manage settings in the application. Local settings fo
 This file has the necessary configuration settings for local development as well as comments outlining some additional configuration that some developers may wish to use.
 
 ### Configuring ClamAV antivirus
+
+**NOTE:** In many cases, there in no need to run ClamAV for local development, even if you are working with uploaded files since the scanning functionality is already built into our CarrierWave and Shrine file upload base classes.
 
 Prior to EKS, ClamAV (the virus scanner) was deployed in the same process as Vets API. With EKS, ClamAV has been extracted out into it’s own service. Locally you can see the docker-compose.yml config for clamav.
 
