@@ -77,6 +77,10 @@ features:
     actor_type: user
     description: Enables Toxic Exposure questions for 10-10EZR applicants.
     enable_in_development: true
+  ezr_auth_only_enabled:
+    actor_type: user
+    description: Enables the auth-only experience, allowing only authenticated users to view any part of the form.
+    enable_in_development: true
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
@@ -159,6 +163,10 @@ features:
   claim_letters_access:
     actor_type: user
     description: Enables users to access the claim letters page
+    enable_in_development: true
+  claims_api_local_bgs_refactor:
+    actor_type: user
+    description: Diverts codepath to LocalBGSRefactored
     enable_in_development: true
   cst_use_lighthouse_5103:
     actor_type: user
@@ -368,9 +376,14 @@ features:
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
+    enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
+    enable_in_development: true
+  disability_compensation_form4142_supplemental:
+    actor_type: user
+    description: Use Lighthouse API to submit supplemental Form 21-4142 from Form 526EZ submissions
     enable_in_development: true
   disability_compensation_pif_fail_notification:
     actor_type: user
@@ -1169,6 +1182,9 @@ features:
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
+  veteran_onboarding_beta_flow:
+    actor_type: user
+    description: Conditionally display the new veteran onboarding flow to user
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.

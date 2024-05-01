@@ -35,29 +35,22 @@ describe SimpleFormsApi::PdfFiller do
   describe '#generate' do
     forms.each do |file_name|
       context "when mapping the pdf data given JSON file: #{file_name}" do
-        let(:expected_pdf_path) { map_pdf_data(file_name) }
+        let(:form_number) { file_name.gsub('-min', '') }
+        let(:expected_pdf_path) { "tmp/#{name}-tmp.pdf" }
+        let(:data) { JSON.parse(File.read("modules/simple_forms_api/spec/fixtures/form_json/#{file_name}.json")) }
+        let(:form) { "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(data) }
+        let(:name) { SecureRandom.hex }
 
-        # remove the pdf if it already exists
         after { FileUtils.rm_f(expected_pdf_path) }
 
         context 'when a legitimate JSON payload is provided' do
           it 'properly fills out the associated PDF' do
-            expect(File.exist?(expected_pdf_path)).to eq(true)
+            expect do
+              described_class.new(form_number:, form:, name:).generate
+            end.to change { File.exist?(expected_pdf_path) }.from(false).to(true)
           end
         end
       end
-    end
-
-    def map_pdf_data(file_name)
-      form_number = file_name.gsub('-min', '')
-      expected_pdf_path = "tmp/#{form_number}-tmp.pdf"
-      data = JSON.parse(File.read("modules/simple_forms_api/spec/fixtures/form_json/#{file_name}.json"))
-      form = "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
-
-      instance = described_class.new(form_number:, form:)
-      instance.generate
-
-      expected_pdf_path
     end
   end
 

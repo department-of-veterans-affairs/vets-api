@@ -62,7 +62,7 @@ module EVSS
         output_form.update(translate_veteran)
         output_form.update(translate_treatments)
         output_form.update(translate_disabilities)
-        output_form.update(add_toxic_exposure) if Flipper.enabled?(:disability_526_toxic_exposure, @current_user)
+        output_form.update(add_toxic_exposure) if Flipper.enabled?(:disability_526_toxic_exposure, @user)
 
         @translated_form
       end
@@ -487,10 +487,17 @@ module EVSS
 
       def translate_disabilities
         rated_disabilities = input_form['ratedDisabilities'].deep_dup.presence || []
+
         # New primary disabilities need to be added first before handling secondary
         # disabilities because a new secondary disability can be added to a new
         # primary disability
         primary_disabilities = translate_new_primary_disabilities(rated_disabilities)
+
+        # NOTE: currently (4/29/24), the submit transformer in vets-website removes
+        # the structured relationship between a secondary disability and its primary.
+        # These always come in with cause="NEW", and their relationship reduced to
+        # having "Secondary to..." in the primaryDescription. Consequentially, the
+        # call to translate_new_secondary_disabilities() is always short-circuited
         disabilities = translate_new_secondary_disabilities(primary_disabilities)
 
         # Strip out disabilities with ActionType eq to `None` that do not have any
@@ -512,18 +519,29 @@ module EVSS
           if input_disability['classificationCode'].blank?
             input_disability['condition'] = scrub_disability_condition(input_disability['condition'])
           end
+          append_input_disability = map_disability(input_disability)
 
-          case input_disability['cause']
-          when 'NEW'
-            disabilities.append(map_new(input_disability))
-          when 'WORSENED'
-            disabilities.append(map_worsened(input_disability))
-          when 'VA'
-            disabilities.append(map_va(input_disability))
+          next if append_input_disability.blank?
+
+          if Flipper.enabled?(:disability_526_toxic_exposure, @user)
+            append_input_disability['cause'] = input_disability['cause']
           end
+          disabilities.append(append_input_disability)
         end
 
         disabilities
+      end
+
+      def map_disability(input_disability)
+        case input_disability['cause']
+        when 'NEW'
+          append_input_disability = map_new(input_disability)
+        when 'WORSENED'
+          append_input_disability = map_worsened(input_disability)
+        when 'VA'
+          append_input_disability = map_va(input_disability)
+        end
+        append_input_disability
       end
 
       def scrub_disability_condition(condition)
