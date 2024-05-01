@@ -38,7 +38,7 @@ module ClaimsApi
       all_errors = []
       if @error&.original_body.is_a?(String)
         all_errors << { message: @error&.original_body }
-      elsif @error&.original_body.is_a?(Array)
+      else
         @error&.original_body&.[](:messages)&.each do |err|
           symbolized_error = err.deep_symbolize_keys
           all_errors << collect_errors(symbolized_error)
