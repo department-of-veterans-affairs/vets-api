@@ -1232,19 +1232,19 @@ RSpec.describe User, type: :model do
     let(:identity_icn) { 'some_identity_icn' }
 
     before do
-        Flipper.enable(:veteran_onboarding_beta_flow, user)
+      Flipper.enable(:veteran_onboarding_beta_flow, user)
     end
 
-    it 'show_onboarding_flow_on_login returns true when feature flag is enabled and display_onboarding_flow is true' do
+    it 'show_onboarding_flow_on_login returns true when flag is enabled and display_onboarding_flow is true' do
       expect(user.show_onboarding_flow_on_login).to be true
     end
 
-    it 'show_onboarding_flow_on_login returns false when feature flag is enabled but display_onboarding_flow is false' do
+    it 'show_onboarding_flow_on_login returns false when flag is enabled but display_onboarding_flow is false' do
       user.onboarding.display_onboarding_flow = false
       expect(user.show_onboarding_flow_on_login).to be false
     end
 
-    it 'show_onboarding_flow_on_login returns false when feature flag is disabled, even if display_onboarding_flow is true' do
+    it 'show_onboarding_flow_on_login returns false when flag is disabled, even if display_onboarding_flow is true' do
       Flipper.disable(:veteran_onboarding_beta_flow)
       expect(user.show_onboarding_flow_on_login).to be_falsey
     end
