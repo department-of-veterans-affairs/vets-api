@@ -40,7 +40,7 @@ module EVSS
 
         StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted")
       rescue => e
-        ::Rails.logger.error(
+        Rails.logger.error(
           'Failure in Form526DocumentUploadFailureEmail#sidekiq_retries_exhausted',
           {
             job_id:,
