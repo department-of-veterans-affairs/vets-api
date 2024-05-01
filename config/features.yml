@@ -1182,6 +1182,9 @@ features:
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
+  veteran_onboarding_beta_flow:
+    actor_type: user
+    description: Conditionally display the new veteran onboarding flow to user
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
