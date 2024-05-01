@@ -9,11 +9,15 @@ module SimpleFormsApi
     SUBMISSION_DATE_TITLE = 'Application Submitted:'
 
     def self.stamp_pdf(stamped_template_path, form, current_loa)
-      stamp_signature(stamped_template_path, form)
+      if File.exist? stamped_template_path
+        stamp_signature(stamped_template_path, form)
 
-      stamp_auth_text(stamped_template_path, current_loa)
+        stamp_auth_text(stamped_template_path, current_loa)
 
-      stamp_submission_date(stamped_template_path, form.submission_date_stamps)
+        stamp_submission_date(stamped_template_path, form.submission_date_stamps)
+      else
+        raise "stamped template file does not exist: #{stamped_template_path}"
+      end
     end
 
     def self.stamp_signature(stamped_template_path, form)
