@@ -2,8 +2,6 @@
 
 source 'https://rubygems.org'
 
-ruby '~> 3.2.4'
-
 # Modules
 path 'modules' do
   gem 'accredited_representative_portal'

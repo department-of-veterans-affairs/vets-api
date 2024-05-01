@@ -1283,8 +1283,5 @@ DEPENDENCIES
   with_advisory_lock
   yard
 
-RUBY VERSION
-   ruby 3.2.4p170
-
 BUNDLED WITH
    2.4.9
