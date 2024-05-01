@@ -30,14 +30,14 @@ RSpec.describe 'Power Of Attorney', type: :request do
       context 'CCG (Client Credentials Grant) flow' do
         context 'when provided' do
           context 'when valid' do
-            context 'when current poa code does not exist' do
-              it 'returns a 404' do
+            context 'when BGS does not return a POA code' do
+              it 'returns a 200' do
                 mock_ccg(scopes) do |auth_header|
                   allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(OpenStruct.new(current_poa_code: nil))
 
                   get get_poa_path, headers: auth_header
 
-                  expect(response.status).to eq(404)
+                  expect(response.status).to eq(200)
                 end
               end
             end
