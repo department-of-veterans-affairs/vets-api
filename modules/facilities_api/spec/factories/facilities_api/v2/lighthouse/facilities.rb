@@ -11,7 +11,7 @@ FactoryBot.define do
             zip: '98661-3753',
             city: 'Vancouver',
             state: 'WA',
-            address_1: '1601 East 4th Plain Boulevard'
+            address1: '1601 East 4th Plain Boulevard'
           }
         }
       end
