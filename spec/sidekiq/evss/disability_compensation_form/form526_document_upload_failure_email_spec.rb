@@ -35,9 +35,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
       form526_submission.created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
     end
 
-    it 'dispatches a failure notification email with an obscured filename' do
-      obscured_filename = 'sm_***e1.jpg'
+    let(:obscured_filename) { 'sm_***e1.jpg' }
 
+    it 'dispatches a failure notification email with an obscured filename' do
       expect(notification_client).to receive(:send_email).with(
         # Email address and first_name are from our User fixtures
         # form526_document_upload_failure_notification_template_id is a placeholder in settings.yml
@@ -63,7 +63,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
         expect(Rails.logger).to receive(:info).with(
           'Form526DocumentUploadFailureEmail notification dispatched',
           {
-            obscured_filename: 'sm_***e1.jpg',
+            obscured_filename:,
             form526_submission_id: form526_submission.id,
             supporting_evidence_attachment_guid: form_attachment.guid,
             timestamp: exhaustion_time
