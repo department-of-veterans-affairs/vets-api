@@ -328,9 +328,6 @@ features:
   decision_review_delay_evidence:
     actor_type: user
     description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself
-  decision_review_updated_pii_rules:
-    actor_type: user
-    description: Uses udpated rules for when to clear PII from appeals_api records
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.

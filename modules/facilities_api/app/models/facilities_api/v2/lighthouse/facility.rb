@@ -6,11 +6,8 @@ module FacilitiesApi
   class V2::Lighthouse::Facility < Common::Base
     include ActiveModel::Serializers::JSON
 
-    attribute :access, Object
-    attribute :active_status, String
     attribute :address, Object
     attribute :classification, String
-    attribute :detailed_services, Object
     attribute :distance, Float
     attribute :facility_type, String
     attribute :facility_type_prefix, String
@@ -22,7 +19,7 @@ module FacilitiesApi
     attribute :mobile, Boolean
     attribute :name, String
     attribute :operating_status, Object
-    attribute :operational_hours_special_instructions, String
+    attribute :operational_hours_special_instructions, Object
     attribute :parent, Object
     attribute :phone, Object
     attribute :services, Object
@@ -38,7 +35,6 @@ module FacilitiesApi
       set_attributes(fac)
 
       self.id = fac['id']
-      self.access = fac['attributes']['wait_times']
       self.facility_type_prefix, self.unique_id = fac['id'].split('_')
       self.feedback = fac['attributes']['satisfaction']
       self.type = fac['type']

@@ -22,15 +22,6 @@ module AppealsApi
     before_create :assign_metadata, :assign_veteran_icn
     before_update :submit_evidence_to_central_mail!, if: -> { status_changed_to_success? && delay_evidence_enabled? }
 
-    scope :pii_expunge_policy, lambda {
-      where(
-        status: COMPLETE_STATUSES
-      ).and(
-        where('updated_at < ? AND board_review_option IN (?)', 1.week.ago, %w[hearing direct_review])
-        .or(where('updated_at < ? AND board_review_option IN (?)', 91.days.ago, 'evidence_submission'))
-      )
-    }
-
     scope :stuck_unsubmitted, lambda {
       where('created_at < ? AND status IN (?)', 2.hours.ago, %w[pending submitting])
     }
