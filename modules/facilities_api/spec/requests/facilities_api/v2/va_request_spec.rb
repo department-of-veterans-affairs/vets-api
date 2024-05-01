@@ -5,7 +5,6 @@ require 'rails_helper'
 RSpec.shared_examples 'paginated response from request body with expected IDs' do
   |request_params, ids, distances = [], mobile = nil|
   let(:params) { request_params }
-
   let(:request_host) { 'http://www.example.com' }
 
   context request_params do
@@ -50,10 +49,8 @@ RSpec.shared_examples 'paginated response from request body with expected IDs' d
       prev_page = parsed_body[:meta][:pagination][:prev_page]
       next_page = parsed_body[:meta][:pagination][:next_page]
       last_page = parsed_body[:meta][:pagination][:total_pages]
-
       prev_params = params.merge({ page: prev_page, per_page: 10 }).to_query
       next_params = params.merge({ page: next_page, per_page: 10 }).to_query
-
       prev_link = prev_page ? "#{request_host}/facilities_api/v2/va?#{prev_params}" : nil
       next_link = next_page ? "#{request_host}/facilities_api/v2/va?#{next_params}" : nil
 
@@ -122,27 +119,23 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
                       page: 2
                     },
                     %w[vc_0110V nca_808 vha_526 vha_526QA vc_0857MVC vha_561GD vc_0132V vha_630A4 vha_526GB vba_309]
-
     it_behaves_like 'paginated response from request body with expected IDs',
                     {
                       bbox: [-122.786758, 45.451913, -122.440689, 45.64]
                     },
                     %w[vha_648GI vba_348a vba_348 vc_0617V vba_348d vha_648 vba_348h vha_648A4 nca_954 nca_907]
-
     it_behaves_like 'paginated response from request body with expected IDs',
                     {
                       bbox: [-122.786758, 45.451913, -122.440689, 45.64],
                       type: 'health'
                     },
                     %w[vha_648GI vha_648 vha_648A4 vha_648GE]
-
     it_behaves_like 'paginated response from request body with expected IDs',
                     {
                       bbox: [-122.786758, 45.451913, -122.440689, 45.64],
                       type: 'benefits'
                     },
                     %w[vba_348a vba_348 vba_348d vba_348h]
-
     it_behaves_like 'paginated response from request body with expected IDs',
                     {
                       bbox: [-122.786758, 45.451913, -122.440689, 45.64],
@@ -150,7 +143,6 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
                       services: ['DisabilityClaimAssistance']
                     },
                     %w[vba_348]
-
     it_behaves_like 'paginated response from request body with expected IDs',
                     {
                       lat: 33.298639,
@@ -158,7 +150,6 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
                     },
                     %w[vha_644BY vha_644GJ vc_0524V vba_345g vha_644GI vba_345 vha_644QA vc_0517V vha_644GG vha_644QB],
                     [2.08, 6.58, 7.68, 11.72, 16.75, 18.3, 19.59, 19.71, 20.31, 20.95]
-
     it_behaves_like 'paginated response from request body with expected IDs',
                     {
                       lat: 33.298639,
@@ -167,7 +158,6 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
                     },
                     %w[vha_644BY vha_644GJ vc_0524V vba_345g vha_644GI vba_345 vha_644QA vc_0517V vha_644GG vha_644QB],
                     [2.08, 6.58, 7.68, 11.72, 16.75, 18.3, 19.59, 19.71, 20.31, 20.95]
-
     it_behaves_like 'paginated response from request body with expected IDs',
                     {
                       bbox: [-122.786758, 45.451913, -122.440689, 45.64],
@@ -176,19 +166,16 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
                       radius: 50
                     },
                     %w[vha_648GI vba_348a vba_348 vc_0617V vba_348d vha_648 vba_348h vha_648A4 nca_954 nca_907]
-
     it_behaves_like 'paginated response from request body with expected IDs',
                     {
                       state: 'TX'
                     },
                     %w[nca_846 nca_851 nca_854 nca_877 nca_886 nca_916 nca_s1118 nca_s1119 nca_s1120 nca_s1121]
-
     it_behaves_like 'paginated response from request body with expected IDs',
                     {
                       zip: 85_297
                     },
                     ['vha_644BY']
-
     it_behaves_like 'paginated response from request body with expected IDs',
                     {
                       ids: 'vha_442,vha_552,vha_552GB,vha_442GC,vha_442GB,vha_552GA,vha_552GD'
@@ -256,24 +243,10 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
           it { expect(response).to be_successful }
 
           it 'is expected not to populate tmpCovidOnlineScheduling' do
-            parsed_body['data']
-
-            expect(parsed_body['data'][0]['attributes']['tmpCovidOnlineScheduling']).to be_truthy
-
             attributes_covid = parsed_body['data'].collect { |x| x['attributes']['tmpCovidOnlineScheduling'] }
 
-            expect(attributes_covid).to eql([
-                                              true,
-                                              true,
-                                              true,
-                                              false,
-                                              true,
-                                              false,
-                                              false,
-                                              true,
-                                              false,
-                                              false
-                                            ])
+            expect(parsed_body['data'][0]['attributes']['tmpCovidOnlineScheduling']).to be_truthy
+            expect(attributes_covid).to eql([true, true, true, false, true, false, false, true, false, false])
           end
         end
 
