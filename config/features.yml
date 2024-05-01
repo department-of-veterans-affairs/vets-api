@@ -292,15 +292,6 @@ features:
   decision_review_sc_email:
     actor_type: user
     description: Send email notification for successful SC submission
-  decision_review_hlr_pii_expunge_enabled:
-    actor_type: user
-    description: Enables the higher level review PII expunge job
-  decision_review_nod_pii_expunge_enabled:
-    actor_type: user
-    description: Enables the notice of disagreement PII expunge job
-  decision_review_sc_pii_expunge_enabled:
-    actor_type: user
-    description: Enables the supplemental claim PII expunge job
   decision_review_hlr_status_updater_enabled:
     actor_type: user
     description: Enables the Higher Level Review status update batch job
