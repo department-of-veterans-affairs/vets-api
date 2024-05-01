@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_25_232006) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_30_194448) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -606,7 +606,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_25_232006) do
     t.datetime "updated_at", null: false
     t.datetime "flagged_value_updated_at"
     t.index ["ip_address", "representative_id", "flag_type", "flagged_value_updated_at"], name: "index_unique_constraint_fields", unique: true
-    t.index ["ip_address", "representative_id", "flag_type"], name: "index_unique_flagged_veteran_representative", unique: true
   end
 
   create_table "flipper_features", force: :cascade do |t|
@@ -1271,6 +1270,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_25_232006) do
     t.index ["icn", "device_id"], name: "index_veteran_device_records_on_icn_and_device_id", unique: true
   end
 
+  create_table "veteran_onboardings", force: :cascade do |t|
+    t.string "icn"
+    t.boolean "display_onboarding_flow", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["icn"], name: "index_veteran_onboardings_on_icn", unique: true
+  end
+
   create_table "veteran_organizations", id: false, force: :cascade do |t|
     t.string "poa", limit: 3
     t.string "name"
@@ -1406,21 +1413,32 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_25_232006) do
   end
 
   create_table "vye_pending_documents", force: :cascade do |t|
+    t.string "ssn_digest"
+    t.text "ssn_ciphertext"
+    t.string "claim_no_ciphertext"
     t.string "doc_type"
     t.datetime "queue_date"
     t.string "rpo"
+    t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
-    t.text "encrypted_kms_key"
-    t.string "claim_no_ciphertext"
-    t.text "ssn_ciphertext"
-    t.string "ssn_digest"
+    t.index ["ssn_digest"], name: "index_vye_pending_documents_on_ssn_digest"
   end
 
   create_table "vye_user_infos", force: :cascade do |t|
+    t.string "icn"
+    t.string "ssn_digest"
+    t.text "ssn_ciphertext"
     t.text "file_number_ciphertext"
     t.string "suffix"
+    t.text "full_name_ciphertext"
+    t.text "address_line2_ciphertext"
+    t.text "address_line3_ciphertext"
+    t.text "address_line4_ciphertext"
+    t.text "address_line5_ciphertext"
+    t.text "address_line6_ciphertext"
+    t.text "zip_ciphertext"
     t.text "dob_ciphertext"
     t.text "stub_nm_ciphertext"
     t.string "mr_status"
@@ -1436,16 +1454,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_25_232006) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
-    t.string "icn"
-    t.text "ssn_ciphertext"
-    t.string "ssn_digest"
-    t.text "full_name_ciphertext"
-    t.text "address_line2_ciphertext"
-    t.text "address_line3_ciphertext"
-    t.text "address_line4_ciphertext"
-    t.text "address_line5_ciphertext"
-    t.text "address_line6_ciphertext"
-    t.text "zip_ciphertext"
+    t.index ["icn"], name: "index_vye_user_infos_on_icn"
+    t.index ["ssn_digest"], name: "index_vye_user_infos_on_ssn_digest"
   end
 
   create_table "vye_user_profiles", force: :cascade do |t|
