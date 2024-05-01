@@ -19,11 +19,11 @@ class SupportingEvidenceAttachment < FormAttachment
   end
 
   def converted_filename
-    JSON.parse(file_data)['converted_filename']
+    parsed_file_data['converted_filename']
   end
 
   def original_filename
-    JSON.parse(file_data)['filename']
+    parsed_file_data['filename']
   end
 
   # Obfuscates the attachment's file name for use in mailers, so we don't email PII
