@@ -34,6 +34,16 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   validate :validate_686_form_data, on: :run_686_form_jobs
   validate :address_exists
 
+  attr_accessor :formV2
+
+  after_initialize do
+    self.form_id = if Flipper.enabled?(:va_dependents_v2)
+                     formV2 || form_id == '686C-674V2' ? '686C-674V2' : self.class::FORM.upcase
+                   else
+                     self.class::FORM.upcase
+                   end
+  end
+
   def upload_pdf(form_id, doc_type: '148')
     uploaded_forms ||= []
     return if uploaded_forms.include? form_id
@@ -127,6 +137,14 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     self.form_id = form_id
 
     PdfFill::Filler.fill_form(self, nil, { created_at: })
+  end
+
+  def form_matches_schema
+    return unless form_is_string
+
+    JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[form_id], parsed_form).each do |v|
+      errors.add(:form, v.to_s)
+    end
   end
 
   private
