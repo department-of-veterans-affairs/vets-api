@@ -20,9 +20,7 @@ module ClaimsApi
           poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
           data = poa_code.blank? ? {} : representative(poa_code).merge({ code: poa_code })
           if poa_code.blank?
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
-              detail: "Could not find Power of Attorney with id: #{params[:id]}"
-            )
+            render json: { data: }
           else
             render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(data, root: :data)
           end
@@ -126,7 +124,11 @@ module ClaimsApi
 
           individuals = ::Veteran::Service::Representative.where('? = ANY(poa_codes)',
                                                                  poa_code).order(created_at: :desc)
-          return {} if individuals.blank?
+          if individuals.blank?
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "Could not retrieve Power of Attorney with code: #{poa_code}"
+            )
+          end
 
           if individuals.pluck(:representative_id).uniq.count > 1
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
