@@ -126,11 +126,10 @@ module CentralMail
     def upload_to_lighthouse
       @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
 
-      metadata = generate_metadata
       payload = {
         upload_url: @lighthouse_service.location,
         file: { file: @pdf_path, file_name: @pdf_path.split('/').last },
-        metadata: metadata.to_json,
+        metadata: generate_metadata.to_json,
         attachments: []
       }
 
