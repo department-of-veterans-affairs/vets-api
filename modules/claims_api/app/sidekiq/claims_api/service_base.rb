@@ -91,7 +91,7 @@ module ClaimsApi
     def get_error_text(error_message)
       return error_message if error_message.is_a? String
 
-      error_message&.dig(:messages, 0, :text) || error_message&.dig(:text)
+      error_message&.dig(:messages, 0, :text) || error_message&.dig(:text) || error_message&.dig(:message)
     end
 
     def get_error_status_code(error)
