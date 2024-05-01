@@ -44,13 +44,12 @@ module VAOS
       private
 
       def log_tags(env, start_time, response_env = nil)
-        anon_uri = VAOS::Anonymizers.anonymize_uri_icn(env.url)
         {
           jti: jti(env),
           status: response_env&.status,
           duration: Time.current - start_time,
           # service_name: service_name || 'VAOS Generic', # Need to figure out a clean way to do this with headers
-          url: "(#{env.method.upcase}) #{anon_uri}"
+          url: "(#{env.method.upcase}) #{env.url}"
         }
       end
 

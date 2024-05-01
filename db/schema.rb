@@ -606,6 +606,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_30_194448) do
     t.datetime "updated_at", null: false
     t.datetime "flagged_value_updated_at"
     t.index ["ip_address", "representative_id", "flag_type", "flagged_value_updated_at"], name: "index_unique_constraint_fields", unique: true
+    t.index ["ip_address", "representative_id", "flag_type"], name: "index_unique_flagged_veteran_representative", unique: true
   end
 
   create_table "flipper_features", force: :cascade do |t|
@@ -1413,32 +1414,21 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_30_194448) do
   end
 
   create_table "vye_pending_documents", force: :cascade do |t|
-    t.string "ssn_digest"
-    t.text "ssn_ciphertext"
-    t.string "claim_no_ciphertext"
     t.string "doc_type"
     t.datetime "queue_date"
     t.string "rpo"
-    t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
-    t.index ["ssn_digest"], name: "index_vye_pending_documents_on_ssn_digest"
+    t.text "encrypted_kms_key"
+    t.string "claim_no_ciphertext"
+    t.text "ssn_ciphertext"
+    t.string "ssn_digest"
   end
 
   create_table "vye_user_infos", force: :cascade do |t|
-    t.string "icn"
-    t.string "ssn_digest"
-    t.text "ssn_ciphertext"
     t.text "file_number_ciphertext"
     t.string "suffix"
-    t.text "full_name_ciphertext"
-    t.text "address_line2_ciphertext"
-    t.text "address_line3_ciphertext"
-    t.text "address_line4_ciphertext"
-    t.text "address_line5_ciphertext"
-    t.text "address_line6_ciphertext"
-    t.text "zip_ciphertext"
     t.text "dob_ciphertext"
     t.text "stub_nm_ciphertext"
     t.string "mr_status"
@@ -1454,8 +1444,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_30_194448) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
-    t.index ["icn"], name: "index_vye_user_infos_on_icn"
-    t.index ["ssn_digest"], name: "index_vye_user_infos_on_ssn_digest"
+    t.string "icn"
+    t.text "ssn_ciphertext"
+    t.string "ssn_digest"
+    t.text "full_name_ciphertext"
+    t.text "address_line2_ciphertext"
+    t.text "address_line3_ciphertext"
+    t.text "address_line4_ciphertext"
+    t.text "address_line5_ciphertext"
+    t.text "address_line6_ciphertext"
+    t.text "zip_ciphertext"
   end
 
   create_table "vye_user_profiles", force: :cascade do |t|

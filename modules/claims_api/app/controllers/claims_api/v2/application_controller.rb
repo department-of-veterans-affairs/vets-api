@@ -107,6 +107,14 @@ module ClaimsApi
         end
       end
 
+      def edipi_check
+        if target_veteran.edipi.blank?
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail:
+            "Unable to locate Veteran's EDIPI in Master Person Index (MPI). " \
+            'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
+        end
+      end
+
       def claims_v2_logging(tag = 'traceability', level: :info, message: nil)
         ClaimsApi::Logger.log(tag,
                               cid: token&.payload&.[]('cid'),

@@ -46,6 +46,29 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
     end
 
+    context 'existing organizations' do
+      let(:org) do
+        create(:organization, poa: '091', name: 'Testing', phone: '222-555-5555', state: 'ZZ', city: 'New York')
+      end
+
+      it 'only updates name, phone, and state' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data') do
+          expect(org.name).to eq('Testing')
+          expect(org.phone).to eq('222-555-5555')
+          expect(org.state).to eq('ZZ')
+          expect(org.city).to eq('New York')
+
+          Veteran::VSOReloader.new.reload_vso_reps
+          org.reload
+
+          expect(org.name).to eq('African American PTSD Association')
+          expect(org.phone).to eq('253-589-0766')
+          expect(org.state).to eq('WA')
+          expect(org.city).to eq('New York')
+        end
+      end
+    end
+
     describe "storing a VSO's middle initial" do
       it 'stores the middle initial if it exists' do
         VCR.use_cassette('veteran/ogc_vso_rep_data') do
