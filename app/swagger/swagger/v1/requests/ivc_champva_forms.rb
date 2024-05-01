@@ -28,7 +28,7 @@ class Swagger::V1::Requests::IvcChampvaForms
               key :type, :string
               key :description, 'List of file names associated with the form'
             end
-            key :example, ['12345678-1234-5678-1234-567812345678_vha_7959F1.pdf', '12345678-1234-5678-1234-567812345678_vha_7959F2.pdf']
+            key :example, ['12345678-1234_vha_7959F1.pdf', '12345678-1234_vha_7959F2.pdf']
           end
           property :status do
             key :type, :string
