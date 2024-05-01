@@ -1407,13 +1407,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_30_194448) do
     t.text "chk_digit_ciphertext"
     t.text "bank_name_ciphertext"
     t.text "bank_phone_ciphertext"
+    t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_info_id"], name: "index_vye_direct_deposit_changes_on_user_info_id"
-    t.text "encrypted_kms_key"
-    t.string "claim_no_ciphertext"
-    t.text "ssn_ciphertext"
-    t.string "ssn_digest"
   end
 
   create_table "vye_pending_documents", force: :cascade do |t|
@@ -1423,12 +1420,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_30_194448) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
+    t.text "encrypted_kms_key"
+    t.string "claim_no_ciphertext"
+    t.text "ssn_ciphertext"
+    t.string "ssn_digest"
   end
 
   create_table "vye_user_infos", force: :cascade do |t|
     t.text "file_number_ciphertext"
     t.string "suffix"
-    t.text "zip_ciphertext"
     t.text "dob_ciphertext"
     t.text "stub_nm_ciphertext"
     t.string "mr_status"
@@ -1446,7 +1446,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_30_194448) do
     t.integer "user_profile_id"
     t.string "icn"
     t.text "ssn_ciphertext"
-
     t.string "ssn_digest"
     t.text "full_name_ciphertext"
     t.text "address_line2_ciphertext"
