@@ -31,6 +31,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
 
   describe '#perform' do
     let(:formatted_submit_date) do
+      # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
       form526_submission.created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
     end
 
