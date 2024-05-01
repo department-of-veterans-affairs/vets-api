@@ -1227,7 +1227,7 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#onboarding - feature toggle enabled' do
+  describe '#onboarding' do
     let(:user) { create(:user, icn: identity_icn) }
     let(:identity_icn) { 'some_identity_icn' }
 
@@ -1243,17 +1243,9 @@ RSpec.describe User, type: :model do
       user.onboarding.display_onboarding_flow = false
       expect(user.show_onboarding_flow_on_login).to be false
     end
-  end
-
-  describe '#onboarding - feature toggle disabled' do
-    let(:user) { create(:user, icn: identity_icn) }
-    let(:identity_icn) { 'some_identity_icn' }
-
-    before do
-        Flipper.disable(:veteran_onboarding_beta_flow)
-    end
 
     it 'show_onboarding_flow_on_login returns false when feature flag is disabled, even if display_onboarding_flow is true' do
+      Flipper.disable(:veteran_onboarding_beta_flow)
       expect(user.show_onboarding_flow_on_login).to be_falsey
     end
 
