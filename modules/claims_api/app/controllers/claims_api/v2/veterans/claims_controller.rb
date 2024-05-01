@@ -262,20 +262,20 @@ module ClaimsApi
 
         def get_bgs_phase_completed_dates(data)
           lc_status_array =
-            [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.compact
-          return {} if lc_status_array.first.nil?
+            [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten&.compact
+          return {} if lc_status_array&.first&.nil?
 
-          max_completed_phase = lc_status_array.first[:phase_type_change_ind].split('').last
-          return {} if max_completed_phase.downcase.eql?('n')
+          max_completed_phase = lc_status_array&.first&.[](:phase_type_change_ind)&.split('')&.last
+          return {} if max_completed_phase&.downcase.eql?('n')
 
           {}.tap do |phase_date|
-            lc_status_array.reverse.map do |phase|
-              completed_phase_number = phase[:phase_type_change_ind].split('').first
-              if completed_phase_number < max_completed_phase
+            lc_status_array&.reverse&.map do |phase|
+              completed_phase_number = phase[:phase_type_change_ind]&.split('')&.first
+              if completed_phase_number < (max_completed_phase.nil? ? 0 : max_completed_phase)
                 phase_date["phase#{completed_phase_number}CompleteDate"] = date_present(phase[:phase_chngd_dt])
               end
             end
-          end.sort.reverse.to_h
+          end&.sort&.reverse.to_h
         end
 
         def extract_date(bgs_details)
