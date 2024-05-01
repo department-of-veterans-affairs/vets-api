@@ -3,7 +3,7 @@
 class Swagger::V1::Requests::IvcChampvaForms
   include Swagger::Blocks
 
-  swagger_path '/v1/ivc_champva_forms/status_updates' do
+  swagger_path '/ivc_champva/v1/forms/status_updates' do
     operation :post do
       extend Swagger::Responses::AuthenticationError
 
