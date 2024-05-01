@@ -3,6 +3,7 @@
   "applicant_ssn": "234234234",
   "applicant_name": {
     "first": "Jimmy",
+    "middle": "I",
     "last": "Alvin"
   },
   "applicant_dob": "1958-01-01",
@@ -13,6 +14,7 @@
     "state": "AK",
     "postal_code": "12323"
   },
+  "has_other_health_insurance": true,
   "applicant_phone": "3331233456",
   "applicant_medicare_status": true,
   "applicant_medicare_part_a_carrier": "Test A Carrier",
@@ -32,7 +34,7 @@
   "applicant_primary_has_prescription": true,
   "applicant_primary_eob": "noEob",
   "applicant_primary_insurance_type": { "hmo": true, "medigap": true },
-  "primary_medigap_plan": "medigapPlanA",
+  "primary_medigap_plan": "A",
   "primary_additional_comments": "Additional primary comment",
   "applicant_has_secondary": true,
   "applicant_secondary_provider": "Secondary Provider",
@@ -42,7 +44,7 @@
   "applicant_secondary_has_prescription": true,
   "applicant_secondary_eob": "hasEob",
   "applicant_secondary_insurance_type": { "ppo": true, "medigap": true },
-  "secondary_medigap_plan": "medigapPlanM",
+  "secondary_medigap_plan": "M",
   "secondary_additional_comments": "Additional secondary comment",
   "certifier_relationship": {
     "relationship_to_applicants": "other",
