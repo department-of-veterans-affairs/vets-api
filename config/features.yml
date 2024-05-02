@@ -108,6 +108,10 @@ features:
     actor_type: user
     description: Enables the health care check-in experiences to show the pre-check-in experience.
     enable_in_development: true
+  check_in_experience_upcoming_appointments_enabled:
+    actor_type: user
+    description: Enables the feature to show upcoming appointments to the veterans
+    enable_in_development: true
   check_in_experience_translation_disclaimer_spanish_enabled:
     actor_type: user
     description: Enables disclaimer for possible untranslated content on spanish pages
@@ -328,9 +332,6 @@ features:
   decision_review_delay_evidence:
     actor_type: user
     description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself
-  decision_review_updated_pii_rules:
-    actor_type: user
-    description: Uses udpated rules for when to clear PII from appeals_api records
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -376,6 +377,7 @@ features:
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
+    enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
@@ -674,6 +676,10 @@ features:
     actor_type: user
     description: Enables personalized content on the My HealtheVet landing page.
     enable_in_development: true
+  mhv_secondary_navigation_enabled:
+    actor_type: user
+    description: Enables the My HealtheVet secondary navigation
+    enable_in_development: true
   mhv_secure_messaging_to_va_gov_release:
     actor_type: user
     description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
@@ -685,6 +691,10 @@ features:
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
+    enable_in_development: true
+  mhv_secure_messaging_remove_lefthand_nav:
+    actor_type: user
+    description: Disables/Enables Secure Messaging lefthand navigation for new navigation solution
     enable_in_development: true
   mhv_sm_session_policy:
     actor_type: user
@@ -1181,6 +1191,9 @@ features:
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
+  veteran_onboarding_beta_flow:
+    actor_type: user
+    description: Conditionally display the new veteran onboarding flow to user
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
@@ -1404,3 +1417,7 @@ features:
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
+  accredited_representative_portal_pilot:
+    actor_type: user
+    description: Enable the Accredited Representative Portal for the pilot
+    enable_in_development: true

@@ -3,6 +3,8 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
+      before_action :verify_pilot_enabled_for_user
+
       def accept
         id = params[:proc_id]
         result = update_poa_request(id, 'Accepted')

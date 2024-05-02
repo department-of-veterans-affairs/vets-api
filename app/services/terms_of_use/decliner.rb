@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'terms_of_use/exceptions'
+require 'sidekiq/attr_package'
 
 module TermsOfUse
   class Decliner
@@ -38,6 +39,7 @@ module TermsOfUse
     end
 
     def update_sign_up_service
+      Rails.logger.info('[TermsOfUse] [Decliner] attr_package key', { icn:, attr_package_key: })
       SignUpServiceUpdaterJob.perform_async(attr_package_key)
     end
 
@@ -47,7 +49,7 @@ module TermsOfUse
     end
 
     def attr_package_key
-      Sidekiq::AttrPackage.create(icn:, signature_name: common_name, version:, expires_in: 2.days)
+      @attr_package_key ||= Sidekiq::AttrPackage.create(icn:, signature_name: common_name, version:, expires_in: 2.days)
     end
   end
 end
