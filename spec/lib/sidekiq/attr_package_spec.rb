@@ -16,10 +16,11 @@ RSpec.describe Sidekiq::AttrPackage do
 
   describe '.create' do
     let(:attrs) { { foo: 'bar' } }
-    let(:expected_key) { Digest::SHA256.hexdigest(attrs.to_json) }
+    let(:expected_key) { SecureRandom.hex(32) }
 
     before do
       allow(redis_double).to receive(:set)
+      allow(SecureRandom).to receive(:hex).and_return(expected_key)
     end
 
     context 'when no expiration is provided' do

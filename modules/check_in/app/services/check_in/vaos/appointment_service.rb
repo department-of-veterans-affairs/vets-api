@@ -15,7 +15,7 @@ module CheckIn
 
         with_monitoring do
           response = perform(:get, appointments_base_path, params, headers)
-          Oj.load(response.body).with_indifferent_access
+          response.body
         end
       end
 
