@@ -17,6 +17,18 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
   end
 
   describe 'GET `index`' do
+    context 'when feature flag is off' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:check_in_experience_upcoming_appointments_enabled).and_return(false)
+      end
+
+      it 'returns not found' do
+        get "/check_in/v2/sessions/#{id}/appointments"
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
     context 'when session does not exist' do
       let(:resp) do
         {
