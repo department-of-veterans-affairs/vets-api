@@ -9,10 +9,10 @@ RSpec.configure do |config|
     metadata[:json_api] = true
   end
 
-  config.after :each, type: :request,json_api: true do |example|
+  config.after :each, json_api: true, type: :request do |example|
     content_type = response.header['Content-Type']
 
-    if content_type != 'application/pdf' && response.body.present? && example.metadata[:json_api] &&
+    if content_type != 'application/pdf' && response.body.present? &&
        response.body != 'null' && !example.metadata[:skip_json_api_validation]
 
       expect(JSONAPI.parse_response!(response.parsed_body)).to eq(nil)
