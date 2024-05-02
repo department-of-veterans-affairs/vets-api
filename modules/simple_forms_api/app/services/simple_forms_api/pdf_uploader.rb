@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'simple_forms_api_submission/service'
 
 module SimpleFormsApi
