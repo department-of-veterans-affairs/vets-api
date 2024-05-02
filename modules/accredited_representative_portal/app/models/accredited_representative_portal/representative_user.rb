@@ -24,5 +24,9 @@ module AccreditedRepresentativePortal
     alias_attribute :mhv_icn, :icn
 
     validates :uuid, :email, :first_name, :last_name, :icn, presence: true
+
+    def flipper_id
+      email&.downcase
+    end
   end
 end
