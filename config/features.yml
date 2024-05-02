@@ -676,6 +676,10 @@ features:
     actor_type: user
     description: Enables personalized content on the My HealtheVet landing page.
     enable_in_development: true
+  mhv_secondary_navigation_enabled:
+    actor_type: user
+    description: Enables the My HealtheVet secondary navigation
+    enable_in_development: true
   mhv_secure_messaging_to_va_gov_release:
     actor_type: user
     description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
