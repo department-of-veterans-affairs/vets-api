@@ -270,8 +270,14 @@ module ClaimsApi
 
           {}.tap do |phase_date|
             lc_status_array&.reverse&.map do |phase|
-              completed_phase_number = phase[:phase_type_change_ind]&.split('')&.first
-              if completed_phase_number < (max_completed_phase.nil? ? 0 : max_completed_phase)
+              completed_phase_number = if phase[:phase_type_change_ind]&.split('')&.first.nil?
+                                         0
+                                       else
+                                         phase[:phase_type_change_ind]&.split('')&.first&.to_i
+                                       end
+              next if completed_phase_number == 'N'
+
+              if completed_phase_number.to_i < (max_completed_phase.nil? ? 0 : max_completed_phase&.to_i)
                 phase_date["phase#{completed_phase_number}CompleteDate"] = date_present(phase[:phase_chngd_dt])
               end
             end
