@@ -83,9 +83,9 @@ module ClaimsApi
 
       def start_docker_container_job(auto_claim, perform_async = true) # rubocop:disable Style/OptionalBooleanParameter
         if perform_async
-          docker_contaner_service.perform_async(auto_claim)
+          docker_container_service.perform_async(auto_claim)
         else
-          docker_contaner_service.new.perform(auto_claim)
+          docker_container_service.new.perform(auto_claim)
         end
       end
 

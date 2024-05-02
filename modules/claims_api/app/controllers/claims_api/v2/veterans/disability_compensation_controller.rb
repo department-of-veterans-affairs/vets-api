@@ -100,6 +100,9 @@ module ClaimsApi
           # This kicks off the first of three jobs required to fully establish the claim
           process_claim(auto_claim, false) unless Flipper.enabled? :claims_load_testing
 
+          auto_claim.reload
+          auto_claim.form_data[:claimId] = auto_claim.evss_id
+
           render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
             auto_claim, root: :data
           ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)

@@ -54,7 +54,10 @@ module ClaimsApi
 
       auto_claim.evss_response = []
       error_messages = get_error_message(error)
-      messages = error_messages&.dig(0, :messages).presence ? error_messages[:messages] : [error_messages]
+      messages = []
+      messages << (
+        valid_json?(error_messages) ? JSON.parse(error_messages).deep_symbolize_keys : error_messages
+      )
 
       messages.flatten.uniq.each do |error_message|
         error_key = get_error_key(error_message)
@@ -85,7 +88,8 @@ module ClaimsApi
     def get_error_key(error_message)
       return error_message if error_message.is_a? String
 
-      error_message&.dig(:messages, 0, :key) || error_message&.dig(:key)
+      error_message&.dig(:messages, 0, :key) || error_message&.dig(:key) ||
+        error_message&.dig(:errors, 0, :title)
     end
 
     def get_error_text(error_message)
@@ -155,6 +159,13 @@ module ClaimsApi
       elsif poa_form_data.key?('representative') # V2 2122a
         poa_form_data['representative']['poaCode']
       end
+    end
+
+    def valid_json?(json)
+      JSON.parse(json)
+      true
+    rescue JSON::ParserError, TypeError
+      false
     end
   end
 end
