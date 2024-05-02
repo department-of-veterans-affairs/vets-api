@@ -24,7 +24,7 @@ module V0
     end
 
     def accept_and_provision
-      terms_of_use_agreement = acceptor(async: false).perform!
+      terms_of_use_agreement = acceptor(sync: true).perform!
       if terms_of_use_agreement.accepted? && provisioner.perform
         create_cerner_cookie
         recache_user unless terms_code_temporary_auth?
@@ -58,12 +58,12 @@ module V0
 
     private
 
-    def acceptor(async: true)
+    def acceptor(sync: false)
       TermsOfUse::Acceptor.new(
         user_account: @user_account,
         common_name:,
         version: params[:version],
-        async:
+        sync:
       )
     end
 

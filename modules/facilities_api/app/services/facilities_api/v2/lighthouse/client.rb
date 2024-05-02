@@ -43,8 +43,6 @@ module FacilitiesApi
             filtered_params.merge!(params.slice(:state))
           elsif params.key?(:zip)
             filtered_params.merge!(params.slice(:zip))
-          elsif params.key?(:facilityIds)
-            filtered_params.merge!(params.slice(:facilityIds))
           end
 
           response = perform(:get, '/services/va_facilities/v1/facilities', filtered_params)
