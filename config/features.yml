@@ -1413,3 +1413,7 @@ features:
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
+  accredited_representative_portal_pilot:
+    actor_type: user
+    description: Enable the Accredited Representative Portal for the pilot
+    enable_in_development: true
