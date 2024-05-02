@@ -1271,6 +1271,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_01_183550) do
     t.index ["icn", "device_id"], name: "index_veteran_device_records_on_icn_and_device_id", unique: true
   end
 
+  create_table "veteran_onboardings", force: :cascade do |t|
+    t.string "icn"
+    t.boolean "display_onboarding_flow", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["icn"], name: "index_veteran_onboardings_on_icn", unique: true
+  end
+
   create_table "veteran_organizations", id: false, force: :cascade do |t|
     t.string "poa", limit: 3
     t.string "name"
