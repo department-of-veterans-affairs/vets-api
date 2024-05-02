@@ -53,6 +53,40 @@ RSpec.describe 'Disability Claims', type: :request do
         end
       end
 
+      describe 'with updated headers requirements' do
+        let(:no_edipi_target_veteran) do
+          OpenStruct.new(
+            icn: '1012832025V743496',
+            first_name: 'Wesley',
+            last_name: 'Ford',
+            birth_date: '19630211',
+            loa: { current: 3, highest: 3 },
+            edipi: nil,
+            ssn: '796043735',
+            participant_id: '600061742',
+            mpi: OpenStruct.new(
+              icn: '1012832025V743496',
+              profile: OpenStruct.new(ssn: '796043735')
+            )
+          )
+        end
+
+        context 'without the EDIPI value present' do
+          it 'does not allow the submit to occur' do
+            mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
+                .to receive(:target_veteran).and_return(no_edipi_target_veteran)
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response.parsed_body['errors'][0]['detail']).to eq(
+                "Unable to locate Veteran's EDIPI in Master Person Index (MPI). " \
+                'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
+              )
+            end
+          end
+        end
+      end
+
       describe 'schema catches claimProcessType error' do
         context 'when something other than an enum option is used' do
           let(:claim_process_type) { 'claim_test' }
@@ -3836,7 +3870,7 @@ RSpec.describe 'Disability Claims', type: :request do
     end
   end
 
-  describe 'POST #submit_form_526 not using md5 lookup' do
+  describe 'POST #submit not using md5 lookup' do
     let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do

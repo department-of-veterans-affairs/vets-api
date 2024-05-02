@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ruby/setup-ruby@22fdc77bf4148f810455b226c90fb81b5cbc00a7
+      - uses: ruby/setup-ruby@1198b074305f9356bd56dd4b311757cc0dab2f1c
         with:
           bundler-cache: true
 
@@ -54,10 +54,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           build-args: |
-            sidekiq_license=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-            userid=${{ env.VETS_API_USER_ID }}
+            BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+            USER_ID=${{ env.VETS_API_USER_ID }}
           context: .
-          target: builder
           push: false
           load: true
           tags: vets-api
@@ -66,13 +65,13 @@ jobs:
 
       - name: Setup Database
         run: |
-             docker-compose -f docker-compose.test.yml run vets-api bash \
-             -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -n 13 -e 'bin/rails db:reset'"
+             docker-compose -f docker-compose.test.yml run web bash \
+             -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 13 -e 'bin/rails db:reset'"
 
       - name: Run Specs
         timeout-minutes: 20
         run: |
-             docker-compose -f docker-compose.test.yml run vets-api bash \
+             docker-compose -f docker-compose.test.yml run web bash \
              -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 13 -o '--color --tty'"
 
       - name: Upload Coverage Report

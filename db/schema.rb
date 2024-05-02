@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_24_132512) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_02_175753) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -606,6 +606,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_24_132512) do
     t.datetime "updated_at", null: false
     t.datetime "flagged_value_updated_at"
     t.index ["ip_address", "representative_id", "flag_type", "flagged_value_updated_at"], name: "index_unique_constraint_fields", unique: true
+    t.index ["ip_address", "representative_id", "flag_type"], name: "index_unique_flagged_veteran_representative", unique: true
   end
 
   create_table "flipper_features", force: :cascade do |t|
@@ -1221,17 +1222,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_24_132512) do
     t.index ["user_account_id"], name: "index_va_notify_in_progress_reminders_sent_on_user_account_id"
   end
 
-  create_table "vba_documents_git_items", force: :cascade do |t|
-    t.string "url", null: false
-    t.jsonb "git_item"
-    t.boolean "notified", default: false
-    t.string "label"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["notified", "label"], name: "index_vba_documents_git_items_on_notified_and_label"
-    t.index ["url"], name: "index_vba_documents_git_items_on_url", unique: true
-  end
-
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
     t.integer "month", null: false
     t.integer "year", null: false
@@ -1268,6 +1258,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_24_132512) do
     t.datetime "updated_at", null: false
     t.index ["device_id"], name: "index_veteran_device_records_on_device_id"
     t.index ["icn", "device_id"], name: "index_veteran_device_records_on_icn_and_device_id", unique: true
+  end
+
+  create_table "veteran_onboardings", force: :cascade do |t|
+    t.string "icn"
+    t.boolean "display_onboarding_flow", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["icn"], name: "index_veteran_onboardings_on_icn", unique: true
   end
 
   create_table "veteran_organizations", id: false, force: :cascade do |t|
@@ -1369,10 +1367,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_24_132512) do
   create_table "vye_awards", force: :cascade do |t|
     t.integer "user_info_id"
     t.string "cur_award_ind"
-    t.date "award_begin_date"
-    t.date "award_end_date"
     t.integer "training_time"
-    t.date "payment_date"
     t.decimal "monthly_rate"
     t.string "begin_rsn"
     t.string "end_rsn"
@@ -1381,6 +1376,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_24_132512) do
     t.string "type_hours"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.date "award_begin_date"
+    t.date "award_end_date"
+    t.date "payment_date"
     t.index ["user_info_id"], name: "index_vye_awards_on_user_info_id"
   end
 
@@ -1390,8 +1388,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_24_132512) do
     t.date "transact_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["export_ready"], name: "index_vye_bdn_clones_on_export_ready", unique: true, where: "(export_ready IS NOT NULL)"
-    t.index ["is_active"], name: "index_vye_bdn_clones_on_is_active", unique: true, where: "(is_active IS NOT NULL)"
+    t.index ["export_ready"], name: "index_vye_bdn_clones_on_export_ready"
+    t.index ["is_active"], name: "index_vye_bdn_clones_on_is_active"
   end
 
   create_table "vye_direct_deposit_changes", force: :cascade do |t|
@@ -1416,11 +1414,11 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_24_132512) do
 
   create_table "vye_pending_documents", force: :cascade do |t|
     t.string "doc_type"
-    t.date "queue_date"
     t.string "rpo"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
+    t.date "queue_date"
   end
 
   create_table "vye_user_infos", force: :cascade do |t|
@@ -1430,9 +1428,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_24_132512) do
     t.text "stub_nm_ciphertext"
     t.string "mr_status"
     t.string "rem_ent"
-    t.date "cert_issue_date"
-    t.date "del_date"
-    t.date "date_last_certified"
     t.integer "rpo_code"
     t.string "fac_code"
     t.decimal "payment_amt"
@@ -1441,6 +1436,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_24_132512) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
+    t.date "cert_issue_date"
+    t.date "del_date"
+    t.date "date_last_certified"
     t.integer "bdn_clone_id"
     t.integer "bdn_clone_line"
     t.boolean "bdn_clone_active"

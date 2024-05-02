@@ -50,13 +50,7 @@ module AppealsApi
     end
 
     def records_to_be_expunged
-      @records_to_be_expunged ||= if Flipper.enabled?(:decision_review_updated_pii_rules)
-                                    form_type.with_expired_pii
-                                  else
-                                    form_type.where.not(form_data_ciphertext: nil)
-                                             .or(form_type.where.not(auth_headers_ciphertext: nil))
-                                             .pii_expunge_policy
-                                  end
+      @records_to_be_expunged ||= form_type.with_expired_pii
     end
   end
 end

@@ -6,6 +6,7 @@ require 'evss/disability_compensation_form/metrics'
 require 'evss/disability_compensation_form/form4142_processor'
 require 'logging/third_party_transaction'
 
+# TODO: Update Namespace once we are 100% done with CentralMail here
 module CentralMail
   class SubmitForm4142Job < EVSS::DisabilityCompensationForm::Job
     extend Logging::ThirdPartyTransaction::MethodWrapper
@@ -16,22 +17,17 @@ module CentralMail
 
     wrap_with_logging(
       :upload_to_central_mail,
+      :upload_to_lighthouse,
       additional_instance_logs: {
         submission_id: [:submission_id]
       }
     )
 
-    STATSD_KEY_PREFIX = 'worker.evss.submit_form4142'
+    CENTRAL_MAIL_STATSD_KEY_PREFIX = 'worker.evss.submit_form4142'
+    LIGHTHOUSE_STATSD_KEY_PREFIX = 'worker.lighthouse.submit_form4142'
 
-    # Sidekiq has built in exponential back-off functionality for retries
-    # A max retry attempt of 10 will result in a run time of ~8 hours
-    # This job is invoked from 526 background job, ICMHS is reliable
-    # and hence this value is set at a lower value
-    RETRY = 10
-
-    sidekiq_options retry: RETRY
-
-    class CentralMailResponseError < Common::Exceptions::BackendServiceException; end
+    class BenefitsIntake4142Error   < StandardError; end
+    class CentralMailResponseError  < Common::Exceptions::BackendServiceException; end
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']
@@ -56,7 +52,13 @@ module CentralMail
         bgjob_errors: bgjob_errors.merge(new_error)
       )
 
-      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+      api_statsd_key = if Flipper.enabled?(:disability_compensation_form4142_supplemental)
+                         LIGHTHOUSE_STATSD_KEY_PREFIX
+                       else
+                         CENTRAL_MAIL_STATSD_KEY_PREFIX
+                       end
+
+      StatsD.increment("#{api_statsd_key}.exhausted")
 
       ::Rails.logger.warn(
         'Submit Form 4142 Retries exhausted',
@@ -90,7 +92,7 @@ module CentralMail
 
       with_tracking('Form4142 Submission', submission.saved_claim_id, submission.id) do
         @pdf_path = processor.pdf_path
-        response = upload_to_central_mail
+        response = upload_to_api
         handle_service_exception(response) if response.present? && response.status.between?(201, 600)
       end
     rescue => e
@@ -109,8 +111,61 @@ module CentralMail
       @processor ||= EVSS::DisabilityCompensationForm::Form4142Processor.new(submission, jid)
     end
 
+    def upload_to_api
+      if Flipper.enabled?(:disability_compensation_form4142_supplemental)
+        upload_to_lighthouse
+      else
+        upload_to_central_mail
+      end
+    end
+
     def upload_to_central_mail
       CentralMail::Service.new.upload(processor.request_body)
+    end
+
+    def upload_to_lighthouse
+      @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
+
+      payload = {
+        upload_url: @lighthouse_service.location,
+        file: { file: @pdf_path, file_name: @pdf_path.split('/').last },
+        metadata: generate_metadata.to_json,
+        attachments: [] # [ wipn8923 ] TODO: is this better than nil?
+      }
+
+      @lighthouse_service.upload_doc(**payload)
+    end
+
+    def generate_metadata
+      vet_name = submission.full_name
+      filenumber = submission.auth_headers['va_eauth_birlsfilenumber']
+
+      metadata = {
+        'veteranFirstName' => vet_name[:first],
+        'veteranLastName' => vet_name[:last],
+        'zipCode' => determine_zip,
+        'source' => 'Form526Submission va.gov',
+        'docType' => '4142',
+        'businessLine' => '',
+        'fileNumber' => filenumber # wipn8923 TODO: validate that this is correct
+      }
+
+      SimpleFormsApiSubmission::MetadataValidator
+        .validate(metadata, zip_code_is_us_based: usa_based?)
+    end
+
+    def determine_zip
+      submission.form.dig('form526', 'form526', 'veteran', 'currentMailingAddress', 'zipFirstFive') ||
+        submission.form.dig('form526', 'form526', 'veteran', 'mailingAddress', 'zipFirstFive') ||
+        '00000'
+    end
+
+    def usa_based?
+      country =
+        submission.form.dig('form526', 'form526', 'veteran', 'currentMailingAddress', 'country') ||
+        submission.form.dig('form526', 'form526', 'veteran', 'mailingAddress', 'country')
+
+      %w[USA US].include?(country&.upcase)
     end
 
     # Cannot move job straight to dead queue dynamically within an executing job
