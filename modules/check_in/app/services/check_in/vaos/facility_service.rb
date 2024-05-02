@@ -39,6 +39,13 @@ module CheckIn
         end
       end
 
+      def get_clinic(clinic_id:)
+        with_monitoring do
+          response = perform(:get, facilities_base_path + "/clinics/#{clinic_id}", {}, headers)
+          response.body
+        end
+      end
+
       def config
         CheckIn::VAOS::Configuration.instance
       end

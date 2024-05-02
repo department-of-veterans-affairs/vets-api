@@ -6,6 +6,7 @@ describe CheckIn::VAOS::FacilityService do
   subject { described_class }
 
   let(:facility_id) { '500' }
+  let(:clinic_id) { '6' }
 
   describe '.build' do
     it 'returns an instance of Service' do
@@ -55,6 +56,55 @@ describe CheckIn::VAOS::FacilityService do
       end
     end
 
+    context 'when vaos clinic api returns successful response' do
+      let(:clinic_response) do
+        {
+          data: {
+            vistaSite: 534,
+            clinicId: clinic_id,
+            serviceName: 'CHS NEUROSURGERY VARMA',
+            friendlyName: 'CHS NEUROSURGERY VARMA',
+            medicalService: 'SURGERY',
+            physicalLocation: '1ST FL SPECIALTY MODULE 2',
+            phoneNumber: '843-577-5011',
+            stationId: '534',
+            institutionId: '534',
+            stationName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
+            primaryStopCode: 406,
+            primaryStopCodeName: 'NEUROSURGERY',
+            secondaryStopCodeName: '*Missing*',
+            appointmentLength: 30,
+            variableAppointmentLength: true,
+            patientDirectScheduling: false,
+            patientDisplay: true,
+            institutionName: 'CHARLESTON VAMC',
+            institutionIEN: '534',
+            institutionSID: '97177',
+            timezone: {
+              timeZoneId: 'America/New_York'
+            },
+            futureBookingMaximumDays: 390
+          }
+        }.to_json
+      end
+      let(:faraday_response) { double('Faraday::Response') }
+      let(:faraday_env) { double('Faraday::Env', status: 200, body: clinic_response) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:get)
+          .with("/facilities/v2/facilities/#{facility_id}/clinics/#{clinic_id}",
+                {})
+          .and_return(faraday_response)
+        allow(faraday_response).to receive(:env).and_return(faraday_env)
+      end
+
+      it 'returns clinic data' do
+        svc = subject.build(facility_id:)
+        response = svc.get_clinic(clinic_id:)
+        expect(response).to eq(clinic_response)
+      end
+    end
+
     context 'when facilities api return server error' do
       let(:resp) { Faraday::Response.new(body: { error: 'Internal server error' }, status: 500) }
       let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
@@ -67,6 +117,24 @@ describe CheckIn::VAOS::FacilityService do
         svc = subject.build(facility_id:)
         expect do
           svc.get_facility
+        end.to(raise_error do |error|
+          expect(error).to be_a(Common::Exceptions::BackendServiceException)
+        end)
+      end
+    end
+
+    context 'when clinics api return server error' do
+      let(:resp) { Faraday::Response.new(body: { error: 'Internal server error' }, status: 500) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(exception)
+      end
+
+      it 'throws exception' do
+        svc = subject.build(facility_id:)
+        expect do
+          svc.get_clinic(clinic_id:)
         end.to(raise_error do |error|
           expect(error).to be_a(Common::Exceptions::BackendServiceException)
         end)
