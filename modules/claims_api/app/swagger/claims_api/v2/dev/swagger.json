@@ -6072,7 +6072,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6be9b240-267c-4c9c-b8d5-af1cd4068308",
+                    "id": "58821f1d-adf5-4bdc-9088-fd0b882e143b",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -6223,7 +6223,7 @@
                       "status": "404",
                       "detail": "Resource not found",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:70:in `attachments'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:71:in `attachments'"
                       }
                     }
                   ]
@@ -8156,8 +8156,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-04-24",
-                      "expirationDate": "2025-04-24",
+                      "creationDate": "2024-05-01",
+                      "expirationDate": "2025-05-01",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -8865,6 +8865,67 @@
               }
             }
           },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "status": "404",
+                      "detail": "Could not retrieve Power of Attorney with code: A1Q",
+                      "source": {
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:128:in `representative'"
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unprocessable Entity",
             "content": {
@@ -8876,7 +8937,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:130:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:134:in `representative'"
                       }
                     }
                   ]
@@ -8975,10 +9036,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "867b7baa-8dbe-4053-823f-788218fa6984",
+                    "id": "7b6e8a31-dbcf-42d1-ad7a-05f0d6fdde31",
                     "type": "individual",
                     "attributes": {
-                      "code": "083",
+                      "code": "067",
                       "name": "Firstname Lastname",
                       "phoneNumber": "555-555-5555"
                     }
@@ -9175,7 +9236,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 067",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
                       }
@@ -9602,7 +9663,7 @@
                         }
                       },
                       "representative": {
-                        "poaCode": "083",
+                        "poaCode": "067",
                         "registrationNumber": "999999999999",
                         "type": "ATTORNEY",
                         "address": {
@@ -9671,7 +9732,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c54cfb3e-8ec8-48ce-bb19-52847bdd9bde",
+                    "id": "eee043bb-c046-4c7c-be43-466a80c1b8fb",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -10498,7 +10559,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 067",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
                       }
@@ -10925,7 +10986,7 @@
                         }
                       },
                       "representative": {
-                        "poaCode": "083",
+                        "poaCode": "067",
                         "registrationNumber": "999999999999",
                         "type": "ATTORNEY",
                         "address": {
@@ -11631,11 +11692,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "af367b07-5484-4eb7-8a2b-3d4bf1ba447c",
+                    "id": "fd19ba3d-2a02-4b75-8494-999efdc2ee9a",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-04-24",
+                      "dateRequestAccepted": "2024-05-01",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"

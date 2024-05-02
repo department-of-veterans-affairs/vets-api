@@ -10,8 +10,8 @@ RSpec.describe 'Power Of Attorney', type: :request do
   let(:appoint_individual_path) { "/services/claims/v2/veterans/#{veteran_id}/2122a" }
   let(:validate2122a_path) { "/services/claims/v2/veterans/#{veteran_id}/2122a/validate" }
   let(:scopes) { %w[system/claim.write system/claim.read] }
-  let(:individual_poa_code) { 'A1H' }
-  let(:organization_poa_code) { '083' }
+  let(:individual_poa_code) { '072' }
+  let(:organization_poa_code) { '067' }
   let(:bgs_poa) { { person_org_name: "#{individual_poa_code} name-here" } }
   let(:local_bgs) { ClaimsApi::LocalBGS }
 
@@ -375,6 +375,27 @@ RSpec.describe 'Power Of Attorney', type: :request do
                         expect(response).to have_http_status(:ok)
                         expect(response_body['type']).to eq('form/21-22a/validation')
                         expect(response_body['attributes']['status']).to eq('valid')
+                      end
+                    end
+                  end
+
+                  context 'when the provided POA code is not a valid 2122a individual code' do
+                    let(:request_body) do
+                      Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                      'power_of_attorney', '2122a', 'invalid_poa.json').read
+                    end
+
+                    it 'returns a meaningful 404' do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        detail = 'Could not find an Accredited Representative with registration number: 999999999999 and poa code: aaa' # rubocop:disable Layout/LineLength
+
+                        post validate2122a_path, params: request_body, headers: auth_header
+                        response_body = JSON.parse(response.body)['errors'][0]
+
+                        expect(response).to have_http_status(:not_found)
+                        expect(response_body['title']).to eq('Resource not found')
+                        expect(response_body['status']).to eq('404')
+                        expect(response_body['detail']).to eq(detail)
                       end
                     end
                   end
