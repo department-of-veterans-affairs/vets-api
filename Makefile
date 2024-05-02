@@ -131,7 +131,7 @@ endif
 
 .PHONY: up
 up: db  ## Starts the server and associated services with docker-compose
-	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start -m all=1"
+	@$(BASH_DEV) "rm -f tmp/pids/server.pid && bundle exec foreman start -m all=1"
 
 # NATIVE COMMANDS
 .PHONY: native-up
