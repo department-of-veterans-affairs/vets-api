@@ -39,6 +39,39 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
       end
     end
 
+    context 'invalid params' do
+      let(:session_params) do
+        {
+          params: {
+            session: {
+              uuid: id,
+              dob: '1960-03-12',
+              last_name: 'Johnson'
+            }
+          }
+        }
+      end
+
+      before do
+        VCR.use_cassette 'check_in/lorota/token/token_200' do
+          post '/check_in/v2/sessions', **session_params
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      it 'returns bad request when start date is invalid' do
+        get "/check_in/v2/sessions/#{id}/appointments", params: { start: 'abc', end: '2023-12-12' }
+
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'returns bad request when end date is invalid' do
+        get "/check_in/v2/sessions/#{id}/appointments", params: { start: '2023-12-12', end: 'xyz' }
+
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
     context 'when appointment service returns successfully' do
       let(:session_params) do
         {
@@ -53,6 +86,40 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
       end
       let(:start_date) { '2023-11-10' }
       let(:end_date) { '2023-12-12' }
+      let(:appts_response) do
+        {
+          data: [
+            {
+              id: '180766',
+              type: 'appointments',
+              attributes: {
+                kind: 'clinic',
+                status: 'booked',
+                serviceType: 'amputation',
+                locationId: '983GC',
+                clinic: '1081',
+                start: '2023-11-13T16:00:00Z',
+                end: '2023-11-13T16:30:00Z',
+                minutesDuration: 30
+              }
+            },
+            {
+              id: '180770',
+              type: 'appointments',
+              attributes: {
+                kind: 'clinic',
+                status: 'booked',
+                serviceType: 'amputation',
+                locationId: '983GC',
+                clinic: '1081',
+                start: '2023-12-11T16:00:00Z',
+                end: '2023-12-11T16:30:00Z',
+                minutesDuration: 30
+              }
+            }
+          ]
+        }.to_json
+      end
 
       before do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
@@ -78,6 +145,7 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
         end
 
         expect(response).to have_http_status(:ok)
+        expect(response.body).to eq(appts_response)
       end
     end
   end
