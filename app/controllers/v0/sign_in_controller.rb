@@ -184,7 +184,7 @@ module V0
         raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
       end
 
-      unless access_token_optional_authenticate(skip_expiration_check: true)
+      unless access_token_authenticate(skip_error_handling: true)
         raise SignIn::Errors::LogoutAuthorizationError.new message: 'Unable to authorize access token'
       end
 

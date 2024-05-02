@@ -34,20 +34,12 @@ module SignIn
       nil
     end
 
-    def access_token_authenticate
+    def access_token_authenticate(skip_error_handling: false)
       access_token.present?
     rescue Errors::AccessTokenExpiredError => e
-      render json: { errors: e }, status: :forbidden
+      render json: { errors: e }, status: :forbidden unless skip_error_handling
     rescue Errors::StandardError => e
-      handle_authenticate_error(e)
-    end
-
-    def access_token_optional_authenticate(skip_expiration_check: false)
-      access_token.present?
-    rescue Errors::AccessTokenExpiredError => e
-      render json: { errors: e }, status: :forbidden unless skip_expiration_check
-    rescue Errors::StandardError
-      nil
+      handle_authenticate_error(e) unless skip_error_handling
     end
 
     private

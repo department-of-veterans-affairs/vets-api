@@ -2349,9 +2349,7 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
     let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
     let(:authorization) { "Bearer #{access_token}" }
-    let(:oauth_session) do
-      create(:oauth_session, user_verification:)
-    end
+    let(:oauth_session) { create(:oauth_session, user_verification:) }
     let(:user_verification) { create(:user_verification) }
     let(:access_token_object) do
       create(:access_token, session_handle: oauth_session.handle, client_id: client_config.client_id, expiration_time:)
