@@ -8,10 +8,15 @@ class UserSerializer < ActiveModel::Serializer
 
   attributes :services, :account, :profile, :va_profile, :veteran_status,
              :in_progress_forms, :prefills_available, :vet360_contact_information,
-             :session, :onboarding
+             :session
+  attribute :onboarding, if: :onboarding_enabled?
 
   def id
     nil
+  end
+
+  def onboarding_enabled?
+    object.onboarding.present?
   end
 
   delegate :account, to: :object

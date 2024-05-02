@@ -13,6 +13,7 @@ RSpec.describe 'Fetching user data' do
     let(:edipi) { '1005127153' }
 
     before do
+      Flipper.disable(:veteran_onboarding_beta_flow)
       allow(SM::Client).to receive(:new).and_return(authenticated_client)
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
       create(:account, idme_uuid: mhv_user.uuid)
