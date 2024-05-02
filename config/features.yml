@@ -108,6 +108,10 @@ features:
     actor_type: user
     description: Enables the health care check-in experiences to show the pre-check-in experience.
     enable_in_development: true
+  check_in_experience_upcoming_appointments_enabled:
+    actor_type: user
+    description: Enables the feature to show upcoming appointments to the veterans
+    enable_in_development: true
   check_in_experience_translation_disclaimer_spanish_enabled:
     actor_type: user
     description: Enables disclaimer for possible untranslated content on spanish pages
@@ -328,9 +332,6 @@ features:
   decision_review_delay_evidence:
     actor_type: user
     description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself
-  decision_review_updated_pii_rules:
-    actor_type: user
-    description: Uses udpated rules for when to clear PII from appeals_api records
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -376,9 +377,14 @@ features:
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
+    enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
+    enable_in_development: true
+  disability_compensation_form4142_supplemental:
+    actor_type: user
+    description: Use Lighthouse API to submit supplemental Form 21-4142 from Form 526EZ submissions
     enable_in_development: true
   disability_compensation_pif_fail_notification:
     actor_type: user
@@ -1177,6 +1183,9 @@ features:
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
+  veteran_onboarding_beta_flow:
+    actor_type: user
+    description: Conditionally display the new veteran onboarding flow to user
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.

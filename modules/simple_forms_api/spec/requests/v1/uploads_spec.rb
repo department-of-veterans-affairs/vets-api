@@ -28,11 +28,15 @@ RSpec.describe 'Forms uploader', type: :request do
     context 'going to Lighthouse Benefits Intake API' do
       let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
       let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
+      let(:random_string) { 'some-unique-simple-forms-file-seed' }
 
       before do
         VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
         VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
         allow(Common::FileHelpers).to receive(:random_file_path).and_return(file_seed)
+        allow(Common::FileHelpers).to receive(:generate_temp_file).and_wrap_original do |original_method, *args|
+          original_method.call(args[0], random_string)
+        end
       end
 
       after do
