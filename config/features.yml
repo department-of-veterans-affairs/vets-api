@@ -108,6 +108,10 @@ features:
     actor_type: user
     description: Enables the health care check-in experiences to show the pre-check-in experience.
     enable_in_development: true
+  check_in_experience_upcoming_appointments_enabled:
+    actor_type: user
+    description: Enables the feature to show upcoming appointments to the veterans
+    enable_in_development: true
   check_in_experience_translation_disclaimer_spanish_enabled:
     actor_type: user
     description: Enables disclaimer for possible untranslated content on spanish pages

@@ -30,6 +30,12 @@ FactoryBot.define do
     end
   end
 
+  trait :with_everything_toxic_exposure do
+    form_json do
+      File.read("#{submissions_path}/with_everything_toxic_exposure.json")
+    end
+  end
+
   trait :only_526_required do
     form_json do
       File.read("#{submissions_path}/only_526_required.json")
