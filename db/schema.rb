@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_25_232006) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_02_175753) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -459,6 +459,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_25_232006) do
     t.text "encrypted_kms_key"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
+  end
+
+  create_table "decision_review_evidence_attachment_validations", force: :cascade do |t|
+    t.uuid "decision_review_evidence_attachment_guid", null: false
+    t.text "password_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["decision_review_evidence_attachment_guid"], name: "index_dr_evidence_attachment_validation_on_guid"
   end
 
   create_table "deprecated_user_accounts", force: :cascade do |t|
@@ -1222,17 +1231,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_25_232006) do
     t.index ["user_account_id"], name: "index_va_notify_in_progress_reminders_sent_on_user_account_id"
   end
 
-  create_table "vba_documents_git_items", force: :cascade do |t|
-    t.string "url", null: false
-    t.jsonb "git_item"
-    t.boolean "notified", default: false
-    t.string "label"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["notified", "label"], name: "index_vba_documents_git_items_on_notified_and_label"
-    t.index ["url"], name: "index_vba_documents_git_items_on_url", unique: true
-  end
-
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
     t.integer "month", null: false
     t.integer "year", null: false
@@ -1269,6 +1267,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_25_232006) do
     t.datetime "updated_at", null: false
     t.index ["device_id"], name: "index_veteran_device_records_on_device_id"
     t.index ["icn", "device_id"], name: "index_veteran_device_records_on_icn_and_device_id", unique: true
+  end
+
+  create_table "veteran_onboardings", force: :cascade do |t|
+    t.string "icn"
+    t.boolean "display_onboarding_flow", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["icn"], name: "index_veteran_onboardings_on_icn", unique: true
   end
 
   create_table "veteran_organizations", id: false, force: :cascade do |t|
@@ -1370,10 +1376,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_25_232006) do
   create_table "vye_awards", force: :cascade do |t|
     t.integer "user_info_id"
     t.string "cur_award_ind"
-    t.datetime "award_begin_date"
-    t.datetime "award_end_date"
     t.integer "training_time"
-    t.datetime "payment_date"
     t.decimal "monthly_rate"
     t.string "begin_rsn"
     t.string "end_rsn"
@@ -1382,7 +1385,20 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_25_232006) do
     t.string "type_hours"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.date "award_begin_date"
+    t.date "award_end_date"
+    t.date "payment_date"
     t.index ["user_info_id"], name: "index_vye_awards_on_user_info_id"
+  end
+
+  create_table "vye_bdn_clones", force: :cascade do |t|
+    t.boolean "is_active"
+    t.boolean "export_ready"
+    t.date "transact_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["export_ready"], name: "index_vye_bdn_clones_on_export_ready"
+    t.index ["is_active"], name: "index_vye_bdn_clones_on_is_active"
   end
 
   create_table "vye_direct_deposit_changes", force: :cascade do |t|
@@ -1407,15 +1423,11 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_25_232006) do
 
   create_table "vye_pending_documents", force: :cascade do |t|
     t.string "doc_type"
-    t.datetime "queue_date"
     t.string "rpo"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
-    t.text "encrypted_kms_key"
-    t.string "claim_no_ciphertext"
-    t.text "ssn_ciphertext"
-    t.string "ssn_digest"
+    t.date "queue_date"
   end
 
   create_table "vye_user_infos", force: :cascade do |t|
@@ -1425,9 +1437,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_25_232006) do
     t.text "stub_nm_ciphertext"
     t.string "mr_status"
     t.string "rem_ent"
-    t.datetime "cert_issue_date"
-    t.datetime "del_date"
-    t.datetime "date_last_certified"
     t.integer "rpo_code"
     t.string "fac_code"
     t.decimal "payment_amt"
@@ -1436,16 +1445,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_25_232006) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
-    t.string "icn"
-    t.text "ssn_ciphertext"
-    t.string "ssn_digest"
-    t.text "full_name_ciphertext"
-    t.text "address_line2_ciphertext"
-    t.text "address_line3_ciphertext"
-    t.text "address_line4_ciphertext"
-    t.text "address_line5_ciphertext"
-    t.text "address_line6_ciphertext"
-    t.text "zip_ciphertext"
+    t.date "cert_issue_date"
+    t.date "del_date"
+    t.date "date_last_certified"
+    t.integer "bdn_clone_id"
+    t.integer "bdn_clone_line"
+    t.boolean "bdn_clone_active"
+    t.index ["bdn_clone_active"], name: "index_vye_user_infos_on_bdn_clone_active"
+    t.index ["bdn_clone_id"], name: "index_vye_user_infos_on_bdn_clone_id"
+    t.index ["bdn_clone_line"], name: "index_vye_user_infos_on_bdn_clone_line"
   end
 
   create_table "vye_user_profiles", force: :cascade do |t|
@@ -1470,7 +1478,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_25_232006) do
     t.string "source_ind"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "user_profile_id"
+    t.decimal "monthly_rate"
+    t.integer "number_hours"
+    t.date "payment_date"
+    t.date "transact_date"
+    t.string "trace"
     t.index ["user_info_id"], name: "index_vye_verifications_on_user_info_id"
+    t.index ["user_profile_id"], name: "index_vye_verifications_on_user_profile_id"
   end
 
   create_table "webhooks_notification_attempt_assocs", id: false, force: :cascade do |t|
