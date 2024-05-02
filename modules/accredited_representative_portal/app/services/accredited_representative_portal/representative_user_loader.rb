@@ -9,7 +9,7 @@ module AccreditedRepresentativePortal
     def initialize(access_token:, request_ip:)
       @access_token = access_token
       @request_ip = request_ip
-      # NOTE: a change will be necessary to support altnerate emails
+      # NOTE: a change will be necessary to support alternate emails
       # The below currently only supports the primary session email
       # See discussion: https://github.com/department-of-veterans-affairs/vets-api/pull/16493#discussion_r1579783276
       @verified_representative = VerifiedRepresentative.find_by(email: session&.credential_email) # NOTE: primary email
