@@ -123,22 +123,24 @@ module CentralMail
       CentralMail::Service.new.upload(processor.request_body)
     end
 
-    def upload_to_lighthouse
-      @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
+    def lighthouse_service
+      @lighthouse_service ||= BenefitsIntakeService::Service.new(with_upload_location: true)
+    end
 
+    def upload_to_lighthouse
       Rails.logger.info(
         'Successful Form4142 Submission to Lighthouse',
-        { benefits_intake_uuid: @lighthouse_service.uuid, submission_id: submission.id }
+        { benefits_intake_uuid: lighthouse_service.uuid, submission_id: @submission_id }
       )
 
       payload = {
-        upload_url: @lighthouse_service.location,
+        upload_url: lighthouse_service.location,
         file: { file: @pdf_path, file_name: @pdf_path.split('/').last },
         metadata: generate_metadata.to_json,
         attachments: []
       }
 
-      @lighthouse_service.upload_doc(**payload)
+      lighthouse_service.upload_doc(**payload)
     end
 
     def generate_metadata
