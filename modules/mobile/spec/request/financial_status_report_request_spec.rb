@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/helpers/spec_helper'
 require_relative '../support/helpers/sis_session_helper'
 require_relative '../../../debts_api/lib/debts_api/v0/financial_status_report_service'
 
-RSpec.describe 'financial-status-reports', type: :request do
+RSpec.describe 'financial-status-reports', skip_json_api_validation: true, type: :request do
   let!(:user) { sis_user }
 
   describe 'POST /mobile/v0/financial-status-reports/download' do
@@ -28,7 +29,6 @@ RSpec.describe 'financial-status-reports', type: :request do
     context 'with a non-existent file' do
       it 'returns not found error' do
         post '/mobile/v0/financial-status-reports/download', headers: sis_headers
-
         expect(response).to have_http_status(:not_found)
         expect(response.parsed_body).to eq(nil)
       end

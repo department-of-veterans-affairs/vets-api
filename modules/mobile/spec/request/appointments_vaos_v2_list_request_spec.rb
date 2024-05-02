@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/helpers/spec_helper'
 require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
@@ -11,7 +12,6 @@ RSpec.describe 'vaos v2 appointments', type: :request do
 
   describe 'GET /mobile/v0/appointments' do
     before do
-      Flipper.enable('va_online_scheduling')
       allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
       allow(Rails.logger).to receive(:info)
       Timecop.freeze(Time.zone.parse('2022-01-01T19:25:00Z'))

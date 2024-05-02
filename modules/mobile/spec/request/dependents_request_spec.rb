@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/helpers/spec_helper'
 require_relative '../support/helpers/sis_session_helper'
 
-RSpec.describe 'dependents', type: :request do
+RSpec.describe 'dependents', skip_json_api_validation: true, type: :request do
   let!(:user) { sis_user(ssn: '796043735') }
 
   describe '#index' do
@@ -46,6 +47,7 @@ RSpec.describe 'dependents', type: :request do
       VCR.use_cassette('bgs/claimant_web_service/dependents') do
         get('/mobile/v0/dependents', params: { id: user.participant_id }, headers: sis_headers)
       end
+
       expect(response).to have_http_status(:ok)
       response_without_ids = response.parsed_body['data'].each { |dependent| dependent.delete('id') }
       expect(response_without_ids).to eq(expected_data)
@@ -61,6 +63,7 @@ RSpec.describe 'dependents', type: :request do
         }
         allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_raise(BGS::ShareError)
         get('/mobile/v0/dependents', params: { id: user.participant_id }, headers: sis_headers)
+
         expect(response).to have_http_status(:bad_request)
         expect(response.parsed_body).to eq(expected_response)
       end

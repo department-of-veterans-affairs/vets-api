@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/helpers/spec_helper'
 require_relative '../support/helpers/sis_session_helper'
 
 RSpec.describe 'Mobile Message Drafts Integration', type: :request do

@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/helpers/spec_helper'
 require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
-RSpec.describe 'legacy claims document upload', type: :request do
+RSpec.describe 'legacy claims document upload', skip_json_api_validation: true, type: :request do
   include JsonSchemaMatchers
 
   before do

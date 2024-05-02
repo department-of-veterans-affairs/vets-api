@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/helpers/spec_helper'
 require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
@@ -11,7 +12,6 @@ RSpec.describe 'appointments', type: :request do
   let(:cancel_id) { '70060' }
 
   before do
-    Flipper.enable('va_online_scheduling')
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 

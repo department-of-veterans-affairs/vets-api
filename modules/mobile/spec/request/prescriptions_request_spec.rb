@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'support/rx_client_helpers'
 require 'support/shared_examples_for_mhv'
+require_relative '../support/helpers/spec_helper'
 require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/helpers/spec_helper'
 require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
@@ -22,7 +23,7 @@ RSpec.describe 'push send', type: :request do
         }
       end
 
-      it 'returns 200 and empty json' do
+      it 'returns 200 and empty json', skip_json_api_validation: true do
         VCR.use_cassette('vetext/send_success', match_requests_on: [:body]) do
           post '/mobile/v0/push/send', headers: sis_headers(json: true), params: params.to_json
           expect(response).to have_http_status(:ok)

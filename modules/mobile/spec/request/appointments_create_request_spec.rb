@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/helpers/spec_helper'
 require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
@@ -18,7 +19,6 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
   let!(:user) { sis_user(icn: '1012846043V576341') }
 
   before do
-    Flipper.enable('va_online_scheduling')
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
     allow_any_instance_of(Mobile::AppointmentsHelper).to \
       receive(:get_clinic).and_return(mock_clinic)
