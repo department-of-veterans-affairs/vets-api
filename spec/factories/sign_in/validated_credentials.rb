@@ -12,12 +12,14 @@ FactoryBot.define do
         last_name: Faker::Name.last_name,
         email: Faker::Internet.email }
     end
+    device_sso { false }
 
     initialize_with do
       new(user_verification:,
           client_config:,
           credential_email:,
-          user_attributes:)
+          user_attributes:,
+          device_sso:)
     end
   end
 end
