@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # The VeteranOnboarding model represents the onboarding status of a veteran.
 # Each instance corresponds to a veteran who is in the process of onboarding.
 #
@@ -6,7 +8,7 @@
 # Table name: veteran_onboardings
 #
 #  id                      :bigint           not null, primary key
-#  icn                     :integer          not null, unique
+#  icn                     :string           not null, unique
 #  display_onboarding_flow :boolean          default(TRUE)
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null
@@ -21,5 +23,4 @@ class VeteranOnboarding < ApplicationRecord
   def show_onboarding_flow_on_login
     display_onboarding_flow
   end
-
 end

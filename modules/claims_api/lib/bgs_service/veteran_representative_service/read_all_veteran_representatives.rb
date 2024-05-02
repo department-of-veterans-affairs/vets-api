@@ -13,7 +13,7 @@ module ClaimsApi
           <formTypeCode>#{type_code}</formTypeCode>
         </ns0:CorpPtcpntIdFormTypeCode>
       EOXML
-      ret = make_request(action: 'readAllVeteranRepresentatives', body:)
+      ret = make_request(namespace: 'ns0', action: 'readAllVeteranRepresentatives', body:)
             &.dig('VeteranRepresentativeReturnList') || []
       [ret].flatten
     end

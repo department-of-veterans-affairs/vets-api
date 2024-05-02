@@ -56,7 +56,7 @@ module Veteran
           state: vso_rep['Org State']
         }
       end.compact.uniq
-      Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_ignore: true)
+      Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_update: %i[name phone state])
 
       vso_reps
     end

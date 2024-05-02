@@ -281,11 +281,28 @@ describe VAOS::V2::AppointmentsService do
     end
 
     context 'when partial success is returned and failures are returned with ICNs' do
-      it 'anonymizes the ICNs' do
+      it 'does not anonymizes the ICNs in the response' do
         VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_data',
                          match_requests_on: %i[method path query]) do
           response = subject.get_appointments(start_date3, end_date3)
-          expect(response.dig(:meta, :failures).to_json).not_to match(/\d{10}V\d{6}/)
+          expect(response.dig(:meta, :failures).to_json).to match(/\d{10}V\d{6}/)
+        end
+      end
+
+      it 'logs the failures and anonymizes the ICNs sent to the log' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_data',
+                         match_requests_on: %i[method path query]) do
+          expected_msg = 'VAOS::V2::AppointmentService#get_appointments has response errors. : ' \
+                         '{:failures=>"[{\\"system\\":\\"VSP\\",\\"status\\":\\"500\\",\\"code\\":10000,\\"' \
+                         'message\\":\\"Could not fetch appointments from Vista Scheduling Provider\\",\\"' \
+                         'detail\\":\\"icn=d12672eba61b7e9bc50bb6085a0697133a5fbadf195e6cade452ddaad7921c1d, ' \
+                         'startDate=2022-04-01T19:25Z, endDate=2023-03-01T19:45Z\\"}]"}'
+
+          allow(Rails.logger).to receive(:info)
+
+          subject.get_appointments(start_date3, end_date3)
+
+          expect(Rails.logger).to have_received(:info).with(expected_msg)
         end
       end
     end
@@ -619,6 +636,68 @@ describe VAOS::V2::AppointmentsService do
         allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(facility_error_msg)
         timezone = subject.send(:get_facility_timezone_memoized, facility_location_id)
         expect(timezone).to eq(nil)
+      end
+    end
+  end
+
+  describe '#convert_appointment_time' do
+    let(:manila_appt) do
+      {
+        id: '12345',
+        location_id: '358',
+        start: '2024-12-20T00:00:00Z'
+      }
+    end
+
+    let(:manila_appt_req) do
+      {
+        id: '12345',
+        location_id: '358',
+        requested_periods: [{ start: '2024-12-20T00:00:00Z', end: '2024-12-20T11:59:59.999Z' }]
+      }
+    end
+
+    context 'when appt location id is 358' do
+      it 'logs the appt location id, timezone info, utc/local times of appt' do
+        allow_any_instance_of(VAOS::V2::AppointmentsService)
+          .to receive(:get_facility_timezone_memoized)
+          .and_return('Asia/Manila')
+        allow(Rails.logger).to receive(:info)
+
+        subject.send(:convert_appointment_time, manila_appt)
+        expect(Rails.logger).to have_received(:info).with('Timezone info for Manila Philippines location_id 358',
+                                                          {
+                                                            location_id: '358',
+                                                            facility_timezone: 'Asia/Manila',
+                                                            appt_start_time_utc: '2024-12-20T00:00:00Z',
+                                                            appt_start_time_local: subject.send(
+                                                              :convert_utc_to_local_time,
+                                                              manila_appt[:start],
+                                                              'Asia/Manila'
+                                                            )
+                                                          }.to_json)
+      end
+
+      it 'logs the appt location id, timezone info, utc/local times of appt request' do
+        allow_any_instance_of(VAOS::V2::AppointmentsService)
+          .to receive(:get_facility_timezone_memoized)
+          .and_return('Asia/Manila')
+        allow(Rails.logger).to receive(:info)
+
+        subject.send(:convert_appointment_time, manila_appt_req)
+        expect(Rails.logger).to have_received(:info).with('Timezone info for Manila Philippines location_id 358',
+                                                          {
+                                                            location_id: '358',
+                                                            facility_timezone: 'Asia/Manila',
+                                                            appt_start_time_utc: '2024-12-20T00:00:00Z',
+                                                            appt_start_time_local: subject.send(
+                                                              :convert_utc_to_local_time, manila_appt_req.dig(
+                                                                                            :requested_periods,
+                                                                                            0,
+                                                                                            :start
+                                                                                          ), 'Asia/Manila'
+                                                            )
+                                                          }.to_json)
       end
     end
   end

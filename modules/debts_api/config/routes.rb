@@ -5,8 +5,11 @@ DebtsApi::Engine.routes.draw do
     resources :financial_status_reports, only: %i[create] do
       collection do
         get :download_pdf
+        get :submissions
       end
     end
+
+    get 'financial_status_reports/rehydrate_submission/:submission_id', to: 'financial_status_reports#rehydrate'
 
     post 'calculate_total_assets', to: 'financial_status_reports_calculations#total_assets'
     post 'calculate_monthly_expenses', to: 'financial_status_reports_calculations#monthly_expenses'

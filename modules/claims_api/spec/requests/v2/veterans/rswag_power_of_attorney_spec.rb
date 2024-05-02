@@ -101,6 +101,40 @@ describe 'PowerOfAttorney',
         end
       end
 
+      describe 'Getting a 404 response' do
+        response '404', 'Resource not found' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'power_of_attorney', 'default.json').read)
+
+          before do |example|
+            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+              .and_return({ person_poa_history: nil })
+
+            Veteran::Service::Representative.new(representative_id: '12345',
+                                                 poa_codes: ['H1A'],
+                                                 first_name: 'Firstname',
+                                                 last_name: 'Lastname',
+                                                 phone: '555-555-5555').save!
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 404 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable Entity' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
@@ -165,7 +199,7 @@ describe 'PowerOfAttorney',
       parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a]
       description 'Updates current Power of Attorney for Veteran.'
       let(:scopes) { %w[system/claim.read system/system/claim.write] }
-      let(:poa_code) { '083' }
+      let(:poa_code) { '067' }
       let(:bgs_poa) { { person_org_name: "#{poa_code} name-here" } }
 
       describe 'Getting a successful response' do
@@ -184,7 +218,7 @@ describe 'PowerOfAttorney',
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
-            Veteran::Service::Representative.new(representative_id: '67890',
+            Veteran::Service::Representative.new(representative_id: '999999999999',
                                                  poa_codes: [poa_code],
                                                  first_name: 'Firstname',
                                                  last_name: 'Lastname',
@@ -352,7 +386,8 @@ describe 'PowerOfAttorney',
             Veteran::Service::Organization.create!(poa: organization_poa_code,
                                                    name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS",
                                                    phone: '555-555-5555')
-            Veteran::Service::Representative.create!(representative_id: '67890', poa_codes: [organization_poa_code],
+            Veteran::Service::Representative.create!(representative_id: '999999999999',
+                                                     poa_codes: [organization_poa_code],
                                                      first_name: 'Firstname', last_name: 'Lastname',
                                                      phone: '555-555-5555')
 
@@ -497,7 +532,7 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a successful response' do
         response '200', 'Valid request response' do
-          let(:poa_code) { '083' }
+          let(:poa_code) { '067' }
 
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
                                             'power_of_attorney', '2122a', 'validate.json').read)
@@ -510,7 +545,7 @@ describe 'PowerOfAttorney',
           end
 
           before do |example|
-            Veteran::Service::Representative.new(representative_id: '67890',
+            Veteran::Service::Representative.new(representative_id: '999999999999',
                                                  poa_codes: [poa_code],
                                                  first_name: 'Firstname',
                                                  last_name: 'Lastname',
@@ -679,7 +714,7 @@ describe 'PowerOfAttorney',
 
           before do |example|
             Veteran::Service::Organization.create!(poa: poa_code)
-            Veteran::Service::Representative.create!(representative_id: '67890', poa_codes: [poa_code],
+            Veteran::Service::Representative.create!(representative_id: '999999999999', poa_codes: [poa_code],
                                                      first_name: 'Firstname', last_name: 'Lastname',
                                                      phone: '555-555-5555')
 
