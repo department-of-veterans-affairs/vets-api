@@ -34,7 +34,8 @@ class PrescriptionDetails < Prescription
 
   def sorted_dispensed_date
     has_refills = try(:rx_rf_records).present?
-    last_refill_date = Date.new(0)
+    default_date = Date.new(0)
+    last_refill_date = default_date
 
     if has_refills
       refills = rx_rf_records[0][1]
@@ -48,12 +49,13 @@ class PrescriptionDetails < Prescription
       end
     end
 
+    last_refill_date = nil if last_refill_date == default_date
     if has_refills && last_refill_date.present?
       last_refill_date.to_date
     elsif dispensed_date.present?
       dispensed_date.to_date
     else
-      Date.new(0)
+      nil
     end
   end
 end

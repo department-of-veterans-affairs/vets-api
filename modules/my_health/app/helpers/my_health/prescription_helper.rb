@@ -23,8 +23,9 @@ module MyHealth
         resource.data = resource.data.sort do |a, b|
           comparison = 0
           sort_params.each_with_index do |field, index|
-            field1_a, field1_b = populate_sort_vars(field, a, b)
-            comparison = compare_fields(field1_a, field1_b, sort_orders[index])
+            is_descending = sort_orders[index]
+            field_a, field_b = populate_sort_vars(field, a, b, is_descending)
+            comparison = compare_fields(field_a, field_b, is_descending)
             break if !comparison.zero? || field.nil?
           end
           comparison
@@ -44,28 +45,34 @@ module MyHealth
         end
       end
 
-      def compare_fields(field_a, field_b, descending)
+      def compare_fields(field_a, field_b, is_descending)
         if field_a > field_b
-          descending ? -1 : 1
+          is_descending ? -1 : 1
         elsif field_a < field_b
-          descending ? 1 : -1
+          is_descending ? 1 : -1
         else
           0
         end
       end
 
-      def populate_sort_vars(field, a, b)
+      def populate_sort_vars(field, a, b, is_descending)
         if field.nil?
           [nil, nil]
         else
-          [get_field_data(field, a), get_field_data(field, b)]
+          [get_field_data(field, a, is_descending), get_field_data(field, b, is_descending)]
         end
       end
 
-      def get_field_data(field, data)
+      def get_field_data(field, data, is_descending)
         case field
         when /dispensed_date/
-          data[:sorted_dispensed_date]
+          if data[:sorted_dispensed_date].nil? && is_descending
+            Date.new(9999, 12, 31)
+          elsif data[:sorted_dispensed_date].nil?
+            Date.new(0, 1, 1)
+          else
+            data[:sorted_dispensed_date]
+          end
         when 'prescription_name'
           if data[:disp_status] == 'Active: Non-VA' && data[:prescription_name].nil?
             data[:orderable_item]
