@@ -23,7 +23,17 @@ module Vye
       presence: true, if: -> { origin == 'backend' }
     )
 
-    enum origin: { frontend: 'f', backend: 'b' }
+    enum origin: {
+
+      frontend: 'f',
+
+      # This is a special case where the record was created on the frontend
+      # but will not have been reflected from the backend yet
+      cached: 'c',
+
+      backend: 'b'
+
+    }
 
     scope :created_today, lambda {
       includes(user_info: :user_profile)
