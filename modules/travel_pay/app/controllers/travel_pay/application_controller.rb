@@ -26,7 +26,7 @@ module TravelPay
     # * Remove this before_action
     # * Remove block_if_flag_disabled definition
 
-    before_action :feature_enabled
+    before_action :block_if_flag_disabled
 
     protected
 
@@ -38,8 +38,12 @@ module TravelPay
       logger.info('travel-pay') { Utils::Logger.build(self).after }
     end
 
-    def feature_enabled
-      routing_error unless Flipper.enabled?(:travel_pay_power_switch, @current_user)
+    def block_if_flag_disabled
+      raise_access_denied unless Flipper.enabled?(:travel_pay_power_switch, @current_user)
+    end
+
+    def raise_access_denied
+      raise Common::Exceptions::Forbidden, detail: 'You do not have access to travel pay'
     end
   end
 end
