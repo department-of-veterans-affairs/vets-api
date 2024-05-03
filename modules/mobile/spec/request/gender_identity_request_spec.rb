@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/spec_helper'
-require_relative '../support/helpers/sis_session_helper'
+require_relative '../support/helpers/rails_helper'
 require 'va_profile/demographics/service'
 
 RSpec.describe 'gender identity', type: :request do

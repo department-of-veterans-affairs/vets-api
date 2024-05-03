@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/spec_helper'
-require_relative '../support/helpers/sis_session_helper'
-
+require_relative '../support/helpers/rails_helper'
 RSpec.describe 'user', type: :request do
   let!(:user) { sis_user }
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }

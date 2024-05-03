@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/spec_helper'
-require_relative '../support/helpers/sis_session_helper'
+require_relative '../support/helpers/rails_helper'
 require_relative '../../../debts_api/lib/debts_api/v0/financial_status_report_service'
 
 RSpec.describe 'financial-status-reports', skip_json_api_validation: true, type: :request do

@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/spec_helper'
-
+require_relative '../support/helpers/rails_helper'
 RSpec.describe 'lighthouse claims decision request', skip_json_api_validation: true, type: :request do
   describe 'GET /v0/claim/:id/request-decision' do
     let!(:user) { sis_user(icn: '1008596379V859838') }
