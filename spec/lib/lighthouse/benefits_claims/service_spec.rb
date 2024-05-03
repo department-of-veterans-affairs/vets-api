@@ -82,7 +82,7 @@ RSpec.describe BenefitsClaims::Service do
           VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
             response = @service.submit526({ data: { attributes: {} } }, '', '', { body_only: true })
             response_json = JSON.parse(response)
-            expect(response_json["data"]["id"]).to eq('46285849-9d82-4001-8572-2323d521eb8c')
+            expect(response_json['data']['id']).to eq('46285849-9d82-4001-8572-2323d521eb8c')
           end
         end
 
@@ -90,7 +90,7 @@ RSpec.describe BenefitsClaims::Service do
           VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
             response = @service.submit526({}, '', '', { body_only: true })
             response_json = JSON.parse(response)
-            expect(response_json["data"]["id"]).to eq('46285849-9d82-4001-8572-2323d521eb8c')
+            expect(response_json['data']['id']).to eq('46285849-9d82-4001-8572-2323d521eb8c')
           end
         end
 
@@ -98,7 +98,7 @@ RSpec.describe BenefitsClaims::Service do
           VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
             body = @service.submit526({ data: { attributes: {} } }, '', '', { body_only: true })
             response_json = JSON.parse(body)
-            expect(response_json["data"]["id"]).to eq('46285849-9d82-4001-8572-2323d521eb8c')
+            expect(response_json['data']['id']).to eq('46285849-9d82-4001-8572-2323d521eb8c')
           end
         end
 
@@ -108,7 +108,7 @@ RSpec.describe BenefitsClaims::Service do
             # TODO: re-visit claim_id value when VBMS id is returned synchronously from Lighthouse
             claim_id = Time.now.to_i
             raw_response_struct = OpenStruct.new({
-                                                   body: { claim_id: claim_id },
+                                                   body: { claim_id: },
                                                    status: raw_response.status
                                                  })
             response = EVSS::DisabilityCompensationForm::FormSubmitResponse

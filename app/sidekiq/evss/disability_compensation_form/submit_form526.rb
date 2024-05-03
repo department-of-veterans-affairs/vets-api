@@ -116,10 +116,12 @@ module EVSS
                          service = BenefitsClaims::Service.new(icn)
                          raw_response = service.submit526(body)
                          # 4. convert LH raw response to a FormSubmitResponse for further processing (claim_id, status)
-                         # JSON.parse when it matters to get the claim id (response_json = JSON.parse(raw_response.body))
+                         # JSON.parse when it matters to get the claim id
+                         # something like response_json = JSON.parse(raw_response.body)
                          raw_response_struct = OpenStruct.new({
                                                                 # TODO: for now, set claim id to unix time stamp.
-                                                                # When the lighthouse synchronous submit response is ready,
+                                                                # When the lighthouse synchronous
+                                                                # submit response is ready,
                                                                 # switch to VBMS claim id.
                                                                 body: { claim_id: Time.now.to_i },
                                                                 status: raw_response.status
