@@ -3984,7 +3984,7 @@ RSpec.describe 'Disability Claims', type: :request do
   describe 'POST #synchronous' do
     let(:veteran_id) { '1012832025V743496' }
     let(:synchronous_path) { "/services/claims/v2/veterans/#{veteran_id}/526/synchronous" }
-    let(:synchronous_scopes) { %w[system/526.override] }
+    let(:synchronous_scopes) { %w[system/526.override system/claim.write] }
     let(:invalid_scopes) { %w[system/526-pdf.override] }
 
     context 'submission to synchronous' do
