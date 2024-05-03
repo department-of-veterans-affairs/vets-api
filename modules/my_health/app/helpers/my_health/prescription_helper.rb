@@ -66,10 +66,8 @@ module MyHealth
       def get_field_data(field, data, is_descending)
         case field
         when /dispensed_date/
-          if data[:sorted_dispensed_date].nil? && is_descending
-            Date.new(9999, 12, 31)
-          elsif data[:sorted_dispensed_date].nil?
-            Date.new(0, 1, 1)
+          if data[:sorted_dispensed_date].nil?
+            is_descending ? Date.new(9999, 12, 31) : Date.new(0, 1, 1)
           else
             data[:sorted_dispensed_date]
           end
@@ -84,8 +82,7 @@ module MyHealth
         when 'disp_status'
           data[:disp_status]
         else
-          key = field.sub(/^-/, '')
-          data[key]
+          data[field.sub(/^-/, '')]
         end
       end
 

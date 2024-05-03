@@ -50,12 +50,10 @@ class PrescriptionDetails < Prescription
     end
 
     last_refill_date = nil if last_refill_date == default_date
-    if has_refills && last_refill_date.present?
+    if has_refills && last_refill_date.present? && last_refill_date != default_date
       last_refill_date.to_date
     elsif dispensed_date.present?
       dispensed_date.to_date
-    else
-      nil
     end
   end
 end
