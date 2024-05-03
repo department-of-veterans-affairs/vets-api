@@ -132,6 +132,10 @@ module BenefitsClaims
       # Since Lighthouse needs 'currentVaEmployee', the following workaround renames it.
       fix_current_va_employee(body)
 
+      # LH PDF generator service crashes with having an empty array for confinements
+      # removes confinements from the request body if confinements  attribute empty or nil
+      remove_empty_confinements(body)
+
       response = config.post(
         path,
         body,
@@ -161,6 +165,17 @@ module BenefitsClaims
         body['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
           body['data']['attributes']['veteranIdentification']['currentVAEmployee']
         body['data']['attributes']['veteranIdentification'].delete('currentVAEmployee')
+      end
+    end
+
+    def remove_empty_confinements(body)
+      if body.dig('data', 'attributes', 'serviceInformation')&.select do |field|
+        field['confinements']
+      end&.key?('confinements')
+        if body['data']['attributes']['serviceInformation']['confinements'].nil? ||
+          body['data']['attributes']['serviceInformation']['confinements'].empty?
+          body['data']['attributes']['serviceInformation'].delete('confinements')
+        end
       end
     end
 
