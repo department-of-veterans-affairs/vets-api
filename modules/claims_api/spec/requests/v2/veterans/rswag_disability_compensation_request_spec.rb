@@ -575,8 +575,8 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
-                                            'disability_compensation', 'attachments.json').read)
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'disability_compensation', 'default.json').read)
 
           let(:Authorization) { nil }
 
