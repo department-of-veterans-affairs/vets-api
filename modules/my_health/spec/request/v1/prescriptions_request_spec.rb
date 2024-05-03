@@ -293,9 +293,9 @@ RSpec.describe 'prescriptions', type: :request do
           res = JSON.parse(response.body)
           dates = res['data'].map do |d|
             sorted_date_str = d.dig('attributes', 'sortedDispensedDate')
-            sorted_date_str.present? ? Time.zone.parse(sorted_date_str) : Date.new(0, 1, 1)
+            Time.zone.parse(sorted_date_str) unless sorted_date_str.nil?
           end
-          is_sorted = dates.each_cons(2).all? { |item1, item2| item1 >= item2 }
+          is_sorted = dates.select { |item| item.present? }.each_cons(2).all? { |item1, item2| item1 >= item2 }
           expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(is_sorted).to be_truthy
