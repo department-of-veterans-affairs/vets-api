@@ -132,11 +132,9 @@ module BenefitsClaims
       # Since Lighthouse needs 'currentVaEmployee', the following workaround renames it.
       fix_current_va_employee(body)
 
-      json_body = remove_unicode_characters(body)
-
       response = config.post(
         path,
-        json_body,
+        body,
         lighthouse_client_id, lighthouse_rsa_key_path, options
       )
 
@@ -154,17 +152,6 @@ module BenefitsClaims
           attributes: body
         }
       }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
-    end
-
-    # this gsubbing is to fix an issue where the service that generates the 526PDF was failing due to
-    # unicoded carriage returns:
-    # i.e.: \n was throwing: "U+000A ('controlLF') is not available in the font Helvetica, encoding: WinAnsiEncoding"
-    def remove_unicode_characters(body)
-      body.to_json
-          .gsub('\\n', ' ')
-          .gsub('\\r', ' ')
-          .gsub('\\\\n', ' ')
-          .gsub('\\\\r', ' ')
     end
 
     def fix_current_va_employee(body)
