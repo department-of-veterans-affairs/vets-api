@@ -1,4 +1,4 @@
-name: Release and Update Manifests
+name: Deploy
 on:
   pull_request:
     branches:
@@ -8,121 +8,13 @@ on:
       - master
   workflow_call:
 jobs:
-  prepare-values:
-    runs-on: ubuntu-20.04
-    outputs:
-      environments: ${{ steps.set-environments.outputs.environments }}
-    steps:
-      - name: Set to auto deploy environments on push to master
-        run: |
-          echo "triggered via schedule"
-          echo "environments=dev staging prod sandbox" >> $GITHUB_ENV
-      - name: Set output
-        id: set-environments
-        run: |
-          echo "environments=${{ env.environments }}" >> $GITHUB_OUTPUT
-  release:
-    needs: [prepare-values]
+  deploy:
     if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: "us-gov-west-1"
-
-      - name: Log into ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Get bot token from Parameter Store
-        uses: marvinpinto/action-inject-ssm-secrets@latest
-        with:
-          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
-          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
-
-      - name: Install yq if needed
-        run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
-          sudo add-apt-repository ppa:rmescandon/yq
-          sudo apt update
-          sudo apt install yq -y
-
-      - name: Check out Manifest Repo
-        uses: actions/checkout@v3
-        with:
-          repository: department-of-veterans-affairs/vsp-infra-application-manifests
-          token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
-          fetch-depth: 1
-          path: vsp-infra-application-manifests
-          ref: refs/heads/main
-
-      - name: Update vets-api image and version name in Manifest repo for parent helm
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: dsva/vets-api
-        run: |
-          cd vsp-infra-application-manifests/apps/vets-api
-          envs=( ${{ needs.prepare-values.outputs.environments }} )
-          for env in ${envs[*]};
-          do
-            yq e -i '(."vets-api".image.tag) |= "${{ github.sha }}"' $env/values.yaml
-            yq e -i '(."vets-api".web.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ github.sha }}"' $env/values.yaml
-            yq e -i '(."vets-api".web.dbMigrate.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ github.sha }}"' $env/values.yaml
-            yq e -i '(."vets-api".worker.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ github.sha }}"' $env/values.yaml
-          done
-          git diff
-
-      - name: Add and Commit file
-        uses: EndBug/add-and-commit@v9
-        with:
-          new_branch: main
-          add: "*"
-          cwd: vsp-infra-application-manifests/apps
-          author_name: va-vsp-bot
-          author_email: devops@va.gov
-          message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}}."
-        
-  notify_on_failure:
-    runs-on: ubuntu-latest
-    if: failure() && github.ref == 'refs/heads/master'
-    needs: [tests, linting_and_security, build_and_push, deploy]
-    steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@010d0da01d0b5a38af31e9c3470dbfdabdecca3a # v4.0.1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: "us-gov-west-1"
-      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
-        with:
-          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
-          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
-      - name: Checkout VSP actions
-        uses: actions/checkout@v2
-        with:
-          repository: department-of-veterans-affairs/vsp-github-actions
-          ref: refs/heads/main
-          token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
-          persist-credentials: false
-          path: ./.github/actions/vsp-github-actions
-      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
-        with:
-          ssm_parameter: /devops/github_actions_slack_socket_token
-          env_variable_name: SLACK_APP_TOKEN
-      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
-        with:
-          ssm_parameter: /devops/github_actions_slack_bot_user_token
-          env_variable_name: SLACK_BOT_TOKEN
-      - name: slack notify
-        uses: ./.github/actions/vsp-github-actions/slack-socket
-        with:
-          slack_app_token: ${{ env.SLACK_APP_TOKEN }}
-          slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
-          message: "A packer build of ${{ matrix.build_location }} just failed."
-          blocks: "[{\"type\": \"divider\"}, {\"type\": \"section\", \"text\": { \"type\": \"mrkdwn\", \"text\": \":blob-disappointed: GitHub Action Runner Workflow ${{ matrix.build_location }} failed! :blob-disappointed:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Workflow: ${{ github.workflow }} Run #${{ github.run_number }}>\"}}, {\"type\": \"divider\"}]"
-          channel_id: "C039HRTHXDH"
+    uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@master
+    with:
+      ecr_repository: "vets-api"
+      manifests_directory: "vets-api"
+      auto_deploy_envs: "dev staging prod sandbox"
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
