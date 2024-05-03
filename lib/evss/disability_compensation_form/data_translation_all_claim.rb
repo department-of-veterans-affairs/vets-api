@@ -97,7 +97,7 @@ module EVSS
         overflow += FORM4142_OVERFLOW_TEXT if @has_form4142
 
         if Flipper.enabled?(:form526_include_document_upload_list_in_overflow_text)
-          overflow += FORM0781_OVERFLOW_TEXT if @form_content.key?(Form526Submission::FORM_0781)
+          overflow += FORM0781_OVERFLOW_TEXT if input_form['form0781'].present?
           overflow += attached_files_list
         end
 
