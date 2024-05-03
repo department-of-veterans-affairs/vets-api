@@ -7,7 +7,7 @@ info:
     name: va.gov
 tags:
   - name: power_of_attorney
-    description: Manage Power of Attorney representation
+    description: Retrieve Power of Attorney details for a veteran.
 servers:
   - url: http://localhost:3000/services/representation_management
     description: VA.gov API local environment
