@@ -22,7 +22,7 @@ module ClaimsApi
       body = { data: { claimId: claim_id, fileNumber: file_number } }
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "calling benefits documents search for claimId #{claim_id}")
-      client.post('documents/search', body)&.body&.deep_symbolize_keys
+      get_response(body, 'documents/search')
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "/search failure for claimId #{claim_id}, #{e.message}")
@@ -42,7 +42,7 @@ module ClaimsApi
 
       @multipart = true
       body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:)
-      res = client.post('documents', body)&.body&.deep_symbolize_keys
+      res = get_response(body, 'documents')
       request_id = res&.dig(:data, :requestId)
       ClaimsApi::Logger.log(
         'benefits_documents',
@@ -125,6 +125,11 @@ module ClaimsApi
         f.response :json, parser_options: { symbolize_names: true }
         f.adapter Faraday.default_adapter
       end
+    end
+
+    def get_response(body, endpoint)
+      res = client.post(endpoint, body)
+      res&.body&.deep_symbolize_keys if res.present?
     end
   end
 end
