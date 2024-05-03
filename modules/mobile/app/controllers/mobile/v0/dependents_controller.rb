@@ -22,7 +22,9 @@ module Mobile
         claim.process_attachments!
         response = dependent_service.submit_686c_form(claim)
 
-        render json: { data: response }, status: :accepted
+        serialized = NewDependentSerializer.new(response)
+
+        render json: serialized, status: :accepted
       end
 
       private

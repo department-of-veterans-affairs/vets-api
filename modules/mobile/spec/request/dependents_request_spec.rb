@@ -83,9 +83,16 @@ RSpec.describe 'dependents', type: :request do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           post('/mobile/v0/dependents', params: test_form, headers: sis_headers)
         end
+
         expect(response).to have_http_status(:accepted)
         submit_form_job_id = BGS::SubmitForm686cJob.jobs.first['jid']
-        expect(response.parsed_body).to eq({ 'data' => { 'submitFormJobId' => submit_form_job_id } })
+        expect(response.parsed_body['data'].to_h).to match(
+          {  'id' => /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/,
+             'type' => 'dependent',
+             'attributes' => {
+               'submitFormJobId' => submit_form_job_id
+             } }
+        )
       end
     end
 
