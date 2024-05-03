@@ -989,15 +989,14 @@ RSpec.describe 'Disability Claims ', type: :request do
           end
         end
 
-        # temp disable until LH Dash can fix
-        xit 'returns a list of errors when invalid hitting EVSS' do
+        it 'returns a list of errors when invalid hitting EVSS' do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/v1/disability_comp/invalid') do
                   post path, params: data, headers: headers.merge(auth_header)
                   parsed = JSON.parse(response.body)
-                  expect(parsed['errors'][0]['detail']).to include('BackendServiceException')
+                  expect(parsed['errors'].size).to eq(2)
                 end
               end
             end
@@ -1044,6 +1043,40 @@ RSpec.describe 'Disability Claims ', type: :request do
                 end
               end
             end
+          end
+        end
+      end
+    end
+
+    context 'when veteran is missing EDIPI' do
+      let(:no_edipi_target_veteran) do
+        OpenStruct.new(
+          icn: '1012832025V743496',
+          first_name: 'Wesley',
+          last_name: 'Ford',
+          birth_date: '19630211',
+          loa: { current: 3, highest: 3 },
+          edipi: nil,
+          ssn: '796043735',
+          participant_id: '600061742',
+          mpi: OpenStruct.new(
+            icn: '1012832025V743496',
+            profile: OpenStruct.new(ssn: '796043735')
+          )
+        )
+      end
+
+      context 'without the EDIPI value present' do
+        it 'does not allow the submit to occur' do
+          mock_acg(scopes) do |auth_header|
+            allow_any_instance_of(ClaimsApi::V1::Forms::DisabilityCompensationController)
+              .to receive(:target_veteran).and_return(no_edipi_target_veteran)
+            post path, params: data, headers: headers.merge(auth_header)
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response.parsed_body['errors'][0]['detail']).to eq(
+              "Unable to locate Veteran's EDIPI in Master Person Index (MPI). " \
+              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
+            )
           end
         end
       end
