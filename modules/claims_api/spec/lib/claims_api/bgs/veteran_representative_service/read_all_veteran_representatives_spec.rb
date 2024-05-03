@@ -2,12 +2,12 @@
 
 require 'rails_helper'
 require 'bgs_service/veteran_representative_service'
-require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_helpers.rb')
+require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_spec_helpers.rb')
 
 metadata = {
   bgs: {
     service: 'veteran_representative_service',
-    operation: 'read_all_veteran_representatives'
+    action: 'read_all_veteran_representatives'
   },
   run_at: '2024-04-17T23:10:31+00:00'
 }
