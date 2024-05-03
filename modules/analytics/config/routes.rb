@@ -2,6 +2,6 @@
 
 Analytics::Engine.routes.draw do
   namespace :v0, defaults: { format: 'json' } do
-    get '/user/hashes', to: 'hashes#index'
+    get '/user/hashes', to: 'analytics#index'
   end
 end

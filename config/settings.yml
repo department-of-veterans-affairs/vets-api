@@ -1721,3 +1721,7 @@ vye:
 schema_contract:
   appointments_index: 'modules/vaos/app/schemas/appointments_index.json'
   test_index: 'spec/fixtures/schema_contract/test_schema.json'
+
+analytics:
+  unique_user: 
+    salt: 'fake-salt'
