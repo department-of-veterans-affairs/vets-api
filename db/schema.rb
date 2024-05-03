@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_01_183550) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_02_175753) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -126,6 +126,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_01_183550) do
     t.index ["location"], name: "index_accredited_organizations_on_location", using: :gist
     t.index ["name"], name: "index_accredited_organizations_on_name"
     t.index ["poa_code"], name: "index_accredited_organizations_on_poa_code", unique: true
+  end
+
+  create_table "accredited_representative_portal_verified_representatives", force: :cascade do |t|
+    t.string "ogc_registration_number", null: false
+    t.string "email", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_verified_representatives_on_email", unique: true
+    t.index ["ogc_registration_number"], name: "index_verified_representatives_on_ogc_number", unique: true
   end
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -459,6 +468,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_01_183550) do
     t.text "encrypted_kms_key"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
+  end
+
+  create_table "decision_review_evidence_attachment_validations", force: :cascade do |t|
+    t.uuid "decision_review_evidence_attachment_guid", null: false
+    t.text "password_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["decision_review_evidence_attachment_guid"], name: "index_dr_evidence_attachment_validation_on_guid"
   end
 
   create_table "deprecated_user_accounts", force: :cascade do |t|
@@ -1222,17 +1240,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_01_183550) do
     t.index ["user_account_id"], name: "index_va_notify_in_progress_reminders_sent_on_user_account_id"
   end
 
-  create_table "vba_documents_git_items", force: :cascade do |t|
-    t.string "url", null: false
-    t.jsonb "git_item"
-    t.boolean "notified", default: false
-    t.string "label"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["notified", "label"], name: "index_vba_documents_git_items_on_notified_and_label"
-    t.index ["url"], name: "index_vba_documents_git_items_on_url", unique: true
-  end
-
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
     t.integer "month", null: false
     t.integer "year", null: false
@@ -1399,6 +1406,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_01_183550) do
     t.date "transact_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["export_ready"], name: "index_vye_bdn_clones_on_export_ready"
+    t.index ["is_active"], name: "index_vye_bdn_clones_on_is_active"
   end
 
   create_table "vye_direct_deposit_changes", force: :cascade do |t|
@@ -1451,6 +1460,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_01_183550) do
     t.integer "bdn_clone_id"
     t.integer "bdn_clone_line"
     t.boolean "bdn_clone_active"
+    t.index ["bdn_clone_active"], name: "index_vye_user_infos_on_bdn_clone_active"
+    t.index ["bdn_clone_id"], name: "index_vye_user_infos_on_bdn_clone_id"
+    t.index ["bdn_clone_line"], name: "index_vye_user_infos_on_bdn_clone_line"
   end
 
   create_table "vye_user_profiles", force: :cascade do |t|
