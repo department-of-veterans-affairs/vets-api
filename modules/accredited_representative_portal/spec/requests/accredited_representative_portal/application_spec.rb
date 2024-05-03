@@ -11,7 +11,6 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
 
     let(:arp_client_id) { 'arp' }
     let(:invalid_client_id) { 'invalid' }
-
     let(:valid_access_token) { create(:access_token, audience: [arp_client_id]) }
     let(:invalid_access_token) { create(:access_token, audience: [invalid_client_id]) }
     let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: valid_access_token).perform }
@@ -37,24 +36,6 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
       context 'with a valid audience' do
         it 'allows access' do
           expect(subject).to have_http_status(:ok)
-        end
-
-        context 'when the representatives_portal_api feature toggle' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_api).and_return(enabled)
-          end
-
-          context 'is enabled' do
-            let(:enabled) { true }
-
-            it { is_expected.to have_http_status(:ok) }
-          end
-
-          context 'is disabled' do
-            let(:enabled) { false }
-
-            it { is_expected.to have_http_status(:not_found) }
-          end
         end
       end
 
