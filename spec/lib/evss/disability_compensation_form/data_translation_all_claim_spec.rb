@@ -193,33 +193,59 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
           end
 
-          context 'when there is less than 40 files present' do
-            it 'includes a list of documents in the overflow text ordered alphabetically' do
-              expected_file_list = 'The veteran uploaded 2 documents along with this claim. ' \
-                                   "Please verify in VBMS eFolder:\n" \
-                                   "my_file_1.pdf\n" \
-                                   "my_file_2.pdf\n"
-              expect(subject.send(:overflow_text)).to eq(expected_file_list)
-            end
+          let(:file_list) do
+            'The veteran uploaded 2 documents along with this claim. ' \
+              "Please verify in VBMS eFolder:\n" \
+              "my_file_1.pdf\n" \
+              "my_file_2.pdf\n"
           end
 
-          context 'when there are more than 40 files present' do
-            it 'includes the document count but does not list the file names' do
-              attachments = []
+          it 'includes a list of documents in the overflow text ordered alphabetically' do
+            expect(subject.send(:overflow_text)).to eq(file_list)
+          end
 
-              41.times do
-                attachments << { 'confirmationCode' => SecureRandom.uuid }
-              end
+          context 'when the terminally ill, form 4142 and form 0781 notes are also present' do
+            # Third argument, has_form4142, set to true so that note is present
+            subject { described_class.new(user, form_content, true) }
 
-              form_content = {
+            let(:form_content) do
+              {
                 'form526' => {
-                  'attachments' => attachments
+                  'isTerminallyIll' => true,
+                  'attachments' => [
+                    { 'confirmationCode' => file1_guid },
+                    { 'confirmationCode' => file2_guid }
+                  ],
+                  'form0781' => {
+                    'incidents' => []
+                  }
                 }
               }
+            end
 
-              subject = described_class.new(user, form_content, false)
+            let(:has_form4142) { true }
+
+            let(:terminally_ill_note) do
+              "Corporate Flash Details\n" \
+                "This applicant has indicated that they're terminally ill.\n" \
+            end
+
+            let(:form_4142_note) do
+              'VA Form 21-4142/4142a has been completed by the applicant and ' \
+                'sent to the PMR contractor for processing in accordance with ' \
+                'M21-1 III.iii.1.D.2.' \
+            end
+
+            let(:form_0781_note) do
+              "VA Form 0781/a has been completed by the applicant and sent to the VBMS eFolder\n"
+            end
+
+            it 'lists them in the order: 1. Terminally Ill, 2. Form 4142, 3. Form 0781, 4. Veteran file list' do
               expect(subject.send(:overflow_text)).to eq(
-                "The veteran uploaded 41 documents along with this claim. Please verify in VBMS eFolder\n"
+                terminally_ill_note +
+                form_4142_note +
+                form_0781_note +
+                file_list
               )
             end
           end
