@@ -5,6 +5,7 @@ require 'common/exceptions'
 
 module AppealsApi
   class NoticeOfDisagreement < ApplicationRecord
+    include AppealScopes
     include NodStatus
     include PdfOutputPrep
     include ModelValidations
@@ -20,15 +21,6 @@ module AppealsApi
 
     before_create :assign_metadata, :assign_veteran_icn
     before_update :submit_evidence_to_central_mail!, if: -> { status_changed_to_success? && delay_evidence_enabled? }
-
-    scope :pii_expunge_policy, lambda {
-      where(
-        status: COMPLETE_STATUSES
-      ).and(
-        where('updated_at < ? AND board_review_option IN (?)', 1.week.ago, %w[hearing direct_review])
-        .or(where('updated_at < ? AND board_review_option IN (?)', 91.days.ago, 'evidence_submission'))
-      )
-    }
 
     scope :stuck_unsubmitted, lambda {
       where('created_at < ? AND status IN (?)', 2.hours.ago, %w[pending submitting])
@@ -269,7 +261,7 @@ module AppealsApi
         return if auth_headers.blank? # Go no further if we've removed PII
 
         if status == 'submitted' && email_present?
-          AppealsApi::AppealSubmittedJob.perform_async(id, self.class.name, appellant_local_time.iso8601)
+          AppealsApi::AppealReceivedJob.perform_async(id, self.class.name, appellant_local_time.iso8601)
         end
       end
     end

@@ -62,7 +62,7 @@ describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger
             stub_poa_verification
 
             mock_acg(scopes) do
-              VCR.use_cassette('bgs/claims/claims_trimmed_down') do
+              VCR.use_cassette('claims_api/bgs/claims/claims_trimmed_down') do
                 allow_any_instance_of(ClaimsApi::V1::ApplicationController)
                   .to receive(:target_veteran).and_return(target_veteran)
                 submit_request(example.metadata)
@@ -96,7 +96,7 @@ describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger
             stub_poa_verification
 
             mock_acg(scopes) do
-              VCR.use_cassette('bgs/claims/claims') do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
                 submit_request(example.metadata)
               end
@@ -131,7 +131,7 @@ describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger
               Common::Exceptions::ResourceNotFound.new(detail: 'The Resource was not found.')
             )
             mock_acg(scopes) do
-              VCR.use_cassette('bgs/claims/claims') do
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
                 submit_request(example.metadata)
               end
             end
@@ -201,7 +201,7 @@ describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger
             stub_poa_verification
 
             mock_acg(scopes) do
-              VCR.use_cassette('bgs/claims/claim') do
+              VCR.use_cassette('claims_api/bgs/claims/claim') do
                 submit_request(example.metadata)
               end
             end
@@ -234,7 +234,7 @@ describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger
             stub_poa_verification
 
             mock_acg(scopes) do
-              VCR.use_cassette('bgs/claims/claim') do
+              VCR.use_cassette('claims_api/bgs/claims/claim') do
                 allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
                 submit_request(example.metadata)
               end

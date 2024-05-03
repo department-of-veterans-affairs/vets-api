@@ -44,7 +44,7 @@
     "guardianEmail":"test84@test.com"
   },
   "applicantServed": "Yes",
-  "isActiveDuty": true,
+  "isActiveDuty": false,
   "toursOfDuty": [{
     "dateRange": {
       "from": "2010-06-26",

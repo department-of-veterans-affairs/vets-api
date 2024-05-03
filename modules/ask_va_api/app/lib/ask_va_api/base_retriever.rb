@@ -10,8 +10,7 @@ module AskVAApi
     end
 
     def call
-      data_array = fetch_data
-      data_array.map { |item| entity_class.new(item) }
+      fetch_data.map { |item| entity_class.new(item) }
     rescue => e
       ::ErrorHandler.handle_service_error(e)
     end

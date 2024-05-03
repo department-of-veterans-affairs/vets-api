@@ -33,53 +33,23 @@ module TravelClaim
     end
 
     def icn(uuid:)
-      if Flipper.enabled?('check_in_experience_travel_claim_redis_client_refactor')
-        return fetch_attribute(uuid:, attribute: :icn)
-      end
-
-      return nil if appointment_identifiers(uuid:).nil?
-
-      Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :icn)
+      fetch_attribute(uuid:, attribute: :icn)
     end
 
     def mobile_phone(uuid:)
-      if Flipper.enabled?('check_in_experience_travel_claim_redis_client_refactor')
-        return fetch_attribute(uuid:, attribute: :mobilePhone)
-      end
-
-      return nil if appointment_identifiers(uuid:).nil?
-
-      Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :mobilePhone)
+      fetch_attribute(uuid:, attribute: :mobilePhone)
     end
 
     def patient_cell_phone(uuid:)
-      if Flipper.enabled?('check_in_experience_travel_claim_redis_client_refactor')
-        return fetch_attribute(uuid:, attribute: :patientCellPhone)
-      end
-
-      return nil if appointment_identifiers(uuid:).nil?
-
-      Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :patientCellPhone)
+      fetch_attribute(uuid:, attribute: :patientCellPhone)
     end
 
     def station_number(uuid:)
-      if Flipper.enabled?('check_in_experience_travel_claim_redis_client_refactor')
-        return fetch_attribute(uuid:, attribute: :stationNo)
-      end
-
-      return nil if appointment_identifiers(uuid:).nil?
-
-      Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :stationNo)
+      fetch_attribute(uuid:, attribute: :stationNo)
     end
 
     def facility_type(uuid:)
-      if Flipper.enabled?('check_in_experience_travel_claim_redis_client_refactor')
-        return fetch_attribute(uuid:, attribute: :facilityType)
-      end
-
-      return nil if appointment_identifiers(uuid:).nil?
-
-      Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :facilityType)
+      fetch_attribute(uuid:, attribute: :facilityType)
     end
 
     def fetch_attribute(uuid:, attribute:)

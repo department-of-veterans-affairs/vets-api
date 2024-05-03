@@ -17,9 +17,22 @@ FactoryBot.define do
     end
   end
 
+  trait :backup_path do
+    lighthouse_format_guid = "#{SecureRandom.hex(8)}-#{SecureRandom.hex(4)}-" \
+                             "#{SecureRandom.hex(4)}-#{SecureRandom.hex(4)}-" \
+                             "#{SecureRandom.hex(12)}"
+    backup_submitted_claim_id { lighthouse_format_guid }
+  end
+
   trait :with_everything do
     form_json do
       File.read("#{submissions_path}/with_everything.json")
+    end
+  end
+
+  trait :with_everything_toxic_exposure do
+    form_json do
+      File.read("#{submissions_path}/with_everything_toxic_exposure.json")
     end
   end
 

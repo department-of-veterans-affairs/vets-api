@@ -70,26 +70,76 @@ RSpec.describe TermsOfUse::Acceptor, type: :service do
     end
 
     describe '#perform!' do
-      let(:expected_attr_key) do
-        Digest::SHA256.hexdigest({ icn:, signature_name: common_name, version: }.to_json)
-      end
+      let(:expected_attr_key) { SecureRandom.hex(32) }
+      let(:sign_up_service_updater_job) { TermsOfUse::SignUpServiceUpdaterJob.set(sync:) }
 
       before do
-        allow(TermsOfUse::SignUpServiceUpdaterJob).to receive(:perform_async)
+        allow(SecureRandom).to receive(:hex).and_return(expected_attr_key)
+        allow(Rails.logger).to receive(:info)
+        allow(TermsOfUse::SignUpServiceUpdaterJob).to receive(:set).and_return(sign_up_service_updater_job)
+        allow(sign_up_service_updater_job).to receive(:perform_async)
       end
 
-      it 'creates a new terms of use agreement with the given version' do
-        expect { acceptor.perform! }.to change { user_account.terms_of_use_agreements.count }.by(1)
-        expect(user_account.terms_of_use_agreements.last.agreement_version).to eq(version)
+      context 'when sync is false' do
+        let(:sync) { false }
+
+        it 'creates a new terms of use agreement with the given version' do
+          expect { acceptor.perform! }.to change { user_account.terms_of_use_agreements.count }.by(1)
+          expect(user_account.terms_of_use_agreements.last.agreement_version).to eq(version)
+        end
+
+        it 'marks the terms of use agreement as accepted' do
+          expect(acceptor.perform!).to be_accepted
+        end
+
+        it 'enqueues the SignUpServiceUpdaterJob with expected parameters' do
+          acceptor.perform!
+          expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:set).with(sync: false)
+          expect(sign_up_service_updater_job).to have_received(:perform_async).with(expected_attr_key)
+        end
+
+        it 'logs the attr_package key' do
+          acceptor.perform!
+          expect(Rails.logger).to have_received(:info).with('[TermsOfUse] [Acceptor] attr_package key',
+                                                            { icn:, attr_package_key: expected_attr_key })
+        end
       end
 
-      it 'marks the terms of use agreement as accepted' do
-        expect(acceptor.perform!).to be_accepted
-      end
+      context 'when sync is true' do
+        subject(:acceptor) { described_class.new(user_account:, common_name:, version:, sync: true) }
 
-      it 'enqueues the SignUpServiceUpdaterJob with expected parameters' do
-        acceptor.perform!
-        expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:perform_async).with(expected_attr_key)
+        let(:sync) { true }
+
+        it 'calls the SignUpServiceUpdaterJob with expected parameters' do
+          acceptor.perform!
+          expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:set).with(sync: true)
+          expect(sign_up_service_updater_job).to have_received(:perform_async).with(expected_attr_key)
+        end
+
+        it 'creates a new terms of use agreement with the given version' do
+          expect { acceptor.perform! }.to change { user_account.terms_of_use_agreements.count }.by(1)
+          expect(user_account.terms_of_use_agreements.last.agreement_version).to eq(version)
+        end
+
+        it 'marks the terms of use agreement as accepted' do
+          expect(acceptor.perform!).to be_accepted
+        end
+
+        it 'logs the attr_package key' do
+          acceptor.perform!
+          expect(Rails.logger).to have_received(:info).with('[TermsOfUse] [Acceptor] attr_package key',
+                                                            { icn:, attr_package_key: expected_attr_key })
+        end
+
+        context 'when the SignUpServiceUpdaterJob raises an error' do
+          before do
+            allow(sign_up_service_updater_job).to receive(:perform_async).and_raise(StandardError)
+          end
+
+          it 'raises an AcceptorError' do
+            expect { acceptor.perform! }.to raise_error(TermsOfUse::Errors::AcceptorError)
+          end
+        end
       end
     end
   end

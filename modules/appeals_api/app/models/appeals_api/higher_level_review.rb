@@ -5,9 +5,11 @@ require 'common/exceptions'
 
 module AppealsApi
   class HigherLevelReview < ApplicationRecord
+    include AppealScopes
     include HlrStatus
     include PdfOutputPrep
     include ModelValidations
+
     required_claimant_headers %w[
       X-VA-NonVeteranClaimant-First-Name
       X-VA-NonVeteranClaimant-Last-Name
@@ -18,12 +20,6 @@ module AppealsApi
     attr_readonly :form_data
 
     before_create :assign_metadata, :assign_veteran_icn
-
-    scope :pii_expunge_policy, lambda {
-      timeframe = 7.days.ago
-      v1.where('updated_at < ? AND status IN (?)', timeframe, COMPLETE_STATUSES + ['success'])
-        .or(v2_or_v0.where('updated_at < ? AND status IN (?)', timeframe, COMPLETE_STATUSES))
-    }
 
     scope :stuck_unsubmitted, lambda {
       where('created_at < ? AND status IN (?)', 2.hours.ago, %w[pending submitting])
@@ -256,7 +252,7 @@ module AppealsApi
         return if auth_headers.blank? # Go no further if we've removed PII
 
         if status == 'submitted' && email_present?
-          AppealsApi::AppealSubmittedJob.perform_async(id, self.class.name, appellant_local_time.iso8601)
+          AppealsApi::AppealReceivedJob.perform_async(id, self.class.name, appellant_local_time.iso8601)
         end
       end
     end
