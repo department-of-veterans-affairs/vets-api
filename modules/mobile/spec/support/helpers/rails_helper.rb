@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative 'spec_helper'
 require_relative 'sis_session_helper'
 require_relative '../../support/matchers/json_schema_matcher'
 
