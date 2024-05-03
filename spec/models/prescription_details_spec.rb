@@ -46,7 +46,7 @@ describe PrescriptionDetails do
   context 'sorted_dispensed_date test cases with dispensed_date' do
     subject do
       described_class.new(attributes_for(:prescription_details,
-                                          dispensed_date: Time.parse('Thu, 21 Apr 2016 00:00:00 EDT').in_time_zone, 
+                                         dispensed_date: Time.parse('Thu, 21 Apr 2016 00:00:00 EDT').in_time_zone,
                                          rx_rf_records: nil))
     end
 
@@ -55,7 +55,7 @@ describe PrescriptionDetails do
     end
   end
 
-  context 'sorted_dispensed_date test cases with dispensed_date' do
+  context 'sorted_dispensed_date test cases with sorted_dispensed_date' do
     subject { described_class.new(prescription_details_attributes) }
 
     it 'sorted_dispensed_date should be same as sorted_dispensed_date' do
@@ -66,7 +66,7 @@ describe PrescriptionDetails do
   context 'sorted_dispensed_date test cases with nil' do
     subject do
       described_class.new(attributes_for(:prescription_details,
-                                          dispensed_date: nil, 
+                                         dispensed_date: nil,
                                          rx_rf_records: [['rf_record',
                                                           [{ refill_date: 'Sat, 15 Jul 2023 00:00:00 EDT',
                                                              dispensed_date: nil }]]]))
