@@ -18,7 +18,7 @@
         "attributes": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["claimProcessType", "veteranIdentification", "changeOfAddress", "homeless", "toxicExposure", "disabilities", "treatments", "serviceInformation", "servicePay", "directDeposit"],
+          "required": ["claimProcessType", "veteranIdentification", "disabilities", "serviceInformation", "claimantCertification"],
           "properties": {
             "claimProcessType": {
               "type": "string"

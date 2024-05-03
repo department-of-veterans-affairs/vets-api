@@ -6072,7 +6072,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "04c9d9c7-886a-435b-8241-13e0eade7250",
+                    "id": "a38ff17d-302f-4085-8337-f72757328d9c",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -6324,14 +6324,9 @@
                           "required": [
                             "claimProcessType",
                             "veteranIdentification",
-                            "changeOfAddress",
-                            "homeless",
-                            "toxicExposure",
                             "disabilities",
-                            "treatments",
                             "serviceInformation",
-                            "servicePay",
-                            "directDeposit"
+                            "claimantCertification"
                           ],
                           "properties": {
                             "claimProcessType": {
@@ -9773,7 +9768,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8ba04d86-b4f1-43b3-888a-cb6b63b84064",
+                    "id": "565eb19a-d69c-491d-b2c9-c42c63fbd995",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -10469,7 +10464,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "cda08eca-9053-43ef-af92-a5312bcff571",
+                    "id": "d315f999-27a9-4a16-91dd-58f566668c38",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12429,7 +12424,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "85681f32-2438-44a6-862d-28e9b8049f68",
+                    "id": "6a46806c-d34b-468d-84b4-d27ce6cf8642",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",

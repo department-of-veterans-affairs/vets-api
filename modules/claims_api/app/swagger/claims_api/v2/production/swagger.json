@@ -5789,7 +5789,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5b74a657-72cf-4a7a-8767-abf871ffbde2",
+                    "id": "50c9845c-7365-47ad-aa0d-9a4f6d3c6ca5",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -6041,14 +6041,9 @@
                           "required": [
                             "claimProcessType",
                             "veteranIdentification",
-                            "changeOfAddress",
-                            "homeless",
-                            "toxicExposure",
                             "disabilities",
-                            "treatments",
                             "serviceInformation",
-                            "servicePay",
-                            "directDeposit"
+                            "claimantCertification"
                           ],
                           "properties": {
                             "claimProcessType": {
@@ -9319,6 +9314,67 @@
               }
             }
           },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "status": "404",
+                      "detail": "Could not retrieve Power of Attorney with code: A1Q",
+                      "source": {
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:128:in `representative'"
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unprocessable Entity",
             "content": {
@@ -9330,7 +9386,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:130:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:134:in `representative'"
                       }
                     }
                   ]
@@ -9429,7 +9485,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d4172861-e33b-4e95-8582-69b62b6abb8f",
+                    "id": "f1dc3e81-4329-4cad-a2ef-fb1db59cff7c",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -10125,7 +10181,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d1737684-2d50-4bd0-a2c9-a2411aced8f3",
+                    "id": "18c5340d-ad76-4ea7-9874-fd5edf9ae0bb",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12085,7 +12141,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e2a5709e-41a8-49be-8afe-a235ff079ba2",
+                    "id": "df1dc007-5bf6-4e34-9f76-cd3a1ae7d3ae",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
