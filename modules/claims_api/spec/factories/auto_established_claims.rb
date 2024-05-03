@@ -255,7 +255,12 @@ FactoryBot.define do
     auth_headers { { test: ('a'..'z').to_a.shuffle.join } }
     form_data do
       json = JSON.parse(File
-             .read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/v2/veterans/disability_compensation/form_526_json_api.json'.split('/')).to_s))
+             .read(
+               ::Rails.root.join(
+                 *'/modules/claims_api/spec/fixtures/v2/veterans/disability_compensation/form_526_json_api.json'
+                 .split('/')
+               ).to_s
+             ))
       json['data']['attributes']
     end
   end
