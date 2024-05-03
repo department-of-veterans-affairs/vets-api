@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'benefits_intake_service/service'
-require 'central_mail/datestamp_pdf'
-require 'simple_forms_api_submission/metadata_validator'
+require 'lighthouse/benefits_intake/service'
+require 'lighthouse/benefits_intake/metadata'
 require 'pension_21p527ez/tag_sentry'
 require 'pension_21p527ez/monitor'
+require 'pdf_utilities/datestamp_pdf'
 
 module Lighthouse
   class PensionBenefitIntakeJob
@@ -39,34 +39,31 @@ module Lighthouse
     # @param [Integer] saved_claim_id
     # rubocop:disable Metrics/MethodLength
     def perform(saved_claim_id, user_uuid = nil)
-      Pension21p527ez::TagSentry.tag_sentry
-      @user_uuid = user_uuid
-      @saved_claim_id = saved_claim_id
-      @claim = SavedClaim::Pension.find(saved_claim_id)
-      raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
-      @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
-      pension_monitor.track_submission_begun(@claim, @lighthouse_service, @user_uuid)
-
-      form_submission_polling
+      init(saved_claim_id, user_uuid)
 
       @form_path = process_pdf(@claim.to_pdf)
       @attachment_paths = @claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf) }
 
+      @pension_monitor.track_submission_begun(@claim, @lighthouse_service, @user_uuid)
+
+      form_submission_polling
+
+
       metadata = generate_form_metadata_lh
       payload = {
         upload_url: @lighthouse_service.location,
-        file: split_file_and_path(@form_path),
+        file: @form_path,
         metadata: metadata.to_json,
-        attachments: @attachment_paths.map(&method(:split_file_and_path))
+        attachments: @attachment_paths
       }
 
-      pension_monitor.track_submission_attempted(@claim, @lighthouse_service, @user_uuid, payload)
+      @pension_monitor.track_submission_attempted(@claim, @lighthouse_service, @user_uuid, payload)
       response = @lighthouse_service.upload_doc(**payload)
 
       check_success(response)
     rescue => e
-      pension_monitor.track_submission_retry(@claim, @lighthouse_service, @user_uuid, e)
+      @pension_monitor.track_submission_retry(@claim, @lighthouse_service, @user_uuid, e)
       @form_submission_attempt&.fail!
       raise e
     ensure
@@ -74,33 +71,38 @@ module Lighthouse
     end
     # rubocop:enable Metrics/MethodLength
 
+    private
+
+    def init(saved_claim_id, user_uuid)
+      Pension21p527ez::TagSentry.tag_sentry
+
+      @saved_claim_id = saved_claim_id
+      @claim = SavedClaim::Pension.find(saved_claim_id)
+      raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
+
+      @user_uuid = user_uuid
+      @intake_service = BenefitsIntake::Service.new
+
+      @pension_monitor = Pension21p527ez::Monitor.new
+
+    end
+
     # Create a temp stamped PDF, validate the PDF satisfies Benefits Intake specification
     #
     # Raises PensionBenefitIntakeError if PDF is invalid
     #
-    # @param [String] pdf_path
-    # @return [String] path to temp stamped PDF
-    def process_pdf(pdf_path)
-      stamped_path = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
-      stamped_path = CentralMail::DatestampPdf.new(stamped_path).run(
+    # @param [String] file_path
+    # @return [String] path to stamped PDF
+    def process_document(file_path)
+      document = PDFUtilities::DatestampPdf.new(file_path).run(text: 'VA.GOV', x: 5, y: 5)
+      document = PDFUtilities::DatestampPdf.new(document).run(
         text: 'FDC Reviewed - va.gov Submission',
         x: 429,
         y: 770,
         text_only: true
       )
 
-      response = BenefitsIntakeService::Service.new.validate_document(doc_path: stamped_path)
-      raise PensionBenefitIntakeError, "Invalid Document: #{response}" unless response.success?
-
-      stamped_path
-    end
-
-    # Format doc path to send in upload to Benefits Intake API
-    #
-    # @param [String] path
-    # @return [Hash] { file:, file_name: }
-    def split_file_and_path(path)
-      { file: path, file_name: path.split('/').last }
+      @intake_service.valid_document?(document:)
     end
 
     # Generate form metadata to send in upload to Benefits Intake API
@@ -133,7 +135,7 @@ module Lighthouse
     # @param [Object] response
     def check_success(response)
       if response.success?
-        pension_monitor.track_submission_success(@claim, @lighthouse_service, @user_uuid)
+        @pension_monitor.track_submission_success(@claim, @lighthouse_service, @user_uuid)
 
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       else
@@ -160,14 +162,9 @@ module Lighthouse
       Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     rescue => e
-      pension_monitor.track_file_cleanup_error(@claim, @lighthouse_service, @user_uuid, e)
+      @pension_monitor.track_file_cleanup_error(@claim, @lighthouse_service, @user_uuid, e)
       raise e
     end
 
-    private
-
-    def pension_monitor
-      Pension21p527ez::Monitor.new
-    end
   end
 end
