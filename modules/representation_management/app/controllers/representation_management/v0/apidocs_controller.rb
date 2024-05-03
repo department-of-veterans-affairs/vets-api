@@ -7,7 +7,7 @@ module RepresentationManagement
       skip_before_action :authenticate
 
       def index
-        swagger = YAML.safe_load(File.read(RepresentationManagement::Engine.root.join('app/docs/representation_management/v0/power_of_attorney_controller.yaml')))
+        swagger = YAML.safe_load(File.read(RepresentationManagement::Engine.root.join('app/docs/representation_management/v0/power_of_attorney_controller.yaml'))) # rubocop:disable Layout/LineLength
 
         render json: swagger
       end
