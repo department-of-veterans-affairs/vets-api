@@ -69,10 +69,8 @@ paths:
                           - state_code
                           - zip_code
                   - type: object
-                    description: An empty JSON object indicating no active Power of Attorney exists.
+                    description: An empty JSON object indicating no Power of Attorney exists.
                     example: {}
-        '204':
-          description: No active Power of Attorney information available.
 components:
   schemas:
     BadRequestError:
