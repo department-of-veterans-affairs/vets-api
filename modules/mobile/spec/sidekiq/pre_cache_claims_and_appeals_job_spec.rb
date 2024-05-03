@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/spec_helper'
 require_relative '../support/helpers/sis_session_helper'
 require 'lighthouse/benefits_claims/configuration'
 require 'lighthouse/benefits_claims/service'
