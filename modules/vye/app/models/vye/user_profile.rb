@@ -4,17 +4,15 @@ class Vye::UserProfile < ApplicationRecord
   include Vye::DigestProtected
 
   has_many :user_infos, dependent: :restrict_with_exception
-
-  has_many(
-    :active_user_infos,
-    lambda {
-      order(created_at: :desc).limit(1)
-    },
-    class_name: 'Vye::UserInfo', inverse_of: :user_profile,
+  has_one(
+    :active_user_info,
+    -> { with_bdn_clone_active },
+    class_name: 'Vye::UserInfo',
+    inverse_of: :user_profile,
     dependent: :restrict_with_exception
   )
-
   has_many :pending_documents, dependent: :restrict_with_exception
+  has_many :verifications, dependent: :restrict_with_exception
 
   digest_attribute :ssn
   digest_attribute :file_number
@@ -28,11 +26,7 @@ class Vye::UserProfile < ApplicationRecord
     end
   end
 
-  scope :with_assos, -> { includes(:pending_documents, active_user_infos: %i[address_changes awards verifications]) }
-
-  def active_user_info
-    active_user_infos.first
-  end
+  scope :with_assos, -> { includes(:pending_documents, :verifications, active_user_info: %i[address_changes awards]) }
 
   def self.find_and_update_icn(user:)
     return if user.blank?
