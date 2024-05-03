@@ -108,7 +108,7 @@ module BenefitsIntake
     #
     # @param [Hash] metadata
     #
-    # @returns [Hash] validated and corrected metadata
+    # @return [Hash] validated and corrected metadata
     #
     def valid_metadata?(metadata:)
       BenefitsIntake::Metadata.validate(metadata)
