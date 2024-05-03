@@ -171,11 +171,8 @@ module BenefitsClaims
     def remove_empty_confinements(body)
       if body.dig('data', 'attributes', 'serviceInformation')&.select do |field|
         field['confinements']
-      end&.key?('confinements')
-        if body['data']['attributes']['serviceInformation']['confinements'].nil? ||
-          body['data']['attributes']['serviceInformation']['confinements'].empty?
-          body['data']['attributes']['serviceInformation'].delete('confinements')
-        end
+      end&.key?('confinements') && body['data']['attributes']['serviceInformation']['confinements'].blank?
+        body['data']['attributes']['serviceInformation'].delete('confinements')
       end
     end
 
