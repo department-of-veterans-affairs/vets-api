@@ -7,7 +7,7 @@ RSpec.describe 'V2::ApidocsController', type: :request do
     it 'is successful' do
       get '/facilities_api/v2/apidocs'
 
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
     end
 
     it 'is a hash' do
@@ -21,7 +21,7 @@ RSpec.describe 'V2::ApidocsController', type: :request do
 
       get '/facilities_api/v2/apidocs'
 
-      expect(JSON.parse(response.body).dig('tags')[0]['description']).to eq(description)
+      expect(JSON.parse(response.body)['tags'][0]['description']).to eq(description)
     end
   end
 end

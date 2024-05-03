@@ -64,7 +64,7 @@ module FacilitiesApi
           key :description, 'Current status of facility operations.'
           property :code, type: :string, example: 'NORMAL'
           property :additionalInfo, type: :string, example: 'Additional information about the operating status.'
-          end
+        end
 
         property :operationalHoursSpecialInstructions, type: :array do
           items type: :string
