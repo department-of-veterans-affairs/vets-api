@@ -7,6 +7,11 @@ on:
     branches:
       - master
   workflow_call:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Build"]
+    types: [completed]
+  workflow_call:
 jobs:
   deploy:
     if: github.ref == 'refs/heads/master'
