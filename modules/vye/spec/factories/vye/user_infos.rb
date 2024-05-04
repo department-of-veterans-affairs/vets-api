@@ -22,5 +22,6 @@ FactoryBot.define do
     fac_code { Faker::Lorem.word }
     payment_amt { Faker::Number.decimal(l_digits: 4, r_digits: 2) }
     indicator { Vye::UserInfo.indicators.values.sample }
+    bdn_clone_active { true }
   end
 end
