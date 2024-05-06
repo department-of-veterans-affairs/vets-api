@@ -3984,13 +3984,29 @@ RSpec.describe 'Disability Claims', type: :request do
   describe 'POST #synchronous' do
     let(:veteran_id) { '1012832025V743496' }
     let(:synchronous_path) { "/services/claims/v2/veterans/#{veteran_id}/526/synchronous" }
+    let(:synchronous_scopes) { %w[system/526.override system/claim.write] }
+    let(:invalid_scopes) { %w[system/526-pdf.override] }
 
-    context 'when the endpoint is hit' do
+    context 'submission to synchronous' do
       it 'returns an empty test object' do
-        mock_ccg(scopes) do |auth_header|
+        mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
           post synchronous_path, params: {}.to_json, headers: auth_header
 
           expect(JSON.parse(response.body)).to eq({})
+        end
+      end
+
+      it 'returns a 200 response when successful' do
+        mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+          post synchronous_path, params: {}.to_json, headers: auth_header
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      it 'returns a 401 unauthorized with incorrect scopes' do
+        mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
+          post synchronous_path, params: {}.to_json, headers: auth_header
+          expect(response).to have_http_status(:unauthorized)
         end
       end
     end
