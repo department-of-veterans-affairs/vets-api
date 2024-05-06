@@ -1427,4 +1427,4 @@ features:
     enable_in_development: true
   toggle_vye_adress_direct_deposit_forms:
     actor_type: user
-    description: Enable mailing address and direct deposit for VYE
+    description: Enable mailing address and direct deposit for VYE 
