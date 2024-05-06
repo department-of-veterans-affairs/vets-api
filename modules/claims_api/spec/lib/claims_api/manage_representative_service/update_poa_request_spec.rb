@@ -2,12 +2,12 @@
 
 require 'rails_helper'
 require 'bgs_service/manage_representative_service'
-require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_helpers.rb')
+require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_spec_helpers.rb')
 
 metadata = {
   bgs: {
     service: 'manage_representative_service',
-    operation: 'update_poa_request'
+    action: 'update_poa_request'
   }
 }
 
@@ -47,13 +47,13 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
         use_bgs_cassette('happy_path') do
           expect(subject).to eq(
             {
-              vso_user_email: nil,
-              vso_user_first_name: params[:representative].first_name,
-              vso_user_last_name: params[:representative].last_name,
-              declined_reason: nil,
-              proc_id: params[:proc_id],
-              secondary_status: 'OBS',
-              date_request_actioned:
+              'VSOUserEmail' => nil,
+              'VSOUserFirstName' => params[:representative].first_name,
+              'VSOUserLastName' => params[:representative].last_name,
+              'declinedReason' => nil,
+              'procId' => params[:proc_id],
+              'secondaryStatus' => 'OBS',
+              'dateRequestActioned' =>
                 # Formatting this to show the difference between the date returned
                 # in response and the date sent in request.
                 Time.current.in_time_zone('America/Chicago').iso8601

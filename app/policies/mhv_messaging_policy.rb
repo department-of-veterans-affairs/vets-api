@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sm/client'
+
 MHVMessagingPolicy = Struct.new(:user, :mhv_messaging) do
   def access?
     return false unless user.mhv_correlation_id

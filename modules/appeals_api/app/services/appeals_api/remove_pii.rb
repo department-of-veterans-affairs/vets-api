@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ddtrace'
+
 module AppealsApi
   class RemovePii
     include SentryLogging
@@ -15,13 +17,20 @@ module AppealsApi
     end
 
     def run!
-      validate_form_type!
+      Datadog::Tracing.trace("#{self.class.name} - #{form_type}") do
+        validate_form_type!
 
-      result = remove_pii!
+        result = remove_pii!
 
-      log_failure_to_sentry if records_were_not_cleared(result)
+        if result.blank? && records_to_be_expunged.present?
+          ids = records_to_be_expunged.pluck(:id)
+          msg = "Failed to remove expired #{form_type} PII from records"
+          Rails.logger.error(msg, ids)
+          AppealsApi::Slack::Messager.new({ msg:, ids: }).notify!
+        end
 
-      result
+        result
+      end
     end
 
     private
@@ -41,25 +50,7 @@ module AppealsApi
     end
 
     def records_to_be_expunged
-      @records_to_be_expunged ||=
-        form_type.where.not(form_data_ciphertext: nil)
-                 .or(
-                   form_type.where.not(
-                     auth_headers_ciphertext: nil
-                   )
-                 ).pii_expunge_policy
-    end
-
-    def records_were_not_cleared(result)
-      result.blank? && records_to_be_expunged.present?
-    end
-
-    def log_failure_to_sentry
-      log_message_to_sentry(
-        "Failed to expunge PII from #{form_type} (modules/appeals_api)",
-        :error,
-        ids: records_to_be_expunged.pluck(:id)
-      )
+      @records_to_be_expunged ||= form_type.with_expired_pii
     end
   end
 end

@@ -15,7 +15,7 @@ jobs:
   income_limits_data_sync:
     runs-on: self-hosted
     container:
-      image: public.ecr.aws/docker/library/ruby:3.2.2-bullseye
+      image: public.ecr.aws/docker/library/ruby:3.2.4-bullseye
       env:
         SSL_CERT_FILE: /etc/ssl/certs/ca-certificates.crt
         NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt

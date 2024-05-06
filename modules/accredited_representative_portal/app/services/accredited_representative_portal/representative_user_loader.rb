@@ -4,9 +4,15 @@ module AccreditedRepresentativePortal
   class RepresentativeUserLoader
     attr_reader :access_token, :request_ip
 
+    class RepresentativeNotFoundError < StandardError; end
+
     def initialize(access_token:, request_ip:)
       @access_token = access_token
       @request_ip = request_ip
+      # NOTE: a change will be necessary to support alternate emails
+      # The below currently only supports the primary session email
+      # See discussion: https://github.com/department-of-veterans-affairs/vets-api/pull/16493#discussion_r1579783276
+      @verified_representative = VerifiedRepresentative.find_by(email: session&.credential_email) # NOTE: primary email
     end
 
     def perform
@@ -29,8 +35,7 @@ module AccreditedRepresentativePortal
     end
 
     def loa
-      current_loa = user_is_verified? ? SignIn::Constants::Auth::LOA_THREE : SignIn::Constants::Auth::LOA_ONE
-      { current: current_loa, highest: SignIn::Constants::Auth::LOA_THREE }
+      { current: SignIn::Constants::Auth::LOA_THREE, highest: SignIn::Constants::Auth::LOA_THREE }
     end
 
     def sign_in
@@ -40,20 +45,11 @@ module AccreditedRepresentativePortal
     end
 
     def authn_context
-      case user_verification.credential_type
-      when  SignIn::Constants::Auth::IDME
-        user_is_verified? ?  SignIn::Constants::Auth::IDME_LOA3 : SignIn::Constants::Auth::IDME_LOA1
-      when  SignIn::Constants::Auth::DSLOGON
-        user_is_verified? ?  SignIn::Constants::Auth::IDME_DSLOGON_LOA3 : SignIn::Constants::Auth::IDME_DSLOGON_LOA1
-      when  SignIn::Constants::Auth::MHV
-        user_is_verified? ?  SignIn::Constants::Auth::IDME_MHV_LOA3 : SignIn::Constants::Auth::IDME_MHV_LOA1
-      when  SignIn::Constants::Auth::LOGINGOV
-        user_is_verified? ?  SignIn::Constants::Auth::LOGIN_GOV_IAL2 : SignIn::Constants::Auth::LOGIN_GOV_IAL1
+      if user_verification.credential_type == SignIn::Constants::Auth::IDME
+        SignIn::Constants::Auth::IDME_LOA3
+      else
+        SignIn::Constants::Auth::LOGIN_GOV_IAL2
       end
-    end
-
-    def user_is_verified?
-      session.user_account.verified?
     end
 
     def session
@@ -62,6 +58,18 @@ module AccreditedRepresentativePortal
 
     def user_verification
       @user_verification ||= session.user_verification
+    end
+
+    # NOTE: given there will be RepresentativeUsers who are not VerifiedRepresentatives,
+    # it's okay for this to return nil
+    def get_ogc_registration_number
+      @verified_representative&.ogc_registration_number
+    end
+
+    # NOTE: given there will be RepresentativeUsers who are not VerifiedRepresentatives,
+    # it's okay for this to return nil
+    def get_poa_codes
+      @verified_representative&.poa_codes
     end
 
     def current_user
@@ -77,7 +85,9 @@ module AccreditedRepresentativePortal
       user.authn_context = authn_context
       user.loa = loa
       user.logingov_uuid = user_verification.logingov_uuid
-      user.idme_uuid = user_verification.idme_uuid || user_verification.backing_idme_uuid
+      user.ogc_registration_number = get_ogc_registration_number
+      user.poa_codes = get_poa_codes
+      user.idme_uuid = user_verification.idme_uuid
       user.last_signed_in = session.created_at
       user.sign_in = sign_in
       user.save

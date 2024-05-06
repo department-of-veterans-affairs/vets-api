@@ -3,13 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe Crm::CacheData do
-  let(:service) { double('Crm::Service') }
-  let(:cache_client) { double('AskVAApi::RedisClient') }
+  let(:service) { Crm::Service.new(icn: nil) }
+  let(:cache_client) { AskVAApi::RedisClient.new }
   let(:cache_data_instance) { Crm::CacheData.new(service:, cache_client:) }
   let(:cache_data) { { topics: [{ id: 1, name: 'Topic 1' }] } }
 
-  def mock_response(status:, body:)
-    instance_double(Faraday::Response, status:, body: body.to_json)
+  before do
+    allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
   end
 
   describe '#call' do
@@ -20,44 +20,47 @@ RSpec.describe Crm::CacheData do
         expect(cache_data_instance.call(endpoint: 'topics', cache_key: 'categories_topics_subtopics')).to eq(cache_data)
       end
     end
-  end
 
-  describe '#fetch_api_data' do
     context 'when the cache is empty' do
       it 'fetches data from the service and stores it in the cache' do
         expect(service).to receive(:call).with(endpoint: 'topics', payload: {}).and_return(cache_data)
-        expect(cache_client).to receive(:store_data).with(key: 'categories_topics_subtopics', data: cache_data,
+        expect(cache_client).to receive(:store_data).with(key: 'categories_topics_subtopics',
+                                                          data: cache_data,
                                                           ttl: 86_400)
-        expect(cache_data_instance.fetch_api_data(endpoint: 'topics',
-                                                  cache_key: 'categories_topics_subtopics')).to eq(cache_data)
+        expect(cache_data_instance.call(endpoint: 'topics',
+                                        cache_key: 'categories_topics_subtopics')).to eq(cache_data)
       end
     end
 
     context 'when an error occurs' do
-      let(:resp) { mock_response(body: { error: 'invalid_client' }, status: 401) }
-      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+      let(:body) do
+        '{"Data":null,"Message":"Data Validation: Invalid OptionSet Name iris_branchofservic, valid' \
+          ' values are iris_inquiryabout, iris_inquirysource, iris_inquirytype, iris_levelofauthentication,' \
+          ' iris_suffix, iris_veteranrelationship, iris_branchofservice, iris_country, iris_province,' \
+          ' iris_responsetype, iris_dependentrelationship, statuscode, iris_messagetype","ExceptionOccurred":' \
+          'true,"ExceptionMessage":"Data Validation: Invalid OptionSet Name iris_branchofservic, valid' \
+          ' values are iris_inquiryabout, iris_inquirysource, iris_inquirytype, iris_levelofauthentication,' \
+          ' iris_suffix, iris_veteranrelationship, iris_branchofservice, iris_country, iris_province,' \
+          ' iris_responsetype, iris_dependentrelationship, statuscode, iris_messagetype","MessageId":' \
+          '"6dfa81bd-f04a-4f39-88c5-1422d88ed3ff"}'
+      end
+      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
+      let(:response) do
+        cache_data_instance.call(
+          endpoint: 'optionset',
+          cache_key: 'branchofservic',
+          payload: { name: 'iris_branchofservic' }
+        )
+      end
 
       before do
-        allow_any_instance_of(Faraday::Connection).to receive(:get).with(anything).and_raise(exception)
+        allow_any_instance_of(Crm::Service).to receive(:call)
+          .with(endpoint: 'optionset', payload: { name: 'iris_branchofservic' })
+          .and_return(failure)
       end
 
       it 'handles the service error through the ErrorHandler' do
-        expect(service).to receive(:call).with(endpoint: 'topics', payload: {}).and_raise('Service error')
-        expect(Crm::ErrorHandler).to receive(:handle).with('topics', instance_of(RuntimeError))
-        expect do
-          cache_data_instance.fetch_api_data(endpoint: 'topics', cache_key: 'categories_topics_subtopics')
-        end.not_to raise_error
-      end
-    end
-
-    # Edge case where cache returns empty array which should be treated as no data
-    context 'when the cache returns an empty array' do
-      it 'fetches data from the service as if the cache was empty' do
-        expect(service).to receive(:call).with(endpoint: 'topics', payload: {}).and_return(cache_data)
-        expect(cache_client).to receive(:store_data).with(key: 'categories_topics_subtopics', data: cache_data,
-                                                          ttl: 86_400)
-        expect(cache_data_instance.fetch_api_data(endpoint: 'topics',
-                                                  cache_key: 'categories_topics_subtopics')).to eq(cache_data)
+        expect { response }.to raise_error(ErrorHandler::ServiceError)
       end
     end
   end

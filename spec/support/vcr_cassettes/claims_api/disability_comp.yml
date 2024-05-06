@@ -914,7 +914,7 @@ http_interactions:
   recorded_at: Thu, 13 Apr 2023 16:23:46 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/PersonWebServiceBean/PersonWebService?WSDL
+    uri: <BGS_BASE_URL>/PersonWebServiceBean/PersonWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -1612,7 +1612,7 @@ http_interactions:
   recorded_at: Tue, 06 Oct 2020 19:58:01 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/PersonWebServiceBean/PersonWebService
+    uri: <BGS_BASE_URL>/PersonWebServiceBean/PersonWebService
     body:
       encoding: UTF-8
       string: |-

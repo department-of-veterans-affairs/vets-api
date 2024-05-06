@@ -28,6 +28,7 @@ module ClaimsApi
         skip_before_action :validate_json_format, only: %i[upload_supporting_documents]
         before_action :verify_power_of_attorney!, if: :header_request?
         skip_before_action :validate_veteran_identifiers, only: %i[submit_form_526 validate_form_526]
+        before_action :edipi_check, only: %i[submit_form_526 upload_form_526 validate_form_526]
 
         # POST to submit disability claim.
         #
@@ -177,8 +178,7 @@ module ClaimsApi
           track_526_validation_errors(error_details)
           raise ::Common::Exceptions::UnprocessableEntity.new(errors: format_526_errors(error_details))
         rescue ::Common::Exceptions::BackendServiceException => e
-          error_details = e&.original_body&.[](:messages)
-          raise ::Common::Exceptions::UnprocessableEntity.new(errors: format_526_errors(error_details))
+          raise ::Common::Exceptions::UnprocessableEntity.new(errors: format_526_errors(e.original_body))
         rescue ::Common::Exceptions::GatewayTimeout,
                ::Timeout::Error,
                ::Faraday::TimeoutError,
@@ -252,7 +252,9 @@ module ClaimsApi
 
         def format_526_errors(errors)
           errors.map do |error|
-            { status: 422, detail: "#{error['key']} #{error['detail']}", source: error['key'] }
+            e = error.deep_symbolize_keys
+            details = e[:text].presence || e[:detail]
+            { status: 422, detail: "#{e[:key]}, #{details}", source: e[:key] }
           end
         end
 

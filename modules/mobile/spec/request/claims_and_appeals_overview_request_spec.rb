@@ -183,8 +183,15 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
             expect(parsed_response_contents[0]['type']).to eq('appeal')
             expect(parsed_response_contents.last['type']).to eq('appeal')
             expect(response).to have_http_status(:multi_status)
-            expect(response.parsed_body.dig('meta', 'errors').length).to eq(1)
-            expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('claims')
+            claims_error_message = if lighthouse_flag
+                                     'Resource not found'
+                                   else
+                                     "Please define your custom text for this error in \
+claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
+                                   end
+            expect(response.parsed_body.dig('meta', 'errors')).to eq(
+              [{ 'service' => 'claims', 'errorDetails' => claims_error_message }]
+            )
             open_appeal = parsed_response_contents.select { |entry| entry['id'] == '3294289' }[0]
             closed_appeal = parsed_response_contents.select { |entry| entry['id'] == '2348605' }[0]
             expect(open_appeal.dig('attributes', 'completed')).to eq(false)
@@ -206,8 +213,9 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
             parsed_response_contents = response.parsed_body['data']
             expect(parsed_response_contents[0]['type']).to eq('claim')
             expect(parsed_response_contents.last['type']).to eq('claim')
-            expect(response.parsed_body.dig('meta', 'errors').length).to eq(1)
-            expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('appeals')
+            expect(response.parsed_body.dig('meta', 'errors')).to eq(
+              [{ 'service' => 'appeals', 'errorDetails' => 'Received a 500 response from the upstream server' }]
+            )
             if lighthouse_flag
               open_claim = parsed_response_contents.select { |entry| entry['id'] == '600383363' }[0]
               closed_claim = parsed_response_contents.select { |entry| entry['id'] == '600229968' }[0]
@@ -238,9 +246,16 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
           VCR.use_cassette('mobile/appeals/server_error') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
             expect(response).to have_http_status(:bad_gateway)
-            expect(response.parsed_body.dig('meta', 'errors').length).to eq(2)
-            expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('claims')
-            expect(response.parsed_body.dig('meta', 'errors')[1]['service']).to eq('appeals')
+            claims_error_message = if lighthouse_flag
+                                     'Resource not found'
+                                   else
+                                     "Please define your custom text for this error in \
+claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
+                                   end
+            expect(response.parsed_body.dig('meta', 'errors')).to eq(
+              [{ 'service' => 'claims', 'errorDetails' => claims_error_message },
+               { 'service' => 'appeals', 'errorDetails' => 'Received a 500 response from the upstream server' }]
+            )
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
@@ -382,9 +397,6 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
 
         context 'appeals service succeed' do
           it 'appeals service succeed and caches appeals ' do
-            interface_class = Mobile::V0::LighthouseClaims::ClaimsIndexInterface
-            expect_any_instance_of(interface_class).not_to receive(:get_claims_and_appeals)
-
             VCR.use_cassette('mobile/appeals/appeals') do
               get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
             end
@@ -481,6 +493,36 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
           VCR.use_cassette('mobile/appeals/appeals') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
             expect(response).to have_http_status(:forbidden)
+          end
+        end
+      end
+    end
+
+    describe 'EVSSClaim count' do
+      it 'creates record if it does not exist' do
+        VCR.use_cassette(good_claims_response_vcr_path) do
+          VCR.use_cassette('mobile/appeals/appeals') do
+            expect do
+              get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+            end.to change(EVSSClaim, :count)
+          end
+        end
+      end
+
+      it 'updates record if it does exist' do
+        VCR.use_cassette(good_claims_response_vcr_path) do
+          VCR.use_cassette('mobile/appeals/appeals') do
+            evss_id = lighthouse_flag ? 600_383_363 : 600_114_693
+            claim = EVSSClaim.create(user_uuid: sis_user.uuid,
+                                     user_account: sis_user.user_account,
+                                     evss_id:,
+                                     created_at: 1.week.ago,
+                                     updated_at: 1.week.ago,
+                                     data: {})
+            expect do
+              get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+              claim.reload
+            end.to change(claim, :updated_at)
           end
         end
       end

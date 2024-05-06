@@ -188,8 +188,14 @@ module ClaimsApi
       itf_type_cd = body.at 'itfTypeCd'
       itf_type_cd.content = type.to_s
 
-      make_request(endpoint: 'IntentToFileWebServiceBean/IntentToFileWebService',
-                   action: 'findIntentToFileByPtcpntIdItfTypeCd', body:, key: 'IntentToFileDTO')
+      response =
+        make_request(
+          endpoint: 'IntentToFileWebServiceBean/IntentToFileWebService',
+          action: 'findIntentToFileByPtcpntIdItfTypeCd',
+          body:
+        )
+
+      Array.wrap(response[:intent_to_file_dto])
     end
 
     # BEGIN: switching v1 from evss to bgs. Delete after EVSS is no longer available. Fix controller first.
@@ -205,8 +211,6 @@ module ClaimsApi
       transform_bgs_claims_to_evss(claims)
     end
     # END: switching v1 from evss to bgs. Delete after EVSS is no longer available. Fix controller first.
-
-    private
 
     def header # rubocop:disable Metrics/MethodLength
       # Stock XML structure {{{
@@ -261,35 +265,21 @@ module ClaimsApi
       body.to_s
     end
 
-    def parsed_response(res, action, key = nil)
-      parsed = Hash.from_xml(res.body)
-      if action == 'findIntentToFileByPtcpntIdItfTypeCd'
-        itf_response = []
-        [parsed.dig('Envelope', 'Body', "#{action}Response", key)].flatten.each do |itf|
-          return itf_response if itf.nil?
+    def parsed_response(response, action:, key:, transform:)
+      body = Hash.from_xml(response.body)
+      keys = ['Envelope', 'Body', "#{action}Response"]
+      keys << key if key.present?
 
-          temp = itf.deep_transform_keys(&:underscore)
-                    &.deep_symbolize_keys
-          itf_response.push(temp)
+      body.dig(*keys).to_h.tap do |value|
+        if transform
+          value.deep_transform_keys! do |key|
+            key.underscore.to_sym
+          end
         end
-        return itf_response
-      end
-      if key.nil?
-        parsed.dig('Envelope', 'Body', "#{action}Response")
-              &.deep_transform_keys(&:underscore)
-              &.deep_symbolize_keys || {}
-      else
-        parsed.dig('Envelope', 'Body', "#{action}Response", key)
-              &.deep_transform_keys(&:underscore)
-              &.deep_symbolize_keys || {}
       end
     end
 
-    def namespaces
-      {}
-    end
-
-    def make_request(endpoint:, action:, body:, key: nil) # rubocop:disable Metrics/MethodLength
+    def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
       connection = log_duration event: 'establish_ssl_connection' do
         Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
           f.use :breakers
@@ -324,7 +314,7 @@ module ClaimsApi
       soap_error_handler.handle_errors(response) if response
 
       log_duration(event: 'parsed_response', key:) do
-        parsed_response(response, action, key)
+        parsed_response(response, action:, key:, transform: transform_response)
       end
     end
 
@@ -385,6 +375,23 @@ module ClaimsApi
         arg_strg += (option[1].nil? ? "<#{arg} xsi:nil='true'/>" : "<#{arg}>#{option[1]}</#{arg}>")
       end
       arg_strg
+    end
+
+    def validate_opts!(opts, required_keys)
+      keys = opts.keys.map(&:to_s)
+      required_keys = required_keys.map(&:to_s)
+      missing_keys = required_keys - keys
+      raise ArgumentError, "Missing required keys: #{missing_keys.join(', ')}" if missing_keys.present?
+    end
+
+    def jrn
+      {
+        jrn_dt: Time.current.iso8601,
+        jrn_lctn_id: Settings.bgs.client_station_id,
+        jrn_status_type_cd: 'U',
+        jrn_user_id: Settings.bgs.client_username,
+        jrn_obj_id: Settings.bgs.application
+      }
     end
   end
 end

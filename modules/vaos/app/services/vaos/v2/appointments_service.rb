@@ -15,10 +15,12 @@ module VAOS
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
       AVS_APPT_TEST_ID = '192308'
+      MANILA_PHILIPPINES_FACILITY_ID = '358'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
+      APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
 
       # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
@@ -31,7 +33,7 @@ module VAOS
 
         with_monitoring do
           response = perform(:get, appointments_base_path, params, headers)
-          SchemaContract::ValidationInitiator.call(user:, response:, contract_name: 'appointments_index')
+          validate_response_schema(response, 'appointments_index')
           response.body[:data].each do |appt|
             # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
             set_cancellable_false(appt) if cnp?(appt) || covid?(appt)
@@ -86,10 +88,18 @@ module VAOS
       end
 
       def post_appointment(request_object_body)
+        filtered_reason_code_text = filter_reason_code_text(request_object_body)
+        request_object_body[:reason_code][:text] = filtered_reason_code_text if filtered_reason_code_text.present?
+
         params = VAOS::V2::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
         params.compact_blank!
         with_monitoring do
-          response = perform(:post, appointments_base_path, params, headers)
+          response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
+                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
+                       perform(:post, "/vpg/v1/patients/#{user.icn}/appointments", params, headers)
+                     else
+                       perform(:post, appointments_base_path, params, headers)
+                     end
           convert_appointment_time(response.body)
           OpenStruct.new(response.body)
         rescue Common::Exceptions::BackendServiceException => e
@@ -271,6 +281,18 @@ module VAOS
         appt[:status] == 'booked' && appt[:start].to_datetime.past?
       end
 
+      # Filters out non-ASCII characters from the reason code text field in the request object body.
+      #
+      # @param request_object_body [Hash, ActionController::Parameters] The request object body containing
+      # the reason code text field.
+      #
+      # @return [String, nil] The filtered reason text, or nil if the reason code text is not present or nil.
+      #
+      def filter_reason_code_text(request_object_body)
+        text = request_object_body&.dig(:reason_code, :text)
+        VAOS::Strings.filter_ascii_characters(text) if text.present?
+      end
+
       # Checks if the appointment is booked.
       #
       # @param appt [Hash] the appointment to check
@@ -390,13 +412,34 @@ module VAOS
         if !appt[:start].nil?
           facility_timezone = get_facility_timezone_memoized(appt[:location_id])
           appt[:local_start_time] = convert_utc_to_local_time(appt[:start], facility_timezone)
+
+          if appt[:location_id] == MANILA_PHILIPPINES_FACILITY_ID
+            log_timezone_info(appt[:location_id], facility_timezone, appt[:start], appt[:local_start_time])
+          end
+
         elsif !appt.dig(:requested_periods, 0, :start).nil?
           appt[:requested_periods].each do |period|
             facility_timezone = get_facility_timezone_memoized(appt[:location_id])
             period[:local_start_time] = convert_utc_to_local_time(period[:start], facility_timezone)
+
+            if appt[:location_id] == MANILA_PHILIPPINES_FACILITY_ID
+              log_timezone_info(appt[:location_id], facility_timezone, period[:start], period[:local_start_time])
+            end
           end
         end
         appt
+      end
+
+      def log_timezone_info(appt_location_id, facility_timezone, appt_start_time_utc, appt_start_time_local)
+        Rails.logger.info(
+          "Timezone info for Manila Philippines location_id #{appt_location_id}",
+          {
+            location_id: appt_location_id,
+            facility_timezone:,
+            appt_start_time_utc:,
+            appt_start_time_local:
+          }.to_json
+        )
       end
 
       # Returns a local [DateTime] object converted from UTC using the facility's timezone offset.
@@ -477,22 +520,33 @@ module VAOS
       def partial_errors(response)
         return { failures: [] } if response.body[:failures].blank?
 
-        response.body[:failures].each do |failure|
-          detail = failure[:detail]
-          failure[:detail] = VAOS::Anonymizers.anonymize_icns(detail) if detail.present?
-        end
-
-        if response.status == 200
-          log_message_to_sentry(
-            'VAOS::V2::AppointmentService#get_appointments has response errors.',
-            :info,
-            failures: response.body[:failures].to_json
-          )
-        end
+        log_partial_errors(response)
 
         {
           failures: response.body[:failures]
         }
+      end
+
+      # Logs partial errors from a response.
+      #
+      # @param response [Faraday::Env] The response object containing the status and body.
+      #
+      # @return [nil]
+      #
+      def log_partial_errors(response)
+        return unless response.status == 200
+
+        failures_dup = response.body[:failures].deep_dup
+        failures_dup.each do |failure|
+          detail = failure[:detail]
+          failure[:detail] = VAOS::Anonymizers.anonymize_icns(detail) if detail.present?
+        end
+
+        log_message_to_sentry(
+          'VAOS::V2::AppointmentService#get_appointments has response errors.',
+          :info,
+          failures: failures_dup.to_json
+        )
       end
 
       def appointments_base_path
@@ -537,6 +591,12 @@ module VAOS
         url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
         params = VAOS::V2::UpdateAppointmentForm.new(status:).params
         perform(:put, url_path, params, headers)
+      end
+
+      def validate_response_schema(response, contract_name)
+        return unless response.success? && response.body[:data].present?
+
+        SchemaContract::ValidationInitiator.call(user:, response:, contract_name:)
       end
     end
   end

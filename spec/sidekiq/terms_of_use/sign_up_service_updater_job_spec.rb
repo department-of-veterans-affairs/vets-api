@@ -23,8 +23,8 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       allow(Sidekiq::AttrPackage).to receive(:delete)
     end
 
-    it 'retries 15 times after failure' do
-      expect(described_class.get_sidekiq_options['retry']).to eq(15)
+    it 'retries 5 times after failure' do
+      expect(described_class.get_sidekiq_options['retry']).to eq(5)
     end
 
     it 'logs a message when retries have been exhausted' do
@@ -44,8 +44,6 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
           "with args #{job_info['args']}: #{error_message}"
         )
     end
-
-    it { is_expected.to be_unique }
 
     context 'when the terms of use agreement is accepted' do
       before do

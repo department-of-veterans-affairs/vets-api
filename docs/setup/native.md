@@ -2,7 +2,7 @@
 
 Vets API requires:
 
-- Ruby 3.2.3
+- Ruby 3.2.4
 - PostgreSQL 15.x (including PostGIS 3)
 - Redis 6.2.x
 
@@ -155,10 +155,9 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
 
    NOTE: Run with `/usr/local/sbin/clamd -c /usr/local/etc/clamav/clamd.conf` and you will also have to override (temporarily) the `config/clamd.conf` file with `-LocalSocket /usr/local/etc/clamav/clamd.sock`
 
-5. Install [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg)
+5. Install pdftk
 
-   - `curl -o ~/Downloads/pdftk_download.pkg https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg`
-   - `sudo installer -pkg ~/Downloads/pdftk_download.pkg -target /`
+   - `brew install pdftk-java`
 
 6. continue with [Base setup](native.md#base-setup)
 

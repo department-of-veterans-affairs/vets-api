@@ -77,13 +77,13 @@ module Lighthouse
         'veteranFirstName' => veteran_full_name['first'],
         'veteranLastName' => veteran_full_name['last'],
         'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-        'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
+        'zipCode' => address['postalCode'],
         'source' => "#{@claim.class} va.gov",
         'docType' => @claim.form_id,
         'businessLine' => @claim.business_line
       }
 
-      SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
+      SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: check_zipcode(address))
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -148,6 +148,10 @@ module Lighthouse
     def cleanup_file_paths
       Common::FileHelpers.delete_file_if_exists(@pdf_path) if @pdf_path
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
+    end
+
+    def check_zipcode(address)
+      address['country'].upcase.in?(%w[USA US])
     end
   end
 end

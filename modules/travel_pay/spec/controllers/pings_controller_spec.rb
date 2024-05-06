@@ -38,8 +38,8 @@ RSpec.describe TravelPay::PingsController, type: :request do
     context 'the feature switch is disabled' do
       it 'raises the proper error' do
         get '/travel_pay/pings/ping'
-        expect(response).to have_http_status(:service_unavailable)
-        expect(response.body).to include('This feature has been temporarily disabled')
+        expect(response).to have_http_status(:forbidden)
+        expect(response.body).to include('You do not have access to travel pay')
       end
     end
   end
@@ -48,6 +48,9 @@ RSpec.describe TravelPay::PingsController, type: :request do
     before do
       btsss_authorized_ping_response = double
       allow(btsss_authorized_ping_response).to receive(:status).and_return(200)
+      allow(client)
+        .to receive(:request_sts_token)
+        .and_return('sample_sts_token')
       allow(client)
         .to receive(:request_btsss_token)
         .and_return('sample_btsss_token')
@@ -72,8 +75,8 @@ RSpec.describe TravelPay::PingsController, type: :request do
     context 'the feature switch is disabled' do
       it 'raises the proper error' do
         get '/travel_pay/pings/authorized_ping', headers: { 'Authorization' => 'Bearer vagov_token' }
-        expect(response).to have_http_status(:service_unavailable)
-        expect(response.body).to include('This feature has been temporarily disabled')
+        expect(response).to have_http_status(:forbidden)
+        expect(response.body).to include('You do not have access to travel pay')
       end
     end
   end

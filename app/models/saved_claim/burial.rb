@@ -32,7 +32,7 @@ class SavedClaim::Burial < CentralMailClaim
   end
 
   def attachment_keys
-    %i[transportationReceipts deathCertificate].freeze
+    %i[transportationReceipts deathCertificate militarySeparationDocuments additionalEvidence].freeze
   end
 
   def email
