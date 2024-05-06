@@ -22,8 +22,11 @@ module SimpleFormsApi
         }
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(raw_metadata)
 
-        status, confirmation_number = SimpleFormsApi::PdfUploader.new(file_path, metadata,
-                                                                      params[:form_number]).upload_to_benefits_intake(params)
+        status, confirmation_number = SimpleFormsApi::PdfUploader.new(
+          file_path,
+          metadata,
+          params[:form_number]
+        ).upload_to_benefits_intake(params)
 
         render json: { confirmation_number:, status: }
       end
