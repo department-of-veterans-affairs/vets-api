@@ -752,6 +752,10 @@ features:
     actor_type: user
     description: Enables/disables refill-related content for Medications on VA.gov
     enable_in_development: true
+  mhv_medications_breadcrumbs:
+    actor_type: user
+    description: Enables/disables breadcrumbs on VA.gov Medications pages
+    enable_in_development: true
   mhv_landing_page_enable_va_gov_health_tools_links:
     actor_type: user
     description: Enables VA.gov Health Tools links (Appts, SM, Rx, Records) on MHV-on-VA.gov Landing Page
@@ -1421,6 +1425,3 @@ features:
     actor_type: user
     description: Enable the Accredited Representative Portal for the pilot
     enable_in_development: true
-  toggle_vye_adress_direct_deposit_forms:
-    actor_type: user
-    description: Enable mailing address and direct deposit for VYE 
