@@ -15,8 +15,10 @@ FacilitiesApi::Engine.routes.draw do
   end
 
   namespace :v2, defaults: { format: 'json' } do
-    resources :va, only: :show
+    get 'va/:id', to: 'va#show'
     post 'va', to: 'va#search', as: 'va_search'
+
+    get 'apidocs', to: 'apidocs#index'
   end
 
   resources :apidocs, only: [:index]
