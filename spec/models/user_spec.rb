@@ -1228,11 +1228,11 @@ RSpec.describe User, type: :model do
   end
 
   describe '#onboarding' do
-    let(:user) { create(:user, icn: identity_icn) }
-    let(:identity_icn) { 'some_identity_icn' }
+    let(:user) { create(:user) }
 
     before do
       Flipper.enable(:veteran_onboarding_beta_flow, user)
+      create(:user_verification, idme_uuid: user.idme_uuid)
     end
 
     it 'show_onboarding_flow_on_login returns true when flag is enabled and display_onboarding_flow is true' do

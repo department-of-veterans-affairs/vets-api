@@ -9,6 +9,10 @@ module AccreditedRepresentativePortal
     def initialize(access_token:, request_ip:)
       @access_token = access_token
       @request_ip = request_ip
+      # NOTE: a change will be necessary to support alternate emails
+      # The below currently only supports the primary session email
+      # See discussion: https://github.com/department-of-veterans-affairs/vets-api/pull/16493#discussion_r1579783276
+      @verified_representative = VerifiedRepresentative.find_by(email: session&.credential_email) # NOTE: primary email
     end
 
     def perform
@@ -56,16 +60,16 @@ module AccreditedRepresentativePortal
       @user_verification ||= session.user_verification
     end
 
-    def get_poa_codes
-      rep = Veteran::Service::Representative.find_by(representative_id: ogc_number)
-      # TODO-ARF 80297: Determine how to get ogc_number into RepresentativeUserLoader
-      # raise RepresentativeNotFoundError unless rep
-
-      rep&.poa_codes
+    # NOTE: given there will be RepresentativeUsers who are not VerifiedRepresentatives,
+    # it's okay for this to return nil
+    def get_ogc_registration_number
+      @verified_representative&.ogc_registration_number
     end
 
-    def ogc_number
-      # TODO-ARF 80297: Determine how to get ogc_number into RepresentativeUserLoader
+    # NOTE: given there will be RepresentativeUsers who are not VerifiedRepresentatives,
+    # it's okay for this to return nil
+    def get_poa_codes
+      @verified_representative&.poa_codes
     end
 
     def current_user
@@ -81,7 +85,7 @@ module AccreditedRepresentativePortal
       user.authn_context = authn_context
       user.loa = loa
       user.logingov_uuid = user_verification.logingov_uuid
-      user.ogc_number = ogc_number # TODO-ARF 80297: Determine how to get ogc_number into RepresentativeUserLoader
+      user.ogc_registration_number = get_ogc_registration_number
       user.poa_codes = get_poa_codes
       user.idme_uuid = user_verification.idme_uuid
       user.last_signed_in = session.created_at
