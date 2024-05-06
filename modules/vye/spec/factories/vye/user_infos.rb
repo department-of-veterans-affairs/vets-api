@@ -4,6 +4,7 @@ FactoryBot.define do
   digit = proc { rand(0..9).to_s }
 
   factory :vye_user_info, class: 'Vye::UserInfo' do
+    association :bdn_clone, factory: :vye_bdn_clone
     association :user_profile, factory: :vye_user_profile
 
     file_number { (1..9).map(&digit).join }

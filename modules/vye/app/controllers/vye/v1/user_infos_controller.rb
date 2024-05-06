@@ -14,7 +14,7 @@ module Vye
                serializer: Vye::UserInfoSerializer,
                key_transform: :camel_lower,
                adapter: :json,
-               include: %i[awards address_changes pending_documents].freeze
+               include: %i[address_changes pending_documents verifications pending_verifications].freeze
       end
 
       private
