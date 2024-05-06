@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe FacilitiesApi::V2::PPMS::Provider, type: :model, team: :facilities do
+RSpec.describe FacilitiesApi::V2::PPMS::Provider, team: :facilities, type: :model do
   shared_examples 'transforms param into attribute' do |param, attribute, value|
     it "transforms #{param} into #{attribute}" do
       provider = FacilitiesApi::V2::PPMS::Provider.new(param => value)
