@@ -3,6 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe 'Pega callback', type: :request do
+  before do
+    allow_any_instance_of(IvcChampva::V1::PegaController).to receive(:authenticate_service_account).and_return(true)
+  end
+
   describe 'POST #update_status' do
     let(:valid_payload) do
       {

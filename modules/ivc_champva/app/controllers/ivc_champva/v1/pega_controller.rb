@@ -2,12 +2,8 @@
 
 module IvcChampva
   module V1
-    class PegaController < ApplicationController
-      # Skip all default authentication
-      skip_before_action :verify_authenticity_token
-      skip_after_action :set_csrf_header
-      skip_before_action :authenticate
-
+    class PegaController < SignIn::ServiceAccountApplicationController
+      service_tag 'identity'
       VALID_KEYS = %w[form_uuid file_names status].freeze
 
       def update_status
