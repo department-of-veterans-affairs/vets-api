@@ -2,4 +2,10 @@
 
 require 'vye/engine'
 
-module Vye; end
+module Vye
+  module_function
+
+  def settings
+    Settings.vye
+  end
+end

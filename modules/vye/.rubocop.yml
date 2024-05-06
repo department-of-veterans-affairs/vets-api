@@ -1,6 +1,9 @@
 inherit_from:
   - ../../.rubocop.yml
 
+require:
+  - rubocop-rspec_rails
+
 AllCops:
   Exclude:
     - lib/tasks/local.rake

@@ -24,17 +24,17 @@ module Vye
       end
 
       def ivr_params
-        params.permit(%i[ivr_key ssn])
+        params.permit(%i[ivr_key file_number])
       end
 
       def ivr_key?
-        ivr_params[:ivr_key].present? && ivr_params[:ivr_key] == Settings.vye.ivr_key
+        ivr_params[:ivr_key].present? && ivr_params[:ivr_key] == Vye.settings.ivr_key
       end
 
       def load_user_info
         case ivr_key?
         when true
-          @user_info = Vye::UserProfile.find_from_digested_ssn(ivr_params[:ssn])&.active_user_info
+          @user_info = Vye::UserProfile.find_from_digested_file_number(ivr_params[:file_number])&.active_user_info
         else
           super
         end
