@@ -22,9 +22,9 @@ RSpec.describe 'Facility Eligibility', type: :request do
         end
 
         before do
-          VCR.use_cassette('mobile/facility_eligibility/get_patient_appointment_metadata_facility_102',
+          VCR.use_cassette('mobile/facility_eligibility/get_patient_appointment_metadata_vpg_facility_102',
                            match_requests_on: %i[method uri]) do
-            VCR.use_cassette('mobile/facility_eligibility/get_patient_appointment_metadata_facility_103',
+            VCR.use_cassette('mobile/facility_eligibility/get_patient_appointment_metadata_vpg_facility_103',
                              match_requests_on: %i[method uri]) do
               get '/mobile/v0/appointments/facility/eligibility', params:, headers: sis_headers
             end
@@ -54,11 +54,11 @@ RSpec.describe 'Facility Eligibility', type: :request do
         end
 
         before do
-          VCR.use_cassette('mobile/facility_eligibility/get_patient_appointment_metadata_facility_100',
+          VCR.use_cassette('mobile/facility_eligibility/get_patient_appointment_metadata_vpg_facility_100',
                            match_requests_on: %i[method uri]) do
-            VCR.use_cassette('mobile/facility_eligibility/get_patient_appointment_metadata_facility_101',
+            VCR.use_cassette('mobile/facility_eligibility/get_patient_appointment_metadata_vpg_facility_101',
                              match_requests_on: %i[method uri]) do
-              VCR.use_cassette('mobile/facility_eligibility/get_patient_appointment_metadata_facility_102',
+              VCR.use_cassette('mobile/facility_eligibility/get_patient_appointment_metadata_vpg_facility_102',
                                match_requests_on: %i[method uri]) do
                 get '/mobile/v0/appointments/facility/eligibility', params:, headers: sis_headers
               end
@@ -109,7 +109,7 @@ RSpec.describe 'Facility Eligibility', type: :request do
         end
 
         before do
-          VCR.use_cassette('mobile/facility_eligibility/get_patient_appointment_metadata_bad_facility',
+          VCR.use_cassette('mobile/facility_eligibility/get_patient_appointment_metadata_vpg_bad_facility',
                            match_requests_on: %i[method uri]) do
             get '/mobile/v0/appointments/facility/eligibility', params:, headers: sis_headers
           end

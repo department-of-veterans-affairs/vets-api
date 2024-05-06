@@ -11,7 +11,7 @@ module CheckIn
       attribute :payload do |object|
         appointments =
           object.payload[:appointments].map do |appt|
-            appt.except!(:patientDFN)
+            appt.except!(:patientDFN, :icn, :edipi)
           end
 
         demographics = prepare_demographics(object.payload[:demographics])
@@ -70,6 +70,8 @@ module CheckIn
       end
 
       def self.address_helper(address)
+        return {} if address.nil?
+
         {
           street1: address[:street1],
           street2: address[:street2],

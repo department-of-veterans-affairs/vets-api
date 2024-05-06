@@ -11,7 +11,8 @@
         }
       },
       "serviceOrganization": {
-        "poaCode": "aaa"
+        "poaCode": "aaa",
+        "registrationNumber": "999999999999"
       }
     }
   }

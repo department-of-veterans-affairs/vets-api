@@ -26,8 +26,10 @@ module VAProfile
         def get_health_benefit_bio
           oid = MPI::Constants::VA_ROOT_OID
           path = "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
-          response = perform(:post, path, { bios: [{ bioPath: 'healthBenefit' }] })
-          VAProfile::Profile::V3::HealthBenefitBioResponse.new(response)
+          service_response = perform(:post, path, { bios: [{ bioPath: 'healthBenefit' }] })
+          response = VAProfile::Profile::V3::HealthBenefitBioResponse.new(service_response)
+          Sentry.set_extras(response.debug_data) unless response.ok?
+          response
         end
 
         def get_military_info

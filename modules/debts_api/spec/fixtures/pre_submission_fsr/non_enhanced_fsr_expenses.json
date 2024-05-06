@@ -1,21 +1,21 @@
-{ 
-  "view:enhancedFinancialStatusReport": false,
+{
+  "view:enhanced_financial_status_report": false,
   "expenses": {
-    "rentOrMortgage": "1200.25",
+    "rent_or_mortgage": "1200.25",
     "food": "4000.38",
-    "creditCardBills": [
+    "credit_card_bills": [
       {
         "purpose": "Credit card payment",
-        "creditorName": "",
-        "originalAmount": "",
-        "unpaidBalance": "300000",
-        "amountDueMonthly": "10000",
-        "dateStarted": "",
-        "amountPastDue": "7000"
+        "creditor_name": "",
+        "original_amount": "",
+        "unpaid_balance": "300000",
+        "amount_due_monthly": "10000",
+        "date_started": "",
+        "amount_past_due": "7000"
       }
     ]
   },
-  "otherExpenses": [
+  "other_expenses": [
     {
       "name": "Pool service",
       "amount": "200"
@@ -29,38 +29,38 @@
       "amount": "300"
     }
   ],
-  "installmentContracts": [
+  "installment_contracts": [
     {
       "purpose": "Credit card payments",
-      "creditorName": "Creditor One",
-      "originalAmount": "50000.54",
-      "unpaidBalance": "15000.56",
-      "amountDueMonthly": "800.10",
-      "dateStarted": "2017-03-XX",
-      "amountPastDue": "125.43"
+      "creditor_name": "Creditor One",
+      "original_amount": "50000.54",
+      "unpaid_balance": "15000.56",
+      "amount_due_monthly": "800.10",
+      "date_started": "2017_03_xx",
+      "amount_past_due": "125.43"
     },
     {
       "purpose": "Car payment/lease",
-      "creditorName": "Creditor Two",
-      "originalAmount": "100000.43",
-      "unpaidBalance": "50000.26",
-      "amountDueMonthly": "1200.54",
-      "dateStarted": "2019-05-XX",
-      "amountPastDue": "0"
+      "creditor_name": "Creditor Two",
+      "original_amount": "100000.43",
+      "unpaid_balance": "50000.26",
+      "amount_due_monthly": "1200.54",
+      "date_started": "2019_05_xx",
+      "amount_past_due": "0"
     }
   ],
-  "utilityRecords": [
+  "utility_records": [
     {
       "name": "Electricity",
-      "monthlyUtilityAmount": "402.35"
+      "monthly_utility_amount": "402.35"
     },
     {
       "name": "Gas",
-      "monthlyUtilityAmount": "85.16"
+      "monthly_utility_amount": "85.16"
     },
     {
       "name": "Cable",
-      "monthlyUtilityAmount": "175.47"
+      "monthly_utility_amount": "175.47"
     }
   ]
 }

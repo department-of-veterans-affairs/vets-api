@@ -11,7 +11,8 @@
         }
       },
       "serviceOrganization": {
-        "poaCode": "083"
+        "poaCode": "083",
+        "registrationNumber": "999999999999"
       }
     }
   }

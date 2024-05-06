@@ -10,7 +10,9 @@ module DebtsApi
       service_tag 'financial-report'
 
       def total_assets
-        render json: asset_calculator.get_total_assets
+        render json: {
+          calculatedTotalAssets: asset_calculator.get_total_assets
+        }
       end
 
       def monthly_income
@@ -18,7 +20,9 @@ module DebtsApi
       end
 
       def monthly_expenses
-        render json: expense_calculator.get_monthly_expenses
+        render json: {
+          calculatedMonthlyExpenses: expense_calculator.get_monthly_expenses
+        }
       end
 
       def all_expenses
@@ -29,56 +33,61 @@ module DebtsApi
 
       # rubocop:disable Metrics/MethodLength
       def asset_form
-        params.require(:data).permit(
-          :cashInBank,
-          :cashOnHand,
-          :recVehicleAmount,
-          :usSavingsBonds,
-          :stocksAndOtherBonds,
-          :'view:enhancedFinancialStatusReport',
-          questions: [:hasVehicle],
-          realEstateRecords: %i[
-            realEstateType
-            realEstateAmount
+        params.permit(
+          :cash_in_bank,
+          :cash_on_hand,
+          :rec_vehicle_amount,
+          :us_savings_bonds,
+          :stocks_and_other_bonds,
+          :'view:enhanced_financial_status_report',
+          questions: [:has_vehicle],
+          real_estate_records: %i[
+            real_estate_type
+            real_estate_amount
           ],
           assets: [
-            :realEstateValue,
+            :resale_value,
             {
-              otherAssets: %i[
+              other_assets: %i[
                 name
                 amount
               ]
             },
-            :recVehicleAmount,
-            { automobiles: [:resaleValue] }
+            { monetary_assets: %i[name amount] },
+            :rec_vehicle_amount,
+            :real_estate_value,
+            { automobiles: [:resale_value] }
           ]
         )
       end
 
       def income_form
-        params.require(:data).permit(
-          :'view:enhancedFinancialStatusReport',
-          additionalIncome: [
+        params.permit(
+          :'view:enhanced_financial_status_report',
+          additional_income: [
             {
-              addlIncRecords: %i[
+              addl_inc_records: %i[
                 name
                 amount
               ]
             },
             {
-              spouse: %i[
-                spAddlIncome
+              spouse: [
+                sp_addl_income: %i[
+                  name
+                  amount
+                ]
               ]
             }
           ],
           benefits: {
-            spouseBenefits: %i[
-              compensationAndPension
+            spouse_benefits: %i[
+              compensation_and_pension
               education
             ]
           },
-          currEmployment: [
-            :veteranGrossSalary,
+          curr_employment: [
+            :veteran_gross_salary,
             {
               deductions: %i[
                 name
@@ -90,37 +99,37 @@ module DebtsApi
             :type,
             :from,
             :to,
-            :isCurrent,
-            :employerName
+            :is_current,
+            :employer_name
           ],
           income: %i[
-            veteranOrSpouse
-            compensationAndPension
+            veteran_or_spouse
+            compensation_and_pension
             education
           ],
-          personalData: {
-            employmentHistory: {
+          personal_data: {
+            employment_history: {
               veteran: {
-                employmentRecords: [
+                employment_records: [
                   :type,
                   :from,
                   :to,
-                  :isCurrent,
-                  :employerName,
-                  :grossMonthlyIncome,
+                  :is_current,
+                  :employer_name,
+                  :gross_monthly_income,
                   {
                     deductions: %i[name amount]
                   }
                 ]
               },
               spouse: {
-                spEmploymentRecords: [
+                sp_employment_records: [
                   :type,
                   :from,
                   :to,
-                  :isCurrent,
-                  :employerName,
-                  :grossMonthlyIncome,
+                  :is_current,
+                  :employer_name,
+                  :gross_monthly_income,
                   {
                     deductions: %i[name amount]
                   }
@@ -128,8 +137,8 @@ module DebtsApi
               }
             }
           },
-          spCurrEmployment: [
-            :spouseGrossSalary,
+          sp_curr_employment: [
+            :spouse_gross_salary,
             {
               deductions: %i[
                 name
@@ -141,13 +150,13 @@ module DebtsApi
             :type,
             :from,
             :to,
-            :isCurrent,
-            :employerName
+            :is_current,
+            :employer_name
           ],
-          socialSecurity: [
-            :socialSecAmt,
+          social_security: [
+            :social_sec_amt,
             { spouse: [
-              :socialSecAmt
+              :social_sec_amt
             ] }
           ]
         ).to_hash
@@ -155,41 +164,41 @@ module DebtsApi
 
       def expense_form
         params.permit(
-          :'view:enhancedFinancialStatusReport',
+          :'view:enhanced_financial_status_report',
           expenses: [
             :food,
-            :rentOrMortgage,
-            { expenseRecords: %i[
+            :rent_or_mortgage,
+            { expense_records: %i[
                 name
                 amount
               ],
-              creditCardBills: %i[
+              credit_card_bills: %i[
                 purpose
-                creditorName
-                originalAmount
-                unpaidBalance
-                amountDueMonthly
-                dateStarted
-                amountPastDue
+                creditor_name
+                original_amount
+                unpaid_balance
+                amount_due_monthly
+                date_started
+                amount_past_due
               ] }
           ],
-          otherExpenses: %i[
+          other_expenses: %i[
             name
             amount
           ],
-          installmentContracts: %i[
-            creditorName
-            dateStarted
+          installment_contracts: %i[
+            creditor_name
+            date_started
             purpose
-            originalAmount
+            original_amount
             unpaid_balance
-            amountDueMonthly
-            amountPastDue
+            amount_due_monthly
+            amount_past_due
           ],
-          utilityRecords: %i[
-            utilityType
+          utility_records: %i[
+            utility_type
             amount
-            monthlyUtilityAmount
+            monthly_utility_amount
           ]
         ).to_hash
       end
@@ -204,7 +213,7 @@ module DebtsApi
       end
 
       def expense_calculator
-        DebtsApi::V0::FsrFormTransform::ExpenceCalculator.build(expense_form)
+        DebtsApi::V0::FsrFormTransform::ExpenseCalculator.build(expense_form)
       end
     end
   end

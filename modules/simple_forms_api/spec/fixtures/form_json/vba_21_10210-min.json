@@ -16,5 +16,6 @@
       "state": "CA",
       "postal_code": "12345"
   },
-  "veteran_phone": "555-555-5557"
+  "veteran_phone": "555-555-5557",
+  "statement_of_truth_signature": "Arthur C Preparer"
 }

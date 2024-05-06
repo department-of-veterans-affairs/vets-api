@@ -43,6 +43,16 @@ RSpec.describe 'payment information', type: :request do
   end
 
   describe 'GET /mobile/v0/payment-information/benefits evss' do
+    context 'user without access' do
+      let!(:user) { sis_user(participant_id: nil) }
+
+      it 'returns 403' do
+        get '/mobile/v0/payment-information/benefits', headers: sis_headers
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'with a valid response' do
       it 'matches the payment information schema' do
         VCR.use_cassette('evss/ppiu/payment_information') do
@@ -164,6 +174,17 @@ RSpec.describe 'payment information', type: :request do
           }
         }
       }
+    end
+
+    context 'user without access' do
+      let!(:user) { sis_user(participant_id: nil) }
+
+      it 'returns 403' do
+        put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                       headers: sis_headers(content_type)
+
+        expect(response).to have_http_status(:forbidden)
+      end
     end
 
     context 'with a valid response' do

@@ -8,9 +8,6 @@ RSpec.describe Sidekiq::AttrPackage do
 
   before do
     allow(Redis::Namespace).to receive(:new).and_return(redis_double)
-    allow(redis_double).to receive(:set)
-    allow(redis_double).to receive(:get)
-    allow(redis_double).to receive(:del)
   end
 
   after do
@@ -19,7 +16,12 @@ RSpec.describe Sidekiq::AttrPackage do
 
   describe '.create' do
     let(:attrs) { { foo: 'bar' } }
-    let(:expected_key) { Digest::SHA256.hexdigest(attrs.to_json) }
+    let(:expected_key) { SecureRandom.hex(32) }
+
+    before do
+      allow(redis_double).to receive(:set)
+      allow(SecureRandom).to receive(:hex).and_return(expected_key)
+    end
 
     context 'when no expiration is provided' do
       it 'stores attributes in Redis and returns a key' do
@@ -57,18 +59,20 @@ RSpec.describe Sidekiq::AttrPackage do
   describe '.find' do
     let(:key) { 'some_key' }
 
+    before do
+      allow(redis_double).to receive(:get)
+    end
+
     context 'when the key exists' do
-      let(:json_attrs) { { foo: 'bar' }.to_json }
+      let(:attrs) { { foo: 'bar' } }
 
       before do
-        allow(redis_double).to receive(:get).with(key).and_return(json_attrs)
+        allow(redis_double).to receive(:get).with(key).and_return(attrs.to_json)
       end
 
-      it 'retrieves and deletes the attribute package from Redis' do
-        expect(redis_double).to receive(:del).with(key)
-
+      it 'retrieves the attribute package from Redis' do
         result = described_class.find(key)
-        expect(result).to eq({ foo: 'bar' })
+        expect(result).to eq(attrs)
       end
     end
 
@@ -89,10 +93,36 @@ RSpec.describe Sidekiq::AttrPackage do
         allow(redis_double).to receive(:get).with(key).and_raise('Redis error')
       end
 
-      it 'raises an AttrPackageError and does not delete the package' do
-        expect(redis_double).not_to receive(:del)
+      it 'raises an AttrPackageError' do
         expect do
           described_class.find(key)
+        end.to raise_error(Sidekiq::AttrPackageError).with_message(expected_error_message)
+      end
+    end
+  end
+
+  describe '.delete' do
+    let(:key) { 'some_key' }
+
+    before do
+      allow(redis_double).to receive(:del)
+    end
+
+    it 'deletes the attribute package from Redis' do
+      expect(redis_double).to receive(:del).with(key)
+      described_class.delete(key)
+    end
+
+    context 'when an error occurs' do
+      let(:expected_error_message) { '[Sidekiq] [AttrPackage] delete error: Redis error' }
+
+      before do
+        allow(redis_double).to receive(:del).with(key).and_raise('Redis error')
+      end
+
+      it 'raises an AttrPackageError' do
+        expect do
+          described_class.delete(key)
         end.to raise_error(Sidekiq::AttrPackageError).with_message(expected_error_message)
       end
     end

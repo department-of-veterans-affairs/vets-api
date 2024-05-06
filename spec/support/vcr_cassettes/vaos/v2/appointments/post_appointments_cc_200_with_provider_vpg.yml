@@ -1,0 +1,61 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://veteran.apps.va.gov/vpg/v1/patients/1012846043V576341/appointments
+    body:
+      encoding: UTF-8
+      string: '{"kind":"cc","status":"proposed","locationId":"983","serviceType":"podiatry","reasonCode":{"text":"string"},"contact":{"telecom":[{"type":"phone","value":"2762740095"},{"type":"email","value":"jacqueline.morgan@id.me"}]},"requestedPeriods":[{"start":"2023-01-17T07:00:00Z","end":"2023-01-17T18:59:00Z"}],"preferredTimesForPhoneCall":["Morning"],"preferredLanguage":"English","preferredLocation":{"city":"Palm Bay","state":"FL"},"practitioners":[{"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"1174506877"}],"address":{"line":["590 MALABAR RD SE STE 5"],"city":"PALM BAY","state":"FL","postalCode":"32907-3108"}}]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 22 Feb 2022 21:46:03 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '614'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 1.15.2
+      B3:
+      - 38613f08883e2d8959f5b199aae93593-a0127fd9ebf0ac76-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - c9a85ac
+      X-Vamf-Timestamp:
+      - '2022-01-28T19:18:54+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '21106'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{"id":"153432","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/hsrm/id","value":"13413"}],"kind":"cc","status":"proposed","serviceType":"podiatry","serviceTypes":[{"text":"podiatry"}],"patientIcn":"1012846043V576341","locationId":"983","practitioners":[{"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"1174506877"}],"address":{"type":"physical","line":["590 MALABAR RD SE STE 5"],"city":"PALM BAY","state":"FL","postalCode":"32907-3108","text":"590 MALABAR RD SE STE 5,PALM BAY,FL,32907-3108"}}],"created":"2023-01-12T21:40:00Z","requestedPeriods":[{"start":"2023-01-17T07:00:00Z"}],"contact":{"telecom":[{"type":"phone","value":"2762740095"},{"type":"email","value":"jacqueline.morgan@id.me"}]},"preferredTimesForPhoneCall":["Morning"],"preferredLocation":{"city":"Palm Bay","state":"FL"},"preferredLanguage":"English","cancellable":true,"extension":{"ccLocation":{"address":{}},"ccRequestedCancellation":false,"hsrmTaskId":"13413"},"location":{"id":"983","type":"appointments","attributes":{"id":"983","vistaSite":"983","vastParent":"983","type":"va_facilities","name":"Cheyenne VA Medical Center","classification":"VA Medical Center (VAMC)","timezone":{"timeZoneId":"America/Denver"},"lat":39.744507,"long":-104.830956,"website":"https://www.denver.va.gov/locations/directions.asp","phone":{"main":"307-778-7550","fax":"307-778-7381","pharmacy":"866-420-6337","afterHours":"307-778-7550","patientAdvocate":"307-778-7550 x7517","mentalHealthClinic":"307-778-7349","enrollmentCoordinator":"307-778-7550 x7579"},"physicalAddress":{"type":"physical","line":["2360 East Pershing Boulevard"],"city":"Cheyenne","state":"WY","postalCode":"82001-5356"},"mobile":false,"healthService":["Audiology","Cardiology","DentalServices","EmergencyCare","Gastroenterology","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare","Urology","WomensHealth"],"operatingStatus":{"code":"NORMAL"}}}}'
+  recorded_at: Tue, 22 Feb 2022 21:46:03 GMT
+recorded_with: VCR 6.0.0

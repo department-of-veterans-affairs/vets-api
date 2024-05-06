@@ -110,5 +110,30 @@ chatbot.update!(
   access_token_audience: 'http://localhost:3978/api/messages',
   access_token_user_attributes: ['icn'],
   access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
-  certificates: [File.read('spec/fixtures/sign_in/sample_service_account.crt')]
+  certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')]
+)
+
+# Create config for accredited_representative_portal
+arp = SignIn::ClientConfig.find_or_initialize_by(client_id: 'arp')
+arp.update!(authentication: SignIn::Constants::Auth::COOKIE,
+            anti_csrf: true,
+            pkce: true,
+            description: 'Accredited Representative Portal',
+            redirect_uri: 'http://localhost:3001/auth/login/callback',
+            access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+            access_token_attributes: %w[first_name last_name email],
+            refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES,
+            logout_redirect_uri: 'http://localhost:3001/representatives',
+            credential_service_providers: [SignIn::Constants::Auth::IDME, SignIn::Constants::Auth::LOGINGOV],
+            service_levels: [SignIn::Constants::Auth::LOA3, SignIn::Constants::Auth::IAL2])
+
+# Create Service Account Config for BTSSS
+btsss = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: 'bbb5830ecebdef04556e9c430e374972')
+btsss.update!(
+  description: 'BTSSS',
+  scopes: [],
+  access_token_audience: 'http://localhost:3000',
+  access_token_user_attributes: ['icn'],
+  access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+  certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')]
 )

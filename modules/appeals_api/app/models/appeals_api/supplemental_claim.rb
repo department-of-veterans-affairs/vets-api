@@ -4,16 +4,18 @@ require 'json_marshal/marshaller'
 
 module AppealsApi
   class SupplementalClaim < ApplicationRecord
+    include AppealScopes
     include ScStatus
     include PdfOutputPrep
     include ModelValidations
+
     required_claimant_headers %w[X-VA-NonVeteranClaimant-First-Name X-VA-NonVeteranClaimant-Last-Name]
 
     attr_readonly :auth_headers
     attr_readonly :form_data
 
     before_create :assign_metadata, :assign_veteran_icn
-    before_update :submit_evidence_to_central_mail!, if: -> { status_changed_to_success? && delay_evidence_enabled? }
+    before_update :submit_evidence_to_central_mail!, if: -> { status_changed_to_complete? && delay_evidence_enabled? }
 
     def self.past?(date)
       date < Time.zone.today
@@ -24,10 +26,6 @@ module AppealsApi
     rescue ArgumentError
       nil
     end
-
-    scope :pii_expunge_policy, lambda {
-      where('updated_at < ? AND status IN (?)', 7.days.ago, COMPLETE_STATUSES)
-    }
 
     scope :stuck_unsubmitted, lambda {
       where('created_at < ? AND status IN (?)', 2.hours.ago, %w[pending submitting])
@@ -43,6 +41,7 @@ module AppealsApi
 
     has_many :evidence_submissions, as: :supportable, dependent: :destroy
     has_many :status_updates, as: :statusable, dependent: :destroy
+
     # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
     # further validations:
     validate(
@@ -255,21 +254,7 @@ module AppealsApi
         return if auth_headers.blank? # Go no further if we've removed PII
 
         if status == 'submitted' && email_present?
-          if Flipper.enabled? :decision_review_use_appeal_submitted_job
-            AppealsApi::AppealSubmittedJob.perform_async(id, self.class.name, appellant_local_time.iso8601)
-          else
-            AppealsApi::AppealReceivedJob.perform_async(
-              {
-                receipt_event: 'sc_received',
-                email_identifier:,
-                first_name: veteran.first_name,
-                date_submitted: appellant_local_time.iso8601,
-                guid: id,
-                claimant_email: claimant.email,
-                claimant_first_name: claimant.first_name
-              }.deep_stringify_keys
-            )
-          end
+          AppealsApi::AppealReceivedJob.perform_async(id, self.class.name, appellant_local_time.iso8601)
         end
       end
     end
@@ -342,8 +327,8 @@ module AppealsApi
       claimant.email.present? || email_identifier.present?
     end
 
-    def status_changed_to_success?
-      status_changed? && status == 'success'
+    def status_changed_to_complete?
+      status_changed? && status == 'complete'
     end
 
     def delay_evidence_enabled?

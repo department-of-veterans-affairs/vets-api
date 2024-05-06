@@ -62,24 +62,6 @@ RSpec.describe 'maintenance windows', type: :request do
         expect(response.parsed_body['data']).to eq(
           [
             {
-              'id' => mw_uuid('claims'),
-              'type' => 'maintenance_window',
-              'attributes' => {
-                'service' => 'claims',
-                'startTime' => '2021-05-25T21:33:39.000Z',
-                'endTime' => '2021-05-25T22:33:39.000Z'
-              }
-            },
-            {
-              'id' => mw_uuid('direct_deposit_benefits'),
-              'type' => 'maintenance_window',
-              'attributes' => {
-                'service' => 'direct_deposit_benefits',
-                'startTime' => '2021-05-25T21:33:39.000Z',
-                'endTime' => '2021-05-25T22:33:39.000Z'
-              }
-            },
-            {
               'id' => mw_uuid('disability_rating'),
               'type' => 'maintenance_window',
               'attributes' => {
@@ -98,12 +80,21 @@ RSpec.describe 'maintenance windows', type: :request do
               }
             },
             {
-              'id' => mw_uuid('immunizations'),
+              'id' => 'ebd9fb30-4df2-52e9-b951-297a9a4cc65c',
+              'type' => 'maintenance_window',
+              'attributes' => {
+                'service' => 'claims',
+                'startTime' => '2021-05-25T23:33:39.000Z',
+                'endTime' => '2021-05-26T01:45:00.000Z'
+              }
+            },
+            {
+              'id' => '0ce167f8-9522-52c3-94e0-4f1e367d7064',
               'type' => 'maintenance_window',
               'attributes' => {
                 'service' => 'immunizations',
-                'startTime' => '2021-05-25T21:33:39.000Z',
-                'endTime' => '2021-05-25T22:33:39.000Z'
+                'startTime' => '2021-05-25T23:33:39.000Z',
+                'endTime' => '2021-05-26T01:45:00.000Z'
               }
             }
           ]
@@ -159,8 +150,7 @@ RSpec.describe 'maintenance windows', type: :request do
         evss_latest_end_time = latest_evss_starting.end_time.iso8601
 
         expect(response.body).to match_json_schema('maintenance_windows')
-        expect(attributes.pluck('service').uniq).to eq(%w[claims direct_deposit_benefits disability_rating
-                                                          letters_and_documents immunizations])
+        expect(attributes.pluck('service').uniq).to eq(%w[disability_rating letters_and_documents])
         expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_eariest_start_time])
         expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_eariest_end_time])
 
@@ -169,8 +159,7 @@ RSpec.describe 'maintenance windows', type: :request do
 
         expect(response.body).to match_json_schema('maintenance_windows')
         attributes = response.parsed_body['data'].pluck('attributes')
-        expect(attributes.pluck('service').uniq).to eq(%w[claims direct_deposit_benefits disability_rating
-                                                          letters_and_documents immunizations])
+        expect(attributes.pluck('service').uniq).to eq(%w[disability_rating letters_and_documents])
         expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_middle_start_time])
         expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_middle_end_time])
 
@@ -179,8 +168,8 @@ RSpec.describe 'maintenance windows', type: :request do
 
         expect(response.body).to match_json_schema('maintenance_windows')
         attributes = response.parsed_body['data'].pluck('attributes')
-        expect(attributes.pluck('service').uniq).to eq(%w[claims direct_deposit_benefits disability_rating
-                                                          letters_and_documents immunizations])
+        expect(attributes.pluck('service').uniq).to eq(%w[disability_rating letters_and_documents])
+
         expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_latest_start_time])
         expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_latest_end_time])
       end
@@ -191,7 +180,7 @@ RSpec.describe 'maintenance windows', type: :request do
       let!(:latest_evss_starting) { FactoryBot.create(:mobile_maintenance_evss_second) }
       let!(:earliest_bgs_starting) { FactoryBot.create(:mobile_maintenance_bgs_first) }
       let!(:latest_bgs_starting) { FactoryBot.create(:mobile_maintenance_bgs_second) }
-      let(:evss_services) { %w[claims direct_deposit_benefits disability_rating letters_and_documents].freeze }
+      let(:evss_services) { %w[disability_rating letters_and_documents].freeze }
       let(:bgs_services) { %w[payment_history appeals].freeze }
 
       before { Timecop.freeze('2021-05-25T03:33:39Z') }

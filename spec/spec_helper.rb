@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'fakeredis/rspec'
 require 'i18n'
 require 'support/spec_builders'
 require 'support/matchers'
@@ -15,6 +14,7 @@ require 'pundit/rspec'
 require 'rspec/its'
 require 'rspec/retry'
 require 'aasm/rspec'
+require 'mock_redis'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
@@ -26,7 +26,6 @@ unless ENV['NOCOVERAGE']
     add_filter 'app/controllers/concerns/accountable.rb'
     add_filter 'app/models/in_progress_disability_compensation_form.rb'
     add_filter 'app/serializers/appeal_serializer.rb'
-    add_filter 'config/initializers/clamscan.rb'
     add_filter 'lib/apps/configuration.rb'
     add_filter 'lib/apps/responses/response.rb'
     add_filter 'lib/config_helper.rb'
@@ -62,6 +61,7 @@ unless ENV['NOCOVERAGE']
     add_group 'DebtsApi', 'modules/debts_api/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
+    add_group 'IvcChampva', 'modules/ivc_champva/'
     add_group 'RepresentationManagement', 'modules/representation_management/'
     add_group 'SimpleFormsApi', 'modules/simple_forms_api/'
     add_group 'HealthQuest', 'modules/health_quest/'
@@ -191,5 +191,9 @@ RSpec.configure do |config|
 
   config.after do
     Timecop.return
+  end
+
+  config.before do
+    $redis.flushdb
   end
 end
