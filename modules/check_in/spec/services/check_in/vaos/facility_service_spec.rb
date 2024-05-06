@@ -10,7 +10,7 @@ describe CheckIn::VAOS::FacilityService do
 
   describe '.build' do
     it 'returns an instance of Service' do
-      expect(subject.build).to be_an_instance_of(described_class)
+      expect(subject.new).to be_an_instance_of(described_class)
     end
   end
 
@@ -50,8 +50,8 @@ describe CheckIn::VAOS::FacilityService do
       end
 
       it 'returns facility' do
-        svc = subject.build(facility_id:)
-        response = svc.get_facility
+        svc = subject.new
+        response = svc.get_facility(facility_id:)
         expect(response).to eq(facility_response)
       end
     end
@@ -99,8 +99,8 @@ describe CheckIn::VAOS::FacilityService do
       end
 
       it 'returns clinic data' do
-        svc = subject.build(facility_id:)
-        response = svc.get_clinic(clinic_id:)
+        svc = subject.new
+        response = svc.get_clinic(facility_id:, clinic_id:)
         expect(response).to eq(clinic_response)
       end
     end
@@ -114,9 +114,9 @@ describe CheckIn::VAOS::FacilityService do
       end
 
       it 'throws exception' do
-        svc = subject.build(facility_id:)
+        svc = subject.new
         expect do
-          svc.get_facility
+          svc.get_facility(facility_id:)
         end.to(raise_error do |error|
           expect(error).to be_a(Common::Exceptions::BackendServiceException)
         end)
@@ -132,9 +132,9 @@ describe CheckIn::VAOS::FacilityService do
       end
 
       it 'throws exception' do
-        svc = subject.build(facility_id:)
+        svc = subject.new
         expect do
-          svc.get_clinic(clinic_id:)
+          svc.get_clinic(facility_id:, clinic_id:)
         end.to(raise_error do |error|
           expect(error).to be_a(Common::Exceptions::BackendServiceException)
         end)
