@@ -458,6 +458,10 @@ features:
     actor_type: user
     description: Points to debts-api module routes
     enable_in_development: true
+  financial_status_report_expenses_update:
+    actor_type: user
+    description: Update expense lists in the Financial Status Report (FSR - 5655) form
+    enable_in_development: true
   financial_status_report_streamlined_waiver:
     actor_type: user
     description: Enables streamlined waiver flow for qualifying users completing the Financial Status Report (FSR) form
