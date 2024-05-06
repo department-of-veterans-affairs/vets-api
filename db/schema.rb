@@ -480,14 +480,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
     t.index ["decision_review_evidence_attachment_guid"], name: "index_dr_evidence_attachment_validation_on_guid"
   end
 
-  create_table "decision_review_evidence_validations", force: :cascade do |t|
-    t.uuid "decision_review_guid"
-    t.text "password_ciphertext"
-    t.text "encrypted_kms_key"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "deprecated_user_accounts", force: :cascade do |t|
     t.uuid "user_account_id"
     t.bigint "user_verification_id"
