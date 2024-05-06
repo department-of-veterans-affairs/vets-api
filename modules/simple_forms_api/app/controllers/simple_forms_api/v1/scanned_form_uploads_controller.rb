@@ -3,8 +3,6 @@
 module SimpleFormsApi
   module V1
     class ScannedFormUploadsController < ApplicationController
-      # skip_before_action :authenticate
-
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
