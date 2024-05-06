@@ -48,8 +48,9 @@ RSpec.describe 'breakers', type: :request do
 
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', '{"message":"ack"}', status_code: 500)
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/getactiverx', '{"message":"ack"}', status_code: 500)
-      20.times do
+      80.times do
         response = get '/v0/prescriptions'
+        puts response
         expect(response).to eq(400)
       end
 
@@ -58,6 +59,7 @@ RSpec.describe 'breakers', type: :request do
       end.to trigger_statsd_increment('api.external_http_request.Rx.skipped', times: 1, value: 1)
 
       response = get '/v0/prescriptions'
+      puts response
       expect(response).to eq(503)
 
       Timecop.freeze(now)
