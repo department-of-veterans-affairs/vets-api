@@ -2,7 +2,7 @@
 
 module TravelPay
   class PingsController < ApplicationController
-    before_action :authorize, only: [:authorized_ping]
+    skip_before_action :authenticate, only: :ping
 
     def ping
       veis_token = client.request_veis_token
