@@ -27,10 +27,6 @@ module AppealsApi
       nil
     end
 
-    scope :pii_expunge_policy, lambda {
-      where('updated_at < ? AND status IN (?)', 7.days.ago, COMPLETE_STATUSES)
-    }
-
     scope :stuck_unsubmitted, lambda {
       where('created_at < ? AND status IN (?)', 2.hours.ago, %w[pending submitting])
     }
