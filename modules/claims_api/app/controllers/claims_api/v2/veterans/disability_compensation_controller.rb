@@ -107,7 +107,7 @@ module ClaimsApi
           auto_claim.form_data[:claimId] = auto_claim.evss_id
 
           render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
-            auto_claim, root: :data
+            auto_claim, root: :data, async: false
           ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)
         end
 
@@ -223,7 +223,7 @@ module ClaimsApi
         end
 
         def valid_pact_act_claim?
-          form_attributes['disabilities'].any? do |d|
+          form_attributes&.dig('disabilities')&.any? do |d|
             d['isRelatedToToxicExposure'] && d['disabilityActionType'] == 'NEW'
           end
         end

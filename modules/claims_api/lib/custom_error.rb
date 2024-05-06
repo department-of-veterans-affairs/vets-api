@@ -15,8 +15,9 @@ module ClaimsApi
         raise ::Common::Exceptions::Forbidden if @error&.original_status == 403
 
         raise_backend_exception('EVSS400') if @error&.original_status == 400
-        raise_backend_exception('EVSS500') if @error&.original_status == 500
         raise ::Common::Exceptions::Unauthorized if @error&.original_status == 401
+
+        raise_backend_exception('EVSS500')
       else
         raise @error
       end

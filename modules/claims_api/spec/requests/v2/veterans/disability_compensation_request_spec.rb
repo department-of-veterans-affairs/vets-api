@@ -3998,9 +3998,7 @@ RSpec.describe 'Disability Claims', type: :request do
           post synchronous_path, params: data, headers: auth_header
 
           parsed_res = JSON.parse(response.body)
-          evss_id = parsed_res['data']['attributes']['claimId']
-          expect(parsed_res['data']).to include('id')
-          expect(evss_id).to eq(nil) # TODO: this should return an ID
+          expect(parsed_res['data']['attributes']).to include('claimId')
         end
       end
 
