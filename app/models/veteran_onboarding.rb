@@ -8,14 +8,13 @@
 # Table name: veteran_onboardings
 #
 #  id                      :bigint           not null, primary key
-#  icn                     :string           not null, unique
+#  user_account_uuid       :string           not null, unique
 #  display_onboarding_flow :boolean          default(TRUE)
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null
 #
 class VeteranOnboarding < ApplicationRecord
-  # Ensures that ICN is present and unique for each veteran onboarding record
-  validates :icn, presence: true, uniqueness: true
+  validates :user_account_uuid, presence: true, uniqueness: true
 
   # Determines whether the onboarding flow should be displayed for a veteran.
   # Currently, this is based solely on the value of the `display_onboarding_flow` attribute.
