@@ -12,7 +12,9 @@ module Vye
       def create
         authorize user_info, policy_class: UserInfoPolicy
 
-        user_info.verifications.create!(source_ind:)
+        award = user_info.awards.first
+        user_profile = user_info.user_profile
+        Verification.create!(source_ind:, award:, user_profile:)
       end
 
       private
