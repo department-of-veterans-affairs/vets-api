@@ -57,6 +57,7 @@ RSpec.describe V0::UsersController, type: :controller do
     before do
       sign_in_as(user)
       Flipper.disable(:profile_user_claims)
+      create(:user_verification, idme_uuid: user.idme_uuid)
     end
 
     it 'returns a JSON user profile with a bad_address' do
