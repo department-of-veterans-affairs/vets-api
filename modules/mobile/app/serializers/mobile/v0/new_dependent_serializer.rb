@@ -9,12 +9,6 @@ module Mobile
 
       set_type :dependent
       attribute :submit_form_job_id
-
-      def initialize(dependent_info)
-        resource = NewDependentStruct.new(SecureRandom.uuid, dependent_info[:submit_form_job_id])
-        super(resource, {})
-      end
     end
-    NewDependentStruct = Struct.new(:id, :submit_form_job_id)
   end
 end
