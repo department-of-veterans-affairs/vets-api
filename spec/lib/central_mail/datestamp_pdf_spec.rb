@@ -48,7 +48,7 @@ RSpec.describe CentralMail::DatestampPdf do
       it 'adds text with a datestamp for all forms except 40-10007 with expected formatting' do
         out_path = instance.run(text: 'Received via vets.gov', x: 10, y: 10, timestamp: Time.zone.local(2024, 1, 30))
         pdf_reader = PDF::Reader.new(out_path)
-        expect(pdf_reader.pages[0].text).to eq('Received via vets.gov 2024-01-30 12:00 AM UTC. Confirmation=VETS-XX-1234')
+        expect(pdf_reader.pages[0].text).to eq('Received via vets.gov 2024-01-30 12:00 AM UTC. Confirmation=VETS-XX-1234') # rubocop:disable Layout/LineLength
         File.delete(out_path)
       end
 
