@@ -854,6 +854,9 @@ features:
   profile_show_quick_submit_notification_setting:
     actor_type: user
     description: Show/Hide the quick submit section of notification settings in profile
+  profile_show_proof_of_veteran_status:
+    actor_type: user
+    description: Show/Hide the proof of veteran status page and links
   profile_use_experimental:
     description: Use experimental features for Profile application - Do not remove
     enable_in_development: true
@@ -1418,3 +1421,6 @@ features:
     actor_type: user
     description: Enable the Accredited Representative Portal for the pilot
     enable_in_development: true
+  toggle_vye_adress_direct_deposit_forms:
+    actor_type: user
+    description: Enable mailing address and direct deposit for VYE 

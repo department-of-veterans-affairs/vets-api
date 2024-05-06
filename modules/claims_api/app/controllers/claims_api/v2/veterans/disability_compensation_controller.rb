@@ -28,6 +28,9 @@ module ClaimsApi
         before_action only: %i[generate_pdf] do
           permit_scopes(%w[system/526-pdf.override], actions: [:generate_pdf])
         end
+        before_action only: %i[synchronous] do
+          permit_scopes(%w[system/526.override], actions: [:synchronous])
+        end
 
         def submit
           auto_claim = shared_submit_methods

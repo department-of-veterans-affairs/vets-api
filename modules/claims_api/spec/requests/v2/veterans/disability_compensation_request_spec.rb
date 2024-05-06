@@ -3989,15 +3989,33 @@ RSpec.describe 'Disability Claims', type: :request do
                       'form_526_json_api.json').read
     end
     let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read }
+    let(:synchronous_scopes) { %w[system/526.override system/claim.write] }
+    let(:invalid_scopes) { %w[system/526-pdf.override] }
 
-    context 'when the endpoint is hit' do
+    context 'submission to synchronous' do
       it 'returns an empty test object' do
-        mock_ccg(scopes) do |auth_header|
+        mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
           post synchronous_path, params: data, headers: auth_header
+
           parsed_res = JSON.parse(response.body)
           evss_id = parsed_res['data']['attributes']['claimId']
           expect(parsed_res['data']).to include('id')
           expect(evss_id).to eq(nil) # TODO: this should return an ID
+        end
+      end
+
+      it 'returns a 200 response when successful' do
+        mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+          post synchronous_path, params: {}.to_json, headers: auth_header
+
+          expect(response).to have_http_status(:accepted)
+        end
+      end
+
+      it 'returns a 401 unauthorized with incorrect scopes' do
+        mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
+          post synchronous_path, params: {}.to_json, headers: auth_header
+          expect(response).to have_http_status(:unauthorized)
         end
       end
     end
