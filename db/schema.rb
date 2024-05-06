@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_03_151551) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -350,6 +350,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_03_151551) do
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
+    t.index ["veteran_icn"], name: "index_claims_api_auto_established_claims_on_veteran_icn"
   end
 
   create_table "claims_api_claim_submissions", force: :cascade do |t|
@@ -477,6 +478,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_03_151551) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["decision_review_evidence_attachment_guid"], name: "index_dr_evidence_attachment_validation_on_guid"
+  end
+
+  create_table "decision_review_evidence_validations", force: :cascade do |t|
+    t.uuid "decision_review_guid"
+    t.text "password_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "deprecated_user_accounts", force: :cascade do |t|
@@ -1454,12 +1463,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_03_151551) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
-    t.date "cert_issue_date"
-    t.date "del_date"
-    t.date "date_last_certified"
     t.integer "bdn_clone_id"
     t.integer "bdn_clone_line"
     t.boolean "bdn_clone_active"
+    t.date "cert_issue_date"
+    t.date "del_date"
+    t.date "date_last_certified"
     t.index ["bdn_clone_active"], name: "index_vye_user_infos_on_bdn_clone_active"
     t.index ["bdn_clone_id"], name: "index_vye_user_infos_on_bdn_clone_id"
     t.index ["bdn_clone_line"], name: "index_vye_user_infos_on_bdn_clone_line"
