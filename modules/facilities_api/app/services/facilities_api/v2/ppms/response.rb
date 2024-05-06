@@ -63,13 +63,13 @@ module FacilitiesApi
 
         def trim_response_attributes!
           body.collect! do |hsh|
-            hsh.each_pair.collect do |attr, value|
+            hsh.each_pair.to_h do |attr, value|
               if value.is_a? String
                 [attr, value.gsub(/ +/, ' ').strip]
               else
                 [attr, value]
               end
-            end.to_h
+            end
           end
         end
 
