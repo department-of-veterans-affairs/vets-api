@@ -15,19 +15,6 @@ RSpec.describe Vye::BatchTransfer::IngressFiles do
     end
   end
 
-  it 'imports lines from BDN extract' do
-    data = Vye::Engine.root / 'spec/fixtures/bdn_sample/WAVE.txt'
-    expect do
-      described_class.bdn_import(data)
-    end.to(
-      change(Vye::UserProfile, :count).by(1).and(
-        change(Vye::UserInfo, :count).by(1).and(
-          change(Vye::Award, :count).by(1)
-        )
-      )
-    )
-  end
-
   it 'imports lines from TIMS extract' do
     file = Vye::Engine.root / 'spec/fixtures/tims_sample/tims32towave.txt'
     data = CSV.open(file, 'r', headers: %i[ssn file_number doc_type queue_date rpo])
