@@ -296,15 +296,6 @@ features:
   decision_review_sc_email:
     actor_type: user
     description: Send email notification for successful SC submission
-  decision_review_hlr_pii_expunge_enabled:
-    actor_type: user
-    description: Enables the higher level review PII expunge job
-  decision_review_nod_pii_expunge_enabled:
-    actor_type: user
-    description: Enables the notice of disagreement PII expunge job
-  decision_review_sc_pii_expunge_enabled:
-    actor_type: user
-    description: Enables the supplemental claim PII expunge job
   decision_review_hlr_status_updater_enabled:
     actor_type: user
     description: Enables the Higher Level Review status update batch job
@@ -1355,6 +1346,10 @@ features:
     actor_type: user
     description: NOD VANotify notification callbacks endpoint
     enable_in_development: true
+  nod_confirmation_update:
+    actor_type: user
+    description: Show updated confirmation page with form data & downloadable PDF
+    enable_in_development: true
   pension_ipf_callbacks_endpoint:
     actor_type: user
     description: Pension IPF VANotify notification callbacks endpoint
@@ -1427,4 +1422,4 @@ features:
     enable_in_development: true
   toggle_vye_adress_direct_deposit_forms:
     actor_type: user
-    description: Enable mailing address and direct deposit for VYE 
+    description: Enable mailing address and direct deposit for VYE
