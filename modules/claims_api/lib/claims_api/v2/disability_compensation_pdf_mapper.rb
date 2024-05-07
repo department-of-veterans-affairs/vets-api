@@ -609,8 +609,7 @@ module ClaimsApi
 
       def confinements
         if @pdf_data[:data][:attributes][:serviceInformation][:confinements].blank?
-          @pdf_data[:data][:attributes][:serviceInformation].delete(:confinements)
-          return
+          return @pdf_data[:data][:attributes][:serviceInformation].delete(:confinements)
         end
 
         si = []
