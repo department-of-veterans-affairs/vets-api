@@ -62,7 +62,7 @@ RSpec.describe 'Medical Records Integration', type: :request do
 
     it 'responds to GET #show' do
       VCR.use_cassette('mr_client/get_a_health_condition') do
-        get '/my_health/v1/medical_records/conditions/39274'
+        get '/my_health/v1/medical_records/conditions/4169'
       end
 
       expect(response).to be_successful
