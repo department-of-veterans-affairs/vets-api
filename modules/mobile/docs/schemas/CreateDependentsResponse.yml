@@ -14,7 +14,7 @@ properties:
         example: bf01349c-585d-480f-8afc-7a2f88697a1a
       type:
         type: string
-        example: dependent
+        example: dependents
       attributes:
         type: object
         required:
