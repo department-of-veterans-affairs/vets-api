@@ -35,10 +35,10 @@ describe CheckIn::VAOS::FacilityService do
           pharmacy: '632-456-6734',
           afterHours: '642-632-8932'
         }
-      }.to_json
+      }
     end
     let(:faraday_response) { double('Faraday::Response') }
-    let(:faraday_env) { double('Faraday::Env', status: 200, body: facility_response) }
+    let(:faraday_env) { double('Faraday::Env', status: 200, body: facility_response.to_json) }
 
     context 'when vaos returns successful response' do
       before do
@@ -52,7 +52,7 @@ describe CheckIn::VAOS::FacilityService do
       it 'returns facility' do
         svc = subject.new
         response = svc.get_facility(facility_id:)
-        expect(response).to eq(facility_response)
+        expect(response).to eq(facility_response.with_indifferent_access)
       end
     end
 
@@ -85,10 +85,10 @@ describe CheckIn::VAOS::FacilityService do
             },
             futureBookingMaximumDays: 390
           }
-        }.to_json
+        }
       end
       let(:faraday_response) { double('Faraday::Response') }
-      let(:faraday_env) { double('Faraday::Env', status: 200, body: clinic_response) }
+      let(:faraday_env) { double('Faraday::Env', status: 200, body: clinic_response.to_json) }
 
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:get)
@@ -101,7 +101,7 @@ describe CheckIn::VAOS::FacilityService do
       it 'returns clinic data' do
         svc = subject.new
         response = svc.get_clinic(facility_id:, clinic_id:)
-        expect(response).to eq(clinic_response)
+        expect(response).to eq(clinic_response.with_indifferent_access)
       end
     end
 

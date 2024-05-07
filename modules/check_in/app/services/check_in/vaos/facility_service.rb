@@ -16,14 +16,14 @@ module CheckIn
       def get_facility(facility_id:)
         with_monitoring do
           response = perform(:get, facilities_url(facility_id:), {}, headers)
-          response.body
+          Oj.load(response.body).with_indifferent_access
         end
       end
 
       def get_clinic(facility_id:, clinic_id:)
         with_monitoring do
           response = perform(:get, clinics_url(facility_id:, clinic_id:), {}, headers)
-          response.body
+          Oj.load(response.body).with_indifferent_access
         end
       end
 
