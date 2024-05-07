@@ -89,7 +89,7 @@ RSpec.describe 'dependents', type: :request do
         expect(response.parsed_body['data'].to_h).to match(
           {
             'id' => /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/,
-            'type' => 'dependent',
+            'type' => 'dependents',
             'attributes' => {
               'submitFormJobId' => submit_form_job_id
             }

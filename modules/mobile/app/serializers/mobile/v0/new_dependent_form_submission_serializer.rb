@@ -7,7 +7,7 @@ module Mobile
     class NewDependentFormSubmissionSerializer
       include JSONAPI::Serializer
 
-      set_type :dependent
+      set_type :dependents
       attribute :submit_form_job_id
     end
   end
