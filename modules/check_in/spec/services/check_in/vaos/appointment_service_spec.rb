@@ -17,29 +17,8 @@ describe CheckIn::VAOS::AppointmentService do
     end
   end
 
-  describe '#perform' do
+  describe '#get_appointments' do
     let(:token) { 'test-token-123' }
-    let(:start_date) { '2023-11-10T17:12:30Z' }
-    let(:end_date) { '2023-12-12T17:12:30Z' }
-    let(:appointments_response) do
-      {
-        data: [
-          {
-            id: '180765',
-            kind: 'clinic',
-            status: 'booked',
-            patientIcn: 'icn',
-            locationId: '983GC',
-            clinic: '1081',
-            start: '2023-11-02T17:12:30.174Z',
-            end: '2023-12-12T17:12:30.174Z',
-            minutesDuration: 30
-          }
-        ]
-      }.to_json
-    end
-    let(:faraday_response) { double('Faraday::Response') }
-    let(:faraday_env) { double('Faraday::Env', status: 200, body: appointments_response) }
 
     before do
       allow_any_instance_of(V2::Lorota::RedisClient).to receive(:icn).with(uuid:)
@@ -49,19 +28,41 @@ describe CheckIn::VAOS::AppointmentService do
     end
 
     context 'when vaos returns successful response' do
+      let(:start_date) { DateTime.parse('2023-11-10T17:12:30Z').in_time_zone }
+      let(:end_date) { DateTime.parse('2023-12-12T17:12:30Z').in_time_zone }
+      let(:appointments_response) do
+        {
+          data: [
+            {
+              id: '180765',
+              kind: 'clinic',
+              status: 'booked',
+              patientIcn: 'icn',
+              locationId: '983GC',
+              clinic: '1081',
+              start: '2023-11-02T17:12:30.174Z',
+              end: '2023-12-12T17:12:30.174Z',
+              minutesDuration: 30
+            }
+          ]
+        }
+      end
+      let(:faraday_response) { double('Faraday::Response') }
+      let(:faraday_env) { double('Faraday::Env', status: 200, body: appointments_response.to_json) }
+
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:get)
-          .with("/vaos/v1/patients/#{patient_icn}/appointments",
-                { start: start_date, end: end_date })
+          .with("/vaos/v1/patients/#{patient_icn}/appointments", { start: start_date, end: end_date })
           .and_return(faraday_response)
         allow(faraday_response).to receive(:env).and_return(faraday_env)
       end
 
       it 'returns appointments' do
         svc = subject.build(check_in_session:)
-        response = svc.get_appointments(DateTime.parse(start_date).in_time_zone,
-                                        DateTime.parse(end_date).in_time_zone)
-        expect(response).to eq(appointments_response)
+        response = svc.get_appointments(start_date, end_date)
+
+        exp_response = Oj.load(appointments_response.to_json).with_indifferent_access
+        expect(response).to eq(exp_response)
       end
     end
 
@@ -77,9 +78,9 @@ describe CheckIn::VAOS::AppointmentService do
 
       it 'throws exception' do
         svc = subject.build(check_in_session:)
+
         expect do
-          svc.get_appointments(DateTime.parse(start_date).in_time_zone,
-                               DateTime.parse(end_date).in_time_zone)
+          svc.get_appointments(start_date, end_date)
         end.to(raise_error do |error|
           expect(error).to be_a(Common::Exceptions::BackendServiceException)
         end)
