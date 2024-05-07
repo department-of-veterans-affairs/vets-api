@@ -3,41 +3,56 @@
 module Vye
   module Vye::V1
     class Vye::V1::VerificationsController < Vye::V1::ApplicationController
+      class EmptyAwards < StandardError; end
+      class AwardsMismatch < StandardError; end
+
       include Pundit::Authorization
 
-      service_tag 'vye'
+      service_tag 'verify-your-enrollment'
 
-      skip_before_action :authenticate, if: -> { ivr_key? }
+      rescue_from EmptyAwards, with: -> { head :unprocessable_entity }
+      rescue_from AwardsMismatch, with: -> { head :unprocessable_entity }
+
+      delegate :pending_verifications, to: :user_info
 
       def create
         authorize user_info, policy_class: UserInfoPolicy
 
-        award = user_info.awards.first
-        user_profile = user_info.user_profile
-        Verification.create!(source_ind:, award:, user_profile:)
+        validate_award_ids!
+
+        transact_date = Time.zone.today
+        pending_verifications.each do |verification|
+          verification.update!(transact_date:, source_ind:)
+        end
+
+        head :no_content
       end
 
       private
 
+      def award_ids
+        transformed_params.fetch(:award_ids, []).map(&:to_i)
+      end
+
+      def matching_awards?
+        given = award_ids.sort
+        actual = pending_verifications.pluck(:award_id).sort
+        given == actual
+      end
+
+      def validate_award_ids!
+        raise EmptyAwards if award_ids.blank?
+        raise AwardsMismatch unless matching_awards?
+      end
+
       def source_ind
-        ivr_key? ? :phone : :web
+        :web
       end
 
-      def ivr_params
-        params.permit(%i[ivr_key ssn])
-      end
+      protected
 
-      def ivr_key?
-        ivr_params[:ivr_key].present? && ivr_params[:ivr_key] == Settings.vye.ivr_key
-      end
-
-      def load_user_info
-        case ivr_key?
-        when true
-          @user_info = Vye::UserProfile.find_from_digested_ssn(ivr_params[:ssn])&.active_user_info
-        else
-          super
-        end
+      def transformed_params
+        @transform_params ||= params.deep_transform_keys!(&:underscore)
       end
     end
   end
