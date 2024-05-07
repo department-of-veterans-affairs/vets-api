@@ -2,7 +2,7 @@
 
 module Vye
   class Vye::UserInfo < ApplicationRecord
-    INCLUDES = %i[address_changes awards pending_documents verifications].freeze
+    include NeedsEnrollmentVerification
 
     self.ignored_columns +=
       [
@@ -16,6 +16,7 @@ module Vye
       ]
 
     belongs_to :user_profile
+    belongs_to :bdn_clone
 
     has_many :address_changes, dependent: :destroy
     has_many :awards, dependent: :destroy
@@ -23,10 +24,18 @@ module Vye
 
     scope :with_bdn_clone_active, -> { where(bdn_clone_active: true) }
 
-    enum mr_status: { active: 'A', expired: 'E' }
-    enum indicator: { chapter1606: 'A', chapter1607: 'E', chapter30: 'B', D: 'D' }
+    enum(
+      mr_status: { active: 'A', expired: 'E' },
+      _suffix: true
+    )
+
+    enum(
+      indicator: { chapter1606: 'A', chapter1607: 'E', chapter30: 'B', D: 'D' },
+      _suffix: true
+    )
 
     delegate :icn, to: :user_profile, allow_nil: true
+    delegate :ssn, to: :mpi_profile, allow_nil: true
     delegate :pending_documents, to: :user_profile
     delegate :verifications, to: :user_profile
 
@@ -41,18 +50,36 @@ module Vye
       presence: true
     )
 
-    def verification_required
-      verifications.empty?
+    delegate :veteran_name, to: :backend_address
+
+    def backend_address
+      address_changes.find_by(origin: 'backend')
     end
 
-    def ssn
-      mpi_profile&.ssn
+    def queued_verifications
+      awards.map(&:verifications).flatten
+    end
+
+    def queued_verifications?
+      queued_verifications.any?
     end
 
     private
 
     def mpi_profile
-      @mpi_profile ||= MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: icn)&.profile
+      return @mpi_profile if defined?(@mpi_profile)
+
+      @mpi_profile =
+        if icn.blank?
+          nil
+        else
+          MPI::Service
+            .new
+            .find_profile_by_identifier(
+              identifier_type: 'ICN',
+              identifier: icn
+            )&.profile
+        end
     end
   end
 end

@@ -1,4 +1,3 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative 'spec_helper'
+Vye::Engine.root.glob('spec/support/**/*').each { |f| require f if f.file? }
