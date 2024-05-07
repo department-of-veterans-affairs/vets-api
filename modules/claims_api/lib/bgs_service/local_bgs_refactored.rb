@@ -89,11 +89,11 @@ module ClaimsApi
       #   the stack by raising one of our externally facing application errors
       #   here.
       raise ::Common::Exceptions::BadGateway
-    rescue BGSClient::Error::BGSFault => ex
+    rescue BGSClient::Error::BGSFault => e
       ##
       # @deprecated This error handler handles the logic for multiple different
       #   callers rather than those callers handling their own logic.
-      ErrorHandler.handle_errors!(ex)
+      ErrorHandler.handle_errors!(e)
       {}
     end
 
