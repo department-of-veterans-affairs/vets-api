@@ -1355,6 +1355,10 @@ features:
     actor_type: user
     description: NOD VANotify notification callbacks endpoint
     enable_in_development: true
+  nod_confirmation_update:
+    actor_type: user
+    description: Show updated confirmation page with form data & downloadable PDF
+    enable_in_development: true
   pension_ipf_callbacks_endpoint:
     actor_type: user
     description: Pension IPF VANotify notification callbacks endpoint
@@ -1427,4 +1431,4 @@ features:
     enable_in_development: true
   toggle_vye_adress_direct_deposit_forms:
     actor_type: user
-    description: Enable mailing address and direct deposit for VYE 
+    description: Enable mailing address and direct deposit for VYE
