@@ -276,14 +276,41 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               end
 
               context 'when attached files note + file list alone would exceed the maximum allowed character length' do
-                it 'returns the attached files note only without listing the filenames' do
+                before do
                   over_the_limit_file_list_length = 4001 - attached_files_note.length
 
                   # Guarantee we exceed chracter length
                   allow(subject).to receive(:list_attachment_filenames).and_return(
                     Faker::Lorem.characters(number: over_the_limit_file_list_length)
                   )
+                end
+
+                it 'returns the attached files note only without listing the filenames' do
                   expect(subject.send(:overflow_text)).to eq(attached_files_note)
+                end
+
+                it 'increments a StatsD metric noting we truncated the file list' do
+                  expect { subject.send(:overflow_text) }.to trigger_statsd_increment(
+                    'api.form_526.overflow_text.veteran_file_list.excluded_from_overflow_text'
+                  )
+                end
+
+                it 'logs the total file count' do
+                  logging_time = Time.new(1985, 10, 26).utc
+
+                  Timecop.freeze(logging_time) do
+                    expect(Rails.logger).to receive(:info).with(
+                      'Form526 Veteran-attached file names truncated from overflowText',
+                      {
+                        file_count: 2,
+
+                        user_uuid: user.uuid,
+                        timestamp: logging_time
+                      }
+                    )
+
+                    subject.send(:overflow_text)
+                  end
                 end
               end
             end
@@ -307,7 +334,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
                 }
               end
 
-              it 'returns all notes but does not include the file list' do
+              before do
                 notes_length = [terminally_ill_note, form_4142_note, form_0781_note, attached_files_note].join.length
                 over_the_limit_file_list_length = 4001 - notes_length
 
@@ -315,13 +342,64 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
                 allow(subject).to receive(:list_attachment_filenames).and_return(
                   Faker::Lorem.characters(number: over_the_limit_file_list_length)
                 )
+              end
 
+              it 'returns all notes but does not include the file list' do
                 expect(subject.send(:overflow_text)).to eq(
                   terminally_ill_note +
                   form_4142_note +
                   form_0781_note +
                   attached_files_note
                 )
+              end
+
+              it 'increments a StatsD metric noting we truncated the file list' do
+                expect { subject.send(:overflow_text) }.to trigger_statsd_increment(
+                  'api.form_526.overflow_text.veteran_file_list.excluded_from_overflow_text'
+                )
+              end
+
+              it 'logs the total file count' do
+                logging_time = Time.new(1985, 10, 26).utc
+
+                Timecop.freeze(logging_time) do
+                  expect(Rails.logger).to receive(:info).with(
+                    'Form526 Veteran-attached file names truncated from overflowText',
+                    {
+                      file_count: 2,
+                      user_uuid: user.uuid,
+                      timestamp: logging_time
+                    }
+                  )
+
+                  subject.send(:overflow_text)
+                end
+              end
+            end
+
+            context 'when the overflowText size allows for displaying the full file list' do
+              # reset subject
+              it 'increments a StatsD metric noting we included the full file list' do
+                expect { subject.send(:overflow_text) }.to trigger_statsd_increment(
+                  'api.form_526.overflow_text.veteran_file_list.included_in_overflow_text'
+                )
+              end
+
+              it 'logs the total file count' do
+                logging_time = Time.new(1985, 10, 26).utc
+
+                Timecop.freeze(logging_time) do
+                  expect(Rails.logger).to receive(:info).with(
+                    'Form526 Veteran-attached file names included in overflowText',
+                    {
+                      file_count: 2,
+                      user_uuid: user.uuid,
+                      timestamp: logging_time
+                    }
+                  )
+
+                  subject.send(:overflow_text)
+                end
               end
             end
           end
@@ -341,6 +419,18 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       context 'when the veteran has not uploaded documents to support the claim' do
         it 'does not include the list of documents in the overflow text' do
           expect(subject.send(:overflow_text)).to eq('')
+        end
+
+        it 'does not increment a StatsD metric noting we excluded the file list' do
+          expect { subject.send(:overflow_text) }.not_to trigger_statsd_increment(
+            'api.form_526.overflow_text.veteran_file_list.excluded_from_overflow_text'
+          )
+        end
+
+        it 'does not StatsD metric noting we included the file list' do
+          expect { subject.send(:overflow_text) }.not_to trigger_statsd_increment(
+            'api.form_526.overflow_text.veteran_file_list.included_in_overflow_text'
+          )
         end
       end
     end

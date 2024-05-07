@@ -34,6 +34,8 @@ module EVSS
 
       OVERFLOW_TEXT_THRESHOLD = 4000
 
+      VETERAN_FILE_LIST_STATSD_PREFIX = 'api.form_526.overflow_text.veteran_file_list'
+
       # EVSS validates this date using CST, at some point this may change to EST.
       EVSS_TZ = 'Central Time (US & Canada)'
 
@@ -114,6 +116,20 @@ module EVSS
           # field, just display the note above specifying how many veteran-uploaded files should appear in the eFolder
           if (current_overflow_length + attached_files_note.length + filenames_list.length) < OVERFLOW_TEXT_THRESHOLD
             attached_files_note += filenames_list
+
+            StatsD.increment("#{VETERAN_FILE_LIST_STATSD_PREFIX}.included_in_overflow_text")
+
+            Rails.logger.info(
+              'Form526 Veteran-attached file names included in overflowText',
+              { file_count: attachments.count, user_uuid: @user.uuid, timestamp:  Time.now.utc }
+            )
+          else
+            StatsD.increment("#{VETERAN_FILE_LIST_STATSD_PREFIX}.excluded_from_overflow_text")
+
+            Rails.logger.info(
+              'Form526 Veteran-attached file names truncated from overflowText',
+              { file_count: attachments.count, user_uuid: @user.uuid, timestamp: Time.now.utc }
+            )
           end
 
           attached_files_note
