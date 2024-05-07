@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-
+require_relative '../support/helpers/rails_helper'
 RSpec.describe 'allergy intolerances', type: :request do
   let!(:user) { sis_user(icn: '32000225') }
 

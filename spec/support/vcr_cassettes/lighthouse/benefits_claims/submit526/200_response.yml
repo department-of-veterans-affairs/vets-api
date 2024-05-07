@@ -80,6 +80,6 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '1234567890'
+      string: '{"data":{"id": "46285849-9d82-4001-8572-2323d521eb8c"}}'
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 recorded_with: VCR 6.1.0
