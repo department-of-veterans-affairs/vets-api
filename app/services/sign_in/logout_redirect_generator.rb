@@ -6,7 +6,7 @@ module SignIn
   class LogoutRedirectGenerator
     attr_reader :credential_type, :client_config
 
-    def initialize(credential_type:, client_config:)
+    def initialize(client_config:, credential_type: nil)
       @credential_type = credential_type
       @client_config = client_config
     end

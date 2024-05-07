@@ -2528,15 +2528,6 @@ RSpec.describe V0::SignInController, type: :controller do
           end
         end
       end
-
-      context 'and client_id is not present' do
-        let(:client_id_value) { nil }
-        let(:expected_error_status) { :bad_request }
-        let(:expected_error) { SignIn::Errors::MalformedParamsError }
-        let(:expected_error_message) { 'Client id is not valid' }
-
-        it_behaves_like 'error response'
-      end
     end
 
     context 'when not successfully authenticated' do
@@ -2556,37 +2547,26 @@ RSpec.describe V0::SignInController, type: :controller do
           subject
         end
 
-        context 'and client_id is present' do
-          context 'and client_id has a client configuration with a configured logout redirect uri' do
-            let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
-            let(:expected_status) { :redirect }
+        context 'and client_id has a client configuration with a configured logout redirect uri' do
+          let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
+          let(:expected_status) { :redirect }
 
-            it 'returns redirect status' do
-              expect(subject).to have_http_status(expected_status)
-            end
-
-            it 'redirects to the configured logout redirect uri' do
-              expect(subject).to redirect_to(logout_redirect_uri)
-            end
+          it 'returns redirect status' do
+            expect(subject).to have_http_status(expected_status)
           end
 
-          context 'and client_id does not have a client configuration with a configured logout redirect uri' do
-            let(:logout_redirect_uri) { nil }
-            let(:expected_status) { :ok }
-
-            it 'returns ok status' do
-              expect(subject).to have_http_status(expected_status)
-            end
+          it 'redirects to the configured logout redirect uri' do
+            expect(subject).to redirect_to(logout_redirect_uri)
           end
         end
 
-        context 'and client_id is not present' do
-          let(:client_id_value) { nil }
-          let(:expected_error_status) { :bad_request }
-          let(:expected_error) { SignIn::Errors::MalformedParamsError }
-          let(:expected_error_message) { 'Client id is not valid' }
+        context 'and client_id does not have a client configuration with a configured logout redirect uri' do
+          let(:logout_redirect_uri) { nil }
+          let(:expected_status) { :ok }
 
-          it_behaves_like 'error response'
+          it 'returns ok status' do
+            expect(subject).to have_http_status(expected_status)
+          end
         end
       end
 

@@ -188,7 +188,7 @@ module V0
         raise SignIn::Errors::LogoutAuthorizationError.new message: 'Unable to authorize access token'
       end
 
-      session = SignIn::OAuthSession.find_by(handle: @access_token&.session_handle)
+      session = SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
       credential_type = session.user_verification.credential_type
 
       SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token:).perform
@@ -203,8 +203,7 @@ module V0
     rescue SignIn::Errors::LogoutAuthorizationError, SignIn::Errors::SessionNotAuthorizedError => e
       sign_in_logger.info('logout error', { errors: e.message })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
-      logout_redirect = SignIn::LogoutRedirectGenerator.new(credential_type: nil,
-                                                            client_config: client_config(client_id)).perform
+      logout_redirect = SignIn::LogoutRedirectGenerator.new(client_config: client_config(client_id)).perform
 
       logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
     rescue => e

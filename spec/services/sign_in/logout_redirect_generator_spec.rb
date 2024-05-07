@@ -53,6 +53,15 @@ RSpec.describe SignIn::LogoutRedirectGenerator do
             expect(subject).to eq(expected_url)
           end
         end
+
+        context 'and no credential type is provided' do
+          let(:credential_type) { nil }
+          let(:expected_url) { URI.parse(logout_redirect_uri).to_s }
+
+          it 'returns a logout redirect properly parsing logout redirect uri' do
+            expect(subject).to eq(expected_url)
+          end
+        end
       end
 
       context 'when logout redirect uri is not defined in the client configuration' do
