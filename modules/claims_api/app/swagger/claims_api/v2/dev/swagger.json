@@ -6072,7 +6072,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a38ff17d-302f-4085-8337-f72757328d9c",
+                    "id": "53fda9b2-ac29-44a7-8eb0-ba20bb1b394a",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -6913,7 +6913,7 @@
                       "status": "404",
                       "detail": "Resource not found",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:71:in `attachments'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:74:in `attachments'"
                       }
                     }
                   ]
@@ -7212,9 +7212,8 @@
                                   "state": {
                                     "description": "State for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "example": "OR",
-                                    "maxLength": 1000,
-                                    "minLength": 0
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "OR"
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -7311,8 +7310,7 @@
                                 "description": "State for the Veteran's new address.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR",
-                                "maxLength": 1000
+                                "example": "OR"
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -8888,8 +8886,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-05-03",
-                      "expirationDate": "2025-05-03",
+                      "creationDate": "2024-05-07",
+                      "expirationDate": "2025-05-07",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -9768,7 +9766,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "565eb19a-d69c-491d-b2c9-c42c63fbd995",
+                    "id": "6b367ae0-7f33-454a-a145-eda1bc58c1ff",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -10464,7 +10462,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d315f999-27a9-4a16-91dd-58f566668c38",
+                    "id": "b66c8aa0-a7ce-4b63-94bd-9362d1e5f9b7",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12424,11 +12422,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6a46806c-d34b-468d-84b4-d27ce6cf8642",
+                    "id": "ede7c53b-3dd7-47c0-9073-1244cb336e9a",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-05-03",
+                      "dateRequestAccepted": "2024-05-07",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"

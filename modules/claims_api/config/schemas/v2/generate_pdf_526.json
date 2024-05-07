@@ -100,9 +100,8 @@
             "state": {
               "description": "State for the Veteran's current mailing address.",
               "type": "string",
-              "example": "OR",
-              "maxLength": 1000,
-              "minLength": 0
+              "pattern": "^[a-z,A-Z]{2}$",
+              "example": "OR"
             },
             "country": {
               "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -196,8 +195,7 @@
           "description": "State for the Veteran's new address.",
           "type": "string",
           "pattern": "^$|^[a-z,A-Z]{2}$",
-          "example": "OR",
-          "maxLength": 1000
+          "example": "OR"
         },
         "country": {
           "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
