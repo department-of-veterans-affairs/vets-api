@@ -161,7 +161,7 @@ RSpec.describe FacilitiesApi::V2::PPMS::Client, team: :facilities, vcr: vcr_opti
       expect { FacilitiesApi::V2::PPMS::Client.new.provider_locator(params.merge(specialties: ['213E00000X'])) }
         .to raise_error(Common::Exceptions::BackendServiceException) do |e|
         error_response[:detail] = 'Unable to Geocode the given address. For At Home Services Search you must provide ' \
-          'a full Street Address and City as well as a State or ZipCode.'
+                                  'a full Street Address and City as well as a State or ZipCode.'
         expect(e.response_values).to match(error_response)
         expect(e.message).to match(/Unable to Geocode the given address/)
       end
@@ -457,20 +457,20 @@ RSpec.describe FacilitiesApi::V2::PPMS::Client, team: :facilities, vcr: vcr_opti
       r = FacilitiesApi::V2::PPMS::Client.new.pos_locator(params)
       expect(r.length).to be 11
       expect(r[0]).to have_attributes(provider_attributes.merge(
-        acc_new_patients: 'false',
-        address_city: 'ATLANTIC HIGHLANDS',
-        address_postal_code: '07716',
-        address_street: '2 BAYSHORE PLZ',
-        care_site: 'BAYSHORE PHARMACY',
-        caresite_phone: '732-291-2900',
-        gender: 'NotSpecified',
-        latitude: 40.409114,
-        longitude: -74.041849,
-        miles: 1.0277,
-        pos_codes: %w[17 20],
-        provider_identifier: '1225028293',
-        provider_name: 'BAYSHORE PHARMACY'
-      ))
+                                        acc_new_patients: 'false',
+                                        address_city: 'ATLANTIC HIGHLANDS',
+                                        address_postal_code: '07716',
+                                        address_street: '2 BAYSHORE PLZ',
+                                        care_site: 'BAYSHORE PHARMACY',
+                                        caresite_phone: '732-291-2900',
+                                        gender: 'NotSpecified',
+                                        latitude: 40.409114,
+                                        longitude: -74.041849,
+                                        miles: 1.0277,
+                                        pos_codes: %w[17 20],
+                                        provider_identifier: '1225028293',
+                                        provider_name: 'BAYSHORE PHARMACY'
+                                      ))
     end
   end
 
