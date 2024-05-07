@@ -8,6 +8,26 @@ RSpec.describe MyHealth::V1::PrescriptionDetailsSerializer, type: :serializer do
   let(:prescription) { build(:prescription_details) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
+  let(:prescription_with_api_name) { build(:prescription_details, :with_api_name) }
+  let(:prescription_without_api_name) { build(:prescription_details) }
+  
+  context 'when facility_api_name is present' do
+    subject { serialize(prescription_with_api_name, serializer_class: described_class) }
+    let(:attributes) { JSON.parse(subject)['data']['attributes'] }
+    
+    it 'uses facility_api_name as the facility_name' do
+      expect(attributes['facility_name']).to eq(prescription_with_api_name.facility_api_name)
+    end
+  end
+
+  context 'when facility_api_name is not present' do
+    subject { serialize(prescription_without_api_name, serializer_class: described_class) }
+    let(:attributes) { JSON.parse(subject)['data']['attributes'] }
+    
+    it 'uses facility_name' do
+      expect(attributes['facility_name']).to eq(prescription_without_api_name.facility_name)
+    end
+  end
 
   it 'includes the prescription_id' do
     expect(attributes['prescription_id']).to eq(prescription.prescription_id)

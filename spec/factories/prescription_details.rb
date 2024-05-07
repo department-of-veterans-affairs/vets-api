@@ -130,5 +130,8 @@ FactoryBot.define do
         ]
       ]
     }
+    trait :with_api_name do
+      facility_api_name { "Dayton Medical Center" }
+    end
   end
 end
