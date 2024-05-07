@@ -188,6 +188,21 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           )
         end
 
+        let(:terminally_ill_note) do
+          "Corporate Flash Details\n" \
+            "This applicant has indicated that they're terminally ill.\n" \
+        end
+
+        let(:form_4142_note) do
+          'VA Form 21-4142/4142a has been completed by the applicant and ' \
+            'sent to the PMR contractor for processing in accordance with ' \
+            'M21-1 III.iii.1.D.2.' \
+        end
+
+        let(:form_0781_note) do
+          "VA Form 0781/a has been completed by the applicant and sent to the VBMS eFolder\n"
+        end
+
         context 'when the form526_include_document_upload_list_in_overflow_text flipper is enabled' do
           before do
             Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
@@ -195,7 +210,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
           let(:file_list) do
             'The veteran uploaded 2 documents along with this claim. ' \
-              "Please verify in VBMS eFolder:\n" \
+              "Please verify in VBMS eFolder.\n" \
               "my_file_1.pdf\n" \
               "my_file_2.pdf\n"
           end
@@ -223,23 +238,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               }
             end
 
-            let(:has_form4142) { true }
-
-            let(:terminally_ill_note) do
-              "Corporate Flash Details\n" \
-                "This applicant has indicated that they're terminally ill.\n" \
-            end
-
-            let(:form_4142_note) do
-              'VA Form 21-4142/4142a has been completed by the applicant and ' \
-                'sent to the PMR contractor for processing in accordance with ' \
-                'M21-1 III.iii.1.D.2.' \
-            end
-
-            let(:form_0781_note) do
-              "VA Form 0781/a has been completed by the applicant and sent to the VBMS eFolder\n"
-            end
-
             it 'lists them in the order: 1. Terminally Ill, 2. Form 4142, 3. Form 0781, 4. Veteran file list' do
               expect(subject.send(:overflow_text)).to eq(
                 terminally_ill_note +
@@ -247,6 +245,84 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
                 form_0781_note +
                 file_list
               )
+            end
+          end
+
+          # EVSS restricts the maximum size included in the overflowText field
+          describe 'overflowText character limits' do
+            let(:attached_files_note) do
+              # Actual document count would likely be larger in cases where we are worried about exceeding
+              # size threshold, but we're only testing notes character length.
+              # To avoid generating thousands of mock files/filenames, simply expect this text to match the number
+              # of files we are actually mocking (2)
+              'The veteran uploaded 2 documents along with this claim. ' \
+                "Please verify in VBMS eFolder.\n"
+            end
+
+            context 'when no other notes are present' do
+              # Third constructor argument, has_form4142, set to false so that note is not present
+              subject { described_class.new(user, form_content, false) }
+
+              let(:form_content) do
+                {
+                  'form526' => {
+                    'isTerminallyIll' => false,
+                    'attachments' => [
+                      { 'confirmationCode' => file1_guid },
+                      { 'confirmationCode' => file2_guid }
+                    ]
+                  }
+                }
+              end
+
+              context 'when attached files note + file list alone would exceed the maximum allowed character length' do
+                it 'returns the attached files note only without listing the filenames' do
+                  over_the_limit_file_list_length = 4001 - attached_files_note.length
+
+                  # Guarantee we exceed chracter length
+                  allow(subject).to receive(:list_attachment_filenames).and_return(
+                    Faker::Lorem.characters(number: over_the_limit_file_list_length)
+                  )
+                  expect(subject.send(:overflow_text)).to eq(attached_files_note)
+                end
+              end
+            end
+
+            context 'when the sum total of all notes would exceed the maximum character length' do
+              # Third argument, has_form4142, set to true so that note is present
+              subject { described_class.new(user, form_content, true) }
+
+              let(:form_content) do
+                {
+                  'form526' => {
+                    'isTerminallyIll' => true,
+                    'attachments' => [
+                      { 'confirmationCode' => file1_guid },
+                      { 'confirmationCode' => file2_guid }
+                    ],
+                    'form0781' => {
+                      'incidents' => []
+                    }
+                  }
+                }
+              end
+
+              it 'returns all notes but does not include the file list' do
+                notes_length = [terminally_ill_note, form_4142_note, form_0781_note, attached_files_note].join.length
+                over_the_limit_file_list_length = 4001 - notes_length
+
+                # Guarantee we exceed chracter length
+                allow(subject).to receive(:list_attachment_filenames).and_return(
+                  Faker::Lorem.characters(number: over_the_limit_file_list_length)
+                )
+
+                expect(subject.send(:overflow_text)).to eq(
+                  terminally_ill_note +
+                  form_4142_note +
+                  form_0781_note +
+                  attached_files_note
+                )
+              end
             end
           end
         end

@@ -32,10 +32,7 @@ module EVSS
                                'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
       FORM0781_OVERFLOW_TEXT = "VA Form 0781/a has been completed by the applicant and sent to the VBMS eFolder\n"
 
-      # If the veteran submitted supplemental attachments for this claim,
-      # we list them in the form overflowText for the claim adjudicator to cross reference with the eFolder
-      # However, if the file list is long enough we don't want to take up too much space in the overflow text
-      MAX_VETERAN_UPLOADED_FILE_LIST_ATTACHMENTS = 40
+      OVERFLOW_TEXT_THRESHOLD = 4000
 
       # EVSS validates this date using CST, at some point this may change to EST.
       EVSS_TZ = 'Central Time (US & Canada)'
@@ -98,36 +95,37 @@ module EVSS
 
         if Flipper.enabled?(:form526_include_document_upload_list_in_overflow_text)
           overflow += FORM0781_OVERFLOW_TEXT if input_form['form0781'].present?
-          overflow += attached_files_list
+          overflow += veteran_attached_files_text(overflow.length) if input_form['attachments'].present?
         end
 
         overflow
       end
 
-      def attached_files_list
-        list = ''
-        attachments = input_form['attachments']
+      def veteran_attached_files_text(current_overflow_length)
+        file_guids = input_form['attachments'].pluck('confirmationCode')
+        attachments = SupportingEvidenceAttachment.where(guid: file_guids)
 
-        if attachments&.length
-          if attachments.length <= MAX_VETERAN_UPLOADED_FILE_LIST_ATTACHMENTS
-            list += "The veteran uploaded #{attachments.length} documents along with this claim. " \
-                    "Please verify in VBMS eFolder:\n"
+        if attachments.present?
+          attached_files_note = "The veteran uploaded #{attachments.count} documents along with this claim. " \
+                                "Please verify in VBMS eFolder.\n"
+          filenames_list = list_attachment_filenames(attachments)
 
-            file_guids = attachments&.pluck('confirmationCode')
-            attachment_files = SupportingEvidenceAttachment.where(guid: file_guids)
-            filenames = attachment_files.map(&:original_filename).sort
-
-            filenames.each { |filename| list += "#{filename}\n" }
-          else
-            # If the file list is too long, we only include the message
-            # This is to avoid overfilling the overflowText field
-            # We also don't end the instruction with a colon because we aren't listing filenames after it
-            list += "The veteran uploaded #{attachments.length} documents along with this claim. " \
-                    "Please verify in VBMS eFolder\n"
+          # If including list of filenames would mean we exceed EVSS's maximum allowed characters in the overflowText
+          # field, just display the note above specifying how many veteran-uploaded files should appear in the eFolder
+          if (current_overflow_length + attached_files_note.length + filenames_list.length) < OVERFLOW_TEXT_THRESHOLD
+            attached_files_note += filenames_list
           end
-        end
 
-        list
+          attached_files_note
+        end
+      end
+
+      def list_attachment_filenames(attachments)
+        sorted_filenames = attachments.map(&:original_filename).sort
+
+        sorted_filenames.inject('') do |list, filename|
+          list + "#{filename}\n"
+        end
       end
 
       ###
