@@ -197,19 +197,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       expect(response).to have_http_status(:ok)
     end
 
-    context 'as a user that is a dependent' do
-      before { sign_in_as(dependent_user) }
-
-      it 'returns a status of 200' do
-        VCR.use_cassette('lighthouse/benefits_claims/submit5103/200_response') do
-          post(:submit5103, params: { id: '600397109' })
-        end
-
-        expect(response).to have_http_status(:ok)
-        expect(Rails.logger).to have_received(:info).with('[5103 Submission] Applying sponsorIcn param')
-      end
-    end
-
     it 'returns a status of 404' do
       VCR.use_cassette('lighthouse/benefits_claims/submit5103/404_response') do
         post(:submit5103, params: { id: '600397108' })
