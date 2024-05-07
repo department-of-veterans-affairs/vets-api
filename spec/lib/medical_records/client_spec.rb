@@ -160,6 +160,13 @@ describe MedicalRecords::Client do
     end
   end
 
+  it 'gets a single health condition', :vcr do
+    VCR.use_cassette 'mr_client/get_a_health_condition' do
+      condition = client.get_condition(4169)
+      expect(condition).to be_a(FHIR::Condition)
+    end
+  end
+
   it 'gets a list of care summaries & notes', :vcr do
     VCR.use_cassette 'mr_client/get_a_list_of_clinical_notes' do
       note_list = client.list_clinical_notes
