@@ -15,7 +15,11 @@ module Users
     def initialize(user, session = nil)
       @user = validate!(user)
       @session = session || {}
-      @scaffold = Users::Scaffold.new([], HTTP_OK)
+      @scaffold = if Flipper.enabled?(:veteran_onboarding_beta_flow, @user)
+                    Users::ScaffoldWithOnboarding.new([], HTTP_OK)
+                  else
+                    Users::Scaffold.new([], HTTP_OK)
+                  end
     end
 
     # Fetches and serializes all of the initialized user's profile data that
@@ -54,7 +58,9 @@ module Users
       scaffold.prefills_available = prefills_available
       scaffold.services = services
       scaffold.session = session_data
-      scaffold.onboarding = onboarding if Flipper.enabled?(:veteran_onboarding_beta_flow, @user)
+      if scaffold.members.include?(:onboarding) && Flipper.enabled?(:veteran_onboarding_beta_flow, @user)
+        scaffold.onboarding = onboarding
+      end
     end
 
     def account
