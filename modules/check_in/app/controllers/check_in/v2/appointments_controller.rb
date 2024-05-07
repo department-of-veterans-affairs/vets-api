@@ -39,7 +39,7 @@ module CheckIn
       end
 
       def appointments
-        @appointments ||= appointments_service.get_appointments(start_date, end_date, statuses)
+        @appointments ||= appointments_service.get_appointments(start_date, end_date)
       end
 
       def appointments_service
@@ -56,11 +56,6 @@ module CheckIn
         DateTime.parse(permitted_params[:end]).in_time_zone
       rescue ArgumentError
         raise Common::Exceptions::InvalidFieldValue.new('end', params[:end])
-      end
-
-      def statuses
-        s = permitted_params[:statuses]
-        s.is_a?(Array) ? s.to_csv(row_sep: nil) : s
       end
 
       def authorize
