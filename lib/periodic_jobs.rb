@@ -107,7 +107,7 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('15 23 * * *', 'ClaimsApi::ReportUnsuccessfulSubmissions')
   # Weekly report of unsuccessful claims submissions
   mgr.register('00 00 1 * *', 'ClaimsApi::ReportMonthlySubmissions')
-  # Monthly report of unsuccessful claims submissions
+  # Monthly report of submissions
 
   mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
 
