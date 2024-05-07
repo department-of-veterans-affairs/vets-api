@@ -5,7 +5,7 @@ module Vye
     class UserInfosController < Vye::V1::ApplicationController
       include Pundit::Authorization
 
-      service_tag 'vye'
+      service_tag 'verify-your-enrollment'
 
       def show
         authorize user_info, policy_class: Vye::UserInfoPolicy
