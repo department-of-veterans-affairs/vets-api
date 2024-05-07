@@ -10,7 +10,6 @@ module Vye
       class AwardsMismatch < StandardError; end
 
       include Pundit::Authorization
-      include Vye::Ivr
 
       service_tag 'verify-your-enrollment'
 
@@ -65,13 +64,7 @@ module Vye
       end
 
       def source_ind
-        api_key? ? :phone : :web
-      end
-
-      def load_user_info
-        return super unless api_key?
-
-        @user_info = user_info_for_ivr
+        :web
       end
 
       protected
