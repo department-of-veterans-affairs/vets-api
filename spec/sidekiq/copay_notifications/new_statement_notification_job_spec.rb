@@ -33,11 +33,11 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
 
     it 'sends a new mcp notification email job frome edipi' do
       job = described_class.new
-      
+
       # pausing until further notice
       expect { job.perform(statement) }
-      .not_to change{ DebtManagementCenter::VANotifyEmailJob.jobs.size }
-      .from(0)
+        .not_to change { DebtManagementCenter::VANotifyEmailJob.jobs.size }
+        .from(0)
       # expect { job.perform(statement) }
       #   .to change { DebtManagementCenter::VANotifyEmailJob.jobs.size }
       #   .from(0)
@@ -58,11 +58,11 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
 
       it 'sends a new mcp notification email job frome facility and vista id' do
         job = described_class.new
-      
+
         # pausing until further notice
         expect { job.perform(statement) }
-        .not_to change{ DebtManagementCenter::VANotifyEmailJob.jobs.size }
-        .from(0)
+          .not_to change { DebtManagementCenter::VANotifyEmailJob.jobs.size }
+          .from(0)
         # expect { job.perform(statement) }
         #   .to change { DebtManagementCenter::VANotifyEmailJob.jobs.size }
         #   .from(0)
