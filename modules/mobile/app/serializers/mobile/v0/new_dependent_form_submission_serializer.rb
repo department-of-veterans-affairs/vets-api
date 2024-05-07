@@ -4,7 +4,7 @@ require 'jsonapi/serializer'
 
 module Mobile
   module V0
-    class NewDependentSerializer
+    class NewDependentFormSubmissionSerializer
       include JSONAPI::Serializer
 
       set_type :dependent

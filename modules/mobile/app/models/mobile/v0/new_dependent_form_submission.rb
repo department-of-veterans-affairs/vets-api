@@ -4,7 +4,7 @@ require 'common/models/resource'
 
 module Mobile
   module V0
-    class NewDependent < Common::Resource
+    class NewDependentFormSubmission < Common::Resource
       attribute :id, Types::String
       attribute :submit_form_job_id, Types::String
     end

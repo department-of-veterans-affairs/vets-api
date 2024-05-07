@@ -21,8 +21,11 @@ module Mobile
 
         claim.process_attachments!
         response = dependent_service.submit_686c_form(claim)
-        new_dependent = NewDependent.new(id: SecureRandom.uuid, submit_form_job_id: response[:submit_form_job_id])
-        serialized = NewDependentSerializer.new(new_dependent)
+        new_dependent = NewDependentFormSubmission.new(
+          id: SecureRandom.uuid,
+          submit_form_job_id: response[:submit_form_job_id]
+        )
+        serialized = NewDependentFormSubmissionSerializer.new(new_dependent)
 
         render json: serialized, status: :accepted
       end
