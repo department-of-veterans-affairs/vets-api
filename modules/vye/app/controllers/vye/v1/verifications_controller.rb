@@ -6,7 +6,11 @@ module Vye
       class EmptyAwards < StandardError; end
       class AwardsMismatch < StandardError; end
 
+      class EmptyAwards < StandardError; end
+      class AwardsMismatch < StandardError; end
+
       include Pundit::Authorization
+      include Vye::Ivr
 
       service_tag 'verify-your-enrollment'
 
@@ -14,10 +18,19 @@ module Vye
       rescue_from AwardsMismatch, with: -> { head :unprocessable_entity }
 
       delegate :pending_verifications, to: :user_info
+      delegate :pending_verifications, to: :user_info
 
       def create
         authorize user_info, policy_class: UserInfoPolicy
 
+        validate_award_ids!
+
+        transact_date = Time.zone.today
+        pending_verifications.each do |verification|
+          verification.update!(transact_date:, source_ind:)
+        end
+
+        head :no_content
         validate_award_ids!
 
         transact_date = Time.zone.today
@@ -32,8 +45,14 @@ module Vye
 
       def award_ids
         transformed_params.fetch(:award_ids, []).map(&:to_i)
+      def award_ids
+        transformed_params.fetch(:award_ids, []).map(&:to_i)
       end
 
+      def matching_awards?
+        given = award_ids.sort
+        actual = pending_verifications.pluck(:award_id).sort
+        given == actual
       def matching_awards?
         given = award_ids.sort
         actual = pending_verifications.pluck(:award_id).sort
@@ -46,7 +65,13 @@ module Vye
       end
 
       def source_ind
-        :web
+        api_key? ? :phone : :web
+      end
+
+      def load_user_info
+        return super unless api_key?
+
+        @user_info = user_info_for_ivr
       end
 
       protected
