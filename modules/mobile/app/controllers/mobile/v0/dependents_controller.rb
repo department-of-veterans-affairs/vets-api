@@ -5,8 +5,9 @@ module Mobile
     class DependentsController < ApplicationController
       def index
         dependents_response = dependent_service.get_dependents
+        persons = dependents_response[:persons].map { |person| Dependent.new(id: SecureRandom.uuid, **person) }
 
-        render json: DependentSerializer.new(dependents_response[:persons])
+        render json: DependentSerializer.new(persons)
       rescue => e
         raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
       end

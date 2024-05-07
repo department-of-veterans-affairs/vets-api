@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
 require_relative '../support/helpers/rails_helper'
+
 RSpec.describe 'dependents', type: :request do
   let!(:user) { sis_user(ssn: '796043735') }
 
-  describe '#index', skip_json_api_validation: true do
+  describe '#index' do
     it 'returns a list of dependents' do
       expected_data = [
         {
+          'id' => UUID_REGEX,
           'type' => 'dependents',
           'attributes' => {
             'awardIndicator' => 'N',
@@ -24,6 +26,7 @@ RSpec.describe 'dependents', type: :request do
           }
         },
         {
+          'id' => UUID_REGEX,
           'type' => 'dependents',
           'attributes' => {
             'awardIndicator' => 'N',
@@ -46,8 +49,7 @@ RSpec.describe 'dependents', type: :request do
       end
 
       expect(response).to have_http_status(:ok)
-      response_without_ids = response.parsed_body['data'].each { |dependent| dependent.delete('id') }
-      expect(response_without_ids).to eq(expected_data)
+      expect(response.parsed_body['data'].to_a).to match(expected_data)
     end
 
     context 'with an erroneous bgs response' do
@@ -88,7 +90,7 @@ RSpec.describe 'dependents', type: :request do
         submit_form_job_id = BGS::SubmitForm686cJob.jobs.first['jid']
         expect(response.parsed_body['data'].to_h).to match(
           {
-            'id' => /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/,
+            'id' => UUID_REGEX,
             'type' => 'dependents',
             'attributes' => {
               'submitFormJobId' => submit_form_job_id
