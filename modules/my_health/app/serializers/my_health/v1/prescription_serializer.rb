@@ -13,11 +13,7 @@ module MyHealth
       end
 
       def facility_name
-        if object.facility_api_name.present?
-          object.facility_api_name
-        else
-          object.facility_name
-        end
+        object.facility_api_name.presence || object.facility_name
       end
 
       attribute :prescription_id
