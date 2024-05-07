@@ -376,8 +376,8 @@ class User < Common::RedisStore
   end
 
   def onboarding
-    if Flipper.enabled?(:veteran_onboarding_beta_flow, self) && user_account_uuid.present?
-      @onboarding ||= VeteranOnboarding.find_or_create_by(user_account_uuid:)
+    if Flipper.enabled?(:veteran_onboarding_beta_flow, self) && icn.present?
+      @onboarding ||= VeteranOnboarding.find_or_create_by(user_account:)
     end
   end
 

@@ -14,7 +14,8 @@
 #  updated_at              :datetime         not null
 #
 class VeteranOnboarding < ApplicationRecord
-  validates :user_account_uuid, presence: true, uniqueness: true
+  belongs_to :user_account, primary_key: :uuid, foreign_key: :user_account_uuid, inverse_of: :veteran_onboarding
+  validates :user_account, uniqueness: true
 
   # Determines whether the onboarding flow should be displayed for a veteran.
   # Currently, this is based solely on the value of the `display_onboarding_flow` attribute.

@@ -1235,18 +1235,22 @@ RSpec.describe User, type: :model do
       create(:user_verification, idme_uuid: user.idme_uuid)
     end
 
-    it 'show_onboarding_flow_on_login returns true when flag is enabled and display_onboarding_flow is true' do
-      expect(user.show_onboarding_flow_on_login).to be true
+    context "when feature toggle is enabled, show onboarding flow depending on user's preferences" do
+      it 'show_onboarding_flow_on_login returns true when flag is enabled and display_onboarding_flow is true' do
+        expect(user.show_onboarding_flow_on_login).to be true
+      end
+
+      it 'show_onboarding_flow_on_login returns false when flag is enabled but display_onboarding_flow is false' do
+        user.onboarding.display_onboarding_flow = false
+        expect(user.show_onboarding_flow_on_login).to be false
+      end
     end
 
-    it 'show_onboarding_flow_on_login returns false when flag is enabled but display_onboarding_flow is false' do
-      user.onboarding.display_onboarding_flow = false
-      expect(user.show_onboarding_flow_on_login).to be false
-    end
-
-    it 'show_onboarding_flow_on_login returns false when flag is disabled, even if display_onboarding_flow is true' do
-      Flipper.disable(:veteran_onboarding_beta_flow)
-      expect(user.show_onboarding_flow_on_login).to be_falsey
+    context 'when feature toggle is disabled, never show onboarding flow' do
+      it 'show_onboarding_flow_on_login returns false when flag is disabled, even if display_onboarding_flow is true' do
+        Flipper.disable(:veteran_onboarding_beta_flow)
+        expect(user.show_onboarding_flow_on_login).to be_falsey
+      end
     end
   end
 end
