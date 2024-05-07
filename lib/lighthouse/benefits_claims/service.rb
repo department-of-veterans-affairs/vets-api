@@ -132,11 +132,13 @@ module BenefitsClaims
       # Since Lighthouse needs 'currentVaEmployee', the following workaround renames it.
       fix_current_va_employee(body)
 
-      json_body = remove_unicode_characters(body)
+      # LH PDF generator service crashes with having an empty array for confinements
+      # removes confinements from the request body if confinements  attribute empty or nil
+      remove_empty_confinements(body)
 
       response = config.post(
         path,
-        json_body,
+        body,
         lighthouse_client_id, lighthouse_rsa_key_path, options
       )
 
@@ -156,17 +158,6 @@ module BenefitsClaims
       }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
     end
 
-    # this gsubbing is to fix an issue where the service that generates the 526PDF was failing due to
-    # unicoded carriage returns:
-    # i.e.: \n was throwing: "U+000A ('controlLF') is not available in the font Helvetica, encoding: WinAnsiEncoding"
-    def remove_unicode_characters(body)
-      body.to_json
-          .gsub('\\n', ' ')
-          .gsub('\\r', ' ')
-          .gsub('\\\\n', ' ')
-          .gsub('\\\\r', ' ')
-    end
-
     def fix_current_va_employee(body)
       if body.dig('data', 'attributes', 'veteranIdentification')&.select do |field|
            field['currentVAEmployee']
@@ -174,6 +165,14 @@ module BenefitsClaims
         body['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
           body['data']['attributes']['veteranIdentification']['currentVAEmployee']
         body['data']['attributes']['veteranIdentification'].delete('currentVAEmployee')
+      end
+    end
+
+    def remove_empty_confinements(body)
+      if body.dig('data', 'attributes', 'serviceInformation')&.select do |field|
+        field['confinements']
+      end&.key?('confinements') && body['data']['attributes']['serviceInformation']['confinements'].blank?
+        body['data']['attributes']['serviceInformation'].delete('confinements')
       end
     end
 
