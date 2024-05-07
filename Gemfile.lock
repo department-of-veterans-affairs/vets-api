@@ -94,6 +94,7 @@ PATH
     avs (0.1.0)
     check_in (0.1.0)
     claims_api (0.0.1)
+      dry-schema
     covid_research (0.1.0)
       rails
       sidekiq
