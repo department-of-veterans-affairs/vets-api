@@ -53,7 +53,7 @@ module ClaimsApi
     end
 
     def pact_act_submissions(pact_act_data)
-      pact_act_data = ClaimsApi::ClaimSubmission.where(created_at: @from..@to) if pact_act_data.nil?
+      pact_act_data = ClaimsApi::ClaimSubmission.where(created_at: @date_from..@date_to) if pact_act_data.nil?
 
       add_monthly_pact_data(pact_act_data)
     end
@@ -61,7 +61,7 @@ module ClaimsApi
     def disability_compensation_submissions(disability_compensation_count)
       if disability_compensation_count.nil?
         disability_compensation_count = ClaimsApi::AutoEstablishedClaim
-                                        .where(created_at: @from..@to)
+                                        .where(created_at: @date_from..@date_to)
                                         .pluck(:id)
                                         .uniq
                                         .size
@@ -73,7 +73,7 @@ module ClaimsApi
     def poa_submissions(poa_count)
       if poa_count.nil?
         poa_count = ClaimsApi::PowerOfAttorney
-                    .where(created_at: @from..@to)
+                    .where(created_at: @date_from..@date_to)
                     .pluck(:id)
                     .uniq
                     .size
@@ -84,7 +84,7 @@ module ClaimsApi
 
     def itf_submissions(itf_count)
       if itf_count.nil?
-        itf_count = ClaimsApi::IntentToFile.where(created_at: @from..@to)
+        itf_count = ClaimsApi::IntentToFile.where(created_at: @date_from..@date_to)
                                            .pluck(:id)
                                            .uniq
                                            .size
@@ -95,7 +95,7 @@ module ClaimsApi
 
     def ews_submissions(ews_count)
       if ews_count.nil?
-        ews_count = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to)
+        ews_count = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @date_from..@date_to)
                                                        .pluck(:id)
                                                        .uniq
                                                        .size
