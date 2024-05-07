@@ -38,7 +38,12 @@ module CopayNotifications
         'name' => user_data[:first_name],
         'date' => Time.zone.today.strftime('%B %d, %Y')
       }
-      DebtManagementCenter::VANotifyEmailJob.perform_async(icn, MCP_NOTIFICATION_TEMPLATE, personalization, 'icn')
+      statement_date = statement['statementDate']
+      account_balance = statement['accountBalance']
+      Rails.logger.info("Notification Data: date-#{statement_date}, balance-#{account_balance}")
+
+      # pausing until further notice
+      # DebtManagementCenter::VANotifyEmailJob.perform_async(icn, MCP_NOTIFICATION_TEMPLATE, personalization, 'icn')
     end
   end
 end
