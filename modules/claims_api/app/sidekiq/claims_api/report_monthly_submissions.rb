@@ -9,20 +9,20 @@ module ClaimsApi
 
       @to = Time.zone.now
       @from = 1.month.ago
-      pact_act_claims = ClaimsApi::ClaimSubmission.where(created_at: @from..@to)
-      disability_compensation_claims = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to)
-      power_of_attorney = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to)
-      intent_to_file = ClaimsApi::IntentToFile.where(created_at: @from..@to)
-      evidence_waiver = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to)
+      pact_act_data = ClaimsApi::ClaimSubmission.where(created_at: @from..@to)
+      disability_compensation_count = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).pluck(:id).uniq.size
+      power_of_attorney_count = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to).pluck(:id).uniq.size
+      intent_to_file_count = ClaimsApi::IntentToFile.where(created_at: @from..@to).pluck(:id).uniq.size
+      evidence_waiver_count = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to).pluck(:id).uniq.size
 
       ClaimsApi::SubmissionReportMailer.build(
         @from,
         @to,
-        disability_compensation_claims,
-        pact_act_claims,
-        power_of_attorney,
-        intent_to_file,
-        evidence_waiver
+        pact_act_data,
+        disability_compensation_count,
+        power_of_attorney_count,
+        intent_to_file_count,
+        evidence_waiver_count
       ).deliver_now
     end
   end
