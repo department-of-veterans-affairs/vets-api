@@ -15,14 +15,14 @@ module CheckIn
 
       def get_facility(facility_id:)
         with_monitoring do
-          response = perform(:get, facilities_base_path(facility_id:), {}, headers)
+          response = perform(:get, facilities_url(facility_id:), {}, headers)
           response.body
         end
       end
 
       def get_clinic(facility_id:, clinic_id:)
         with_monitoring do
-          response = perform(:get, facilities_base_path(facility_id:) + "/clinics/#{clinic_id}", {}, headers)
+          response = perform(:get, clinics_url(facility_id:, clinic_id:), {}, headers)
           response.body
         end
       end
@@ -33,8 +33,12 @@ module CheckIn
 
       private
 
-      def facilities_base_path(facility_id:)
+      def facilities_url(facility_id:)
         "/facilities/v2/facilities/#{facility_id}"
+      end
+
+      def clinics_url(facility_id:, clinic_id:)
+        facilities_url(facility_id:) + "/clinics/#{clinic_id}"
       end
 
       def headers
