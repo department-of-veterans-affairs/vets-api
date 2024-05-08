@@ -2528,6 +2528,15 @@ RSpec.describe V0::SignInController, type: :controller do
           end
         end
       end
+
+      context 'and no session is found matching the access token session_handle' do
+        let(:expected_error) { SignIn::Errors::SessionNotFoundError }
+        let(:expected_error_message) { 'Session not found' }
+
+        before { oauth_session.destroy! }
+
+        it_behaves_like 'authorization error response'
+      end
     end
 
     context 'when not successfully authenticated' do
@@ -2650,6 +2659,35 @@ RSpec.describe V0::SignInController, type: :controller do
   describe 'GET revoke_all_sessions' do
     subject { get(:revoke_all_sessions) }
 
+    shared_context 'error response' do
+      let(:statsd_failure) { SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_FAILURE }
+      let(:expected_error_json) { { 'errors' => expected_error_message } }
+      let(:expected_error_status) { :unauthorized }
+      let(:expected_error_log) { '[SignInService] [V0::SignInController] revoke all sessions error' }
+      let(:expected_error_context) { { errors: expected_error_message } }
+
+      before do
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'renders expected error' do
+        expect(JSON.parse(subject.body)).to eq(expected_error_json)
+      end
+
+      it 'returns expected status' do
+        expect(subject).to have_http_status(expected_error_status)
+      end
+
+      it 'logs the failed revoke all sessions call' do
+        expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_context)
+        subject
+      end
+
+      it 'triggers statsd increment for failed call' do
+        expect { subject }.to trigger_statsd_increment(statsd_failure)
+      end
+    end
+
     context 'when successfully authenticated' do
       let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
       let(:authorization) { "Bearer #{access_token}" }
@@ -2699,35 +2737,26 @@ RSpec.describe V0::SignInController, type: :controller do
         expect { subject }.to trigger_statsd_increment(statsd_success)
       end
 
-      context 'and some arbitrary Sign In Error is raised' do
+      context 'and no session matches the access token session handle' do
+        let(:expected_error) { SignIn::Errors::SessionNotFoundError }
+        let(:expected_error_message) { 'Session not found' }
+
+        before do
+          oauth_session.destroy!
+        end
+
+        it_behaves_like 'error response'
+      end
+
+      context 'and some arbitrary Sign in Error is raised' do
         let(:expected_error) { SignIn::Errors::StandardError }
-        let(:statsd_failure) { SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_FAILURE }
-        let(:expected_error_json) { { 'errors' => expected_error.to_s } }
-        let(:expected_error_status) { :unauthorized }
-        let(:expected_error_log) { '[SignInService] [V0::SignInController] revoke all sessions error' }
-        let(:expected_error_context) { { errors: expected_error.to_s } }
+        let(:expected_error_message) { expected_error.to_s }
 
         before do
           allow(SignIn::RevokeSessionsForUser).to receive(:new).and_raise(expected_error.new(message: expected_error))
-          allow(Rails.logger).to receive(:info)
         end
 
-        it 'renders expected error' do
-          expect(JSON.parse(subject.body)).to eq(expected_error_json)
-        end
-
-        it 'returns expected status' do
-          expect(subject).to have_http_status(expected_error_status)
-        end
-
-        it 'logs the failed revoke all sessions call' do
-          expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_context)
-          subject
-        end
-
-        it 'triggers statsd increment for failed call' do
-          expect { subject }.to trigger_statsd_increment(statsd_failure)
-        end
+        it_behaves_like 'error response'
       end
     end
   end

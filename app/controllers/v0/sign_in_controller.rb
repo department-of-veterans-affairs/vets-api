@@ -164,6 +164,8 @@ module V0
 
     def revoke_all_sessions
       session = SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
+      raise SignIn::Errors::SessionNotFoundError.new message: 'Session not found' if session.blank?
+
       SignIn::RevokeSessionsForUser.new(user_account: session.user_account).perform
 
       sign_in_logger.info('revoke all sessions', @access_token.to_s)
@@ -189,6 +191,8 @@ module V0
       end
 
       session = SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
+      raise SignIn::Errors::SessionNotFoundError.new message: 'Session not found' if session.blank?
+
       credential_type = session.user_verification.credential_type
 
       SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token:).perform
@@ -200,7 +204,9 @@ module V0
       logout_redirect = SignIn::LogoutRedirectGenerator.new(credential_type:,
                                                             client_config: client_config(client_id)).perform
       logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
-    rescue SignIn::Errors::LogoutAuthorizationError, SignIn::Errors::SessionNotAuthorizedError => e
+    rescue SignIn::Errors::LogoutAuthorizationError,
+           SignIn::Errors::SessionNotAuthorizedError,
+           SignIn::Errors::SessionNotFoundError => e
       sign_in_logger.info('logout error', { errors: e.message })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
       logout_redirect = SignIn::LogoutRedirectGenerator.new(client_config: client_config(client_id)).perform
