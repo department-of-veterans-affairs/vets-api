@@ -6,18 +6,26 @@ Vets API requires:
 - PostgreSQL 15.x (including PostGIS 3)
 - Redis 6.2.x
 
-  The most up-to-date versions of each key dependency will be specified in the `docker-compose.yml` [file](https://github.com/department-of-veterans-affairs/vets-api/blob/master/docker-compose.yml) and the `Dockerfile`.
+The most up-to-date versions of each key dependency will be specified in the `docker-compose.yml` [file](https://github.com/department-of-veterans-affairs/vets-api/blob/master/docker-compose.yml) and the `Dockerfile`.
 
-  We suggest using a Ruby version manager such as [`rbenv`](https://github.com/rbenv/rbenv#installation), `asdf`, `rvm`, or `chruby` to install and maintain your version of Ruby.
+## Installing a Ruby Version Manager
 
-## Installing RVM
+We suggest using a Ruby version manager such as `rbenv`, `asdf`, `rvm`, or `chruby` to install and maintain your version of Ruby.
 
-1. Install `rvm` with `brew install rvm`. This could take a while.
-2. Check the ruby version number in `.ruby-version`. Use this number to install the needed Ruby version in the command `rvm install <version_number>`. This could also take a while.
-3. Run `rvm use` within the repo to confirm that the correct version is being used.
-4. After installing a new version of Ruby, run `gem install bundler` and `bundle install` to ensure all gems are installed for the current version.
+- [rbenv](https://github.com/rbenv/rbenv)
+- [rvm](https://rvm.io/)
+- [asdf](https://asdf-vm.com/)
+- [chruby](https://github.com/postmodern/chruby)
 
-Steps 2-4 must be repeated if the repo's Ruby version is updated later.
+If the repo's Ruby version is updated later, you will need to install the newer ruby (i.e., `rvm install <version_number>`) which is located in `.ruby-version`
+
+### RVM Troubleshooting
+
+If you see an error like `Error running '__rvm_make -j10'` while installing a ruby version, this usually occurs because of a mismatch with the openssl package.
+
+Many of these types of errors occur because either the openssl path needs to be specified or there's a compatibility issue with the ruby version and the install openssl version. They may get resolved by explicitly adding the directory or trying newer openssl version.
+
+For example: `rvm install 3.2.4 -C --with-openssl-dir=/$(brew --prefix openssl@3)`
 
 ## Base Setup
 
@@ -106,7 +114,7 @@ After that, follow the native instructions and run `foreman start -m all=1`
 
 Please set the [clamav intitalizer](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/config/initializers/clamav.rb) initializers/clamav.rb file to the following:
 
-``` 
+```
 ####  Important: If running hybrid
 if Rails.env.development?
    ENV["CLAMD_TCP_HOST"] = "0.0.0.0"
@@ -115,7 +123,7 @@ if Rails.env.development?
 ```
 
 #### Option 3: Run Clamav Natively (OSX):
- 
+
 If you wish to run ClamAV natively, you'll need to check the platform specific notes. This section will detail the steps of how to run clamav on OSX.
 
 1. `brew install clamav`
@@ -132,6 +140,27 @@ If you wish to run ClamAV natively, you'll need to check the platform specific n
 9. Comment out EVERYTHING in the [clamav.rb initializer](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/config/initializers/clamav.rb#L3-L13)
 10. Add `ENV['CLAMD_UNIX_SOCKET'] = 'your_directory_here/clamd.sock'` to [config/intializers/clamav.rb](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/config/initializers/clamav.rb) - (e.g. `/usr/local/etc/clamav/clamd.sock`)
 11. Test if working via `rails c` and [ping command](https://github.com/franckverrot/clamav-client#ping--boolean)
+**NOTE:** In many cases, there in no need to run ClamAV for local development, even if you are working with uploaded files since the scanning functionality is already built into our CarrierWave and Shrine file upload base classes.
+
+Prior to EKS, ClamAV (the virus scanner) was deployed in the same process as Vets API. With EKS, ClamAV has been extracted out into it’s own service. Locally you can see the docker-compose.yml config for clamav.
+
+1. In settings.local.yml add the following:
+
+```
+clamav:
+  mock: false
+  host: '0.0.0.0'
+  port: '33100'
+```
+
+#### Mock ClamAV
+
+If you wish to mock ClamAV, please set the clamav mock setting to true in settings.local.yml. This will mock the clamav response in the [virus_scan code](https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/common/virus_scan.rb#L14-L23).
+
+```
+clamav:
+  mock: true
+```
 
 ## Platform Specific Notes
 
@@ -139,16 +168,17 @@ Specific notes for our most common native installation platforms are in this sec
 
 ### OSX
 
+
 All of the OSX instructions assume `homebrew` is your [package manager](https://brew.sh/)
 
 1. Install Postgresql & PostGIS
 
-   1. It is MUCH easier to use the [Postgres.app](https://postgresapp.com/downloads.html) which installs the correct combination of Postgresql and PostGIS versions.
+   1. It is *_MUCH_* easier to use the [Postgres.app](https://postgresapp.com/downloads.html) which installs the correct combination of Postgresql and PostGIS versions.
 
    - Download the Postgres.app with PostgreSQL 15
    - Install Instructions here: https://postgresapp.com/
    - `sudo mkdir -p /etc/paths.d && echo /Applications/Postgres.app/Contents/Versions/latest/bin | sudo tee /etc/paths.d/postgresapp`
-   - `ARCHFLAGS="-arch x86_64" gem install pg -v 1.2.3`
+   - `ARCHFLAGS="-arch x86_64" gem install pg -v 1.5.6`
    2. Alternatively Postgresql 15 & PostGIS 3 can be installed with homebrew
       - `brew install postgresql@15`
       - `brew services start postgresql@15`
@@ -165,14 +195,26 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
     brew services start redis
     ```
 
-
 3. Install binary dependencies:
     ```bash
     brew bundle
     ```
 
-4. Among other things, the above `brew bundle` command installs ClamAV, but does not enable it. To enable ClamAV: See "Option 3: Run Clamav Natively (OSX) above"
-	 
+
+4. (Optional see Running Natively for more info) Enable ClamAV daemon:
+
+   ```bash
+   brew info clamav
+   # See the "Caveats" section: "To finish installation & run clamav you will need to edit the example conf files at `${conf_files_dir}`"
+   cd $(brew --prefix clamav)
+   touch clamd.sock
+   echo "LocalSocket $(brew --prefix clamav)" > clamd.conf
+   echo "DatabaseMirror database.clamav.net" > freshclam.conf
+   # Update the local ClamAV database
+   freshclam -v
+   ```
+
+   NOTE: Run with `/usr/local/sbin/clamd -c /usr/local/etc/clamav/clamd.conf` and you will also have to override (temporarily) the `config/clamd.conf` file with `-LocalSocket /usr/local/etc/clamav/clamd.sock`
 
 5. Install pdftk
 
@@ -222,13 +264,11 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    - `sudo apt install -y imagemagick`
 5. Install Poppler
    - `sudo apt install -y poppler-utils`
-6. Install ClamAV
-   - `sudo apt install -y clamav`
-7. Install pdftk
+6. Install pdftk
    - `sudo apt install -y pdftk`
-8. continue with [Base setup](native.md#base-setup)
+7. continue with [Base setup](native.md#base-setup)
 
-9. Updating Postgres and PostGIS if you already have them installed
+8. Updating Postgres and PostGIS if you already have them installed
 
    Backup your existing database
    ```bash

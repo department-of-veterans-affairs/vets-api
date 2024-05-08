@@ -2,8 +2,6 @@
 
 In hybrid mode, you will run vets-api natively, but run Postgres and Redis in Docker. By doing so you avoid any challenges of installing these two software packages and keeping them upgraded to the appropriate version.
 
-
-
 ## Base Setup
 
 1. Install Docker as referenced in the [Docker setup instructions](docker.md).
@@ -27,7 +25,7 @@ redis:
 
 *Note: If you have local instances of Postgres or Redis that were only for use by vets-api, you can stop them to save system resources.*
 
-## Running
+## Running Deps
 
 Prior to EKS, ClamAV (the virus scanner) was deployed in the same process as Vets API. With EKS, ClamAV has been extracted out into it’s own service. Locally you can see the docker-compose.yml config for clamav.
 
@@ -35,7 +33,7 @@ Prior to EKS, ClamAV (the virus scanner) was deployed in the same process as Vet
 
 Please set the [clamav intitalizer](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/config/initializers/clamav.rb) initializers/clamav.rb file to the following:
 
-``` 
+```
 # ## If running hybrid
 if Rails.env.development?
    ENV["CLAMD_TCP_HOST"] = "0.0.0.0"
@@ -61,7 +59,7 @@ You should then be able to navigate to http://localhost:3000/v0/status in your b
 1. Start vets-api as per the [native running instructions](running_natively.md).
 
 #### Option 3: Mock ClamAV
-There is a third choice to "mock" a successful clamav response. If you choose this path, please set the clamav mock setting to true in [the local settings.yml](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/config/settings.yml). This will mock the clamav response in the [virus_scan code](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/lib/common/virus_scan.rb#L14-L23). 
+There is a third choice to "mock" a successful clamav response. If you choose this path, please set the clamav mock setting to true in [the local settings.yml](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/config/settings.yml). This will mock the clamav response in the [virus_scan code](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/lib/common/virus_scan.rb#L14-L23).
 
 ```
 clamav:
@@ -73,3 +71,11 @@ clamav:
   * Run `bin/setup` first to create the needed database tables.
 3. Confirm the API is successfully running by seeing if you can visit [the local Flipper page.](http://localhost:3000/flipper/features)
 
+### Mock ClamAV
+
+If you wish to mock ClamAV, please set the clamav mock setting to true in settings.local.yml. This will mock the clamav response in the [virus_scan code](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/lib/common/virus_scan.rb#L14-L23).
+
+```
+clamav:
+  mock: true
+```
