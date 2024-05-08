@@ -352,10 +352,7 @@
             },
             "onboarding": {
               "show": {
-                "type": [
-                  "boolean",
-                  "null"
-                ]
+                "type": ["boolean", "null"]
               }
             }
           }
