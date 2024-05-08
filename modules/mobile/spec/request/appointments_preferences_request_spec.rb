@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
+require_relative '../support/helpers/rails_helper'
 
 RSpec.describe 'appointment preferences', type: :request do
   include JsonSchemaMatchers
@@ -10,7 +8,6 @@ RSpec.describe 'appointment preferences', type: :request do
   let!(:user) { sis_user(icn: '24811694708759028') }
 
   before do
-    Flipper.enable('va_online_scheduling')
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 

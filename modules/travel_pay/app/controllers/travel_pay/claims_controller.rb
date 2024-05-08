@@ -2,8 +2,6 @@
 
 module TravelPay
   class ClaimsController < ApplicationController
-    before_action :authorize
-
     def index
       veis_token = client.request_veis_token
 
