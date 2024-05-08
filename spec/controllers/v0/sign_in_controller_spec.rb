@@ -11,7 +11,7 @@ RSpec.describe V0::SignInController, type: :controller do
     end
 
     let!(:client_config) do
-      create(:client_config, authentication:, pkce:, credential_service_providers:, service_levels:)
+      create(:client_config, authentication:, pkce:, credential_service_providers:, service_levels:, shared_sessions:)
     end
     let(:authorize_params) do
       {}.merge(type)
@@ -21,6 +21,7 @@ RSpec.describe V0::SignInController, type: :controller do
         .merge(client_id)
         .merge(acr)
         .merge(operation)
+        .merge(scope)
     end
     let(:acr) { { acr: acr_value } }
     let(:acr_value) { 'some-acr' }
@@ -28,6 +29,8 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
     let(:client_id) { { client_id: client_id_value } }
     let(:pkce) { true }
+    let(:scope) { { scope: 'some-scope' } }
+    let(:shared_sessions) { false }
     let(:credential_service_providers) { %w[idme logingov dslogon mhv] }
     let(:service_levels) { %w[loa1 loa3 ial1 ial2 min] }
     let(:client_id_value) { client_config.client_id }
@@ -185,6 +188,32 @@ RSpec.describe V0::SignInController, type: :controller do
         end
       end
 
+      shared_context 'expected response with optional scope' do
+        context 'and scope is device_sso' do
+          let(:scope) { { scope: SignIn::Constants::Auth::DEVICE_SSO } }
+
+          context 'and client config is not set up to enable device_sso' do
+            let(:shared_sessions) { false }
+            let(:expected_error) { 'Scope is not valid for Client' }
+
+            it_behaves_like 'error response'
+          end
+
+          context 'and client config is set up to enable device_sso' do
+            let(:shared_sessions) { true }
+            let(:authentication) { SignIn::Constants::Auth::API }
+
+            it_behaves_like 'successful response'
+          end
+        end
+
+        context 'and scope is not given' do
+          let(:scope) { {} }
+
+          it_behaves_like 'successful response'
+        end
+      end
+
       shared_context 'expected response with optional client state' do
         let(:state) { 'some-state' }
         let(:statsd_auth_success) { SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SUCCESS }
@@ -203,7 +232,7 @@ RSpec.describe V0::SignInController, type: :controller do
         context 'and client_state is not given' do
           let(:client_state) { {} }
 
-          it_behaves_like 'successful response'
+          it_behaves_like 'expected response with optional scope'
         end
 
         context 'and client_state is greater than minimum client state length' do
@@ -211,7 +240,7 @@ RSpec.describe V0::SignInController, type: :controller do
             { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH + 1) }
           end
 
-          it_behaves_like 'successful response'
+          it_behaves_like 'expected response with optional scope'
         end
 
         context 'and client_state is less than minimum client state length' do

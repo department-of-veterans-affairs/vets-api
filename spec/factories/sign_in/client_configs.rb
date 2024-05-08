@@ -16,5 +16,6 @@ FactoryBot.define do
     access_token_attributes { [] }
     enforced_terms { SignIn::Constants::Auth::VA_TERMS }
     terms_of_use_url { Faker::Internet.url }
+    shared_sessions { false }
   end
 end
