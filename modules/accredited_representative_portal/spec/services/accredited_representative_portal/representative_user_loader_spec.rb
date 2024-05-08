@@ -9,8 +9,6 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUserLoader do
     let(:reloaded_user) { representative_user_loader.perform }
 
     let(:access_token) { create(:access_token, user_uuid: user.uuid, session_handle:) }
-    let(:ogc_number) { '123456' } # TODO-ARF 80297: Determine how to get ogc_number into RepresentativeUserLoader
-    let(:poa_codes) { %w[A1 B2 C3] }
     let!(:user) do
       create(:representative_user, uuid: user_uuid, icn: user_icn, loa: user_loa)
     end
@@ -22,14 +20,6 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUserLoader do
     let(:session) { create(:oauth_session, user_account:, user_verification:) }
     let(:session_handle) { session.handle }
     let(:request_ip) { '123.456.78.90' }
-    let!(:representative) do
-      FactoryBot.create(:representative, first_name: 'Bob', last_name: 'Smith', representative_id: ogc_number,
-                                         poa_codes:)
-    end
-
-    before do
-      allow_any_instance_of(described_class).to receive(:ogc_number).and_return(ogc_number)
-    end
 
     shared_examples 'reloaded user' do
       context 'and associated session cannot be found' do
@@ -71,13 +61,55 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUserLoader do
           expect(reloaded_user.icn).to eq(user_icn)
           expect(reloaded_user.idme_uuid).to eq(idme_uuid)
           expect(reloaded_user.logingov_uuid).to eq(nil)
-          expect(reloaded_user.ogc_number).to eq(ogc_number)
-          expect(reloaded_user.poa_codes).to eq(poa_codes)
           expect(reloaded_user.fingerprint).to eq(request_ip)
           expect(reloaded_user.last_signed_in).to eq(session.created_at)
           expect(reloaded_user.authn_context).to eq(authn_context)
           expect(reloaded_user.loa).to eq(user_loa)
           expect(reloaded_user.sign_in).to eq(sign_in)
+        end
+
+        context 'verified_representatives' do
+          let!(:ogc_registration_number) { '12300' }
+          let!(:verified_representative) do
+            create(:verified_representative, email: session.credential_email,
+                                             ogc_registration_number:)
+          end
+          let!(:accredited_individual) do
+            create(:accredited_individual, :with_organizations, registration_number: ogc_registration_number)
+          end
+
+          describe '#ogc_registration_number' do
+            context 'when a matching verified_representative is found' do
+              it 'returns the OGC registration number' do
+                expect(reloaded_user.ogc_registration_number).to eq(verified_representative.ogc_registration_number)
+              end
+            end
+
+            context 'when a verified_representative record does not exist for the user' do
+              let(:verified_representative) { nil }
+
+              it 'returns nil' do
+                expect(reloaded_user.ogc_registration_number).to be_nil
+              end
+            end
+          end
+
+          describe '#poa_codes' do
+            context 'when reloading a user' do
+              it 'sets the poa_codes based on the ogc_registration_number on the accredited_individual' do
+                expect(reloaded_user.poa_codes).to be_present
+                expect(reloaded_user.poa_codes).to match_array(accredited_individual.poa_codes)
+              end
+            end
+
+            context 'when a verified_representative record does not exist for the user' do
+              let(:verified_representative) { nil }
+
+              it 'returns nil' do
+                expect(reloaded_user.poa_codes).to be_nil
+              end
+            end
+          end
         end
       end
     end
@@ -98,32 +130,6 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUserLoader do
       end
 
       it_behaves_like 'reloaded user'
-    end
-
-    describe '#get_poa_codes' do
-      before do
-        user.destroy
-      end
-
-      context 'when reloading a user' do
-        it 'sets the poa_codes based on the ogc_number' do
-          expect(reloaded_user.poa_codes).to match_array(poa_codes)
-        end
-      end
-
-      # context 'when no representative is found for the ogc_number' do
-      #   let(:non_existent_ogc_number) { 'non-existent-number' }
-
-      #   before do
-      #     allow_any_instance_of(described_class).to receive(:ogc_number).and_return(non_existent_ogc_number)
-      #   end
-
-      #   it 'raises a RepresentativeNotFoundError' do
-      #     expect do
-      #       reloaded_user
-      #     end.to raise_error(described_class::RepresentativeNotFoundError)
-      #   end
-      # end
     end
   end
 end
