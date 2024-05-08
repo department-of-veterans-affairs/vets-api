@@ -8,7 +8,7 @@ module ClaimsApi
     class DisabilityCompensationBenefitsDocumentsUploader < ClaimsApi::ServiceBase
       LOG_TAG = '526_v2_Benefits_Documents_Uploader_job'
 
-      def perform(claim_id)
+      def perform(claim_id) # rubocop:disable Metrics/MethodLength
         log_job_progress(claim_id,
                          'BD upload job started')
 
@@ -23,12 +23,16 @@ module ClaimsApi
 
         bd_upload_body(auto_claim:, file_body:)
 
-        log_job_progress(claim_id,
-                         'Uploaded 526EZ PDF to BD')
+        if claim_id.present?
+          log_job_progress(claim_id,
+                           'Uploaded 526EZ PDF to BD')
+        end
         # at this point in the workflow the claim is 'established'
         set_established_state_on_claim(auto_claim)
-        log_job_progress(claim_id,
-                         'BD upload succeeded, Claim workflow finished')
+        if claim_id.present?
+          log_job_progress(claim_id,
+                           'BD upload succeeded, Claim workflow finished')
+        end
       # Temporary errors (returning HTML, connection timeout), retry call
       rescue => e
         error_message = get_error_message(e)
