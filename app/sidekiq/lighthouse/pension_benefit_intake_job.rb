@@ -44,15 +44,14 @@ module Lighthouse
       @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
       @metadata = generate_metadata
 
+      # upload must be performed within 15 minutes of this request
+      @intake_service.request_upload
       @pension_monitor.track_submission_begun(@claim, @intake_service, @user_uuid)
       form_submission_polling
 
-      # upload must be performed within 15 minutes of this request
-      @intake_service.request_upload
-
       payload = {
         upload_url: @intake_service.location,
-        file: @form_path,
+        document: @form_path,
         metadata: @metadata.to_json,
         attachments: @attachment_paths
       }
@@ -79,12 +78,11 @@ module Lighthouse
       Pension21p527ez::TagSentry.tag_sentry
       @pension_monitor = Pension21p527ez::Monitor.new
 
+      @user_uuid = user_uuid
       @claim = SavedClaim::Pension.find(saved_claim_id)
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
-      @user_uuid = user_uuid
       @intake_service = BenefitsIntake::Service.new
-
     end
 
     # Create a temp stamped PDF and validate the PDF satisfies Benefits Intake specification
