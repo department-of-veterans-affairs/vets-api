@@ -6,16 +6,17 @@ module SignIn
   class SessionRevoker
     attr_reader :access_token, :refresh_token, :anti_csrf_token, :session
 
-    def initialize(anti_csrf_token:, access_token: nil, refresh_token: nil)
+    def initialize(anti_csrf_token:, access_token: nil, refresh_token: nil, device_secret: nil)
       @refresh_token = refresh_token
       @anti_csrf_token = anti_csrf_token
       @access_token = access_token
+      @device_secret = device_secret
     end
 
     def perform
       find_valid_oauth_session
       anti_csrf_check if anti_csrf_enabled_client?
-      delete_session!
+      device_secret.presence ? delete_device_sessions : delete_session!
     end
 
     private
@@ -71,6 +72,13 @@ module SignIn
 
     def get_hash(object)
       Digest::SHA256.hexdigest(object)
+    end
+
+    def delete_device_sessions
+      detect_token_theft if refresh_token
+
+      sessions = OAuthSession.where(hashed_device_secret: device_secret)
+      sessions.each(&:destroy!)
     end
 
     def delete_session!
