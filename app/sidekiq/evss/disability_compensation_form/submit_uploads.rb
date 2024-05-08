@@ -13,8 +13,7 @@ module EVSS
         error_class = msg['error_class']
         error_message = msg['error_message']
         timestamp = Time.now.utc
-        # Extract original job arguments
-        form526_submission_id, upload_data = msg['args']
+        form526_submission_id = msg['args'].first
 
         form_job_status = Form526JobStatus.find_by(job_id:)
         bgjob_errors = form_job_status.bgjob_errors || {}
@@ -33,6 +32,10 @@ module EVSS
         )
 
         if Flipper.enabled?(:form526_send_document_upload_failure_notification)
+          # Extract original job arguments
+          # (form526_submission_id already extracted above;
+          # line will move there after flipper is removed)
+          form526_submission_id, upload_data = msg['args']
           # Match existing data check in perform method
           upload_data = upload_data.first if upload_data.is_a?(Array)
           guid = upload_data['confirmationCode']
