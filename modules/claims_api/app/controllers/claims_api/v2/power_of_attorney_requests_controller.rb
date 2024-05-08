@@ -2,17 +2,18 @@
 
 module ClaimsApi
   module V2
-    class PowerOfAttorneyRequestsController < ApplicationController
-      BAD_GATEWAY_ERRORS = [
-        BGSClient::Error::BGSFault,
-        BGSClient::Error::ConnectionFailed,
-        BGSClient::Error::SSLError
-      ].freeze
-
+    class PowerOfAttorneyRequestsController < PowerOfAttorneyRequest::BaseController
       def index
+        index_params =
+          params.permit(
+            filter: {},
+            page: {},
+            sort: {}
+          ).to_h
+
         result =
           PowerOfAttorneyRequestService::Search.perform(
-            search_params.to_h
+            index_params
           )
 
         result[:data] =
@@ -23,17 +24,8 @@ module ClaimsApi
         render json: result
       rescue PowerOfAttorneyRequestService::Search::InvalidQueryError => e
         detail = { errors: e.errors, params: e.params }
-        raise ::Common::Exceptions::BadRequest, detail:
-      rescue *BAD_GATEWAY_ERRORS => e
-        raise ::Common::Exceptions::BadGateway, detail: e.message
-      rescue BGSClient::Error::TimeoutError
-        raise ::Common::Exceptions::GatewayTimeout
-      end
-
-      private
-
-      def search_params
-        params.permit(filter: {}, page: {}, sort: {})
+        error = ::Common::Exceptions::BadRequest.new(detail:)
+        render_error(error)
       end
     end
   end

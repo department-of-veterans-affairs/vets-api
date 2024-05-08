@@ -3,7 +3,7 @@
 require 'rails_helper'
 require Rails.root / 'modules/claims_api/spec/rails_helper'
 
-RSpec.describe 'Power Of Attorney Requests', :bgs, type: :request do
+RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
   cassette_directory =
     Pathname.new(
       # This mirrors the path to this spec file. It could be convenient to keep
@@ -22,6 +22,12 @@ RSpec.describe 'Power Of Attorney Requests', :bgs, type: :request do
       body: JSON.parse(response.body),
       response:
     )
+  end
+
+  let(:headers) do
+    {
+      'Accept' => 'application/json'
+    }
   end
 
   let(:scopes) do
@@ -133,9 +139,7 @@ RSpec.describe 'Power Of Attorney Requests', :bgs, type: :request do
                   'order' => nil
                 }
               }
-            },
-            'code' => '400',
-            'status' => '400'
+            }
           }
         ]
       )
@@ -484,9 +488,7 @@ RSpec.describe 'Power Of Attorney Requests', :bgs, type: :request do
           'errors' => [
             {
               'title' => 'Bad Gateway',
-              'detail' => 'Weird BGFS Fault',
-              'code' => '502',
-              'status' => '502'
+              'detail' => 'Weird BGFS Fault'
             }
           ]
         )
@@ -515,9 +517,7 @@ RSpec.describe 'Power Of Attorney Requests', :bgs, type: :request do
             'errors' => [
               {
                 'title' => 'Bad Gateway',
-                'detail' => 'Exception from WebMock',
-                'code' => '502',
-                'status' => '502'
+                'detail' => 'Exception from WebMock'
               }
             ]
           )
@@ -538,9 +538,7 @@ RSpec.describe 'Power Of Attorney Requests', :bgs, type: :request do
             'errors' => [
               {
                 'title' => 'Bad Gateway',
-                'detail' => 'Exception from WebMock',
-                'code' => '502',
-                'status' => '502'
+                'detail' => 'Exception from WebMock'
               }
             ]
           )
@@ -561,9 +559,7 @@ RSpec.describe 'Power Of Attorney Requests', :bgs, type: :request do
             'errors' => [
               {
                 'title' => 'Gateway timeout',
-                'detail' => 'Did not receive a timely response from an upstream server',
-                'code' => '504',
-                'status' => '504'
+                'detail' => 'Did not receive a timely response from an upstream server'
               }
             ]
           )
