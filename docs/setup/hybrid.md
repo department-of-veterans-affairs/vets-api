@@ -25,6 +25,7 @@ redis:
 
 *Note: If you have local instances of Postgres or Redis that were only for use by vets-api, you can stop them to save system resources.*
 
+
 ## Running Deps
 
 Prior to EKS, ClamAV (the virus scanner) was deployed in the same process as Vets API. With EKS, ClamAV has been extracted out into it’s own service. Locally you can see the docker-compose.yml config for clamav.
