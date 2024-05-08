@@ -37,17 +37,19 @@ module Lighthouse
     # @param [Integer] saved_claim_id
     #
     def perform(saved_claim_id, user_uuid = nil)
-
       init(saved_claim_id, user_uuid)
 
+      # generate and validate claim pdf documents
       @form_path = process_document(@claim.to_pdf)
       @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
+      @metadata = generate_metadata
 
       @pension_monitor.track_submission_begun(@claim, @intake_service, @user_uuid)
-
       form_submission_polling
 
-      @metadata = generate_metadata
+      # upload must be performed within 15 minutes of this request
+      @intake_service.request_upload
+
       payload = {
         upload_url: @intake_service.location,
         file: @form_path,
@@ -56,9 +58,13 @@ module Lighthouse
       }
 
       @pension_monitor.track_submission_attempted(@claim, @intake_service, @user_uuid, payload)
-      response = @intake_service.upload_doc(**payload)
+      response = @intake_service.perform_upload(**payload)
+      raise PensionBenefitIntakeError, response.to_s unless response.success?
 
-      check_success(response)
+      @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
+      @pension_monitor.track_submission_success(@claim, @intake_service, @user_uuid)
+
+      @intake_service.uuid
     rescue => e
       @pension_monitor.track_submission_retry(@claim, @intake_service, @user_uuid, e)
       @form_submission_attempt&.fail!
@@ -71,15 +77,13 @@ module Lighthouse
 
     def init(saved_claim_id, user_uuid)
       Pension21p527ez::TagSentry.tag_sentry
+      @pension_monitor = Pension21p527ez::Monitor.new
 
-      @saved_claim_id = saved_claim_id
       @claim = SavedClaim::Pension.find(saved_claim_id)
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
       @user_uuid = user_uuid
       @intake_service = BenefitsIntake::Service.new
-
-      @pension_monitor = Pension21p527ez::Monitor.new
 
     end
 
@@ -124,23 +128,6 @@ module Lighthouse
         @claim.form_id,
         @claim.business_line
       )
-    end
-
-    ##
-    # Check benefits service upload_form response. On success send confirmation email.
-    #
-    # Raises PensionBenefitIntakeError unless response.success?
-    #
-    # @param [Object] response
-    #
-    def check_success(response)
-      if response.success?
-        @pension_monitor.track_submission_success(@claim, @intake_service, @user_uuid)
-
-        @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
-      else
-        raise PensionBenefitIntakeError, response.to_s
-      end
     end
 
     ##
