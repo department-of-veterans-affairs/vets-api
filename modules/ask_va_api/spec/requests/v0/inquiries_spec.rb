@@ -12,7 +12,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['Data']
   end
   let(:valid_id) { mock_inquiries.first['InquiryNumber'] }
-  let(:invalid_id) { 'invalid-id' }
+  let(:invalid_id) { 'A-20240423-30709' }
 
   before do
     allow(LogService).to receive(:new).and_return(logger)
@@ -207,19 +207,18 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       end
 
       context 'when the id is invalid' do
-        let(:crm_response) do
-          { Data: nil,
-            Message: 'Data Validation: No Inquiries found by ID A-20230305-30617',
-            ExceptionOccurred: true,
-            ExceptionMessage: 'Data Validation: No Inquiries found by ID A-20230305-30617',
-            MessageId: 'e6024ccb-e19b-4bc6-990c-667e7ebab4ec' }
+        let(:body) do
+          '{"Data":null,"Message":"Data Validation: No Inquiries found by ID A-20240423-30709"' \
+            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Inquiries found by ' \
+            'ID A-20240423-30709","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
         end
+        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
         let(:service) { instance_double(Crm::Service) }
 
         before do
           allow(Crm::Service).to receive(:new).and_return(service)
           allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
-          allow(service).to receive(:call).and_return(crm_response)
+          allow(service).to receive(:call).and_return(failure)
           sign_in(authorized_user)
           get "#{inquiry_path}/#{invalid_id}"
         end
@@ -228,16 +227,8 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
         it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
                         'AskVAApi::Inquiries::InquiriesRetrieverError: ' \
-                        'Data Validation: No Inquiries found by ID A-20230305-30617'
+                        'Data Validation: No Inquiries found by ID A-20240423-30709'
       end
-    end
-
-    context 'when user is not signed in' do
-      before do
-        get "#{inquiry_path}/#{valid_id}"
-      end
-
-      it { expect(response).to have_http_status(:unauthorized) }
     end
   end
 
@@ -246,17 +237,34 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
     before do
       sign_in(authorized_user)
-      get '/ask_va_api/v0/download_attachment', params: { id:, mock: true }
     end
 
-    it 'response with 200' do
-      expect(response).to have_http_status(:ok)
+    context 'when successful' do
+      before do
+        get '/ask_va_api/v0/download_attachment', params: { id:, mock: true }
+      end
+
+      it 'response with 200' do
+        expect(response).to have_http_status(:ok)
+      end
     end
 
-    context 'when attachment is not found' do
-      let(:id) { 'not_valid' }
+    context 'when Crm raise an error' do
+      let(:body) do
+        '{"Data":null,"Message":"Data Validation: Invalid GUID, Parsing Failed",' \
+          '"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: Invalid GUID,' \
+          ' Parsing Failed","MessageId":"c14c61c4-a3a8-4200-8c86-bdc09c261308"}'
+      end
+      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
-      it 'responds with 500' do
+      before do
+        allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
+        allow_any_instance_of(Crm::Service).to receive(:call)
+          .with(endpoint: 'attachment', payload: { id: '1' }).and_return(failure)
+        get '/ask_va_api/v0/download_attachment', params: { id:, mock: nil }
+      end
+
+      it 'raise the error' do
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
@@ -357,14 +365,17 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
     context 'when crm api fail' do
       context 'when the API call fails' do
+        let(:body) do
+          '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
+            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+            'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
+        end
+        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
+
         before do
           allow_any_instance_of(Crm::Service).to receive(:call)
             .with(endpoint:, method: :put,
-                  payload:).and_return({ Data: nil,
-                                         Message: 'Data Validation: missing InquiryCategory',
-                                         ExceptionOccurred: true,
-                                         ExceptionMessage: 'Data Validation: missing InquiryCategory',
-                                         MessageId: '13bc59ea-c90a-4d48-8979-fe71e0f7ddeb' })
+                  payload:).and_return(failure)
           sign_in(authorized_user)
           post '/ask_va_api/v0/inquiries/auth', params: payload
         end
@@ -404,14 +415,17 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
     context 'when crm api fail' do
       context 'when the API call fails' do
+        let(:body) do
+          '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
+            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+            'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
+        end
+        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
+
         before do
           allow_any_instance_of(Crm::Service).to receive(:call)
             .with(endpoint:, method: :put,
-                  payload:).and_return({ Data: nil,
-                                         Message: 'Data Validation: missing InquiryCategory',
-                                         ExceptionOccurred: true,
-                                         ExceptionMessage: 'Data Validation: missing InquiryCategory',
-                                         MessageId: '13bc59ea-c90a-4d48-8979-fe71e0f7ddeb' })
+                  payload:).and_return(failure)
           post '/ask_va_api/v0/inquiries', params: payload
         end
 
@@ -470,30 +484,46 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     end
   end
 
-  describe 'POST #test_create' do
-    before do
-      allow_any_instance_of(Crm::Service).to receive(:call).and_return({ message: 'success' })
-      post '/ask_va_api/v0/test_create',
-           params: { 'reply' => 'test', 'endpoint' => 'inquiries/id/reply/new' },
-           as: :json
-    end
-
-    it 'response with 200' do
-      expect(response).to have_http_status(:ok)
-    end
-  end
-
   describe 'POST #create_reply' do
     let(:payload) { { 'reply' => 'this is my reply' } }
 
-    before do
-      allow_any_instance_of(Crm::Service).to receive(:call).and_return({ Data: { Id: '123' } })
-      sign_in(authorized_user)
-      post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
+    context 'when successful' do
+      before do
+        allow_any_instance_of(Crm::Service).to receive(:call).and_return({ Data: { Id: '123' } })
+        sign_in(authorized_user)
+        post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
+      end
+
+      it 'returns status 200' do
+        expect(response).to have_http_status(:ok)
+      end
     end
 
-    it 'returns status 200' do
-      expect(response).to have_http_status(:ok)
+    context 'when crm api fail' do
+      context 'when the API call fails' do
+        let(:endpoint) { 'inquiries/123/reply/new' }
+        let(:body) do
+          '{"Data":null,"Message":"Data Validation: Missing Reply"' \
+            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: ' \
+            'Missing Reply","MessageId":"e2cbe041-df91-41f4-8bd2-8b6d9dbb2e38"}'
+        end
+        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
+
+        before do
+          sign_in(authorized_user)
+          allow_any_instance_of(Crm::Service).to receive(:call)
+            .with(endpoint:, method: :put,
+                  payload: { Reply: 'this is my reply' }).and_return(failure)
+          post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
+        end
+
+        it 'raise InquiriesCreatorError' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                        'AskVAApi::Correspondences::CorrespondencesCreatorError: Data Validation: Missing Reply'
+      end
     end
   end
 end

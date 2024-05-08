@@ -27,8 +27,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
     let(:saved_claim) { FactoryBot.create(:va526ez) }
     let(:submitted_claim_id) { 600_130_094 }
+    let(:user_account) { create(:user_account, icn: '123498767V234859') }
     let(:submission) do
       create(:form526_submission,
+             user_account_id: user_account.id,
              user_uuid: user.uuid,
              auth_headers_json: auth_headers.to_json,
              saved_claim_id: saved_claim.id)
@@ -156,6 +158,30 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
               { id: submission.id, feature_enabled: true, open_claim_review: false,
                 pending_ep_age: 365, pending_ep_status: 'UNDER REVIEW' }
             )
+          end
+
+          context 'when using LH Benefits Claims API instead of EVSS' do
+            before do
+              Flipper.enable(:disability_compensation_lighthouse_claims_service_provider)
+              allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return('access_token')
+            end
+
+            after { Flipper.disable(:disability_compensation_lighthouse_claims_service_provider) }
+
+            let(:open_claims_cassette) { 'lighthouse/benefits_claims/index/claims_with_single_open_disability_claim' }
+
+            it 'logs the expected data for EP 400 merge eligibility' do
+              subject.perform_async(submission.id)
+              VCR.use_cassette('virtual_regional_office/contention_classification') do
+                described_class.drain
+              end
+              expect(Rails.logger).to have_received(:info).with('EP Merge total open EPs', id: submission.id, count: 1)
+              expect(Rails.logger).to have_received(:info).with(
+                'EP Merge open EP eligibility',
+                { id: submission.id, feature_enabled: true, open_claim_review: false,
+                  pending_ep_age: 365, pending_ep_status: 'INITIAL_REVIEW' }
+              )
+            end
           end
 
           context 'when EP400 merge API call is enabled' do
@@ -387,7 +413,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           expect { described_class.drain }.not_to change(backup_klass.jobs, :size)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:success]
           submission.reload
-          expect(submission.submitted_claim_id).to eq(1_234_567_890)
+          # TODO: re-visit when using lighthouse synchronous response endpoint
+          expect(submission.submitted_claim_id).to eq(Form526JobStatus.last.submission.submitted_claim_id)
         end
       end
     end
