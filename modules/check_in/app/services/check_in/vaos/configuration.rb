@@ -31,8 +31,6 @@ module CheckIn
 
           conn.response :raise_error, error_prefix: service_name
           conn.response :betamocks if mock_enabled?
-          # conn.response :snakecase
-          conn.response :json, content_type: /\bjson$/
 
           conn.adapter Faraday.default_adapter
         end
