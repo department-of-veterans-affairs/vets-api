@@ -23,4 +23,13 @@ class VeteranOnboarding < ApplicationRecord
   def show_onboarding_flow_on_login
     display_onboarding_flow
   end
+
+  def self.for_user(user)
+    user_account = user&.user_verification&.user_account
+    if Flipper.enabled?(:veteran_onboarding_beta_flow, user) && user_account.icn.present?
+      return find_or_create_by(user_account:)
+    end
+
+    nil
+  end
 end
