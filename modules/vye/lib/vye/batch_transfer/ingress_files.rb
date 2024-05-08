@@ -12,11 +12,12 @@ module Vye
       def tims_feed_filename = TIMS_FEED_FILENAME
 
       def bdn_import(data)
+        bdn_clone = BdnClone.create!
         source = :bdn_feed
         data.each_line do |line|
           line.chomp!
           records = BdnLineExtraction.new(line:).attributes
-          Vye::LoadData.new(source:, records:)
+          Vye::LoadData.new(source:, bdn_clone:, records:)
         end
       end
 
