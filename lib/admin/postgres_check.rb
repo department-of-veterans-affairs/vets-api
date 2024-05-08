@@ -10,7 +10,7 @@ module DatabaseHealthChecker
     UserAccount.exists?
     true # Return true if no exception occurs
   rescue => e
-    Rails.logger.error(
+    Rails.logger.info(
       { message: "ARGO CD UPGRADE - PG TEST: Failed to access UserAccount. Error: #{e.message}" }
     )
     false
@@ -25,7 +25,7 @@ module DatabaseHealthChecker
 
       user = UserAccount.find_by(icn:)
       unless user
-        Rails.logger.error({ message: "ARGO CD UPGRADE - PG TEST: No UserAccount found with ICN #{icn}" })
+        Rails.logger.info({ message: "ARGO CD UPGRADE - PG TEST: No UserAccount found with ICN #{icn}" })
         raise ActiveRecord::Rollback
       end
       user.update(icn: 'xyz789')
@@ -34,7 +34,7 @@ module DatabaseHealthChecker
     end
     true
   rescue => e
-    Rails.logger.error(
+    Rails.logger.info(
       { message: "ARGO CD UPGRADE - PG TEST: Error in GET/PUT operations. Error: #{e.message}" }
     )
     false # Return false if connectivity issues are detected
@@ -45,7 +45,7 @@ module DatabaseHealthChecker
     if ActiveRecord::Base.connection.active?
       true
     else
-      Rails.logger.error({ message: 'ARGO CD UPGRADE - PG TEST: Connection is NOT active.' })
+      Rails.logger.info({ message: 'ARGO CD UPGRADE - PG TEST: Connection is NOT active.' })
       false # Return false if the connection is not active
     end
   end
