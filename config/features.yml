@@ -1252,10 +1252,14 @@ features:
     actor_type: user
     description: Flag to use begin rescue block for BGS call
     enable_in_development: true
+  toe_high_school_info_change:
+    actor_type: user
+    description: Flag to change order of high school info page
+    enable_in_development: false
   toe_light_house_dgi_direct_deposit:
     actor_type: user
     description: Uses lighthouse api for direct deposit information in TOE.
-    enable_in_development: true
+    enable_in_development: false
   move_form_back_button:
     actor_type: user
     description: Test moving form back button to the top of the page
