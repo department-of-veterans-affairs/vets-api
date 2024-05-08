@@ -37,13 +37,10 @@ module ClaimsApi
 
     def get_error_details
       all_errors = []
-      if @error&.original_body.is_a?(String)
-        all_errors << { message: @error&.original_body }
-      else
-        @error&.original_body&.[](:messages)&.each do |err|
-          symbolized_error = err.deep_symbolize_keys
-          all_errors << collect_errors(symbolized_error)
-        end
+
+      @error&.original_body&.[](:messages)&.each do |err|
+        symbolized_error = err.deep_symbolize_keys
+        all_errors << collect_errors(symbolized_error)
       end
       all_errors
     end

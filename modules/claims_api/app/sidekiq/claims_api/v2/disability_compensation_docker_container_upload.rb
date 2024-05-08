@@ -27,7 +27,7 @@ module ClaimsApi
         log_job_progress(claim_id,
                          "Successfully submitted to Docker container with response: #{evss_res}")
         # update with the evss_id returned
-        auto_claim.update!(evss_id: evss_res[:claimId]) if evss_res.include?(:claimId)
+        auto_claim.update!(evss_id: evss_res[:claimId]) if evss_res&.include?(:claimId)
         # clear out the evss_response value on successful submssion to docker container
         clear_evss_response_for_claim(auto_claim)
         # queue flashes job

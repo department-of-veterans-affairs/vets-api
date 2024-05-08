@@ -52,7 +52,8 @@ module ClaimsApi
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.save!
 
-      auto_claim.evss_response = error&.original_body&.[](:messages)
+      auto_claim.evss_response = error&.original_body
+
       save_auto_claim!(auto_claim, auto_claim.status)
     end
 
@@ -145,13 +146,6 @@ module ClaimsApi
       elsif poa_form_data.key?('representative') # V2 2122a
         poa_form_data['representative']['poaCode']
       end
-    end
-
-    def valid_json?(json)
-      JSON.parse(json)
-      true
-    rescue JSON::ParserError, TypeError
-      false
     end
   end
 end
