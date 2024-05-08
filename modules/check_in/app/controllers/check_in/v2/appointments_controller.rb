@@ -30,7 +30,7 @@ module CheckIn
       private
 
       def appt_struct_data
-        struct = JSON.parse(appointments, object_class: OpenStruct)
+        struct = JSON.parse(appointments.to_json, object_class: OpenStruct)
         struct.data
       end
 

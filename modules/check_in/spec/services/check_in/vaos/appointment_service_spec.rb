@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe CheckIn::VAOS::AppointmentService do
-  subject { described_class }
+  subject { described_class.build(check_in_session:) }
 
   let(:uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
   let(:check_in_session) { CheckIn::V2::Session.build(data: { uuid: }) }
@@ -13,11 +13,13 @@ describe CheckIn::VAOS::AppointmentService do
 
   describe '.build' do
     it 'returns an instance of Service' do
-      expect(subject.build(check_in_session:)).to be_an_instance_of(described_class)
+      expect(subject).to be_an_instance_of(described_class)
     end
   end
 
   describe '#get_appointments' do
+    let(:start_date) { DateTime.parse('2023-11-10T17:12:30Z').in_time_zone }
+    let(:end_date) { DateTime.parse('2023-12-12T17:12:30Z').in_time_zone }
     let(:token) { 'test-token-123' }
 
     before do
@@ -28,8 +30,6 @@ describe CheckIn::VAOS::AppointmentService do
     end
 
     context 'when vaos returns successful response' do
-      let(:start_date) { DateTime.parse('2023-11-10T17:12:30Z').in_time_zone }
-      let(:end_date) { DateTime.parse('2023-12-12T17:12:30Z').in_time_zone }
       let(:appointments_response) do
         {
           data: [
@@ -58,11 +58,9 @@ describe CheckIn::VAOS::AppointmentService do
       end
 
       it 'returns appointments' do
-        svc = subject.build(check_in_session:)
-        response = svc.get_appointments(start_date, end_date)
+        response = subject.get_appointments(start_date, end_date)
 
-        exp_response = Oj.load(appointments_response.to_json).with_indifferent_access
-        expect(response).to eq(exp_response)
+        expect(response).to eq(appointments_response.with_indifferent_access)
       end
     end
 
@@ -77,10 +75,8 @@ describe CheckIn::VAOS::AppointmentService do
       end
 
       it 'throws exception' do
-        svc = subject.build(check_in_session:)
-
         expect do
-          svc.get_appointments(start_date, end_date)
+          subject.get_appointments(start_date, end_date)
         end.to(raise_error do |error|
           expect(error).to be_a(Common::Exceptions::BackendServiceException)
         end)
