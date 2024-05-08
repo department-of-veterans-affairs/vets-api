@@ -19,6 +19,23 @@ module Vye
     belongs_to :bdn_clone
 
     has_many :address_changes, dependent: :destroy
+
+    has_one(
+      :backend_address,
+      -> { where(origin: 'backend') },
+      class_name: 'AddressChange',
+      inverse_of: :user_info,
+      dependent: :restrict_with_exception
+    )
+
+    has_one(
+      :latest_address,
+      -> { order(created_at: :desc) },
+      class_name: 'AddressChange',
+      inverse_of: :user_info,
+      dependent: :restrict_with_exception
+    )
+
     has_many :awards, dependent: :destroy
     has_many :direct_deposit_changes, dependent: :destroy
 
@@ -26,7 +43,7 @@ module Vye
 
     enum(
       mr_status: { active: 'A', expired: 'E' },
-      _suffix: true
+      _prefix: :mr_status
     )
 
     enum(
@@ -40,6 +57,7 @@ module Vye
     delegate :verifications, to: :user_profile
 
     has_kms_key
+
     has_encrypted(:dob, :file_number, :stub_nm, key: :kms_key, **lockbox_options)
 
     serialize :dob, coder: DateAttributeSerializer
@@ -52,8 +70,8 @@ module Vye
 
     delegate :veteran_name, to: :backend_address
 
-    def backend_address
-      address_changes.find_by(origin: 'backend')
+    def zip_code
+      backend_address&.zip_code&.slice(0, 5)
     end
 
     def queued_verifications
