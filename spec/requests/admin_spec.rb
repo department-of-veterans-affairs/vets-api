@@ -9,7 +9,7 @@ RSpec.describe 'Admin API', type: :request do
 
     json = JSON.parse(response.body)
     git_rev = AppInfo::GIT_REVISION
-    pg_up = AppInfo.postgres_up
+    pg_up = DatabaseHealthChecker.postgres_up
 
     expect(response.headers['X-Git-SHA']).to eq(git_rev)
     expect(json['git_revision']).to eq(git_rev)
