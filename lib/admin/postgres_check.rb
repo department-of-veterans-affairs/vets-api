@@ -22,7 +22,6 @@ module DatabaseHealthChecker
   def self.get_and_put_operations
     # Test 2: Perform GET and PUT operations and roll back transaction
     # so the changes aren't persisted.
-
     UserAccount.transaction do
       icn = 'abc123'
       UserAccount.create!(icn:)
