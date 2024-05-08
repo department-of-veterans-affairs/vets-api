@@ -25,8 +25,8 @@ class VeteranOnboarding < ApplicationRecord
   end
 
   def self.for_user(user)
-    user_account = user&.user_verification&.user_account
-    if Flipper.enabled?(:veteran_onboarding_beta_flow, user) && user_account.icn.present?
+    user_account = user.user_account
+    if Flipper.enabled?(:veteran_onboarding_beta_flow, user) && user_account.verified?
       return find_or_create_by(user_account:)
     end
 
