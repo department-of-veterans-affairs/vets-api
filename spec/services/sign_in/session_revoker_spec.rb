@@ -188,7 +188,8 @@ RSpec.describe SignIn::SessionRevoker do
                refresh_expiration: session_expiration,
                handle: session_handle,
                user_account:,
-               client_id:)
+               client_id:,
+               hashed_device_secret: device_secret)
       end
       let(:client_id) { client_config.client_id }
       let(:client_config) { create(:client_config, anti_csrf:) }
