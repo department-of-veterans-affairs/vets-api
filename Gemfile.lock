@@ -1,4 +1,18 @@
 GIT
+  remote: https://github.com/adhocteam/connect_vbms
+  revision: 6e5dc751afaf0da9c7cbc10c94b909f114f3a156
+  tag: v2.0.0.rc
+  specs:
+    connect_vbms (2.0.0.rc)
+      httpclient (~> 2.8.0)
+      httpi (~> 2.4)
+      mail
+      nokogiri (>= 1.8.4)
+      nori
+      xmldsig (~> 0.3.1)
+      xmlenc
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/apivore
   revision: f8ccd476f6c5301f5ebe4e2dd5b30ff0e567ffc1
   tag: v2.0.0.vsp
@@ -29,20 +43,6 @@ GIT
       httpclient
       nokogiri (>= 1.13.6)
       savon (= 2.12)
-
-GIT
-  remote: https://github.com/department-of-veterans-affairs/connect_vbms.git
-  revision: 1834cf61310001c82e2e96d665518407c3bce947
-  branch: master
-  specs:
-    connect_vbms (1.4.0)
-      httpclient (~> 2.8.0)
-      httpi (~> 2.4)
-      mail
-      nokogiri (>= 1.8.4)
-      nori
-      xmldsig (~> 0.3.1)
-      xmlenc
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/fhir_client.git
@@ -213,7 +213,7 @@ GEM
       timeout (>= 0.4.0)
     activerecord-import (1.6.0)
       activerecord (>= 4.2)
-    activerecord-postgis-adapter (9.0.1)
+    activerecord-postgis-adapter (9.0.2)
       activerecord (~> 7.1.0)
       rgeo-activerecord (~> 7.0.0)
     activestorage (7.1.3.2)
@@ -243,21 +243,21 @@ GEM
     attr_extras (7.1.0)
     awesome_print (1.9.2)
     aws-eventstream (1.3.0)
-    aws-partitions (1.914.0)
-    aws-sdk-core (3.192.0)
+    aws-partitions (1.925.0)
+    aws-sdk-core (3.194.1)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.651.0)
       aws-sigv4 (~> 1.8)
       jmespath (~> 1, >= 1.6.1)
-    aws-sdk-kms (1.79.0)
-      aws-sdk-core (~> 3, >= 3.191.0)
+    aws-sdk-kms (1.80.0)
+      aws-sdk-core (~> 3, >= 3.193.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.147.0)
-      aws-sdk-core (~> 3, >= 3.192.0)
+    aws-sdk-s3 (1.149.1)
+      aws-sdk-core (~> 3, >= 3.194.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.8)
-    aws-sdk-sns (1.73.0)
-      aws-sdk-core (~> 3, >= 3.191.0)
+    aws-sdk-sns (1.74.0)
+      aws-sdk-core (~> 3, >= 3.193.0)
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.8.0)
       aws-eventstream (~> 1, >= 1.0.2)
@@ -301,7 +301,7 @@ GEM
       cork
       nap
       open4 (~> 1.3)
-    clam_scan (0.0.2)
+    clamav-client (3.2.0)
     cliver (0.3.2)
     coderay (1.1.3)
     coercible (1.0.0)
@@ -317,7 +317,7 @@ GEM
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
-    coverband (6.1.1)
+    coverband (6.1.2)
       redis (>= 3.0)
     crack (1.0.0)
       bigdecimal
@@ -365,7 +365,7 @@ GEM
     docile (1.4.0)
     dogstatsd-ruby (5.6.1)
     domain_name (0.6.20240107)
-    down (5.4.1)
+    down (5.4.2)
       addressable (~> 2.8)
     drb (2.2.1)
     dry-configurable (1.1.0)
@@ -440,6 +440,7 @@ GEM
       faraday (>= 0.9.0)
     fastimage (2.3.1)
     ffi (1.16.3)
+    ffi (1.16.3-java)
     ffi-compiler (1.0.1)
       ffi (>= 1.0.0)
       rake
@@ -510,6 +511,14 @@ GEM
     google-cloud-env (2.1.1)
       faraday (>= 1.0, < 3.a)
     google-protobuf (4.26.1)
+      rake (>= 13)
+    google-protobuf (4.26.1-aarch64-linux)
+      rake (>= 13)
+    google-protobuf (4.26.1-java)
+      ffi (~> 1)
+      ffi-compiler (~> 1)
+      rake (>= 13)
+    google-protobuf (4.26.1-x86_64-linux)
       rake (>= 13)
     googleauth (1.11.0)
       faraday (>= 1.0, < 3.a)
@@ -596,8 +605,11 @@ GEM
       kramdown (~> 2.0)
     language_server-protocol (3.17.0.3)
     libdatadog (5.0.0.1.0)
+    libdatadog (5.0.0.1.0-aarch64-linux)
     libdatadog (5.0.0.1.0-x86_64-linux)
     libddwaf (1.14.0.0.0)
+      ffi (~> 1.0)
+    libddwaf (1.14.0.0.0-aarch64-linux)
       ffi (~> 1.0)
     libddwaf (1.14.0.0.0-java)
       ffi (~> 1.0)
@@ -663,7 +675,14 @@ GEM
     nokogiri (1.16.4)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nori (2.6.0)
+    nokogiri (1.16.4-aarch64-linux)
+      racc (~> 1.4)
+    nokogiri (1.16.4-java)
+      racc (~> 1.4)
+    nokogiri (1.16.4-x86_64-linux)
+      racc (~> 1.4)
+    nori (2.7.0)
+      bigdecimal
     notiffany (0.1.3)
       nenv (~> 0.1)
       shellany (~> 0.0)
@@ -692,9 +711,9 @@ GEM
     os (1.1.4)
     ox (2.14.18)
     parallel (1.24.0)
-    parallel_tests (4.7.0)
+    parallel_tests (4.7.1)
       parallel
-    parser (3.3.0.5)
+    parser (3.3.1.0)
       ast (~> 2.4.1)
       racc
     patience_diff (1.2.0)
@@ -742,7 +761,7 @@ GEM
       stringio
     psych (5.1.2-java)
       jar-dependencies (>= 0.1.7)
-    public_suffix (5.0.4)
+    public_suffix (5.0.5)
     puma (6.4.2)
       nio4r (~> 2.0)
     puma (6.4.2-java)
@@ -752,7 +771,7 @@ GEM
     raabro (1.4.0)
     racc (1.7.3)
     racc (1.7.3-java)
-    rack (2.2.8.1)
+    rack (2.2.9)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
@@ -826,7 +845,7 @@ GEM
       declarative (< 0.1.0)
       trailblazer-option (>= 0.1.1, < 0.2.0)
       uber (< 0.2.0)
-    request_store (1.6.0)
+    request_store (1.7.0)
       rack (>= 1.4)
     restforce (7.3.1)
       faraday (>= 1.1.0, < 2.10.0)
@@ -901,8 +920,8 @@ GEM
       rubocop-ast (>= 1.31.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.31.2)
-      parser (>= 3.3.0.4)
+    rubocop-ast (1.31.3)
+      parser (>= 3.3.1.0)
     rubocop-capybara (2.20.0)
       rubocop (~> 1.41)
     rubocop-factory_bot (2.25.1)
@@ -913,12 +932,12 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
-    rubocop-rspec (2.29.1)
+    rubocop-rspec (2.29.2)
       rubocop (~> 1.40)
       rubocop-capybara (~> 2.17)
       rubocop-factory_bot (~> 2.22)
       rubocop-rspec_rails (~> 2.28)
-    rubocop-rspec_rails (2.28.2)
+    rubocop-rspec_rails (2.28.3)
       rubocop (~> 1.40)
     rubocop-thread_safety (0.5.1)
       rubocop (>= 0.90.0)
@@ -958,10 +977,10 @@ GEM
     shellany (0.0.1)
     shoulda-matchers (6.2.0)
       activesupport (>= 5.2.0)
-    shrine (3.5.0)
+    shrine (3.6.0)
       content_disposition (~> 1.0)
       down (~> 5.1)
-    sidekiq (7.2.2)
+    sidekiq (7.2.4)
       concurrent-ruby (< 2)
       connection_pool (>= 2.3.0)
       rack (>= 2.2.4)
@@ -997,7 +1016,7 @@ GEM
     stringio (3.1.0)
     strong_migrations (1.8.0)
       activerecord (>= 5.2)
-    super_diff (0.11.0)
+    super_diff (0.12.1)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff
@@ -1075,6 +1094,7 @@ GEM
     zeitwerk (2.6.13)
 
 PLATFORMS
+  aarch64-linux
   java
   ruby
   x64-mingw32
@@ -1110,7 +1130,7 @@ DEPENDENCIES
   carrierwave-aws
   check_in!
   claims_api!
-  clam_scan
+  clamav-client
   combine_pdf
   config
   connect_vbms!
@@ -1279,7 +1299,7 @@ DEPENDENCIES
   yard
 
 RUBY VERSION
-   ruby 3.2.3p157
+   ruby 3.2.4p170
 
 BUNDLED WITH
    2.4.9
