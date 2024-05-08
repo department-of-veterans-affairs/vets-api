@@ -52,22 +52,7 @@ module ClaimsApi
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.save!
 
-      auto_claim.evss_response = []
-      error_messages = get_error_message(error)
-      messages = []
-      messages << (
-        valid_json?(error_messages) ? JSON.parse(error_messages).deep_symbolize_keys : error_messages
-      )
-
-      messages.flatten.uniq.each do |error_message|
-        error_key = get_error_key(error_message)
-        error_text = get_error_text(error_message)
-        auto_claim.evss_response <<
-          { 'key' => error_key,
-            'severity' => 'FATAL',
-            'text' => error_text }
-      end
-
+      auto_claim.evss_response = error&.original_body&.[](:messages)
       save_auto_claim!(auto_claim, auto_claim.status)
     end
 

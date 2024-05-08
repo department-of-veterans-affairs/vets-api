@@ -129,8 +129,15 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
       end
 
       it 'does retry when the message indicates a birls error and is in an array' do
-        body = [{ key: 'header.va_eauth_birlsfilenumber.Invalid', severity: 'ERROR',
-                  text: 'Size must be between 8 and 9' }]
+        body = {
+          messages: [
+            {
+              'key' => 'header.va_eauth_birlsfilenumber.Invalid',
+              'severity' => 'ERROR',
+              'text' => 'Size must be between 8 and 9'
+            }
+          ]
+        }
 
         allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
           receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
