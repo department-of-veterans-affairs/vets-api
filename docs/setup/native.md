@@ -154,7 +154,7 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
 3. Install binary dependencies:
     ```bash
     brew bundle
-    ```	 
+    ```
 
 
 4. (Optional see Running Natively for more info) Enable ClamAV daemon:

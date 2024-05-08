@@ -41,7 +41,7 @@ clamav:
   port: '33100'
 ```
 
-1. In another terminal window, navigate to the project directory and run 
+1. In another terminal window, navigate to the project directory and run
 ```
 docker-compose -f docker-compose-clamav.yml up
 ```
