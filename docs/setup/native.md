@@ -21,9 +21,9 @@ If the repo's Ruby version is updated later, you will need to install the newer 
 
 ### RVM Troubleshooting
 
-If you see an error like `Error running '__rvm_make -j10'` while installing a ruby version, this usually occurs because of a mismatch with the openssl package.
+If you see an error like `Error running '__rvm_make -j10'` while installing a ruby version, this usually occurs because of a mismatch with the openssl package. 
 
-Many of these types of errors occur because either the openssl path needs to be specified or there's a compatibility issue with the ruby version and the install openssl version. They may get resolved by explicitly adding the directory or trying newer openssl version.
+Many of these types of errors occur because either the openssl path needs to be specified or there's a compatibility issue with the ruby version and the install openssl version. They may get resolved by explicitly adding the directory or trying newer openssl version.    
 
 For example: `rvm install 3.2.4 -C --with-openssl-dir=/$(brew --prefix openssl@3)`
 
@@ -111,7 +111,7 @@ clamav:
 
 #### Mock ClamAV
 
-If you wish to mock ClamAV, please set the clamav mock setting to true in settings.local.yml. This will mock the clamav response in the [virus_scan code](https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/common/virus_scan.rb#L14-L23).
+If you wish to mock ClamAV, please set the clamav mock setting to true in settings.local.yml. This will mock the clamav response in the [virus_scan code](https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/common/virus_scan.rb#L14-L23). 
 
 ```
 clamav:
@@ -154,7 +154,7 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
 3. Install binary dependencies:
     ```bash
     brew bundle
-    ```
+    ```	 
 
 
 4. (Optional see Running Natively for more info) Enable ClamAV daemon:
@@ -172,9 +172,10 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
 
    NOTE: Run with `/usr/local/sbin/clamd -c /usr/local/etc/clamav/clamd.conf` and you will also have to override (temporarily) the `config/clamd.conf` file with `-LocalSocket /usr/local/etc/clamav/clamd.sock`
 
-5. Install pdftk
+5. Install [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg)
 
-   - `brew install pdftk-java`
+   - `curl -o ~/Downloads/pdftk_download.pkg https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg`
+   - `sudo installer -pkg ~/Downloads/pdftk_download.pkg -target /`
 
 6. continue with [Base setup](native.md#base-setup)
 
