@@ -96,50 +96,6 @@ This file has the necessary configuration settings for local development as well
 
 ### Configuring ClamAV antivirus
 
-### EKS
-
-Prior to EKS, ClamAV (the virus scanner) was deployed in the same process as Vets API. With EKS, ClamAV has been extracted out into it’s own service. Locally you can see the docker-compose.yml config for clamav.
-
-
-
-### Options
-#### Option 1: Run ONLY clamav via Docker
-
-You can either run:
-`docker-compose -f docker-compose-clamav.yml up` - this will run ONLY clamav via docker
-
-After that, follow the native instructions and run `foreman start -m all=1`
-
-#### Option 2: [See hybrid setup](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/docs/setup/hybrid.md)
-
-Please set the [clamav intitalizer](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/config/initializers/clamav.rb) initializers/clamav.rb file to the following:
-
-```
-####  Important: If running hybrid
-if Rails.env.development?
-   ENV["CLAMD_TCP_HOST"] = "0.0.0.0"
-   ENV["CLAMD_TCP_PORT"] = "33100"
- end
-```
-
-#### Option 3: Run Clamav Natively (OSX):
-
-If you wish to run ClamAV natively, you'll need to check the platform specific notes. This section will detail the steps of how to run clamav on OSX.
-
-1. `brew install clamav`
-2. `brew info clamav`
-
-3. NOTE: See the "Caveats" section: "To finish installation & run clamav you will need to edit the example conf files at `your_directory_here` e.g. `/usr/local/etc/clamav/` - Make note of this directory for following steps.
-
-4. cd into `your_directory_here` from step above (e.g. `/usr/local/etc/clamav/`)
-
-5. In clamd.conf add `LocalSocket your_directory_here/clamd.sock` (e.g. `/usr/local/etc/clamav/clamd.sock`)
-6. In freshclam.conf add `DatabaseMirror database.clamav.net`
-7. Update the local ClamAV database via `freshclam -v`
-8. Run with `/usr/local/sbin/clamd -c your_directory_here/clamd.conf`
-9. Comment out EVERYTHING in the [clamav.rb initializer](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/config/initializers/clamav.rb#L3-L13)
-10. Add `ENV['CLAMD_UNIX_SOCKET'] = 'your_directory_here/clamd.sock'` to [config/intializers/clamav.rb](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/config/initializers/clamav.rb) - (e.g. `/usr/local/etc/clamav/clamd.sock`)
-11. Test if working via `rails c` and [ping command](https://github.com/franckverrot/clamav-client#ping--boolean)
 **NOTE:** In many cases, there in no need to run ClamAV for local development, even if you are working with uploaded files since the scanning functionality is already built into our CarrierWave and Shrine file upload base classes.
 
 Prior to EKS, ClamAV (the virus scanner) was deployed in the same process as Vets API. With EKS, ClamAV has been extracted out into it’s own service. Locally you can see the docker-compose.yml config for clamav.
