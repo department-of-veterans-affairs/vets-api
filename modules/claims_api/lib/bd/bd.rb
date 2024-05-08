@@ -129,6 +129,10 @@ module ClaimsApi
 
     def get_response(body, endpoint)
       res = client.post(endpoint, body)
+      if res.nil?
+        ClaimsApi::Logger.log('benefits_documents',
+                              detail: "/response came back nil for: #{body}, #{endpoint}")
+      end
       res&.body&.deep_symbolize_keys if res.present?
     end
   end
