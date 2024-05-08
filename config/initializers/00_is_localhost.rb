@@ -1,5 +1,7 @@
 # config/initializers/00_is_localhost.rb
 
+# frozen_string_literal: true
+
 # The purpose of this top-level method is to be able to change
 # the behavior of business logic when the application is specifically
 # running on a developers local environment.  For example to return
