@@ -21,7 +21,6 @@ describe CheckIn::VAOS::AppointmentService do
     let(:token) { 'test-token-123' }
     let(:start_date) { '2023-11-10T17:12:30Z' }
     let(:end_date) { '2023-12-12T17:12:30Z' }
-    let(:statuses) { 'confirmed' }
     let(:appointments_response) do
       {
         data: [
@@ -37,10 +36,10 @@ describe CheckIn::VAOS::AppointmentService do
             minutesDuration: 30
           }
         ]
-      }.with_indifferent_access
+      }.to_json
     end
     let(:faraday_response) { double('Faraday::Response') }
-    let(:faraday_env) { double('Faraday::Env', status: 200, body: appointments_response.to_json) }
+    let(:faraday_env) { double('Faraday::Env', status: 200, body: appointments_response) }
 
     before do
       allow_any_instance_of(V2::Lorota::RedisClient).to receive(:icn).with(uuid:)
@@ -53,7 +52,7 @@ describe CheckIn::VAOS::AppointmentService do
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:get)
           .with("/vaos/v1/patients/#{patient_icn}/appointments",
-                { start: start_date, end: end_date, statuses: })
+                { start: start_date, end: end_date })
           .and_return(faraday_response)
         allow(faraday_response).to receive(:env).and_return(faraday_env)
       end
@@ -61,8 +60,7 @@ describe CheckIn::VAOS::AppointmentService do
       it 'returns appointments' do
         svc = subject.build(check_in_session:)
         response = svc.get_appointments(DateTime.parse(start_date).in_time_zone,
-                                        DateTime.parse(end_date).in_time_zone,
-                                        statuses)
+                                        DateTime.parse(end_date).in_time_zone)
         expect(response).to eq(appointments_response)
       end
     end
@@ -73,8 +71,7 @@ describe CheckIn::VAOS::AppointmentService do
 
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:get).with('/vaos/v1/patients/123/appointments',
-                                                                         { start: start_date, end: end_date,
-                                                                           statuses: })
+                                                                         { start: start_date, end: end_date })
                                                                    .and_raise(exception)
       end
 
@@ -82,8 +79,7 @@ describe CheckIn::VAOS::AppointmentService do
         svc = subject.build(check_in_session:)
         expect do
           svc.get_appointments(DateTime.parse(start_date).in_time_zone,
-                               DateTime.parse(end_date).in_time_zone,
-                               statuses)
+                               DateTime.parse(end_date).in_time_zone)
         end.to(raise_error do |error|
           expect(error).to be_a(Common::Exceptions::BackendServiceException)
         end)

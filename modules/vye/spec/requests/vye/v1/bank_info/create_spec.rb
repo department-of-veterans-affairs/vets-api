@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require_relative '../../../../rails_helper'
+require 'rails_helper'
+require Vye::Engine.root / 'spec/rails_helper'
 
 RSpec.describe Vye::V1::DirectDepositChangesController, type: :request do
   let!(:current_user) { create(:user) }
