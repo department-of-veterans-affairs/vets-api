@@ -2,7 +2,6 @@
 
 require_relative 'base'
 require 'common/models/attribute_types/iso8601_time'
-require 'evss/pciu/email_address'
 require 'va_profile/concerns/defaultable'
 require 'va_profile/concerns/expirable'
 
@@ -11,6 +10,7 @@ module VAProfile
     class Email < Base
       include VAProfile::Concerns::Defaultable
       include VAProfile::Concerns::Expirable
+      VALID_EMAIL_REGEX = /.+@.+\..+/i
 
       attribute :created_at, Common::ISO8601Time
       attribute :email_address, String
@@ -26,7 +26,7 @@ module VAProfile
       validates(
         :email_address,
         presence: true,
-        format: { with: EVSS::PCIU::EmailAddress::VALID_EMAIL_REGEX },
+        format: { with: VALID_EMAIL_REGEX },
         length: { maximum: 255, minimum: 6 }
       )
 

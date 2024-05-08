@@ -29,6 +29,7 @@ module Sidekiq
         error_message = msg['error_message']
         timestamp = Time.now.utc
         form526_submission_id = msg['args'].first
+        Form526Submission.find(form526_submission_id).fail_backup_delivery!
 
         form_job_status = Form526JobStatus.find_by(job_id:)
         bgjob_errors = form_job_status.bgjob_errors || {}
@@ -79,6 +80,7 @@ module Sidekiq
 
         Processor.new(form526_submission_id).process!
         job_status.update(status: Form526JobStatus::STATUS[:success])
+        Form526Submission.find(form526_submission_id).deliver_to_backup!
       rescue => e
         ::Rails.logger.error(
           message: "FORM526 BACKUP SUBMISSION FAILURE. Investigate immediately: #{e.message}.",

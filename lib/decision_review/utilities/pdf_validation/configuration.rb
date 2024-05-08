@@ -4,7 +4,7 @@ module DecisionReview
   module PdfValidation
     class Configuration < DecisionReview::Configuration
       ##
-      # @return [String] Base path for decision review URLs.
+      # @return [String] Base path for PDF validation URL.
       #
       def base_path
         Settings.decision_review.pdf_validation.url
@@ -15,6 +15,19 @@ module DecisionReview
       #
       def service_name
         'DecisionReview::PDFValidation'
+      end
+
+      ##
+      # @return [Hash] The basic headers required for any decision review API call.
+      #
+      def self.base_request_headers
+        # Can use regular Decision Reviews API key in lower environments
+        return super unless Rails.env.production?
+
+        # Since we're using the `uploads/validate_document` endpoint under Benefits Intake API,
+        # we need to use their API key. This is pulled from BenefitsIntakeService::Configuration
+        api_key = Settings.benefits_intake_service.api_key || Settings.form526_backup.api_key
+        super.merge('apiKey' => api_key)
       end
 
       ##

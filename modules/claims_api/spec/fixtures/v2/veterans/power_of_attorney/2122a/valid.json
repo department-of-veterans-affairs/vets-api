@@ -13,9 +13,8 @@
         }
       },
       "representative": {
-        "poaCode": "083",
-        "firstName": "my",
-        "lastName": "name",
+        "poaCode": "067",
+        "registrationNumber": "999999999999",
         "type": "ATTORNEY",
         "address": {
           "addressLine1":  "123",

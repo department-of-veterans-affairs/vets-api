@@ -4,6 +4,9 @@
 PERIODIC_JOBS = lambda { |mgr|
   mgr.tz = ActiveSupport::TimeZone.new('America/New_York')
 
+  # Runs at midnight every Tuesday
+  mgr.register('0 0 * * 2', 'LoadAverageDaysForClaimCompletionJob')
+
   mgr.register('*/15 * * * *', 'CovidVaccine::ScheduledBatchJob')
   mgr.register('*/15 * * * *', 'CovidVaccine::ExpandedScheduledSubmissionJob')
   mgr.register('*/30 * * * *', 'SidekiqAlive::CleanupQueues')
@@ -14,14 +17,10 @@ PERIODIC_JOBS = lambda { |mgr|
   # Update NoticeOfDisagreement statuses with their Central Mail status
   mgr.register('15 * * * *', 'AppealsApi::SupplementalClaimUploadStatusBatch')
   # Update SupplementalClaim statuses with their Central Mail status
-  mgr.register('45 0 * * *', 'AppealsApi::HigherLevelReviewCleanUpWeekOldPii')
-  # Remove PII of HigherLevelReviews that have 1) reached one of the 'completed' statuses and 2) are a week old
-  mgr.register('45 0 * * *', 'AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii')
-  # Remove PII of NoticeOfDisagreements that have 1) reached one of the 'completed' statuses and 2) are a week old
-  mgr.register('45 0 * * *', 'AppealsApi::SupplementalClaimCleanUpPii')
-  # Ensures that appeal evidence received "late" (after the appeal has reached "success") is submitted to Central Mail
+  mgr.register('45 0 * * *', 'AppealsApi::CleanUpPii')
+  # Remove PII from appeal records after they have been successfully processed by the VA
   mgr.register('30 * * * *', 'AppealsApi::EvidenceSubmissionBackup')
-  # Remove PII of SupplementalClaims that have 1) reached one of the 'completed' statuses and 2) are a week old
+  # Ensures that appeal evidence received "late" (after the appeal has reached "success") is submitted to Central Mail
   mgr.register('0 23 * * 1-5', 'AppealsApi::DecisionReviewReportDaily')
   # Daily report of appeals submissions
   mgr.register('0 23 * * 1-5', 'AppealsApi::DailyErrorReport')
@@ -39,6 +38,8 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 0 * * *', 'Crm::TopicsDataJob')
   # Update static data cache
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
+  # Update static data cache for form 526
+  mgr.register('0 3 * * *', 'Form526StatusPollingJob')
   # Updates status of FormSubmissions per call to Lighthouse Benefits Intake API
 
   # mgr.register('0 0 * * *', 'VRE::CreateCh31SubmissionsReportJob')

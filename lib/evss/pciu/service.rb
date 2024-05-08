@@ -6,6 +6,7 @@ require 'evss/pciu/email_address_response'
 require 'evss/pciu/phone_number_response'
 require 'evss/pciu/request_body'
 require 'evss/service'
+require 'evss/pciu/email_address'
 
 module EVSS
   module PCIU

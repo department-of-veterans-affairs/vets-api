@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require Vye::Engine.root / 'spec/rails_helper'
 
 RSpec.describe Vye::UserProfile, type: :model do
   describe 'find_by_user after ICN is recorded' do
@@ -26,6 +27,15 @@ RSpec.describe Vye::UserProfile, type: :model do
       expect(u.ssn_digest.length).to be(36)
 
       expect(u.icn_in_database).to eq(user.icn)
+    end
+  end
+
+  describe '#active_user_info' do
+    let!(:user_info) { create(:vye_user_info) }
+    let!(:user_profile) { user_info.user_profile }
+
+    it 'loads the user info' do
+      expect(user_profile.active_user_info).to eq(user_info)
     end
   end
 end

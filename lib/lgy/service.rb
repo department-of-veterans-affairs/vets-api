@@ -167,7 +167,7 @@ module LGY
           :post,
           "#{grant_manager_end_point}/application/createGrantApplication",
           payload.to_json,
-          request_headers
+          sahsha_request_headers
         )
       end
     rescue Common::Client::Errors::ClientError => e
@@ -177,6 +177,14 @@ module LGY
     def request_headers
       {
         Authorization: "api-key { \"appId\":\"#{Settings.lgy.app_id}\", \"apiKey\": \"#{Settings.lgy.api_key}\"}"
+      }
+    end
+
+    def sahsha_request_headers
+      {
+        Authorization: "api-key { \"appId\":\"#{Settings.lgy_sahsha.app_id}\", \"apiKey\": \"#{
+          Settings.lgy_sahsha.api_key
+        }\"}"
       }
     end
 
@@ -193,7 +201,7 @@ module LGY
     end
 
     def grant_manager_end_point
-      "#{Settings.lgy.base_url}/grant-manager/api/grants"
+      "#{Settings.lgy_sahsha.base_url}/grant-manager/api/grants"
     end
   end
 end

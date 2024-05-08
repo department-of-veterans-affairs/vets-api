@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
+require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'immunizations', type: :request do
+RSpec.describe 'immunizations', skip_json_api_validation: true, type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '9000682') }

@@ -323,12 +323,12 @@ module ClaimsApi
             return 'NO_STATUS_PROVIDED'
           end
 
-          phase_data = if data[:phase_type].present?
-                         data[:phase_type]
-                       elsif data[:bnft_claim_lc_status].present?
-                         data[:bnft_claim_lc_status]
-                       else
+          phase_data = if data[:claim_status] == 'CAN'
                          data[:claim_status]
+                       elsif data[:phase_type].present?
+                         data[:phase_type]
+                       else
+                         data[:bnft_claim_lc_status]
                        end
 
           return bgs_phase_status_mapper.name(phase_data) if phase_data.is_a?(String)

@@ -57,11 +57,15 @@ module ClaimsApi
         return '' if errored_submissions.count.zero?
 
         errored_submission_message = ''.dup
-        errored_submission_message << "*#{submission_type} Errors* \nTotal: #{errored_submissions.count} \n```"
-        errored_submissions.each do |submission_id|
-          errored_submission_message << "#{submission_id} \n"
+        if submission_type == 'Intent to File'
+          errored_submission_message << "*#{submission_type} Errors* \nTotal: #{errored_submissions.count} \n\n"
+        else
+          errored_submission_message << "*#{submission_type} Errors* \nTotal: #{errored_submissions.count} \n```"
+          errored_submissions.each do |submission_id|
+            errored_submission_message << "#{submission_id} \n"
+          end
+          errored_submission_message << "```  \n\n"
         end
-        errored_submission_message << "```  \n\n"
         errored_submission_message
       end
     end

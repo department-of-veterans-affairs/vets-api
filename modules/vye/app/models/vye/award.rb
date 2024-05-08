@@ -3,14 +3,19 @@
 module Vye
   class Vye::Award < ApplicationRecord
     belongs_to :user_info
+    has_many :verifications, dependent: :nullify
 
-    enum cur_award_ind: { current: 'C', future: 'F', past: 'P' }
+    enum(
+      cur_award_ind: { current: 'C', future: 'F', past: 'P' },
+      _prefix: :award_ind
+    )
 
-    REQUIRED_ATTRIBUTES = %i[
-      award_begin_date award_end_date begin_rsn cur_award_ind end_rsn
-      monthly_rate number_hours payment_date training_time type_hours type_training
-    ].freeze
-
-    validates(*REQUIRED_ATTRIBUTES, presence: true)
+    validates(
+      *%i[
+        award_end_date cur_award_ind end_rsn
+        monthly_rate number_hours payment_date training_time
+      ].freeze,
+      presence: true
+    )
   end
 end

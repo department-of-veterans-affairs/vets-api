@@ -24,6 +24,11 @@ module SimpleFormsApi
       }
     end
 
+    def zip_code_is_us_based
+      # TODO: Implement this
+      true
+    end
+
     def service(num, field, date)
       service_records = data.dig('application', 'veteran', 'service_records')
 
@@ -51,6 +56,14 @@ module SimpleFormsApi
         cemetery['attributes']['name']
       else
         'Cemetery not found.'
+      end
+    end
+
+    def format_date(date)
+      if date == ''
+        date
+      else
+        Date.strptime(date, '%Y-%m-%d').strftime('%m/%d/%Y') #=> "02/25/2012"
       end
     end
 
@@ -155,35 +168,35 @@ module SimpleFormsApi
         pdf.move_down 20
         pdf.text 'The following pages contain data related to the application.', align: :center
         pdf.move_down 20
-        pdf.text 'Question 10'
+        pdf.text 'Question 10 Place of Birth'
         pdf.text "Place of Birth: #{place_of_birth}", size: 10
         pdf.move_down 10
-        pdf.text 'Question 15 Service Branch Line 1'
-        pdf.text "Service Branch: #{service_branch_value_a}", size: 10
+        pdf.text 'Question 15 Branch of Service Line 1'
+        pdf.text "Branch of Service: #{service_branch_value_a}", size: 10
         pdf.move_down 10
-        pdf.text 'Question 18 Discharge type Line 1'
-        pdf.text "Discharge Type: #{discharge_type_a}", size: 10
+        pdf.text 'Question 18 Discharge - Character of Service Line 1'
+        pdf.text "Character of Service: #{discharge_type_a}", size: 10
         pdf.move_down 10
-        pdf.text 'Question 19 Highest rank Line 1'
-        pdf.text "Highest Rank: #{highest_rank_a}", size: 10
+        pdf.text 'Question 19 Highest Rank Attained Line 1'
+        pdf.text "Highest Rank Attained: #{highest_rank_a}", size: 10
         pdf.move_down 10
-        pdf.text 'Question 15 Service Branch Line 2'
-        pdf.text "Service Branch: #{service_branch_value_b}", size: 10
+        pdf.text 'Question 15 Branch of Service Line 2'
+        pdf.text "Branch of Service: #{service_branch_value_b}", size: 10
         pdf.move_down 10
-        pdf.text 'Question 18 Discharge type Line 2'
-        pdf.text "Discharge Type: #{discharge_type_b}", size: 10
+        pdf.text 'Question 18 Discharge - Character of Service Line 2'
+        pdf.text "Character of Service: #{discharge_type_b}", size: 10
         pdf.move_down 10
-        pdf.text 'Question 19 Highest rank Line 2'
-        pdf.text "Highest Rank: #{highest_rank_b}", size: 10
+        pdf.text 'Question 19 Highest Rank Attained Line 2'
+        pdf.text "Highest Rank Attained: #{highest_rank_b}", size: 10
         pdf.move_down 10
-        pdf.text 'Question 15 Service Branch Line 3'
-        pdf.text "Service Branch: #{service_branch_value_c}", size: 10
+        pdf.text 'Question 15 Branch of Service Line 3'
+        pdf.text "Branch of Service: #{service_branch_value_c}", size: 10
         pdf.move_down 10
-        pdf.text 'Question 18 Discharge type Line 3'
-        pdf.text "Discharge Type: #{discharge_type_c}", size: 10
+        pdf.text 'Question 18 Discharge - Character of Service Line 3'
+        pdf.text "Character of Service: #{discharge_type_c}", size: 10
         pdf.move_down 10
-        pdf.text 'Question 19 Highest rank Line 3'
-        pdf.text "Highest Rank: #{highest_rank_c}", size: 10
+        pdf.text 'Question 19 Highest Rank Attained Line 3'
+        pdf.text "Highest Rank Attained: #{highest_rank_c}", size: 10
       end
     end
 
@@ -208,8 +221,8 @@ module SimpleFormsApi
 
     def track_user_identity(confirmation_number); end
 
-    def submission_date_config
-      { should_stamp_date?: false }
+    def submission_date_stamps
+      []
     end
 
     private

@@ -8,7 +8,7 @@ require 'bgs_service/local_bgs'
 RSpec.describe 'Power Of Attorney', type: :request do
   let(:veteran_id) { '1013062086V794840' }
   let(:get_poa_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney" }
-  let(:request_rep_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney/request-representative" }
+  let(:request_rep_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney-request" }
   let(:scopes) { %w[system/claim.write system/claim.read] }
   let(:invalid_post_scopes) { %w[system/claim.read] }
   let(:individual_poa_code) { 'A1H' }
@@ -30,7 +30,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
       context 'CCG (Client Credentials Grant) flow' do
         context 'when provided' do
           context 'when valid' do
-            context 'when current poa code does not exist' do
+            context 'when BGS does not return a POA code' do
               it 'returns a 200' do
                 mock_ccg(scopes) do |auth_header|
                   allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(OpenStruct.new(current_poa_code: nil))

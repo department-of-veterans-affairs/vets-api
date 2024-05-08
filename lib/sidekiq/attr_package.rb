@@ -11,7 +11,7 @@ module Sidekiq
       # @return [String] the key of the stored attributes
       def create(expires_in: 7.days, **attrs)
         json_attrs = attrs.to_json
-        key = Digest::SHA256.hexdigest(json_attrs)
+        key = SecureRandom.hex(32)
 
         redis.set(key, json_attrs, ex: expires_in)
 
@@ -27,11 +27,18 @@ module Sidekiq
         json_value = redis.get(key)
         return nil unless json_value
 
-        JSON.parse(json_value, symbolize_names: true).tap do
-          redis.del(key)
-        end
+        JSON.parse(json_value, symbolize_names: true)
       rescue => e
         raise AttrPackageError.new('find', e.message)
+      end
+
+      # Delete an attribute package by key
+      # @param key [String] the key of the attribute package
+      # @return [Integer] the number of keys deleted
+      def delete(key)
+        redis.del(key)
+      rescue => e
+        raise AttrPackageError.new('delete', e.message)
       end
 
       private
