@@ -8,16 +8,10 @@ class UserSerializer < ActiveModel::Serializer
 
   attributes :services, :account, :profile, :va_profile, :veteran_status,
              :in_progress_forms, :prefills_available, :vet360_contact_information,
-             :session
+             :session, :onboarding
 
   def id
     nil
-  end
-
-  def attributes(*args)
-    hash = super
-    hash[:onboarding] = object.onboarding if object.members.include?(:onboarding)
-    hash
   end
 
   delegate :account, to: :object
@@ -29,4 +23,5 @@ class UserSerializer < ActiveModel::Serializer
   delegate :prefills_available, to: :object
   delegate :services, to: :object
   delegate :session, to: :object
+  delegate :onboarding, to: :object
 end

@@ -43,9 +43,7 @@
                     "type": "integer"
                   }
                 },
-                "required": [
-
-                ]
+                "required": []
               }
             },
             "prefillsAvailable": {
@@ -400,6 +398,14 @@
                 "object",
                 "null"
               ]
+            },
+            "onboarding": {
+              "show": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              }
             }
           }
         }
