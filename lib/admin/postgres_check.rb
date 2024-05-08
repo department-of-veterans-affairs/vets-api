@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DatabaseHealthChecker
   def self.postgres_up
     user_account_exists && get_and_put_operations && active_db_connection
@@ -51,5 +53,4 @@ module DatabaseHealthChecker
       false # Return false if the connection is not active
     end
   end
-
 end
