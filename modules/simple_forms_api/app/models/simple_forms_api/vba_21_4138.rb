@@ -10,6 +10,10 @@ module SimpleFormsApi
       @data = data
     end
 
+    def submission_date_stamps
+      []
+    end
+
     def metadata
       {
         'ƒirstName' => @data.dig('full_name', 'first'),
