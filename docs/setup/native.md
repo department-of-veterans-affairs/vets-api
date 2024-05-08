@@ -19,6 +19,7 @@ We suggest using a Ruby version manager such as `rbenv`, `asdf`, `rvm`, or `chru
 
 If the repo's Ruby version is updated later, you will need to install the newer ruby (i.e., `rvm install <version_number>`) which is located in `.ruby-version`
 
+
 ### RVM Troubleshooting
 
 If you see an error like `Error running '__rvm_make -j10'` while installing a ruby version, this usually occurs because of a mismatch with the openssl package.
@@ -87,6 +88,7 @@ track_activity_query_size = 2048
 ```
 
 **Make sure to migrate your database to enable the [pg_stat_statements extension](https://github.com/department-of-veterans-affairs/vets-api/blob/master/db/migrate/20210507122840_add_stats_extension.rb)**
+
 
 ## Settings and configuration
 
