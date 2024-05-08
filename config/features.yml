@@ -1427,3 +1427,7 @@ features:
   toggle_vye_adress_direct_deposit_forms:
     actor_type: user
     description: Enable mailing address and direct deposit for VYE
+  cst_claim_phases:
+    actor_type: user
+    description: When enabled, claims status tool uses the new claim phase designs
+    enable_in_development: true
