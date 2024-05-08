@@ -62,7 +62,7 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
 
     it 'creates a FormAttachment, logs formatted error, and increments statsd' do
       request.headers['Source-App-Name'] = '10182-board-appeal'
-      params = { param_namespace => { file_data: pdf_file } }
+      params = { param_namespace => { file_data: pdf_file, password: 'test_password' } }
       allow(Rails.logger).to receive(:info)
       expect(Rails.logger).to receive(:info).with({
                                                     message: 'Evidence upload to s3 success!',
@@ -76,7 +76,8 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
                                                       status_code: nil,
                                                       body: nil
                                                     },
-                                                    form_attachment_guid:
+                                                    form_attachment_guid:,
+                                                    encrypted: true
                                                   })
       expect(StatsD).to receive(:increment).with('decision_review.form_10182.evidence_upload_to_s3.success')
       form_attachment = build(attachment_factory_id, guid: form_attachment_guid)
@@ -164,7 +165,8 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
                                                          status_code: 422,
                                                          body: 'Unprocessable Entity'
                                                        },
-                                                       form_attachment_guid:
+                                                       form_attachment_guid:,
+                                                       encrypted: false
                                                      })
         form_attachment = build(attachment_factory_id, guid: form_attachment_guid)
         expect(form_attachment_model).to receive(:new).and_return(form_attachment)

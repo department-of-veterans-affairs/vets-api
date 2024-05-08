@@ -15,15 +15,8 @@ module MyHealth
       def index
         resource = collection_resource
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
-        sorting_key_primary = params[:sort]&.first
         resource.data = filter_non_va_meds(resource.data)
-        resource = if sorting_key_primary == 'prescription_name'
-                     sort_by_prescription_name(resource)
-                   elsif sorting_key_primary == '-dispensed_date'
-                     last_refill_date_filter(resource)
-                   else
-                     resource.sort(params[:sort])
-                   end
+        resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = is_using_pagination ? resource.paginate(**pagination_params) : resource

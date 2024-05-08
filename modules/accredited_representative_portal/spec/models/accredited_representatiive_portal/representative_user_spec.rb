@@ -83,4 +83,12 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUser, type: :model 
       expect(retrieved.uuid).to eq(representative_user.uuid)
     end
   end
+
+  describe '#flipper_id' do
+    let(:representative_user) { build(:representative_user) }
+
+    it 'returns a unique identifier of email' do
+      expect(representative_user.flipper_id).to eq(representative_user.email)
+    end
+  end
 end

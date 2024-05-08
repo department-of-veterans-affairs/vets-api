@@ -7,6 +7,12 @@ else
     ENV_ARG	 := dev
 endif
 
+ifdef clam
+	FOREMAN_ARG := all=1
+else
+	FOREMAN_ARG := all=1,clamd=0,freshclam=0
+endif
+
 COMPOSE_DEV  := docker-compose
 COMPOSE_TEST := docker-compose -f docker-compose.test.yml
 BASH         := run --rm --service-ports web bash
@@ -125,7 +131,7 @@ endif
 
 .PHONY: up
 up: db  ## Starts the server and associated services with docker-compose
-	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start -m all=1"
+	@$(BASH_DEV) "rm -f tmp/pids/server.pid && bundle exec foreman start -m all=1"
 
 # NATIVE COMMANDS
 .PHONY: native-up
