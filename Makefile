@@ -7,6 +7,12 @@ else
     ENV_ARG	 := dev
 endif
 
+ifdef clam
+	FOREMAN_ARG := all=1
+else
+	FOREMAN_ARG := all=1,clamd=0,freshclam=0
+endif
+
 COMPOSE_DEV  := docker-compose
 COMPOSE_TEST := docker-compose -f docker-compose.test.yml
 BASH         := run --rm --service-ports web bash

@@ -108,6 +108,10 @@ features:
     actor_type: user
     description: Enables the health care check-in experiences to show the pre-check-in experience.
     enable_in_development: true
+  check_in_experience_upcoming_appointments_enabled:
+    actor_type: user
+    description: Enables the feature to show upcoming appointments to the veterans
+    enable_in_development: true
   check_in_experience_translation_disclaimer_spanish_enabled:
     actor_type: user
     description: Enables disclaimer for possible untranslated content on spanish pages
@@ -292,15 +296,6 @@ features:
   decision_review_sc_email:
     actor_type: user
     description: Send email notification for successful SC submission
-  decision_review_hlr_pii_expunge_enabled:
-    actor_type: user
-    description: Enables the higher level review PII expunge job
-  decision_review_nod_pii_expunge_enabled:
-    actor_type: user
-    description: Enables the notice of disagreement PII expunge job
-  decision_review_sc_pii_expunge_enabled:
-    actor_type: user
-    description: Enables the supplemental claim PII expunge job
   decision_review_hlr_status_updater_enabled:
     actor_type: user
     description: Enables the Higher Level Review status update batch job
@@ -453,6 +448,10 @@ features:
   financial_status_report_debts_api_module:
     actor_type: user
     description: Points to debts-api module routes
+    enable_in_development: true
+  financial_status_report_expenses_update:
+    actor_type: user
+    description: Update expense lists in the Financial Status Report (FSR - 5655) form
     enable_in_development: true
   financial_status_report_streamlined_waiver:
     actor_type: user
@@ -672,6 +671,10 @@ features:
     actor_type: user
     description: Enables personalized content on the My HealtheVet landing page.
     enable_in_development: true
+  mhv_secondary_navigation_enabled:
+    actor_type: user
+    description: Enables the My HealtheVet secondary navigation
+    enable_in_development: true
   mhv_secure_messaging_to_va_gov_release:
     actor_type: user
     description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
@@ -683,6 +686,10 @@ features:
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
+    enable_in_development: true
+  mhv_secure_messaging_remove_lefthand_nav:
+    actor_type: user
+    description: Disables/Enables Secure Messaging lefthand navigation for new navigation solution
     enable_in_development: true
   mhv_sm_session_policy:
     actor_type: user
@@ -1245,10 +1252,14 @@ features:
     actor_type: user
     description: Flag to use begin rescue block for BGS call
     enable_in_development: true
+  toe_high_school_info_change:
+    actor_type: user
+    description: Flag to change order of high school info page
+    enable_in_development: false
   toe_light_house_dgi_direct_deposit:
     actor_type: user
     description: Uses lighthouse api for direct deposit information in TOE.
-    enable_in_development: true
+    enable_in_development: false
   move_form_back_button:
     actor_type: user
     description: Test moving form back button to the top of the page
@@ -1339,6 +1350,10 @@ features:
     actor_type: user
     description: NOD VANotify notification callbacks endpoint
     enable_in_development: true
+  nod_confirmation_update:
+    actor_type: user
+    description: Show updated confirmation page with form data & downloadable PDF
+    enable_in_development: true
   pension_ipf_callbacks_endpoint:
     actor_type: user
     description: Pension IPF VANotify notification callbacks endpoint
@@ -1405,3 +1420,10 @@ features:
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
+  accredited_representative_portal_pilot:
+    actor_type: user
+    description: Enable the Accredited Representative Portal for the pilot
+    enable_in_development: true
+  toggle_vye_adress_direct_deposit_forms:
+    actor_type: user
+    description: Enable mailing address and direct deposit for VYE

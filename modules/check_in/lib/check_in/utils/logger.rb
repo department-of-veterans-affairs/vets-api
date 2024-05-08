@@ -61,7 +61,7 @@ module CheckIn
       end
 
       def uuid
-        ctrl.params[:id] || ctrl.permitted_params[:uuid]
+        ctrl.params[:id] || ctrl.params[:session_id] || ctrl.permitted_params[:uuid]
       end
 
       def initiated_by

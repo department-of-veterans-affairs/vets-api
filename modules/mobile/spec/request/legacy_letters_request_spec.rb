@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
+require_relative '../support/helpers/rails_helper'
 
 RSpec.describe 'letters', type: :request do
   include JsonSchemaMatchers
@@ -195,7 +193,7 @@ RSpec.describe 'letters', type: :request do
         }
       end
 
-      it 'downloads a PDF' do
+      it 'downloads a PDF', skip_json_api_validation: true do
         VCR.use_cassette('evss/letters/download_options') do
           post '/mobile/v0/letters/commissary/download', params: options, headers: sis_headers
           expect(response).to have_http_status(:ok)
