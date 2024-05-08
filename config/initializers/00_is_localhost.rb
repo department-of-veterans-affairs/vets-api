@@ -12,7 +12,7 @@ def running_on_localhost_in_development?
   else
     # SMELL: This does not account for a possible IPv6 IP Address of ::1
     ['127.0.0.1', 'localhost'].include?(Settings.hostname.split(':').first.downcase) &&
-      Settings.virtual_hosts.map { |vh| vh.downcase }.include?('localhost') &&
+      Settings.virtual_hosts.map(&:downcase).include?('localhost') &&
       Rails.env.development?
   end
 end
