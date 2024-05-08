@@ -26,7 +26,6 @@ After that, follow the native instructions and run `foreman start -m all=1`
 
 #### Option 2: [See hybrid setup](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/docs/setup/hybrid.md)
 
-
 ### Running tests
 
 - `bundle exec rake spec` - Run the entire test suite  ( for `rspec spec`). Test coverage statistics are in `coverage/index.html`.
