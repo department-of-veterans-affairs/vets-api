@@ -13,7 +13,6 @@ RSpec.describe 'Fetching user data' do
     let(:edipi) { '1005127153' }
 
     before do
-      Flipper.disable(:veteran_onboarding_beta_flow)
       allow(SM::Client).to receive(:new).and_return(authenticated_client)
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
       create(:account, idme_uuid: mhv_user.uuid)
@@ -134,7 +133,6 @@ RSpec.describe 'Fetching user data' do
       let(:mhv_user) { build(:user, :mhv, mhv_ids: nil, active_mhv_ids: nil, mhv_correlation_id: nil) }
 
       before do
-        Flipper.disable(:veteran_onboarding_beta_flow)
         sign_in_as(mhv_user)
         get v0_user_url, params: nil
       end
@@ -149,7 +147,6 @@ RSpec.describe 'Fetching user data' do
       let(:mhv_user) { build(:user, :mhv, :no_vha_facilities, va_patient: false) }
 
       before do
-        Flipper.disable(:veteran_onboarding_beta_flow)
         sign_in_as(mhv_user)
         get v0_user_url, params: nil
       end
@@ -162,7 +159,6 @@ RSpec.describe 'Fetching user data' do
 
     context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person', skip_vet360: true do
       before do
-        Flipper.disable(:veteran_onboarding_beta_flow)
         exception  = 'the server responded with status 503'
         error_body = { 'status' => 'some service unavailable status' }
         allow_any_instance_of(VAProfile::Service).to receive(:perform).and_raise(
@@ -196,7 +192,6 @@ RSpec.describe 'Fetching user data' do
     let(:edipi) { '1005127153' }
 
     before do
-      Flipper.disable(:veteran_onboarding_beta_flow)
       user = new_user(:loa1)
       sign_in_as(user)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
@@ -232,7 +227,6 @@ RSpec.describe 'Fetching user data' do
     let(:v0_user_request_headers) { {} }
 
     before do
-      Flipper.disable(:veteran_onboarding_beta_flow)
       user = new_user(:loa1)
       sign_in_as(user)
       get v0_user_url, params: nil, headers: v0_user_request_headers
@@ -257,7 +251,6 @@ RSpec.describe 'Fetching user data' do
     let(:edipi) { '1005127153' }
 
     before do
-      Flipper.disable(:veteran_onboarding_beta_flow)
       VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
         sign_in_as(user)
         allow_any_instance_of(User).to receive(:edipi).and_return(edipi)

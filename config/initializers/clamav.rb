@@ -7,6 +7,7 @@ if Rails.env.development?
   ENV['CLAMD_TCP_PORT'] = Settings.clamav.port
 
   # If running ClamAV natively (via daemon)
-  # Update host and port on settings.local.yml to override the tcp connection
-  ENV['CLAMD_UNIX_SOCKET'] = '/usr/local/etc/clamav/clamd.sock'
+  # Uncomment this line if running with daemon
+  # Remove clamav host and port on settings.local.yml to override the tcp connection
+  # ENV['CLAMD_UNIX_SOCKET'] = '/usr/local/etc/clamav/clamd.sock'
 end

@@ -376,9 +376,7 @@ class User < Common::RedisStore
   end
 
   def onboarding
-    if Flipper.enabled?(:veteran_onboarding_beta_flow, self) && icn.present?
-      @onboarding ||= VeteranOnboarding.find_or_create_by(user_account:)
-    end
+    @onboarding ||= VeteranOnboarding.for_user(self)
   end
 
   # VeteranOnboarding attributes & methods
