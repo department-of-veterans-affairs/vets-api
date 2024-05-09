@@ -66,14 +66,15 @@ RSpec.describe Form1010Ezr::Service do
     end
 
     context "when the 'veteranDateOfBirth' key is not present or present with a blank value, but " \
-              "the current_user's DOB is present in the session" do
+            "the current_user's DOB is present in the session" do
       let(:parsed_form) do
         {
           'veteranDateOfBirth' => ''
         }
       end
 
-      it "adds/updates the 'veteranDateOfBirth's key value and sets it equal to the current_user's DOB, then returns the parsed form" do
+      it "adds/updates the 'veteranDateOfBirth's key value and sets it equal to the " \
+         "current_user's DOB, then returns the parsed form" do
         expect(service.send(:post_fill_veteran_date_of_birth, parsed_form)).to eq(
           { 'veteranDateOfBirth' => current_user.birth_date }
         )
