@@ -74,8 +74,7 @@ module ClaimsApi
     def get_error_key(error_message)
       return error_message if error_message.is_a? String
 
-      error_message&.dig(:messages, 0, :key) || error_message&.dig(:key) ||
-        error_message&.dig(:errors, 0, :title) || error_message&.dig(:title)
+      error_message&.dig(:messages, 0, :key) || error_message&.dig(:key)
     end
 
     def get_error_text(error_message)
