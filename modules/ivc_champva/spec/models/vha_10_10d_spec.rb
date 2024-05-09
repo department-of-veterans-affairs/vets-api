@@ -10,7 +10,7 @@ RSpec.describe IvcChampva::VHA1010d do
           'first' => 'Veteran',
           'last' => 'Surname'
         },
-        'email': false
+        'email' => false
       },
       'veteran' => {
         'full_name' => { 'first' => 'John', 'middle' => 'P', 'last' => 'Doe' },
@@ -44,7 +44,7 @@ RSpec.describe IvcChampva::VHA1010d do
             'first' => 'Veteran',
             'last' => 'Surname'
           },
-          'email': false
+          'email' => false
         }
       )
     end

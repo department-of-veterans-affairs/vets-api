@@ -2,7 +2,7 @@
 
 module IvcChampva
   class FileUploader
-    def initialize(form_id, metadata, file_paths, insert_db_row = false)
+    def initialize(form_id, metadata, file_paths, insert_db_row = false) # rubocop:disable Style/OptionalBooleanParameter
       @form_id = form_id
       @metadata = metadata || {}
       @file_paths = Array(file_paths)
@@ -85,6 +85,7 @@ module IvcChampva
 
     def validate_email(email)
       return nil unless email.present? && email.match?(/\A[\w+\-.]+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i)
+
       email
     end
   end
