@@ -23,8 +23,8 @@ module Vye
         raise FeatureDisabled
       end
 
-      def load_user_info
-        @user_info = Vye::UserProfile.find_and_update_icn(user: current_user)&.active_user_info
+      def load_user_info(scoped: Vye::UserProfile)
+        @user_info = scoped.find_and_update_icn(user: current_user)&.active_user_info
       end
     end
   end
