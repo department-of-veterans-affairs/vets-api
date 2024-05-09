@@ -5,18 +5,19 @@ module DataMigrations
     module_function
 
     def run
-      total_records = Form526Submission.where(status: nil).count
+      submissions = Form526Submission.where(submit_endpoint: nil)
+      total_submissions = submissions.count
 
-      Form526Submission.where(status: nil).find_in_batches do |batch|
+      submissions.find_in_batches do |batch|
         # rubocop:disable Rails/SkipsModelValidations
         batch.update_all(submit_endpoint: :evss)
         # rubocop:enable Rails/SkipsModelValidations
-        processed_records += batch.size
+        processed_submissions += batch.size
 
-        next unless (processed_records % 50_000).zero?
+        next unless (processed_submissions % 50_000).zero?
 
         # rubocop:disable Rails/Output
-        puts "Processed #{processed_records} out of #{total_records} records"
+        puts "Processed #{processed_submissions} out of #{total_submissions} submissions"
       end
 
       puts 'Submit endpoint updated successfully'
