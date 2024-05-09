@@ -184,7 +184,7 @@ module AppealsApi
         Higher Level Reviews: #{hlr_icns.count}
         Notice of Disagreements: #{nod_icns.count}
         Supplemental Claims: #{sc_icns.count}
-        Combined: #{(hlr_icns + nod_icns + sc_icns).uniq.count}
+        All Decision Reviews: #{(hlr_icns + nod_icns + sc_icns).uniq.count}
       STATS
     end
 
