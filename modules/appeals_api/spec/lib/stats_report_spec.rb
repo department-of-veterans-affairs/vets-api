@@ -155,6 +155,16 @@ describe AppealsApi::StatsReport do
       ]
     end
 
+    before do
+      # Records for testing Veterans Impacted stats
+      created_at = Date.new(2022, 3, 1).beginning_of_day
+      create(:higher_level_review_v2, veteran_icn: '1234567890V012345', created_at:)
+      create(:notice_of_disagreement_v2, veteran_icn: '1234567890V012345', created_at:)
+      create(:notice_of_disagreement_v2, veteran_icn: '1234567890V012345', created_at:)
+      create(:notice_of_disagreement_v2, veteran_icn: '9876543210V543210', created_at:)
+      create(:supplemental_claim, veteran_icn: '9876543210V543210', created_at:)
+    end
+
     it 'includes the start and end dates' do
       expect(text).to match(/Feb 4, 2022 to Mar 4, 2022/)
     end
@@ -176,6 +186,15 @@ describe AppealsApi::StatsReport do
       expect(text).to match(/Stalled in 'processing':\n\* 4-5 months: 1\n\* 5-6 months: 2\n\* > 6 months: 1/)
       expect(text).to match(/Stalled in 'submitted':\n\* 3-4 months: 1\n\* 4-5 months: 2\n\* 5-6 months: 1/)
       expect(text).to match(/Stalled in 'error':\n\* 3-4 months: 2\n\* 4-5 months: 1\n\* 5-6 months: 1/)
+    end
+
+    it 'includes the veteran impact header' do
+      expect(text).to match(/Veterans Impacted \(Unique ICNs\)\n---\n/)
+    end
+
+    it 'includes the veteran impact stats' do
+      expect(text)
+        .to match(/Higher Level Reviews: 1\nNotice of Disagreements: 2\nSupplemental Claims: 1\nCombined: 2\n/)
     end
 
     context 'when there is no data' do
