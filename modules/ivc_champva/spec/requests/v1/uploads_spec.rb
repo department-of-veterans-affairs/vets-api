@@ -14,12 +14,20 @@ RSpec.describe 'Forms uploader', type: :request do
     forms.each do |form|
       fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form)
       data = JSON.parse(fixture_path.read)
+      puts data
 
       it 'uploads a PDF file to S3' do
-        allow(IvcChampva::MetadataValidator).to receive(:validate)
         allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
 
         post '/ivc_champva/v1/forms', params: data
+
+        record = IvcChampvaForm.first
+
+        puts record.inspect
+
+        expect(record.first_name).to eq('Veteran')
+        expect(record.last_name).to eq('Surname')
+        expect(record.form_uuid).to be_present
 
         expect(response).to have_http_status(:ok)
       end

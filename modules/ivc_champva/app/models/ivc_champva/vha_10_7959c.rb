@@ -8,19 +8,22 @@ module IvcChampva
 
     def initialize(data)
       @data = data
+      @uuid = SecureRandom.uuid
     end
 
     def metadata
       {
-        'veteranFirstName' => @data.dig('applicants', 'full_name', 'first'),
-        'veteranMiddleName' => @data.dig('applicants', 'full_name', 'middle'),
-        'veteranLastName' => @data.dig('applicants', 'full_name', 'last'),
-        'fileNumber' => @data.dig('applicants', 'ssn_or_tin'),
-        'zipCode' => @data.dig('applicants', 'address', 'postal_code') || '00000',
-        'country' => @data.dig('applicants', 'address', 'country') || 'USA',
+        'veteranFirstName' => @data.dig('applicant_name', 'first'),
+        'veteranMiddleName' => @data.dig('applicant_name', 'middle'),
+        'veteranLastName' => @data.dig('applicant_name', 'last'),
+        'fileNumber' => @data['applicant_ssn'],
+        'zipCode' => @data.dig('applicant_address', 'postal_code') || '00000',
+        'country' => @data.dig('applicant_address', 'country') || 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
-        'businessLine' => 'CMP'
+        'businessLine' => 'CMP',
+        'uuid' => @uuid,
+        'primary_contact_info' => @data['primary_contact_info']
       }
     end
 

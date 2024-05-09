@@ -28,7 +28,8 @@ module IvcChampva
         'docType' => @data['form_number'],
         'businessLine' => 'CMP',
         'ssn_or_tin' => @data.dig('veteran', 'ssn_or_tin'),
-        'uuid' => @uuid
+        'uuid' => @uuid,
+        'primary_contact_info' => @data['primary_contact_info']
       }
     end
 

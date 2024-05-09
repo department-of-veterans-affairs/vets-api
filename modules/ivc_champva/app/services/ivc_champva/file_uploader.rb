@@ -2,15 +2,19 @@
 
 module IvcChampva
   class FileUploader
-    def initialize(form_id, metadata, file_paths)
+    def initialize(form_id, metadata, file_paths, insert_db_row = false)
       @form_id = form_id
       @metadata = metadata || {}
       @file_paths = Array(file_paths)
+      @insert_db_row = insert_db_row
     end
 
     def handle_uploads
       pdf_results = @file_paths.map do |pdf_file_path|
-        upload_pdf(pdf_file_path)
+        response_status = upload_pdf(pdf_file_path)
+        insert_form(pdf_file_path.sub(%r{^tmp/}, ''), response_status) if @insert_db_row
+
+        response_status
       end
 
       all_pdf_success = pdf_results.all? { |(status, _)| status == 200 }
@@ -23,6 +27,21 @@ module IvcChampva
     end
 
     private
+
+    def insert_form(pdf_file_path, response_status)
+      IvcChampvaForm.create!(
+        form_uuid: @metadata['uuid'],
+        email: validate_email(@metadata&.dig('primary_contact_info', 'email')),
+        first_name: @metadata&.dig('primary_contact_info', 'name', 'first'),
+        last_name: @metadata&.dig('primary_contact_info', 'name', 'last'),
+        form_number: @metadata['docType'],
+        file_name: pdf_file_path,
+        s3_status: response_status,
+        pega_status: 'Submitted'
+      )
+    rescue ActiveRecord::RecordInvalid => e
+      Rails.logger.error("Database Insertion Error for #{@metadata['uuid']}: #{e.message}")
+    end
 
     def upload_pdf(file_path)
       file_name = file_path.gsub('tmp/', '').gsub('-tmp', '')
@@ -62,6 +81,11 @@ module IvcChampva
         secret_access_key: Settings.ivc_forms.s3.aws_secret_access_key,
         bucket: Settings.ivc_forms.s3.bucket
       )
+    end
+
+    def validate_email(email)
+      return nil unless email.present? && email.match?(/\A[\w+\-.]+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i)
+      email
     end
   end
 end

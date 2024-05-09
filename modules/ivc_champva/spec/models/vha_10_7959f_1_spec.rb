@@ -5,6 +5,13 @@ require 'rails_helper'
 RSpec.describe IvcChampva::VHA107959f1 do
   let(:data) do
     {
+      'primary_contact_info' => {
+        'name' => {
+          'first' => 'Veteran',
+          'last' => 'Surname'
+        },
+        'email': 'email@address.com'
+      },
       'veteran' => {
         'full_name' => { 'first' => 'John', 'middle' => 'P', 'last' => 'Doe' },
         'va_claim_number' => '123456789',
@@ -32,7 +39,14 @@ RSpec.describe IvcChampva::VHA107959f1 do
         'country' => 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => '10-7959F-1',
-        'businessLine' => 'CMP'
+        'businessLine' => 'CMP',
+        'primary_contact_info' => {
+          'name' => {
+            'first' => 'Veteran',
+            'last' => 'Surname'
+          },
+          'email': 'email@address.com'
+        }
       )
     end
   end
