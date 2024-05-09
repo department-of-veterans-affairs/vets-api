@@ -6,6 +6,7 @@ RSpec.describe UserSerializer do
   subject { serialize(pre_serialized_profile, serializer_class: described_class) }
 
   let(:user) { create(:user, :loa3) }
+  let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
   let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
   let(:pre_serialized_profile) { Users::Profile.new(user).pre_serialize }
   let(:data) { JSON.parse(subject)['data'] }
