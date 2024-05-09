@@ -270,4 +270,48 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.separation_severance_pay.pre_tax_amount_received).to eq(1000.00)
     end
   end
+
+  describe 'transform toxic exposure' do
+    let(:submission) { create(:form526_submission, :with_everything_toxic_exposure) }
+    let(:data) { submission.form['form526']['form526']['toxicExposure'] }
+
+    it 'set served_in_gulf_war_hazard_locations correctly' do
+      result = transformer.send(:transform_toxic_exposure, data)
+      expect(result.gulf_war_hazard_service.served_in_gulf_war_hazard_locations).to eq('YES')
+
+      falsified_options = data.merge({
+                                       'gulfWar1990' => {
+                                         'iraq' => false,
+                                         'kuwait' => false,
+                                         'qatar' => false
+                                       },
+                                       'gulfWar2001' => {
+                                         'djibouti' => false,
+                                         'lebanon' => false,
+                                         'uzbekistan' => false,
+                                         'yemen' => false,
+                                         'airspace' => false
+                                       }
+                                     })
+      result = transformer.send(:transform_toxic_exposure, falsified_options)
+      expect(result.gulf_war_hazard_service.served_in_gulf_war_hazard_locations).to eq('NO')
+
+      falsified_gulf_war_1990_options = data.merge({
+                                                     'gulfWar1990' => {
+                                                       'iraq' => false,
+                                                       'kuwait' => false,
+                                                       'qatar' => false
+                                                     }
+                                                   })
+      result = transformer.send(:transform_toxic_exposure, falsified_gulf_war_1990_options)
+      expect(result.gulf_war_hazard_service.served_in_gulf_war_hazard_locations).to eq('YES')
+
+      no_options = data.merge({
+                                'gulfWar1990' => {},
+                                'gulfWar2001' => {}
+                              })
+      result = transformer.send(:transform_toxic_exposure, no_options)
+      expect(result.gulf_war_hazard_service.served_in_gulf_war_hazard_locations).to eq('NO')
+    end
+  end
 end
