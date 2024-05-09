@@ -108,11 +108,15 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
                 kind: 'clinic',
                 status: 'booked',
                 serviceType: 'amputation',
-                locationId: '983GC',
+                locationId: '534',
                 clinic: '1081',
                 start: '2023-11-13T16:00:00Z',
                 end: '2023-11-13T16:30:00Z',
-                minutesDuration: 30
+                minutesDuration: 30,
+                facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
+                facilityVistaSite: '534',
+                facilityTimezone: 'America/New_York',
+                facilityPhoneMain: '843-577-5011'
               }
             },
             {
@@ -122,11 +126,15 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
                 kind: 'clinic',
                 status: 'booked',
                 serviceType: 'amputation',
-                locationId: '983GC',
+                locationId: '534',
                 clinic: '1081',
                 start: '2023-12-11T16:00:00Z',
                 end: '2023-12-11T16:30:00Z',
-                minutesDuration: 30
+                minutesDuration: 30,
+                facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
+                facilityVistaSite: '534',
+                facilityTimezone: 'America/New_York',
+                facilityPhoneMain: '843-577-5011'
               }
             }
           ]
@@ -150,9 +158,11 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
       end
 
       it 'returns appointments' do
-        VCR.use_cassette 'check_in/appointments/get_appointments' do
-          VCR.use_cassette 'check_in/map/security_token_service_200_response' do
-            get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
+        VCR.use_cassette 'check_in/facilities/get_facilities' do
+          VCR.use_cassette 'check_in/appointments/get_appointments' do
+            VCR.use_cassette 'check_in/map/security_token_service_200_response' do
+              get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
+            end
           end
         end
 

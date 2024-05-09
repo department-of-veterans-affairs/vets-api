@@ -54,25 +54,134 @@ http_interactions:
       - max-age=63072000; includeSubDomains; preload
     body:
       encoding: UTF-8
-      string: '{"data":[{"id":"180766","identifier":[{"system":"Appointment/","value":"413938333130383736"},
-      {"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_84","value":"983:10876"}],"kind":"clinic",
-      "status":"booked","serviceType":"amputation","serviceTypes":[{"coding":[{"system":"http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type",
-      "code":"amputation"}]}],"serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1",
-      "code":"REGULAR","display":"REGULAR"}],"text":"REGULAR"}],"patientIcn":"1013125218V696863","locationId":
-      "983GC","clinic":"1081","start":"2023-11-13T16:00:00Z","end":"2023-11-13T16:30:00Z","minutesDuration":30,
-      "slot":{"id":"3230323331313133313630303A323032333131313331363330","start":"2023-11-13T16:00:00Z","end":
-      "2023-11-13T16:30:00Z"},"created":"2023-08-02T00:00:00Z","cancellable":true,"extension":{"ccLocation":
-      {"address":{}},"vistaStatus":["NO ACTION TAKEN"],"preCheckinAllowed":true,"eCheckinAllowed":true,
-      "clinic":{}}},{"id":"180770","identifier":[{"system":"Appointment/","value":"413938333130383830"},
-      {"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_84","value":"983:10880"}],"kind":"clinic",
-      "status":"booked","serviceType":"amputation","serviceTypes":[{"coding":[{"system":"http://veteran.apps.
-      va.gov/terminologies/fhir/CodeSystem/vats-service-type","code":"amputation"}]}],"serviceCategory":[
-      {"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"REGULAR","display":
-      "REGULAR"}],"text":"REGULAR"}],"patientIcn":"1013125218V696863","locationId":"983GC","clinic":"1081",
-      "start":"2023-12-11T16:00:00Z","end":"2023-12-11T16:30:00Z","minutesDuration":30,"slot":{"id":
-      "3230323331323131313630303A323032333132313131363330","start":"2023-12-11T16:00:00Z",
-      "end":"2023-12-11T16:30:00Z"},"created":"2023-08-02T00:00:00Z","cancellable":true,"extension":{"ccLocation":
-      {"address":{}},"vistaStatus":["NO ACTION TAKEN"],"preCheckinAllowed":true,"eCheckinAllowed":true,
-      "clinic":{}}}]}'
+      string: |-
+        {
+          "data": [
+            {
+              "id": "180766",
+              "identifier": [
+                {
+                  "system": "Appointment/",
+                  "value": "413938333130383736"
+                },
+                {
+                  "system": "http://www.va.gov/Terminology/VistADefinedTerms/409_84",
+                  "value": "983:10876"
+                }
+              ],
+              "kind": "clinic",
+              "status": "booked",
+              "serviceType": "amputation",
+              "serviceTypes": [
+                {
+                  "coding": [
+                    {
+                      "system": "http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type",
+                      "code": "amputation"
+                    }
+                  ]
+                }
+              ],
+              "serviceCategory": [
+                {
+                  "coding": [
+                    {
+                      "system": "http://www.va.gov/Terminology/VistADefinedTerms/409_1",
+                      "code": "REGULAR",
+                      "display": "REGULAR"
+                    }
+                  ],
+                  "text": "REGULAR"
+                }
+              ],
+              "patientIcn": "1013125218V696863",
+              "locationId": "534",
+              "clinic": "1081",
+              "start": "2023-11-13T16:00:00Z",
+              "end": "2023-11-13T16:30:00Z",
+              "minutesDuration": 30,
+              "slot": {
+                "id": "3230323331313133313630303A323032333131313331363330",
+                "start": "2023-11-13T16:00:00Z",
+                "end": "2023-11-13T16:30:00Z"
+              },
+              "created": "2023-08-02T00:00:00Z",
+              "cancellable": true,
+              "extension": {
+                "ccLocation": {
+                  "address": {}
+                },
+                "vistaStatus": [
+                  "NO ACTION TAKEN"
+                ],
+                "preCheckinAllowed": true,
+                "eCheckinAllowed": true,
+                "clinic": {}
+              }
+            },
+            {
+              "id": "180770",
+              "identifier": [
+                {
+                  "system": "Appointment/",
+                  "value": "413938333130383830"
+                },
+                {
+                  "system": "http://www.va.gov/Terminology/VistADefinedTerms/409_84",
+                  "value": "983:10880"
+                }
+              ],
+              "kind": "clinic",
+              "status": "booked",
+              "serviceType": "amputation",
+              "serviceTypes": [
+                {
+                  "coding": [
+                    {
+                      "system": "http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type",
+                      "code": "amputation"
+                    }
+                  ]
+                }
+              ],
+              "serviceCategory": [
+                {
+                  "coding": [
+                    {
+                      "system": "http://www.va.gov/Terminology/VistADefinedTerms/409_1",
+                      "code": "REGULAR",
+                      "display": "REGULAR"
+                    }
+                  ],
+                  "text": "REGULAR"
+                }
+              ],
+              "patientIcn": "1013125218V696863",
+              "locationId": "534",
+              "clinic": "1081",
+              "start": "2023-12-11T16:00:00Z",
+              "end": "2023-12-11T16:30:00Z",
+              "minutesDuration": 30,
+              "slot": {
+                "id": "3230323331323131313630303A323032333132313131363330",
+                "start": "2023-12-11T16:00:00Z",
+                "end": "2023-12-11T16:30:00Z"
+              },
+              "created": "2023-08-02T00:00:00Z",
+              "cancellable": true,
+              "extension": {
+                "ccLocation": {
+                  "address": {}
+                },
+                "vistaStatus": [
+                  "NO ACTION TAKEN"
+                ],
+                "preCheckinAllowed": true,
+                "eCheckinAllowed": true,
+                "clinic": {}
+              }
+            }
+          ]
+        }
   recorded_at: Thu, 07 Jan 2021 21:09:58 GMT
 recorded_with: VCR 6.0.0

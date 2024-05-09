@@ -25,7 +25,6 @@ module CheckIn
       attribute :facilityPhoneMain do |object|
         object.dig(:facility, :phone, :main)
       end
-
     end
   end
 end
