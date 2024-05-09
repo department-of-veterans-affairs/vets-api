@@ -17,12 +17,8 @@ PERIODIC_JOBS = lambda { |mgr|
   # Update NoticeOfDisagreement statuses with their Central Mail status
   mgr.register('15 * * * *', 'AppealsApi::SupplementalClaimUploadStatusBatch')
   # Update SupplementalClaim statuses with their Central Mail status
-  mgr.register('45 0 * * *', 'AppealsApi::HigherLevelReviewCleanUpPii')
-  # Remove PII of HigherLevelReviews after they have been successfully processed by the VA
-  mgr.register('45 0 * * *', 'AppealsApi::NoticeOfDisagreementCleanUpPii')
-  # Remove PII of NoticeOfDisagreements after they have been successfully processed by the VA
-  mgr.register('45 0 * * *', 'AppealsApi::SupplementalClaimCleanUpPii')
-  # Remove PII of SupplementalClaims after they have been successfully processed by the VA
+  mgr.register('45 0 * * *', 'AppealsApi::CleanUpPii')
+  # Remove PII from appeal records after they have been successfully processed by the VA
   mgr.register('30 * * * *', 'AppealsApi::EvidenceSubmissionBackup')
   # Ensures that appeal evidence received "late" (after the appeal has reached "success") is submitted to Central Mail
   mgr.register('0 23 * * 1-5', 'AppealsApi::DecisionReviewReportDaily')
@@ -106,8 +102,8 @@ PERIODIC_JOBS = lambda { |mgr|
   # Daily alert of pending claims longer than acceptable threshold
   mgr.register('15 23 * * *', 'ClaimsApi::ReportUnsuccessfulSubmissions')
   # Weekly report of unsuccessful claims submissions
-  mgr.register('15 23 1 * *', 'ClaimsApi::ReportMonthlySubmissions')
-  # Weekly report of unsuccessful claims submissions
+  mgr.register('00 00 1 * *', 'ClaimsApi::ReportMonthlySubmissions')
+  # Monthly report of submissions
 
   mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
 

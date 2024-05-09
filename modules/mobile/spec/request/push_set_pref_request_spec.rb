@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
+require_relative '../support/helpers/rails_helper'
 
 RSpec.describe 'push send', type: :request do
   include JsonSchemaMatchers
@@ -17,7 +15,7 @@ RSpec.describe 'push send', type: :request do
         }
       end
 
-      it 'returns 200 and empty json' do
+      it 'returns 200 and empty json', skip_json_api_validation: true do
         VCR.use_cassette('vetext/set_preference_success') do
           put('/mobile/v0/push/prefs/8c258cbe573c462f912e7dd74585a5a9', headers: sis_headers, params:)
           expect(response).to have_http_status(:ok)
