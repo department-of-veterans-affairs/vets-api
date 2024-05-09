@@ -44,11 +44,13 @@ module ClaimsApi
       body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:)
       res = get_response(body, 'documents')
       request_id = res&.dig(:data, :requestId)
-      ClaimsApi::Logger.log(
-        'benefits_documents',
-        detail: "Successfully uploaded #{doc_type == 'L122' ? 'claim' : 'supporting'} doc to BD",
-        claim_id: claim.id, request_id:
-      )
+      if res.presence
+        ClaimsApi::Logger.log(
+          'benefits_documents',
+          detail: "Successfully uploaded #{doc_type == 'L122' ? 'claim' : 'supporting'} doc to BD",
+          claim_id: claim.id, request_id:
+        )
+      end
       res
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
