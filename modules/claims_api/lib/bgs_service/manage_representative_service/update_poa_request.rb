@@ -3,11 +3,14 @@
 module ClaimsApi
   class ManageRepresentativeService < ClaimsApi::LocalBGS
     def update_poa_request(representative:, proc_id:)
+      first_name = representative.try(:first_name) || representative[:first_name]
+      last_name = representative.try(:last_name) || representative[:last_name]
+
       body =
         Nokogiri::XML::DocumentFragment.parse <<~EOXML
           <data:POARequestUpdate>
-            <VSOUserFirstName>#{representative.first_name}</VSOUserFirstName>
-            <VSOUserLastName>#{representative.last_name}</VSOUserLastName>
+            <VSOUserFirstName>#{first_name}</VSOUserFirstName>
+            <VSOUserLastName>#{last_name}</VSOUserLastName>
             <dateRequestActioned>#{Time.current.iso8601}</dateRequestActioned>
             <procId>#{proc_id}</procId>
 

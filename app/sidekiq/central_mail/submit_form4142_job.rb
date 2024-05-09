@@ -102,7 +102,7 @@ module CentralMail
       retryable_error_handler(e)
       raise e
     ensure
-      File.delete(@pdf_path) if @pdf_path.present?
+      File.delete(@pdf_path) if File.exist?(@pdf_path.to_s)
     end
 
     private
@@ -123,17 +123,24 @@ module CentralMail
       CentralMail::Service.new.upload(processor.request_body)
     end
 
+    def lighthouse_service
+      @lighthouse_service ||= BenefitsIntakeService::Service.new(with_upload_location: true)
+    end
+
     def upload_to_lighthouse
-      @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
+      Rails.logger.info(
+        'Successful Form4142 Submission to Lighthouse',
+        { benefits_intake_uuid: lighthouse_service.uuid, submission_id: @submission_id }
+      )
 
       payload = {
-        upload_url: @lighthouse_service.location,
+        upload_url: lighthouse_service.location,
         file: { file: @pdf_path, file_name: @pdf_path.split('/').last },
         metadata: generate_metadata.to_json,
-        attachments: [] # [ wipn8923 ] TODO: is this better than nil?
+        attachments: []
       }
 
-      @lighthouse_service.upload_doc(**payload)
+      lighthouse_service.upload_doc(**payload)
     end
 
     def generate_metadata
@@ -147,7 +154,7 @@ module CentralMail
         'source' => 'Form526Submission va.gov',
         'docType' => '4142',
         'businessLine' => '',
-        'fileNumber' => filenumber # wipn8923 TODO: validate that this is correct
+        'fileNumber' => filenumber
       }
 
       SimpleFormsApiSubmission::MetadataValidator

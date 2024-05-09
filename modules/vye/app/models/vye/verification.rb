@@ -2,28 +2,32 @@
 
 module Vye
   class Vye::Verification < ApplicationRecord
+    self.ignored_columns += [:user_info_id]
+
     belongs_to :user_profile
     belongs_to :award, optional: true
 
     validates(:source_ind, presence: true)
 
-    enum source_ind: { web: 'W', phone: 'P' }
+    enum(
+      source_ind: { web: 'W', phone: 'P' },
+      _prefix: :source
+    )
 
     def self.todays_verifications
       UserInfo
-        .joins(awards: :verifications)
-        .includes(awards: :verifications)
-        .distinct
+        .includes(:bdn_clone, awards: :verifications)
         .each_with_object([]) do |user_info, result|
-          verification = user_info.awards.map(&:verifications).flatten.first
-          result << {
-            stub_nm: user_info.stub_nm,
-            ssn: user_info.ssn,
-            transact_date: verification.created_at.strftime('%Y%m%d'),
-            rpo_code: user_info.rpo_code,
-            indicator: user_info.indicator,
-            source_ind: verification.source_ind
-          }
+          verification = user_info.queued_verifications.first
+
+          stub_nm = user_info.stub_nm
+          ssn = user_info.ssn
+          transact_date = verification.transact_date.strftime('%Y%m%d')
+          rpo_code = user_info.rpo_code
+          indicator = user_info.indicator
+          source_ind = verification.source_ind
+
+          result << { stub_nm:, ssn:, transact_date:, rpo_code:, indicator:, source_ind: }
         end
     end
 
