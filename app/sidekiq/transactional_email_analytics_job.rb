@@ -80,7 +80,7 @@ class TransactionalEmailAnalyticsJob
     @govdelivery_client ||= GovDelivery::TMS::Client.new(
       Settings.govdelivery.token,
       api_root: "https://#{Settings.govdelivery.server}",
-      logger:
+      logger: ENV['CI'] == 'true' ? nil : self.logger
     )
   end
 
