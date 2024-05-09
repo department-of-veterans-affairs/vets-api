@@ -597,6 +597,9 @@ features:
     actor_type: user
     description: Enables secure messaging
     enable_in_development: true
+  ha_cpap_supplies_cta:
+    actor_type: user
+    description: Toggle CTA for reordering Hearing Aid and CPAP supplies form within static pages.
   injected_header_web_components:
     actor_type: user
     description: Enable/disable import of web components to the injected header
