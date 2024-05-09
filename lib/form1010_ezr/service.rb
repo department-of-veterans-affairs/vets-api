@@ -118,7 +118,7 @@ module Form1010Ezr
       parsed_form.merge!(required_fields)
     end
 
-    # Due to issues with receiving submissions without the Veteran's DOB, we'll
+    # Due to issues with receiving submissions that do not include the Veteran's DOB, we'll
     # try to add it in before we validate the form
     def post_fill_veteran_date_of_birth(parsed_form)
       return if parsed_form['veteranDateOfBirth'].present?
