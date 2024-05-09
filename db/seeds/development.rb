@@ -137,3 +137,14 @@ btsss.update!(
   access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
   certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')]
 )
+
+# Create Service Account Config for IVC_Champva
+btsss = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: '6747fb5e6bdb18b2f6f0b890ff584b07')
+btsss.update!(
+  description: 'DOCMP/PEGA Access Token',
+  scopes: ['http://localhost:3000/ivc_champva/v1/forms/status_updates'],
+  access_token_audience: 'docmp-champva-forms-aws-lambda',
+  access_token_user_attributes: [],
+  access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+  certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')]
+)
