@@ -172,6 +172,10 @@ features:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
     enable_in_development: true
+  cst_claim_phases:
+    actor_type: user
+    description: When enabled, claims status tool uses the new claim phase designs
+    enable_in_development: true
   cst_use_lighthouse_5103:
     actor_type: user
     description: When enabled, claims status tool uses the Lighthouse API for the 5103 endpoint
