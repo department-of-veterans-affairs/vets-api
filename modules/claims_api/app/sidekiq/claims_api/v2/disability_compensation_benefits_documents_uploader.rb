@@ -23,13 +23,13 @@ module ClaimsApi
 
         upload_res = bd_upload_body(auto_claim:, file_body:)
 
-        if upload_res.present?
+        if upload_res.presence
           log_job_progress(claim_id,
                            'Uploaded 526EZ PDF to BD')
         end
         # at this point in the workflow the claim is 'established'
         set_established_state_on_claim(auto_claim)
-        if upload_res.present?
+        if upload_res.presence
           log_job_progress(claim_id,
                            'BD upload succeeded, Claim workflow finished')
         end
