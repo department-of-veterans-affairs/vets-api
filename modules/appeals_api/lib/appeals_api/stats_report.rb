@@ -2,6 +2,8 @@
 
 module AppealsApi
   class StatsReport
+    include ActiveSupport::NumberHelper
+
     DATE_FORMAT = '%b%e, %Y'
 
     # [from, to] pairs to report transition times
@@ -181,10 +183,10 @@ module AppealsApi
       sc_icns = unique_icns(AppealsApi::SupplementalClaim)
 
       <<~STATS
-        Higher Level Reviews: #{hlr_icns.count}
-        Notice of Disagreements: #{nod_icns.count}
-        Supplemental Claims: #{sc_icns.count}
-        All Decision Reviews: #{(hlr_icns + nod_icns + sc_icns).uniq.count}
+        Higher Level Reviews: #{number_to_delimited(hlr_icns.count)}
+        Notice of Disagreements: #{number_to_delimited(nod_icns.count)}
+        Supplemental Claims: #{number_to_delimited(sc_icns.count)}
+        All Decision Reviews: #{(number_to_delimited(hlr_icns + nod_icns + sc_icns).uniq.count)}
       STATS
     end
 
