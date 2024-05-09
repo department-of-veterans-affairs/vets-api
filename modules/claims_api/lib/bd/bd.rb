@@ -33,7 +33,7 @@ module ClaimsApi
     # Upload document of mapped claim
     #
     # @return success or failure
-    def upload(claim:, pdf_path:, doc_type: 'L122', file_number: nil, original_filename: nil)
+    def upload(claim:, pdf_path:, doc_type: 'L122', file_number: nil, original_filename: nil) # rubocop:disable Metrics/MethodLength
       unless File.exist? pdf_path
         ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist",
                                                     claim_id: claim&.id)
@@ -135,7 +135,7 @@ module ClaimsApi
         ClaimsApi::Logger.log('benefits_documents',
                               detail: "/response came back nil for: #{body}, #{endpoint}")
       end
-      res&.body&.deep_symbolize_keys if res.present?
+      res&.body&.deep_symbolize_keys if res.presence
     end
   end
 end
