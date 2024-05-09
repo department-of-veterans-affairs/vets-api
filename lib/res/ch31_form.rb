@@ -4,7 +4,6 @@ require_relative 'service'
 require_relative 'errors/ch31_errors'
 require 'sentry_logging'
 
-# Modified VRE code to new RES service
 module RES
   class Ch31Form < RES::Service
     include SentryLogging
@@ -98,6 +97,7 @@ module RES
       vet_info = claim_form_hash['veteranInformation']
 
       vet_info['VAFileNumber'] = vet_info.delete('vaFileNumber') if vet_info.key?('vaFileNumber')
+      vet_info['stationID'], vet_info['regionalOffice'] = vet_info['regionalOffice'].split(' - ')
 
       vet_info
     end
