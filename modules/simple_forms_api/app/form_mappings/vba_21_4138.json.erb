@@ -3,7 +3,8 @@
   "form1[0].#subform[0].TelephoneNumber_FirstThreeNumbers[0]": "<%= form.data['phone']&.gsub('-', '')&.[](0..2) %>",
   "form1[0].#subform[0].TelephoneNumber_SecondThreeNumbers[0]": "<%= form.data['phone']&.gsub('-', '')&.[](3..5) %>",
   "form1[0].#subform[0].International_Phone_Number[0]": "<%= nil %>",
-  "form1[0].#subform[0].EMAIL_ADDRESS[0]": "<%= form.data['email_address'] %>",
+  "form1[0].#subform[0].EMAIL_ADDRESS[0]": "<%= form.data['email_address']&.[](0..19) %>",
+  "form1[0].#subform[0].EMAIL_ADDRESS[1]": "<%= form.data['email_address']&.[](20..39) %>",
   "form1[0].#subform[0].Last_Name[0]": "<%= form.data.dig('full_name', 'last') %>",
   "form1[0].#subform[0].Middle_Initial1[0]": "<%= form.data.dig('full_name', 'middle') %>",
   "form1[0].#subform[0].Veterans_Beneficiary_First_Name[0]": "<%= form.data.dig('full_name', 'first') %>",
@@ -30,5 +31,5 @@
   "form1[0].#subform[1].SocialSecurityNumber_LastFourNumbers[1]": "<%= form.data.dig('id_number', 'ssn')&.[](5..8) %>",
   "form1[0].#subform[1].SocialSecurityNumber_SecondTwoNumbers[1]": "<%= form.data.dig('id_number', 'ssn')&.[](3..4) %>",
   "form1[0].#subform[1].SocialSecurityNumber_FirstThreeNumbers[1]": "<%= form.data.dig('id_number', 'ssn')&.[](0..2) %>",
-  "form1[0].#subform[1].REMARKS[1]": "<%= form.data['statement'] %>"
+  "form1[0].#subform[1].REMARKS[1]": "<%= nil %>"
 }
