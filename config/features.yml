@@ -675,6 +675,9 @@ features:
     actor_type: user
     description: Enables the My HealtheVet secondary navigation
     enable_in_development: true
+  mhv_transitional_medical_records_landing_page:
+    actor_type: user
+    description: Enables the transitional Medical Records page at /my-health/records
   mhv_secure_messaging_to_va_gov_release:
     actor_type: user
     description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
