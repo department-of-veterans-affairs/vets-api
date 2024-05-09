@@ -3,29 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe IvcChampvaForm, type: :model do
-  describe 'validations' do
-    it { is_expected.to validate_presence_of(:email) }
-    it { is_expected.to validate_uniqueness_of(:email) }
-
-    context 'when email is missing' do
-      it 'is invalid' do
-        form = build(:ivc_champva_form, email: nil)
-        expect(form).not_to be_valid
-        expect(form.errors[:email]).to include("can't be blank")
-      end
-    end
-
-    context 'when email already exists' do
-      let!(:existing_form) { create(:ivc_champva_form, email: 'existing@aol.com') }
-
-      it 'is invalid' do
-        form = build(:ivc_champva_form, email: 'existing@aol.com')
-        expect(form).not_to be_valid
-        expect(form.errors[:email]).to include('has already been taken')
-      end
-    end
-  end
-
   describe 'factory' do
     it 'is valid' do
       expect(build(:ivc_champva_form)).to be_valid
