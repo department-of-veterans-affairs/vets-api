@@ -26,7 +26,7 @@ class VeteranOnboarding < ApplicationRecord
 
   def self.for_user(user)
     if user.user_verification && Flipper.enabled?(:veteran_onboarding_beta_flow, user) && user.user_account.verified?
-      find_or_create_by(user_account:)
+      find_or_create_by(user_account: user.user_account)
     end
   end
 end
