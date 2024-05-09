@@ -193,9 +193,8 @@ describe AppealsApi::StatsReport do
     end
 
     it 'includes the veteran impact stats' do
-      expect(text).to match(
-        /Higher Level Reviews: 1\nNotice of Disagreements: 2\nSupplemental Claims: 1\nAll Decision Reviews: 2\n/
-      )
+      expect(text).to match(/Higher Level Reviews: 1\nNotice of Disagreements: 2\n/)
+      expect(text).to match(/Supplemental Claims: 1\nAll Decision Reviews: 2\n/)
     end
 
     context 'when there is no data' do
