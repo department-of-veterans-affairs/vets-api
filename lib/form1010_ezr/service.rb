@@ -118,8 +118,24 @@ module Form1010Ezr
       parsed_form.merge!(required_fields)
     end
 
-    def configure_and_validate_form(parsed_form)
+    # Due to issues with receiving submissions without the Veteran's DOB, we'll
+    # try to add it in before we validate the form
+    def post_fill_veteran_date_of_birth(parsed_form)
+      return if parsed_form['veteranDateOfBirth'].present?
+
+      user_dob = @user.birth_date
+      parsed_form['veteranDateOfBirth'] = user_dob if user_dob.present?
+
+      parsed_form
+    end
+
+    def post_fill_fields(parsed_form)
       post_fill_required_fields(parsed_form)
+      post_fill_veteran_date_of_birth(parsed_form)
+    end
+
+    def configure_and_validate_form(parsed_form)
+      post_fill_fields(parsed_form)
       validate_form(parsed_form)
       # Due to overriding the JSON form schema, we need to do so after the form has been validated
       override_parsed_form(parsed_form)

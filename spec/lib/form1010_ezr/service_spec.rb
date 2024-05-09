@@ -11,7 +11,7 @@ RSpec.describe Form1010Ezr::Service do
   end
 
   let(:form) { get_fixture('form1010_ezr/valid_form') }
-  let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534') }
+  let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534', birth_date: '1986-01-02') }
   let(:service) { described_class.new(current_user) }
 
   def allow_logger_to_receive_error
@@ -48,6 +48,35 @@ RSpec.describe Form1010Ezr::Service do
     context 'when the form doesnt have veteran gross income' do
       it 'doesnt add the financial_flag' do
         expect(service.send(:add_financial_flag, {})).to eq({})
+      end
+    end
+  end
+
+  describe '#post_fill_veteran_date_of_birth' do
+    context "when the 'veteranDateOfBirth' key is already present and is not blank" do
+      let(:parsed_form) do
+        {
+          'veteranDateOfBirth' => '1985-04-03'
+        }
+      end
+
+      it 'returns nil' do
+        expect(service.send(:post_fill_veteran_date_of_birth, parsed_form)).to eq(nil)
+      end
+    end
+
+    context "when the 'veteranDateOfBirth' key is not present or present with a blank value, but "\
+      " the current_user's DOB is present in the session" do
+      let(:parsed_form) do
+        {
+          'veteranDateOfBirth' => ''
+        }
+      end
+
+      it "adds/updates the 'veteranDateOfBirth's key value and sets it equal to the current_user's DOB" do
+        expect(service.send(:post_fill_veteran_date_of_birth, parsed_form)).to eq(
+          { 'veteranDateOfBirth' => current_user.birth_date }
+        )
       end
     end
   end
@@ -89,6 +118,9 @@ RSpec.describe Form1010Ezr::Service do
           # and then added via the 'post_fill_required_fields' method
           expect(form['isEssentialAcaCoverage']).to eq(nil)
           expect(form['vaMedicalFacility']).to eq(nil)
+          # If the 'veteranDateOfBirth' key is missing from the parsed_form, it should get added in via the
+          # 'post_fill_veteran_date_of_birth' method and pass validation
+          form.delete('veteranDateOfBirth')
 
           submission_response = submit_form(form)
 
