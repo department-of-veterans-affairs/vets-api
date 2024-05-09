@@ -186,7 +186,7 @@ module AppealsApi
         Higher Level Reviews: #{number_to_delimited(hlr_icns.count)}
         Notice of Disagreements: #{number_to_delimited(nod_icns.count)}
         Supplemental Claims: #{number_to_delimited(sc_icns.count)}
-        All Decision Reviews: #{(number_to_delimited(hlr_icns + nod_icns + sc_icns).uniq.count)}
+        All Decision Reviews: #{number_to_delimited((hlr_icns + nod_icns + sc_icns).uniq.count)}
       STATS
     end
 
