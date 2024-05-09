@@ -203,6 +203,14 @@ module SimpleFormsApi
     # rubocop:enable Metrics/MethodLength
     def handle_attachments(file_path)
       attachments = get_attachments
+
+      # Temporarily suppress CombinePDF warning in CI
+      # Couldn't connect reference for ...
+      original_verbose = $VERBOSE
+      if ENV['CI'] == 'true'
+        $VERBOSE = nil
+      end
+
       combined_pdf = CombinePDF.new
       combined_pdf << CombinePDF.load(file_path)
 
@@ -213,6 +221,8 @@ module SimpleFormsApi
       attachments.each do |attachment|
         combined_pdf << CombinePDF.load(attachment)
       end
+
+      $VERBOSE = original_verbose
 
       combined_pdf.save file_path
 
