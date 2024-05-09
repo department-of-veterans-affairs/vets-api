@@ -101,9 +101,13 @@ module EVSS
             return
           end
 
+          user_account = UserAccount.find_by(id: submission.user_account_id) ||
+                         Account.find_by(idme_uuid: submission.user_uuid)
+
+          user = OpenStruct.new({ user_account_uuid: user_account.id, flipper_id: user_account.id })
           begin
             # send submission data to either EVSS or Lighthouse (LH)
-            response = if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration)
+            response = if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration, user)
                          # submit 526 through LH API
                          # 1. get user's ICN
                          user_account = UserAccount.find_by(id: submission.user_account_id) ||
@@ -116,8 +120,14 @@ module EVSS
                          service = BenefitsClaims::Service.new(icn)
                          raw_response = service.submit526(body)
                          # 4. convert LH raw response to a FormSubmitResponse for further processing (claim_id, status)
+                         # JSON.parse when it matters to get the claim id
+                         # something like response_json = JSON.parse(raw_response.body)
                          raw_response_struct = OpenStruct.new({
-                                                                body: { claim_id: raw_response.body },
+                                                                # TODO: for now, set claim id to unix time stamp.
+                                                                # When the lighthouse synchronous
+                                                                # submit response is ready,
+                                                                # switch to VBMS claim id.
+                                                                body: { claim_id: Time.now.to_i },
                                                                 status: raw_response.status
                                                               })
                          EVSS::DisabilityCompensationForm::FormSubmitResponse

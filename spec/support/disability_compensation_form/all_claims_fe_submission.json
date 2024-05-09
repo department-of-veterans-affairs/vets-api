@@ -144,6 +144,11 @@
         ]
       }
     ],
+    "toxicExposure": {
+      "conditions": {
+        "arthritis": true
+      }
+    },
     "waiveRetirementPay": false,
     "waiveTrainingPay": true,
     "hasTrainingPay": true

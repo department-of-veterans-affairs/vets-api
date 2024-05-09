@@ -37,7 +37,8 @@ module TravelPay
         req.headers['BTSSS-API-Client-Number'] = client_number.to_s
         req.body = { authJwt: sts_token }
       end
-      response.body['access_token']
+
+      response.body['data']['accessToken']
     end
 
     ##
@@ -88,11 +89,14 @@ module TravelPay
       end
 
       symbolized_body = response.body.deep_symbolize_keys
-      parse_claim_date = ->(c) { Date.parse(c[:modified_on]) }
-      symbolized_body[:data].sort_by(&parse_claim_date).reverse!
+      parse_claim_date = ->(c) { Date.parse(c[:modifiedOn]) }
+
+      { data: symbolized_body[:data].sort_by(&parse_claim_date).reverse! }
     end
 
     def request_sts_token(user)
+      return nil if mock_enabled?
+
       host_baseurl = build_host_baseurl({ ip_form: false })
       private_key_file = Settings.sign_in.sts_client.key_path
       private_key = OpenSSL::PKey::RSA.new(File.read(private_key_file))

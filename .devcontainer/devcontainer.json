@@ -7,13 +7,25 @@
       "openFiles": [
         "docs/setup/codespaces.md",
         "README.md"
-      ]
+      ],
+      "repositories": {
+        "department-of-veterans-affairs/vets-api-mockdata": {
+          "permissions": {
+            "contents": "read",
+            "pull_requests": "write"
+          }
+        }
+      }
+    },
+    "vscode": {
+      "extensions": ["Shopify.ruby-lsp"]
     }
   },
+
   "features": {
     "ghcr.io/devcontainers-contrib/features/ruby-asdf:0": {
- 			"version": "3.2.3"
- 		},
+      "version": "3.2.4"
+    },
     "ghcr.io/robbert229/devcontainer-features/postgresql-client:1": {
       "version": "15"
     },
@@ -21,10 +33,10 @@
       "version": "6.2"
     },
     "ghcr.io/devcontainers/features/sshd:1": {
-        "version": "latest"
+      "version": "latest"
     },
     "ghcr.io/devcontainers/features/github-cli:1": {
-        "version": "latest"
+      "version": "latest"
     }
   },
 
@@ -63,21 +75,5 @@
   "postAttachCommand": {
     "server": "bin/rails server",
     "sidekiq": "bundle exec sidekiq"
-  },
-
-  "customizations": {
-    "codespaces": {
-      "repositories": {
-        "department-of-veterans-affairs/vets-api-mockdata": {
-          "permissions": {
-            "contents": "read",
-            "pull_requests": "write"
-          }
-        }
-      }
-    },
-    "vscode": {
-      "extensions": ["Shopify.ruby-lsp"]
-    }
   }
 }
