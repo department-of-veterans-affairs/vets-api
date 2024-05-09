@@ -268,8 +268,8 @@ GEM
     base64 (0.2.0)
     bcp47 (0.3.3)
       i18n
-    bigdecimal (3.1.7)
-    bigdecimal (3.1.7-java)
+    bigdecimal (3.1.8)
+    bigdecimal (3.1.8-java)
     bindex (0.8.1)
     blueprinter (1.0.2)
     bootsnap (1.18.3)
@@ -566,7 +566,7 @@ GEM
     httpi (2.5.0)
       rack
       socksify
-    i18n (1.14.4)
+    i18n (1.14.5)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     image_processing (1.12.2)
@@ -766,7 +766,7 @@ GEM
       nio4r (~> 2.0)
     puma (6.4.2-java)
       nio4r (~> 2.0)
-    pundit (2.3.1)
+    pundit (2.3.2)
       activesupport (>= 3.0.0)
     raabro (1.4.0)
     racc (1.7.3)
