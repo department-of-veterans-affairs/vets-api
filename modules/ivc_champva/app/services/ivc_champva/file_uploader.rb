@@ -12,7 +12,7 @@ module IvcChampva
     def handle_uploads
       pdf_results = @file_paths.map do |pdf_file_path|
         response_status = upload_pdf(pdf_file_path)
-        insert_form(pdf_file_path.sub(%r{^tmp/}, ''), response_status) if @insert_db_row
+        insert_form(pdf_file_path.sub(%r{^tmp/}, ''), JSON.parse("#{response_status}")) if @insert_db_row
 
         response_status
       end
@@ -29,6 +29,7 @@ module IvcChampva
     private
 
     def insert_form(pdf_file_path, response_status)
+      pega_status = response_status.first == 200 ? 'Submitted' : nil
       IvcChampvaForm.create!(
         form_uuid: @metadata['uuid'],
         email: validate_email(@metadata&.dig('primary_contact_info', 'email')),
@@ -37,7 +38,7 @@ module IvcChampva
         form_number: @metadata['docType'],
         file_name: pdf_file_path,
         s3_status: response_status,
-        pega_status: 'Submitted'
+        pega_status:
       )
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error("Database Insertion Error for #{@metadata['uuid']}: #{e.message}")
@@ -64,7 +65,7 @@ module IvcChampva
     end
 
     def upload(file_name, file_path)
-      case client.put_object(file_name, file_path, @metadata)
+      case client.put_object(file_name, file_path, @metadata.except('primary_contact_info'))
       in { success: true }
         [200]
       in { success: false, error_message: error_message }
