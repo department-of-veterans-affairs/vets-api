@@ -109,9 +109,7 @@ module ClaimsApi
           # Temporarily suppress CombinePDF warning in CI
           # Couldn't connect reference for ...
           original_verbose = $VERBOSE
-          if ENV['CI'] == 'true'
-            $VERBOSE = nil
-          end
+          $VERBOSE = nil if ENV['CI'] == 'true'
 
           pdf = CombinePDF.new
           pdf << CombinePDF.load(page1_path)

@@ -207,9 +207,7 @@ module SimpleFormsApi
       # Temporarily suppress CombinePDF warning in CI
       # Couldn't connect reference for ...
       original_verbose = $VERBOSE
-      if ENV['CI'] == 'true'
-        $VERBOSE = nil
-      end
+      $VERBOSE = nil if ENV['CI'] == 'true'
 
       combined_pdf = CombinePDF.new
       combined_pdf << CombinePDF.load(file_path)
