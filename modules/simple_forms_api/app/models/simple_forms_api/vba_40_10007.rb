@@ -203,7 +203,6 @@ module SimpleFormsApi
     # rubocop:enable Metrics/MethodLength
     def handle_attachments(file_path)
       attachments = get_attachments
-
       combined_pdf = CombinePDF.new
       combined_pdf << CombinePDF.load(file_path)
 
