@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-
-RSpec.describe 'Mobile Message Attachments Integration', type: :request do
+require_relative '../support/helpers/rails_helper'
+RSpec.describe 'Mobile Message Attachments Integration', skip_json_api_validation: true, type: :request do
   let!(:user) { sis_user(:mhv, mhv_account_type: 'Premium') }
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
@@ -41,7 +39,6 @@ RSpec.describe 'Mobile Message Attachments Integration', type: :request do
         VCR.use_cassette('sm_client/messages/nested_resources/gets_a_single_attachment_by_id') do
           get '/mobile/v0/messaging/health/messages/629999/attachments/629993', headers: sis_headers
         end
-
         expect(response).to be_successful
         expect(response.headers['Content-Disposition'])
           .to eq("attachment; filename=\"noise300x200.png\"; filename*=UTF-8''noise300x200.png")

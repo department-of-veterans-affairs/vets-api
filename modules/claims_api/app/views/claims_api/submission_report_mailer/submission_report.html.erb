@@ -10,6 +10,8 @@
       }
       table {
         border-collapse: collapse;
+        margin-bottom:35px;
+        min-width:475px;
       }
       table tr th, table tr td {
         border: 1px solid #d3d3d3;
@@ -49,8 +51,9 @@
     <h1><%= @date_from %> - <%= @date_to %> (Eastern Time)</h1>
     <hr>
 
+    <h2>Monthly Submissions</h2>
+
     <% @data[:month].keys.each do |kind| %>
-      <h2>Monthly 526EZ <%= kind %> Claim Submissions</h2>
       <table>
         <tr>
           <th>Consumer</th>
@@ -64,24 +67,5 @@
         <% end %>
       </table>
     <% end %>
-
-    <br /><hr>
-
-    <% @data[:year].keys.each do |kind| %>
-      <h2>Yearly 526EZ <%= kind %> Claim Submissions</h2>
-      <table>
-        <tr>
-          <th>Consumer</th>
-          <th><%= kind %> submissions</th>
-        </tr>
-        <% @data[:year][kind].keys.each do |label| %>
-          <tr>
-            <td><%= label %></td>
-            <td><%= @data[:year][kind][label] %></td>
-          </tr>
-        <% end %>
-      </table>
-    <% end %>
-
   </body>
 </html>
