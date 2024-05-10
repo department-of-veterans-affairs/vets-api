@@ -31,10 +31,6 @@ module SimpleFormsApi
       @data.dig('mailing_address', 'country') == 'USA'
     end
 
-    def track_user_identity(confirmation_number)
-      identity = data['preparer_type']
-      StatsD.increment("#{STATS_KEY}.#{identity}")
-      Rails.logger.info('Simple forms api - 21-4138 submission user identity', identity:, confirmation_number:)
-    end
+    def track_user_identity(confirmation_number); end
   end
 end
