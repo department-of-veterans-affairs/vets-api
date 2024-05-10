@@ -12,7 +12,7 @@ module IvcChampva
     def handle_uploads
       pdf_results = @file_paths.map do |pdf_file_path|
         response_status = upload_pdf(pdf_file_path)
-        insert_form(pdf_file_path.sub(%r{^tmp/}, ''), JSON.parse("#{response_status}")) if @insert_db_row
+        insert_form(pdf_file_path.sub(%r{^tmp/}, ''), response_status.to_s) if @insert_db_row
 
         response_status
       end
