@@ -8,7 +8,7 @@ vcr_options = {
   allow_playback_repeats: true
 }
 
-RSpec.describe 'FacilitiesApi::V2::Ccp', type: :request, team: :facilities, vcr: vcr_options do
+RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr: vcr_options do
   before(:all) do
     get facilities_api.v2_ccp_index_url
   end
