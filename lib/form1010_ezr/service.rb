@@ -123,9 +123,7 @@ module Form1010Ezr
     def post_fill_veteran_date_of_birth(parsed_form)
       return if parsed_form['veteranDateOfBirth'].present?
 
-      user_dob = @user.birth_date
-      parsed_form['veteranDateOfBirth'] = user_dob if user_dob.present?
-
+      parsed_form['veteranDateOfBirth'] = @user.birth_date
       parsed_form
     end
 
