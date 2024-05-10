@@ -36,6 +36,7 @@ module Lighthouse
     #
     # @param [Integer] saved_claim_id
     #
+    # rubocop:disable Metrics/MethodLength
     def perform(saved_claim_id, user_uuid = nil)
       init(saved_claim_id, user_uuid)
 
@@ -71,6 +72,7 @@ module Lighthouse
     ensure
       cleanup_file_paths
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
@@ -154,6 +156,5 @@ module Lighthouse
       @pension_monitor.track_file_cleanup_error(@claim, @intake_service, @user_uuid, e)
       raise PensionBenefitIntakeError, e.message
     end
-
   end
 end
