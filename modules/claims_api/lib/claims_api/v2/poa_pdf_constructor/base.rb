@@ -94,19 +94,12 @@ module ClaimsApi
         def combine_pdf(id, page1_path, page2_path, page3_path, page4_path)
           output_path = "/tmp/#{id}_final.pdf"
 
-          # Temporarily suppress CombinePDF warning in CI
-          # Couldn't connect reference for ...
-          original_verbose = $VERBOSE
-          $VERBOSE = nil if ENV['CI'] == 'true'
-
           pdf = CombinePDF.new
           pdf << CombinePDF.load(page1_path)
           pdf << CombinePDF.load(page2_path)
           pdf << CombinePDF.load(page3_path) unless page3_path.nil?
           pdf << CombinePDF.load(page4_path) unless page4_path.nil?
           pdf.save(output_path)
-
-          $VERBOSE = original_verbose
 
           output_path
         end

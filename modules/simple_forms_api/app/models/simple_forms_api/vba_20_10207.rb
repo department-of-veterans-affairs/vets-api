@@ -73,19 +73,11 @@ module SimpleFormsApi
     def handle_attachments(file_path)
       attachments = get_attachments
       if attachments.count.positive?
-
-        # Temporarily suppress CombinePDF warning in CI
-        # Couldn't connect reference for ...
-        original_verbose = $VERBOSE
-        $VERBOSE = nil if ENV['CI'] == 'true'
-
         combined_pdf = CombinePDF.new
         combined_pdf << CombinePDF.load(file_path)
         attachments.each do |attachment|
           combined_pdf << CombinePDF.load(attachment)
         end
-
-        $VERBOSE = original_verbose
 
         combined_pdf.save file_path
       end
