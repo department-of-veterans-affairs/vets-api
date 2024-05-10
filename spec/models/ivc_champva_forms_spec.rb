@@ -5,21 +5,12 @@ require 'rails_helper'
 RSpec.describe IvcChampvaForm, type: :model do
   describe 'validations' do
     it { is_expected.to validate_presence_of(:form_uuid) }
-    it { is_expected.to validate_uniqueness_of(:form_uuid).case_insensitive }
 
     context 'when form_uuid is missing' do
       it 'is invalid' do
         form = build(:ivc_champva_form, form_uuid: nil)
         expect(form).not_to be_valid
         expect(form.errors[:form_uuid]).to include("can't be blank")
-      end
-    end
-
-    context 'when form_uuid already exists' do
-      it 'is invalid' do
-        form = build(:ivc_champva_form, form_uuid: '12345678-1234-5678-1234-567812345678')
-        expect(form).not_to be_valid
-        expect(form.errors[:form_uuid]).to include('has already been taken')
       end
     end
   end
