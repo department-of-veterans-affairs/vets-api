@@ -73,7 +73,12 @@ module SignIn
       payload[:refresh_token] = encrypted_refresh_token
       payload[:access_token] = encoded_access_token
       payload[:anti_csrf_token] = anti_csrf_token if anti_csrf_enabled_client?
+      payload[:device_secret] = device_secret if device_secret_enabled_client?
       payload
+    end
+
+    def device_secret_enabled_client?
+      api_authentication_client? && client_config.shared_sessions && device_secret
     end
 
     def cookie_authentication_client?
@@ -90,6 +95,10 @@ module SignIn
 
     def anti_csrf_enabled_client?
       client_config.anti_csrf
+    end
+
+    def device_secret
+      @device_secret ||= session_container.device_secret
     end
 
     def session_expiration
