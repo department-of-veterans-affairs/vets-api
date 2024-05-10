@@ -123,14 +123,22 @@ module Form1010Ezr
     def post_fill_veteran_date_of_birth(parsed_form)
       return if parsed_form['veteranDateOfBirth'].present?
 
-      user_dob = @user.birth_date
-      parsed_form['veteranDateOfBirth'] = user_dob if user_dob.present?
+      parsed_form['veteranDateOfBirth'] = @user.birth_date
+      parsed_form
+    end
 
+    # Due to issues with receiving submissions that do not include the Veteran's full name, we'll
+    # try to add it in before we validate the form
+    def post_fill_veteran_full_name(parsed_form)
+      return if parsed_form['veteranFullName'].present?
+
+      parsed_form['veteranFullName'] = @user.full_name_normalized&.stringify_keys
       parsed_form
     end
 
     def post_fill_fields(parsed_form)
       post_fill_required_fields(parsed_form)
+      post_fill_veteran_full_name(parsed_form)
       post_fill_veteran_date_of_birth(parsed_form)
     end
 
