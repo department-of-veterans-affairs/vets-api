@@ -191,7 +191,7 @@ module EVSS
       end
 
       def none_of_these(options)
-        none_of_these = options['noneOfThese']
+        none_of_these = options['none']
         none_of_these.present?
       end
 

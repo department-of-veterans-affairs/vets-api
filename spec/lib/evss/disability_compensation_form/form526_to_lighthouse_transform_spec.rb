@@ -281,10 +281,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
 
       with_none_of_these_option = data.merge({
                                                'gulfWar1990' => {
-                                                 'noneOfThese' => true
+                                                 'none' => true
                                                },
                                                'gulfWar2001' => {
-                                                 'noneOfThese' => true
+                                                 'none' => true
                                                }
                                              })
       result = transformer.send(:transform_toxic_exposure, with_none_of_these_option)
@@ -295,7 +295,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
                                          'iraq' => false,
                                          'kuwait' => false,
                                          'qatar' => false,
-                                         'noneOfThese' => false
+                                         'none' => false
                                        },
                                        'gulfWar2001' => {
                                          'djibouti' => false,
@@ -303,7 +303,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
                                          'uzbekistan' => false,
                                          'yemen' => false,
                                          'airspace' => false,
-                                         'noneOfThese' => false
+                                         'none' => false
                                        }
                                      })
       result = transformer.send(:transform_toxic_exposure, falsified_options)
