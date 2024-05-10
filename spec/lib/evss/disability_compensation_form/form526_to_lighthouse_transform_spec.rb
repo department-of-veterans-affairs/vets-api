@@ -311,7 +311,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
                                 'gulfWar2001' => {}
                               })
       result = transformer.send(:transform_toxic_exposure, no_options)
-      expect(result).to be_nil
+      expect(result.gulf_war_hazard_service).to be_nil
     end
   end
 end
