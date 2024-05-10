@@ -165,12 +165,16 @@ module EVSS
       end
 
       def transform_toxic_exposure(toxic_exposure_source)
+        gulf_war1990 = toxic_exposure_source['gulfWar1990']
+        gulf_war2001 = toxic_exposure_source['gulfWar2001']
+        return if gulf_war1990.blank? && gulf_war2001.blank?
+
         toxic_exposure_target = Requests::ToxicExposure.new
-        gulf_war1990 = toxic_exposure_source['gulfWar1990'].values.any?(&:present?)
-        gulf_war2001 = toxic_exposure_source['gulfWar2001'].values.any?(&:present?)
+        gulf_war1990_value = gulf_war1990&.values&.any?(&:present?)
+        gulf_war2001_value = gulf_war2001&.values&.any?(&:present?)
 
         gulf_war_hazard_service = Requests::GulfWarHazardService.new
-        gulf_war_hazard_service.served_in_gulf_war_hazard_locations = gulf_war1990 || gulf_war2001 ? 'YES' : 'NO'
+        gulf_war_hazard_service.served_in_gulf_war_hazard_locations = gulf_war1990_value || gulf_war2001_value ? 'YES' : 'NO'
 
         toxic_exposure_target.gulf_war_hazard_service = gulf_war_hazard_service
 
