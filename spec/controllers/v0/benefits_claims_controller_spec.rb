@@ -48,6 +48,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
       it 'updates the ’updated_at’ field on existing EVSSClaim records' do
         Timecop.travel(10.minutes.from_now)
+
         VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
           get(:index)
         end
