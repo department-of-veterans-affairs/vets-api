@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe CheckIn::VAOS::FacilityService do
-  subject { described_class }
+  subject { described_class.new }
 
   let(:facility_id) { '500' }
   let(:clinic_id) { '6' }
@@ -16,7 +16,7 @@ describe CheckIn::VAOS::FacilityService do
 
   describe '.build' do
     it 'returns an instance of Service' do
-      expect(subject.new).to be_an_instance_of(described_class)
+      expect(subject).to be_an_instance_of(described_class)
     end
   end
 
@@ -56,8 +56,7 @@ describe CheckIn::VAOS::FacilityService do
       end
 
       it 'returns facility' do
-        svc = subject.new
-        response = svc.get_facility(facility_id:)
+        response = subject.get_facility(facility_id:)
         expect(response).to eq(facility_response.with_indifferent_access)
       end
     end
@@ -105,8 +104,7 @@ describe CheckIn::VAOS::FacilityService do
       end
 
       it 'returns clinic data' do
-        svc = subject.new
-        response = svc.get_clinic(facility_id:, clinic_id:)
+        response = subject.get_clinic(facility_id:, clinic_id:)
         expect(response).to eq(clinic_response.with_indifferent_access)
       end
     end
@@ -120,9 +118,8 @@ describe CheckIn::VAOS::FacilityService do
       end
 
       it 'throws exception' do
-        svc = subject.new
         expect do
-          svc.get_facility(facility_id:)
+          subject.get_facility(facility_id:)
         end.to(raise_error do |error|
           expect(error).to be_a(Common::Exceptions::BackendServiceException)
         end)
@@ -138,9 +135,8 @@ describe CheckIn::VAOS::FacilityService do
       end
 
       it 'throws exception' do
-        svc = subject.new
         expect do
-          svc.get_clinic(facility_id:, clinic_id:)
+          subject.get_clinic(facility_id:, clinic_id:)
         end.to(raise_error do |error|
           expect(error).to be_a(Common::Exceptions::BackendServiceException)
         end)
@@ -182,9 +178,8 @@ describe CheckIn::VAOS::FacilityService do
       end
 
       it 'returns facility data from cache' do
-        svc = subject.new
-        response = svc.get_facility_with_cache(facility_id:)
-        expect_any_instance_of(subject).not_to receive(:perform)
+        response = subject.get_facility_with_cache(facility_id:)
+        expect_any_instance_of(described_class).not_to receive(:perform)
         expect(response).to eq(facility_response)
       end
     end
@@ -197,22 +192,10 @@ describe CheckIn::VAOS::FacilityService do
             clinicId: clinic_id,
             serviceName: 'CHS NEUROSURGERY VARMA',
             friendlyName: 'CHS NEUROSURGERY VARMA',
-            medicalService: 'SURGERY',
-            physicalLocation: '1ST FL SPECIALTY MODULE 2',
-            phoneNumber: '843-577-5011',
             stationId: '534',
-            institutionId: '534',
-            stationName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
             primaryStopCode: 406,
             primaryStopCodeName: 'NEUROSURGERY',
-            secondaryStopCodeName: '*Missing*',
-            appointmentLength: 30,
-            variableAppointmentLength: true,
-            patientDirectScheduling: false,
             patientDisplay: true,
-            institutionName: 'CHARLESTON VAMC',
-            institutionIEN: '534',
-            institutionSID: '97177',
             timezone: {
               timeZoneId: 'America/New_York'
             },
@@ -230,9 +213,8 @@ describe CheckIn::VAOS::FacilityService do
       end
 
       it 'returns clinic data from cache' do
-        svc = subject.new
-        response = svc.get_clinic_with_cache(facility_id:, clinic_id:)
-        expect_any_instance_of(subject).not_to receive(:perform)
+        response = subject.get_clinic_with_cache(facility_id:, clinic_id:)
+        expect_any_instance_of(described_class).not_to receive(:perform)
         expect(response).to eq(clinic_response)
       end
     end
