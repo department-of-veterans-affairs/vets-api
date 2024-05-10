@@ -279,18 +279,31 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.send(:transform_toxic_exposure, data)
       expect(result.gulf_war_hazard_service.served_in_gulf_war_hazard_locations).to eq('YES')
 
+      with_none_of_these_option = data.merge({
+                                               'gulfWar1990' => {
+                                                 'noneOfThese' => true
+                                               },
+                                               'gulfWar2001' => {
+                                                 'noneOfThese' => true
+                                               }
+                                             })
+      result = transformer.send(:transform_toxic_exposure, with_none_of_these_option)
+      expect(result.gulf_war_hazard_service.served_in_gulf_war_hazard_locations).to eq('NO')
+
       falsified_options = data.merge({
                                        'gulfWar1990' => {
                                          'iraq' => false,
                                          'kuwait' => false,
-                                         'qatar' => false
+                                         'qatar' => false,
+                                         'noneOfThese' => false
                                        },
                                        'gulfWar2001' => {
                                          'djibouti' => false,
                                          'lebanon' => false,
                                          'uzbekistan' => false,
                                          'yemen' => false,
-                                         'airspace' => false
+                                         'airspace' => false,
+                                         'noneOfThese' => false
                                        }
                                      })
       result = transformer.send(:transform_toxic_exposure, falsified_options)

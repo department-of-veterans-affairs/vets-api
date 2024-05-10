@@ -169,8 +169,10 @@ module EVSS
 
         gulf_war1990 = toxic_exposure_source['gulfWar1990']
         gulf_war2001 = toxic_exposure_source['gulfWar2001']
-        toxic_exposure_target.gulf_war_hazard_service =
-          transform_gulf_war(gulf_war1990, gulf_war2001) if gulf_war1990.present? || gulf_war2001.present?
+        if gulf_war1990.present? || gulf_war2001.present?
+          toxic_exposure_target.gulf_war_hazard_service =
+            transform_gulf_war(gulf_war1990, gulf_war2001)
+        end
 
         toxic_exposure_target
       end
@@ -178,14 +180,19 @@ module EVSS
       private
 
       def transform_gulf_war(gulf_war1990, gulf_war2001)
-        gulf_war1990_value = gulf_war1990&.values&.any?(&:present?)
-        gulf_war2001_value = gulf_war2001&.values&.any?(&:present?)
+        gulf_war1990_value = gulf_war1990&.values&.any?(&:present?) && !none_of_these(gulf_war1990)
+        gulf_war2001_value = gulf_war2001&.values&.any?(&:present?) && !none_of_these(gulf_war2001)
 
         gulf_war_hazard_service = Requests::GulfWarHazardService.new
         gulf_war_hazard_service.served_in_gulf_war_hazard_locations =
           gulf_war1990_value || gulf_war2001_value ? 'YES' : 'NO'
 
         gulf_war_hazard_service
+      end
+
+      def none_of_these(options)
+        none_of_these = options['noneOfThese']
+        none_of_these.present?
       end
 
       def transform_disabilities_section(form526, lh_request_body)
