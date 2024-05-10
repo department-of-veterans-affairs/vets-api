@@ -36,7 +36,7 @@ namespace :ivc_champva do
         'docType' => @data['form_number'],
         'businessLine' => 'CMP',
         'uuid' => @uuid,
-        'primary_contact_info' => @data.dig('primary_contact_info')
+        'primaryContactInfo' => @data.dig('primary_contact_info')
       }
     end
     METADATA

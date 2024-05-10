@@ -25,7 +25,7 @@ module IvcChampva
         'docType' => @data['form_number'],
         'businessLine' => 'CMP',
         'uuid' => @uuid,
-        'primary_contact_info' => @data['primary_contact_info']
+        'primaryContactInfo' => @data['primary_contact_info']
       }
     end
 

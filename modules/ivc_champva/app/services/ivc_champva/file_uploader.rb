@@ -32,9 +32,9 @@ module IvcChampva
       pega_status = response_status.first == 200 ? 'Submitted' : nil
       IvcChampvaForm.create!(
         form_uuid: @metadata['uuid'],
-        email: validate_email(@metadata&.dig('primary_contact_info', 'email')),
-        first_name: @metadata&.dig('primary_contact_info', 'name', 'first'),
-        last_name: @metadata&.dig('primary_contact_info', 'name', 'last'),
+        email: validate_email(@metadata&.dig('primaryContactInfo', 'email')),
+        first_name: @metadata&.dig('primaryContactInfo', 'name', 'first'),
+        last_name: @metadata&.dig('primaryContactInfo', 'name', 'last'),
         form_number: @metadata['docType'],
         file_name: pdf_file_path,
         s3_status: response_status,

@@ -39,7 +39,7 @@ RSpec.describe IvcChampva::VHA1010d do
         'source' => 'VA Platform Digital Forms',
         'docType' => 'VHA1010d',
         'businessLine' => 'CMP',
-        'primary_contact_info' => {
+        'primaryContactInfo' => {
           'name' => {
             'first' => 'Veteran',
             'last' => 'Surname'

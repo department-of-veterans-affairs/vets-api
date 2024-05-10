@@ -29,7 +29,7 @@ module IvcChampva
         'businessLine' => 'CMP',
         'ssn_or_tin' => @data.dig('veteran', 'ssn_or_tin'),
         'uuid' => @uuid,
-        'primary_contact_info' => @data['primary_contact_info']
+        'primaryContactInfo' => @data['primary_contact_info']
       }
     end
 
