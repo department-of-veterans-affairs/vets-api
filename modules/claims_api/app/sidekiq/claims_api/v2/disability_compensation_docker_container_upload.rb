@@ -23,7 +23,6 @@ module ClaimsApi
                          'Submitting mapped data to Docker container')
 
         evss_res = evss_service.submit(auto_claim, evss_data)
-        raise raise_backend_exception('EVSS500') if evss_res.nil?
 
         log_job_progress(claim_id,
                          "Successfully submitted to Docker container with response: #{evss_res}")
