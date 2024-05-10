@@ -9,13 +9,15 @@ RSpec.describe SignIn::SessionContainer, type: :model do
            refresh_token:,
            access_token:,
            anti_csrf_token:,
-           client_config:)
+           client_config:,
+           device_secret:)
   end
 
   let(:session) { create(:oauth_session) }
   let(:refresh_token) { create(:refresh_token) }
   let(:access_token) { create(:access_token) }
   let(:anti_csrf_token) { SecureRandom.hex }
+  let(:device_secret) { SecureRandom.hex }
   let(:client_config) { create(:client_config) }
 
   describe 'validations' do

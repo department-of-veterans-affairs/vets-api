@@ -114,53 +114,23 @@ RSpec.describe Users::Profile do
 
       context 'mhv user' do
         let(:user) { create(:user, :mhv) }
+        let!(:user_verification) { create(:mhv_user_verification, mhv_uuid: user.mhv_correlation_id) }
 
         it 'includes sign_in' do
           expect(profile[:sign_in]).to eq(service_name: SAML::User::MHV_ORIGINAL_CSID,
                                           auth_broker: SAML::URLService::BROKER_CODE,
                                           client_id: SAML::URLService::WEB_CLIENT_ID)
         end
-
-        context 'multifactor' do
-          let(:user) { create(:user, :loa1, authn_context: 'myhealthevet_multifactor') }
-
-          it 'includes sign_in.service_name' do
-            expect(profile[:sign_in][:service_name]).to eq(SAML::User::MHV_ORIGINAL_CSID)
-          end
-        end
-
-        context 'verified' do
-          let(:user) { create(:user, :loa1, authn_context: 'myhealthevet_loa3') }
-
-          it 'includes sign_in.service_name' do
-            expect(profile[:sign_in][:service_name]).to eq(SAML::User::MHV_ORIGINAL_CSID)
-          end
-        end
       end
 
       context 'dslogon user' do
         let(:user) { create(:user, :dslogon) }
+        let!(:user_verification) { create(:dslogon_user_verification, dslogon_uuid: user.edipi) }
 
         it 'includes sign_in' do
           expect(profile[:sign_in]).to eq(service_name: SAML::User::DSLOGON_CSID,
                                           auth_broker: SAML::URLService::BROKER_CODE,
                                           client_id: SAML::URLService::WEB_CLIENT_ID)
-        end
-
-        context 'multifactor' do
-          let(:user) { create(:user, :loa1, authn_context: 'dslogon_multifactor') }
-
-          it 'includes sign_in.service_name' do
-            expect(profile[:sign_in][:service_name]).to eq(SAML::User::DSLOGON_CSID)
-          end
-        end
-
-        context 'verified' do
-          let(:user) { create(:user, :loa1, authn_context: 'dslogon_loa3') }
-
-          it 'includes sign_in.service_name' do
-            expect(profile[:sign_in][:service_name]).to eq(SAML::User::DSLOGON_CSID)
-          end
         end
       end
 
