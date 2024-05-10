@@ -174,7 +174,8 @@ module EVSS
         gulf_war2001_value = gulf_war2001&.values&.any?(&:present?)
 
         gulf_war_hazard_service = Requests::GulfWarHazardService.new
-        gulf_war_hazard_service.served_in_gulf_war_hazard_locations = gulf_war1990_value || gulf_war2001_value ? 'YES' : 'NO'
+        gulf_war_hazard_service.served_in_gulf_war_hazard_locations =
+          gulf_war1990_value || gulf_war2001_value ? 'YES' : 'NO'
 
         toxic_exposure_target.gulf_war_hazard_service = gulf_war_hazard_service
 
