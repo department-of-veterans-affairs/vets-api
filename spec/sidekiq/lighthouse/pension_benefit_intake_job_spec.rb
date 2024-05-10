@@ -8,14 +8,14 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
   stub_virus_scan
   let(:job) { described_class.new }
   let(:claim) { create(:pension_claim) }
+  let(:service) { double('service') }
+  let(:monitor) { double('monitor') }
+  let(:user_uuid) { 123 }
 
   describe '#perform' do
-    let(:service) { double('service') }
     let(:response) { double('response') }
-    let(:monitor) { double('monitor') }
     let(:pdf_path) { 'random/path/to/pdf' }
     let(:location) { 'test_location' }
-    let(:user_uuid) { 123 }
 
     before do
       job.instance_variable_set(:@claim, claim)
@@ -35,15 +35,20 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       allow(monitor).to receive :track_submission_begun
       allow(monitor).to receive :track_submission_attempted
       allow(monitor).to receive :track_submission_success
+      allow(monitor).to receive :track_submission_retry
     end
 
     it 'submits the saved claim successfully' do
       allow(job).to receive(:process_document).and_return(pdf_path)
 
+      expect(FormSubmission).to receive(:create)
+      expect(FormSubmissionAttempt).to receive(:create)
+      expect(Datadog::Tracing).to receive(:active_trace)
+
       expect(service).to receive(:perform_upload).with(
         upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
       )
-      # expect(job).to receive(:cleanup_file_paths)
+      expect(job).to receive(:cleanup_file_paths)
 
       job.perform(claim.id, :user_uuid)
     end
@@ -51,7 +56,11 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
     it 'is unable to find saved_claim_id' do
       allow(SavedClaim::Pension).to receive(:find).and_return(nil)
 
+      expect(BenefitsIntake::Service).not_to receive(:new)
       expect(claim).not_to receive(:to_pdf)
+      expect(monitor).to receive(:track_submission_retry)
+      expect(job).to receive(:cleanup_file_paths)
+
       expect { job.perform(claim.id, :user_uuid) }.to raise_error(
         Lighthouse::PensionBenefitIntakeJob::PensionBenefitIntakeError,
         "Unable to find SavedClaim::Pension #{claim.id}"
@@ -60,36 +69,6 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
 
     # perform
   end
-
-  describe '#check_success' do
-    let(:service) { double('service') }
-    let(:response) { double('response') }
-
-    before do
-      job.instance_variable_set(:@claim, claim)
-      job.instance_variable_set(:@lighthouse_service, service)
-      allow(service).to receive(:uuid)
-    end
-
-    it 'sends a confirmation email on success' do
-      allow(response).to receive(:success?).and_return(true)
-
-      expect(claim).to receive(:send_confirmation_email)
-      job.check_success(response)
-    end
-
-    it 'does not send an email on failure' do
-      allow(response).to receive(:message).and_return('TEST RESPONSE')
-      allow(response).to receive(:success?).and_return(false)
-
-      expect(claim).not_to receive(:send_confirmation_email)
-      expect { job.check_success(response) }.to raise_error(
-        Lighthouse::PensionBenefitIntakeJob::PensionBenefitIntakeError,
-        response.to_s
-      )
-    end
-    # check_success
-  end if false
 
   describe '#process_document' do
     let(:service) { double('service') }
@@ -112,68 +91,23 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       expect(run_count).to eq(2)
     end
     # process_document
-  end if false
-
-  describe '#generate_metadata' do
-    before do
-      job.instance_variable_set(:@claim, claim)
-    end
-
-    it 'returns expected hash' do
-      expect { job.send('generate_metadata') }.to include(
-        'veteranFirstName' => be_a(String),
-        'veteranLastName' => be_a(String),
-        'fileNumber' => be_a(String),
-        'zipCode' => be_a(String),
-        'docType' => be_a(String),
-        'businessLine' => eq(claim.business_line),
-        'source' => eq(described_class::PENSION_SOURCE)
-      )
-    end
-    # generate_metadata
-  end if false
-
-  describe '#form_submission_polling' do
-    let(:service) { double('service') }
-
-    before do
-      job.instance_variable_set(:@claim, claim)
-      job.instance_variable_set(:@lighthouse_service, service)
-      allow(service).to receive(:uuid).and_return('UUID')
-
-      allow(FormSubmission).to receive(:create)
-      allow(FormSubmissionAttempt).to receive(:create)
-      allow(Datadog::Tracing).to receive(:active_trace)
-    end
-
-    it 'creates polling entries' do
-      form_submission = { test: 'submission' }
-      expect(FormSubmission).to receive(:create).with(
-        form_type: claim.form_id,
-        form_data: claim.to_json,
-        benefits_intake_uuid: service.uuid,
-        saved_claim: claim,
-        saved_claim_id: claim.id
-      ).and_return(form_submission)
-      expect(FormSubmissionAttempt).to receive(:create).with(form_submission:)
-      expect(Datadog::Tracing).to receive(:active_trace)
-
-      job.form_submission_polling
-    end
-    # form_submission_polling
-  end if false
+  end
 
   describe '#cleanup_file_paths' do
     before do
       job.instance_variable_set(:@form_path, 'path/file.pdf')
       job.instance_variable_set(:@attachment_paths, '/invalid_path/should_be_an_array.failure')
+
+      job.instance_variable_set(:@pension_monitor, monitor)
+      allow(monitor).to receive(:track_file_cleanup_error)
     end
 
     it 'returns expected hash' do
-      expect(Rails.logger).to receive(:error).with('Lighthouse::PensionBenefitIntakeJob cleanup failed',
-                                                   hash_including(:error, :claim_id, :confirmation_number,
-                                                                  :benefits_intake_uuid))
-      expect { job.send(:cleanup_file_paths) }.to raise_error(NoMethodError)
+      expect(monitor).to receive(:track_file_cleanup_error)
+      expect { job.send(:cleanup_file_paths) }.to raise_error(
+        Lighthouse::PensionBenefitIntakeJob::PensionBenefitIntakeError,
+        anything
+      )
     end
   end
 

@@ -152,7 +152,7 @@ module Lighthouse
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     rescue => e
       @pension_monitor.track_file_cleanup_error(@claim, @intake_service, @user_uuid, e)
-      raise e
+      raise PensionBenefitIntakeError, e.message
     end
 
   end
