@@ -13,6 +13,12 @@ module CheckIn
 
       STATSD_KEY_PREFIX = 'api.check_in.vaos.facilities'
 
+      def get_facility_with_cache(facility_id:)
+        Rails.cache.fetch("check_in.vaos_facility_#{facility_id}", expires_in: 12.hours) do
+          get_facility(facility_id:)
+        end
+      end
+
       def get_facility(facility_id:)
         with_monitoring do
           response = perform(:get, facilities_url(facility_id:), {}, headers)

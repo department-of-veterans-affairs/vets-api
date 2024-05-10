@@ -9,7 +9,8 @@ module SignIn
       :refresh_token,
       :access_token,
       :anti_csrf_token,
-      :client_config
+      :client_config,
+      :device_secret
     )
 
     validates(
@@ -21,16 +22,18 @@ module SignIn
       presence: true
     )
 
-    def initialize(session:,
+    def initialize(session:, # rubocop:disable Metrics/ParameterLists
                    refresh_token:,
                    access_token:,
                    anti_csrf_token:,
-                   client_config:)
+                   client_config:,
+                   device_secret: nil)
       @session = session
       @refresh_token = refresh_token
       @access_token = access_token
       @anti_csrf_token = anti_csrf_token
       @client_config = client_config
+      @device_secret = device_secret
 
       validate!
     end
