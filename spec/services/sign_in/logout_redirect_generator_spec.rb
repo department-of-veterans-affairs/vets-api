@@ -5,11 +5,11 @@ require 'rails_helper'
 RSpec.describe SignIn::LogoutRedirectGenerator do
   describe '#perform' do
     subject do
-      SignIn::LogoutRedirectGenerator.new(user:, client_config:).perform
+      SignIn::LogoutRedirectGenerator.new(credential_type:, client_config:).perform
     end
 
     describe '#perform' do
-      let(:user) { create(:user) }
+      let(:credential_type) { 'logingov' }
       let(:client_config) { create(:client_config, logout_redirect_uri:) }
       let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
 
@@ -17,7 +17,6 @@ RSpec.describe SignIn::LogoutRedirectGenerator do
         let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
 
         context 'and the user is authenticated with login.gov credential' do
-          let(:user) { create(:user, :ial1) }
           let(:logingov_client_id) { Settings.logingov.client_id }
           let(:logingov_logout_redirect_uri) { Settings.logingov.logout_redirect_uri }
           let(:random_seed) { 'some-random-seed' }
@@ -47,7 +46,16 @@ RSpec.describe SignIn::LogoutRedirectGenerator do
         end
 
         context 'and the user is not authenticated with the login.gov credential' do
-          let(:user) { create(:user) }
+          let(:credential_type) { 'idme' }
+          let(:expected_url) { URI.parse(logout_redirect_uri).to_s }
+
+          it 'returns a logout redirect properly parsing logout redirect uri' do
+            expect(subject).to eq(expected_url)
+          end
+        end
+
+        context 'and no credential type is provided' do
+          let(:credential_type) { nil }
           let(:expected_url) { URI.parse(logout_redirect_uri).to_s }
 
           it 'returns a logout redirect properly parsing logout redirect uri' do

@@ -39,6 +39,7 @@ module SignIn
       REFRESH_ROUTE_PATH = '/v0/sign_in/refresh'
       REFRESH_TOKEN_COOKIE_NAME = 'vagov_refresh_token'
       SERVICE_ACCOUNT_ACCESS_TOKEN_COOKIE_NAME = 'service_account_access_token'
+      SCOPES = [DEVICE_SSO = 'device_sso'].freeze
       TOKEN_ROUTE_PATH = '/v0/sign_in/token'
     end
   end
