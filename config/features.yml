@@ -63,9 +63,6 @@ features:
   hca_sigi_enabled:
     actor_type: user
     description: Enables Self-Identifying Gender Identity question for health care applicants.
-  hca_tera_enabled:
-    actor_type: user
-    description: Enables Toxic Exposure questions for health care applicants.
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
@@ -171,6 +168,10 @@ features:
   claims_api_local_bgs_refactor:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
+    enable_in_development: true
+  cst_claim_phases:
+    actor_type: user
+    description: When enabled, claims status tool uses the new claim phase designs
     enable_in_development: true
   cst_use_lighthouse_5103:
     actor_type: user
