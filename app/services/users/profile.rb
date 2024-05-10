@@ -173,7 +173,7 @@ module Users
     end
 
     def in_progress_forms
-      InProgressForm.for_user(user).map do |form|
+      InProgressForm.submission_pending.for_user(user).map do |form|
         {
           form: form.form_id,
           metadata: form.metadata,

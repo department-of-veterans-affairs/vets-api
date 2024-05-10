@@ -2,6 +2,8 @@
 
 module AppealsApi
   class StatsReport
+    include ActiveSupport::NumberHelper
+
     DATE_FORMAT = '%b%e, %Y'
 
     # [from, to] pairs to report transition times
@@ -61,6 +63,11 @@ module AppealsApi
         ### Stalled records
 
         #{formatted_stalled_stats(AppealsApi::SupplementalClaim)}
+
+
+        Veterans Impacted (Unique ICNs)
+        ---
+        #{formatted_impact_stats}
       REPORT
     end
 
@@ -168,6 +175,23 @@ module AppealsApi
       end.compact
 
       parts.empty? ? '(none)' : parts.join("\n")
+    end
+
+    def formatted_impact_stats
+      hlr_icns = unique_icns(AppealsApi::HigherLevelReview)
+      nod_icns = unique_icns(AppealsApi::NoticeOfDisagreement)
+      sc_icns = unique_icns(AppealsApi::SupplementalClaim)
+
+      <<~STATS
+        Higher Level Reviews: #{number_to_delimited(hlr_icns.count)}
+        Notice of Disagreements: #{number_to_delimited(nod_icns.count)}
+        Supplemental Claims: #{number_to_delimited(sc_icns.count)}
+        All Decision Reviews: #{number_to_delimited((hlr_icns + nod_icns + sc_icns).uniq.count)}
+      STATS
+    end
+
+    def unique_icns(appeal_type)
+      appeal_type.where(created_at: date_from..date_to).pluck(:veteran_icn).uniq
     end
   end
 end

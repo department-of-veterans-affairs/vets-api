@@ -102,6 +102,16 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
                                                            day: date.strftime('%d') })
         end
       end
+
+      context 'with empty confinements' do
+        it "doesn't send confinements" do
+          form_attributes['serviceInformation']['confinements'] = []
+          mapper.map_claim
+
+          service_information = pdf_data[:data][:attributes][:serviceInformation]
+          expect(service_information.keys).not_to include :confinements
+        end
+      end
     end
 
     context '526 section 1' do

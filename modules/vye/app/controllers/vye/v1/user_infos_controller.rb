@@ -15,15 +15,16 @@ module Vye
                serializer: Vye::UserInfoSerializer,
                key_transform: :camel_lower,
                adapter: :json,
-               include: %i[address_changes pending_documents verifications pending_verifications].freeze
+               api_key: api_key?,
+               include: %i[latest_address pending_documents verifications pending_verifications].freeze
       end
 
       private
 
-      def load_user_info
-        return super(scoped: Vye::UserProfile.with_assos) unless api_key?
+      def load_user_info(scoped: Vye::UserProfile.with_assos)
+        return super(scoped:) unless api_key?
 
-        @user_info = user_info_for_ivr(scoped: Vye::UserProfile.with_assos)
+        @user_info = user_info_for_ivr(scoped:)
       end
 
       def transformed_params

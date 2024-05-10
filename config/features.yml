@@ -63,9 +63,6 @@ features:
   hca_sigi_enabled:
     actor_type: user
     description: Enables Self-Identifying Gender Identity question for health care applicants.
-  hca_tera_enabled:
-    actor_type: user
-    description: Enables Toxic Exposure questions for health care applicants.
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
@@ -171,6 +168,10 @@ features:
   claims_api_local_bgs_refactor:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
+    enable_in_development: true
+  cst_claim_phases:
+    actor_type: user
+    description: When enabled, claims status tool uses the new claim phase designs
     enable_in_development: true
   cst_use_lighthouse_5103:
     actor_type: user
@@ -323,6 +324,10 @@ features:
   decision_review_delay_evidence:
     actor_type: user
     description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself
+  decision_review_save_encrypted_attachments:
+    actor_type: user
+    description: Enables saving a copy of encrypted decision review evidence attachment files for manual validation
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -597,6 +602,9 @@ features:
     actor_type: user
     description: Enables secure messaging
     enable_in_development: true
+  ha_cpap_supplies_cta:
+    actor_type: user
+    description: Toggle CTA for reordering Hearing Aid and CPAP supplies form within static pages.
   injected_header_web_components:
     actor_type: user
     description: Enable/disable import of web components to the injected header
