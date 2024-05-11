@@ -39,6 +39,8 @@ module BGS
     def submit_686c_form(claim)
       Rails.logger.info('BGS::DependentService running!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
 
+      InProgressForm.find_by(form_id: BGS::SubmitForm686cJob::FORM_ID, user_uuid: uuid)&.submission_processing!
+
       encrypted_vet_info = KmsEncrypted::Box.new.encrypt(get_form_hash_686c.to_json)
       submit_pdf_job(claim:, encrypted_vet_info:)
 
