@@ -26,6 +26,12 @@ module CheckIn
         end
       end
 
+      def get_clinic_with_cache(facility_id:, clinic_id:)
+        Rails.cache.fetch("check_in.vaos_clinic_#{facility_id}_#{clinic_id}", expires_in: 12.hours) do
+          get_clinic(facility_id:, clinic_id:)
+        end
+      end
+
       def get_clinic(facility_id:, clinic_id:)
         with_monitoring do
           response = perform(:get, clinics_url(facility_id:, clinic_id:), {}, headers)
