@@ -2,25 +2,33 @@
 
 module Vye
   class Vye::Verification < ApplicationRecord
-    belongs_to :user_info
+    self.ignored_columns += [:user_info_id]
+
+    belongs_to :user_profile
+    belongs_to :award, optional: true
 
     validates(:source_ind, presence: true)
 
-    enum source_ind: { web: 'W', phone: 'P' }
-
-    scope :created_today, -> { includes(:user_info).where('created_at >= ?', Time.zone.now.beginning_of_day) }
+    enum(
+      source_ind: { web: 'W', phone: 'P' },
+      _prefix: :source
+    )
 
     def self.todays_verifications
-      created_today.each_with_object([]) do |record, result|
-        result << {
-          stub_nm: record.user_info.stub_nm,
-          ssn: record.user_info.ssn,
-          transact_date: record.created_at.strftime('%Y%m%d'),
-          rpo_code: record.user_info.rpo_code,
-          indicator: record.user_info.indicator,
-          source_ind: record.source_ind
-        }
-      end
+      UserInfo
+        .includes(:bdn_clone, awards: :verifications)
+        .each_with_object([]) do |user_info, result|
+          verification = user_info.queued_verifications.first
+
+          stub_nm = user_info.stub_nm
+          ssn = user_info.ssn
+          transact_date = verification.transact_date.strftime('%Y%m%d')
+          rpo_code = user_info.rpo_code
+          indicator = user_info.indicator
+          source_ind = verification.source_ind
+
+          result << { stub_nm:, ssn:, transact_date:, rpo_code:, indicator:, source_ind: }
+        end
     end
 
     def self.todays_verifications_report

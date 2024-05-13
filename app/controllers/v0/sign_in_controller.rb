@@ -5,7 +5,9 @@ require 'sign_in/logger'
 module V0
   class SignInController < SignIn::ApplicationController
     skip_before_action :authenticate,
-                       only: %i[authorize callback token refresh revoke logout logingov_logout_proxy]
+                       only: %i[authorize callback token refresh revoke revoke_all_sessions logout
+                                logingov_logout_proxy]
+    before_action :access_token_authenticate, only: :revoke_all_sessions
 
     def authorize # rubocop:disable Metrics/MethodLength
       type = params[:type].presence
@@ -15,6 +17,7 @@ module V0
       client_id = params[:client_id].presence
       acr = params[:acr].presence
       operation = params[:operation].presence || SignIn::Constants::Auth::AUTHORIZE
+      scope = params[:scope].presence
 
       validate_authorize_params(type, client_id, acr, operation)
 
@@ -26,7 +29,8 @@ module V0
                                                  acr:,
                                                  client_config: client_config(client_id),
                                                  type:,
-                                                 client_state:).perform
+                                                 client_state:,
+                                                 scope:).perform
       context = { type:, client_id:, acr:, operation: }
 
       sign_in_logger.info('authorize', context)
@@ -161,7 +165,10 @@ module V0
     end
 
     def revoke_all_sessions
-      SignIn::RevokeSessionsForUser.new(user_account: @current_user.user_account).perform
+      session = SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
+      raise SignIn::Errors::SessionNotFoundError.new message: 'Session not found' if session.blank?
+
+      SignIn::RevokeSessionsForUser.new(user_account: session.user_account).perform
 
       sign_in_logger.info('revoke all sessions', @access_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS)
@@ -181,9 +188,14 @@ module V0
         raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
       end
 
-      unless load_user(skip_expiration_check: true)
-        raise SignIn::Errors::LogoutAuthorizationError.new message: 'Unable to Authorize User'
+      unless access_token_authenticate(skip_error_handling: true)
+        raise SignIn::Errors::LogoutAuthorizationError.new message: 'Unable to authorize access token'
       end
+
+      session = SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
+      raise SignIn::Errors::SessionNotFoundError.new message: 'Session not found' if session.blank?
+
+      credential_type = session.user_verification.credential_type
 
       SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token:).perform
       delete_cookies if token_cookies
@@ -191,16 +203,15 @@ module V0
       sign_in_logger.info('logout', @access_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS)
 
-      logout_redirect = SignIn::LogoutRedirectGenerator.new(user: @current_user,
+      logout_redirect = SignIn::LogoutRedirectGenerator.new(credential_type:,
                                                             client_config: client_config(client_id)).perform
-
       logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
-    rescue SignIn::Errors::LogoutAuthorizationError, SignIn::Errors::SessionNotAuthorizedError => e
+    rescue SignIn::Errors::LogoutAuthorizationError,
+           SignIn::Errors::SessionNotAuthorizedError,
+           SignIn::Errors::SessionNotFoundError => e
       sign_in_logger.info('logout error', { errors: e.message })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
-
-      logout_redirect = SignIn::LogoutRedirectGenerator.new(user: @current_user,
-                                                            client_config: client_config(client_id)).perform
+      logout_redirect = SignIn::LogoutRedirectGenerator.new(client_config: client_config(client_id)).perform
 
       logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
     rescue => e

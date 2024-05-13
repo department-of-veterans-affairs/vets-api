@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
+require_relative '../support/helpers/rails_helper'
+
 require 'lighthouse/benefits_documents/service'
 
-RSpec.describe 'claims document upload', type: :request do
+RSpec.describe 'claims document upload', skip_json_api_validation: true, type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '24811694708759028') }
@@ -58,7 +57,6 @@ RSpec.describe 'claims document upload', type: :request do
       expect do
         post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers(camelize: false)
       end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
-
       expect(response.status).to eq(202)
       expect(response.parsed_body.dig('data', 'job_id')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
       expect(Lighthouse::DocumentUpload.jobs.first.dig('args', 1, 'tracked_item_id')).to eq([tracked_item_id])

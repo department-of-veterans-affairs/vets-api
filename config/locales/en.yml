@@ -24,6 +24,7 @@ en:
     formats:
       pdf_stamp: "%Y-%m-%d"
       pdf_stamp4010007: "%m/%d/%Y"
+      pdf_stamp_utc: "%Y-%m-%d %I:%M %p %Z"
   dependency_claim_failure_mailer:
     subject: We can’t process your dependents application
     body_html: >
