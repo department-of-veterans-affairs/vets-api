@@ -1826,7 +1826,7 @@ RSpec.describe FormProfile, type: :model do
           'veteranSocialSecurityNumber' => %w[identity_information ssn],
           'veteranPhoneNumber' => %w[contact_information us_phone],
           'veteranEmailAddress' => %w[contact_information email],
-          'veteranPhysicalAddress' => %w[form_addresss]
+          'veteranPhysicalAddress' => %w[form_address]
         )
         instance.prefill
       end
