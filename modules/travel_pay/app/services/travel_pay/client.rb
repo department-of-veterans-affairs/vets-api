@@ -82,7 +82,7 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       api_key = Settings.travel_pay.subscription_key
 
-      ### TODO: Remove this token parsing code. 
+      ### TODO: Remove this token parsing code.
       ### This is a very temporary workaround.
       ### A fix is being worked on by the API team, deployed soon
       payload = JWT.decode(btsss_token, nil, false)[0]
@@ -99,9 +99,9 @@ module TravelPay
 
       sorted_claims = symbolized_body[:data].sort_by(&parse_claim_date).reverse
 
-      { 
-        data: sorted_claims.map do |sc| 
-          sc[:claimStatus] = sc[:claimStatus].underscore.titleize 
+      {
+        data: sorted_claims.map do |sc|
+          sc[:claimStatus] = sc[:claimStatus].underscore.titleize
           sc
         end
       }
