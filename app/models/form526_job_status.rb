@@ -3,7 +3,7 @@
 class Form526JobStatus < ApplicationRecord
   belongs_to :form526_submission
 
-  alias_nethod :submission, :form526_submission
+  alias_method :submission, :form526_submission
 
   STATUS = {
     try: 'try',
