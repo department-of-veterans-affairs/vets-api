@@ -15,6 +15,12 @@ module SignIn
         end
       end
 
+      def self_signed_certificates
+        @self_signed_certificates ||= certificate_objects.select do |certificate|
+          certificate.issuer == certificate.subject
+        end
+      end
+
       private
 
       def certificate_objects

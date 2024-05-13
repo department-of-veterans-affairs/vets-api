@@ -56,4 +56,38 @@ RSpec.shared_examples 'implements certifiable concern' do
       end
     end
   end
+
+  describe '#self_signed_certificates' do
+    let(:self_signed_certificate) do
+      File.read('spec/fixtures/sign_in/sample_self_signed_client.crt')
+    end
+
+    context 'when certificates does not include a self-signed certificate' do
+      it 'does not include the self-signed certificate' do
+        self_signed_certificate_object = OpenSSL::X509::Certificate.new(self_signed_certificate)
+        expect(subject.self_signed_certificates).not_to include(self_signed_certificate_object)
+      end
+
+      it 'does not include the valid certificate' do
+        certificate_object = OpenSSL::X509::Certificate.new(certificate)
+        expect(subject.self_signed_certificates).not_to include(certificate_object)
+      end
+    end
+
+    context 'when certificates include a self-signed certificate' do
+      before do
+        subject.certificates = [certificate, self_signed_certificate]
+      end
+
+      it 'includes the self-signed certificate' do
+        self_signed_certificate_object = OpenSSL::X509::Certificate.new(self_signed_certificate)
+        expect(subject.self_signed_certificates).to include(self_signed_certificate_object)
+      end
+
+      it 'does not include the valid certificate' do
+        certificate_object = OpenSSL::X509::Certificate.new(certificate)
+        expect(subject.self_signed_certificates).not_to include(certificate_object)
+      end
+    end
+  end
 end
