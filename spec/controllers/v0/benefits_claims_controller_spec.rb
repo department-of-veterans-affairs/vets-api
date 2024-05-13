@@ -37,6 +37,29 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       end
     end
 
+    context 'it updates existing EVSSClaim records when visited' do
+      let(:evss_id) { 600_383_363 }
+      let(:claim) { create(:evss_claim, evss_id:, user_uuid: user.uuid) }
+      let(:t1) { claim.updated_at }
+
+      before do
+        p "TIMESTAMP #1: #{t1} #{t1.class}"
+      end
+
+      it 'updates the ’updated_at’ field on existing EVSSClaim records' do
+        Timecop.travel(10.minutes.from_now)
+
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          get(:index)
+        end
+
+        expect(response).to have_http_status(:ok)
+
+        t2 = EVSSClaim.where(evss_id:).first.updated_at
+        expect(t2).to be > t1
+      end
+    end
+
     context 'when not authorized' do
       it 'returns a status of 401' do
         VCR.use_cassette('lighthouse/benefits_claims/index/401_response') do
