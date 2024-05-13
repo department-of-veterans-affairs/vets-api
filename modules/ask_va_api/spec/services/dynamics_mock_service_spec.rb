@@ -37,7 +37,7 @@ RSpec.describe DynamicsMockService do
     context 'when the file contains valid JSON content' do
       let(:expected_result) do
         { Data: {
-          Icn: I18n.t('ask_va_api')[:test_users][:test_user_228_icn],
+          Icn: I18n.t('ask_va_api.test_users.test_user_228_icn'),
           Id: '1',
           InquiryNumber: 'A-1',
           InquiryStatus: 'In Progress',
@@ -67,7 +67,7 @@ RSpec.describe DynamicsMockService do
       end
 
       context 'with icn payload' do
-        let(:test_users) { I18n.t('ask_va_api')[:test_users] }
+        let(:test_users) { I18n.t('ask_va_api.test_users') }
         let(:icn) do
           test_users['test_user_228_icn']
         end
