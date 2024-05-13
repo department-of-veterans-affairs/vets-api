@@ -9,6 +9,12 @@ module SignIn
         @assertion_public_keys ||= certificate_objects.map(&:public_key)
       end
 
+      def expired_certificates
+        @expired_certificates ||= certificate_objects.select do |certificate|
+          certificate.not_after < Time.zone.now
+        end
+      end
+
       private
 
       def certificate_objects
