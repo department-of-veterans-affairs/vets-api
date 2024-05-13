@@ -2,6 +2,7 @@
 
 require 'claims_api/v2/disability_compensation_pdf_mapper'
 require 'pdf_generator_service/pdf_client'
+require 'claims_api/v2/mock_526_pdf_generator'
 
 module ClaimsApi
   module V2
@@ -20,8 +21,11 @@ module ClaimsApi
 
         mapped_claim = pdf_mapper_service(auto_claim.form_data, get_pdf_data, auto_claim.auth_headers,
                                           middle_initial, auto_claim.created_at).map_claim
-        pdf_string = generate_526_pdf(mapped_claim)
-
+        pdf_string = if Settings.claims_api.pdf_generator_526.mock == false
+                       generate_526_pdf(mapped_claim)
+                     else
+                       mock_526_pdf
+                     end
         if pdf_string.empty?
           log_job_progress(claim_id,
                            '526EZ PDF generator failed to return PDF string for claim')
@@ -33,12 +37,13 @@ module ClaimsApi
 
           file_name = "#{SecureRandom.hex}.pdf"
           path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
-          upload = ActionDispatch::Http::UploadedFile.new({
-                                                            filename: file_name,
-                                                            type: 'application/pdf',
-                                                            tempfile: File.open(path)
-                                                          })
-
+          if Settings.claims_api.pdf_generator_526.mock == false
+            upload = ActionDispatch::Http::UploadedFile.new({
+                                                              filename: file_name,
+                                                              type: 'application/pdf',
+                                                              tempfile: File.open(path)
+                                                            })
+          end
           log_job_progress(claim_id,
                            "526EZ PDF generator Uploaded 526EZ PDF #{file_name} to S3")
 
@@ -110,6 +115,10 @@ module ClaimsApi
         {
           data: {}
         }
+      end
+
+      def mock_526_pdf
+        ClaimsApi::V2::MockPdfGeneratorService.new.generate_pdf
       end
     end
   end
