@@ -28,7 +28,7 @@ module PDFUtilities
         text += if file_path == 'tmp/vba_40_10007-stamped.pdf'
                   " #{I18n.l(timestamp, format: :pdf_stamp4010007)}"
                 else
-                  " #{I18n.l(timestamp, format: :pdf_stamp)}"
+                  " #{I18n.l(timestamp, format: :pdf_stamp_utc)}"
                 end
         text += ". #{@append_to_stamp}" if @append_to_stamp
       end
