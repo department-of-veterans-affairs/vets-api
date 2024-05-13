@@ -45,13 +45,29 @@ class Vye::UserProfile < ApplicationRecord
     end
   end
 
+  def assign_digested_changes(attributes)
+    attributes.slice(:ssn, :file_number).each do |key, value|
+      next if self[format('%<key>s_digest', key:)] == gen_digest(value)
+
+      Rails.logger.info format('Vye::UserProfile(%<id>u) updating with new %<key>s', id:, key:)
+      send(format('%<key>s=', key), value)
+    end
+  end
+
   def self.produce(attributes)
     attributes = attributes.slice(:ssn, :file_number, :icn)
 
     %i[ssn file_number].each do |key|
-      send("find_from_digested_#{key}", attributes[key])&.then { |record| return record if record.update!(attributes) }
+      record = send("find_from_digested_#{key}", attributes[key])
+
+      next if record.blank?
+
+      record.assign_digested_changes(attributes)
+
+      return record
     end
 
+    Rails.logger.info format('Vye::UserProfile, new record with %<attribute_keys>p', attribute_keys: attributes.keys)
     build(attributes)
   end
 end
