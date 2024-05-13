@@ -63,11 +63,13 @@ namespace :vye do
       files = root.glob('**/*.yaml')
       raise "No files found in #{root}" if files.empty?
 
+      bdn_clone = Vye::BdnClone.create!
+
       files.each do |file|
         source = :team_sensitive
         data = YAML.safe_load(file.read, permitted_classes: [Date, DateTime, Symbol, Time])
         records = data.slice(:profile, :info, :address, :awards, :pending_documents)
-        Vye::LoadData.new(source:, records:)
+        Vye::LoadData.new(source:, bdn_clone:, records:)
       end
     end
   end

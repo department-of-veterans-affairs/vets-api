@@ -60,6 +60,10 @@ module SignIn
       service_levels.include?(acr)
     end
 
+    def device_sso_enabled?
+      api_auth? && shared_sessions
+    end
+
     private
 
     def appropriate_mock_environment?

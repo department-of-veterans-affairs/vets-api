@@ -54,7 +54,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, uploader_helpers: true do
 
       expect(record).to receive(:to_pdf).and_return('path1')
       expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
-      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5).and_return('path2')
+      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp: nil).and_return('path2')
       expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
       expect(datestamp_double2).to receive(:run).with(
         text: 'FDC Reviewed - va.gov Submission',
@@ -76,7 +76,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, uploader_helpers: true do
 
       expect(record).to receive(:to_pdf).and_return('path1')
       expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
-      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5).and_return('path2')
+      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp:).and_return('path2')
       expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
       expect(datestamp_double2).to receive(:run).with(
         text: 'FDC Reviewed - va.gov Submission',

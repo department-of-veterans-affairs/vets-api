@@ -63,9 +63,6 @@ features:
   hca_sigi_enabled:
     actor_type: user
     description: Enables Self-Identifying Gender Identity question for health care applicants.
-  hca_tera_enabled:
-    actor_type: user
-    description: Enables Toxic Exposure questions for health care applicants.
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
@@ -171,6 +168,10 @@ features:
   claims_api_local_bgs_refactor:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
+    enable_in_development: true
+  cst_claim_phases:
+    actor_type: user
+    description: When enabled, claims status tool uses the new claim phase designs
     enable_in_development: true
   cst_use_lighthouse_5103:
     actor_type: user
@@ -296,15 +297,6 @@ features:
   decision_review_sc_email:
     actor_type: user
     description: Send email notification for successful SC submission
-  decision_review_hlr_pii_expunge_enabled:
-    actor_type: user
-    description: Enables the higher level review PII expunge job
-  decision_review_nod_pii_expunge_enabled:
-    actor_type: user
-    description: Enables the notice of disagreement PII expunge job
-  decision_review_sc_pii_expunge_enabled:
-    actor_type: user
-    description: Enables the supplemental claim PII expunge job
   decision_review_hlr_status_updater_enabled:
     actor_type: user
     description: Enables the Higher Level Review status update batch job
@@ -332,6 +324,10 @@ features:
   decision_review_delay_evidence:
     actor_type: user
     description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself
+  decision_review_save_encrypted_attachments:
+    actor_type: user
+    description: Enables saving a copy of encrypted decision review evidence attachment files for manual validation
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -606,6 +602,9 @@ features:
     actor_type: user
     description: Enables secure messaging
     enable_in_development: true
+  ha_cpap_supplies_cta:
+    actor_type: user
+    description: Toggle CTA for reordering Hearing Aid and CPAP supplies form within static pages.
   injected_header_web_components:
     actor_type: user
     description: Enable/disable import of web components to the injected header
@@ -684,6 +683,9 @@ features:
     actor_type: user
     description: Enables the My HealtheVet secondary navigation
     enable_in_development: true
+  mhv_transitional_medical_records_landing_page:
+    actor_type: user
+    description: Enables the transitional Medical Records page at /my-health/records
   mhv_secure_messaging_to_va_gov_release:
     actor_type: user
     description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
@@ -904,6 +906,9 @@ features:
   my_va_enable_mhv_link:
     actor_type: user
     description: Enables the "Visit MHV" CTA link under Health care section
+  my_va_enable_new_sip_config:
+    actor_type: user
+    description: Enables use of the new SiP configuration
   my_va_update_errors_warnings:
     actor_type: user
     description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released)
@@ -1261,10 +1266,14 @@ features:
     actor_type: user
     description: Flag to use begin rescue block for BGS call
     enable_in_development: true
+  toe_high_school_info_change:
+    actor_type: user
+    description: Flag to change order of high school info page
+    enable_in_development: false
   toe_light_house_dgi_direct_deposit:
     actor_type: user
     description: Uses lighthouse api for direct deposit information in TOE.
-    enable_in_development: true
+    enable_in_development: false
   move_form_back_button:
     actor_type: user
     description: Test moving form back button to the top of the page

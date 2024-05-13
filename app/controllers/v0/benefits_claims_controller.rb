@@ -77,6 +77,10 @@ module V0
             evss_id: claim['id'],
             data: {}
           )
+        else
+          # If there is a record, we want to set the updated_at field
+          # to Time.zone.now
+          record.touch # rubocop:disable Rails/SkipsModelValidations
         end
       end
     end
