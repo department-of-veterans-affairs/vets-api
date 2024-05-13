@@ -82,8 +82,6 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       api_key = Settings.travel_pay.subscription_key
 
-      byebug
-
       ### TODO: Remove this token parsing code. 
       ### This is a very temporary workaround.
       ### A fix is being worked on by the API team, deployed soon
@@ -99,7 +97,14 @@ module TravelPay
       symbolized_body = response.body.deep_symbolize_keys
       parse_claim_date = ->(c) { Date.parse(c[:modifiedOn]) }
 
-      { data: symbolized_body[:data].sort_by(&parse_claim_date).reverse! }
+      sorted_claims = symbolized_body[:data].sort_by(&parse_claim_date).reverse
+
+      { 
+        data: sorted_claims.map do |sc| 
+          sc[:claimStatus] = sc[:claimStatus].underscore.titleize 
+          sc
+        end
+      }
     end
 
     def request_sts_token(user)
