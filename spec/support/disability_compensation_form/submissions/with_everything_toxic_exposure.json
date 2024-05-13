@@ -211,7 +211,8 @@
         "gulfWar1990": {
           "iraq": true,
           "kuwait": true,
-          "qatar": true
+          "qatar": true,
+          "notsure": true
         },
         "gulfWar1990Details": {
           "iraq": {
@@ -231,7 +232,8 @@
           "lebanon": true,
           "uzbekistan": true,
           "yemen": true,
-          "airspace": true
+          "airspace": true,
+          "notsure": true
         },
         "gulfWar2001Details": {
           "airspace": {

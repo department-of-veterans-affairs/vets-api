@@ -180,8 +180,10 @@ module EVSS
       private
 
       def transform_gulf_war(gulf_war1990, gulf_war2001)
-        gulf_war1990_value = gulf_war1990&.values&.any?(&:present?) && !none_of_these(gulf_war1990)
-        gulf_war2001_value = gulf_war2001&.values&.any?(&:present?) && !none_of_these(gulf_war2001)
+        filtered_results1990 = gulf_war1990&.filter { |k| k != 'notsure' }
+        gulf_war1990_value = filtered_results1990&.values&.any?(&:present?) && !none_of_these(filtered_results1990)
+        filtered_results2001 = gulf_war2001&.filter { |k| k != 'notsure' }
+        gulf_war2001_value = filtered_results2001&.values&.any?(&:present?) && !none_of_these(filtered_results2001)
 
         gulf_war_hazard_service = Requests::GulfWarHazardService.new
         gulf_war_hazard_service.served_in_gulf_war_hazard_locations =
