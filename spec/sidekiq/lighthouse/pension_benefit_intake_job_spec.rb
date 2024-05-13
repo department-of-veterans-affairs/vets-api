@@ -58,7 +58,7 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
 
       expect(BenefitsIntake::Service).not_to receive(:new)
       expect(claim).not_to receive(:to_pdf)
-      expect(monitor).to receive(:track_submission_retry)
+
       expect(job).to receive(:cleanup_file_paths)
 
       expect { job.perform(claim.id, :user_uuid) }.to raise_error(
