@@ -15,7 +15,8 @@ module VAOS
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
       AVS_APPT_TEST_ID = '192308'
-      MANILA_PHILIPPINES_FACILITY_ID = '358'
+      MANILA_PHILIPPINES_FACILITY_ID = '358o'
+      FACILITY_ERROR_MSG = 'Error fetching facility details'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
@@ -457,6 +458,16 @@ module VAOS
           'Unable to convert UTC to local time'
         else
           date.to_time.utc.in_time_zone(tz).to_datetime
+        end
+      end
+
+      # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
+      def get_facility_timezone(facility_location_id)
+        facility_info = get_facility_memoized(facility_location_id)
+        if facility_info == FACILITY_ERROR_MSG
+          nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
+        else
+          facility_info[:timezone]&.[](:time_zone_id)
         end
       end
 

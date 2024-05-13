@@ -178,7 +178,7 @@ module VAOS
       # Makes a call to the VAOS service to create a new appointment.
       def get_new_appointment
         if create_params[:kind] == 'clinic' && create_params[:status] == 'booked' # a direct scheduled appointment
-          modify_desired_date(create_params, get_facility_timezone(create_params[:location_id]))
+          modify_desired_date(create_params, appointments_service.get_facility_timezone(create_params[:location_id]))
         end
 
         appointments_service.post_appointment(create_params)
@@ -211,16 +211,6 @@ module VAOS
         utc_date = date.to_time.utc
         timezone_offset = utc_date.in_time_zone(tz).formatted_offset
         utc_date.change(offset: timezone_offset).to_datetime
-      end
-
-      # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
-      def get_facility_timezone(facility_location_id)
-        facility_info = get_facility_memoized(facility_location_id)
-        if facility_info == FACILITY_ERROR_MSG
-          nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
-        else
-          facility_info[:timezone]&.[](:time_zone_id)
-        end
       end
 
       # Checks if the appointment is associated with cerner. It looks through each identifier and checks if the system
