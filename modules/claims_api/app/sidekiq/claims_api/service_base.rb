@@ -52,18 +52,7 @@ module ClaimsApi
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.save!
 
-      auto_claim.evss_response = []
-      error_messages = get_error_message(error)
-      messages = error_messages&.dig(0, :messages).presence ? error_messages[:messages] : [error_messages]
-
-      messages.flatten.uniq.each do |error_message|
-        error_key = get_error_key(error_message)
-        error_text = get_error_text(error_message)
-        auto_claim.evss_response <<
-          { 'key' => error_key,
-            'severity' => 'FATAL',
-            'text' => error_text }
-      end
+      auto_claim.evss_response = error&.original_body
 
       save_auto_claim!(auto_claim, auto_claim.status)
     end
@@ -91,7 +80,8 @@ module ClaimsApi
     def get_error_text(error_message)
       return error_message if error_message.is_a? String
 
-      error_message&.dig(:messages, 0, :text) || error_message&.dig(:text)
+      error_message&.dig(:messages, 0, :text) || error_message&.dig(:text) ||
+        error_message&.dig(:message) || error_message&.dig(:detail)
     end
 
     def get_error_status_code(error)
@@ -112,13 +102,12 @@ module ClaimsApi
 
     def will_retry?(auto_claim, error)
       msg = if auto_claim.evss_response.present?
-              auto_claim.evss_response&.dig(0, 'key')
+              auto_claim.evss_response&.dig('key')
             elsif error.respond_to? :original_body
               get_error_key(error.original_body)
             else
               ''
             end
-
       # If there is a match return false because we will not retry
       NO_RETRY_ERROR_CODES.exclude?(msg)
     end

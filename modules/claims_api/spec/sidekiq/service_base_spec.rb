@@ -31,11 +31,13 @@ RSpec.describe ClaimsApi::ServiceBase do
     claim
   end
 
+  before do
+    @service = described_class.new
+  end
+
   describe '#set_established_state_on_claim' do
     it 'updates claim status as ESTABLISHED' do
-      service = described_class.new
-
-      service.send(:set_established_state_on_claim, claim)
+      @service.send(:set_established_state_on_claim, claim)
       claim.reload
       expect(claim.status).to eq('established')
       expect(claim.evss_response).to eq(nil)
@@ -44,9 +46,7 @@ RSpec.describe ClaimsApi::ServiceBase do
 
   describe '#set_pending_state_on_claim' do
     it 'updates claim status as PENDING' do
-      service = described_class.new
-
-      service.send(:set_pending_state_on_claim, claim)
+      @service.send(:set_pending_state_on_claim, claim)
       claim.reload
       expect(claim.status).to eq('pending')
     end
@@ -54,9 +54,7 @@ RSpec.describe ClaimsApi::ServiceBase do
 
   describe '#set_errored_state_on_claim' do
     it 'updates claim status as ERRORED with error details' do
-      service = described_class.new
-
-      service.send(:set_errored_state_on_claim, claim)
+      @service.send(:set_errored_state_on_claim, claim)
       claim.reload
       expect(claim.status).to eq('errored')
     end
@@ -64,10 +62,43 @@ RSpec.describe ClaimsApi::ServiceBase do
 
   describe '#save_auto_claim!' do
     it 'saves claim with the validation_method property of v2' do
-      service = described_class.new
-
-      service.send(:save_auto_claim!, claim, claim.status)
+      @service.send(:save_auto_claim!, claim, claim.status)
       expect(claim.validation_method).to eq('v2')
+    end
+  end
+
+  describe '#will_retry?' do
+    it 'retries for a header.va_eauth_birlsfilenumber error' do
+      body = { key: 'header.va_eauth_birlsfilenumber', severity: 'FATAL', text: 'Size must be between 8 and 9' }
+
+      error = Common::Exceptions::BackendServiceException.new(
+        'header.va_eauth_birlsfilenumber', {}, nil, body
+      )
+
+      should_retry = @service.send(:will_retry?, claim, error)
+      expect(should_retry).to eq(true)
+    end
+
+    it 'does not retry a form526.InProcess error' do
+      body = { key: 'form526.InProcess', severity: 'FATAL', text: 'Form 526 is already in-process' }
+
+      error = Common::Exceptions::BackendServiceException.new(
+        'form526.InProcess', {}, nil, body
+      )
+
+      should_retry = @service.send(:will_retry?, claim, error)
+      expect(should_retry).to eq(false)
+    end
+
+    it 'does not retry a form526.submit.noRetryError error' do
+      body = { key: 'form526.submit.noRetryError', severity: 'FATAL', text: 'Form 526 is already in-process' }
+
+      error = Common::Exceptions::BackendServiceException.new(
+        'form526.submit.noRetryError', {}, nil, body
+      )
+
+      should_retry = @service.send(:will_retry?, claim, error)
+      expect(should_retry).to eq(false)
     end
   end
 
@@ -75,10 +106,9 @@ RSpec.describe ClaimsApi::ServiceBase do
     let(:detail) { 'PDF mapper succeeded' }
 
     it 'logs job progress' do
-      service = described_class.new
       expect(ClaimsApi::Logger).to receive(:log).with('claims_api_sidekiq_service_base', claim_id: claim.id, detail:)
 
-      service.send(:log_job_progress, claim.id, detail)
+      @service.send(:log_job_progress, claim.id, detail)
     end
   end
 end
