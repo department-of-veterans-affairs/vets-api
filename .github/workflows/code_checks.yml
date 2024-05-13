@@ -1,9 +1,5 @@
 name: Code Checks
-on:
-  pull_request:
-  push:
-    branches:
-      - master
+on: [push]
 permissions:
   contents: read
   checks: write
