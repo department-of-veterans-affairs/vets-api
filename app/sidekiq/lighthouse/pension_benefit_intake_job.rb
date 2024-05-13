@@ -28,6 +28,7 @@ module Lighthouse
       pension_monitor.track_submission_exhaustion(msg, claim)
     end
 
+    ##
     # Process claim pdfs and upload to Benefits Intake API
     # https://developer.va.gov/explore/api/benefits-intake/docs
     #
@@ -76,6 +77,9 @@ module Lighthouse
 
     private
 
+    ##
+    # Instantiate instance variables for _this_ job
+    #
     def init(saved_claim_id, user_uuid)
       Pension21p527ez::TagSentry.tag_sentry
       @pension_monitor = Pension21p527ez::Monitor.new
@@ -87,6 +91,7 @@ module Lighthouse
       @intake_service = BenefitsIntake::Service.new
     end
 
+    ##
     # Create a temp stamped PDF and validate the PDF satisfies Benefits Intake specification
     #
     # @param [String] file_path
@@ -118,7 +123,7 @@ module Lighthouse
       form = @claim.parsed_form
       address = form['claimantAddress'] || form['veteranAddress']
 
-      # also validates
+      # also validates/maniuplates the metadata
       BenefitsIntake::Metadata.generate(
         form['veteranFullName']['first'],
         form['veteranFullName']['last'],
