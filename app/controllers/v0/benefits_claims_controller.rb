@@ -42,7 +42,12 @@ module V0
     end
 
     def submit5103
-      res = service.submit5103(@current_user, params[:id])
+      # Log if the user doesn't have a file number
+      # NOTE: We are treating the BIRLS ID as a substitute
+      # for file number here
+      ::Rails.logger.info('[5103 Submission] No file number') if @current_user.birls_id.nil?
+
+      res = service.submit5103(params[:id])
 
       render json: res
     end
