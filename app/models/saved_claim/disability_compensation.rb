@@ -7,7 +7,6 @@ require 'evss/disability_compensation_form/form8940'
 require 'bgs/disability_compensation_form_flashes'
 
 class SavedClaim::DisabilityCompensation < SavedClaim
-
   attr_accessor :form_hash
 
   # For backwards compatibility, FORM constant needs to be set
