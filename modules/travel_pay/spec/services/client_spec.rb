@@ -74,7 +74,13 @@ describe TravelPay::Client do
 
   context '/claims' do
     it 'returns a list of claims sorted by most recently updated' do
-      @stubs.get('/api/v1/claims') do
+      ### TODO: remove this - this can be an arbitrary
+      ### string once the API team parses the token on
+      ### their side
+      payload = { ContactID: 'test' }
+      fake_btsss_token = JWT.encode(payload, nil, 'none') 
+
+      @stubs.get("/api/v1/claims/by-contact/#{payload[:ContactID]}") do
         [
           200,
           {},
@@ -82,15 +88,30 @@ describe TravelPay::Client do
             'data' => [
               {
                 'id' => 'uuid1',
-                'modifiedOn' => '2024-01-01'
+                'claimNumber' => 'TC0000000000001',
+                'claimStatus' => 'InProgress',
+                'appointmentDateTime' => '2024-04-22T16:45:34.465Z',
+                'facilityName' => 'Cheyenne VA Medical Center',
+                'createdOn' => '2024-03-22T21:22:34.465Z',
+                'modifiedOn' => '2024-01-01T16:44:34.465Z'
               },
               {
                 'id' => 'uuid2',
-                'modifiedOn' => '2024-03-01'
+                'claimNumber' => 'TC0000000000002',
+                'claimStatus' => 'InProgress',
+                'appointmentDateTime' => '2024-04-22T16:45:34.465Z',
+                'facilityName' => 'Cheyenne VA Medical Center',
+                'createdOn' => '2024-02-22T21:22:34.465Z',
+                'modifiedOn' => '2024-03-01T00:00:00.0Z'
               },
               {
                 'id' => 'uuid3',
-                'modifiedOn' => '2024-02-01'
+                'claimNumber' => 'TC0000000000002',
+                'claimStatus' => 'Incomplete',
+                'appointmentDateTime' => '2024-04-22T16:45:34.465Z',
+                'facilityName' => 'Cheyenne VA Medical Center',
+                'createdOn' => '2024-01-22T21:22:34.465Z',
+                'modifiedOn' => '2024-02-01T00:00:00.0Z'
               }
             ]
           }
@@ -100,7 +121,7 @@ describe TravelPay::Client do
       expected_ordered_ids = %w[uuid2 uuid3 uuid1]
 
       client = TravelPay::Client.new
-      claims = client.get_claims('veis_token', 'btsss_token')
+      claims = client.get_claims('veis_token', fake_btsss_token)
       actual_claim_ids = claims[:data].pluck(:id)
 
       expect(actual_claim_ids).to eq(expected_ordered_ids)
