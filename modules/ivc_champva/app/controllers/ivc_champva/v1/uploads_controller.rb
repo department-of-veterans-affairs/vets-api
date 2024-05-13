@@ -19,10 +19,12 @@ module IvcChampva
           Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
           form_id = get_form_id
           parsed_form_data = JSON.parse(params.to_json)
-          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          status, error_message = FileUploader.new(form_id, metadata, file_paths).handle_uploads
+          file_paths, metadata, attachment_ids = get_file_paths_and_metadata(parsed_form_data)
+
+          status, error_message = FileUploader.new(form_id, metadata, file_paths, attachment_ids).handle_uploads
 
           render json: build_json(Array(status), error_message)
+
         rescue
           puts 'An unknown error occurred while uploading document(s).'
         end
@@ -45,17 +47,27 @@ module IvcChampva
         form_id = get_form_id
         form = "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
         filler = IvcChampva::PdfFiller.new(form_number: form_id, form:)
-
+        attachment_ids = [form_id]
+      
+        parsed_form_data["applicants"].each do |applicant|
+          next unless applicant.has_key?("applicant_supporting_documents")
+      
+          applicant["applicant_supporting_documents"].each do |documents|
+            documents.each do |document|
+              attachment_ids << document["attachment_id"]
+            end
+          end
+        end
+      
+        @attachment_ids = attachment_ids
         file_path = if @current_user
                       filler.generate(@current_user.loa[:current])
                     else
                       filler.generate
                     end
-
         metadata = IvcChampva::MetadataValidator.validate(form.metadata)
         file_paths = form.handle_attachments(file_path)
-
-        [file_paths, metadata]
+        [file_paths, metadata, attachment_ids]
       end
 
       def get_form_id

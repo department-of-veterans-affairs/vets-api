@@ -14,10 +14,10 @@ module IvcChampva
       @bucket = bucket
     end
 
-    def put_object(key, file, metadata = {})
+    def put_object(key, file, metadata = {}, attachment_ids = {})
       Datadog::Tracing.trace('S3 Put File(s)') do
-        # Convert nil values to empty strings in the metadata
         metadata&.transform_values! { |value| value || '' }
+        metadata['attachment_ids'] = attachment_ids.empty? ? '' : attachment_ids.join(",")
 
         client.put_object({
                             bucket:,
