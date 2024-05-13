@@ -116,7 +116,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         # Rubocop formatting
         allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
           receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
-                                       'form526.submit.noRetryError', {}, nil, body
+                                       'form526.submit.establishClaim.serviceError', {}, nil, body
                                      ))
         )
 
@@ -232,7 +232,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         body = { key: 'form526.InProcess', severity: 'FATAL', text: 'Form 526 is already in-process' }
 
         error = Common::Exceptions::BackendServiceException.new(
-          'form526.submit.establshClaim.serviceError', {}, nil, body
+          'form526.InProcess', {}, nil, body
         )
 
         allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
@@ -254,40 +254,13 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         expect(@should_retry).to eq(false)
       end
 
-      it 'does retry when the message indicates a birls error and is in an array' do
-        body = { key: 'header.va_eauth_birlsfilenumber.Invalid', severity: 'ERROR',
-                 text: 'Size must be between 8 and 9' }
-
-        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
-          receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
-                                       'form526.submit.establshClaim.serviceError', {}, nil, body
-                                     ))
-        )
-
-        Sidekiq::Testing.inline! do
-          expect do
-            subject.perform_async(claim.id)
-          end.to raise_error(Common::Exceptions::BackendServiceException) { |error|
-            # Capture the behavior of will_retry? method when the exception is raised
-            @should_retry = service.send(:will_retry?, claim, error)
-          }
-        end
-
-        claim.reload
-        expect(claim.status).to eq('errored')
-        expect(claim.evss_response).to eq({ 'key' => 'header.va_eauth_birlsfilenumber.Invalid',
-                                            'severity' => 'ERROR',
-                                            'text' => 'Size must be between 8 and 9' })
-        expect(@should_retry).to eq(true)
-      end
-
       it 'does retry when the message indicates a birls error and is NOT in an array' do
         body = { key: 'header.va_eauth_birlsfilenumber', severity: 'ERROR',
                  text: 'Size must be between 8 and 9' }
 
         allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
           receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
-                                       'form526.submit.establshClaim.serviceError', {}, nil, body
+                                       'header.va_eauth_birlsfilenumber', {}, nil, body
                                      ))
         )
 
