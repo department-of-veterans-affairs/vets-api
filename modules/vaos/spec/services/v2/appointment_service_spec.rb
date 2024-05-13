@@ -552,7 +552,7 @@ describe VAOS::V2::AppointmentsService do
 
           it 'returns a cancelled status and the cancelled appointment information' do
             VCR.use_cassette('vaos/v2/appointments/cancel_appointments_vpg_200',
-                             match_requests_on: %i[method path query]) do
+                             match_requests_on: %i[method path query body_as_json]) do
               VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
                                match_requests_on: %i[method path query]) do
                 response = subject.update_appointment('70060', 'cancelled')
