@@ -6,7 +6,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   let(:inquiry_path) { '/ask_va_api/v0/inquiries' }
   let(:logger) { instance_double(LogService) }
   let(:span) { instance_double(Datadog::Tracing::Span) }
-  let(:icn) { YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']['test_user_228_icn'] }
+  let(:icn) { I18n.t('ask_va_api')[:test_users][:test_user_228_icn] }
   let(:authorized_user) { build(:user, :accountable_with_sec_id, icn:) }
   let(:mock_inquiries) do
     JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['Data']
@@ -442,45 +442,40 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   describe 'POST #upload_attachment' do
     let(:file_path) { 'modules/ask_va_api/config/locales/get_inquiries_mock_data.json' }
     let(:base64_encoded_file) { Base64.strict_encode64(File.read(file_path)) }
-    let(:params) { { attachment: "data:image/png;base64,#{base64_encoded_file}", inquiry_id: '12345' } }
-
-    context 'when the file is valid' do
-      it 'returns an ok status' do
-        post('/ask_va_api/v0/upload_attachment', params:)
-        expect(response).to have_http_status(:ok)
-        expect(json_response[:message]).to eq('Attachment has been received')
-      end
+    let(:file) { "data:image/png;base64,#{base64_encoded_file}" }
+    let(:inquiry_id) { '1c1f5631-9edf-ee11-904d-001dd8306b36' }
+    let(:correspondence_id) { nil }
+    let(:params) do
+      {
+        file_name: 'testfile',
+        file_content: file,
+        inquiry_id:,
+        correspondence_id:
+      }
     end
 
-    context 'when no file is attached' do
-      it 'returns a bad request status' do
-        post '/ask_va_api/v0/upload_attachment', params: { inquiry_id: '12345' }
-        expect(response).to have_http_status(:bad_request)
-        expect(json_response[:message]).to eq('No file attached')
-      end
-    end
-
-    context 'when the file size exceeds the limit' do
-      let(:large_file) { double('File', size: 30.megabytes, content_type: 'application/pdf') }
-      let(:large_base64_encoded_file) { Base64.strict_encode64('a' * large_file.size) }
-      let(:large_file_params) do
-        { attachment: "data:application/pdf;base64,#{large_base64_encoded_file}", inquiry_id: '12345' }
+    context 'when successful' do
+      let(:crm_response) do
+        { Data: {
+          Id: '1c1f5631-9edf-ee11-904d-001dd8306b36'
+        } }
       end
 
       before do
-        allow(File).to receive(:read).and_return('a' * large_file.size)
-        post '/ask_va_api/v0/upload_attachment', params: large_file_params
+        allow_any_instance_of(Crm::Service).to receive(:call)
+          .with(endpoint: 'attachment/new', payload: {
+                  inquiryId: params[:inquiry_id],
+                  fileName: params[:file_name],
+                  fileContent: file,
+                  correspondenceId: params[:correspondence_id]
+                }).and_return(crm_response)
+
+        post '/ask_va_api/v0/upload_attachment', params:
       end
 
-      it 'returns an unprocessable entity status' do
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(json_response[:message]).to eq('File size exceeds the allowed limit')
+      it 'returns http status :ok' do
+        expect(response).to have_http_status(:ok)
       end
-    end
-
-    # Helper method to parse JSON response
-    def json_response
-      JSON.parse(response.body, symbolize_names: true)
     end
   end
 

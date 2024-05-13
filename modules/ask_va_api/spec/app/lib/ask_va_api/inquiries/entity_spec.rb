@@ -7,7 +7,7 @@ RSpec.describe AskVAApi::Inquiries::Entity do
 
   let(:info) do
     {
-      Icn: YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']['test_user_228_icn'],
+      Icn: I18n.t('ask_va_api')[:test_users][:test_user_228_icn],
       Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
       InquiryNumber: 'A-123456',
       InquiryStatus: 'In Progress',

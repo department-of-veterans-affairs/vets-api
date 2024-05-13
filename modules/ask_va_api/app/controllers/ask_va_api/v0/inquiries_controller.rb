@@ -28,9 +28,10 @@ module AskVAApi
       end
 
       def upload_attachment
-        uploader = AttachmentUploader.new(params[:attachment])
+        new_params = convert_keys_to_camel_case(attachment_params)
+        uploader = Attachments::Uploader.new(new_params)
         result = uploader.call
-        render json: { message: result[:message] || result[:error] }, status: result[:status]
+        render json: result.to_json, status: :ok
       end
 
       def download_attachment
@@ -72,6 +73,23 @@ module AskVAApi
         raise InvalidAttachmentError if att.blank?
 
         Result.new(payload: Attachments::Serializer.new(att).serializable_hash, status: :ok)
+      end
+
+      def attachment_params
+        params.permit(
+          :file_content,
+          :file_name,
+          :inquiry_id,
+          :correspondence_id
+        ).to_h
+      end
+
+      def convert_keys_to_camel_case(params)
+        hash = I18n.t('ask_va_api')[:new_keys]
+        params.each_with_object({}) do |(key, value), new_hash|
+          new_key = hash[key.to_sym]
+          new_hash[new_key.to_sym] = value
+        end
       end
 
       def get_profile
