@@ -6,7 +6,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   let(:inquiry_path) { '/ask_va_api/v0/inquiries' }
   let(:logger) { instance_double(LogService) }
   let(:span) { instance_double(Datadog::Tracing::Span) }
-  let(:icn) { I18n.t('ask_va_api')[:test_users][:test_user_228_icn] }
+  let(:icn) { I18n.t('ask_va_api.test_users.test_user_228_icn') }
   let(:authorized_user) { build(:user, :accountable_with_sec_id, icn:) }
   let(:mock_inquiries) do
     JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['Data']
@@ -340,7 +340,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   end
 
   describe 'POST #create' do
-    let(:payload) { { FirstName: 'Fake', YourLastName: 'Smith' } }
+    let(:payload) { { first_name: 'Fake', your_last_name: 'Smith' } }
     let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
 
     context 'when successful' do
@@ -391,7 +391,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   end
 
   describe 'POST #unauth_create' do
-    let(:payload) { { FirstName: 'Fake', YourLastName: 'Smith' } }
+    let(:payload) { { first_name: 'Fake', your_last_name: 'Smith' } }
     let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
 
     context 'when successful' do

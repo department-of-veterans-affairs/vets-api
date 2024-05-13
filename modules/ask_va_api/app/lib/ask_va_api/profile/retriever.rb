@@ -12,7 +12,7 @@ module AskVAApi
       def initialize(icn:, user_mock_data: nil)
         @icn = icn
         @user_mock_data = user_mock_data
-        @test_users = I18n.t('ask_va_api')[:test_users]
+        @test_users = I18n.t('ask_va_api.test_users')
       end
 
       def call
