@@ -56,12 +56,14 @@ module Lighthouse
 
       if response.success?
         Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim succeeded', generate_log_details)
+        @form_submission_attempt&.succeed!
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       else
         raise BenefitsIntakeClaimError, response.body
       end
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim failed, retrying...', generate_log_details(e))
+      @form_submission_attempt&.fail!
       raise
     ensure
       cleanup_file_paths
