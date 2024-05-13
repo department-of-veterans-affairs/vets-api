@@ -5,7 +5,7 @@ module Vye
     class Vye::V1::DirectDepositChangesController < Vye::V1::ApplicationController
       include Pundit::Authorization
 
-      service_tag 'vye'
+      service_tag 'verify-your-enrollment'
 
       before_action :convert_params_camel_case_to_snake_case
 

@@ -608,7 +608,9 @@ module ClaimsApi
       end
 
       def confinements
-        return if @pdf_data[:data][:attributes][:serviceInformation][:confinements].blank?
+        if @pdf_data[:data][:attributes][:serviceInformation][:confinements].blank?
+          return @pdf_data[:data][:attributes][:serviceInformation].delete(:confinements)
+        end
 
         si = []
         @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement] = { confinementDates: [] }
@@ -618,9 +620,7 @@ module ClaimsApi
           end_date =
             make_date_object(confinement[:approximateEndDate], confinement[:approximateEndDate].length)
 
-          si.push({
-                    start: start_date, end: end_date
-                  })
+          si.push({ start: start_date, end: end_date })
           si
         end
         pow = si.present?
