@@ -13,29 +13,23 @@ module CheckIn
 
       STATSD_KEY_PREFIX = 'api.check_in.vaos.facilities'
 
-      attr_reader :facility_id
-
-      ##
-      # Builds a Service instance
-      #
-      # @param opts [Hash] options to create the object
-      #
-      # @return [Service] an instance of this class
-      #
-      def self.build(opts = {})
-        new(opts)
+      def get_facility_with_cache(facility_id:)
+        Rails.cache.fetch("check_in.vaos_facility_#{facility_id}", expires_in: 12.hours) do
+          get_facility(facility_id:)
+        end
       end
 
-      def initialize(opts)
-        @facility_id = opts[:facility_id]
-
-        super()
-      end
-
-      def get_facility
+      def get_facility(facility_id:)
         with_monitoring do
-          response = perform(:get, facilities_base_path, {}, headers)
-          response.body
+          response = perform(:get, facilities_url(facility_id:), {}, headers)
+          Oj.load(response.body).with_indifferent_access
+        end
+      end
+
+      def get_clinic(facility_id:, clinic_id:)
+        with_monitoring do
+          response = perform(:get, clinics_url(facility_id:, clinic_id:), {}, headers)
+          Oj.load(response.body).with_indifferent_access
         end
       end
 
@@ -45,8 +39,12 @@ module CheckIn
 
       private
 
-      def facilities_base_path
+      def facilities_url(facility_id:)
         "/facilities/v2/facilities/#{facility_id}"
+      end
+
+      def clinics_url(facility_id:, clinic_id:)
+        facilities_url(facility_id:) + "/clinics/#{clinic_id}"
       end
 
       def headers

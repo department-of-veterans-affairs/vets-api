@@ -125,9 +125,7 @@ module MedicalRecords
     end
 
     def get_condition(condition_id)
-      fhir_search(FHIR::Condition,
-                  search: { parameters: { _id: condition_id, _include: '*',
-                                          'verification-status:not': 'entered-in-error' } })
+      fhir_read(FHIR::Condition, condition_id)
     end
 
     def list_clinical_notes

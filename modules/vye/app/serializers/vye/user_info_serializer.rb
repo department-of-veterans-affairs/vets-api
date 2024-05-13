@@ -8,12 +8,14 @@ module Vye
       :del_date,
       :date_last_certified,
       :payment_amt,
-      :indicator,
-      :verification_required
+      :indicator
     )
 
-    has_many :address_changes, serializer: Vye::AddressChangeSerializer
-    has_many :awards, serializer: Vye::AwardSerializer
+    attribute :zip_code, if: -> { instance_options[:api_key] }
+
+    has_one :latest_address, serializer: Vye::AddressChangeSerializer
     has_many :pending_documents, serializer: Vye::PendingDocumentSerializer
+    has_many :verifications, serializer: Vye::VerificationSerializer
+    has_many :pending_verifications, serializer: Vye::VerificationSerializer
   end
 end

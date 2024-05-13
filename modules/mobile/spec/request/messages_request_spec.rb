@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-
+require_relative '../support/helpers/rails_helper'
 RSpec.describe 'Mobile Messages Integration', type: :request do
   include SchemaMatchers
 
@@ -205,7 +203,6 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
           VCR.use_cassette('sm_client/messages/deletes_the_message_with_id') do
             delete "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
           end
-
           expect(response).to be_successful
           expect(response).to have_http_status(:no_content)
         end

@@ -11,7 +11,7 @@ module Sidekiq
       # @return [String] the key of the stored attributes
       def create(expires_in: 7.days, **attrs)
         json_attrs = attrs.to_json
-        key = Digest::SHA256.hexdigest(json_attrs)
+        key = SecureRandom.hex(32)
 
         redis.set(key, json_attrs, ex: expires_in)
 

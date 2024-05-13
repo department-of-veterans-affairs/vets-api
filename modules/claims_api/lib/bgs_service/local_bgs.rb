@@ -212,8 +212,6 @@ module ClaimsApi
     end
     # END: switching v1 from evss to bgs. Delete after EVSS is no longer available. Fix controller first.
 
-    private
-
     def header # rubocop:disable Metrics/MethodLength
       # Stock XML structure {{{
       header = Nokogiri::XML::DocumentFragment.parse <<~EOXML
