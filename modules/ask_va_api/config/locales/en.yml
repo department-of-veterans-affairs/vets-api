@@ -1,0 +1,10 @@
+en:
+  ask_va_api:
+    test_users:
+      crm_test_user_icn: '1013694290V263188'
+      test_user_228_icn: '1008709396V637156'
+    new_keys:  
+      file_name: 'fileName'
+      file_content: 'fileContent'
+      inquiry_id: 'inquiryId'
+      correspondence_id: 'correspondenceId'
