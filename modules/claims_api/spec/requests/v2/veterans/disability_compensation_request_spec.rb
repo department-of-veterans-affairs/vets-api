@@ -4007,16 +4007,18 @@ RSpec.describe 'Disability Claims', type: :request do
     context 'submission to synchronous' do
       it 'returns an empty test object' do
         mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
-          post synchronous_path, params: data, headers: auth_header
+          VCR.use_cassette('claims_api/disability_comp') do
+            post synchronous_path, params: data, headers: auth_header
 
-          parsed_res = JSON.parse(response.body)
-          expect(parsed_res['data']['attributes']).to include('claimId')
+            parsed_res = JSON.parse(response.body)
+            expect(parsed_res['data']['attributes']).to include('claimId')
+          end
         end
       end
 
       it 'returns a 200 response when successful' do
         mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
-          post synchronous_path, params: {}.to_json, headers: auth_header
+          post synchronous_path, params: data, headers: auth_header
 
           expect(response).to have_http_status(:accepted)
         end
