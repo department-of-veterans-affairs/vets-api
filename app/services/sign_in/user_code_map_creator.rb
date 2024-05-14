@@ -55,7 +55,12 @@ module SignIn
                         code_challenge: state_payload.code_challenge,
                         user_verification_id: user_verification.id,
                         credential_email:,
-                        user_attributes: access_token_attributes).save!
+                        user_attributes: access_token_attributes,
+                        device_sso:).save!
+    end
+
+    def device_sso
+      state_payload.scope == Constants::Auth::DEVICE_SSO
     end
 
     def user_verifier_object

@@ -1460,13 +1460,15 @@ RSpec.describe V0::SignInController, type: :controller do
              anti_csrf:,
              pkce:,
              certificates: [client_assertion_certificate],
-             enforced_terms:)
+             enforced_terms:,
+             shared_sessions:)
     end
     let(:enforced_terms) { nil }
     let(:client_assertion_certificate) { nil }
     let(:pkce) { true }
     let(:anti_csrf) { false }
     let(:loa) { nil }
+    let(:shared_sessions) { false }
     let(:statsd_token_success) { SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS }
     let(:expected_error_status) { :bad_request }
 
@@ -1627,9 +1629,11 @@ RSpec.describe V0::SignInController, type: :controller do
                    code: code_value,
                    code_challenge:,
                    client_id:,
-                   user_verification_id:)
+                   user_verification_id:,
+                   device_sso:)
           end
           let(:code_challenge) { 'some-code-challenge' }
+          let(:device_sso) { false }
 
           context 'and client is configured with pkce authentication type' do
             let(:pkce) { true }
@@ -1690,6 +1694,24 @@ RSpec.describe V0::SignInController, type: :controller do
               context 'and authentication is for a session that is configured as api auth' do
                 let!(:user) { create(:user, :api_auth, uuid: user_uuid) }
                 let(:authentication) { SignIn::Constants::Auth::API }
+
+                context 'and authentication is for a session set up for device sso' do
+                  let(:shared_sessions) { true }
+                  let(:device_sso) { true }
+
+                  it 'returns expected body with device_secret' do
+                    expect(JSON.parse(subject.body)['data']).to have_key('device_secret')
+                  end
+                end
+
+                context 'and authentication is for a session not set up for device sso' do
+                  let(:shared_sessions) { true }
+                  let(:device_sso) { false }
+
+                  it 'returns expected body without device_secret' do
+                    expect(JSON.parse(subject.body)['data']).not_to have_key('device_secret')
+                  end
+                end
 
                 it 'returns expected body with access token' do
                   expect(JSON.parse(subject.body)['data']).to have_key('access_token')
@@ -1849,6 +1871,24 @@ RSpec.describe V0::SignInController, type: :controller do
                 context 'and authentication is for a session that is configured as api auth' do
                   let!(:user) { create(:user, :api_auth, uuid: user_uuid) }
                   let(:authentication) { SignIn::Constants::Auth::API }
+
+                  context 'and authentication is for a session set up for device sso' do
+                    let(:shared_sessions) { true }
+                    let(:device_sso) { true }
+
+                    it 'returns expected body with device_secret' do
+                      expect(JSON.parse(subject.body)['data']).to have_key('device_secret')
+                    end
+                  end
+
+                  context 'and authentication is for a session not set up for device sso' do
+                    let(:shared_sessions) { true }
+                    let(:device_sso) { false }
+
+                    it 'returns expected body without device_secret' do
+                      expect(JSON.parse(subject.body)['data']).not_to have_key('device_secret')
+                    end
+                  end
 
                   it 'returns expected body with access token' do
                     expect(JSON.parse(subject.body)['data']).to have_key('access_token')
