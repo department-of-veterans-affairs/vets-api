@@ -539,4 +539,44 @@ RSpec.describe SignIn::ClientConfig, type: :model do
       end
     end
   end
+
+  describe '#device_sso_enabled?' do
+    subject { client_config.device_sso_enabled? }
+
+    context 'when authentication method is set to API' do
+      let(:authentication) { SignIn::Constants::Auth::API }
+
+      context 'and shared_sessions is set to true' do
+        let(:shared_sessions) { true }
+
+        it 'returns true' do
+          expect(subject).to be(true)
+        end
+      end
+
+      context 'and shared_sessions is set to false' do
+        let(:shared_sessions) { false }
+
+        it 'returns false' do
+          expect(subject).to be(false)
+        end
+      end
+    end
+
+    context 'when authentication method is set to COOKIE' do
+      let(:authentication) { SignIn::Constants::Auth::COOKIE }
+
+      it 'returns false' do
+        expect(subject).to be(false)
+      end
+    end
+
+    context 'when authentication method is set to MOCK' do
+      let(:authentication) { SignIn::Constants::Auth::MOCK }
+
+      it 'returns false' do
+        expect(subject).to be(false)
+      end
+    end
+  end
 end
