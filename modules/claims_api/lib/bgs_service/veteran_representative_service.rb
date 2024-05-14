@@ -8,7 +8,6 @@ module ClaimsApi
     private
 
     def make_request(namespace:, **args)
-      raise ArgumentError, "Namespace argument is missing" if namespace.nil?
       super(
         endpoint: 'VDC/VeteranRepresentativeService',
         namespaces: { namespace => '/data' },

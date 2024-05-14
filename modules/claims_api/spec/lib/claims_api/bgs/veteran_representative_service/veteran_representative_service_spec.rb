@@ -14,20 +14,10 @@ describe ClaimsApi::VeteranRepresentativeService do
   describe 'with a namespace param' do
     it 'does not raise ArgumentError' do
       service = described_class.new(**header_params)
-
-      # This is required to bypass WebMock::NetConnectNotAllowedError that occurs
-      # when not specifying the error.
-      allow(service).to receive(:make_request) do |instance, args|
-        unless args.key?(:namespace)
-          raise ArgumentError, "Namespace argument is missing"
-        end
-        true
-      end
-
       expect do
         service.send(:make_request, namespace: 'testspace', action: 'testAction', body: 'this is the body',
                                     key: 'ThisIsTheKey')
-      end.not_to raise_error
+      end.not_to raise_error(ArgumentError)
     end
   end
 
