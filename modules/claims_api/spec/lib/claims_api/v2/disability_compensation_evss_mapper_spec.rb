@@ -120,18 +120,18 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
 
       context 'When serviceRelevance is blank' do
         let(:disability) do
-        {
-          disabilityActionType: "INCREASE",
-          name: "hypertension",
-          approximateDate: nil,
-          classificationCode: "",
-          serviceRelevance: "",
-          isRelatedToToxicExposure: false,
-          exposureOrEventOrInjury: "",
-          ratedDisabilityId: "",
-          diagnosticCode: 0,
-          secondaryDisabilities: nil
-        }
+          {
+            disabilityActionType: 'INCREASE',
+            name: 'hypertension',
+            approximateDate: nil,
+            classificationCode: '',
+            serviceRelevance: '',
+            isRelatedToToxicExposure: false,
+            exposureOrEventOrInjury: '',
+            ratedDisabilityId: '',
+            diagnosticCode: 0,
+            secondaryDisabilities: nil
+          }
         end
 
         it 'mapping logic correctly removes attribute' do
