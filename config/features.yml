@@ -487,12 +487,15 @@ features:
     description: Enables flagging feature for Find a Representative frontend
     enable_in_development: true
   representative_status_enabled:
-    actor_type: user
+    actor_type: cookie_id
     description: Enables flagging feature for Find a Representative frontend
     enable_in_development: true
   form526_include_document_upload_list_in_overflow_text:
     actor_type: user
     description: Appends a list of SupportingEvidenceAttachment filenames the veteran uploaded for a Form 526 into the overflow text in the form submission
+  appoint_a_representative_enable_frontend:
+    actor_type: cookie_id
+    description: Enables Appoint a Representative frontend
     enable_in_development: true
   form526_legacy:
     actor_type: user
@@ -687,6 +690,9 @@ features:
     actor_type: user
     description: Enables the My HealtheVet secondary navigation
     enable_in_development: true
+  mhv_transitional_medical_records_landing_page:
+    actor_type: user
+    description: Enables the transitional Medical Records page at /my-health/records
   mhv_secure_messaging_to_va_gov_release:
     actor_type: user
     description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
