@@ -35,7 +35,8 @@ module VAOS
       def response_values
         {
           detail: detail(@env.body),
-          source: { vamf_url: @env.url, vamf_body: @env.body, vamf_status: @env.status }
+          source: { vamf_url: VAOS::Anonymizers.anonymize_uri_icn(@env.url), vamf_body: @env.body,
+                    vamf_status: @env.status }
         }
       end
 

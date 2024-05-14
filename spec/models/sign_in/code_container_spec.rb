@@ -9,7 +9,8 @@ RSpec.describe SignIn::CodeContainer, type: :model do
            client_id:,
            code:,
            user_verification_id:,
-           user_attributes:)
+           user_attributes:,
+           device_sso:)
   end
 
   let(:code_challenge) { Base64.urlsafe_encode64(SecureRandom.hex) }
@@ -22,6 +23,7 @@ RSpec.describe SignIn::CodeContainer, type: :model do
       last_name: Faker::Name.last_name,
       email: Faker::Internet.email }
   end
+  let(:device_sso) { false }
 
   describe 'validations' do
     describe '#code' do

@@ -3,7 +3,6 @@
 require 'common/client/base'
 require 'lighthouse/benefits_claims/configuration'
 require 'lighthouse/benefits_claims/service_exception'
-require 'lighthouse/benefits_claims/sponsor_resolver'
 require 'lighthouse/service_exception'
 
 module BenefitsClaims
@@ -46,20 +45,8 @@ module BenefitsClaims
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
-    def submit5103(user, id, options = {})
-      params = {}
-      is_dependent = SponsorResolver.dependent?(user)
-
-      # Log if the user doesn't have a file number; We are treating
-      # the BIRLS ID as a substitute for the file number
-      ::Rails.logger.info('[5103 Submission] No file number') if user.birls_id.nil?
-
-      if is_dependent
-        ::Rails.logger.info('[5103 Submission] Applying sponsorIcn param')
-        params[:sponsorIcn] = SponsorResolver.sponsor_icn(user)
-      end
-
-      config.post_with_params("#{@icn}/claims/#{id}/5103", {}, params, options).body
+    def submit5103(id, options = {})
+      config.post("#{@icn}/claims/#{id}/5103", {}, nil, nil, options).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
     rescue Faraday::ClientError, Faraday::ServerError => e
@@ -132,11 +119,13 @@ module BenefitsClaims
       # Since Lighthouse needs 'currentVaEmployee', the following workaround renames it.
       fix_current_va_employee(body)
 
-      json_body = remove_unicode_characters(body)
+      # LH PDF generator service crashes with having an empty array for confinements
+      # removes confinements from the request body if confinements  attribute empty or nil
+      remove_empty_confinements(body)
 
       response = config.post(
         path,
-        json_body,
+        body,
         lighthouse_client_id, lighthouse_rsa_key_path, options
       )
 
@@ -156,17 +145,6 @@ module BenefitsClaims
       }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
     end
 
-    # this gsubbing is to fix an issue where the service that generates the 526PDF was failing due to
-    # unicoded carriage returns:
-    # i.e.: \n was throwing: "U+000A ('controlLF') is not available in the font Helvetica, encoding: WinAnsiEncoding"
-    def remove_unicode_characters(body)
-      body.to_json
-          .gsub('\\n', ' ')
-          .gsub('\\r', ' ')
-          .gsub('\\\\n', ' ')
-          .gsub('\\\\r', ' ')
-    end
-
     def fix_current_va_employee(body)
       if body.dig('data', 'attributes', 'veteranIdentification')&.select do |field|
            field['currentVAEmployee']
@@ -174,6 +152,14 @@ module BenefitsClaims
         body['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
           body['data']['attributes']['veteranIdentification']['currentVAEmployee']
         body['data']['attributes']['veteranIdentification'].delete('currentVAEmployee')
+      end
+    end
+
+    def remove_empty_confinements(body)
+      if body.dig('data', 'attributes', 'serviceInformation')&.select do |field|
+        field['confinements']
+      end&.key?('confinements') && body['data']['attributes']['serviceInformation']['confinements'].blank?
+        body['data']['attributes']['serviceInformation'].delete('confinements')
       end
     end
 
