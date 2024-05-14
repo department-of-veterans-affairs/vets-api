@@ -272,7 +272,7 @@ module Requests
     attribute :gulf_war_hazard_service, GulfWarHazardService
     attribute :herbicide_hazard_service, HerbicideHazardService
     attribute :additional_hazard_exposures, AdditionalHazardExposures
-    attribute :multiple_exposures, MultipleExposures
+    attribute :multiple_exposures, Array[MultipleExposures]
   end
 
   class ChangeOfAddress

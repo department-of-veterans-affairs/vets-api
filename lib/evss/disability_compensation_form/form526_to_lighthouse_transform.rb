@@ -13,6 +13,38 @@ module EVSS
         SECONDARY: 'My condition was caused by another service-connected disability I already have.'
       }.freeze
 
+      GULF_WAR_LOCATIONS = {
+        afghanistan: 'Afghanistan',
+        bahrain: 'Bahrain',
+        egypt: 'Egypt',
+        iraq: 'Iraq',
+        israel: 'Israel',
+        jordan: 'Jordan',
+        kuwait: 'Kuwait',
+        neutralzone: 'Neutral zone between Iraq and Saudi Arabia',
+        oman: 'Oman',
+        qatar: 'Qatar',
+        saudiarabia: 'Saudi Arabia',
+        somalia: 'Somalia',
+        syria: 'Syria',
+        uae: 'The United Arab Emirates (UAE)',
+        turkey: 'Turkey',
+        djibouti: 'Djibouti',
+        lebanon: 'Lebanon',
+        uzbekistan: 'Uzbekistan',
+        yemen: 'Yemen',
+        waters:
+        'The waters of the Arabian Sea, Gulf of Aden, Gulf of Oman, Persian Gulf, and Red Sea',
+        airspace: 'The airspace above any of these locations',
+        none: 'None of these locations'
+      }.freeze
+
+      HAZARDS = {
+        asbestos: 'Asbestos',
+        radiation: 'Radiation',
+        mustardgas: 'Mustard Gas'
+      }.freeze
+
       # takes known EVSS Form526Submission format and converts it to a Lighthouse request body
       # evss_data will look like JSON.parse(form526_submission.form_data)
       def transform(evss_data)
@@ -174,7 +206,30 @@ module EVSS
             transform_gulf_war(gulf_war1990, gulf_war2001)
         end
 
+        multiple_exposures = [] # Array[Requests::MultipleExposures]
+        multiple_exposures += transform_multiple_exposures_location(toxic_exposure_source['gulfWar1990Details'])
+        multiple_exposures += transform_multiple_exposures_location(toxic_exposure_source['gulfWar2001Details'])
+        toxic_exposure_target.multiple_exposures = multiple_exposures
+
         toxic_exposure_target
+      end
+
+      def transform_multiple_exposures_location(details, hazard: false)
+        details.map do |k, v|
+          obj = Requests::MultipleExposures.new(
+            exposure_dates: Requests::Dates.new(
+              begin_date: v['startDate'],
+              end_date: v['endDate']
+            )
+          )
+          if hazard
+            obj.hazard_exposed_to = HAZARDS[k.to_sym]
+          else
+            obj.exposure_location = GULF_WAR_LOCATIONS[k.to_sym]
+          end
+
+          obj
+        end
       end
 
       private
