@@ -2,7 +2,6 @@
 
 require 'claims_api/v2/disability_compensation_pdf_mapper'
 require 'pdf_generator_service/pdf_client'
-require 'claims_api/v2/mock_526_pdf_generator'
 
 module ClaimsApi
   module V2
@@ -32,12 +31,12 @@ module ClaimsApi
           log_job_progress(claim_id,
                            '526EZ PDF generator PDF string returned')
 
-          if Settings.claims_api.pdf_generator_526.mock == false
-            file_name = "#{SecureRandom.hex}.pdf"
-            path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
-          else
+          if Settings.claims_api.pdf_generator_526.mock
             path = 'modules/claims_api/lib/claims_api/v2/mock_526_pdf.pdf'
             file_name = 'mock_526_pdf.pdf'
+          else
+            file_name = "#{SecureRandom.hex}.pdf"
+            path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
           end
           upload = ActionDispatch::Http::UploadedFile.new({
                                                             filename: file_name,
@@ -51,7 +50,7 @@ module ClaimsApi
           auto_claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
           save_auto_claim!(auto_claim, auto_claim.status)
 
-          ::Common::FileHelpers.delete_file_if_exists(path) if Settings.claims_api.pdf_generator_526.mock == false
+          ::Common::FileHelpers.delete_file_if_exists(path) unless Settings.claims_api.pdf_generator_526.mock
         end
 
         log_job_progress(claim_id,
@@ -118,15 +117,11 @@ module ClaimsApi
         }
       end
 
-      def mock_526_pdf
-        ClaimsApi::V2::MockPdfGeneratorService.new.generate_pdf
-      end
-
       def get_pdf_string(mapped_claim)
-        if Settings.claims_api.pdf_generator_526.mock == false
-          generate_526_pdf(mapped_claim)
+        if Settings.claims_api.pdf_generator_526.mock
+          'some 526 info'
         else
-          mock_526_pdf
+          generate_526_pdf(mapped_claim)
         end
       end
     end

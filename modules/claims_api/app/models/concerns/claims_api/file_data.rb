@@ -25,7 +25,7 @@ module ClaimsApi
       end
 
       def set_file_data!(file_data, doc_type, description = nil)
-        if Flipper.enabled? :claims_load_testing
+        if (Flipper.enabled? :claims_load_testing) || Settings.claims_api.pdf_generator_526.mock
           ClaimsApi::V2::MockAwsService.new.store(file_data)
         else
           uploader.store!(file_data)

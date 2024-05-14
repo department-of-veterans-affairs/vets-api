@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'claims_api/v2/mock_526_pdf_generator'
 require 'pdf_generator_service/pdf_client'
 require 'bd/bd'
 
@@ -18,12 +17,12 @@ module ClaimsApi
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
 
-        file_body = if Settings.claims_api.pdf_generator_526.mock == false
+        file_body = if Settings.claims_api.pdf_generator_526.mock
+                      File.read('modules/claims_api/lib/claims_api/v2/mock_526_pdf.pdf')
+                    else
                       uploader = auto_claim.uploader
                       uploader.retrieve_from_store!(auto_claim.file_data['filename'])
                       uploader.read
-                    else
-                      File.read('modules/claims_api/lib/claims_api/v2/mock_526_pdf.pdf')
                     end
 
         bd_upload_body(auto_claim:, file_body:)
