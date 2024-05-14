@@ -337,5 +337,25 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.send(:transform_toxic_exposure, one_has_no_options)
       expect(result.gulf_war_hazard_service.served_in_gulf_war_hazard_locations).to eq('YES')
     end
+
+    it 'set gulfwar and hazard dates' do
+      result = transformer.send(:transform_multiple_exposures, data['gulfWar1990Details'])
+      expect(result[0].exposure_dates.begin_date).to eq('1991-03-01')
+      expect(result[0].exposure_dates.end_date).to eq('1992-01-01')
+      expect(result[0].exposure_location).to eq('Iraq')
+
+      result = transformer.send(:transform_multiple_exposures, data['otherExposureDetails'], hazard: true)
+      expect(result[0].exposure_dates.begin_date).to eq('1991-03-01')
+      expect(result[0].exposure_dates.end_date).to eq('1992-01-01')
+      expect(result[0].hazard_exposed_to).to eq('Asbestos')
+
+      data.merge({
+                   'gulfWar1990Details' => {
+                     'iraq' => {}
+                   }
+                 })
+      result = transformer.send(:transform_multiple_exposures, data['gulfWar1990Details'])
+      expect(result[0].exposure_dates).to eq(nil)
+    end
   end
 end

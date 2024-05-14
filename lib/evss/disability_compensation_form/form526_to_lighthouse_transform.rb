@@ -207,14 +207,14 @@ module EVSS
         end
 
         multiple_exposures = [] # Array[Requests::MultipleExposures]
-        multiple_exposures += transform_multiple_exposures_location(toxic_exposure_source['gulfWar1990Details'])
-        multiple_exposures += transform_multiple_exposures_location(toxic_exposure_source['gulfWar2001Details'])
+        multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar1990Details'])
+        multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar2001Details'])
         toxic_exposure_target.multiple_exposures = multiple_exposures
 
         toxic_exposure_target
       end
 
-      def transform_multiple_exposures_location(details, hazard: false)
+      def transform_multiple_exposures(details, hazard: false)
         details.map do |k, v|
           obj = Requests::MultipleExposures.new(
             exposure_dates: Requests::Dates.new(
