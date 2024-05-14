@@ -11,7 +11,18 @@ RSpec.describe Form1010Ezr::Service do
   end
 
   let(:form) { get_fixture('form1010_ezr/valid_form') }
-  let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534', birth_date: '1986-01-02') }
+  let(:current_user) do
+    build(
+      :evss_user,
+      :loa3,
+      icn: '1013032368V065534',
+      birth_date: '1986-01-02',
+      first_name: 'FirstName',
+      middle_name: 'MiddleName',
+      last_name: 'ZZTEST',
+      suffix: 'Jr.'
+    )
+  end
   let(:service) { described_class.new(current_user) }
 
   def allow_logger_to_receive_error
@@ -149,6 +160,9 @@ RSpec.describe Form1010Ezr::Service do
           # If the 'veteranDateOfBirth' key is missing from the parsed_form, it should get added in via the
           # 'post_fill_veteran_date_of_birth' method and pass validation
           form.delete('veteranDateOfBirth')
+          # If the 'veteranFullName' key is missing from the parsed_form, it should get added in via the
+          # 'post_fill_veteran_full_name' method and pass validation
+          form.delete('veteranFullName')
 
           submission_response = submit_form(form)
 
