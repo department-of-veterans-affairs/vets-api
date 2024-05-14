@@ -2427,6 +2427,18 @@ RSpec.describe 'Disability Claims', type: :request do
       end
 
       describe "'disabilites' validations" do
+        context 'when disabilties.name is not present' do
+          it 'responds with 422 bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['disabilities'][0]['name'] = ''
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
         describe "'disabilities.classificationCode' validations" do
           context "when 'disabilites.classificationCode' is valid" do
             it 'returns a successful response' do
