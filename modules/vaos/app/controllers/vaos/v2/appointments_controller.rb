@@ -57,7 +57,7 @@ module VAOS
           appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
-        appointment[:location] = get_facility_memoized(appointment[:location_id]) unless appointment[:location_id].nil?
+        appointment[:location] = appointments_service.get_facility_memoized(appointment[:location_id]) unless appointment[:location_id].nil?
 
         scrape_appt_comments_and_log_details(appointment, APPT_SHOW, PAP_COMPLIANCE_TELE)
 
@@ -79,7 +79,7 @@ module VAOS
         end
 
         unless new_appointment[:location_id].nil?
-          new_appointment[:location] = get_facility_memoized(new_appointment[:location_id])
+          new_appointment[:location] = appointments_service.get_facility_memoized(new_appointment[:location_id])
         end
 
         scrape_appt_comments_and_log_details(new_appointment, APPT_CREATE, PAP_COMPLIANCE_TELE)
@@ -99,7 +99,7 @@ module VAOS
         end
 
         unless updated_appointment[:location_id].nil?
-          updated_appointment[:location] = get_facility_memoized(updated_appointment[:location_id])
+          updated_appointment[:location] = appointments_service.get_facility_memoized(updated_appointment[:location_id])
         end
 
         serializer = VAOS::V2::VAOSSerializer.new
@@ -252,7 +252,7 @@ module VAOS
 
       def merge_facilities(appointments)
         appointments.each do |appt|
-          appt[:location] = get_facility_memoized(appt[:location_id]) unless appt[:location_id].nil?
+          appt[:location] = appointments_service.get_facility_memoized(appt[:location_id]) unless appt[:location_id].nil?
           if cerner?(appt) && contains_substring(extract_all_values(appt[:location]), 'COL OR 1')
             log_appt_id_location_name(appt)
           end
@@ -286,17 +286,6 @@ module VAOS
         nil # on error log and return nil, calling code will handle nil
       end
       memoize :get_clinic_memoized
-
-      def get_facility_memoized(location_id)
-        mobile_facility_service.get_facility_with_cache(location_id)
-      rescue Common::Exceptions::BackendServiceException
-        Rails.logger.error(
-          "VAOS Error fetching facility details for location_id #{location_id}",
-          location_id:
-        )
-        FACILITY_ERROR_MSG
-      end
-      memoize :get_facility_memoized
 
       # This method extracts all values from a given object, which can be either an `OpenStruct`, `Hash`, or `Array`.
       # It recursively traverses the object and collects all values into an array.

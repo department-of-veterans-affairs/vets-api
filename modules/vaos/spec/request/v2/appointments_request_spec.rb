@@ -75,7 +75,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
     allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic_memoized).and_return(mock_clinic)
-    allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_facility_memoized).and_return(mock_facility)
+    allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility_memoized).and_return(mock_facility)
   end
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
@@ -347,7 +347,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_booked_cerner_with_color1_location',
                            match_requests_on: %i[method path query], allow_playback_repeats: true) do
             allow(Rails.logger).to receive(:info).at_least(:once)
-            allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(
               :get_facility_memoized
             ).and_return(mock_appt_location_openstruct)
             get '/vaos/v2/appointments?_include=facilities,clinics', params:, headers: inflection_header
@@ -482,7 +482,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
         end
 
         it 'has access and returns va appointments when mobile facility service fails' do
-          allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_facility_memoized).and_call_original
+          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility_memoized).and_call_original
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_mobile_facility_service_500',
                            match_requests_on: %i[method path query], allow_playback_repeats: true) do
             get '/vaos/v2/appointments?_include=facilities', params:, headers: inflection_header
@@ -497,7 +497,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
         end
 
         it 'has access and ensures no logging of facility details on mobile facility service fails' do
-          allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_facility_memoized).and_call_original
+          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility_memoized).and_call_original
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_mobile_facility_service_500',
                            match_requests_on: %i[method path query], allow_playback_repeats: true) do
             allow(Rails.logger).to receive(:info)
@@ -663,7 +663,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
 
           allow_any_instance_of(described_class).to receive(:get_clinic_memoized)
             .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
-          allow_any_instance_of(described_class).to receive(:get_facility_memoized).and_return('Location')
+          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility_memoized).and_return('Location')
           allow_any_instance_of(described_class).to receive(:appointment).and_return(appointment)
 
           get '/vaos/v2/appointments/70060', headers: inflection_header
@@ -719,7 +719,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
           it 'updates the service name, physical location, friendly name, and location' do
             allow_any_instance_of(described_class).to receive(:get_clinic_memoized)
               .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
-            allow_any_instance_of(described_class).to receive(:get_facility_memoized).and_return('Location')
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility_memoized).and_return('Location')
             allow_any_instance_of(described_class).to receive(:updated_appointment).and_return(updated_appointment)
 
             put '/vaos/v2/appointments/70060', params: { status: 'cancelled' }, headers: inflection_header
