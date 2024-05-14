@@ -19,7 +19,7 @@ RSpec.describe SignIn::SessionRevoker do
 
         context 'and other sessions exist with the same device_secret' do
           let!(:connected_session) do
-            create(:oauth_session, hashed_device_secret: device_secret)
+            create(:oauth_session, hashed_device_secret: Digest::SHA256.hexdigest(device_secret))
           end
 
           it 'destroys all other sessions with the same device_secret' do

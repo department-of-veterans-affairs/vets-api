@@ -82,7 +82,8 @@ module SignIn
     end
 
     def delete_device_sessions
-      sessions = OAuthSession.where(hashed_device_secret: device_secret)
+      hashed_device_secret = get_hash(device_secret)
+      sessions = OAuthSession.where(hashed_device_secret:)
       return if sessions.empty?
 
       sessions.each(&:destroy!)
