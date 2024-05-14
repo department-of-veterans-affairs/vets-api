@@ -102,7 +102,7 @@ module ClaimsApi
 
     def will_retry?(auto_claim, error)
       msg = if auto_claim.evss_response.present?
-              auto_claim.evss_response&.dig('key')
+              auto_claim.evss_response&.dig(0, 'key')
             elsif error.respond_to? :original_body
               get_error_key(error.original_body)
             else
