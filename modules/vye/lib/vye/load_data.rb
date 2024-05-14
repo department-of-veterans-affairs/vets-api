@@ -2,7 +2,7 @@
 
 module Vye
   class LoadData
-    SOURCES = %i[team_sensitive tims_feed bdn_feed].freeze
+    SOURCES = %i[team_sensitive wave_transactions tims_feed bdn_feed].freeze
 
     private_constant :SOURCES
 
@@ -38,6 +38,11 @@ module Vye
       load_address(address)
       load_awards(awards)
       load_pending_documents(pending_documents)
+    end
+
+    def wave_transactions(profile:, verifications:)
+      load_profile(profile)
+      load_verifications(verifications)
     end
 
     def tims_feed(profile:, pending_document:)
@@ -81,6 +86,10 @@ module Vye
       pending_documents.each do |attributes|
         user_profile.pending_documents.create!(attributes)
       end
+    end
+
+    def load_verifications(attributes)
+      user_profile.verifications.create!(attributes)
     end
 
     public

@@ -30,6 +30,15 @@ module Vye
           Vye::LoadData.new(source:, locator:, records:)
         end
       end
+
+      def wave_transactions_import(data)
+        source = :wave_transactions
+        data.each.with_index do |row, index|
+          locator = index + 1
+          records = WaveTransactionsLineExtraction.new(row:).records
+          Vye::LoadData.new(source:, locator:, records:)
+        end
+      end
     end
   end
 end
