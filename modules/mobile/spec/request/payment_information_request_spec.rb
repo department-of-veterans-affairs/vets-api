@@ -199,7 +199,7 @@ RSpec.describe 'payment information', type: :request do
         # user.all_emails.each do |email|
         #   expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, 'comp_and_pen')
         # end
-
+        allow_any_instance_of(Faraday::Connection).to receive(:put).and_raise(Faraday::TimeoutError)
         subject
         binding.pry
         puts "hi"

@@ -27,8 +27,6 @@ module DirectDeposit
     def update_payment_info(params)
       body = build_request_body(params)
 
-      raise Faraday::TimeoutError
-
       response = config.put("?icn=#{@icn}", body)
       handle_response(response)
     rescue Faraday::ClientError, Faraday::ServerError => e
