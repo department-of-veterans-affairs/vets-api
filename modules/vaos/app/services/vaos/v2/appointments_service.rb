@@ -583,7 +583,7 @@ module VAOS
 
       def update_appointment_vpg(appt_id, status)
         url_path = "/vpg/v1/patients/#{user.icn}/appointments/#{appt_id}"
-        body = JSON.generate([VAOS::V2::UpdateAppointmentForm.new(status:).json_patch_op])
+        body = [VAOS::V2::UpdateAppointmentForm.new(status:).json_patch_op]
         perform(:patch, url_path, body, headers)
       end
 

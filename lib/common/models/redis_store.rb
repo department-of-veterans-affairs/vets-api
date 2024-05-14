@@ -39,7 +39,7 @@ module Common
       begin
         super(attributes)
       rescue NoMethodError
-        Rails.logger.error('attributes failure: attributes')
+        Rails.logger.error("attributes failure: #{attributes}")
         raise
       end
 
@@ -60,7 +60,7 @@ module Common
         Rails.logger.info("redis_namespace: #{redis_namespace.inspect} - response: #{response}
                             - oj parsed attributes: #{attributes} redis_key: #{redis_key}")
 
-        nil if redis_key.empty? # Case where session[:token] is empty and response returns 1
+        nil if redis_key.blank? # Case where session[:token] is empty and response returns 1
       end
 
       object = new(attributes, true)
