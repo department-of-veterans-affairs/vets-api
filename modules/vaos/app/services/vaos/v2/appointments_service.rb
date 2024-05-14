@@ -193,7 +193,6 @@ module VAOS
       end
       memoize :get_facility_timezone_memoized
 
-
       private
 
       def fetch_clinic_appointments(start_time, end_time, statuses)
@@ -503,8 +502,6 @@ module VAOS
           date.to_time.utc.in_time_zone(tz).to_datetime
         end
       end
-
-
 
       def log_direct_schedule_submission_errors(e)
         error_entry = { DIRECT_SCHEDULE_ERROR_KEY => ds_error_details(e) }
