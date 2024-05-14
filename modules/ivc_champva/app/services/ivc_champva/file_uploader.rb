@@ -10,7 +10,6 @@ module IvcChampva
     end
 
     def handle_uploads
-
       pdf_results = @attachment_ids.each_with_index.map do |attachment_id, index|
         next unless attachment_id != 'Form ID'
 
@@ -27,15 +26,9 @@ module IvcChampva
       end
     end
 
-    def attachment_id_data(attachment_ids)
-      return if attachment_ids.include?('Form ID')
-      attachment_ids.unshift('Form ID')
-    end
-
     private
 
     def upload_pdf(attachment_id, file_path)
-
       file_name = file_path.gsub('tmp/', '').gsub('-tmp', '')
       upload(file_name, file_path, attachment_ids: [attachment_id])
     end
@@ -52,7 +45,6 @@ module IvcChampva
       else
         [meta_upload_status, meta_upload_error_message]
       end
-
     end
 
     def upload(file_name, file_path, attachment_ids:)
@@ -67,7 +59,6 @@ module IvcChampva
     end
 
     def client
-
       @client ||= IvcChampva::S3.new(
         region: Settings.ivc_forms.s3.region,
         access_key_id: Settings.ivc_forms.s3.aws_access_key_id,
