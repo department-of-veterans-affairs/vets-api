@@ -25,8 +25,8 @@ module IvcChampva
 
           render json: build_json(Array(status), error_message)
         rescue => e
-          puts "An unknown error occurred while uploading document(s)."
-          Rails.logger.error 'Error: #{e.message}'
+          puts 'An unknown error occurred while uploading document(s).'
+          Rails.logger.error "Error: #{e.message}"
           Rails.logger.error e.backtrace.join("\n")
         end
       end
@@ -51,16 +51,16 @@ module IvcChampva
 
         attachment_ids = [form_id]
         if form_id == 'vha_10_10d'
-          parsed_form_data["applicants"].each do |applicant|
+          parsed_form_data['applicants'].each do |applicant|
             next unless applicant.key?('applicant_supporting_documents')
               applicant['applicant_supporting_documents'].each do |documents|
                 documents.each do |document|
                 attachment_ids << document['attachment_id']
+                end
               end
             end
-          end
           @attachment_ids = attachment_ids
-        end
+          end
 
         file_path = if @current_user
                       filler.generate(@current_user.loa[:current])
@@ -76,7 +76,6 @@ module IvcChampva
       def get_form_id
         form_number = params[:form_number]
         raise 'missing form_number in params' unless form_number
-
         form_number_without_colon = form_number.sub(':', '')  # Remove colon with sub
         FORM_NUMBER_MAP[form_number_without_colon]
       end
