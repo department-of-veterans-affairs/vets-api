@@ -487,8 +487,12 @@ features:
     description: Enables flagging feature for Find a Representative frontend
     enable_in_development: true
   representative_status_enabled:
-    actor_type: user
+    actor_type: cookie_id
     description: Enables flagging feature for Find a Representative frontend
+    enable_in_development: true
+  appoint_a_representative_enable_frontend:
+    actor_type: cookie_id
+    description: Enables Appoint a Representative frontend
     enable_in_development: true
   form526_legacy:
     actor_type: user

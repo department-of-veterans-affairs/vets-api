@@ -29,7 +29,7 @@ class FormProfiles::VA107959f1 < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/review-and-submit'
+      returnUrl: '/veteran-information'
     }
   end
 
