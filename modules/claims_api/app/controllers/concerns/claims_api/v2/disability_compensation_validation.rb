@@ -157,7 +157,7 @@ module ClaimsApi
           disability_name = disability&.dig('name')
           if disability_name.blank?
             collect_error_messages(source: "/disabilities/#{idx}/name",
-                                  detail: "The disability name is required for /disabilities/#{idx}/name")
+                                   detail: "The disability name is required for /disabilities/#{idx}/name")
           end
         end
       end
