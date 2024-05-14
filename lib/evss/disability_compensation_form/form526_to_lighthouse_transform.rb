@@ -4,6 +4,7 @@ require 'disability_compensation/requests/form526_request_body'
 
 module EVSS
   module DisabilityCompensationForm
+    # rubocop:disable Metrics/ClassLength
     class Form526ToLighthouseTransform
       TOXIC_EXPOSURE_CAUSE_MAP = {
         NEW: 'My condition was caused by an injury or exposure during my military service.',
@@ -214,14 +215,19 @@ module EVSS
         toxic_exposure_target
       end
 
+      # @param details [Hash] the object with the exposure information of {location/hazard: {startDate, endDate}}
+      # @param hazard [Boolean] vets-website sends the key to be used as
+      #   both a location and a hazard in different objects
       def transform_multiple_exposures(details, hazard: false)
         details.map do |k, v|
           obj = Requests::MultipleExposures.new(
-            exposure_dates: Requests::Dates.new(
-              begin_date: v['startDate'],
-              end_date: v['endDate']
-            )
+            exposure_dates: Requests::Dates.new
           )
+
+          obj.exposure_dates.begin_date = convert_date_no_day(v['startDate']) if v['startDate'].present?
+
+          obj.exposure_dates.end_date = convert_date_no_day(v['endDate']) if v['endDate'].present?
+
           if hazard
             obj.hazard_exposed_to = HAZARDS[k.to_sym]
           else
@@ -530,6 +536,11 @@ module EVSS
       def convert_date(date)
         Date.parse(date).strftime('%Y-%m-%d')
       end
+
+      def convert_date_no_day(date)
+        Date.parse(date).strftime('%Y-%m')
+      end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
