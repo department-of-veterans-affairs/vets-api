@@ -3,7 +3,6 @@
 require 'rails_helper'
 require_relative '../../rails_helper'
 require 'claims_api/v2/disability_compensation_pdf_generator'
-require 'sidekiq/testing'
 
 RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type: :job do
   subject { described_class }
