@@ -5,7 +5,7 @@ module Analytics
       def index
         return unless current_user
         render json: {
-          user_fingerprint: get_user_fingerprint(current_user.uuid)
+          user: { fingerprint: get_user_fingerprint(current_user.uuid) }
         }
       end
 
