@@ -62,6 +62,10 @@ RSpec.describe Vye::V1::UserInfosController, type: :request do
 
     let(:params) { { api_key:, file_number: } }
 
+    before do
+      Flipper.enable :vye_request_allowed
+    end
+
     it 'returns the user_info' do
       get('/vye/v1', params:)
 
