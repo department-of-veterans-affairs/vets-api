@@ -91,7 +91,8 @@ RSpec.describe ClaimsApi::ServiceBase do
     end
 
     it 'does not retry a form526.submit.noRetryError error' do
-      body = { key: 'form526.submit.noRetryError', severity: 'FATAL', text: 'Claim could not be established. Retries will fail.' }
+      body = { key: 'form526.submit.noRetryError', severity: 'FATAL',
+               text: 'Claim could not be established. Retries will fail.' }
 
       error = Common::Exceptions::BackendServiceException.new(
         'form526.submit.noRetryError', {}, nil, body
