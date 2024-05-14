@@ -24,11 +24,10 @@ module IvcChampva
           status, error_message = FileUploader.new(form_id, metadata, file_paths, attachment_ids).handle_uploads
 
           render json: build_json(Array(status), error_message)
-
         rescue => e
           puts "An unknown error occurred while uploading document(s)."
-          puts "Error: #{e.message}"
-          puts e.backtrace
+          Rails.logger.error 'Error: #{e.message}'
+          Rails.logger.error e.backtrace.join("\n")
         end
       end
 
@@ -51,18 +50,16 @@ module IvcChampva
         filler = IvcChampva::PdfFiller.new(form_number: form_id, form:)
 
         attachment_ids = [form_id]
-
         if form_id == 'vha_10_10d'
           parsed_form_data["applicants"].each do |applicant|
-           next unless applicant.has_key?("applicant_supporting_documents")
-
-            applicant["applicant_supporting_documents"].each do |documents|
-              documents.each do |document|
-                attachment_ids << document["attachment_id"]
+            next unless applicant.key?('applicant_supporting_documents')
+              applicant['applicant_supporting_documents'].each do |documents|
+                documents.each do |document|
+                attachment_ids << document['attachment_id']
               end
             end
           end
-         @attachment_ids = attachment_ids
+          @attachment_ids = attachment_ids
         end
 
         file_path = if @current_user
@@ -70,6 +67,7 @@ module IvcChampva
                     else
                       filler.generate
                     end
+
         metadata = IvcChampva::MetadataValidator.validate(form.metadata)
         file_paths = form.handle_attachments(file_path)
         [file_paths, metadata, attachment_ids]
