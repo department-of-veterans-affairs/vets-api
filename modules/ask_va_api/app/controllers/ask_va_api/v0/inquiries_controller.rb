@@ -4,8 +4,8 @@ module AskVAApi
   module V0
     class InquiriesController < ApplicationController
       around_action :handle_exceptions
-      skip_before_action :authenticate, only: %i[unauth_create upload_attachment test_create show]
-      skip_before_action :verify_authenticity_token, only: %i[unauth_create upload_attachment test_create]
+      skip_before_action :authenticate, only: %i[unauth_create upload_attachment show]
+      skip_before_action :verify_authenticity_token, only: %i[unauth_create upload_attachment]
 
       def index
         inquiries = retriever.call
@@ -26,7 +26,10 @@ module AskVAApi
       end
 
       def upload_attachment
-        result = Attachments::Uploader.new(convert_keys_to_camel_case(attachment_params)).call
+        attachment_translation_map = fetch_parameters('attachment')
+        result = Attachments::Uploader.new(
+          convert_keys_to_camel_case(attachment_params, attachment_translation_map)
+        ).call
         render json: result.to_json, status: :ok
       end
 
@@ -56,7 +59,9 @@ module AskVAApi
       private
 
       def process_inquiry(icn = current_user.icn)
-        Inquiries::Creator.new(icn:).call(payload: inquiry_params)
+        inquiry_translation_map = fetch_parameters('inquiry')
+        converted_inquiry_params = convert_keys_to_camel_case(inquiry_params, inquiry_translation_map)
+        Inquiries::Creator.new(icn:).call(payload: converted_inquiry_params)
       end
 
       def retriever(icn: current_user.icn)
@@ -64,11 +69,14 @@ module AskVAApi
         @retriever ||= Inquiries::Retriever.new(icn:, user_mock_data: params[:mock], entity_class:)
       end
 
-      def convert_keys_to_camel_case(params)
-        hash = I18n.t('ask_va_api.parameters.attachment')
-        params.each_with_object({}) do |(key, value), new_hash|
-          new_key = hash[key.to_sym]
-          new_hash[new_key.to_sym] = value
+      def convert_keys_to_camel_case(params, translation_map)
+        params.each_with_object({}) do |(key, value), result_hash|
+          if key == 'school_obj'
+            school_translation_map = fetch_parameters('school')
+            value = convert_keys_to_camel_case(value, school_translation_map)
+          end
+          camel_case_key = translation_map[key.to_sym]
+          result_hash[camel_case_key.to_sym] = value
         end
       end
 
@@ -77,21 +85,18 @@ module AskVAApi
       end
 
       def attachment_params
-        params.permit(fetch_parameters('attachment')).to_h
+        params.permit(fetch_parameters('attachment').keys).to_h
       end
 
       def inquiry_params
         params.permit(
-          *fetch_parameters('base'),
-          *fetch_parameters('dependant'),
-          *fetch_parameters('submitter'),
-          *fetch_parameters('veteran'),
-          SchoolObj: fetch_parameters('school')
+          *fetch_parameters('inquiry').keys,
+          school_obj: fetch_parameters('school').keys
         ).to_h
       end
 
       def fetch_parameters(key)
-        I18n.t("ask_va_api.parameters.#{key}").keys
+        I18n.t("ask_va_api.parameters.#{key}")
       end
 
       class InvalidAttachmentError < StandardError; end
