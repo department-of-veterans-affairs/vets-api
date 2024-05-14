@@ -74,9 +74,6 @@ describe TravelPay::Client do
 
   context '/claims' do
     it 'returns a list of claims sorted by most recently updated' do
-      ### TODO: remove this - this can be an arbitrary
-      ### string once the API team parses the token on
-      ### their side
       payload = { ContactID: 'test' }
       fake_btsss_token = JWT.encode(payload, nil, 'none')
 
