@@ -131,7 +131,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       send_to_central_mail!(user)
     end
 
-    send_vre_email_form(user)
+    send_to_res(user)
   end
 
   def upload_to_vbms(doc_type: '1167')
@@ -163,6 +163,18 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     end
 
     send_central_mail_confirmation_email(user)
+  end
+
+  def send_to_res(user)
+    email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
+
+    log_message_to_sentry("VRE claim email: #{email_addr}, sent to cmp: #{@sent_to_cmp} #{user.present?}",
+                          :info, { uuid: user.uuid })
+
+    VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr, @sent_to_cmp).deliver_later if user.present?
+
+    service = RES::Ch31Form.new(user:, claim: self)
+    service.submit
   end
 
   def send_vre_email_form(user)
