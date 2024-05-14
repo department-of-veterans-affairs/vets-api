@@ -69,7 +69,7 @@ RSpec.describe ClaimsApi::ServiceBase do
 
   describe '#will_retry?' do
     it 'retries for a header.va_eauth_birlsfilenumber error' do
-      body = { key: 'header.va_eauth_birlsfilenumber', severity: 'FATAL', text: 'Size must be between 8 and 9' }
+      body = { key: 'header.va_eauth_birlsfilenumber', severity: 'ERROR', text: 'Size must be between 8 and 9' }
 
       error = Common::Exceptions::BackendServiceException.new(
         'header.va_eauth_birlsfilenumber', {}, nil, body
@@ -91,7 +91,7 @@ RSpec.describe ClaimsApi::ServiceBase do
     end
 
     it 'does not retry a form526.submit.noRetryError error' do
-      body = { key: 'form526.submit.noRetryError', severity: 'FATAL', text: 'Form 526 is already in-process' }
+      body = { key: 'form526.submit.noRetryError', severity: 'FATAL', text: 'Claim could not be established. Retries will fail.' }
 
       error = Common::Exceptions::BackendServiceException.new(
         'form526.submit.noRetryError', {}, nil, body
