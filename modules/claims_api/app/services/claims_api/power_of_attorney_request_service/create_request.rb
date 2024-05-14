@@ -209,6 +209,7 @@ module ClaimsApi
       end
 
       # rubocop: disable Metrics/MethodLength
+      # rubocop: disable Naming/VariableNumber
       def create_veteran_representative
         ClaimsApi::VeteranRepresentativeService
           .new(external_uid: @veteran_participant_id, external_key: @veteran_participant_id)
@@ -247,6 +248,7 @@ module ClaimsApi
           )
       end
       # rubocop: enable Metrics/MethodLength
+      # rubocop: enable Naming/VariableNumber
 
       def bgs_jrn_fields
         {

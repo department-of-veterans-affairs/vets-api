@@ -21,8 +21,11 @@ describe ClaimsApi::PowerOfAttorneyRequestService::TerminateExistingRequests do
     end
 
     context 'when there are requests in a non-obsolete state' do
+      let(:file_name) do
+        'claims_api/power_of_attorney_request_service/terminate_existing_requests/with_requests_to_terminate'
+      end
+
       it 'updates the non-obsolete requests' do
-        file_name = 'claims_api/power_of_attorney_request_service/terminate_existing_requests/with_requests_to_terminate'
         VCR.use_cassette(file_name) do
           receive_count = 0
           allow_any_instance_of(ClaimsApi::ManageRepresentativeService).to receive(:update_poa_request) {
