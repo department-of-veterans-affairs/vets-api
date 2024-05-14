@@ -29,14 +29,12 @@ Rails.application.reloader.to_prepare do
     StatsD.measure('api.request.view_runtime', payload[:view_runtime].to_i, tags:)
   end
 
-  ActiveSupport::Notifications.subscribe(
-    'facilities.ppms.v1.request.faraday'
-  ) do |_name, start_time, end_time, _id, payload|
+  ActiveSupport::Notifications.subscribe(/facilities.ppms./) do |_name, start_time, end_time, _id, payload|
     payload_statuses = ["http_status:#{payload.status}"]
+    duration = end_time - start_time
+
     StatsD.increment('facilities.ppms.response.failures', tags: payload_statuses) unless payload.success?
     StatsD.increment('facilities.ppms.response.total', tags: payload_statuses)
-
-    duration = end_time - start_time
 
     measurement = case payload[:url].path
                   when /FacilityServiceLocator/
