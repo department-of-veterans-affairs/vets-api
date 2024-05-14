@@ -9,7 +9,7 @@ en:
         file_content: fileContent
         inquiry_id: inquiryId
         correspondence_id: correspondenceId
-      base:
+      inquiry:
         are_you_the_dependent: AreYouTheDependent
         attachment_present: AttachmentPresent
         branch_of_service: BranchOfService
@@ -17,6 +17,21 @@ en:
         contact_method: ContactMethod
         country: Country
         daytime_phone: DaytimePhone
+        dependant_city: DependantCity
+        dependant_country: DependantCountry
+        dependant_daytime_phone: DependantDayTimePhone
+        dependant_dob: DependantDOB
+        dependant_email: DependantEmail
+        dependant_first_name: DependantFirstName
+        dependant_gender: DependantGender
+        dependant_last_name: DependantLastName
+        dependant_middle_name: DependantMiddleName
+        dependant_province: DependantProvince
+        dependant_relationship: DependantRelationship
+        dependant_ssn: DependantSSN
+        dependant_state: DependantState
+        dependant_street_address: DependantStreetAddress
+        dependant_zip_code: DependantZipCode
         email_address: EmailAddress
         email_confirmation: EmailConfirmation
         first_name: FirstName
@@ -37,33 +52,15 @@ en:
         middle_name: MiddleName
         preferred_name: PreferredName
         pronouns: Pronouns
+        school_obj: SchoolObj
         street_address2: StreetAddress2
-        supervisor_flag: SupervisorFlag
-        va_employee_time_stamp: VaEmployeeTimeStamp
-        zip_code: ZipCode
-        suffix: Suffix
-      dependant:
-        dependant_city: DependantCity
-        dependant_country: DependantCountry
-        dependant_daytime_phone: DependantDayTimePhone
-        dependant_dob: DependantDOB
-        dependant_email: DependantEmail
-        dependant_first_name: DependantFirstName
-        dependant_gender: DependantGender
-        dependant_last_name: DependantLastName
-        dependant_middle_name: DependantMiddleName
-        dependant_province: DependantProvince
-        dependant_relationship: DependantRelationship
-        dependant_ssn: DependantSSN
-        dependant_state: DependantState
-        dependant_street_address: DependantStreetAddress
-        dependant_zip_code: DependantZipCode
-      submitter:
         submitter: Submitter
         submitter_dependent: SubmitterDependent
         submitter_dob: SubmitterDOB
         submitter_gender: SubmitterGender
         submitter_province: SubmitterProvince
+        submitter_question: SubmitterQuestion
+        submitters_dod_id_edipi_number: SubmittersDodIdEdipiNumber
         submitter_ssn: SubmitterSSN
         submitter_state: SubmitterState
         submitter_state_of_residency: SubmitterStateOfResidency
@@ -72,9 +69,9 @@ en:
         submitter_street_address: SubmitterStreetAddress
         submitter_vet_center: SubmitterVetCenter
         submitter_zip_code_of_residency: SubmitterZipCodeOfResidency
-        submitter_question: SubmitterQuestion
-        submitters_dod_id_edipi_number: SubmittersDodIdEdipiNumber
-      veteran:
+        suffix: Suffix
+        supervisor_flag: SupervisorFlag
+        va_employee_time_stamp: VaEmployeeTimeStamp
         veteran_city: VeteranCity
         veteran_claim_number: VeteranClaimNumber
         veteran_country: VeteranCountry
@@ -104,7 +101,7 @@ en:
         veteran_zip_code: VeteranZipCode
         who_was_their_counselor: WhoWasTheirCounselor
         your_last_name: YourLastName
-        veteran_dod_id_edipi_number: VeteranDodIdEdipiNumber
+        zip_code: ZipCode
       school:
         city: City
         institution_name: InstitutionName
