@@ -21,11 +21,8 @@ module ClaimsApi
 
         mapped_claim = pdf_mapper_service(auto_claim.form_data, get_pdf_data, auto_claim.auth_headers,
                                           middle_initial, auto_claim.created_at).map_claim
-        pdf_string = if Settings.claims_api.pdf_generator_526.mock == false
-                       generate_526_pdf(mapped_claim)
-                     else
-                       mock_526_pdf
-                     end
+        pdf_string = get_pdf_string(mapped_claim)
+
         if pdf_string.empty?
           log_job_progress(claim_id,
                            '526EZ PDF generator failed to return PDF string for claim')
@@ -35,22 +32,26 @@ module ClaimsApi
           log_job_progress(claim_id,
                            '526EZ PDF generator PDF string returned')
 
-          file_name = "#{SecureRandom.hex}.pdf"
-          path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
           if Settings.claims_api.pdf_generator_526.mock == false
-            upload = ActionDispatch::Http::UploadedFile.new({
-                                                              filename: file_name,
-                                                              type: 'application/pdf',
-                                                              tempfile: File.open(path)
-                                                            })
+            file_name = "#{SecureRandom.hex}.pdf"
+            path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
+          else
+            path = 'modules/claims_api/lib/claims_api/v2/mock_526_pdf.pdf'
+            file_name = 'mock_526_pdf.pdf'
           end
+          upload = ActionDispatch::Http::UploadedFile.new({
+                                                            filename: file_name,
+                                                            type: 'application/pdf',
+                                                            tempfile: File.open(path)
+                                                          })
+
           log_job_progress(claim_id,
                            "526EZ PDF generator Uploaded 526EZ PDF #{file_name} to S3")
 
           auto_claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
           save_auto_claim!(auto_claim, auto_claim.status)
 
-          ::Common::FileHelpers.delete_file_if_exists(path)
+          ::Common::FileHelpers.delete_file_if_exists(path) if Settings.claims_api.pdf_generator_526.mock == false
         end
 
         log_job_progress(claim_id,
@@ -119,6 +120,14 @@ module ClaimsApi
 
       def mock_526_pdf
         ClaimsApi::V2::MockPdfGeneratorService.new.generate_pdf
+      end
+
+      def get_pdf_string(mapped_claim)
+        if Settings.claims_api.pdf_generator_526.mock == false
+          generate_526_pdf(mapped_claim)
+        else
+          mock_526_pdf
+        end
       end
     end
   end
