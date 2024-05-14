@@ -117,6 +117,31 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
       it 'maps the PACT attribute correctly' do
         expect(evss_data[:disabilities][0][:specialIssues][0]).to eq('PACT')
       end
+
+      context 'When serviceRelevance is blank' do
+        let(:disability) do
+          {
+            disabilityActionType: 'INCREASE',
+            name: 'hypertension',
+            approximateDate: nil,
+            classificationCode: '',
+            serviceRelevance: '',
+            isRelatedToToxicExposure: false,
+            exposureOrEventOrInjury: '',
+            ratedDisabilityId: '',
+            diagnosticCode: 0,
+            secondaryDisabilities: nil
+          }
+        end
+
+        it 'mapping logic correctly removes attribute' do
+          form_data['data']['attributes']['disabilities'][1] = disability
+          auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
+          evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, file_number).map_claim[:form526]
+          disability = evss_data[:disabilities][1]
+          expect(disability[:serviceRelevance]).to eq(nil)
+        end
+      end
     end
 
     context '526 section 6, service information: service periods' do
