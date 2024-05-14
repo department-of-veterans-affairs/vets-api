@@ -217,6 +217,7 @@ module Form526ClaimFastTrackingConcern
       end
       Rails.logger.info('Max CFI form526 submission',
                         id:, max_cfi_enabled:, disability_claimed:, diagnostic_code:,
+                        cfi_checkbox_was_selected: cfi_checkbox_was_selected?,
                         total_increase_conditions: increase_disabilities.count)
     end
   rescue => e
@@ -239,6 +240,13 @@ module Form526ClaimFastTrackingConcern
     end
   end
 
+  # return whether the associated InProgressForm ever logged that the CFI checkbox was selected
+  def cfi_checkbox_was_selected?
+    return false if in_progress_form.nil?
+
+    ClaimFastTracking::MaxCfiMetrics.new(in_progress_form, {}).create_or_load_metadata['cfiLogged']
+  end
+
   def add_ep_merge_special_issue!
     disabilities.each do |disability|
       disability['specialIssues'] ||= []
@@ -249,8 +257,11 @@ module Form526ClaimFastTrackingConcern
 
   private
 
+  def in_progress_form
+    @in_progress_form ||= InProgressForm.find_by(form_id: '21-526EZ', user_uuid:)
+  end
+
   def max_rated_disabilities_from_ipf
-    in_progress_form = InProgressForm.find_by(form_id: '21-526EZ', user_uuid:)
     return [] if in_progress_form.nil?
 
     fd = in_progress_form.form_data
