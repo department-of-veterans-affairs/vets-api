@@ -30,6 +30,7 @@ module CopayNotifications
     STATSD_KEY_PREFIX = 'api.copay_notifications.new_statement'
 
     def perform(statement)
+      # rubocop:disable Lint/UselessAssignment
       StatsD.increment("#{STATSD_KEY_PREFIX}.total")
       statement_service = DebtManagementCenter::StatementIdentifierService.new(statement)
       user_data = statement_service.get_mpi_data
@@ -38,7 +39,12 @@ module CopayNotifications
         'name' => user_data[:first_name],
         'date' => Time.zone.today.strftime('%B %d, %Y')
       }
-      DebtManagementCenter::VANotifyEmailJob.perform_async(icn, MCP_NOTIFICATION_TEMPLATE, personalization, 'icn')
+      statement_date = statement['statementDate']
+      account_balance = statement['accountBalance']
+      Rails.logger.info("Notification Data: date-#{statement_date}, balance-#{account_balance}")
+      # rubocop:enable Lint/UselessAssignment
+      # pausing until further notice
+      # DebtManagementCenter::VANotifyEmailJob.perform_async(icn, MCP_NOTIFICATION_TEMPLATE, personalization, 'icn')
     end
   end
 end

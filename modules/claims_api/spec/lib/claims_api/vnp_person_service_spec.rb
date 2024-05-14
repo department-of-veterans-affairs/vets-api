@@ -2,12 +2,12 @@
 
 require 'rails_helper'
 require 'bgs_service/vnp_person_service'
-require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_helpers.rb')
+require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_spec_helpers.rb')
 
 metadata = {
   bgs: {
     service: 'vnp_person_service',
-    operation: 'vnp_person_create'
+    action: 'vnp_person_create'
   }
 }
 

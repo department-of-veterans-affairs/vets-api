@@ -7,13 +7,14 @@ module TermsOfUse
   class SignUpServiceUpdaterJob
     include Sidekiq::Job
 
-    sidekiq_options retry: 5 # ~17 mins
+    sidekiq_options retry_for: 47.hours
 
     sidekiq_retries_exhausted do |job, exception|
-      Rails.logger.warn(
-        "[TermsOfUse][SignUpServiceUpdaterJob] Retries exhausted for #{job['class']} " \
-        "with args #{job['args']}: #{exception.message}"
-      )
+      attr_package_key = job['args'].first
+      attrs = Sidekiq::AttrPackage.find(attr_package_key)
+
+      Rails.logger.warn('[TermsOfUse][SignUpServiceUpdaterJob] retries exhausted',
+                        { icn: attrs[:icn], exception_message: exception.message, attr_package_key: })
     end
 
     attr_reader :icn, :signature_name, :version

@@ -9,7 +9,7 @@ module BGS
     include Sidekiq::Job
     include SentryLogging
 
-    attr_reader :claim, :user, :in_progress_copy, :user_uuid, :saved_claim_id, :vet_info, :icn
+    attr_reader :claim, :user, :user_uuid, :saved_claim_id, :vet_info, :icn
 
     sidekiq_options retry: 14
 
@@ -19,23 +19,19 @@ module BGS
       Rails.logger.error('BGS::SubmitForm674Job failed, retries exhausted...',
                          { user_uuid:, saved_claim_id:, icn:, error: })
 
-      BGS::SubmitForm674Job.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id)
+      BGS::SubmitForm674Job.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id, user_uuid)
     end
 
     def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = nil)
       Rails.logger.info('BGS::SubmitForm674Job running!', { user_uuid:, saved_claim_id:, icn: })
       instance_params(encrypted_vet_info, icn, encrypted_user_struct_hash, user_uuid, saved_claim_id)
 
-      in_progress_form = InProgressForm.find_by(form_id: FORM_ID, user_uuid:)
-      @in_progress_copy = in_progress_form_copy(in_progress_form)
-
       submit_form
 
       send_confirmation_email
-      in_progress_form&.destroy
       Rails.logger.info('BGS::SubmitForm674Job succeeded!', { user_uuid:, saved_claim_id:, icn: })
+      InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
     rescue => e
-      salvage_save_in_progress_form(FORM_ID, user_uuid, @in_progress_copy) if @in_progress_copy.present?
       handle_filtered_errors!(e:, encrypted_user_struct_hash:, encrypted_vet_info:)
 
       Rails.logger.warn('BGS::SubmitForm674Job received error, retrying...',
@@ -52,7 +48,7 @@ module BGS
                         { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
 
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
-      self.class.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id)
+      self.class.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id, user_uuid)
       raise Sidekiq::JobRetry::Skip
     end
 
@@ -62,6 +58,7 @@ module BGS
       @icn = icn
       @user_uuid = user_uuid
       @saved_claim_id = saved_claim_id
+      @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
     end
 
     def self.generate_user_struct(encrypted_user_struct, vet_info)
@@ -85,7 +82,7 @@ module BGS
       )
     end
 
-    def self.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id)
+    def self.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id, user_uuid)
       if Flipper.enabled?(:dependents_central_submission)
         user = generate_user_struct(encrypted_user_struct_hash, vet_info)
         CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
@@ -94,13 +91,16 @@ module BGS
       else
         DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present? # rubocop:disable Style/IfInsideElse # Temporary for flipper
       end
+      InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
+    rescue => e
+      Rails.logger.warn('BGS::SubmitForm674Job backup submission failed...',
+                        { user_uuid:, saved_claim_id:, error: e.message, nested_error: e.cause&.message })
+      InProgressForm.find_by(form_id: FORM_ID, user_uuid:)&.submission_pending!
     end
 
     private
 
     def submit_form
-      @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
-
       claim.add_veteran_info(vet_info)
 
       raise Invalid674Claim unless claim.valid?(:run_686_form_jobs)
