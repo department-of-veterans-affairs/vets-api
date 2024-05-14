@@ -284,6 +284,40 @@ describe SimpleFormsApi::ConfirmationEmail do
     end
   end
 
+  describe '21_0966' do
+    let(:data) do
+      fixture_path = Rails.root.join(
+        'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_0966.json'
+      )
+      JSON.parse(fixture_path.read)
+    end
+    let(:user) { create(:user, :loa3) }
+
+    it 'sends the confirmation email' do
+      allow(VANotify::EmailJob).to receive(:perform_async)
+
+      subject = described_class.new(
+        form_data: data,
+        form_number: 'vba_21_0966',
+        confirmation_number: 'confirmation_number',
+        user:
+      )
+
+      subject.send
+
+      expect(VANotify::EmailJob).to have_received(:perform_async).with(
+        user.va_profile_email,
+        'form21_0966_confirmation_email_template_id',
+        {
+          'first_name' => user.first_name.upcase,
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'confirmation_number' => 'confirmation_number',
+          'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC) (VA Form 21P-534 or VA Form 21P-534EZ)'
+        }
+      )
+    end
+  end
+
   describe '20_10206' do
     let(:data) do
       fixture_path = Rails.root.join(

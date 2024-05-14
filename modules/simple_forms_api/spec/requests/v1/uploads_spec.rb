@@ -677,5 +677,84 @@ RSpec.describe 'Forms uploader', type: :request do
         expect(VANotify::EmailJob).not_to have_received(:perform_async)
       end
     end
+
+    describe '21_0966' do
+      context 'authenticated user' do
+        let(:data) do
+          fixture_path = Rails.root.join(
+            'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_0966.json'
+          )
+          JSON.parse(fixture_path.read)
+        end
+
+        before do
+          user = create(:user)
+          sign_in_as(user)
+          allow_any_instance_of(User).to receive(:va_profile_email).and_return('abraham.lincoln@vets.gov')
+          allow(VANotify::EmailJob).to receive(:perform_async)
+        end
+
+        context 'veteran preparer' do
+          it 'successful submission' do
+            allow_any_instance_of(SimpleFormsApi::IntentToFile)
+              .to receive(:submit).and_return([confirmation_number, Time.zone.now])
+            allow_any_instance_of(SimpleFormsApi::IntentToFile)
+              .to receive(:existing_intents)
+              .and_return({ 'compensation' => 'false', 'pension' => 'false', 'survivor' => 'false' })
+
+            data['preparer_identification'] = 'VETERAN'
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(response).to have_http_status(:ok)
+
+            # TODO: Update expected result for intent to file benefits
+            expect(VANotify::EmailJob).to have_received(:perform_async).with(
+              'abraham.lincoln@vets.gov',
+              'form21_0966_confirmation_email_template_id',
+              {
+                'first_name' => 'ABRAHAM',
+                'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                'confirmation_number' => confirmation_number,
+                'intent_to_file_benefits' => { 'survivor' => 'true' }
+              }
+            )
+          end
+        end
+
+        context 'non-veteran preparer' do
+          it 'successful submission' do
+            allow_any_instance_of(SimpleFormsApi::PdfUploader)
+              .to receive(:upload_to_benefits_intake).and_return([200, confirmation_number])
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(response).to have_http_status(:ok)
+
+            expect(VANotify::EmailJob).to have_received(:perform_async).with(
+              'abraham.lincoln@vets.gov',
+              'form21_0966_confirmation_email_template_id',
+              {
+                'first_name' => 'ABRAHAM',
+                'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                'confirmation_number' => confirmation_number,
+                'intent_to_file_benefits' => { 'survivor' => 'true' }
+              }
+            )
+          end
+
+          it 'unsuccessful submission' do
+            allow_any_instance_of(SimpleFormsApi::PdfUploader)
+              .to receive(:upload_to_benefits_intake).and_return([500, confirmation_number])
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(response).to have_http_status(:error)
+
+            expect(VANotify::EmailJob).not_to have_received(:perform_async)
+          end
+        end
+      end
+    end
   end
 end
