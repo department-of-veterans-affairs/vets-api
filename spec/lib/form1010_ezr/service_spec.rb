@@ -84,7 +84,7 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       it "increments StatsD, adds/updates 'veteranDateOfBirth' to be equal to the current_user's DOB, and " \
-         "returns the parsed form" do
+         'returns the parsed form' do
         expect(StatsD).to receive(:increment).with('api.1010ezr.missing_date_of_birth')
         expect(service.send(:post_fill_veteran_date_of_birth, parsed_form)).to eq(
           { 'veteranDateOfBirth' => current_user.birth_date }
@@ -123,7 +123,7 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       it "increments StatsD, adds/updates 'veteranFullName' to be equal to the current_user's full name, " \
-         "and returns the parsed form" do
+         'and returns the parsed form' do
         expect(StatsD).to receive(:increment).with('api.1010ezr.missing_full_name')
         expect(service.send(:post_fill_veteran_full_name, parsed_form)).to eq(
           { 'veteranFullName' => current_user.full_name_normalized.stringify_keys }
