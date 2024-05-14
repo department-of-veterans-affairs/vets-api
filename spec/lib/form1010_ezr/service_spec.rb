@@ -112,7 +112,8 @@ RSpec.describe Form1010Ezr::Service do
         }
       end
 
-      it "adds/updates 'veteranFullName' and sets it equal to the current_user's full name, then returns the parsed form" do
+      it "adds/updates 'veteranFullName' to be equal to the current_user's full name " \
+         "and then returns the parsed form" do
         expect(service.send(:post_fill_veteran_full_name, parsed_form)).to eq(
           { 'veteranFullName' => current_user.full_name_normalized.stringify_keys }
         )
