@@ -119,12 +119,15 @@ describe TravelPay::Client do
       end
 
       expected_ordered_ids = %w[uuid2 uuid3 uuid1]
+      expected_statuses = ['In Progress', 'Incomplete', 'In Progress']
 
       client = TravelPay::Client.new
       claims = client.get_claims('veis_token', fake_btsss_token)
       actual_claim_ids = claims[:data].pluck(:id)
+      actual_statuses = claims[:data].pluck(:claimStatus)
 
       expect(actual_claim_ids).to eq(expected_ordered_ids)
+      expect(actual_statuses).to eq(expected_statuses)
     end
   end
 
