@@ -57,6 +57,38 @@ RSpec.shared_examples 'implements certifiable concern' do
     end
   end
 
+  describe '#expiring_certificates' do
+    let(:certificate) do
+      File.read('spec/fixtures/sign_in/sample_client.crt')
+    end
+
+    before do
+      subject.certificates = [certificate]
+    end
+
+    context 'when certificates does not include an expiring certificate' do
+      it 'does not include the certificate' do
+        certificate_object = OpenSSL::X509::Certificate.new(certificate)
+        expect(subject.expiring_certificates).not_to include(certificate_object)
+      end
+    end
+
+    context 'when certificates include an expiring certificate' do
+      before do
+        Timecop.freeze(2051, 9, 15, 12, 0, 0)
+      end
+
+      after do
+        Timecop.return
+      end
+
+      it 'includes the expiring certificate' do
+        certificate_object = OpenSSL::X509::Certificate.new(certificate)
+        expect(subject.expiring_certificates).to include(certificate_object)
+      end
+    end
+  end
+
   describe '#self_signed_certificates' do
     let(:self_signed_certificate) do
       File.read('spec/fixtures/sign_in/sample_self_signed_client.crt')

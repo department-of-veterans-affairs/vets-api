@@ -15,6 +15,12 @@ module SignIn
         end
       end
 
+      def expiring_certificates
+        @expiring_certificates ||= certificate_objects.select do |certificate|
+          certificate.not_after < 60.days.from_now
+        end
+      end
+
       def self_signed_certificates
         @self_signed_certificates ||= certificate_objects.select do |certificate|
           certificate.issuer == certificate.subject
