@@ -4018,9 +4018,11 @@ RSpec.describe 'Disability Claims', type: :request do
 
       it 'returns a 200 response when successful' do
         mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
-          post synchronous_path, params: data, headers: auth_header
+          VCR.use_cassette('claims_api/disability_comp') do
+            post synchronous_path, params: data, headers: auth_header
 
-          expect(response).to have_http_status(:accepted)
+            expect(response).to have_http_status(:accepted)
+          end
         end
       end
 
