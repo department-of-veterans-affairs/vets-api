@@ -25,8 +25,10 @@ module IvcChampva
 
           render json: build_json(Array(status), error_message)
 
-        rescue
-          puts 'An unknown error occurred while uploading document(s).'
+        rescue => e
+          puts "An unknown error occurred while uploading document(s)."
+          puts "Error: #{e.message}"
+          puts e.backtrace
         end
       end
 
@@ -47,19 +49,22 @@ module IvcChampva
         form_id = get_form_id
         form = "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
         filler = IvcChampva::PdfFiller.new(form_number: form_id, form:)
+
         attachment_ids = [form_id]
-      
-        parsed_form_data["applicants"].each do |applicant|
-          next unless applicant.has_key?("applicant_supporting_documents")
-      
-          applicant["applicant_supporting_documents"].each do |documents|
-            documents.each do |document|
-              attachment_ids << document["attachment_id"]
+
+        if form_id == 'vha_10_10d'
+          parsed_form_data["applicants"].each do |applicant|
+           next unless applicant.has_key?("applicant_supporting_documents")
+
+            applicant["applicant_supporting_documents"].each do |documents|
+              documents.each do |document|
+                attachment_ids << document["attachment_id"]
+              end
             end
           end
+         @attachment_ids = attachment_ids
         end
-      
-        @attachment_ids = attachment_ids
+
         file_path = if @current_user
                       filler.generate(@current_user.loa[:current])
                     else
@@ -74,7 +79,8 @@ module IvcChampva
         form_number = params[:form_number]
         raise 'missing form_number in params' unless form_number
 
-        FORM_NUMBER_MAP[form_number]
+        form_number_without_colon = form_number.sub(':', '')  # Remove colon with sub
+        FORM_NUMBER_MAP[form_number_without_colon]
       end
 
       def build_json(status, error_message)
@@ -87,6 +93,10 @@ module IvcChampva
             error_message:,
             status: 400
           }
+        elsif status.all? { |s| s == 204 }
+          { 
+              status: 204 
+          } 
         else
           {
             error_message: 'Partial upload failure',
