@@ -145,10 +145,21 @@ module ClaimsApi
       def validate_form_526_disabilities!
         return if form_attributes['disabilities'].nil? || form_attributes['disabilities'].blank?
 
+        validate_disability_name!
         validate_form_526_disability_classification_code!
         validate_form_526_disability_approximate_begin_date!
         validate_form_526_disability_service_relevance!
         validate_form_526_disability_secondary_disabilities!
+      end
+
+      def validate_disability_name!
+        form_attributes['disabilities'].each_with_index do |disability, idx|
+          disability_name = disability&.dig('name')
+          if disability_name.blank?
+            collect_error_messages(source: "/disabilities/#{idx}/name",
+                                  detail: "The disability name is required for /disabilities/#{idx}/name")
+          end
+        end
       end
 
       def validate_form_526_disability_classification_code!
