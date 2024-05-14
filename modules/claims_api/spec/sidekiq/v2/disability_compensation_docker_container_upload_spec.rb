@@ -195,17 +195,17 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         expect(@should_retry).to eq(false)
       end
 
-      it 'does retry when form526.submit.establshClaim.serviceError gets returned' do
+      it 'does retry when form526.submit.establishClaim.serviceError gets returned' do
         body =
           {
-            key: 'form526.submit.establshClaim.serviceError',
+            key: 'form526.submit.establishClaim.serviceError',
             severity: 'FATAL',
             text: 'Error calling external service to establish the claim during submit.'
           }
 
         allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
           receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
-                                       'form526.submit.establshClaim.serviceError', {}, nil, body
+                                       'form526.submit.establishClaim.serviceError', {}, nil, body
                                      ))
         )
 
@@ -220,7 +220,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
 
         claim.reload
         # rubocop:disable Layout/LineLength
-        expect(claim.evss_response).to eq({ 'key' => 'form526.submit.establshClaim.serviceError',
+        expect(claim.evss_response).to eq({ 'key' => 'form526.submit.establishClaim.serviceError',
                                             'severity' => 'FATAL',
                                             'text' => 'Error calling external service to establish the claim during submit.' })
         # rubocop:enable Layout/LineLength
