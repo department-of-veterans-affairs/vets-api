@@ -21,17 +21,12 @@ module EVSS
         lh_request_body.claimant_certification = true
         lh_request_body.claim_process_type = evss_claims_process_type(form526) # basic_info[:claim_process_type]
 
-        veteran = form526['veteran']
-        lh_request_body.veteran_identification = transform_veteran(veteran)
-        lh_request_body.change_of_address = transform_change_of_address(veteran) if veteran['changeOfAddress'].present?
-        lh_request_body.homeless = transform_homeless(veteran) if veteran['homelessness'].present?
+        transform_veteran_section(form526, lh_request_body)
 
         service_information = form526['serviceInformation']
         lh_request_body.service_information = transform_service_information(service_information)
 
-        disabilities = form526['disabilities']
-        toxic_exposure_conditions = form526['toxicExposure']['conditions'] if form526['toxicExposure'].present?
-        lh_request_body.disabilities = transform_disabilities(disabilities, toxic_exposure_conditions)
+        transform_disabilities_section(form526, lh_request_body)
 
         direct_deposit = form526['directDeposit']
         lh_request_body.direct_deposit = transform_direct_deposit(direct_deposit) if direct_deposit.present?
@@ -41,6 +36,9 @@ module EVSS
 
         service_pay = form526['servicePay']
         lh_request_body.service_pay = transform_service_pay(service_pay) if service_pay.present?
+
+        toxic_exposure = form526['toxicExposure']
+        lh_request_body.toxic_exposure = transform_toxic_exposure(toxic_exposure) if toxic_exposure.present?
 
         lh_request_body
       end
@@ -166,7 +164,51 @@ module EVSS
         service_pay_target
       end
 
+      def transform_toxic_exposure(toxic_exposure_source)
+        toxic_exposure_target = Requests::ToxicExposure.new
+
+        gulf_war1990 = toxic_exposure_source['gulfWar1990']
+        gulf_war2001 = toxic_exposure_source['gulfWar2001']
+        if gulf_war1990.present? || gulf_war2001.present?
+          toxic_exposure_target.gulf_war_hazard_service =
+            transform_gulf_war(gulf_war1990, gulf_war2001)
+        end
+
+        toxic_exposure_target
+      end
+
       private
+
+      def transform_gulf_war(gulf_war1990, gulf_war2001)
+        filtered_results1990 = gulf_war1990&.filter { |k| k != 'notsure' }
+        gulf_war1990_value = filtered_results1990&.values&.any?(&:present?) && !none_of_these(filtered_results1990)
+        filtered_results2001 = gulf_war2001&.filter { |k| k != 'notsure' }
+        gulf_war2001_value = filtered_results2001&.values&.any?(&:present?) && !none_of_these(filtered_results2001)
+
+        gulf_war_hazard_service = Requests::GulfWarHazardService.new
+        gulf_war_hazard_service.served_in_gulf_war_hazard_locations =
+          gulf_war1990_value || gulf_war2001_value ? 'YES' : 'NO'
+
+        gulf_war_hazard_service
+      end
+
+      def none_of_these(options)
+        none_of_these = options['none']
+        none_of_these.present?
+      end
+
+      def transform_disabilities_section(form526, lh_request_body)
+        disabilities = form526['disabilities']
+        toxic_exposure_conditions = form526['toxicExposure']['conditions'] if form526['toxicExposure'].present?
+        lh_request_body.disabilities = transform_disabilities(disabilities, toxic_exposure_conditions)
+      end
+
+      def transform_veteran_section(form526, lh_request_body)
+        veteran = form526['veteran']
+        lh_request_body.veteran_identification = transform_veteran(veteran)
+        lh_request_body.change_of_address = transform_change_of_address(veteran) if veteran['changeOfAddress'].present?
+        lh_request_body.homeless = transform_homeless(veteran) if veteran['homelessness'].present?
+      end
 
       def transform_separation_pay(service_pay_source, service_pay_target)
         separation_pay_source = service_pay_source['separationPay']
