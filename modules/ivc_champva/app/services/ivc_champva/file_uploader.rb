@@ -1,4 +1,3 @@
-
 # frozen_string_literal: true
 
 module IvcChampva
@@ -13,11 +12,11 @@ module IvcChampva
     def handle_uploads
 
       pdf_results = @attachment_ids.each_with_index.map do |attachment_id, index|
-        next unless attachment_id != "Form ID"  # Skip "Form ID"
+        next unless attachment_id != 'Form ID'
 
         file_path = @file_paths[index]
         upload_pdf(attachment_id, file_path)
-      end.compact  # Remove nil values from skipped attachments
+      end.compact
 
       all_pdf_success = pdf_results.all? { |(status, _)| status == 200 }
 
@@ -29,8 +28,8 @@ module IvcChampva
     end
 
     def attachment_id_data(attachment_ids)
-      return if attachment_ids.include?("Form ID")
-      attachment_ids.unshift("Form ID")
+      return if attachment_ids.include?('Form ID')
+      attachment_ids.unshift('Form ID')
     end
 
     private

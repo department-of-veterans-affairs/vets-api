@@ -81,6 +81,7 @@ module IvcChampva
         form_number = params[:form_number]
         raise 'missing form_number in params' unless form_number
         form_number_without_colon = form_number.sub(':', '')
+
         FORM_NUMBER_MAP[form_number_without_colon]
       end
 
@@ -94,10 +95,6 @@ module IvcChampva
             error_message:,
             status: 400
           }
-        elsif status.all? { |s| s == 204 }
-          { 
-              status: 204 
-          } 
         else
           {
             error_message: 'Partial upload failure',
