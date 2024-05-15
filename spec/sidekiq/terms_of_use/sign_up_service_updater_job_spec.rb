@@ -23,26 +23,26 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       allow(Sidekiq::AttrPackage).to receive(:delete)
     end
 
-    it 'retries 5 times after failure' do
-      expect(described_class.get_sidekiq_options['retry']).to eq(5)
+    it 'retries for 47 hours after failure' do
+      expect(described_class.get_sidekiq_options['retry_for']).to eq(47.hours)
     end
 
-    it 'logs a message when retries have been exhausted' do
-      logger_spy = instance_spy(ActiveSupport::Logger)
-      allow(Rails).to receive(:logger).and_return(logger_spy)
+    context 'when retries have been exhausted' do
+      let(:job) { { args: [attr_package_key] }.as_json }
+      let(:exception_message) { 'some-error' }
+      let(:exception) { StandardError.new(exception_message) }
+      let(:expected_log_message) { '[TermsOfUse][SignUpServiceUpdaterJob] retries exhausted' }
+      let(:expected_log_payload) { { icn:, exception_message:, attr_package_key: } }
 
-      job_info = { 'class' => described_class.to_s, 'args' => %w[foo bar] }
-      error_message = 'foobar'
-      described_class.sidekiq_retries_exhausted_block.call(
-        job_info, Common::Client::Errors::ClientError.new(error_message)
-      )
+      before do
+        allow(Rails.logger).to receive(:warn)
+      end
 
-      expect(logger_spy)
-        .to have_received(:warn)
-        .with(
-          "[TermsOfUse][SignUpServiceUpdaterJob] Retries exhausted for #{job_info['class']} " \
-          "with args #{job_info['args']}: #{error_message}"
-        )
+      it 'logs a warning message with the expected payload' do
+        described_class.sidekiq_retries_exhausted_block.call(job, exception)
+
+        expect(Rails.logger).to have_received(:warn).with(expected_log_message, expected_log_payload)
+      end
     end
 
     context 'when the terms of use agreement is accepted' do

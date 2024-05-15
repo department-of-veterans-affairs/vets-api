@@ -54,6 +54,7 @@ module Users
       scaffold.prefills_available = prefills_available
       scaffold.services = services
       scaffold.session = session_data
+      scaffold.onboarding = onboarding
     end
 
     def account
@@ -213,6 +214,12 @@ module Users
         auth_broker: @user.identity.sign_in[:auth_broker],
         ssoe: @session[:ssoe_transactionid] ? true : false,
         transactionid: @session[:ssoe_transactionid]
+      }
+    end
+
+    def onboarding
+      {
+        show: user.show_onboarding_flow_on_login
       }
     end
   end
