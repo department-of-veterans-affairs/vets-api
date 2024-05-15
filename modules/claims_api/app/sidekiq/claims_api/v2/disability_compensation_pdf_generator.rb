@@ -50,7 +50,7 @@ module ClaimsApi
           auto_claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
           save_auto_claim!(auto_claim, auto_claim.status)
 
-          ::Common::FileHelpers.delete_file_if_exists(path) unless Settings.claims_api.pdf_generator_526.mock
+          ::Common::FileHelpers.delete_file_if_exists(path)
         end
 
         log_job_progress(claim_id,

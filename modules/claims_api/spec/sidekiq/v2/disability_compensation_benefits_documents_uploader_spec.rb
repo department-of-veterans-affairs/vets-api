@@ -79,7 +79,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
 
   context 'when the pdf is mocked' do
     it 'uploads to BD' do
-      with_settings(Settings.claims_api.pdf_generator_526, mock: true) do
+      with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
         subject.perform_async(claim.id)
 
         claim.reload
