@@ -487,8 +487,12 @@ features:
     description: Enables flagging feature for Find a Representative frontend
     enable_in_development: true
   representative_status_enabled:
-    actor_type: user
+    actor_type: cookie_id
     description: Enables flagging feature for Find a Representative frontend
+    enable_in_development: true
+  appoint_a_representative_enable_frontend:
+    actor_type: cookie_id
+    description: Enables Appoint a Representative frontend
     enable_in_development: true
   form526_legacy:
     actor_type: user
@@ -683,6 +687,9 @@ features:
     actor_type: user
     description: Enables the My HealtheVet secondary navigation
     enable_in_development: true
+  mhv_transitional_medical_records_landing_page:
+    actor_type: user
+    description: Enables the transitional Medical Records page at /my-health/records
   mhv_secure_messaging_to_va_gov_release:
     actor_type: user
     description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
@@ -903,6 +910,9 @@ features:
   my_va_enable_mhv_link:
     actor_type: user
     description: Enables the "Visit MHV" CTA link under Health care section
+  my_va_enable_new_sip_config:
+    actor_type: user
+    description: Enables use of the new SiP configuration
   my_va_update_errors_warnings:
     actor_type: user
     description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released)
