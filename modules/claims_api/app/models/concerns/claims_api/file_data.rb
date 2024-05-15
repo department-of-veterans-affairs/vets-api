@@ -28,7 +28,7 @@ module ClaimsApi
       def set_file_data!(file_data, doc_type, description = nil)
         if Flipper.enabled? :claims_load_testing
           ClaimsApi::V2::MockAwsService.new.store(file_data)
-        elsif Settings.claims_api.pdf_generator_526.mock
+        elsif Settings.claims_api.s3.mock
           ClaimsApi::V2::MockBDUploaderService.new.store(file_data)
         else
           uploader.store!(file_data)
