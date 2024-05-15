@@ -24,8 +24,11 @@ module ClaimsApi
           data = []
 
           begin
-            body = dump_query(query)
-            response = perform_request(body)
+            response =
+              BGSClient.perform_request(
+                body: dump(query),
+                service_action:
+              )
 
             result = response['POARequestRespondReturnVO'].to_h
             total_count = result['totalNbrOfRecords'].to_i
@@ -56,58 +59,38 @@ module ClaimsApi
 
         private
 
-        # Check https://github.com/department-of-veterans-affairs/bgs-catalog for:
-        #   `VDC/ManageRepresentativeService/ManageRepresentativePortBinding/readPOARequest/request.xml`
-        def perform_request(body)
-          service_action =
-            BGSClient::ServiceAction::
-              ManageRepresentativeService::
-              ReadPoaRequest
+        def dump(query) # rubocop:disable Metrics/MethodLength
+          Helpers::XmlBuilder.perform(service_action) do |xml, aliaz|
+            filter = query[:filter]
 
-          BGSClient.perform_request(
-            service_action:,
-            body:
-          )
-        end
-
-        def dump_query(query) # rubocop:disable Metrics/MethodLength
-          builder =
-            Nokogiri::XML::Builder.new(namespace_inheritance: false) do |xml|
-              # Need to declare an arbitrary root element with placeholder
-              # namespace in order to leverage namespaced tag building. The root
-              # element itself is later ignored and only used for its contents.
-              #   https://nokogiri.org/rdoc/Nokogiri/XML/Builder.html#method-i-5B-5D
-              xml.root('xmlns:data' => 'placeholder') do
-                filter = query[:filter]
-
-                xml['data'].SecondaryStatusList do
-                  filter[:statuses].each do |status|
-                    xml.SecondaryStatus(status)
-                  end
-                end
-
-                xml['data'].POACodeList do
-                  filter[:poaCodes].each do |poa_code|
-                    xml.POACode(poa_code)
-                  end
-                end
-
-                xml['data'].POARequestParameter do
-                  page = query[:page]
-                  xml.pageIndex(page[:number])
-                  xml.pageSize(page[:size])
-
-                  sort = query[:sort]
-                  xml.poaSortField(Sort::FIELDS.fetch(sort[:field]))
-                  xml.poaSortOrder(Sort::ORDERS.fetch(sort[:order]))
-                end
+            xml[aliaz].SecondaryStatusList do
+              filter[:statuses].each do |status|
+                xml.SecondaryStatus(status)
               end
             end
 
-          builder
-            .doc.at('root')
-            .children
-            .to_xml
+            xml[aliaz].POACodeList do
+              filter[:poaCodes].each do |poa_code|
+                xml.POACode(poa_code)
+              end
+            end
+
+            xml[aliaz].POARequestParameter do
+              page = query[:page]
+              xml.pageIndex(page[:number])
+              xml.pageSize(page[:size])
+
+              sort = query[:sort]
+              xml.poaSortField(Sort::FIELDS.fetch(sort[:field]))
+              xml.poaSortOrder(Sort::ORDERS.fetch(sort[:order]))
+            end
+          end
+        end
+
+        def service_action
+          BGSClient::ServiceAction::
+            ManageRepresentativeService::
+            ReadPoaRequest
         end
       end
 
