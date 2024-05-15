@@ -32,6 +32,8 @@ module ClaimsApi
                            '526EZ PDF generator PDF string returned')
 
           if Settings.claims_api.pdf_generator_526.mock
+            log_job_progress(claim_id, '526EZ PDF Generator has been mocked for claim')
+
             path = 'modules/claims_api/lib/claims_api/v2/mock_526_pdf.pdf'
             file_name = 'mock_526_pdf.pdf'
           else
