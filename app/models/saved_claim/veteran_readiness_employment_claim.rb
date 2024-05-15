@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'sentry_logging'
-require 'vre/ch31_form'
+require 'res/ch31_form'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include SentryLogging
@@ -135,6 +135,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def upload_to_vbms(doc_type: '1167')
+    add_claimant_info(user)
     form_path = PdfFill::Filler.fill_form(self, nil, { created_at: })
 
     uploader = ClaimsApi::VBMSUploader.new(
@@ -144,7 +145,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     )
 
     log_to_statsd('vbms') do
-      uploader.upload!
+      response = uploader.upload!
+
+      if response[:vbms_document_series_ref_id].present?
+        updated_form = parsed_form
+        updated_form['documentId'] = response[:vbms_document_series_ref_id]
+        update!(form: updated_form.to_json)
+      end
     end
   end
 

@@ -51,6 +51,7 @@ module RES
 
       res_payload = {
         useEva: form_data['useEva'],
+        receiveElectronicCommunication: form_data['receiveElectronicCommunication'],
         useTelecounseling: form_data['useTelecounseling'],
         appointmentTimePreferences: form_data['appointmentTimePreferences'],
         yearsOfEducation: form_data['yearsOfEducation'],
@@ -59,7 +60,7 @@ module RES
         cellNumber: form_data['cellPhone'],
         internationalNumber: form_data['internationalNumber'],
         email: form_data['email'],
-        documentId: form_data.dig('supportingDocuments', 0, 'documentId'), # or @claim.guid
+        documentId: form_data['documentId'],
         receivedDate: @claim.created_at,
         veteranAddress: mapped_address_hash(form_data['veteranAddress'])
       }

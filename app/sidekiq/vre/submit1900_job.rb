@@ -24,7 +24,7 @@ module VRE
       claim.send_to_vre(user)
     rescue => e
       log_message_to_sentry(
-        'VRE::Submit1900Job failed, retrying...', :warn, generate_sentry_details(e)
+        'VRE::Submit1900Job failed, retrying...', :warn, e.message
       )
       raise
     end
