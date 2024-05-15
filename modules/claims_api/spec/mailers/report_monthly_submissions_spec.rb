@@ -26,5 +26,19 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
     it 'sends the email' do
       expect(subject.subject).to eq('Benefits Claims Monthly Submission Report')
     end
+
+    it 'sends to the right people' do
+      expect(subject.to).to eq(
+        %w[
+          alex.wilson@oddball.io
+          austin.covrig@oddball.io
+          emily.goodrich@oddball.io
+          jennica.stiehl@oddball.io
+          kayla.watanabe@adhocteam.us
+          matthew.christianson@adhocteam.us
+          rockwell.rice@oddball.io
+        ]
+      )
+    end
   end
 end
