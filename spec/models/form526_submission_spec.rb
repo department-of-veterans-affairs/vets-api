@@ -9,7 +9,8 @@ RSpec.describe Form526Submission do
       user_uuid: user.uuid,
       saved_claim_id: saved_claim.id,
       auth_headers_json: auth_headers.to_json,
-      form_json:
+      form_json:,
+      submit_endpoint:
     )
   end
 
@@ -22,6 +23,7 @@ RSpec.describe Form526Submission do
   let(:form_json) do
     File.read('spec/support/disability_compensation_form/submissions/only_526.json')
   end
+  let(:submit_endpoint) { nil }
 
   describe 'submit_endpoint enum' do
     context 'when submit_endpoint is evss' do

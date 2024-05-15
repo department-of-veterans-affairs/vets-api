@@ -69,12 +69,11 @@ module Sidekiq
         raise e
       end
 
-      # rubocop:disable Metrics/MethodLength
       def perform(form526_submission_id)
         return unless Settings.form526_backup.enabled
 
         submission = Form526Submission.find(form526_submission_id)
-        submission.update(submit_endpoint: :benefits_intake_api)
+        submission.update(submit_endpoint: 'benefits_intake_api')
         job_status = Form526JobStatus.find_or_initialize_by(job_id: jid)
         job_status.assign_attributes(form526_submission_id:,
                                      job_class: 'BackupSubmission',
@@ -90,14 +89,17 @@ module Sidekiq
           backtrace: e.backtrace,
           submission_id: form526_submission_id
         )
+        update_job_status_bgjob_errors(job_status, e)
+        raise e
+      end
+
+      private
+
+      def update_job_status_bgjob_errors(job_status, e)
         bgjob_errors = job_status.bgjob_errors || {}
         bgjob_errors.merge!(error_hash_for_job_status(e))
         job_status.update(status: Form526JobStatus::STATUS[:retryable_error], bgjob_errors:)
-        raise e
       end
-      # rubocop:enable Metrics/MethodLength
-
-      private
 
       def error_hash_for_job_status(e)
         timestamp = Time.zone.now
