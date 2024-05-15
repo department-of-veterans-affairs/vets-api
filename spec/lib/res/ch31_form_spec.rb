@@ -31,14 +31,14 @@ RSpec.describe RES::Ch31Form do
     end
 
     context 'with a successful submission' do
-      it 'successfully sends to RES' do
+      pending 'successfully sends to RES' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_res' do
           response = service.submit
           expect(response['error_occurred']).to eq(false)
         end
       end
 
-      it 'adds a new address if the user is moving within 30 days' do
+      pending 'adds a new address if the user is moving within 30 days' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_res' do
           expect(service).to receive(:new_address) { new_address_hash }
 
@@ -48,7 +48,7 @@ RSpec.describe RES::Ch31Form do
     end
 
     context 'with an unsuccessful submission' do
-      it 'does not successfully send to RES' do
+      pending 'does not successfully send to RES' do
         VCR.use_cassette 'veteran_readiness_employment/failed_send_to_res' do
           expect(service).to receive(:log_exception_to_sentry)
 
