@@ -55,7 +55,7 @@ module Lighthouse
           transform_error_keys(e, status, title, detail, code)
         end
       else
-        error_body = error.response[:body]
+        error_body = error.response.try(:[], :body)
 
         status, title, detail, code = error_object_details(error_body, status_code)
 
