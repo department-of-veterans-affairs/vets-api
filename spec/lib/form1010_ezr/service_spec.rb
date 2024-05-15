@@ -11,7 +11,18 @@ RSpec.describe Form1010Ezr::Service do
   end
 
   let(:form) { get_fixture('form1010_ezr/valid_form') }
-  let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534') }
+  let(:current_user) do
+    build(
+      :evss_user,
+      :loa3,
+      icn: '1013032368V065534',
+      birth_date: '1986-01-02',
+      first_name: 'FirstName',
+      middle_name: 'MiddleName',
+      last_name: 'ZZTEST',
+      suffix: 'Jr.'
+    )
+  end
   let(:service) { described_class.new(current_user) }
 
   def allow_logger_to_receive_error
@@ -48,6 +59,75 @@ RSpec.describe Form1010Ezr::Service do
     context 'when the form doesnt have veteran gross income' do
       it 'doesnt add the financial_flag' do
         expect(service.send(:add_financial_flag, {})).to eq({})
+      end
+    end
+  end
+
+  describe '#post_fill_veteran_date_of_birth' do
+    context "when 'veteranDateOfBirth' is present" do
+      let(:parsed_form) do
+        {
+          'veteranDateOfBirth' => '1985-04-03'
+        }
+      end
+
+      it 'returns nil' do
+        expect(service.send(:post_fill_veteran_date_of_birth, parsed_form)).to eq(nil)
+      end
+    end
+
+    context "when 'veteranDateOfBirth' is not present, but the current_user's DOB is present in the session" do
+      let(:parsed_form) { {} }
+
+      before do
+        allow(StatsD).to receive(:increment)
+      end
+
+      it "increments StatsD, adds/updates 'veteranDateOfBirth' to be equal to the current_user's DOB, and " \
+         'returns the parsed form' do
+        expect(StatsD).to receive(:increment).with('api.1010ezr.missing_date_of_birth')
+        expect(service.send(:post_fill_veteran_date_of_birth, parsed_form)).to eq(
+          { 'veteranDateOfBirth' => current_user.birth_date }
+        )
+      end
+    end
+  end
+
+  describe '#post_fill_veteran_full_name' do
+    context "when 'veteranFullName' is present" do
+      let(:parsed_form) do
+        {
+          'veteranFullName' => {
+            'first' => 'John',
+            'middle' => 'Matthew',
+            'last' => 'Smith',
+            'suffix' => 'Sr.'
+          }
+        }
+      end
+
+      it 'returns nil' do
+        expect(service.send(:post_fill_veteran_full_name, parsed_form)).to eq(nil)
+      end
+    end
+
+    context "when 'veteranFullName' is not present, but the current_user's full name is present in the session" do
+      let(:parsed_form) do
+        {
+          'veteranFullName' => ''
+        }
+      end
+
+      before do
+        allow(StatsD).to receive(:increment)
+      end
+
+      it "increments StatsD, adds/updates 'veteranFullName' to be equal to the current_user's full name, " \
+         'and returns the parsed form' do
+        expect(StatsD).to receive(:increment).with('api.1010ezr.missing_full_name')
+        expect(service.send(:post_fill_veteran_full_name, parsed_form)).to eq(
+          { 'veteranFullName' => current_user.full_name_normalized.stringify_keys }
+        )
       end
     end
   end
@@ -89,6 +169,12 @@ RSpec.describe Form1010Ezr::Service do
           # and then added via the 'post_fill_required_fields' method
           expect(form['isEssentialAcaCoverage']).to eq(nil)
           expect(form['vaMedicalFacility']).to eq(nil)
+          # If the 'veteranDateOfBirth' key is missing from the parsed_form, it should get added in via the
+          # 'post_fill_veteran_date_of_birth' method and pass validation
+          form.delete('veteranDateOfBirth')
+          # If the 'veteranFullName' key is missing from the parsed_form, it should get added in via the
+          # 'post_fill_veteran_full_name' method and pass validation
+          form.delete('veteranFullName')
 
           submission_response = submit_form(form)
 

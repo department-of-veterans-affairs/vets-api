@@ -37,20 +37,20 @@ module ClaimsApi
       private
 
       def not_error?
-        @fault.string.include?('IntentToFileWebService') &&
-          @fault.string.include?('not found')
+        @fault.message.include?('IntentToFileWebService') &&
+          @fault.message.include?('not found')
       end
 
       def not_found?
         errors = ['bnftClaimId-->bnftClaimId/text()', 'not found', 'No Person found']
-        has_errors = errors.any? { |error| @fault.string.include? error }
+        has_errors = errors.any? { |error| @fault.message.include? error }
         soap_logging('404') if has_errors
         has_errors
       end
 
       def bnft_claim_not_found?
         errors = ['No BnftClaim found']
-        has_errors = errors.any? { |error| @fault.string.include? error }
+        has_errors = errors.any? { |error| @fault.message.include? error }
         soap_logging('404') if has_errors
         has_errors
       end
@@ -59,7 +59,7 @@ module ClaimsApi
         errors = ['java.sql', 'MessageException', 'Validation errors', 'Exception Description',
                   'does not have necessary info', 'Error committing transaction', 'Transaction Rolledback',
                   'Unexpected error', 'XML reader error', 'could not be converted']
-        has_errors = errors.any? { |error| @fault.string.include? error }
+        has_errors = errors.any? { |error| @fault.message.include? error }
         soap_logging('422') if has_errors
         has_errors
       end
@@ -67,7 +67,7 @@ module ClaimsApi
       def soap_logging(status_code)
         ClaimsApi::Logger.log('soap_error_handler',
                               detail: "Returning #{status_code} via local_bgs & soap_error_handler, " \
-                                      "fault_string: #{@fault.string}, with message: #{@fault.message}, " \
+                                      "fault_string: #{@fault.message}, with message: #{@fault.message}, " \
                                       "and fault_code: #{@fault.code}.")
       end
     end

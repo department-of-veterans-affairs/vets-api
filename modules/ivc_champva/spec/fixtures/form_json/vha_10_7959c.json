@@ -1,10 +1,17 @@
 {
   "form_number": "10-7959C",
+  "primary_contact_info": {
+    "name": {
+      "first": "Veteran",
+      "last": "Surname"
+    },
+    "email": false
+  },
   "applicant_ssn": "234234234",
   "applicant_name": {
-    "first": "Jimmy",
+    "first": "Veteran",
     "middle": "I",
-    "last": "Alvin"
+    "last": "Surname"
   },
   "applicant_dob": "1958-01-01",
   "applicant_address": {

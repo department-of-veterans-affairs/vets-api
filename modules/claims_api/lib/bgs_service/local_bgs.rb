@@ -12,8 +12,6 @@ require 'claims_api/evss_bgs_mapper'
 
 module ClaimsApi
   class LocalBGS
-    attr_accessor :external_uid, :external_key
-
     # rubocop:disable Metrics/MethodLength
     def initialize(external_uid:, external_key:)
       @client_ip =
