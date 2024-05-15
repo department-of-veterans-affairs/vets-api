@@ -42,7 +42,10 @@ module IvcChampva
           end
           { status: 200 }
         else
-          { status: 202, error: "No form(s) found with the form_uuid: #{form_uuid}." }
+          {
+            status: 202,
+            error: "No form(s) found with the form_uuid: #{form_uuid} and/or the file_names: #{file_names}."
+          }
         end
       end
 
@@ -55,6 +58,7 @@ module IvcChampva
         file_name_query = file_name_conditions.reduce(IvcChampvaForm.none) do |query, condition|
           query.or(IvcChampvaForm.where(condition))
         end
+
         IvcChampvaForm.where(form_uuid:).merge(file_name_query)
       end
     end
