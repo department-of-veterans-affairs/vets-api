@@ -207,9 +207,14 @@ module EVSS
             transform_gulf_war(gulf_war1990, gulf_war2001)
         end
 
-        multiple_exposures = [] # Array[Requests::MultipleExposures]
-        multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar1990Details'])
-        multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar2001Details'])
+        # create an Array[Requests::MultipleExposures]
+        multiple_exposures = []
+        if toxic_exposure_source['gulfWar1990Details'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar1990Details'])
+        end
+        if toxic_exposure_source['gulfWar2001Details'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar2001Details'])
+        end
         toxic_exposure_target.multiple_exposures = multiple_exposures
 
         toxic_exposure_target
@@ -218,8 +223,9 @@ module EVSS
       # @param details [Hash] the object with the exposure information of {location/hazard: {startDate, endDate}}
       # @param hazard [Boolean] vets-website sends the key to be used as
       #   both a location and a hazard in different objects
+      # @return Array[Requests::MultipleExposures] array of MultipleExposures or nil
       def transform_multiple_exposures(details, hazard: false)
-        details.map do |k, v|
+        details&.map do |k, v|
           obj = Requests::MultipleExposures.new(
             exposure_dates: Requests::Dates.new
           )
