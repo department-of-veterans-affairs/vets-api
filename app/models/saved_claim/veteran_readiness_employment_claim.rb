@@ -135,7 +135,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def upload_to_vbms(doc_type: '1167')
-    form_path = PdfFill::Filler.fill_form(self)
+    form_path = PdfFill::Filler.fill_form(self, nil, { created_at: })
 
     uploader = ClaimsApi::VBMSUploader.new(
       filepath: Rails.root.join(form_path),
@@ -146,6 +146,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     log_to_statsd('vbms') do
       uploader.upload!
     end
+  end
+
+  def to_pdf(file_name = nil)
+    PdfFill::Filler.fill_form(self, file_name, { created_at: })
   end
 
   def send_to_central_mail!(user)
