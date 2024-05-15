@@ -40,7 +40,7 @@ module ClaimsApi
       private
 
       def get_file_body(auto_claim)
-        if Settings.claims_api.pdf_generator_526.mock
+        if Settings.claims_api.benefits_documents.use_mocks
           File.read('modules/claims_api/lib/claims_api/v2/mock_526.pdf')
         else
           uploader = auto_claim.uploader
