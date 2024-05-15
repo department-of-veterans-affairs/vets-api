@@ -38,7 +38,6 @@ jobs:
             USER_ID=${{ env.VETS_API_USER_ID }}
             RAILS_ENV=production
           context: .
-          target: production
           push: true
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
