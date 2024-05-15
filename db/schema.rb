@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_13_204946) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -695,6 +695,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
     t.uuid "user_account_id"
     t.string "backup_submitted_claim_id", comment: "*After* a SubmitForm526 Job has exhausted all attempts, a paper submission is generated and sent to Central Mail Portal.This column will be nil for all submissions where a backup submission is not generated.It will have the central mail id for submissions where a backup submission is submitted."
     t.string "aasm_state", default: "unprocessed"
+    t.integer "submit_endpoint"
     t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
     t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
     t.index ["user_account_id"], name: "index_form526_submissions_on_user_account_id"
@@ -861,7 +862,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
     t.string "pega_status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["email"], name: "index_ivc_champva_forms_on_email", unique: true
+    t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
   end
 
   create_table "maintenance_windows", id: :serial, force: :cascade do |t|
@@ -915,7 +916,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
     t.string "client_id", null: false
     t.text "user_attributes_ciphertext"
     t.text "encrypted_kms_key"
+    t.string "hashed_device_secret"
     t.index ["handle"], name: "index_oauth_sessions_on_handle", unique: true
+    t.index ["hashed_device_secret"], name: "index_oauth_sessions_on_hashed_device_secret"
     t.index ["hashed_refresh_token"], name: "index_oauth_sessions_on_hashed_refresh_token", unique: true
     t.index ["refresh_creation"], name: "index_oauth_sessions_on_refresh_creation"
     t.index ["refresh_expiration"], name: "index_oauth_sessions_on_refresh_expiration"
@@ -1455,12 +1458,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
-    t.integer "bdn_clone_id"
-    t.integer "bdn_clone_line"
-    t.boolean "bdn_clone_active"
     t.date "cert_issue_date"
     t.date "del_date"
     t.date "date_last_certified"
+    t.integer "bdn_clone_id"
+    t.integer "bdn_clone_line"
+    t.boolean "bdn_clone_active"
     t.index ["bdn_clone_active"], name: "index_vye_user_infos_on_bdn_clone_active"
     t.index ["bdn_clone_id"], name: "index_vye_user_infos_on_bdn_clone_id"
     t.index ["bdn_clone_line"], name: "index_vye_user_infos_on_bdn_clone_line"
