@@ -6,7 +6,7 @@ module KmsEncryptedModelPatch
   # Update #kms_key_rotation_date method if rotation date changes from 10/12
 
   # rubocop:disable Naming/PredicateName
-  def has_kms_key()
+  def has_kms_key
     # implicitly calls #has_kms_key with specified options, so that we don't need to require it
     # of future encrypted models
     super(**kms_options)
@@ -23,7 +23,7 @@ module KmsEncryptedModelPatch
     Date.new(Time.zone.today.year, 10, 12)
   end
 
-  def kms_options()
+  def kms_options
     # Enumerate key_ids so that all years/previous versions are accounted for. Every
     # version should point to the same key_id
     previous_versions = Hash.new do |hash, key|
