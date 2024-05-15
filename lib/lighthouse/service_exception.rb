@@ -46,7 +46,7 @@ module Lighthouse
     # extracts and transforms Lighthouse errors into the evss_errors schema for the
     # controller ExceptionHandling class
     def self.get_errors_from_response(error, status_code)
-      errors = error.response.try(:dig, :body, 'errors')
+      errors = error.response[:body]['errors']
 
       if errors&.any?
         errors.map do |e|
@@ -55,7 +55,7 @@ module Lighthouse
           transform_error_keys(e, status, title, detail, code)
         end
       else
-        error_body = error.response.try(:[], :body)
+        error_body = error.response[:body]
 
         status, title, detail, code = error_object_details(error_body, status_code)
 
@@ -89,15 +89,15 @@ module Lighthouse
     # log errors
     def self.send_error_logs(error, service_name, lighthouse_client_id, url)
       # Faraday error may contain request data
-      error.response.try(:delete, :request)
+      error.response.delete(:request)
 
       Rails.logger.error(
         service_name,
         {
           url:,
           lighthouse_client_id:,
-          status: error.response.try(:[], :status),
-          body: error.response.try(:[], :body)
+          status: error.response[:status],
+          body: error.response[:body]
         }
       )
 

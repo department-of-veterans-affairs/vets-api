@@ -196,13 +196,10 @@ RSpec.describe 'payment information', type: :request do
       end
 
       it 'calls VA Notify background job to send an email' do
-        # user.all_emails.each do |email|
-        #   expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, 'comp_and_pen')
-        # end
-        allow_any_instance_of(Faraday::Connection).to receive(:put).and_raise(Faraday::TimeoutError)
+        user.all_emails.each do |email|
+          expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, 'comp_and_pen')
+        end
         subject
-        binding.pry
-        puts "hi"
       end
     end
 
@@ -296,6 +293,14 @@ RSpec.describe 'payment information', type: :request do
         meta_error = response.parsed_body.dig('errors', 0, 'meta', 'messages', 0)
         expect(meta_error['key']).to match('payment.accountRoutingNumber.invalidCheckSum')
         expect(meta_error['text']).to match('Financial institution routing number is invalid')
+      end
+    end
+
+    context 'when the upstream times out' do
+      it 'returns 504' do
+        allow_any_instance_of(Faraday::Connection).to receive(:put).and_raise(Faraday::TimeoutError)
+        put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers: sis_headers(json: true)
+        expect(response).to have_http_status(:gateway_timeout)
       end
     end
   end
