@@ -50,9 +50,7 @@
   <body>
     <h1><%= @date_from %> - <%= @date_to %> (Eastern Time)</h1>
     <hr>
-
     <h2>Monthly PACT Submissions</h2>
-
     <% @data[:month].keys.each do |kind| %>
       <table>
         <tr>
@@ -67,30 +65,20 @@
         <% end %>
       </table>
     <% end %>
-
     <hr />
-
     <h2>526EZ Claim Submissions</h2>
-
     <h3><span class="title">Per Consumer Status Counts</span></h3>
     <%= render partial: 'claims_api/monthly_claims_status_table', locals: {claims_consumers: @consumer_claims_totals } unless @consumer_claims_totals.count.zero? %>
-
     <hr>
     <h2>Power of Attorney Submissions</h2>
-
     <h3><span class="title">Per Consumer Status Counts</span></h3>
     <%= render partial: 'claims_api/poa_status_table', locals: { poa_consumers: @poa_totals } unless @poa_totals.blank? %>
-
     <hr>
     <h2>Evidence Waiver Submissions</h2>
-
     <h3><span class="title">Per Consumer Status Counts</span></h3>
     <%= render partial: 'claims_api/ews_status_table', locals: { ews_consumers: @ews_totals } unless @ews_totals.blank? %>
-
     <hr>
-
     <h2>Intent To File Submissions</h2>
-
     <% if @itf_totals.blank? %>
       <h3>
         <%= '0' %>
