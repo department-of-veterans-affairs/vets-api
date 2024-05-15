@@ -199,6 +199,7 @@ RSpec.describe 'payment information', type: :request do
         user.all_emails.each do |email|
           expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, 'comp_and_pen')
         end
+
         subject
       end
     end
