@@ -282,6 +282,36 @@ RSpec.describe Login::UserVerifier do
           context 'and user_account matching icn already exists' do
             let!(:existing_user_account) { UserAccount.create!(icn:) }
 
+            context 'and a linked user verification with the same CSP type exists' do
+              let!(:linked_user_verification) do
+                case login_value
+                when SignIn::Constants::Auth::IDME
+                  create(:idme_user_verification, user_account: existing_user_account, locked:)
+                when SignIn::Constants::Auth::LOGINGOV
+                  create(:logingov_user_verification, user_account: existing_user_account, locked:)
+                when SignIn::Constants::Auth::DSLOGON
+                  create(:dslogon_user_verification, user_account: existing_user_account, locked:)
+                when SignIn::Constants::Auth::MHV
+                  create(:mhv_user_verification, user_account: existing_user_account, locked:)
+                end
+              end
+
+              context 'and the linked user verification is locked' do
+                let(:locked) { true }
+
+                it 'raises credential locked error and does not create a new user verification' do
+                  expect { subject }.to raise_exception(SignIn::Errors::CredentialLockedError)
+                  expect(UserVerification.where(authn_identifier_type => authn_identifier).count).to eq 0
+                end
+              end
+
+              context 'and the linked user verification is not locked' do
+                it 'does not raise credential locked error' do
+                  expect { subject }.not_to raise_exception(SignIn::Errors::CredentialLockedError)
+                end
+              end
+            end
+
             it 'does not create a new user_account record' do
               expect { subject }.not_to change(UserAccount, :count)
             end
