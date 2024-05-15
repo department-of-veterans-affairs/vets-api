@@ -16,10 +16,10 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
         from,
         to,
         pact_act_submission,
-        consumer_claims_totals: claims_totals,
-        poa_totals:,
-        ews_totals:,
-        itf_totals:
+        consumer_claims_totals: [],
+        poa_totals: [],
+        ews_totals: [],
+        itf_totals: []
       ).deliver_now
     end
 
