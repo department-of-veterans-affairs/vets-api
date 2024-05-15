@@ -1,21 +1,17 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-
-RSpec.describe 'Mobile Folders Integration', type: :request do
+require_relative '../support/helpers/rails_helper'
+RSpec.describe 'Mobile Folders Integration', skip_json_api_validation: true, type: :request do
   include SchemaMatchers
 
   let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type: 'Premium') }
   let(:inbox_id) { 0 }
 
   before do
-    Flipper.enable_actor(:mobile_sm_session_policy, user)
     Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
   end
 
   after do
-    Flipper.disable(:mobile_sm_session_policy)
     Timecop.return
   end
 
@@ -153,7 +149,6 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
         VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
           get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", headers: sis_headers
         end
-
         expect(response).to be_successful
         expect(response).to have_http_status(:ok)
         expect(response).to match_camelized_response_schema('messages')

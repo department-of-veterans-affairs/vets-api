@@ -13,7 +13,7 @@ module Form526ClaimFastTrackingConcern
   MAX_CFI_STATSD_KEY_PREFIX = 'api.max_cfi'
   EP_MERGE_STATSD_KEY_PREFIX = 'worker.ep_merge'
 
-  EP_MERGE_BASE_CODES = %w[010 110 020 030 040].freeze
+  EP_MERGE_BASE_CODES = %w[010 110 020].freeze
   EP_MERGE_SPECIAL_ISSUE = 'EMP'
   OPEN_STATUSES = [
     'CLAIM RECEIVED',
@@ -23,6 +23,17 @@ module Form526ClaimFastTrackingConcern
     'CLAIM_RECEIVED',
     'INITIAL_REVIEW'
   ].freeze
+  CLAIM_REVIEW_BASE_CODES = %w[030 040].freeze
+  CLAIM_REVIEW_TYPES = %w[higherLevelReview supplementalClaim].freeze
+
+  def claim_age_in_days(pending_ep)
+    date = if pending_ep.respond_to?(:claim_date)
+             Date.strptime(pending_ep.claim_date, '%Y-%m-%d')
+           else
+             Date.strptime(pending_ep['date'], '%m/%d/%Y')
+           end
+    (Time.zone.today - date).round
+  end
 
   def send_rrd_alert_email(subject, message, error = nil, to = Settings.rrd.alerts.recipients)
     RrdAlertMailer.build(self, subject, message, error, to).deliver_now
@@ -130,17 +141,19 @@ module Form526ClaimFastTrackingConcern
     Rails.logger.info('EP Merge total open EPs', id:, count: pending_eps.count)
     return unless pending_eps.count == 1
 
-    date = Date.strptime(pending_eps.first['date'], '%m/%d/%Y')
-    days_ago = (Time.zone.today - date).round
     feature_enabled = Flipper.enabled?(:disability_526_ep_merge_api, User.find(user_uuid))
+    open_claim_review = open_claim_review?
     Rails.logger.info(
       'EP Merge open EP eligibility',
-      { id:, feature_enabled:, pending_ep_age: days_ago, pending_ep_status: pending_eps.first['status'] }
+      { id:, feature_enabled:, open_claim_review:,
+        pending_ep_age: claim_age_in_days(pending_eps.first), pending_ep_status: pending_eps.first['status'] }
     )
-    if feature_enabled
+    if feature_enabled && !open_claim_review
       save_metadata(ep_merge_pending_claim_id: pending_eps.first['id'])
       add_ep_merge_special_issue!
     end
+  rescue => e
+    Rails.logger.error("EP400 Merge eligibility failed #{e.message}.", backtrace: e.backtrace)
   end
 
   def get_claim_type
@@ -269,6 +282,29 @@ module Form526ClaimFastTrackingConcern
       all_claims = api_provider.all_claims
       all_claims['open_claims']
     end
+  end
+
+  # Check both Benefits Claim service and Caseflow Appeals status APIs for open 030 or 040
+  # Offramps EP 400 Merge process if any are found, or if anything fails
+  def open_claim_review?
+    open_claim_review = open_claims.any? do |claim|
+      CLAIM_REVIEW_BASE_CODES.include?(claim['base_end_product_code']) && OPEN_STATUSES.include?(claim['status'])
+    end
+    if open_claim_review
+      StatsD.increment("#{EP_MERGE_STATSD_KEY_PREFIX}.open_claim_review")
+      return true
+    end
+
+    ssn = User.find(user_uuid)&.ssn
+    ssn ||= auth_headers['va_eauth_pnid'] if auth_headers['va_eauth_pnidtype'] == 'SSN'
+    decision_reviews = Caseflow::Service.new.get_appeals(OpenStruct.new({ ssn: })).body['data']
+    StatsD.increment("#{EP_MERGE_STATSD_KEY_PREFIX}.caseflow_api_called")
+    decision_reviews.any? do |review|
+      CLAIM_REVIEW_TYPES.include?(review['type']) && review['attributes']['active']
+    end
+  rescue => e
+    Rails.logger.error('EP Merge failed open claim review check', backtrace: e.backtrace)
+    true
   end
 
   # fetch, memoize, and return all of the veteran's rated disabilities from EVSS

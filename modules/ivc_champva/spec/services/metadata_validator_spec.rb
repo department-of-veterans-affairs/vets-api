@@ -50,6 +50,7 @@ describe IvcChampva::MetadataValidator do
           'veteranLastName' => 'Doe',
           'fileNumber' => '444444444',
           'zipCode' => '12345',
+          'country' => 'USA',
           'source' => 'VA Platform Digital Forms',
           'docType' => '21-0845',
           'businessLine' => 'CMP'
@@ -59,6 +60,7 @@ describe IvcChampva::MetadataValidator do
           'veteranLastName' => 'Doe',
           'fileNumber' => '444444444',
           'zipCode' => '12345',
+          'country' => 'USA',
           'source' => 'VA Platform Digital Forms',
           'docType' => '21-0845',
           'businessLine' => 'CMP'
@@ -77,6 +79,7 @@ describe IvcChampva::MetadataValidator do
           'veteranLastName' => 'Doe',
           'fileNumber' => '444444444',
           'zipCode' => '12345',
+          'country' => 'USA',
           'source' => 'VA Platform Digital Forms',
           'docType' => '21-0845',
           'businessLine' => 'CMP'
@@ -86,6 +89,7 @@ describe IvcChampva::MetadataValidator do
           'veteranLastName' => 'Doe',
           'fileNumber' => '444444444',
           'zipCode' => '12345',
+          'country' => 'USA',
           'source' => 'VA Platform Digital Forms',
           'docType' => '21-0845',
           'businessLine' => 'CMP'
@@ -111,6 +115,7 @@ describe IvcChampva::MetadataValidator do
             nichteinfurchtvorangreifenvonandererintelligentgeschopfsvonhinzwischensternartigraum',
           'fileNumber' => '444444444',
           'zipCode' => '12345',
+          'country' => 'USA',
           'source' => 'VA Platform Digital Forms',
           'docType' => '21-0845',
           'businessLine' => 'CMP'
@@ -120,6 +125,7 @@ describe IvcChampva::MetadataValidator do
           'veteranLastName' => 'Wolfeschlegelsteinhausenbergerdorffwelchevoraltern',
           'fileNumber' => '444444444',
           'zipCode' => '12345',
+          'country' => 'USA',
           'source' => 'VA Platform Digital Forms',
           'docType' => '21-0845',
           'businessLine' => 'CMP'
@@ -138,6 +144,7 @@ describe IvcChampva::MetadataValidator do
           'veteranLastName' => '2Jöh’n~! - J\'o/hn?\\',
           'fileNumber' => '444444444',
           'zipCode' => '12345',
+          'country' => 'USA',
           'source' => 'VA Platform Digital Forms',
           'docType' => '21-0845',
           'businessLine' => 'CMP'
@@ -147,6 +154,7 @@ describe IvcChampva::MetadataValidator do
           'veteranLastName' => 'John - Jo/hn',
           'fileNumber' => '444444444',
           'zipCode' => '12345',
+          'country' => 'USA',
           'source' => 'VA Platform Digital Forms',
           'docType' => '21-0845',
           'businessLine' => 'CMP'
@@ -186,6 +194,7 @@ describe IvcChampva::MetadataValidator do
         'veteranLastName' => 'Doe',
         'fileNumber' => '444444444',
         'zipCode' => '1234567890',
+        'country' => 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => '21-0845',
         'businessLine' => 'CMP'
@@ -195,6 +204,7 @@ describe IvcChampva::MetadataValidator do
         'veteranLastName' => 'Doe',
         'fileNumber' => '444444444',
         'zipCode' => '00000',
+        'country' => 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => '21-0845',
         'businessLine' => 'CMP'
@@ -213,6 +223,7 @@ describe IvcChampva::MetadataValidator do
         'veteranLastName' => 'Doe',
         'fileNumber' => '444444444',
         'zipCode' => '123456789',
+        'country' => 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => '21-0845',
         'businessLine' => 'CMP'
@@ -222,6 +233,7 @@ describe IvcChampva::MetadataValidator do
         'veteranLastName' => 'Doe',
         'fileNumber' => '444444444',
         'zipCode' => '12345-6789',
+        'country' => 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => '21-0845',
         'businessLine' => 'CMP'
@@ -240,6 +252,7 @@ describe IvcChampva::MetadataValidator do
         'veteranLastName' => 'Doe',
         'fileNumber' => '444444444',
         'zipCode' => '12345',
+        'country' => 'CA',
         'source' => 'VA Platform Digital Forms',
         'docType' => '21-0845',
         'businessLine' => 'CMP'
@@ -249,12 +262,13 @@ describe IvcChampva::MetadataValidator do
         'veteranLastName' => 'Doe',
         'fileNumber' => '444444444',
         'zipCode' => '00000',
+        'country' => 'CA',
         'source' => 'VA Platform Digital Forms',
         'docType' => '21-0845',
         'businessLine' => 'CMP'
       }
 
-      validated_metadata = IvcChampva::MetadataValidator.validate(metadata, zip_code_is_us_based: false)
+      validated_metadata = IvcChampva::MetadataValidator.validate(metadata)
 
       expect(validated_metadata).to eq expected_metadata
     end
@@ -265,6 +279,7 @@ describe IvcChampva::MetadataValidator do
           'veteranFirstName' => 'John',
           'veteranLastName' => 'Doe',
           'fileNumber' => '444444444',
+          'country' => 'USA',
           'source' => 'VA Platform Digital Forms',
           'docType' => '21-0845',
           'businessLine' => 'CMP'
@@ -274,12 +289,13 @@ describe IvcChampva::MetadataValidator do
           'veteranLastName' => 'Doe',
           'fileNumber' => '444444444',
           'zipCode' => '00000',
+          'country' => 'USA',
           'source' => 'VA Platform Digital Forms',
           'docType' => '21-0845',
           'businessLine' => 'CMP'
         }
 
-        validated_metadata = IvcChampva::MetadataValidator.validate(metadata, zip_code_is_us_based: false)
+        validated_metadata = IvcChampva::MetadataValidator.validate(metadata)
 
         expect(validated_metadata).to eq expected_metadata
       end

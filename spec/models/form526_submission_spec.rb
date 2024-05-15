@@ -23,6 +23,46 @@ RSpec.describe Form526Submission do
     File.read('spec/support/disability_compensation_form/submissions/only_526.json')
   end
 
+  describe 'scopes' do
+    describe 'pending_backup_submissions' do
+      let!(:new_submission) { create(:form526_submission, aasm_state: 'unprocessed') }
+      let!(:failed_primary_submission) do
+        create(:form526_submission, aasm_state: 'failed_primary_delivery')
+      end
+      let!(:rejected_primary_submission) do
+        create(:form526_submission, aasm_state: 'rejected_by_primary')
+      end
+      let!(:complete_primary_submission) do
+        create(:form526_submission, aasm_state: 'delivered_to_primary')
+      end
+      let!(:failed_backup_submission) do
+        create(:form526_submission, aasm_state: 'failed_backup_delivery')
+      end
+      let!(:rejected_backup_submission) do
+        create(:form526_submission, aasm_state: 'rejected_by_backup')
+      end
+      let!(:in_remediation_submission) do
+        create(:form526_submission, :backup_path, aasm_state: 'in_remediation')
+      end
+      let!(:complete_submission) do
+        create(:form526_submission, :backup_path, aasm_state: 'finalized_as_successful')
+      end
+      let!(:delivered_backup_submission_a) do
+        create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
+      end
+      let!(:delivered_backup_submission_b) do
+        create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
+      end
+
+      it 'returns records submitted to the backup path but lacking a decisive state' do
+        expect(Form526Submission.pending_backup_submissions).to contain_exactly(
+          delivered_backup_submission_a,
+          delivered_backup_submission_b
+        )
+      end
+    end
+  end
+
   shared_examples '#start_evss_submission' do
     context 'when it is all claims' do
       it 'queues an all claims job' do
@@ -48,7 +88,7 @@ RSpec.describe Form526Submission do
       expect(submission).to transition_from(:failed_primary_delivery)
         .to(:failed_backup_delivery).on_event(:fail_backup_delivery)
       expect(submission).to transition_from(:rejected_by_primary)
-        .to(:failed_backup_delivery).on_event(:reject_from_backup)
+        .to(:rejected_by_backup).on_event(:reject_from_backup)
       expect(submission).to transition_from(:unprocessed)
         .to(:rejected_by_primary).on_event(:reject_from_primary)
       expect(submission).to transition_from(:unprocessed)
@@ -56,13 +96,17 @@ RSpec.describe Form526Submission do
       expect(submission).to transition_from(:unprocessed)
         .to(:failed_backup_delivery).on_event(:fail_backup_delivery)
       expect(submission).to transition_from(:unprocessed)
-        .to(:failed_backup_delivery).on_event(:reject_from_backup)
+        .to(:rejected_by_backup).on_event(:reject_from_backup)
       expect(submission).to transition_from(:unprocessed)
         .to(:finalized_as_successful).on_event(:finalize_success)
       expect(submission).to transition_from(:unprocessed)
         .to(:unprocessable).on_event(:mark_as_unprocessable)
       expect(submission).to transition_from(:unprocessed)
         .to(:in_remediation).on_event(:begin_remediation)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:processed_in_batch_remediation).on_event(:process_in_batch_remediation)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:ignorable_duplicate).on_event(:ignore_as_duplicate)
     end
   end
 

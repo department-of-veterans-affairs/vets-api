@@ -95,91 +95,196 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
   context 'with jacqueline morgan' do
     let(:current_user) { build(:user, :jac) }
 
-    describe 'CREATE cc appointment' do
-      let(:community_cares_request_body) do
-        FactoryBot.build(:appointment_form_v2, :community_cares, user: current_user).attributes
+    context 'with VAOS' do
+      before do
+        Flipper.disable(:va_online_scheduling_use_vpg)
+        Flipper.disable(:va_online_scheduling_enable_OH_requests)
       end
 
-      let(:community_cares_request_body2) do
-        FactoryBot.build(:appointment_form_v2, :community_cares2, user: current_user).attributes
-      end
+      describe 'CREATE cc appointment' do
+        let(:community_cares_request_body) do
+          FactoryBot.build(:appointment_form_v2, :community_cares, user: current_user).attributes
+        end
 
-      it 'creates the cc appointment' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200_with_provider',
-                         match_requests_on: %i[method path query]) do
-          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+        let(:community_cares_request_body2) do
+          FactoryBot.build(:appointment_form_v2, :community_cares2, user: current_user).attributes
+        end
+
+        it 'creates the cc appointment' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200_with_provider',
                            match_requests_on: %i[method path query]) do
-            allow_any_instance_of(VAOS::V2::MobilePPMSService).to \
-              receive(:get_provider_with_cache).with('1174506877').and_return(provider_response3)
-            post '/vaos/v2/appointments', params: community_cares_request_body2, headers: inflection_header
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              allow_any_instance_of(VAOS::V2::MobilePPMSService).to \
+                receive(:get_provider_with_cache).with('1174506877').and_return(provider_response3)
+              post '/vaos/v2/appointments', params: community_cares_request_body2, headers: inflection_header
 
-            expect(response).to have_http_status(:created)
-            json_body = json_body_for(response)
-            expect(json_body.dig('attributes', 'preferredProviderName')).to eq('BRIANT G MOYLES')
-            expect(json_body.dig('attributes', 'requestedPeriods', 0, 'localStartTime'))
-              .to eq('2023-01-17T00:00:00.000-07:00')
-            expect(json_body).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+              expect(response).to have_http_status(:created)
+              json_body = json_body_for(response)
+              expect(json_body.dig('attributes', 'preferredProviderName')).to eq('BRIANT G MOYLES')
+              expect(json_body.dig('attributes', 'requestedPeriods', 0, 'localStartTime'))
+                .to eq('2023-01-17T00:00:00.000-07:00')
+              expect(json_body).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+            end
+          end
+        end
+
+        it 'returns a 400 error' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_400', match_requests_on: %i[method path query]) do
+            post '/vaos/v2/appointments', params: community_cares_request_body
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.body)['errors'][0]['status']).to eq('400')
+            expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+              'the patientIcn must match the ICN in the request URI'
+            )
           end
         end
       end
 
-      it 'returns a 400 error' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_400', match_requests_on: %i[method path query]) do
-          post '/vaos/v2/appointments', params: community_cares_request_body
-          expect(response).to have_http_status(:bad_request)
-          expect(JSON.parse(response.body)['errors'][0]['status']).to eq('400')
-          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
-            'the patientIcn must match the ICN in the request URI'
-          )
+      describe 'CREATE va appointment' do
+        let(:va_booked_request_body) do
+          FactoryBot.build(:appointment_form_v2, :va_booked, user: current_user).attributes
+        end
+
+        let(:va_proposed_request_body) do
+          FactoryBot.build(:appointment_form_v2, :va_proposed_clinic, user: current_user).attributes
+        end
+
+        it 'creates the va appointment - proposed' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_va_proposed_clinic_200',
+                           match_requests_on: %i[method path query]) do
+            post '/vaos/v2/appointments', params: va_proposed_request_body, headers: inflection_header
+            expect(response).to have_http_status(:created)
+            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+          end
+        end
+
+        it 'creates the va appointment - booked' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M',
+                           match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              post '/vaos/v2/appointments', params: va_booked_request_body, headers: inflection_header
+              expect(response).to have_http_status(:created)
+              json_body = json_body_for(response)
+              expect(json_body).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+              expect(json_body['attributes']['localStartTime']).to eq('2022-11-30T13:45:00.000-07:00')
+            end
+          end
+        end
+
+        it 'creates the va appointment and logs appointment details when there is a PAP COMPLIANCE comment' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_and_log_facility',
+                           match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              allow(Rails.logger).to receive(:info).at_least(:once)
+              post '/vaos/v2/appointments', params: va_booked_request_body, headers: inflection_header
+              expect(response).to have_http_status(:created)
+              json_body = json_body_for(response)
+              expect(json_body).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+              expect(Rails.logger).to have_received(:info).with('Details for PAP COMPLIANCE/TELE appointment',
+                                                                any_args).at_least(:once)
+              expect(json_body['attributes']['localStartTime']).to eq('2022-11-30T13:45:00.000-07:00')
+            end
+          end
         end
       end
     end
 
-    describe 'CREATE va appointment' do
-      let(:va_booked_request_body) do
-        FactoryBot.build(:appointment_form_v2, :va_booked, user: current_user).attributes
+    context 'using VPG' do
+      before do
+        Flipper.enable(:va_online_scheduling_use_vpg)
+        Flipper.enable(:va_online_scheduling_enable_OH_requests)
       end
 
-      let(:va_proposed_request_body) do
-        FactoryBot.build(:appointment_form_v2, :va_proposed_clinic, user: current_user).attributes
-      end
-
-      it 'creates the va appointment - proposed' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_va_proposed_clinic_200',
-                         match_requests_on: %i[method path query]) do
-          post '/vaos/v2/appointments', params: va_proposed_request_body, headers: inflection_header
-          expect(response).to have_http_status(:created)
-          expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+      describe 'CREATE cc appointment' do
+        let(:community_cares_request_body) do
+          FactoryBot.build(:appointment_form_v2, :community_cares, user: current_user).attributes
         end
-      end
 
-      it 'creates the va appointment - booked' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M',
-                         match_requests_on: %i[method path query]) do
-          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+        let(:community_cares_request_body2) do
+          FactoryBot.build(:appointment_form_v2, :community_cares2, user: current_user).attributes
+        end
+
+        it 'creates the cc appointment' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200_with_provider_vpg',
                            match_requests_on: %i[method path query]) do
-            post '/vaos/v2/appointments', params: va_booked_request_body, headers: inflection_header
-            expect(response).to have_http_status(:created)
-            json_body = json_body_for(response)
-            expect(json_body).to match_camelized_schema('vaos/v2/appointment', { strict: false })
-            expect(json_body['attributes']['localStartTime']).to eq('2022-11-30T13:45:00.000-07:00')
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              allow_any_instance_of(VAOS::V2::MobilePPMSService).to \
+                receive(:get_provider_with_cache).with('1174506877').and_return(provider_response3)
+              post '/vaos/v2/appointments', params: community_cares_request_body2, headers: inflection_header
+
+              expect(response).to have_http_status(:created)
+              json_body = json_body_for(response)
+              expect(json_body.dig('attributes', 'preferredProviderName')).to eq('BRIANT G MOYLES')
+              expect(json_body.dig('attributes', 'requestedPeriods', 0, 'localStartTime'))
+                .to eq('2023-01-17T00:00:00.000-07:00')
+              expect(json_body).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+            end
+          end
+        end
+
+        it 'returns a 400 error' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_400_vpg',
+                           match_requests_on: %i[method path query]) do
+            post '/vaos/v2/appointments', params: community_cares_request_body
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.body)['errors'][0]['status']).to eq('400')
+            expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+              'the patientIcn must match the ICN in the request URI'
+            )
           end
         end
       end
 
-      it 'creates the va appointment and logs appointment details when there is a PAP COMPLIANCE comment' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_and_log_facility',
-                         match_requests_on: %i[method path query]) do
-          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+      describe 'CREATE va appointment' do
+        let(:va_booked_request_body) do
+          FactoryBot.build(:appointment_form_v2, :va_booked, user: current_user).attributes
+        end
+
+        let(:va_proposed_request_body) do
+          FactoryBot.build(:appointment_form_v2, :va_proposed_clinic, user: current_user).attributes
+        end
+
+        it 'creates the va appointment - proposed' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_va_proposed_clinic_200_vpg',
                            match_requests_on: %i[method path query]) do
-            allow(Rails.logger).to receive(:info).at_least(:once)
-            post '/vaos/v2/appointments', params: va_booked_request_body, headers: inflection_header
+            post '/vaos/v2/appointments', params: va_proposed_request_body, headers: inflection_header
             expect(response).to have_http_status(:created)
-            json_body = json_body_for(response)
-            expect(json_body).to match_camelized_schema('vaos/v2/appointment', { strict: false })
-            expect(Rails.logger).to have_received(:info).with('Details for PAP COMPLIANCE/TELE appointment',
-                                                              any_args).at_least(:once)
-            expect(json_body['attributes']['localStartTime']).to eq('2022-11-30T13:45:00.000-07:00')
+            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+          end
+        end
+
+        it 'creates the va appointment - booked' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M_vpg',
+                           match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              post '/vaos/v2/appointments', params: va_booked_request_body, headers: inflection_header
+              expect(response).to have_http_status(:created)
+              json_body = json_body_for(response)
+              expect(json_body).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+              expect(json_body['attributes']['localStartTime']).to eq('2022-11-30T13:45:00.000-07:00')
+            end
+          end
+        end
+
+        it 'creates the va appointment and logs appointment details when there is a PAP COMPLIANCE comment' do
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_and_log_facility_vpg',
+                           match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              allow(Rails.logger).to receive(:info).at_least(:once)
+              post '/vaos/v2/appointments', params: va_booked_request_body, headers: inflection_header
+              expect(response).to have_http_status(:created)
+              json_body = json_body_for(response)
+              expect(json_body).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+              expect(Rails.logger).to have_received(:info).with('Details for PAP COMPLIANCE/TELE appointment',
+                                                                any_args).at_least(:once)
+              expect(json_body['attributes']['localStartTime']).to eq('2022-11-30T13:45:00.000-07:00')
+            end
           end
         end
       end

@@ -5,9 +5,8 @@ module TravelPay
     def index
       veis_token = client.request_veis_token
 
-      # Non-intuitive Ruby behavior: #split splits a string on space by default
-      vagov_token = request.headers['Authorization'].split[1]
-      btsss_token = client.request_btsss_token(veis_token, vagov_token)
+      sts_token = client.request_sts_token(@current_user)
+      btsss_token = client.request_btsss_token(veis_token, sts_token)
 
       begin
         claims = client.get_claims(veis_token, btsss_token)
@@ -15,7 +14,7 @@ module TravelPay
         raise common_exception(e)
       end
 
-      render json: claims, each_serializer: TravelPay::ClaimSerializer, status: :ok
+      render json: claims, status: :ok
     end
 
     private

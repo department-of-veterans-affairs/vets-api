@@ -11,6 +11,7 @@ FactoryBot.define do
     client_state { SecureRandom.hex }
     code { SecureRandom.hex }
     created_at { Time.zone.now.to_i }
+    scope { SignIn::Constants::Auth::DEVICE_SSO }
 
     initialize_with do
       new(acr:,
@@ -19,7 +20,8 @@ FactoryBot.define do
           client_id:,
           type:,
           code:,
-          created_at:)
+          created_at:,
+          scope:)
     end
   end
 end

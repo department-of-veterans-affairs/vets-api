@@ -108,7 +108,7 @@ RSpec.describe VAForms::FormBuilder, type: :job do
 
       it 'does not raise a form fetch error' do
         expect { form_builder.perform(form_data) }
-          .not_to raise_error(described_class::FormFetchError, form_fetch_error_message)
+          .not_to raise_error
       end
     end
 

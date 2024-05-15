@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_13_204946) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -22,13 +22,13 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
 
   create_table "account_login_stats", force: :cascade do |t|
     t.bigint "account_id", null: false
-    t.datetime "idme_at", precision: nil
-    t.datetime "myhealthevet_at", precision: nil
-    t.datetime "dslogon_at", precision: nil
+    t.datetime "idme_at"
+    t.datetime "myhealthevet_at"
+    t.datetime "dslogon_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "current_verification"
-    t.datetime "logingov_at", precision: nil
+    t.datetime "logingov_at"
     t.index ["account_id"], name: "index_account_login_stats_on_account_id", unique: true
     t.index ["current_verification"], name: "index_account_login_stats_on_current_verification"
     t.index ["dslogon_at"], name: "index_account_login_stats_on_dslogon_at"
@@ -42,8 +42,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "idme_uuid"
     t.string "icn"
     t.string "edipi"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "sec_id"
     t.string "logingov_uuid"
     t.index ["icn"], name: "index_accounts_on_icn"
@@ -90,12 +90,59 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.index ["registration_number", "individual_type"], name: "index_on_reg_num_and_type_for_accredited_individuals", unique: true
   end
 
+  create_table "accredited_individuals_accredited_organizations", force: :cascade do |t|
+    t.uuid "accredited_individual_id", null: false
+    t.uuid "accredited_organization_id", null: false
+    t.index ["accredited_individual_id", "accredited_organization_id"], name: "index_accredited_on_indi_and_org_ids", unique: true
+    t.index ["accredited_individual_id"], name: "idx_on_accredited_individual_id_94f42eefad"
+    t.index ["accredited_organization_id"], name: "idx_on_accredited_organization_id_a394d1de51"
+  end
+
+  create_table "accredited_organizations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "ogc_id", null: false
+    t.string "poa_code", limit: 3, null: false
+    t.string "name"
+    t.string "phone"
+    t.string "address_type"
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "address_line3"
+    t.string "city"
+    t.string "country_code_iso3"
+    t.string "country_name"
+    t.string "county_name"
+    t.string "county_code"
+    t.string "international_postal_code"
+    t.string "province"
+    t.string "state_code"
+    t.string "zip_code"
+    t.string "zip_suffix"
+    t.jsonb "raw_address"
+    t.float "lat"
+    t.float "long"
+    t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["location"], name: "index_accredited_organizations_on_location", using: :gist
+    t.index ["name"], name: "index_accredited_organizations_on_name"
+    t.index ["poa_code"], name: "index_accredited_organizations_on_poa_code", unique: true
+  end
+
+  create_table "accredited_representative_portal_verified_representatives", force: :cascade do |t|
+    t.string "ogc_registration_number", null: false
+    t.string "email", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_verified_representatives_on_email", unique: true
+    t.index ["ogc_registration_number"], name: "index_verified_representatives_on_ogc_number", unique: true
+  end
+
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
     t.bigint "record_id", null: false
     t.bigint "blob_id", null: false
-    t.datetime "created_at", precision: nil, null: false
+    t.datetime "created_at", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
@@ -107,7 +154,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.text "metadata"
     t.bigint "byte_size", null: false
     t.string "checksum", null: false
-    t.datetime "created_at", precision: nil, null: false
+    t.datetime "created_at", null: false
     t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
@@ -156,8 +203,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
 
   create_table "appeals_api_higher_level_reviews", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "status", default: "pending", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "code"
     t.string "detail"
     t.string "source"
@@ -194,7 +241,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "to"
     t.string "statusable_type"
     t.string "statusable_id"
-    t.datetime "status_update_time", precision: nil
+    t.datetime "status_update_time"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "code"
@@ -228,8 +275,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "status"
     t.string "transaction_id"
     t.string "transaction_status"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.text "metadata_ciphertext"
     t.text "encrypted_kms_key"
     t.uuid "user_account_id"
@@ -242,8 +289,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.index ["user_uuid"], name: "index_async_transactions_on_user_uuid"
   end
 
-  create_table "average_days_for_claim_completions", id: :serial, force: :cascade do |t|
-    t.float "average_days", null: false
+  create_table "average_days_for_claim_completions", force: :cascade do |t|
+    t.float "average_days"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -263,8 +310,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.jsonb "feedback"
     t.jsonb "access"
     t.string "fingerprint"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
     t.boolean "mobile"
     t.string "active_status"
@@ -285,8 +332,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
   create_table "claims_api_auto_established_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "status"
     t.integer "evss_id"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "md5"
     t.string "source"
     t.string "flashes", default: [], array: true
@@ -303,6 +350,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
+    t.index ["veteran_icn"], name: "index_claims_api_auto_established_claims_on_veteran_icn"
   end
 
   create_table "claims_api_claim_submissions", force: :cascade do |t|
@@ -339,8 +387,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "status"
     t.string "current_poa"
     t.string "md5"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "vbms_new_document_version_ref_id"
     t.string "vbms_document_series_ref_id"
     t.string "vbms_error_message"
@@ -357,8 +405,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
   end
 
   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.uuid "auto_established_claim_id"
     t.text "file_data_ciphertext"
     t.text "encrypted_kms_key"
@@ -395,8 +443,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "email_confirmation_id"
     t.string "enrollment_id"
     t.string "batch_id"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.text "raw_form_data_ciphertext"
     t.text "eligibility_info_ciphertext"
     t.text "form_data_ciphertext"
@@ -410,8 +458,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
   create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
     t.string "sid"
     t.uuid "account_id"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "expanded", default: false, null: false
     t.boolean "sequestered", default: false, null: false
     t.string "email_confirmation_id"
@@ -421,6 +469,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.text "encrypted_kms_key"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
+  end
+
+  create_table "decision_review_evidence_attachment_validations", force: :cascade do |t|
+    t.uuid "decision_review_evidence_attachment_guid", null: false
+    t.text "password_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["decision_review_evidence_attachment_guid"], name: "index_dr_evidence_attachment_validation_on_guid"
   end
 
   create_table "deprecated_user_accounts", force: :cascade do |t|
@@ -459,8 +516,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.integer "code", null: false
     t.string "medical_term", null: false
     t.string "lay_term"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["code"], name: "index_disability_contentions_on_code", unique: true
     t.index ["lay_term"], name: "index_disability_contentions_on_lay_term", opclass: :gin_trgm_ops, using: :gin
     t.index ["medical_term"], name: "index_disability_contentions_on_medical_term", opclass: :gin_trgm_ops, using: :gin
@@ -471,19 +528,19 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "unit"
     t.geography "polygon", limit: {:srid=>4326, :type=>"st_polygon", :geographic=>true}, null: false
     t.string "vha_facility_id", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "min"
     t.integer "max"
-    t.datetime "vssc_extract_date", precision: nil, default: "2001-01-01 00:00:00"
+    t.datetime "vssc_extract_date", default: "2001-01-01 00:00:00"
     t.index ["polygon"], name: "index_drivetime_bands_on_polygon", using: :gist
   end
 
   create_table "education_benefits_claims", id: :serial, force: :cascade do |t|
-    t.datetime "submitted_at", precision: nil
-    t.datetime "processed_at", precision: nil
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "submitted_at"
+    t.datetime "processed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "regional_processing_office", null: false
     t.string "form_type", default: "1990"
     t.integer "saved_claim_id", null: false
@@ -496,8 +553,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
 
   create_table "education_benefits_submissions", id: :serial, force: :cascade do |t|
     t.string "region", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "chapter33", default: false, null: false
     t.boolean "chapter30", default: false, null: false
     t.boolean "chapter1606", default: false, null: false
@@ -523,8 +580,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.datetime "updated_at", null: false
     t.boolean "poa"
     t.integer "remaining_entitlement"
-    t.datetime "denial_email_sent_at", precision: nil
-    t.datetime "confirmation_email_sent_at", precision: nil
+    t.datetime "denial_email_sent_at"
+    t.datetime "confirmation_email_sent_at"
     t.text "auth_headers_json_ciphertext"
     t.text "encrypted_kms_key"
     t.uuid "user_account_id"
@@ -536,8 +593,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
   create_table "evss_claims", id: :serial, force: :cascade do |t|
     t.integer "evss_id", null: false
     t.json "data", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "user_uuid", null: false
     t.json "list_data", default: {}, null: false
     t.boolean "requested_decision", default: false, null: false
@@ -554,8 +611,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "gate_name"
     t.string "value"
     t.string "user"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["feature_name"], name: "index_feature_toggle_events_on_feature_name"
   end
 
@@ -573,8 +630,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
 
   create_table "flipper_features", force: :cascade do |t|
     t.string "key", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["key"], name: "index_flipper_features_on_key", unique: true
   end
 
@@ -582,14 +639,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "feature_key", null: false
     t.string "key", null: false
     t.text "value"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["feature_key", "key", "value"], name: "index_flipper_gates_on_feature_key_and_key_and_value", unique: true
   end
 
   create_table "form1010cg_submissions", force: :cascade do |t|
     t.string "carma_case_id", limit: 18, null: false
-    t.datetime "accepted_at", precision: nil, null: false
+    t.datetime "accepted_at", null: false
     t.json "metadata"
     t.json "attachments"
     t.datetime "created_at", null: false
@@ -616,7 +673,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "status", null: false
     t.string "error_class"
     t.string "error_message"
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "updated_at", null: false
     t.jsonb "bgjob_errors", default: {}
     t.index ["bgjob_errors"], name: "index_form526_job_statuses_on_bgjob_errors", using: :gin
     t.index ["form526_submission_id"], name: "index_form526_job_statuses_on_form526_submission_id"
@@ -628,8 +685,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.integer "saved_claim_id", null: false
     t.integer "submitted_claim_id"
     t.boolean "workflow_complete", default: false, null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "multiple_birls", comment: "*After* a SubmitForm526 Job fails, a lookup is done to see if the veteran has multiple BIRLS IDs. This field gets set to true if that is the case. If the initial submit job succeeds, this field will remain false whether or not the veteran has multiple BIRLS IDs --so this field cannot technically be used to sum all Form526 veterans that have multiple BIRLS. This field /can/ give us an idea of how often having multiple BIRLS IDs is a problem."
     t.text "auth_headers_json_ciphertext"
     t.text "form_json_ciphertext"
@@ -638,6 +695,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.uuid "user_account_id"
     t.string "backup_submitted_claim_id", comment: "*After* a SubmitForm526 Job has exhausted all attempts, a paper submission is generated and sent to Central Mail Portal.This column will be nil for all submissions where a backup submission is not generated.It will have the central mail id for submissions where a backup submission is submitted."
     t.string "aasm_state", default: "unprocessed"
+    t.integer "submit_endpoint"
     t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
     t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
     t.index ["user_account_id"], name: "index_form526_submissions_on_user_account_id"
@@ -661,8 +719,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
   end
 
   create_table "form_attachments", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.uuid "guid", null: false
     t.string "type", null: false
     t.text "file_data_ciphertext"
@@ -704,9 +762,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "edipi", null: false
     t.string "first_name", null: false
     t.string "last_name", null: false
-    t.datetime "dob", precision: nil, null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "dob", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.text "ssn_ciphertext"
     t.text "encrypted_kms_key"
     t.index ["edipi"], name: "index_gibs_not_found_users_on_edipi"
@@ -728,15 +786,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.integer "msa", null: false
     t.string "msa_name"
     t.integer "version", null: false
-    t.datetime "created", precision: nil, null: false
-    t.datetime "updated", precision: nil
+    t.datetime "created", null: false
+    t.datetime "updated"
     t.string "created_by"
     t.string "updated_by"
   end
 
   create_table "health_care_applications", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "state", default: "pending", null: false
     t.string "form_submission_id_string"
     t.string "timestamp"
@@ -758,18 +816,18 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
 
   create_table "id_card_announcement_subscriptions", id: :serial, force: :cascade do |t|
     t.string "email", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["email"], name: "index_id_card_announcement_subscriptions_on_email", unique: true
   end
 
   create_table "in_progress_forms", id: :serial, force: :cascade do |t|
     t.string "user_uuid", null: false
     t.string "form_id", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.json "metadata"
-    t.datetime "expires_at", precision: nil
+    t.datetime "expires_at"
     t.text "form_data_ciphertext"
     t.text "encrypted_kms_key"
     t.uuid "user_account_id"
@@ -788,19 +846,33 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
 
   create_table "invalid_letter_address_edipis", id: :serial, force: :cascade do |t|
     t.string "edipi", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["edipi"], name: "index_invalid_letter_address_edipis_on_edipi"
+  end
+
+  create_table "ivc_champva_forms", force: :cascade do |t|
+    t.string "email"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "form_number"
+    t.string "file_name"
+    t.uuid "form_uuid"
+    t.string "s3_status"
+    t.string "pega_status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
   end
 
   create_table "maintenance_windows", id: :serial, force: :cascade do |t|
     t.string "pagerduty_id"
     t.string "external_service"
-    t.datetime "start_time", precision: nil
-    t.datetime "end_time", precision: nil
+    t.datetime "start_time"
+    t.datetime "end_time"
     t.string "description"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["end_time"], name: "index_maintenance_windows_on_end_time"
     t.index ["pagerduty_id"], name: "index_maintenance_windows_on_pagerduty_id"
     t.index ["start_time"], name: "index_maintenance_windows_on_start_time"
@@ -835,8 +907,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.uuid "handle", null: false
     t.uuid "user_account_id", null: false
     t.string "hashed_refresh_token", null: false
-    t.datetime "refresh_expiration", precision: nil, null: false
-    t.datetime "refresh_creation", precision: nil, null: false
+    t.datetime "refresh_expiration", null: false
+    t.datetime "refresh_creation", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_verification_id", null: false
@@ -844,7 +916,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "client_id", null: false
     t.text "user_attributes_ciphertext"
     t.text "encrypted_kms_key"
+    t.string "hashed_device_secret"
     t.index ["handle"], name: "index_oauth_sessions_on_handle", unique: true
+    t.index ["hashed_device_secret"], name: "index_oauth_sessions_on_hashed_device_secret"
     t.index ["hashed_refresh_token"], name: "index_oauth_sessions_on_hashed_refresh_token", unique: true
     t.index ["refresh_creation"], name: "index_oauth_sessions_on_refresh_creation"
     t.index ["refresh_expiration"], name: "index_oauth_sessions_on_refresh_expiration"
@@ -861,23 +935,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
   end
 
-  create_table "pega_tables", force: :cascade do |t|
-    t.uuid "uuid"
-    t.string "veteranfirstname"
-    t.string "veteranmiddlename"
-    t.string "veteranlastname"
-    t.string "applicantfirstname"
-    t.string "applicantmiddlename"
-    t.string "applicantlastname"
-    t.jsonb "response"
-    t.string "filenumber"
-    t.string "doctype"
-    t.datetime "date_created"
-    t.datetime "date_completed"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "pension_ipf_notifications", force: :cascade do |t|
     t.text "payload_ciphertext"
     t.text "encrypted_kms_key"
@@ -889,10 +946,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.uuid "guid"
     t.string "type"
     t.string "form_id"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "saved_claim_id"
-    t.datetime "completed_at", precision: nil
+    t.datetime "completed_at"
     t.text "file_data_ciphertext"
     t.text "encrypted_kms_key"
     t.index ["guid"], name: "index_persistent_attachments_on_guid", unique: true
@@ -901,10 +958,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
   end
 
   create_table "personal_information_logs", id: :serial, force: :cascade do |t|
-    t.jsonb "data", null: false
     t.string "error_class", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.text "data_ciphertext"
     t.text "encrypted_kms_key"
     t.index ["created_at"], name: "index_personal_information_logs_on_created_at"
@@ -918,7 +974,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.bigint "query_hash"
     t.float "total_time"
     t.bigint "calls"
-    t.datetime "captured_at", precision: nil
+    t.datetime "captured_at"
     t.index ["database", "captured_at"], name: "index_pghero_query_stats_on_database_and_captured_at"
   end
 
@@ -927,7 +983,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.text "schema"
     t.text "relation"
     t.bigint "size"
-    t.datetime "captured_at", precision: nil
+    t.datetime "captured_at"
     t.index ["database", "captured_at"], name: "index_pghero_space_stats_on_database_and_captured_at"
   end
 
@@ -936,22 +992,22 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "application_uuid"
     t.string "return_description", null: false
     t.integer "return_code"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["application_uuid"], name: "index_preneed_submissions_on_application_uuid", unique: true
     t.index ["tracking_number"], name: "index_preneed_submissions_on_tracking_number", unique: true
   end
 
   create_table "saved_claims", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", precision: nil
-    t.datetime "updated_at", precision: nil
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string "form_id"
     t.uuid "guid", null: false
     t.string "type"
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
-    t.string "uploaded_forms", array: true
-    t.datetime "itf_datetime", precision: nil
+    t.string "uploaded_forms", default: [], array: true
+    t.datetime "itf_datetime"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
@@ -984,7 +1040,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.integer "rpo"
     t.integer "number_of_submissions"
     t.string "filename"
-    t.datetime "successful_at", precision: nil
+    t.datetime "successful_at"
     t.integer "retry_attempt", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -997,8 +1053,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "description", null: false
     t.integer "state_id", null: false
     t.integer "version", null: false
-    t.datetime "created", precision: nil, null: false
-    t.datetime "updated", precision: nil
+    t.datetime "created", null: false
+    t.datetime "updated"
     t.string "created_by"
     t.string "updated_by"
   end
@@ -1018,7 +1074,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.integer "add_ninety_day_hospital_copay"
     t.integer "outpatient_basic_care_copay"
     t.integer "outpatient_specialty_copay"
-    t.datetime "threshold_effective_date", precision: nil
+    t.datetime "threshold_effective_date"
     t.integer "aid_and_attendance_threshold"
     t.integer "outpatient_preventive_copay"
     t.integer "medication_copay"
@@ -1029,8 +1085,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.integer "inpatient_per_diem"
     t.string "description"
     t.integer "version", null: false
-    t.datetime "created", precision: nil, null: false
-    t.datetime "updated", precision: nil
+    t.datetime "created", null: false
+    t.datetime "updated"
     t.string "created_by"
     t.string "updated_by"
   end
@@ -1041,8 +1097,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.integer "fips_code", null: false
     t.integer "country_id", null: false
     t.integer "version", null: false
-    t.datetime "created", precision: nil, null: false
-    t.datetime "updated", precision: nil
+    t.datetime "created", null: false
+    t.datetime "updated"
     t.string "created_by"
     t.string "updated_by"
   end
@@ -1054,8 +1110,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.integer "state_id", null: false
     t.integer "county_number", null: false
     t.integer "version", null: false
-    t.datetime "created", precision: nil, null: false
-    t.datetime "updated", precision: nil
+    t.datetime "created", null: false
+    t.datetime "updated"
     t.string "created_by"
     t.string "updated_by"
   end
@@ -1071,8 +1127,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
 
   create_table "test_user_dashboard_tud_account_availability_logs", force: :cascade do |t|
     t.string "account_uuid"
-    t.datetime "checkout_time", precision: nil
-    t.datetime "checkin_time", precision: nil
+    t.datetime "checkout_time"
+    t.datetime "checkin_time"
     t.boolean "has_checkin_error"
     t.boolean "is_manual_checkin"
     t.datetime "created_at", null: false
@@ -1086,12 +1142,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "middle_name"
     t.string "last_name"
     t.string "gender"
-    t.datetime "birth_date", precision: nil
+    t.datetime "birth_date"
     t.integer "ssn"
     t.string "phone"
     t.string "email"
     t.string "password"
-    t.datetime "checkout_time", precision: nil
+    t.datetime "checkout_time"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "services"
@@ -1104,8 +1160,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
   end
 
   create_table "user_acceptable_verified_credentials", force: :cascade do |t|
-    t.datetime "acceptable_verified_credential_at", precision: nil
-    t.datetime "idme_verified_credential_at", precision: nil
+    t.datetime "acceptable_verified_credential_at"
+    t.datetime "idme_verified_credential_at"
     t.uuid "user_account_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -1136,7 +1192,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "logingov_uuid"
     t.string "mhv_uuid"
     t.string "dslogon_uuid"
-    t.datetime "verified_at", precision: nil
+    t.datetime "verified_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "backing_idme_uuid"
@@ -1158,15 +1214,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.date "last_revision_on"
     t.integer "pages"
     t.string "sha256"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "valid_pdf", default: false
     t.text "form_usage"
     t.text "form_tool_intro"
     t.string "form_tool_url"
     t.string "form_type"
     t.string "language"
-    t.datetime "deleted_at", precision: nil
+    t.datetime "deleted_at"
     t.string "related_forms", array: true
     t.jsonb "benefit_categories"
     t.string "form_details_url"
@@ -1188,17 +1244,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.index ["user_account_id"], name: "index_va_notify_in_progress_reminders_sent_on_user_account_id"
   end
 
-  create_table "vba_documents_git_items", force: :cascade do |t|
-    t.string "url", null: false
-    t.jsonb "git_item"
-    t.boolean "notified", default: false
-    t.string "label"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["notified", "label"], name: "index_vba_documents_git_items_on_notified_and_label"
-    t.index ["url"], name: "index_vba_documents_git_items_on_url", unique: true
-  end
-
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
     t.integer "month", null: false
     t.integer "year", null: false
@@ -1213,8 +1258,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "status", default: "pending", null: false
     t.string "code"
     t.string "detail"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "s3_deleted"
     t.string "consumer_name"
     t.uuid "consumer_id"
@@ -1237,13 +1282,21 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.index ["icn", "device_id"], name: "index_veteran_device_records_on_icn_and_device_id", unique: true
   end
 
+  create_table "veteran_onboardings", force: :cascade do |t|
+    t.boolean "display_onboarding_flow", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "user_account_uuid"
+    t.index ["user_account_uuid"], name: "index_veteran_onboardings_on_user_account_uuid", unique: true
+  end
+
   create_table "veteran_organizations", id: false, force: :cascade do |t|
     t.string "poa", limit: 3
     t.string "name"
     t.string "phone"
     t.string "state", limit: 2
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "address_type"
     t.string "city"
     t.string "country_code_iso3"
@@ -1273,13 +1326,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "last_name"
     t.string "email"
     t.string "phone"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "poa_codes", default: [], array: true
     t.string "user_types", default: [], array: true
-    t.text "ssn_ciphertext"
-    t.text "dob_ciphertext"
-    t.text "encrypted_kms_key"
     t.string "middle_initial"
     t.string "address_type"
     t.string "city"
@@ -1308,8 +1358,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
   end
 
   create_table "vic_submissions", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "state", default: "pending", null: false
     t.uuid "guid", null: false
     t.json "response"
@@ -1339,10 +1389,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
   create_table "vye_awards", force: :cascade do |t|
     t.integer "user_info_id"
     t.string "cur_award_ind"
-    t.datetime "award_begin_date", precision: nil
-    t.datetime "award_end_date", precision: nil
     t.integer "training_time"
-    t.datetime "payment_date", precision: nil
     t.decimal "monthly_rate"
     t.string "begin_rsn"
     t.string "end_rsn"
@@ -1351,7 +1398,20 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "type_hours"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.date "award_begin_date"
+    t.date "award_end_date"
+    t.date "payment_date"
     t.index ["user_info_id"], name: "index_vye_awards_on_user_info_id"
+  end
+
+  create_table "vye_bdn_clones", force: :cascade do |t|
+    t.boolean "is_active"
+    t.boolean "export_ready"
+    t.date "transact_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["export_ready"], name: "index_vye_bdn_clones_on_export_ready"
+    t.index ["is_active"], name: "index_vye_bdn_clones_on_is_active"
   end
 
   create_table "vye_direct_deposit_changes", force: :cascade do |t|
@@ -1375,39 +1435,21 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
   end
 
   create_table "vye_pending_documents", force: :cascade do |t|
-    t.string "ssn_digest"
-    t.text "ssn_ciphertext"
-    t.string "claim_no_ciphertext"
     t.string "doc_type"
-    t.datetime "queue_date", precision: nil
     t.string "rpo"
-    t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
-    t.index ["ssn_digest"], name: "index_vye_pending_documents_on_ssn_digest"
+    t.date "queue_date"
   end
 
   create_table "vye_user_infos", force: :cascade do |t|
-    t.string "icn"
-    t.string "ssn_digest"
-    t.text "ssn_ciphertext"
     t.text "file_number_ciphertext"
     t.string "suffix"
-    t.text "full_name_ciphertext"
-    t.text "address_line2_ciphertext"
-    t.text "address_line3_ciphertext"
-    t.text "address_line4_ciphertext"
-    t.text "address_line5_ciphertext"
-    t.text "address_line6_ciphertext"
-    t.text "zip_ciphertext"
     t.text "dob_ciphertext"
     t.text "stub_nm_ciphertext"
     t.string "mr_status"
     t.string "rem_ent"
-    t.datetime "cert_issue_date", precision: nil
-    t.datetime "del_date", precision: nil
-    t.datetime "date_last_certified", precision: nil
     t.integer "rpo_code"
     t.string "fac_code"
     t.decimal "payment_amt"
@@ -1416,8 +1458,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
-    t.index ["icn"], name: "index_vye_user_infos_on_icn"
-    t.index ["ssn_digest"], name: "index_vye_user_infos_on_ssn_digest"
+    t.date "cert_issue_date"
+    t.date "del_date"
+    t.date "date_last_certified"
+    t.integer "bdn_clone_id"
+    t.integer "bdn_clone_line"
+    t.boolean "bdn_clone_active"
+    t.index ["bdn_clone_active"], name: "index_vye_user_infos_on_bdn_clone_active"
+    t.index ["bdn_clone_id"], name: "index_vye_user_infos_on_bdn_clone_id"
+    t.index ["bdn_clone_line"], name: "index_vye_user_infos_on_bdn_clone_line"
   end
 
   create_table "vye_user_profiles", force: :cascade do |t|
@@ -1437,12 +1486,19 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
     t.string "change_flag"
     t.integer "rpo_code"
     t.boolean "rpo_flag"
-    t.datetime "act_begin", precision: nil
-    t.datetime "act_end", precision: nil
+    t.datetime "act_begin"
+    t.datetime "act_end"
     t.string "source_ind"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "user_profile_id"
+    t.decimal "monthly_rate"
+    t.integer "number_hours"
+    t.date "payment_date"
+    t.date "transact_date"
+    t.string "trace"
     t.index ["user_info_id"], name: "index_vye_verifications_on_user_info_id"
+    t.index ["user_profile_id"], name: "index_vye_verifications_on_user_profile_id"
   end
 
   create_table "webhooks_notification_attempt_assocs", id: false, force: :cascade do |t|
@@ -1487,6 +1543,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_11_235242) do
   end
 
   add_foreign_key "account_login_stats", "accounts"
+  add_foreign_key "accredited_individuals_accredited_organizations", "accredited_individuals"
+  add_foreign_key "accredited_individuals_accredited_organizations", "accredited_organizations"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"

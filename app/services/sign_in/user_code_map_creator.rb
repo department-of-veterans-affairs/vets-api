@@ -42,11 +42,11 @@ module SignIn
     end
 
     def create_user_acceptable_verified_credential
-      Login::UserAcceptableVerifiedCredentialUpdater.new(user_account: user_verification.user_account).perform
+      Login::UserAcceptableVerifiedCredentialUpdater.new(user_account:).perform
     end
 
     def create_terms_code_container
-      TermsCodeContainer.new(code: terms_code, user_uuid:).save!
+      TermsCodeContainer.new(code: terms_code, user_account_uuid: user_account.id).save!
     end
 
     def create_code_container
@@ -55,7 +55,12 @@ module SignIn
                         code_challenge: state_payload.code_challenge,
                         user_verification_id: user_verification.id,
                         credential_email:,
-                        user_attributes: access_token_attributes).save!
+                        user_attributes: access_token_attributes,
+                        device_sso:).save!
+    end
+
+    def device_sso
+      state_payload.scope == Constants::Auth::DEVICE_SSO
     end
 
     def user_verifier_object
@@ -79,6 +84,10 @@ module SignIn
       @user_verification ||= Login::UserVerifier.new(user_verifier_object).perform
     end
 
+    def user_account
+      @user_account ||= user_verification.user_account
+    end
+
     def sign_in
       @sign_in ||= {
         service_name: state_payload.type,
@@ -98,7 +107,7 @@ module SignIn
     end
 
     def needs_accepted_terms_of_use?
-      client_config.va_terms_enforced? && user_verification.user_account.needs_accepted_terms_of_use?
+      client_config.va_terms_enforced? && user_account.needs_accepted_terms_of_use?
     end
 
     def client_config

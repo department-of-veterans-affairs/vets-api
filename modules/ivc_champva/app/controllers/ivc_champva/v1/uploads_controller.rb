@@ -20,7 +20,7 @@ module IvcChampva
           form_id = get_form_id
           parsed_form_data = JSON.parse(params.to_json)
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          status, error_message = FileUploader.new(form_id, metadata, file_paths).handle_uploads
+          status, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
 
           render json: build_json(Array(status), error_message)
         rescue
@@ -29,7 +29,7 @@ module IvcChampva
       end
 
       def submit_supporting_documents
-        if %w[10-10D 10-7959F-2].include?(params[:form_id])
+        if %w[10-10D 10-7959C 10-7959F-2].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
@@ -90,10 +90,6 @@ module IvcChampva
           'IVC Champva - unauthenticated user submitting form',
           { form_number: params[:form_number] }
         )
-      end
-
-      def should_authenticate
-        true
       end
     end
   end
