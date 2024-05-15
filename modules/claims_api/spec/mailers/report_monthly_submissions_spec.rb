@@ -16,10 +16,10 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
         from,
         to,
         pact_act_submission,
-        67,
-        12,
-        112,
-        1
+        consumer_claims_totals: claims_totals,
+        poa_totals:,
+        ews_totals:,
+        itf_totals:
       ).deliver_now
     end
 
@@ -27,9 +27,22 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
       expect(subject.subject).to eq('Benefits Claims Monthly Submission Report')
     end
 
-    it 'has the correct HTML in the email' do
-      raw_source = subject.body.raw_source.gsub(/\s+/, '')
-      expect(raw_source).to include(email_html)
+    shared_examples 'check_email_content' do |email_html|
+      it "has the correct #{email_html} HTML in the email" do
+        expect(@raw_source).to include(send("#{email_html}_email_html"))
+      end
+    end
+
+    # Use the shared example for each type of email content
+    describe 'Email Content Checks' do
+      before do
+        @raw_source = subject.body.raw_source.gsub(/\s+/, '')
+      end
+
+      include_examples 'check_email_content', 'claims'
+      include_examples 'check_email_content', 'poa'
+      include_examples 'check_email_content', 'ews'
+      include_examples 'check_email_content', 'itf'
     end
 
     it 'sends to the right people' do
@@ -47,49 +60,192 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
     end
   end
 
+  def claims_totals
+    [
+      { 'consumer 1' => { pending: 2,
+                          errored: 1,
+                          totals: 3 } },
+      { 'consumer 2' => { pending: 3,
+                          errored: 3,
+                          totals: 6 } }
+    ]
+  end
+
   # rubocop:disable Metrics/MethodLength
-  def email_html
-    "<h2>MonthlySubmissions</h2>
+  def claims_email_html
+    "
     <table>
-    <tr>
-    <th>Consumer</th>
-    <th>DisabilityCompensationsubmissions</th>
-    </tr>
-    <tr>
-    <td>Form526</td>
-    <td>67</td>
-    </tr>
+      <thead>
+        <tr>
+          <th>consumer</th>
+          <th>pending</th>
+          <th>submitted</th>
+          <th>established</th>
+          <th>errored</th>
+          <th>totals</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <tdclass=\"left-align\">consumer1 </td>
+          <tdclass=\"right-align\">2 </td>
+          <tdclass=\"right-align\">0 </td>
+          <tdclass=\"right-align\">0 </td>
+          <tdclass=\"right-align\">1 </td>
+          <tdclass=\"right-align\">3 </td>
+        </tr>
+        <tr>
+          <tdclass=\"left-align\">consumer2 </td>
+          <tdclass=\"right-align\">3 </td>
+          <tdclass=\"right-align\">0 </td>
+          <tdclass=\"right-align\">0 </td>
+          <tdclass=\"right-align\">3 </td>
+          <tdclass=\"right-align\">6 </td>
+        </tr>
+      </tbody>
     </table>
+    ".gsub(/\s+/, '')
+  end
+  # rubocop:enable Metrics/MethodLength
+
+  def poa_totals
+    [
+      {
+        'consumer 3' => { totals: 10, updated: 5, errored: 2, pending: 1, uploaded: 2 }
+      },
+      {
+        'consumer 4' => { totals: 8, updated: 3, errored: 2, pending: 1, uploaded: 2 }
+      }
+    ]
+  end
+
+  # rubocop:disable Metrics/MethodLength
+  def poa_email_html
+    "
     <table>
-    <tr>
-    <th>Consumer</th>
-    <th>PowerofAttorneysubmissions</th>
-    </tr>
-    <tr>
-    <td>Form2122/2122a</td>
-    <td>12</td>
-    </tr>
+      <thead>
+        <tr>
+          <th>consumer</th>
+          <th>pending</th>
+          <th>submitted</th>
+          <th>uploaded</th>
+          <th>updated</th>
+          <th>errored</th>
+          <th>totals</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <tdclass=\"left-align\">consumer3 </td>
+          <tdclass=\"right-align\">1 </td>
+          <tdclass=\"right-align\">0 </td>
+          <tdclass=\"right-align\">2 </td>
+          <tdclass=\"right-align\">5 </td>
+          <tdclass=\"right-align\">2 </td>
+          <tdclass=\"right-align\">10 </td>
+        </tr>
+        <tr>
+          <tdclass=\"left-align\">consumer4 </td>
+          <tdclass=\"right-align\">1 </td>
+          <tdclass=\"right-align\">0 </td>
+          <tdclass=\"right-align\">2 </td>
+          <tdclass=\"right-align\">3 </td>
+          <tdclass=\"right-align\">2 </td>
+          <tdclass=\"right-align\">8 </td>
+        </tr>
+      </tbody>
     </table>
+    ".gsub(/\s+/, '')
+  end
+  # rubocop:enable Metrics/MethodLength
+
+  def ews_totals
+    [
+      {
+        'consumer 5' => { totals: 10, updated: 5, errored: 2, pending: 1, uploaded: 2 }
+      },
+      {
+        'consumer 6' => { totals: 8, updated: 3, errored: 2, pending: 1, uploaded: 2 }
+      }
+    ]
+  end
+
+  # rubocop:disable Metrics/MethodLength
+  def ews_email_html
+    "
     <table>
-    <tr>
-    <th>Consumer</th>
-    <th>IntenttoFilesubmissions</th>
-    </tr>
-    <tr>
-    <td>Form0966</td>
-    <td>112</td>
-    </tr>
+      <thead>
+        <tr>
+          <th>consumer</th>
+          <th>pending</th>
+          <th>uploaded</th>
+          <th>updated</th>
+          <th>errored</th>
+          <th>totals</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <tdclass=\"left-align\">consumer5 </td>
+          <tdclass=\"right-align\">1 </td>
+          <tdclass=\"right-align\">2 </td>
+          <tdclass=\"right-align\">5 </td>
+          <tdclass=\"right-align\">2 </td>
+          <tdclass=\"right-align\">10 </td>
+        </tr>
+        <tr>
+          <tdclass=\"left-align\">consumer6 </td>
+          <tdclass=\"right-align\">1 </td>
+          <tdclass=\"right-align\">2 </td>
+          <tdclass=\"right-align\">3 </td>
+          <tdclass=\"right-align\">2 </td>
+          <tdclass=\"right-align\">8 </td>
+        </tr>
+      </tbody>
     </table>
+    ".gsub(/\s+/, '')
+  end
+  # rubocop:enable Metrics/MethodLength
+
+  def itf_totals
+    [
+      {
+        'consumer 7' => { totals: 2, submitted: 1, errored: 1 }
+      },
+      {
+        'consumer 8' => { totals: 1, submitted: 1, errored: 0 }
+      }
+    ]
+  end
+
+  # rubocop:disable Metrics/MethodLength
+  def itf_email_html
+    "
     <table>
-    <tr>
-    <th>Consumer</th>
-    <th>EvidenceWaiversubmissions</th>
-    </tr>
-    <tr>
-    <td>Form5133</td>
-    <td>1</td>
-    </tr>
-    </table>".gsub(/\s+/, '')
+      <thead>
+        <tr>
+          <th>consumer</th>
+          <th>submitted</th>
+          <th>errored</th>
+          <th>totals</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <tdclass=\"left-align\">consumer7 </td>
+          <tdclass=\"right-align\">1 </td>
+          <tdclass=\"right-align\">1 </td>
+          <tdclass=\"right-align\">2 </td>
+        </tr>
+        <tr>
+          <tdclass=\"left-align\">consumer8 </td>
+          <tdclass=\"right-align\">1 </td>
+          <tdclass=\"right-align\">0 </td>
+          <tdclass=\"right-align\">1 </td>
+        </tr>
+      </tbody>
+    </table>
+    ".gsub(/\s+/, '')
   end
   # rubocop:enable Metrics/MethodLength
 end

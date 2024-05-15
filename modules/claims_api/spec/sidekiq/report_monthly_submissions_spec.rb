@@ -9,111 +9,26 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
     let(:from) { 1.month.ago }
     let(:to) { Time.zone.now }
 
-    context 'with counts returned for all the record types' do
-      before do
-        claim = create(:auto_established_claim, :status_established)
-        ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT', consumer_label: 'Consumer name here'
-        create(:auto_established_claim, :status_established)
+    it 'sends mail' do
+      with_settings(Settings.claims_api,
+                    report_enabled: true) do
+        Timecop.freeze
+        pact_act_data = []
 
-        allow(ClaimsApi::AutoEstablishedClaim).to receive(:where).and_return(double(pluck: %w[claim1 claim_2]))
-        allow(ClaimsApi::PowerOfAttorney).to receive(:where).and_return(double(pluck: %w[poa_1 poa_2]))
-        allow(ClaimsApi::IntentToFile).to receive(:where).and_return(double(pluck: %w[itf_1 itf_2 otf_3]))
-        allow(ClaimsApi::EvidenceWaiverSubmission).to receive(:where).and_return(double(pluck: ['ews_1']))
-      end
+        expect(ClaimsApi::SubmissionReportMailer).to receive(:build).once.with(
+          from,
+          to,
+          pact_act_data,
+          consumer_claims_totals: [],
+          poa_totals: [],
+          ews_totals: [],
+          itf_totals: []
+        ).and_return(double.tap do |mailer|
+                       expect(mailer).to receive(:deliver_now).once
+                     end)
 
-      it 'sends mail' do
-        with_settings(Settings.claims_api,
-                      report_enabled: true) do
-          Timecop.freeze
-          pact_act_data = ClaimsApi::ClaimSubmission.where(created_at: from..to)
-
-          expect(ClaimsApi::SubmissionReportMailer).to receive(:build).once.with(
-            from,
-            to,
-            pact_act_data,
-            2,
-            2,
-            3,
-            1
-          ).and_return(double.tap do |mailer|
-                         expect(mailer).to receive(:deliver_now).once
-                       end)
-
-          subject.perform
-          Timecop.return
-        end
-      end
-    end
-
-    context 'with counts returned for all but ITF' do
-      before do
-        claim = create(:auto_established_claim, :status_established)
-        ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT', consumer_label: 'Consumer name here'
-        create(:auto_established_claim, :status_established)
-
-        allow(ClaimsApi::AutoEstablishedClaim).to receive(:where).and_return(double(pluck: %w[claim1 claim_2]))
-        allow(ClaimsApi::PowerOfAttorney).to receive(:where).and_return(double(pluck: %w[poa_1 poa_2]))
-        allow(ClaimsApi::IntentToFile).to receive(:where).and_return(double(pluck: %w[]))
-        allow(ClaimsApi::EvidenceWaiverSubmission).to receive(:where).and_return(double(pluck: ['ews_1']))
-      end
-
-      it 'sends mail' do
-        with_settings(Settings.claims_api,
-                      report_enabled: true) do
-          Timecop.freeze
-          pact_act_data = ClaimsApi::ClaimSubmission.where(created_at: from..to)
-
-          expect(ClaimsApi::SubmissionReportMailer).to receive(:build).once.with(
-            from,
-            to,
-            pact_act_data,
-            2,
-            2,
-            0,
-            1
-          ).and_return(double.tap do |mailer|
-                         expect(mailer).to receive(:deliver_now).once
-                       end)
-
-          subject.perform
-          Timecop.return
-        end
-      end
-    end
-
-    context 'with counts returned for all but EWS' do
-      before do
-        claim = create(:auto_established_claim, :status_established)
-        ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT', consumer_label: 'Consumer name here'
-        create(:auto_established_claim, :status_established)
-
-        allow(ClaimsApi::AutoEstablishedClaim).to receive(:where).and_return(double(pluck: %w[claim1 claim_2]))
-        allow(ClaimsApi::PowerOfAttorney).to receive(:where).and_return(double(pluck: %w[poa_1 poa_2]))
-        allow(ClaimsApi::IntentToFile).to receive(:where).and_return(double(pluck: %w[]))
-        allow(ClaimsApi::EvidenceWaiverSubmission).to receive(:where).and_return(double(pluck: %w[]))
-      end
-
-      it 'sends mail' do
-        with_settings(Settings.claims_api,
-                      report_enabled: true) do
-          Timecop.freeze
-          pact_act_data = ClaimsApi::ClaimSubmission.where(created_at: from..to)
-
-          expect(ClaimsApi::SubmissionReportMailer).to receive(:build).once.with(
-            from,
-            to,
-            pact_act_data,
-            2,
-            2,
-            0,
-            0
-          ).and_return(double.tap do |mailer|
-                         expect(mailer).to receive(:deliver_now).once
-                       end)
-
-          subject.perform
-          Timecop.return
-        end
+        subject.perform
+        Timecop.return
       end
     end
   end
