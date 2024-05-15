@@ -6,7 +6,7 @@ module SchemaContract
 
     sidekiq_options(retry: false)
 
-    def perform(_uuid)
+    def perform
       SchemaContract::Validation.where(updated_at: ..1.month.ago).destroy_all
     end
   end
