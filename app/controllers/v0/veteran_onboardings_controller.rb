@@ -2,6 +2,7 @@
 
 module V0
   class VeteranOnboardingsController < ApplicationController
+    service_tag 'veteran-onboarding'
     before_action :set_veteran_onboarding
 
     def show
