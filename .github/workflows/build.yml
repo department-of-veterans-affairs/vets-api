@@ -1,9 +1,12 @@
 name: Build, Push, & Deploy
 on:
+  push:
+    branches:
+      - master
+  workflow_call:
   workflow_dispatch:
   workflow_run:
     workflows: ["Code Checks"]
-    branches: [master]
     types: [completed]
 permissions:
   contents: read
