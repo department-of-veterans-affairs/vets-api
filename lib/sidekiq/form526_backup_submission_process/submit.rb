@@ -69,6 +69,7 @@ module Sidekiq
         raise e
       end
 
+      # rubocop:disable Metrics/MethodLength
       def perform(form526_submission_id)
         return unless Settings.form526_backup.enabled
 
@@ -92,6 +93,7 @@ module Sidekiq
         update_job_status_bgjob_errors(job_status, e)
         raise e
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 

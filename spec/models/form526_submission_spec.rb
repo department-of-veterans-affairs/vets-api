@@ -59,6 +59,40 @@ RSpec.describe Form526Submission do
     end
   end
 
+  describe 'submit_endpoint enum' do
+    context 'when submit_endpoint is evss' do
+      let(:submit_endpoint) { 'evss' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'when submit_endpoint is claims_api' do
+      let(:submit_endpoint) { 'claims_api' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'when submit_endpoint is benefits_intake_api' do
+      let(:submit_endpoint) { 'benefits_intake_api' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'when submit_endpoint is not evss, claims_api or benefits_intake_api' do
+      it 'is invalid' do
+        expect do
+          subject.submit_endpoint = 'other_value'
+        end.to raise_error(ArgumentError, "'other_value' is not a valid submit_endpoint")
+      end
+    end
+  end
+
   describe 'scopes' do
     describe 'pending_backup_submissions' do
       let!(:new_submission) { create(:form526_submission, aasm_state: 'unprocessed') }
