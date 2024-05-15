@@ -14,7 +14,7 @@ class SMController < ApplicationController
   end
 
   def authorize
-    raise_access_denied unless current_user.authorize(:legacy_mhv_messaging, :access?)
+    raise_access_denied unless current_user.authorize(:mhv_messaging, :access?)
   end
 
   def raise_access_denied
