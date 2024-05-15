@@ -27,6 +27,7 @@ module ClaimsApi
 
       template = File.read(path)
       body = ERB.new(template).result(binding)
+
       mail(
         to: RECIPIENTS,
         subject: 'Benefits Claims Monthly Submission Report', # rubocop:disable Rails/I18nLocaleTexts
