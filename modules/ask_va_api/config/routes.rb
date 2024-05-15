@@ -32,5 +32,11 @@ AskVAApi::Engine.routes.draw do
     # health_facilities
     get '/health_facilities', to: 'health_facilities#index'
     get '/health_facilities/:id', to: 'health_facilities#show'
+
+    # education_facilities
+    get '/education_facilities/autocomplete', to: 'education_facilities#autocomplete'
+    get '/education_facilities/search', to: 'education_facilities#search'
+    get '/education_facilities/:id', to: 'education_facilities#show'
+    get '/education_facilities/:id/children', to: 'education_facilities#children'
   end
 end

@@ -1,5 +1,12 @@
 {
   "form_number": "10-10D",
+  "primary_contact_info": {
+    "name": {
+      "first": "Veteran",
+      "last": "Surname"
+    },
+    "email": false
+  },
   "veteran": {
     "date_of_birth": "1987-02-02",
     "date_of_marriage": "2005-04-06",

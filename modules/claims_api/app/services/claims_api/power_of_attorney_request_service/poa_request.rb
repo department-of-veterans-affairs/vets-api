@@ -6,6 +6,7 @@ module ClaimsApi
     # are very small calculations.
     #
     # TODO: Document philosophy around validity of source data?
+    # TODO: Do actual conversion elsewhere and just define model here perhaps.
     class PoaRequest
       module Statuses
         ALL = [
@@ -14,6 +15,12 @@ module ClaimsApi
           ACCEPTED = 'Accepted',
           DECLINED = 'Declined'
         ].freeze
+      end
+
+      class << self
+        def load(data)
+          new(data)
+        end
       end
 
       Veteran =
@@ -67,9 +74,7 @@ module ClaimsApi
       end
 
       def declined_reason
-        if status == Statuses::DECLINED # rubocop:disable Style/IfUnlessModifier
-          @data['declinedReason']
-        end
+        @data['declinedReason'] if status == Statuses::DECLINED
       end
 
       def authorizes_address_changing?
@@ -138,14 +143,12 @@ module ClaimsApi
           end
 
           def boolean(value)
+            # `else` => `nil`
             case value
             when 'Y'
               true
             when 'N'
               false
-            else # rubocop:disable Style/EmptyElse
-              # Just to be explicit.
-              nil
             end
           end
         end

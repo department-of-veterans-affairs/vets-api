@@ -50,7 +50,7 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
 
       let(:backend_error_submit) { ClaimsApi::CustomError.new(backend_error) }
 
-      it 'correctly set the key as the string value from the error message' do
+      it 'correctly sets the key as the string value from the error message' do
         backend_error_submit.build_error
       rescue => e
         expect(e.key).to be_a(String)

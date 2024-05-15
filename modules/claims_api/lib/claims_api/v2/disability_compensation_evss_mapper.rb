@@ -57,6 +57,7 @@ module ClaimsApi
 
       def transform_disability_values!(disability)
         disability.delete(:diagnosticCode) if disability&.dig(:diagnosticCode).nil?
+        disability.delete(:serviceRelevance) if disability&.dig(:serviceRelevance).blank?
         if disability&.dig(:secondaryDisabilities).present?
           disability[:secondaryDisabilities] = disability[:secondaryDisabilities]&.map do |secondary|
             secondary.except(:exposureOrEventOrInjury, :approximateDate)

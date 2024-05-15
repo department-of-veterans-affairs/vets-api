@@ -147,6 +147,16 @@
     "toxicExposure": {
       "conditions": {
         "arthritis": true
+      },
+      "gulfWar1990": {
+        "afghanistan": true,
+        "bahrain": true,
+        "jordan": true,
+        "kuwait": true
+      },
+      "gulfWar2001": {
+        "djibouti": true,
+        "lebanon": true
       }
     },
     "waiveRetirementPay": false,

@@ -46,6 +46,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.direct_deposit.class).to eq(Requests::DirectDeposit)
       expect(result.treatments.first.class).to eq(Requests::Treatment)
       expect(result.service_pay.class).to eq(Requests::ServicePay)
+      expect(result.toxic_exposure.class).to eq(Requests::ToxicExposure)
+      expect(result.toxic_exposure.gulf_war_hazard_service.class).to eq(Requests::GulfWarHazardService)
+      expect(result.toxic_exposure.multiple_exposures.class).to eq(Array)
     end
   end
 
@@ -268,6 +271,102 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.separation_severance_pay.date_payment_received).to eq('2000')
       expect(result.separation_severance_pay.branch_of_service).to eq('Air Force')
       expect(result.separation_severance_pay.pre_tax_amount_received).to eq(1000.00)
+    end
+  end
+
+  describe 'transform toxic exposure' do
+    let(:submission) { create(:form526_submission, :with_everything_toxic_exposure) }
+    let(:data) { submission.form['form526']['form526']['toxicExposure'] }
+
+    it 'set served_in_gulf_war_hazard_locations correctly' do
+      result = transformer.send(:transform_toxic_exposure, data)
+      expect(result.gulf_war_hazard_service.served_in_gulf_war_hazard_locations).to eq('YES')
+
+      with_none_of_these_option = data.merge({
+                                               'gulfWar1990' => {
+                                                 'none' => true
+                                               },
+                                               'gulfWar2001' => {
+                                                 'none' => true
+                                               }
+                                             })
+      result = transformer.send(:transform_toxic_exposure, with_none_of_these_option)
+      expect(result.gulf_war_hazard_service.served_in_gulf_war_hazard_locations).to eq('NO')
+
+      falsified_options = data.merge({
+                                       'gulfWar1990' => {
+                                         'iraq' => false,
+                                         'kuwait' => false,
+                                         'qatar' => false,
+                                         'none' => false
+                                       },
+                                       'gulfWar2001' => {
+                                         'djibouti' => false,
+                                         'lebanon' => false,
+                                         'uzbekistan' => false,
+                                         'yemen' => false,
+                                         'airspace' => false,
+                                         'none' => false
+                                       }
+                                     })
+      result = transformer.send(:transform_toxic_exposure, falsified_options)
+      expect(result.gulf_war_hazard_service.served_in_gulf_war_hazard_locations).to eq('NO')
+
+      falsified_gulf_war_1990_options = data.merge({
+                                                     'gulfWar1990' => {
+                                                       'iraq' => false,
+                                                       'kuwait' => false,
+                                                       'qatar' => false
+                                                     }
+                                                   })
+      result = transformer.send(:transform_toxic_exposure, falsified_gulf_war_1990_options)
+      expect(result.gulf_war_hazard_service.served_in_gulf_war_hazard_locations).to eq('YES')
+
+      no_options = data.merge({
+                                'gulfWar1990' => {},
+                                'gulfWar2001' => {}
+                              })
+      result = transformer.send(:transform_toxic_exposure, no_options)
+      expect(result.gulf_war_hazard_service).to be_nil
+
+      one_has_no_options = data.merge({
+                                        'gulfWar1990' => {
+                                          'iraq' => true,
+                                          'kuwait' => true,
+                                          'qatar' => true
+                                        },
+                                        'gulfWar2001' => nil
+                                      })
+      result = transformer.send(:transform_toxic_exposure, one_has_no_options)
+      expect(result.gulf_war_hazard_service.served_in_gulf_war_hazard_locations).to eq('YES')
+    end
+
+    it 'transforms gulf war and hazard multiple exposure dates' do
+      result = transformer.send(:transform_multiple_exposures, data['gulfWar1990Details'])
+      expect(result[0].exposure_dates.begin_date).to eq('1991-03')
+      expect(result[0].exposure_dates.end_date).to eq('1992-01')
+      expect(result[0].exposure_location).to eq('Iraq')
+
+      result = transformer.send(:transform_multiple_exposures, data['otherExposureDetails'], hazard: true)
+      expect(result[0].exposure_dates.begin_date).to eq('1991-03')
+      expect(result[0].exposure_dates.end_date).to eq('1992-01')
+      expect(result[0].hazard_exposed_to).to eq('Asbestos')
+
+      no_location_dates = data.merge({
+                                       'gulfWar1990Details' => {
+                                         'iraq' => {}
+                                       }
+                                     })
+      result = transformer.send(:transform_multiple_exposures, no_location_dates['gulfWar1990Details'])
+      expect(result[0].exposure_dates.begin_date).to be_nil
+      expect(result[0].exposure_dates.end_date).to be_nil
+      expect(result[0].exposure_location).to eq('Iraq')
+
+      no_location_details = data.merge({
+                                         'gulfWar1990Details' => {}
+                                       })
+      result = transformer.send(:transform_multiple_exposures, no_location_details['gulfWar1990Details'])
+      expect(result.length).to eq(0)
     end
   end
 end
