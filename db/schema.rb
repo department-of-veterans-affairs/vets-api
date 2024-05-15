@@ -862,6 +862,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_13_204946) do
     t.string "pega_status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
   end
 
   create_table "maintenance_windows", id: :serial, force: :cascade do |t|

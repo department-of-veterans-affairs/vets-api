@@ -82,7 +82,13 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       api_key = Settings.travel_pay.subscription_key
 
-      response = connection(server_url: btsss_url).get('api/v1/claims') do |req|
+      ### TODO: Remove this token parsing code.
+      ### This is a very temporary workaround.
+      ### A fix is being worked on by the API team, deployed soon
+      payload = JWT.decode(btsss_token, nil, false)[0]
+      contact_id = payload['ContactID']
+
+      response = connection(server_url: btsss_url).get("api/v1/claims/by-contact/#{contact_id}") do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['BTSSS-Access-Token'] = btsss_token
         req.headers['Ocp-Apim-Subscription-Key'] = api_key
@@ -91,7 +97,14 @@ module TravelPay
       symbolized_body = response.body.deep_symbolize_keys
       parse_claim_date = ->(c) { Date.parse(c[:modifiedOn]) }
 
-      { data: symbolized_body[:data].sort_by(&parse_claim_date).reverse! }
+      sorted_claims = symbolized_body[:data].sort_by(&parse_claim_date).reverse
+
+      {
+        data: sorted_claims.map do |sc|
+          sc[:claimStatus] = sc[:claimStatus].underscore.titleize
+          sc
+        end
+      }
     end
 
     def request_sts_token(user)

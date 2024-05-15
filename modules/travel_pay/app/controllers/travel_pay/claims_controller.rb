@@ -14,7 +14,7 @@ module TravelPay
         raise common_exception(e)
       end
 
-      render json: claims, each_serializer: TravelPay::ClaimSerializer, status: :ok
+      render json: claims, status: :ok
     end
 
     private
