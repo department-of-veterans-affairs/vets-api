@@ -15,12 +15,17 @@ module ClaimsApi
 
         auto_claim = get_claim(claim_id)
 
+        if Settings.claims_api.benefits_documents.use_mocks
+          start_docker_container_job(auto_claim&.id, perform_async)
+          return
+        end
+
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
 
         mapped_claim = pdf_mapper_service(auto_claim.form_data, get_pdf_data, auto_claim.auth_headers,
                                           middle_initial, auto_claim.created_at).map_claim
-        pdf_string = get_pdf_string(mapped_claim)
+        pdf_string = generate_526_pdf(mapped_claim)
 
         if pdf_string.empty?
           log_job_progress(claim_id,
@@ -31,15 +36,8 @@ module ClaimsApi
           log_job_progress(claim_id,
                            '526EZ PDF generator PDF string returned')
 
-          if Settings.claims_api.pdf_generator_526.mock
-            log_job_progress(claim_id, '526EZ PDF Generator has been mocked for claim')
-
-            path = 'modules/claims_api/lib/claims_api/v2/mock_526_pdf.pdf'
-            file_name = 'mock_526_pdf.pdf'
-          else
-            file_name = "#{SecureRandom.hex}.pdf"
-            path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
-          end
+          file_name = "#{SecureRandom.hex}.pdf"
+          path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
           upload = ActionDispatch::Http::UploadedFile.new({
                                                             filename: file_name,
                                                             type: 'application/pdf',
@@ -117,14 +115,6 @@ module ClaimsApi
         {
           data: {}
         }
-      end
-
-      def get_pdf_string(mapped_claim)
-        if Settings.claims_api.pdf_generator_526.mock
-          'some 526 info'
-        else
-          generate_526_pdf(mapped_claim)
-        end
       end
     end
   end

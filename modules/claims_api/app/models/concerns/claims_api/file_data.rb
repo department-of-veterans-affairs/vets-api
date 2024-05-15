@@ -2,7 +2,6 @@
 
 require 'json_marshal/marshaller'
 require 'claims_api/v2/mock_aws_service'
-require 'claims_api/v2/mock_bd_uploader_service'
 
 module ClaimsApi
   module FileData
@@ -28,8 +27,6 @@ module ClaimsApi
       def set_file_data!(file_data, doc_type, description = nil)
         if Flipper.enabled? :claims_load_testing
           ClaimsApi::V2::MockAwsService.new.store(file_data)
-        elsif Settings.claims_api.s3.mock
-          ClaimsApi::V2::MockBDUploaderService.new.store(file_data)
         else
           uploader.store!(file_data)
         end

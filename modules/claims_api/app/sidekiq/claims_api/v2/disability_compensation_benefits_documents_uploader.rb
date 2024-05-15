@@ -41,7 +41,7 @@ module ClaimsApi
 
       def get_file_body(auto_claim)
         if Settings.claims_api.pdf_generator_526.mock
-          File.read('modules/claims_api/lib/claims_api/v2/mock_526_pdf.pdf')
+          File.read('modules/claims_api/lib/claims_api/v2/mock_526.pdf')
         else
           uploader = auto_claim.uploader
           uploader.retrieve_from_store!(auto_claim.file_data['filename'])
