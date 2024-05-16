@@ -53,7 +53,7 @@ module VetsApi
         end
 
         def latest_migration_timestamp
-          `rails db:version`.match(/Current version: (\d+)/)[1]
+          `psql -d vets-api -t -A -c "SELECT version FROM schema_migrations ORDER BY version DESC LIMIT 1;"`
         end
       end
     end

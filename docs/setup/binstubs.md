@@ -2,6 +2,8 @@
 
 The primary objective of these binstubs is to standardize core development commands, such as setup, testing, or linting. Most binstubs come with a `--help` option that outputs the manual for that binstub. 
 
+**Run `bin/setup` before running other binstubs**
+
 ## Setup
 
 ```
@@ -75,7 +77,7 @@ Resolution: You may see this error on your first run because the table doesn't y
 
 Error: `No such file or directory @ rb_sysopen - .developer-setup (Errno::ENOENT)`
 
-Resolution: In your Rails root directory simple run `touch .developer-setup`
+Resolution: You must run `bin/setup` before running the other binstubs
 
 #### Invalid Setup Preference
 Error: `Invalid option for .developer-setup`

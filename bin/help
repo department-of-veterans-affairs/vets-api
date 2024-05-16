@@ -14,5 +14,5 @@ puts <<~HELP
     bin/test --ci
     bin/lint --dry --only-rubocop
   Docs:
-    <future documentation link>
+    https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/binstubs.md
 HELP

@@ -25,6 +25,9 @@ module VetsApi
           puts 'Invalid option for .developer-setup'
         end
         puts 'Results can be found at log/rspec.log' if @options.include?('--log')
+      rescue Errno::ENOENT
+        puts "You must run `bin/setup` before running other binstubs"
+        exit 1
       end
 
       private

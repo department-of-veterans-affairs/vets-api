@@ -6,10 +6,7 @@ require 'rake'
 
 VALID_OPTIONS = ['--no-parallel', '--coverage', '--log'].freeze
 
-# rubocop:disable Rails/NegateInclude
-invalid_options = ARGV.select { |o| o.start_with?('--', '-') && !VALID_OPTIONS.include?(o) }
-# rubocop:enable Rails/NegateInclude
-if ARGV.include?('--help') || ARGV.include?('-h')
+def help_message
   puts <<~HELP
     Usage:
       bin/test [options] [files|folders]
@@ -33,6 +30,13 @@ if ARGV.include?('--help') || ARGV.include?('-h')
       If you are running the full suite, it's recommended to run with `--log`
       to more easily see the pending and failing examples
   HELP
+end
+
+# rubocop:disable Rails/NegateInclude
+invalid_options = ARGV.select { |o| o.start_with?('--', '-') && !VALID_OPTIONS.include?(o) }
+# rubocop:enable Rails/NegateInclude
+if ARGV.include?('--help') || ARGV.include?('-h')
+  help_message
 elsif ARGV.include?('--ci')
   puts 'WARNING: --ci ignores all other options and inputs'
   ci_test_command = "docker-compose run web bash -c \"CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true \
@@ -41,5 +45,6 @@ elsif ARGV.include?('--ci')
 elsif invalid_options.empty?
   VetsApi::Commands::Test.run(ARGV)
 else
-  puts "Invalid option(s) found: #{invalid_options.join(', ')}. Use \"--help\" for usage information."
+  puts "Invalid option(s) found: #{invalid_options.join(', ')}"
+  help_message
 end
