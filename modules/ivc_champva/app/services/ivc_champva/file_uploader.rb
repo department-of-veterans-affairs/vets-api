@@ -56,8 +56,11 @@ module IvcChampva
       meta_file_name = "#{@form_id}_metadata.json"
       meta_file_path = "tmp/#{meta_file_name}"
       File.write(meta_file_path, @metadata.to_json)
-      meta_upload_status, meta_upload_error_message = upload(
-      meta_file_name, meta_file_path, attachment_ids: @attachment_ids)
+      # rubocop:disable Layout/FirstArgumentIndentation, Layout/MultilineMethodCallBraceLayout
+      meta_upload_status, meta_upload_error_message = upload(meta_file_name,
+                                                             meta_file_path,
+                                                             attachment_ids: @attachment_ids)
+      # rubocop:enable Layout/FirstArgumentIndentation, Layout/MultilineMethodCallBraceLayout
 
       if meta_upload_status == 200
         FileUtils.rm_f(meta_file_path)
