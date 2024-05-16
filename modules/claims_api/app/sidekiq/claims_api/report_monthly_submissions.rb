@@ -16,7 +16,7 @@ module ClaimsApi
           @from,
           @to,
           pact_act_data,
-          consumer_claims_totals: claims_totals,
+          consumer_claims_totals: monthly_claims_totals,
           poa_totals:,
           itf_totals:,
           ews_totals:

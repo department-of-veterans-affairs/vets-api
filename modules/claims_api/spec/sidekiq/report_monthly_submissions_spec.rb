@@ -9,17 +9,23 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
     let(:from) { 1.month.ago }
     let(:to) { Time.zone.now }
 
+    before do
+      claim = create(:auto_established_claim, :status_established, cid: '0oa9uf05lgXYk6ZXn297')
+      ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT', consumer_label: 'Consumer name here'
+      create(:auto_established_claim, :status_established, cid: '0oadnb0o063rsPupH297')
+    end
+
     it 'sends mail' do
       with_settings(Settings.claims_api,
                     report_enabled: true) do
         Timecop.freeze
-        pact_act_data = []
+        pact_act_data = ClaimsApi::ClaimSubmission.where(created_at: from..to)
 
         expect(ClaimsApi::SubmissionReportMailer).to receive(:build).once.with(
           from,
           to,
           pact_act_data,
-          consumer_claims_totals: [],
+          consumer_claims_totals: monthly_claims_totals,
           poa_totals: [],
           ews_totals: [],
           itf_totals: []
@@ -48,5 +54,13 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
         )
       end
     end
+  end
+
+  # Expected value based on what is created in the before
+  def monthly_claims_totals
+    [
+      { 'VA TurboClaim' => { established: 1, totals: 1.0 } },
+      { 'VA Connect Pro' => { established: 1, totals: 1.0 } }
+    ]
   end
 end

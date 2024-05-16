@@ -15,7 +15,7 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
       described_class.build(
         from,
         to,
-        pact_act_submission,
+        pact_act_data,
         consumer_claims_totals: [],
         poa_totals: [],
         ews_totals: [],
