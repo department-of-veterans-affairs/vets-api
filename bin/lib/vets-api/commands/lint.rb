@@ -56,8 +56,8 @@ module VetsApi
           puts "running: #{docker_brakeman_command}"
           ShellCommand.run(docker_brakeman_command)
           puts
-          puts 'running: docker-compose run --rm --service-ports web bash -c "bundle-audit check"'
-          ShellCommand.run('docker-compose run --rm --service-ports web bash -c "bundle-audit check"')
+          puts 'running: docker-compose run --rm --service-ports web bash -c "bundle exec bundle-audit check"'
+          ShellCommand.run('docker-compose run --rm --service-ports web bash -c "bundle exec bundle-audit check"')
         end
       end
 

@@ -54,9 +54,7 @@ module VetsApi
           'port' => '33100'
         }
 
-        File.open(file_path, 'w') do |file|
-          file.write(data.to_yaml)
-        end
+        File.write(file_path, data.to_yaml)
 
         puts 'Done'
       end

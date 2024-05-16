@@ -16,6 +16,8 @@ bin/setup
 
 _Note:_ If using the native or hybrid setup you will need to install Ruby before running `bin/setup`
 
+_Note:_ The native setup is the preferred setup for working on vets-api. Docker is the preferred setup for using vets-api while working on vets-website
+
 ## Test
 
 ```
@@ -50,6 +52,10 @@ bin/lint
 ### Switch Setups
 
 Let's say you want to switch from native setup to docker setup. All you need to do is run the setup binstub with the desired option, in this case: `bin/setup --docker`. 
+
+### Running old commands
+
+If you need to run a docker command like `docker system prune` or you want to run `rubocop -A`, you are still able to use any other command you would have used before. 
 
 ## Common Issues
 

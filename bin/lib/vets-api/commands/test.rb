@@ -52,7 +52,7 @@ module VetsApi
       end
 
       def parallel?
-        @options.exclude?('--no-parallel')
+        !@options.include?('--no-parallel') # rubocop:disable Rails/NegateInclude
       end
 
       def test_command
