@@ -1177,6 +1177,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to display the physical location of an appointment.
+  va_online_scheduling_enable_OH_reads:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for routing appointment read requests to the VetsAPI Gateway Service(VPG) instead of vaos-service.
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
