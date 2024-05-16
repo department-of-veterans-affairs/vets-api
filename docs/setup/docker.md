@@ -22,5 +22,3 @@ clamav:
   host: 'clamav'
   port: '3310'
 ```
-
-These setting at the default, so they can removed as well

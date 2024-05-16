@@ -1,27 +1,6 @@
 # Running the app with Docker
 
-## ClamAV Antivirus Configuration
-### EKS
-
-Prior to EKS, ClamAV (the virus scanner) was deployed in the same process as Vets API. With EKS, ClamAV has been extracted out into it’s own service. Locally you can see the docker-compose.yml config for clamav.
-
-**TODO**: Running clamav natively, as we did in Vets API master still needs to be configured. For the time being, **please run via docker**:
-
-Please set the [clamav intitalizer](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/config/initializers/clamav.rb) initializers/clamav.rb file to the following:
-
-``` 
-## If running via docker
-if Rails.env.development?
-  ENV["CLAMD_TCP_HOST"] = "clamav"
-  ENV["CLAMD_TCP_PORT"] = "3310"
-end
-```
-
-After that, run the make/docker-compose commands per usual.
-
 First make sure to follow the common [base setup](https://github.com/department-of-veterans-affairs/vets-api/blob/master/README.md#Base%20setup).
-
-## Makefile
 
 A Makefile provides shortcuts for interacting with the docker images.
 

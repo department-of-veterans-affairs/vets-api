@@ -1,23 +1,17 @@
 ## Running the app Natively
 
-### EKS
 
-Prior to EKS, ClamAV (the virus scanner) was deployed in the same process as Vets API. With EKS, ClamAV has been extracted out into it’s own service. Locally you can see the docker-compose.yml config for clamav.
+To run vets-api and its redis and postgres dependencies run the following command from within the repo you cloned 
+in the above steps.
 
-**TODO**: Running clamav natively, as we did in Vets API master still needs to be configured. For the time being, **please run via docker**:
-
-Please set the [clamav intitalizer](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/config/initializers/clamav.rb) initializers/clamav.rb file to the following:
-
-``` 
-# ## If running hybrid
-if Rails.env.development?
-   ENV["CLAMD_TCP_HOST"] = "0.0.0.0"
-   ENV["CLAMD_TCP_PORT"] = "33100"
- end
+```
+foreman start -m all=1,clamd=0,freshclam=0
 ```
 
-### Options
-#### Option 1: Run ONLY clamav via Docker
+You should then be able to navigate to [http://localhost:3000/v0/status](http://localhost:3000/v0/status) in your
+browser and start interacting with the API. Changes to the source in your local
+directory will be reflected automatically via a docker volume mount, just as
+they would be when running rails directly.
 
 ### Running tests
 

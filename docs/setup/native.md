@@ -331,4 +331,3 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    sudo pg_dropcluster ## main
 
    Done!!!
-  ```
