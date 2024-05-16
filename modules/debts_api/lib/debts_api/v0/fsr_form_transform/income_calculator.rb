@@ -7,36 +7,25 @@ module DebtsApi
         BENEFICIARY_MAP = {
           'veteran' => 'VETERAN',
           'spouse' => 'SPOUSE'
-        }
+        }.freeze
+        TAX_FILTERS = ['State tax', 'Federal tax', 'Local tax'].freeze
+        RETIREMENT_FILTERS = [
+          'Retirement accounts (401k, IRAs, 403b, TSP)',
+          '401K',
+          'IRA',
+          'Pension'
+        ].freeze
+        SOCIAL_SEC_FILTERS = ['FICA (Social Security and Medicare)'].freeze
+        ALL_FILTERS = TAX_FILTERS + RETIREMENT_FILTERS + SOCIAL_SEC_FILTERS
 
         def initialize(form)
           @form = form
-          # Filters for deductions
-          @tax_filters = ['State tax', 'Federal tax', 'Local tax']
-          @retirement_filters = [
-            'Retirement accounts (401k, IRAs, 403b, TSP)',
-            '401K',
-            'IRA',
-            'Pension'
-          ]
-          @social_sec_filters = ['FICA (Social Security and Medicare)']
-          @all_filters = @tax_filters + @retirement_filters + @social_sec_filters
-
-          # additions
           @sp_addl_income = @form.dig('additional_income', 'spouse', 'sp_addl_income') || []
           @addl_inc_records = @form.dig('additional_income', 'addl_inc_records') || []
-          @vet_employment_records = @form.dig(
-            'personal_data',
-            'employment_history',
-            'veteran',
-            'employment_records'
-          ) || []
-          @sp_employment_records = @form.dig(
-            'personal_data',
-            'employment_history',
-            'spouse',
-            'sp_employment_records'
-          ) || []
+          @vet_employment_records = @form.dig('personal_data', 'employment_history', 'veteran',
+                                              'employment_records') || []
+          @sp_employment_records = @form.dig('personal_data', 'employment_history', 'spouse',
+                                             'sp_employment_records') || []
           @social_security = @form['social_security'] || {}
           @benefits = @form['benefits'] || {}
           @curr_employment = @form['curr_employment'] || []
@@ -111,7 +100,7 @@ module DebtsApi
           )
         end
 
-        def sp_income 
+        def sp_income
           calculate_income(
             @enhanced_fsr_active,
             'spouse',
@@ -125,7 +114,7 @@ module DebtsApi
         end
 
         def get_transformed_income
-          [transformed_vet_income, transformed_sp_income]          
+          [transformed_vet_income, transformed_sp_income]
         end
 
         def transformed_vet_income
@@ -141,7 +130,7 @@ module DebtsApi
           )
         end
 
-        def transformed_sp_income 
+        def transformed_sp_income
           transform_income(
             @enhanced_fsr_active,
             'spouse',
@@ -194,6 +183,7 @@ module DebtsApi
           other_inc_names&.join(', ') || ''
         end
 
+        # rubocop:disable Metrics/ParameterLists
         def transform_income(enhanced_fsr_active, beneficiary_type, employment_records = [], curr_employment = [],
                              addl_inc_records = [], social_security = {}, income = [], benefits = {})
           gross_salary = if enhanced_fsr_active
@@ -250,38 +240,37 @@ module DebtsApi
                        end
 
           gross_salary = gross_salary.to_f.round(2)
-          taxes_values = filter_reduce_by_name(deductions, @tax_filters)
-          retirement_values = filter_reduce_by_name(deductions, @retirement_filters)
-          social_sec = filter_reduce_by_name(deductions, @social_sec_filters)
-          other = other_deductions_amt(deductions, @all_filters)
+          taxes_values = filter_reduce_by_name(deductions, TAX_FILTERS)
+          retirement_values = filter_reduce_by_name(deductions, RETIREMENT_FILTERS)
+          social_sec = filter_reduce_by_name(deductions, SOCIAL_SEC_FILTERS)
+          other = other_deductions_amt(deductions, ALL_FILTERS)
           tot_deductions = taxes_values + retirement_values + social_sec + other
           other_income = addl_inc.to_f.round(2) + benefits_amount.to_f.round(2) + soc_sec_amt.to_f.round(2)
           net_income = gross_salary - tot_deductions
           total_monthly_net_income = net_income + other_income
 
           {
-            "veteranOrSpouse" => BENEFICIARY_MAP[beneficiary_type],
-            "monthlyGrossSalary" => gross_salary,
-            "deductions" => {
-              "taxes" => taxes_values,
-              "retirement" => retirement_values,
-              "socialSecurity" => social_sec,
-              "otherDeductions" => {
-                "name" => other_deductions_name(deductions, @all_filters),
-                "amount" => other
+            'veteranOrSpouse' => BENEFICIARY_MAP[beneficiary_type],
+            'monthlyGrossSalary' => gross_salary,
+            'deductions' => {
+              'taxes' => taxes_values,
+              'retirement' => retirement_values,
+              'socialSecurity' => social_sec,
+              'otherDeductions' => {
+                'name' => other_deductions_name(deductions, ALL_FILTERS),
+                'amount' => other
               }
             },
-            "totalDeductions" => tot_deductions,
-            "netTakeHomePay" => net_income,
-            "otherIncome" => {
-              "name" => name_str(soc_sec_amt, comp, edu, addl_inc_records),
-              "amount" => other_income.round(2)
+            'totalDeductions' => tot_deductions,
+            'netTakeHomePay' => net_income,
+            'otherIncome' => {
+              'name' => name_str(soc_sec_amt, comp, edu, addl_inc_records),
+              'amount' => other_income.round(2)
             },
-            "totalMonthlyNetIncome" => total_monthly_net_income.round(2)
+            'totalMonthlyNetIncome' => total_monthly_net_income.round(2)
           }
         end
 
-        # rubocop:disable Metrics/ParameterLists
         def calculate_income(enhanced_fsr_active, beneficiary_type, employment_records = [], curr_employment = [],
                              addl_inc_records = [], social_security = {}, income = [], benefits = {})
           gross_salary = if enhanced_fsr_active
@@ -338,10 +327,10 @@ module DebtsApi
                        end
 
           gross_salary = gross_salary.to_f.round(2)
-          taxes_values = filter_reduce_by_name(deductions, @tax_filters)
-          retirement_values = filter_reduce_by_name(deductions, @retirement_filters)
-          social_sec = filter_reduce_by_name(deductions, @social_sec_filters)
-          other = other_deductions_amt(deductions, @all_filters)
+          taxes_values = filter_reduce_by_name(deductions, TAX_FILTERS)
+          retirement_values = filter_reduce_by_name(deductions, RETIREMENT_FILTERS)
+          social_sec = filter_reduce_by_name(deductions, SOCIAL_SEC_FILTERS)
+          other = other_deductions_amt(deductions, ALL_FILTERS)
           tot_deductions = taxes_values + retirement_values + social_sec + other
           other_income = addl_inc.to_f.round(2) + benefits_amount.to_f.round(2) + soc_sec_amt.to_f.round(2)
           net_income = gross_salary - tot_deductions
@@ -354,7 +343,7 @@ module DebtsApi
               retirement: retirement_values,
               socialSecurity: social_sec,
               otherDeductions: {
-                name: other_deductions_name(deductions, @all_filters),
+                name: other_deductions_name(deductions, ALL_FILTERS),
                 amount: other
               }
             },
