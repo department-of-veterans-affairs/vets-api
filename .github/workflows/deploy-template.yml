@@ -12,6 +12,9 @@ on:
       auto_deploy_envs:
         required: true
         type: string
+      commit_sha:  # #${{ github.sha }}
+        required: true
+        type: string
     secrets:
       aws_access_key_id: #${{ secrets.AWS_ACCESS_KEY_ID }}
         required: true
@@ -81,10 +84,10 @@ jobs:
           envs=( ${{ needs.prepare-values.outputs.environments }} )
           for env in ${envs[*]};
           do
-            yq e -i '(."vets-api".image.tag) |= "${{ github.sha }}"' $env/values.yaml
-            yq e -i '(."vets-api".web.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ github.sha }}"' $env/values.yaml
-            yq e -i '(."vets-api".web.dbMigrate.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ github.sha }}"' $env/values.yaml
-            yq e -i '(."vets-api".worker.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ github.sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".image.tag) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".web.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".web.dbMigrate.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".worker.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
           done
           git diff
 
@@ -96,4 +99,4 @@ jobs:
           cwd: vsp-infra-application-manifests/apps
           author_name: va-vsp-bot
           author_email: devops@va.gov
-          message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}} : ${{ github.sha }}."
+          message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}} : ${{ inputs.commit_sha }}."

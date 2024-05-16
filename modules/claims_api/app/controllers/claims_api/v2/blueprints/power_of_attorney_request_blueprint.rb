@@ -77,6 +77,8 @@ module ClaimsApi
 
           association :veteran, blueprint: Veteran
           association :representative, blueprint: Representative
+          # E.g., we can remove the key but what are the right semantics?
+          #   `if: -> (field, object, *) { object.claimant }`
           association :claimant, blueprint: Claimant
           association :claimant_address, blueprint: Address
         end
