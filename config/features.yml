@@ -490,6 +490,9 @@ features:
     actor_type: cookie_id
     description: Enables flagging feature for Find a Representative frontend
     enable_in_development: true
+  form526_include_document_upload_list_in_overflow_text:
+    actor_type: user
+    description: Appends a list of SupportingEvidenceAttachment filenames the veteran uploaded for a Form 526 into the overflow text in the form submission
   appoint_a_representative_enable_frontend:
     actor_type: cookie_id
     description: Enables Appoint a Representative frontend
@@ -497,6 +500,10 @@ features:
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
+    enable_in_development: true
+  form526_send_document_upload_failure_notification:
+    actor_type: user
+    description: Enables enqueuing a Form526DocumentUploadFailureEmail if a EVSS::DisabilityCompensationForm::SubmitUploads job exhausts its retries
     enable_in_development: true
   form0994_confirmation_email:
     actor_type: user
@@ -1408,6 +1415,10 @@ features:
   pension_multiresponse_styles:
     actor_type: user
     description: Pension uses updated styles for single-page multiresponses
+    enable_in_development: true
+  income_and_assets_form_enabled:
+    actor_type: user
+    description: Enable form 21P-0969 Update Income and Assets Evidence Form
     enable_in_development: true
   central_mail_benefits_intake_submission:
     actor_type: user
