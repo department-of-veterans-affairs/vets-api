@@ -1416,6 +1416,10 @@ features:
     actor_type: user
     description: Pension uses updated styles for single-page multiresponses
     enable_in_development: true
+  income_and_assets_form_enabled:
+    actor_type: user
+    description: Enable form 21P-0969 Update Income and Assets Evidence Form
+    enable_in_development: true
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API
