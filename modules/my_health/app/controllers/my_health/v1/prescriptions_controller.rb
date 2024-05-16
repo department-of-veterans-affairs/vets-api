@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'net/http'
+require 'uri'
+
 module MyHealth
   module V1
     class PrescriptionsController < RxController
@@ -39,6 +42,20 @@ module MyHealth
       def refill
         client.post_refill_rx(params[:id])
         head :no_content
+      end
+
+      def documentation
+        uri_string = "http://localhost:8080/prescription_documentation/#{params[:ndc]}"
+        url = URI.parse(uri_string)
+        http = Net::HTTP.new(url.host, url.port)
+        http.use_ssl = url.scheme == 'https'
+        request = Net::HTTP::Get.new(url)
+        response = http.request(request)
+        begin
+          render json: response.body, status: response.code
+        rescue => e
+          render json: { error: "Unable to fetch documentation: #{e}" }, status: :service_unavailable
+        end
       end
 
       def refill_prescriptions
