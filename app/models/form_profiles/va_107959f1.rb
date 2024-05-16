@@ -17,11 +17,7 @@ class FormProfiles::VA107959f1 < FormProfile
     attribute :international_postal_code, String
   end
 
-<<<<<<< HEAD
   attribute :residential_address
-=======
-  attribute :form_address
->>>>>>> master
 
   def prefill
     prefill_form_address
