@@ -25,7 +25,7 @@ module VetsApi
           puts 'Invalid option for .developer-setup'
         end
       rescue Errno::ENOENT
-        puts "You must run `bin/setup` before running other binstubs"
+        puts 'You must run `bin/setup` before running other binstubs'
         exit 1
       end
 

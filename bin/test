@@ -6,6 +6,7 @@ require 'rake'
 
 VALID_OPTIONS = ['--no-parallel', '--coverage', '--log'].freeze
 
+# rubocop:disable Metrics/MethodLength
 def help_message
   puts <<~HELP
     Usage:
@@ -31,6 +32,7 @@ def help_message
       to more easily see the pending and failing examples
   HELP
 end
+# rubocop:enable Metrics/MethodLength
 
 # rubocop:disable Rails/NegateInclude
 invalid_options = ARGV.select { |o| o.start_with?('--', '-') && !VALID_OPTIONS.include?(o) }

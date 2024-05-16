@@ -26,7 +26,7 @@ module VetsApi
         end
         puts 'Results can be found at log/rspec.log' if @options.include?('--log')
       rescue Errno::ENOENT
-        puts "You must run `bin/setup` before running other binstubs"
+        puts 'You must run `bin/setup` before running other binstubs'
         exit 1
       end
 
