@@ -21,7 +21,6 @@ RSpec.describe SavedClaim::Burial do
   end
 
   describe '#process_attachments!' do
-
     it 'starts a job to submit the saved claim via Benefits Intake' do
       expect_any_instance_of(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform).with(instance.id)
       instance.process_attachments!
