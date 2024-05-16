@@ -7,19 +7,17 @@ module ClaimsApi
   module DisabilityCompensation
     class PdfGenerationService < ClaimsApi::Service
       EVSS_DOCUMENT_TYPE = 'L023'
-      LOG_TAG = '526_v2_PDF_Generator_job'
 
       def generate(claim_id, middle_initial) # rubocop:disable Metrics/MethodLength
         log_service_progress(claim_id, 'pdf',
-                             "526EZ PDF generator started for claim #{claim_id}")
-
+        "526EZ PDF generator started for claim #{claim_id}")
+        
         auto_claim = get_claim(claim_id)
-
+        
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
-
-        mapped_claim = pdf_mapper_service(auto_claim.form_data, get_pdf_data, auto_claim.auth_headers,
-                                          middle_initial, auto_claim.created_at).map_claim
+        
+        mapped_claim = generate_mapped_claim(auto_claim, middle_initial)
         pdf_string = generate_526_pdf(mapped_claim)
 
         if pdf_string.empty?
@@ -50,6 +48,13 @@ module ClaimsApi
 
         log_service_progress(claim_id, 'pdf',
                              '526EZ PDF generator job finished')
+
+        return claim_id
+      end
+
+      def generate_mapped_claim(auto_claim, middle_initial)
+        pdf_mapper_service(auto_claim.form_data, get_pdf_data, auto_claim.auth_headers,
+        middle_initial, auto_claim.created_at).map_claim
       end
 
       private
@@ -59,7 +64,6 @@ module ClaimsApi
                                                            created_at)
       end
 
-      # Docker container wants data: but not attributes:
       def generate_526_pdf(mapped_data)
         pdf = get_pdf_data
         pdf[:data] = mapped_data[:data][:attributes]
