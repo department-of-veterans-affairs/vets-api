@@ -2,7 +2,7 @@
 
 module IvcChampva
   class FileUploader
-    def initialize(form_id, metadata, file_paths, attachment_ids, insert_db_row = false)
+    def initialize(form_id, metadata, file_paths, attachment_ids, insert_db_row = false) # rubocop:disable Style/OptionalBooleanParameter
       @form_id = form_id
       @metadata = metadata || {}
       @file_paths = Array(file_paths)
@@ -56,7 +56,8 @@ module IvcChampva
       meta_file_name = "#{@form_id}_metadata.json"
       meta_file_path = "tmp/#{meta_file_name}"
       File.write(meta_file_path, @metadata.to_json)
-      meta_upload_status, meta_upload_error_message = upload(meta_file_name, meta_file_path, attachment_ids: @attachment_ids)
+      meta_upload_status, meta_upload_error_message = upload(
+      meta_file_name, meta_file_path, attachment_ids: @attachment_ids)
 
       if meta_upload_status == 200
         FileUtils.rm_f(meta_file_path)
@@ -69,7 +70,7 @@ module IvcChampva
     def upload(file_name, file_path, attachment_ids:)
       case client.put_object(file_name, file_path, @metadata.except('primary_contact_info'), attachment_ids)
       in { success: true }
-      [200]
+        [200]
       in { success: false, error_message: error_message }
         [400, error_message]
       else
