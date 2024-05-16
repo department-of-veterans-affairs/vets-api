@@ -4,6 +4,7 @@ require 'disability_compensation/requests/form526_request_body'
 
 module EVSS
   module DisabilityCompensationForm
+    # rubocop:disable Metrics/ClassLength
     class Form526ToLighthouseTransform
       TOXIC_EXPOSURE_CAUSE_MAP = {
         NEW: 'My condition was caused by an injury or exposure during my military service.',
@@ -11,6 +12,38 @@ module EVSS
                   'service.',
         VA: 'My condition was caused by an injury or event that happened when I was receiving VA care.',
         SECONDARY: 'My condition was caused by another service-connected disability I already have.'
+      }.freeze
+
+      GULF_WAR_LOCATIONS = {
+        afghanistan: 'Afghanistan',
+        bahrain: 'Bahrain',
+        egypt: 'Egypt',
+        iraq: 'Iraq',
+        israel: 'Israel',
+        jordan: 'Jordan',
+        kuwait: 'Kuwait',
+        neutralzone: 'Neutral zone between Iraq and Saudi Arabia',
+        oman: 'Oman',
+        qatar: 'Qatar',
+        saudiarabia: 'Saudi Arabia',
+        somalia: 'Somalia',
+        syria: 'Syria',
+        uae: 'The United Arab Emirates (UAE)',
+        turkey: 'Turkey',
+        djibouti: 'Djibouti',
+        lebanon: 'Lebanon',
+        uzbekistan: 'Uzbekistan',
+        yemen: 'Yemen',
+        waters:
+        'The waters of the Arabian Sea, Gulf of Aden, Gulf of Oman, Persian Gulf, and Red Sea',
+        airspace: 'The airspace above any of these locations',
+        none: 'None of these locations'
+      }.freeze
+
+      HAZARDS = {
+        asbestos: 'Asbestos',
+        radiation: 'Radiation',
+        mustardgas: 'Mustard Gas'
       }.freeze
 
       # takes known EVSS Form526Submission format and converts it to a Lighthouse request body
@@ -174,7 +207,41 @@ module EVSS
             transform_gulf_war(gulf_war1990, gulf_war2001)
         end
 
+        # create an Array[Requests::MultipleExposures]
+        multiple_exposures = []
+        if toxic_exposure_source['gulfWar1990Details'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar1990Details'])
+        end
+        if toxic_exposure_source['gulfWar2001Details'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar2001Details'])
+        end
+        toxic_exposure_target.multiple_exposures = multiple_exposures
+
         toxic_exposure_target
+      end
+
+      # @param details [Hash] the object with the exposure information of {location/hazard: {startDate, endDate}}
+      # @param hazard [Boolean] vets-website sends the key to be used as
+      #   both a location and a hazard in different objects
+      # @return Array[Requests::MultipleExposures] array of MultipleExposures or nil
+      def transform_multiple_exposures(details, hazard: false)
+        details&.map do |k, v|
+          obj = Requests::MultipleExposures.new(
+            exposure_dates: Requests::Dates.new
+          )
+
+          obj.exposure_dates.begin_date = convert_date_no_day(v['startDate']) if v['startDate'].present?
+
+          obj.exposure_dates.end_date = convert_date_no_day(v['endDate']) if v['endDate'].present?
+
+          if hazard
+            obj.hazard_exposed_to = HAZARDS[k.to_sym]
+          else
+            obj.exposure_location = GULF_WAR_LOCATIONS[k.to_sym]
+          end
+
+          obj
+        end
       end
 
       private
@@ -475,6 +542,11 @@ module EVSS
       def convert_date(date)
         Date.parse(date).strftime('%Y-%m-%d')
       end
+
+      def convert_date_no_day(date)
+        Date.parse(date).strftime('%Y-%m')
+      end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end

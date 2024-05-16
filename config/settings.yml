@@ -1318,6 +1318,10 @@ vanotify:
         claim_submission_error_text: fake_template_id
     benefits_decision_review:
       api_key: fake_secret
+    benefits_disability:
+      api_key: fake_secret
+      template_id:
+        form526_document_upload_failure_notification_template_id: form526_document_upload_failure_notification_template_id
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
