@@ -46,7 +46,7 @@ describe IvcChampva::FileUploader do
       expect(uploader).to receive(:upload).with(
         "#{form_id}_metadata.json",
         meta_file_path,
-        attachment_ids: attachment_ids
+        attachment_ids:,
       ).and_return([200, nil])
       uploader.send(:generate_and_upload_meta_json)
     end
@@ -86,7 +86,7 @@ describe IvcChampva::FileUploader do
         expect(s3_client).to receive(:put_object).and_return({ success: false, error_message: 'Upload failed' })
         expect(uploader.send(:upload,
                              'file_name',
-                             'file_path', 
+                             'file_path',
                              attachment_ids: 'attachment_ids')).to eq([400, 'Upload failed'])
       end
     end
