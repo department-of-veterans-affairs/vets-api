@@ -5,6 +5,8 @@ module ClaimsApi
     module Decide
       class << self
         def perform(id, decision)
+          id = id.split('_').last
+
           action =
             BGSClient::Definitions::
               ManageRepresentativeService::

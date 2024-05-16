@@ -34,7 +34,7 @@ RSpec.describe 'Power Of Attorney Requests: decline', :bgs, type: :request do
   end
 
   describe 'with a valid decline with reason' do
-    let(:id) { 3_854_887 }
+    let(:id) { '600082088_3854887' }
 
     let(:params) do
       {
