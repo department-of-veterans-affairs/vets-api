@@ -46,7 +46,7 @@ class SavedClaim < ApplicationRecord
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
 
-    CentralMail::SubmitSavedClaimJob.perform_async(id)
+    Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
   end
 
   def submit_to_structured_data_services!
