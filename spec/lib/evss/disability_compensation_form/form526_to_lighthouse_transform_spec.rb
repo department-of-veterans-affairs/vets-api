@@ -46,6 +46,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.direct_deposit.class).to eq(Requests::DirectDeposit)
       expect(result.treatments.first.class).to eq(Requests::Treatment)
       expect(result.service_pay.class).to eq(Requests::ServicePay)
+      expect(result.toxic_exposure.class).to eq(Requests::ToxicExposure)
+      expect(result.toxic_exposure.gulf_war_hazard_service.class).to eq(Requests::GulfWarHazardService)
+      expect(result.toxic_exposure.multiple_exposures.class).to eq(Array)
     end
   end
 
@@ -336,6 +339,34 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
                                       })
       result = transformer.send(:transform_toxic_exposure, one_has_no_options)
       expect(result.gulf_war_hazard_service.served_in_gulf_war_hazard_locations).to eq('YES')
+    end
+
+    it 'transforms gulf war and hazard multiple exposure dates' do
+      result = transformer.send(:transform_multiple_exposures, data['gulfWar1990Details'])
+      expect(result[0].exposure_dates.begin_date).to eq('1991-03')
+      expect(result[0].exposure_dates.end_date).to eq('1992-01')
+      expect(result[0].exposure_location).to eq('Iraq')
+
+      result = transformer.send(:transform_multiple_exposures, data['otherExposureDetails'], hazard: true)
+      expect(result[0].exposure_dates.begin_date).to eq('1991-03')
+      expect(result[0].exposure_dates.end_date).to eq('1992-01')
+      expect(result[0].hazard_exposed_to).to eq('Asbestos')
+
+      no_location_dates = data.merge({
+                                       'gulfWar1990Details' => {
+                                         'iraq' => {}
+                                       }
+                                     })
+      result = transformer.send(:transform_multiple_exposures, no_location_dates['gulfWar1990Details'])
+      expect(result[0].exposure_dates.begin_date).to be_nil
+      expect(result[0].exposure_dates.end_date).to be_nil
+      expect(result[0].exposure_location).to eq('Iraq')
+
+      no_location_details = data.merge({
+                                         'gulfWar1990Details' => {}
+                                       })
+      result = transformer.send(:transform_multiple_exposures, no_location_details['gulfWar1990Details'])
+      expect(result.length).to eq(0)
     end
   end
 end
