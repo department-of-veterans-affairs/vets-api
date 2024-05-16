@@ -100,8 +100,14 @@ module ClaimsApi
 
         def synchronous
           auto_claim = shared_submit_methods
-          # This kicks off the first of three jobs required to fully establish the claim
-          process_claim(auto_claim, false) unless Flipper.enabled? :claims_load_testing
+
+          unless Flipper.enabled? :claims_load_testing
+            pdf_generation_service.generate(auto_claim&.id,
+                                            veteran_middle_initial)
+          end
+          if auto_claim.status != ClaimsApi::AutoEstablishedClaim::ERRORED
+            docker_container_service.upload(auto_claim&.id)
+          end
 
           auto_claim.reload
 

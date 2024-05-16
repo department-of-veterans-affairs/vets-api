@@ -4002,9 +4002,9 @@ RSpec.describe 'Disability Claims', type: :request do
         end
       end
 
-      it 'returns a 200 response when successful' do
+      it 'returns a 202 response when successful' do
         mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
-          post synchronous_path, params: {}.to_json, headers: auth_header
+          post synchronous_path, params: data, headers: auth_header
 
           expect(response).to have_http_status(:accepted)
         end
@@ -4012,7 +4012,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
       it 'returns a 401 unauthorized with incorrect scopes' do
         mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
-          post synchronous_path, params: {}.to_json, headers: auth_header
+          post synchronous_path, params: data, headers: auth_header
           expect(response).to have_http_status(:unauthorized)
         end
       end

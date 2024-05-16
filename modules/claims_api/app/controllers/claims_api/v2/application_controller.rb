@@ -123,6 +123,14 @@ module ClaimsApi
                               api_version: 'V2',
                               level:)
       end
+
+      def pdf_generation_service
+        ClaimsApi::DisabilityCompensation::PdfGenerationService.new
+      end
+
+      def docker_container_service
+        ClaimsApi::DisabilityCompensation::DockerContainerService.new
+      end
     end
   end
 end
