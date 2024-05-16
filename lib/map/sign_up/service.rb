@@ -75,7 +75,9 @@ module MAP
 
       def successful_update_provisioning_response(response, icn)
         parsed_response = parse_response(response.body, icn, 'update provisioning')
-        Rails.logger.info("#{config.logging_prefix} update provisioning success, icn: #{icn}")
+
+        Rails.logger.info("#{config.logging_prefix} update provisioning success," \
+                          " icn: #{icn}, parsed_response: #{parsed_response}")
 
         parsed_response
       end

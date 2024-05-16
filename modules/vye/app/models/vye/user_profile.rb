@@ -26,7 +26,16 @@ class Vye::UserProfile < ApplicationRecord
     end
   end
 
-  scope :with_assos, -> { includes(:pending_documents, :verifications, active_user_info: %i[address_changes awards]) }
+  scope(
+    :with_assos,
+    lambda {
+      includes(
+        :pending_documents,
+        :verifications,
+        active_user_info: %i[bdn_clone address_changes awards]
+      )
+    }
+  )
 
   def self.find_and_update_icn(user:)
     return if user.blank?

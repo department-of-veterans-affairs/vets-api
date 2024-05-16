@@ -2,19 +2,22 @@
 
 module IvcChampva
   class FileUploader
-    def initialize(form_id, metadata, file_paths, attachment_ids)
+    def initialize(form_id, metadata, file_paths, attachment_ids, insert_db_row = false)
       @form_id = form_id
       @metadata = metadata || {}
       @file_paths = Array(file_paths)
       @attachment_ids = attachment_ids
+      @insert_db_row = insert_db_row
     end
 
     def handle_uploads
-      pdf_results = @attachment_ids.each_with_index.map do |attachment_id, index|
+      pdf_results = @attachment_ids.zip(@file_paths).map do |attachment_id, file_path|
         next unless attachment_id != 'Form ID'
 
-        file_path = @file_paths[index]
-        upload_pdf(attachment_id, file_path)
+        response_status = upload_pdf(attachment_id, file_path)
+        insert_form(file_path.sub(%r{^tmp/}, ''), response_status.to_s) if @insert_db_row
+
+        response_status
       end.compact
 
       all_pdf_success = pdf_results.all? { |(status, _)| status == 200 }
@@ -27,6 +30,22 @@ module IvcChampva
     end
 
     private
+
+    def insert_form(pdf_file_path, response_status)
+      pega_status = response_status.first == 200 ? 'Submitted' : nil
+      IvcChampvaForm.create!(
+        form_uuid: @metadata['uuid'],
+        email: validate_email(@metadata&.dig('primaryContactInfo', 'email')),
+        first_name: @metadata&.dig('primaryContactInfo', 'name', 'first'),
+        last_name: @metadata&.dig('primaryContactInfo', 'name', 'last'),
+        form_number: @metadata['docType'],
+        file_name: pdf_file_path,
+        s3_status: response_status,
+        pega_status:
+      )
+    rescue ActiveRecord::RecordInvalid => e
+      Rails.logger.error("Database Insertion Error for #{@metadata['uuid']}: #{e.message}")
+    end
 
     def upload_pdf(attachment_id, file_path)
       file_name = file_path.gsub('tmp/', '').gsub('-tmp', '')
@@ -48,7 +67,7 @@ module IvcChampva
     end
 
     def upload(file_name, file_path, attachment_ids:)
-      case client.put_object(file_name, file_path, @metadata, attachment_ids)
+      case client.put_object(file_name, file_path, @metadata.except('primary_contact_info'), attachment_ids)
       in { success: true }
       [200]
       in { success: false, error_message: error_message }
@@ -65,6 +84,12 @@ module IvcChampva
         secret_access_key: Settings.ivc_forms.s3.aws_secret_access_key,
         bucket: Settings.ivc_forms.s3.bucket
       )
+    end
+
+    def validate_email(email)
+      return nil unless email.present? && email.match?(/\A[\w+\-.]+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i)
+
+      email
     end
   end
 end

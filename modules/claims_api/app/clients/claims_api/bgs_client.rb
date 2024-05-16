@@ -5,7 +5,8 @@ module ClaimsApi
     class << self
       ##
       # Invokes the given BGS SOAP service action with the given payload and
-      # returns a result containing a success payload or a fault.
+      # returns a result containing a success payload, raises a wrapper
+      # around a Faraday error, or raises a BGS fault.
       #
       # @example Perform a request to BGS at:
       #   /VDC/ManageRepresentativeService(readPOARequest)
@@ -19,36 +20,37 @@ module ClaimsApi
       #     </data:POACodeList>
       #   EOXML
       #
-      #   definition =
-      #     BGSClient::ServiceAction::Definition::
+      #   service_action =
+      #     BGSClient::ServiceAction::
       #       ManageRepresentativeService::
       #       ReadPoaRequest
       #
       #   BGSClient.perform_request(
-      #     definition:,
+      #     service_action:,
       #     body:
       #   )
       #
-      # @param definition [BGSClient::ServiceAction::Definition] a value object
-      #   that identifies a particular BGS SOAP service action by way of:
+      # @param service_action [BGSClient::ServiceAction] a value object that
+      #   identifies a particular BGS SOAP service action by way of:
       #   `{.service_path, .service_namespaces, .action_name}`
       #
       # @param body [String, #to_xml, #to_s] the action payload
       #
-      # @param external_id [BGSClient::ServiceAction::ExternalId] a value object
+      # @param external_id [BGSClient::ExternalId] a value object
       #   that arbitrarily self-identifies ourselves to BGS as its caller by:
       #   `{.external_uid, .external_key}`
       #
-      # @return [BGSClient::ServiceAction::Request::Result<Hash, BGSClient::ServiceAction::Request::Fault>]
-      #   the response payload of a successful request, or the fault object of a
-      #   failed request
+      # @return [Hash] the response payload of a successful request
+      #
+      # @raise [BGSClient::Error] Either a minimal wrapper around `#cause` of
+      #   `Faraday::Error` or a `BGSClient::Error::BGSFault` when the BGS
+      #   response has a fault object
       def perform_request(
-        definition:, body:,
-        external_id: ServiceAction::ExternalId::DEFAULT
+        service_action:, body:,
+        external_id: ExternalId::DEFAULT
       )
-        ServiceAction
-          .const_get(:Request)
-          .new(definition:, external_id:)
+        const_get(:Request)
+          .new(service_action:, external_id:)
           .perform(body)
       end
 
@@ -57,18 +59,20 @@ module ClaimsApi
       # its WSDL and returning the HTTP status code of the response.
       #
       # @example
-      #   definition =
-      #     BGSClient::ServiceAction::Definition::
+      #   service_action =
+      #     BGSClient::ServiceAction::
       #       ManageRepresentativeService::
       #       ReadPoaRequest
       #
-      #   BGSClient.healthcheck(definition)
+      #   BGSClient.healthcheck(service_action)
       #
-      # @param definition [BGSClient::ServiceAction::Definition] a value object
-      #   that identifies a particular BGS SOAP service action by way of:
+      # @param service_action [BGSClient::ServiceAction] a value object that
+      #   identifies a particular BGS SOAP service action by way of:
       #   `{.service_path, .service_namespaces, .action_name}`
       #
       # @return [Integer] HTTP status code
+      #
+      # @raise [Faraday::Error]
       #
       # @todo We could also introduce the notion of just the service definition
       #   in our central repository of definitions so that:
@@ -76,10 +80,10 @@ module ClaimsApi
       #      them
       #   2. We could improve this API so that it doesn't need to receive
       #      extraneous action information.
-      #  But this is fine for now.
-      def healthcheck(definition)
+      #  But this is fine for now
+      def healthcheck(service_action)
         connection = build_connection
-        response = fetch_wsdl(connection, definition)
+        response = get_wsdl(connection, service_action)
         response.status
       end
 
@@ -100,8 +104,8 @@ module ClaimsApi
 
       private
 
-      def fetch_wsdl(connection, definition)
-        connection.get(definition.service_path) do |req|
+      def get_wsdl(connection, service_action)
+        connection.get(service_action.service_path) do |req|
           req.params['WSDL'] = nil
         end
       end
@@ -119,6 +123,18 @@ module ClaimsApi
           yield(conn) if block_given?
         end
       end
+    end
+
+    class ExternalId <
+      Data.define(
+        :external_uid,
+        :external_key
+      )
+
+      DEFAULT = new(
+        external_uid: Settings.bgs.external_uid,
+        external_key: Settings.bgs.external_key
+      )
     end
   end
 end

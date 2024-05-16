@@ -2,8 +2,6 @@
 
 module TravelPay
   class ClaimsController < ApplicationController
-    before_action :authorize
-
     def index
       veis_token = client.request_veis_token
 
@@ -16,7 +14,7 @@ module TravelPay
         raise common_exception(e)
       end
 
-      render json: claims, each_serializer: TravelPay::ClaimSerializer, status: :ok
+      render json: claims, status: :ok
     end
 
     private

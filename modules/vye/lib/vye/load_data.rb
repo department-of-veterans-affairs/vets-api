@@ -8,16 +8,22 @@ module Vye
 
     attr_reader :profile
 
-    def initialize(source:, records: {})
-      raise ArgumentError, format('Invalid source: %<source>s', { source: }) unless sources.include?(source)
+    def initialize(source:, bdn_clone: nil, records: {})
+      raise ArgumentError, format('Invalid source: %<source>s', source:) unless sources.include?(source)
       raise ArgumentError, 'Missing profile' if records[:profile].blank?
+      raise ArgumentError, 'Missing bdn_clone' unless source == :tims_feed || bdn_clone.present?
+
+      @bdn_clone = bdn_clone
 
       send(source, **records)
       profile.save!
+    rescue ActiveRecord::RecordInvalid => e
+      Rails.logger.error e.message
     end
 
     private
 
+    attr_reader :bdn_clone
     attr_accessor :info
     attr_writer :profile
 
@@ -48,7 +54,8 @@ module Vye
     end
 
     def load_info(attributes)
-      self.info = profile.user_infos.build(attributes)
+      final_attributes = attributes.merge(bdn_clone:)
+      self.info = profile.user_infos.build(final_attributes)
     end
 
     def load_address(attributes)

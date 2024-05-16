@@ -22,7 +22,8 @@ module SignIn
         code_challenge: decoded_jwt.code_challenge,
         client_state: decoded_jwt.client_state,
         code: decoded_jwt.code,
-        created_at: decoded_jwt.created_at
+        created_at: decoded_jwt.created_at,
+        scope: decoded_jwt.scope
       )
     end
 

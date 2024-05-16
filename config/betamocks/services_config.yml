@@ -19,8 +19,15 @@
       :response_delay: 0.3
     - :method: :post
       :path: "/veis/api/btsss/travelclaim/api/v1/Auth/access-token"
-      :file_path: "/travel_pay/token/default"
+      :file_path: "/travel_pay/btsss_token/default"
       :response_delay: 0.3
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1/claims/by-contact/*"
+      :file_path: "/travel_pay/claims"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/by-contact\/(.+)'
     - :method: :post
       :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/inquiries/new" %>
       :file_path: "/ask_va/crm_api/post_inquiries/default"

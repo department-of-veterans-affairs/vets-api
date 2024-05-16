@@ -69,12 +69,32 @@ RSpec.describe TermsOfUse::Provisioner do
     end
 
     context 'when agreement is signed' do
+      let(:agreement_signed) { true }
+      let(:cerner_provisioned) { true }
+
       before do
-        allow(service).to receive(:update_provisioning).and_return({ agreement_signed: true })
+        allow(service).to receive(:update_provisioning).and_return({ agreement_signed:, cerner_provisioned: })
       end
 
-      it 'returns true' do
-        expect(provisioner.perform).to eq(true)
+      context 'and account is not cerner provisionable' do
+        let(:cerner_provisioned) { false }
+        let(:expected_log) { '[TermsOfUse] [Provisioner] update_provisioning error' }
+        let(:service_response) { { agreement_signed:, cerner_provisioned: } }
+
+        before { allow(Rails.logger).to receive(:error) }
+
+        it 'raises and logs an error' do
+          expect { provisioner.perform }.to raise_error(TermsOfUse::Errors::ProvisionerError)
+          expect(Rails.logger).to have_received(:error).with(expected_log, { icn:, response: service_response })
+        end
+      end
+
+      context 'and account is cerner provisionable' do
+        let(:cerner_provisioned) { true }
+
+        it 'does not return error' do
+          expect { provisioner.perform }.not_to raise_error
+        end
       end
     end
 

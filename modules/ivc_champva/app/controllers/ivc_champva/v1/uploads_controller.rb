@@ -21,7 +21,7 @@ module IvcChampva
           parsed_form_data = JSON.parse(params.to_json)
           file_paths, metadata, attachment_ids = get_file_paths_and_metadata(parsed_form_data)
 
-          status, error_message = FileUploader.new(form_id, metadata, file_paths, attachment_ids).handle_uploads
+          status, error_message = FileUploader.new(form_id, metadata, file_paths, attachment_ids, true).handle_uploads
 
           render json: build_json(Array(status), error_message)
         rescue => e

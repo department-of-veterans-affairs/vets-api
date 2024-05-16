@@ -23,7 +23,9 @@ module IvcChampva
         'country' => @data.dig('veteran', 'mailing_address', 'country') || 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
-        'businessLine' => 'CMP'
+        'businessLine' => 'CMP',
+        'uuid' => @uuid,
+        'primaryContactInfo' => @data['primary_contact_info']
       }
     end
 
