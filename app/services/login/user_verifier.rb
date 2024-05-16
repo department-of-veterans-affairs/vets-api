@@ -96,13 +96,13 @@ module Login
     end
 
     def create_user_verification
-      validate_linked_user_verifications
       set_new_user_log
       verified_at = icn ? Time.zone.now : nil
       UserVerification.create!(type => identifier,
                                user_account: existing_user_account || UserAccount.new(icn:),
                                backing_idme_uuid:,
-                               verified_at:)
+                               verified_at:,
+                               locked: existing_user_account ? validate_linked_user_verifications : false)
     end
 
     def user_verification_needs_to_be_updated?
@@ -139,14 +139,14 @@ module Login
     end
 
     def validate_linked_user_verifications
-      return unless existing_user_account
-
       linked_user_verifications = UserVerification.where(user_account_id: existing_user_account.id)
       linked_user_verifications.each do |verification|
         next if verification.send(type).nil?
 
-        raise SignIn::Errors::CredentialLockedError.new(message: 'Credential is locked') if verification.locked
+        return true if verification.locked
       end
+
+      false
     end
 
     def existing_user_account

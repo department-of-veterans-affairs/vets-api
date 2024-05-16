@@ -299,9 +299,8 @@ RSpec.describe Login::UserVerifier do
               context 'and the linked user verification is locked' do
                 let(:locked) { true }
 
-                it 'raises credential locked error and does not create a new user verification' do
-                  expect { subject }.to raise_exception(SignIn::Errors::CredentialLockedError)
-                  expect(UserVerification.where(authn_identifier_type => authn_identifier).count).to eq 0
+                it 'creates a locked UserVerification object and logs the event' do
+                  expect(subject.locked).to eq(true)
                 end
               end
 
