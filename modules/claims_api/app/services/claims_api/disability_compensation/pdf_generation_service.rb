@@ -10,13 +10,13 @@ module ClaimsApi
 
       def generate(claim_id, middle_initial) # rubocop:disable Metrics/MethodLength
         log_service_progress(claim_id, 'pdf',
-        "526EZ PDF generator started for claim #{claim_id}")
-        
+                             "526EZ PDF generator started for claim #{claim_id}")
+
         auto_claim = get_claim(claim_id)
-        
+
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
-        
+
         mapped_claim = generate_mapped_claim(auto_claim, middle_initial)
         pdf_string = generate_526_pdf(mapped_claim)
 
@@ -49,12 +49,12 @@ module ClaimsApi
         log_service_progress(claim_id, 'pdf',
                              '526EZ PDF generator job finished')
 
-        return claim_id
+        claim_id
       end
 
       def generate_mapped_claim(auto_claim, middle_initial)
         pdf_mapper_service(auto_claim.form_data, get_pdf_data, auto_claim.auth_headers,
-        middle_initial, auto_claim.created_at).map_claim
+                           middle_initial, auto_claim.created_at).map_claim
       end
 
       private
