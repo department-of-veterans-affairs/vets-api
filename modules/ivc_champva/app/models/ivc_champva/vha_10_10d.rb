@@ -6,6 +6,7 @@ module IvcChampva
     include Attachments
 
     attribute :data
+    attr_reader :form_id
 
     def initialize(data)
       @data = data
