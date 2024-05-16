@@ -171,11 +171,10 @@ module SM
     #
     # @return [Common::Collection]
     #
-    def get_folder_threads(folder_id, page_size, page_number, sort_field, sort_order)
+    def get_folder_threads(folder_id, page_size, page_number, sort_field, sort_order, requires_oh_messages)
       path = "folder/threadlistview/#{folder_id}"
 
-      params = "?pageSize=#{page_size}&pageNumber=#{page_number}&sortField=#{sort_field}&sortOrder=#{sort_order}"
-
+      params = "?pageSize=#{page_size}&pageNumber=#{page_number}&sortField=#{sort_field}&sortOrder=#{sort_order}&requiresOHMessages=#{requires_oh_messages}"
       json = perform(:get, path + params, nil, token_headers).body
 
       Common::Collection.new(MessageThread, **json)
@@ -286,9 +285,11 @@ module SM
     # @param id [Fixnum] message id
     # @return [Common::Collection[MessageThread]]
     #
-    def get_messages_for_thread(id)
+    def get_messages_for_thread(id, requires_oh_messages)
       path = "message/#{id}/messagesforthread"
-      json = perform(:get, path, nil, token_headers).body
+      params = "?requiresOHMessages=#{requires_oh_messages}"
+
+      json = perform(:get, path + params, nil, token_headers).body
       Common::Collection.new(MessageThreadDetails, **json)
     end
 
@@ -298,9 +299,10 @@ module SM
     # @param id [Fixnum] message id
     # @return [Common::Collection[MessageThreadDetails]]
     #
-    def get_full_messages_for_thread(id)
+    def get_full_messages_for_thread(id, requires_oh_messages)
       path = "message/#{id}/allmessagesforthread/1"
-      json = perform(:get, path, nil, token_headers).body
+      params = "?requiresOHMessages=#{requires_oh_messages}"
+      json = perform(:get, path + params, nil, token_headers).body
       Common::Collection.new(MessageThreadDetails, **json)
     end
 
