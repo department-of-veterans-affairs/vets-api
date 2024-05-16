@@ -22,7 +22,7 @@ module ClaimsApi
         FORM_NUMBER = '526'
 
         skip_before_action :validate_json_format, only: [:attachments]
-        before_action :shared_validation, :file_number_check, only: %i[submit validate]
+        before_action :shared_validation, :file_number_check, only: %i[submit validate synchronous]
         before_action :edipi_check, only: %i[submit validate synchronous]
 
         before_action only: %i[generate_pdf] do

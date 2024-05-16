@@ -501,6 +501,10 @@ features:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
     enable_in_development: true
+  form526_send_document_upload_failure_notification:
+    actor_type: user
+    description: Enables enqueuing a Form526DocumentUploadFailureEmail if a EVSS::DisabilityCompensationForm::SubmitUploads job exhausts its retries
+    enable_in_development: true
   form0994_confirmation_email:
     actor_type: user
     description: Enables form 0994 email submission confirmation (VaNotify)
