@@ -280,7 +280,7 @@ RSpec.describe Login::UserVerifier do
           end
 
           context 'and user_account matching icn already exists' do
-            let!(:existing_user_account) { UserAccount.create!(icn:) }
+            let!(:existing_user_account) { UserAccount.create(icn:) }
 
             context 'and a linked user verification with the same CSP type exists' do
               let!(:linked_user_verification) do
@@ -305,8 +305,8 @@ RSpec.describe Login::UserVerifier do
               end
 
               context 'and the linked user verification is not locked' do
-                it 'does not raise credential locked error' do
-                  expect { subject }.not_to raise_exception(SignIn::Errors::CredentialLockedError)
+                it 'creates an unlocked UserVerification object' do
+                  expect(subject.locked).to eq(false)
                 end
               end
             end
