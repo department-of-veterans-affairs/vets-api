@@ -1504,6 +1504,7 @@ spec/models/prescription_spec.rb @department-of-veterans-affairs/vfs-mhv-medicat
 spec/models/prescription_details_spec.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/rate_limited_search_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/redis_caching_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/models/schema_contract @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/saml_request_tracker_spec.rb @department-of-veterans-affairs/octo-identity
 spec/models/saved_claim @department-of-veterans-affairs/Benefits-Team-1 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/session_spec.rb @department-of-veterans-affairs/octo-identity @department-of-veterans-affairs/octo-identity
