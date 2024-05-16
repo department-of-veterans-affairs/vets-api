@@ -46,7 +46,7 @@ describe IvcChampva::FileUploader do
       expect(uploader).to receive(:upload).with(
         "#{form_id}_metadata.json",
         meta_file_path,
-        attachment_ids:,
+        attachment_ids:
       ).and_return([200, nil])
       uploader.send(:generate_and_upload_meta_json)
     end
