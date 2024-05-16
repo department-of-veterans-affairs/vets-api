@@ -1579,7 +1579,7 @@ module PdfFill
         veteran_contact_information['veteran_address']['country_name'] =
           extract_country(veteran_contact_information['veteran_address'])
 
-        veteran_contact_information['electronic_correspondence'] = select_checkbox(veteran_contact_information['electronic_correspondence'])
+        veteran_contact_information['electronic_correspondence'] = select_checkbox(veteran_contact_information['electronic_correspondence']) # rubocop:disable Layout/LineLength
       end
 
       def merge_spouse_helpers
@@ -1609,7 +1609,7 @@ module PdfFill
           'is_veteran_yes' => select_radio_button(is_veteran),
           'is_veteran_no' => select_radio_button(!is_veteran)
         }
-        
+
         expand_marriage_info
         expand_does_live_with_spouse
       end
