@@ -4028,7 +4028,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
       it 'returns a 401 unauthorized with incorrect scopes' do
         mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
-          post synchronous_path, params: {}.to_json, headers: auth_header
+          post synchronous_path, params: data, headers: auth_header
 
           expect(response).to have_http_status(:unauthorized)
         end
@@ -4036,10 +4036,12 @@ RSpec.describe 'Disability Claims', type: :request do
 
       it 'returns a 202 when the s3 upload is mocked' do
         with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
-          mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
-            post synchronous_path, params: {}.to_json, headers: auth_header
+          VCR.use_cassette('claims_api/disability_comp') do
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+              post synchronous_path, params: data, headers: auth_header
 
-            expect(response).to have_http_status(:accepted)
+              expect(response).to have_http_status(:accepted)
+            end
           end
         end
       end

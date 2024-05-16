@@ -51,6 +51,27 @@ module ClaimsApi
         log_service_progress(claim_id, 'pdf',
                              '526EZ PDF generator job finished')
       end
+
+      private
+
+      def pdf_mapper_service(form_data, pdf_data, auth_headers, middle_initial, created_at)
+        ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_data, pdf_data, auth_headers, middle_initial,
+                                                           created_at)
+      end
+
+      # Docker container wants data: but not attributes:
+      def generate_526_pdf(mapped_data)
+        pdf = get_pdf_data
+        pdf[:data] = mapped_data[:data][:attributes]
+        client = PDFClient.new(pdf)
+        client.generate_pdf
+      end
+
+      def get_pdf_data
+        {
+          data: {}
+        }
+      end
     end
   end
 end
