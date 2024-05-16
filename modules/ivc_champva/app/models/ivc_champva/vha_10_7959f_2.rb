@@ -6,6 +6,7 @@ module IvcChampva
     include Attachments
 
     attribute :data
+    attr_reader :form_id
 
     def initialize(data)
       @data = data
@@ -24,7 +25,8 @@ module IvcChampva
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP',
-        'uuid' => @uuid
+        'uuid' => @uuid,
+        'primaryContactInfo' => @data['primary_contact_info']
       }
     end
 

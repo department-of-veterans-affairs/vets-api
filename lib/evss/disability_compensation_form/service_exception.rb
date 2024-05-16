@@ -34,6 +34,7 @@ module EVSS
         veteran: 'common.exceptions.validation_errors',
         MaxEPCode: 'evss.disability_compensation_form.max_ep_code',
         PIFInUse: 'evss.disability_compensation_form.pif_in_use',
+        refdataservice: 'refdataservice.errorResponse',
         default: 'evss.unmapped_service_exception'
       }.freeze
 
@@ -43,7 +44,8 @@ module EVSS
       def retryable?
         (@key == 'evss.external_service_unavailable' && only_has_retriable_message_texts?) ||
           (@key == 'evss.disability_compensation_form.pif_in_use') ||
-          (@key == 'evss.disability_compensation_form.ws_client_exception')
+          (@key == 'evss.disability_compensation_form.ws_client_exception') ||
+          (@key == 'refdataservice.errorResponse' && refdataservice_unreachable?)
       end
 
       def errors
@@ -58,6 +60,14 @@ module EVSS
 
       def only_has_retriable_message_texts?
         @messages.none? { |msg| msg['text'].include?('EP Code is not valid') }
+      end
+
+      def refdataservice_unreachable?
+        texts = [
+          'Reference Data Service was unable to verify',
+          'Reference Data Service is unavailable to verify'
+        ]
+        @messages.all? { |msg| texts.include?(msg['text']) }
       end
 
       def i18n_key

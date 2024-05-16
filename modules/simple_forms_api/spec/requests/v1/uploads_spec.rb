@@ -8,6 +8,7 @@ RSpec.describe 'Forms uploader', type: :request do
   forms = [
     # TODO: Restore this test when we release 26-4555 to production.
     # 'vba_26_4555.json',
+    'vba_21_4138.json',
     'vba_21_4142.json',
     'vba_21_10210.json',
     'vba_21p_0847.json',
