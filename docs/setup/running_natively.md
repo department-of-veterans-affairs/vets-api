@@ -19,13 +19,6 @@ if Rails.env.development?
 ### Options
 #### Option 1: Run ONLY clamav via Docker
 
-You can either run:
-`docker-compose -f docker-compose-clamav.yml up` - this will run ONLY clamav via docker
-
-After that, follow the native instructions and run `foreman start -m all=1`
-
-#### Option 2: [See hybrid setup](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/docs/setup/hybrid.md)
-
 ### Running tests
 
 - `bundle exec rake spec` - Run the entire test suite  ( for `rspec spec`). Test coverage statistics are in `coverage/index.html`.
@@ -45,3 +38,48 @@ After that, follow the native instructions and run `foreman start -m all=1`
 ### Running a rails interactive console
 
 - `rails console` -  runs an IRB like REPL in which all of the API's classes and environmental variables have been loaded.
+
+### Running with ClamAV
+
+#### Run with ClamAV containers (recommended)
+
+1. In `settings.local.yml` turn mocking off:
+```
+clamav:
+  mock: false
+  host: '0.0.0.0'
+  port: '33100'
+```
+
+1. In another terminal window, navigate to the project directory and run 
+```
+docker-compose -f docker-compose-clamav.yml up
+```
+
+1. In the original terminal run the following command
+```
+foreman start -m all=1,clamd=0,freshclam=0
+```
+
+This overrides any configurations that utilize the daemon socket
+
+#### Run with ClamAV daemon
+
+1. In `settings.local.yml` turn mocking off and make sure the host and port are removed:
+```
+clamav:
+  mock: false
+```
+
+1. Uncomment socket env var in `config/initializers/clamav.rb`
+
+```
+ENV['CLAMD_UNIX_SOCKET'] = '/usr/local/etc/clamav/clamd.sock'
+```
+
+*Note you will need to comment this line out before pushing to GitHub*
+
+1. In terminal run the following command
+```
+foreman start -m all=1
+```

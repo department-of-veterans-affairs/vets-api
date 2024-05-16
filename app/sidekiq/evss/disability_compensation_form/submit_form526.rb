@@ -5,6 +5,7 @@ require 'evss/disability_compensation_form/gateway_timeout'
 require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
 require 'sentry_logging'
 require 'logging/third_party_transaction'
+require 'sidekiq/form526_job_status_tracker/job_tracker'
 
 module EVSS
   module DisabilityCompensationForm
@@ -58,6 +59,7 @@ module EVSS
 
         # if no more unused birls to attempt submit with, give up, let vet know
         begin
+          submission.fail_primary_delivery!
           notify_enabled = Flipper.enabled?(:disability_compensation_pif_fail_notification)
           if submission && next_birls_jid.nil? && msg['error_message'] == 'PIF in use' && notify_enabled
             first_name = submission.get_first_name&.capitalize || 'Sir or Madam'
@@ -99,9 +101,13 @@ module EVSS
             return
           end
 
+          user_account = UserAccount.find_by(id: submission.user_account_id) ||
+                         Account.find_by(idme_uuid: submission.user_uuid)
+
+          user = OpenStruct.new({ user_account_uuid: user_account.id, flipper_id: user_account.id })
           begin
             # send submission data to either EVSS or Lighthouse (LH)
-            response = if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration)
+            response = if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration, user)
                          # submit 526 through LH API
                          # 1. get user's ICN
                          user_account = UserAccount.find_by(id: submission.user_account_id) ||
@@ -114,8 +120,14 @@ module EVSS
                          service = BenefitsClaims::Service.new(icn)
                          raw_response = service.submit526(body)
                          # 4. convert LH raw response to a FormSubmitResponse for further processing (claim_id, status)
+                         # JSON.parse when it matters to get the claim id
+                         # something like response_json = JSON.parse(raw_response.body)
                          raw_response_struct = OpenStruct.new({
-                                                                body: { claim_id: raw_response.body },
+                                                                # TODO: for now, set claim id to unix time stamp.
+                                                                # When the lighthouse synchronous
+                                                                # submit response is ready,
+                                                                # switch to VBMS claim id.
+                                                                body: { claim_id: Time.now.to_i },
                                                                 status: raw_response.status
                                                               })
                          EVSS::DisabilityCompensationForm::FormSubmitResponse
@@ -143,6 +155,7 @@ module EVSS
 
       def response_handler(response)
         submission.submitted_claim_id = response.claim_id
+        submission.deliver_to_primary!
         submission.save
       end
 
@@ -163,6 +176,7 @@ module EVSS
         # retry submitting the form for specific upstream errors
         retry_form526_error_handler!(submission, e)
       rescue => e
+        submission.fail_primary_delivery!
         non_retryable_error_handler(submission, e)
       end
 

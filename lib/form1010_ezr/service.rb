@@ -48,6 +48,9 @@ module Form1010Ezr
 
     # @param [HashWithIndifferentAccess] parsed_form JSON form data
     def submit_form(parsed_form)
+      # Log the 'veteranDateOfBirth' to ensure the frontend validation is working as intended
+      # REMOVE THE FOLLOWING TWO LINES OF CODE ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
+      @unprocessed_user_dob = parsed_form['veteranDateOfBirth'].clone
       parsed_form = configure_and_validate_form(parsed_form)
 
       if Flipper.enabled?(:ezr_async, @user)
@@ -92,6 +95,14 @@ module Form1010Ezr
       validation_errors = JSON::Validator.fully_validate(schema, parsed_form)
 
       if validation_errors.present?
+        # REMOVE THE FOLLOWING SIX LINES OF CODE ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
+        if validation_errors.find { |error| error.include?('veteranDateOfBirth') }.present?
+          PersonalInformationLog.create!(
+            data: @unprocessed_user_dob,
+            error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure"
+          )
+        end
+
         log_validation_errors(parsed_form)
 
         Rails.logger.error('10-10EZR form validation failed. Form does not match schema.')
@@ -107,8 +118,36 @@ module Form1010Ezr
       parsed_form.merge!(required_fields)
     end
 
-    def configure_and_validate_form(parsed_form)
+    # Due to issues with receiving submissions that do not include the Veteran's DOB, we'll
+    # try to add it in before we validate the form
+    def post_fill_veteran_date_of_birth(parsed_form)
+      return if parsed_form['veteranDateOfBirth'].present?
+
+      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.missing_date_of_birth")
+
+      parsed_form['veteranDateOfBirth'] = @user.birth_date
+      parsed_form
+    end
+
+    # Due to issues with receiving submissions that do not include the Veteran's full name, we'll
+    # try to add it in before we validate the form
+    def post_fill_veteran_full_name(parsed_form)
+      return if parsed_form['veteranFullName'].present?
+
+      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.missing_full_name")
+
+      parsed_form['veteranFullName'] = @user.full_name_normalized&.stringify_keys
+      parsed_form
+    end
+
+    def post_fill_fields(parsed_form)
       post_fill_required_fields(parsed_form)
+      post_fill_veteran_full_name(parsed_form)
+      post_fill_veteran_date_of_birth(parsed_form)
+    end
+
+    def configure_and_validate_form(parsed_form)
+      post_fill_fields(parsed_form)
       validate_form(parsed_form)
       # Due to overriding the JSON form schema, we need to do so after the form has been validated
       override_parsed_form(parsed_form)

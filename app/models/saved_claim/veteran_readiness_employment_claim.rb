@@ -111,31 +111,31 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_to_vre(user)
-    if user&.participant_id.blank?
-      log_message_to_sentry('Participant id is blank when submitting VRE claim', :warn)
-      send_to_central_mail!(user)
-    else
+    if user&.participant_id
       begin
         upload_to_vbms
         send_vbms_confirmation_email(user)
-      rescue => e
-        log_message_to_sentry('Error uploading VRE claim to VBMS', :warn, { uuid: user.uuid })
-        log_exception_to_sentry(e, { uuid: user.uuid })
+      rescue
+        log_message_to_sentry('Error uploading VRE claim to VBMS. Now attempting to upload claim to central mail...',
+                              :warn, { uuid: user.uuid })
         begin
           send_to_central_mail!(user)
         rescue => e
           log_message_to_sentry('Error uploading VRE claim to central mail after failure uploading claim to vbms',
-                                :warn, { uuid: user.uuid })
+                                :error, { uuid: user.uuid })
           log_exception_to_sentry(e, { uuid: user.uuid })
         end
       end
+    else
+      log_message_to_sentry('Participant id is blank when submitting VRE claim', :warn)
+      send_to_central_mail!(user)
     end
 
     send_vre_email_form(user)
   end
 
   def upload_to_vbms(doc_type: '1167')
-    form_path = PdfFill::Filler.fill_form(self)
+    form_path = PdfFill::Filler.fill_form(self, nil, { created_at: })
 
     uploader = ClaimsApi::VBMSUploader.new(
       filepath: Rails.root.join(form_path),
@@ -148,6 +148,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     end
   end
 
+  def to_pdf(file_name = nil)
+    PdfFill::Filler.fill_form(self, file_name, { created_at: })
+  end
+
   def send_to_central_mail!(user)
     form_copy = parsed_form.clone
 
@@ -156,7 +160,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     form_copy['vaFileNumber'] = parsed_form.dig('veteranInformation', 'VAFileNumber')
 
     update!(form: form_copy.to_json)
-
     log_message_to_sentry(guid, :warn, { attachment_id: guid }, { team: 'vfs-ebenefits' })
     @sent_to_cmp = true
     log_to_statsd('cmp') do
@@ -223,7 +226,11 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
 
-    CentralMail::SubmitSavedClaimJob.new.perform(id)
+    Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
+  end
+
+  def business_line
+    'VRE'
   end
 
   private

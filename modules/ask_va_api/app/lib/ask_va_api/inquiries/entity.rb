@@ -18,19 +18,19 @@ module AskVAApi
                   :veteran_relationship
 
       def initialize(info, correspondences = nil)
-        @id = info[:id]
-        @inquiry_number = info[:inquiryNumber]
-        @attachments = info[:attachmentNames]
+        @id = info[:Id]
+        @inquiry_number = info[:InquiryNumber]
+        @attachments = info[:AttachmentNames]
         @correspondences = correspondences
-        @has_attachments = info[:inquiryHasAttachments]
-        @has_been_split = info[:inquiryHasBeenSplit]
-        @level_of_authentication = info[:inquiryLevelOfAuthentication]
-        @last_update = info[:lastUpdate]
-        @status = info[:inquiryStatus]
-        @school_facility_code = info[:schoolFacilityCode]
-        @submitter_question = info[:submitterQuestion]
-        @topic = info[:inquiryTopic]
-        @veteran_relationship = info[:veteranRelationship]
+        @has_attachments = info[:InquiryHasAttachments]
+        @has_been_split = info[:InquiryHasBeenSplit]
+        @level_of_authentication = info[:InquiryLevelOfAuthentication]
+        @last_update = info[:LastUpdate]
+        @status = info[:InquiryStatus]
+        @school_facility_code = info[:SchoolFacilityCode]
+        @submitter_question = info[:SubmitterQuestion]
+        @topic = info[:InquiryTopic]
+        @veteran_relationship = info[:VeteranRelationship]
       end
     end
   end

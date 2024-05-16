@@ -1,5 +1,5 @@
 {
-    "form_number": "40-10007",
+  "application": {
     "preneed_attachments": [
       {
         "name": "123.jpeg",
@@ -7,142 +7,135 @@
         "confirmation_code": "a-random-uuid"
       }
     ],
-    "application": {
-      "applicant": {
-        "currently_buried_persons": [
-          {
-            "name": {
-              "first": "is",
-              "last": "deceased"
-            }
-          },
-          {
-            "name": {
-              "first": "is also",
-              "last": "deceased"
-            }
-          }
-        ],
-        "applicant_relationship_to_claimant": "Authorized Agent/Rep",
+    "applicant": {
+      "applicant_relationship_to_claimant": "Self",
+      "mailing_address": {
+        "street": "123 Elm St",
+        "street2": "APT 2B",
+        "city": "Springwood",
+        "country": "USA",
+        "state": "OH",
+        "postal_code": "23432"
+      },
+      "name": {
+        "first": "john",
+        "last": "stockton"
+      },
+      "applicant_phone_number": "3125555678"
+    },
+    "currently_buried_persons": [
+      {
+        "name": {
+          "first": "Ben",
+          "last": "Fitz"
+        }
+      },
+      {
+        "name": {
+          "first": "Ben",
+          "last": "Fitz"
+        }
+      },
+      {
         "name": {
           "first": "Freddy",
-          "middle": "John",
-          "last": "Krueger",
-          "suffix": "Sr.",
-          "maiden": "kgyif1iimq"
-        },
-        "mailing_address": {
-          "street": "123 Elm St",
-          "street2": "APT 2B",
-          "city": "Springwood",
-          "country": "USA",
-          "state": "OH",
-          "postal_code": "23432"
-        },
-        "applicant_phone_number": "3125555678",
-        "applicant_email": "test@test.com"
+          "last": "Kruger"
+        }
       },
-      "veteran": {
-        "address": {
-          "street": "123 Elm St",
-          "street2": "APT 2B",
-          "city": "Springwood",
-          "country": "USA",
-          "state": "OH",
-          "postal_code": "23432"
-        },
-        "service_name": {
-          "first": "Todd",
-          "middle": "John",
-          "last": "Peterson",
-          "suffix": "Jr."
-        },
-        "service_records": [
-          {
-            "date_range": {
-              "from": "1990-01-01",
-              "to": "2000-01-01"
-            },
-            "service_branch": "AL",
-            "discharge_type": "2",
-            "highest_rank": "General",
-            "national_guard_state": "IL"
-          },
-          {
-            "date_range": {
-              "from": "1990-01-01",
-              "to": "2000-01-01"
-            },
-            "service_branch": "CL",
-            "discharge_type": "2",
-            "highest_rank": "Private",
-            "national_guard_state": "IL"
-          },
-          {
-            "date_range": {
-              "from": "1990-01-01",
-              "to": "2000-01-01"
-            },
-            "service_branch": "NL",
-            "discharge_type": "2",
-            "highest_rank": "Captain",
-            "national_guard_state": "IL"
-          }
-        ],
-        "military_service_number": "RA1234567",
-        "va_claim_number": "234343456",
-        "military_status": "A",
-        "date_of_death": "2001-01-01",
-        "is_deceased": "yes",
-        "gender": "Female",
-        "race": {
-          "is_american_indian_or_alaskan_native": true,
-          "is_asian": true,
-          "is_black_or_african_american": true,
-          "is_spanish_hispanic_latino": true,
-          "not_spanish_hispanic_latino": true,
-          "is_native_hawaiian_or_other_pacific_islander": true,
-          "is_white": true
-        },
-        "marital_status": "Divorced",
-        "current_name": {
-          "first": "Ben",
-          "middle": "E",
-          "last": "Fitz",
-          "suffix": "Jr.",
-          "maiden": "sample"
-        },
-        "ssn": "234-34-3456",
-        "date_of_birth": "1991-01-01",
-        "place_of_birth": "Springwood"
-      },
-      "claimant": {
-        "desired_cemetery": {
-          "id": "122",
-          "label": "FOREST HOME CEMETERY",
-          "widget": "autosuggest"
-        },
-        "address": {
-          "street": "123 Elm St",
-          "street2": "APT 2B",
-          "city": "Springwood",
-          "country": "USA",
-          "state": "OH",
-          "postal_code": "23432"
-        },
-        "phone_number": "3125555678",
-        "email": "test@test.com",
+      {
         "name": {
-          "first": "Jason",
-          "middle": "John",
-          "last": "Kruger",
-          "suffix": "Sr.",
-          "maiden": "kgyif1iimq"
-        },
-        "ssn": "987-87-8765",
-        "date_of_birth": "1990-02-01",
-        "relationship_to_vet": "2"
+          "first": "Ben",
+          "last": "Fitz"
+        }
+      }
+    ],
+    "claimant": {
+      "desired_cemetery": "915",
+      "address": {
+        "street": "123 Elm St",
+        "street2": "APT 2B",
+        "city": "Springwood",
+        "country": "USA",
+        "state": "OH",
+        "postal_code": "23432"
       },
-      "has_currently_buried": "3"
+      "phone_number": "3125555678",
+      "email": "test@test.com",
+      "name": {
+        "first": "Lee",
+        "middle": "Ishmael Bender",
+        "last": "Gordon",
+        "suffix": "IV",
+        "maiden": "Uriel Benjamin"
+      },
+      "ssn": "134-51-2996",
+      "date_of_birth": "2016-10-27",
+      "relationship_to_vet": "2"
+    },
+    "has_currently_buried": "2",
+    "veteran": {
+      "service_records": [
+        {
+          "date_range": {
+            "from": "1990-01-01",
+            "to": "2000-02-03"
+          },
+          "service_branch": "CV",
+          "discharge_type": "1",
+          "highest_rank": "Lord Commander of a"
+        },
+        {
+          "date_range": {
+            "from": "1990-01-01",
+            "to": "2000-02-03"
+          },
+          "service_branch": "AR",
+          "discharge_type": "3",
+          "highest_rank": "Lord Commander of b"
+        },
+        {
+          "date_range": {
+            "from": "1990-01-01",
+            "to": "2000-02-03"
+          },
+          "service_branch": "CI",
+          "discharge_type": "4",
+          "highest_rank": "Lord Commander of c"
+        }
+      ],
+      "address": {
+        "street": "123 Elm St",
+        "street2": "APT 2B",
+        "city": "Springwood",
+        "country": "CAN",
+        "state": "OH",
+        "postal_code": "23432"
+      },
+      "is_deceased": "Yes",
+      "military_status": "S",
+      "date_of_birth": "2016-10-27",
+      "current_name": {
+        "first": "Quinlan",
+        "middle": "Tucker Strong",
+        "last": "Short",
+        "suffix": "III",
+        "maiden": "Quin Solis"
+      },
+      "ssn": "234-34-3456",
+      "gender": "Male",
+      "race": {
+        "is_asian": true
+      },
+      "service_name": {
+        "first": "Quinlan",
+        "middle": "Tucker Strong",
+        "last": "Short",
+        "suffix": "III"
+      },
+      "marital_status": "Divorced",
+      "place_of_birth": "Adipisci et numquam anim sit odio dolore velit molestiae soluta sit voluptatem doloremque"
     }
-  }
+  },
+  "privacy_agreement_accepted": true,
+  "form_number": "40-10007"
+}

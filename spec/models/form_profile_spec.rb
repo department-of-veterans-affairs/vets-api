@@ -659,7 +659,6 @@ RSpec.describe FormProfile, type: :model do
         'country' => user.address[:country],
         'postal_code' => user.address[:postal_code][0..4]
       },
-      'gender' => user.gender,
       'veteranSocialSecurityNumber' => user.ssn,
       'veteranDateOfBirth' => user.birth_date
     }
@@ -847,6 +846,30 @@ RSpec.describe FormProfile, type: :model do
   end
 
   let(:v26_4555_expected) do
+    {
+      'veteran' => {
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dateOfBirth' => '1809-02-12',
+        'homePhone' => '14445551212',
+        'email' => user.pciu_email,
+        'address' => {
+          'street' => street_check[:street],
+          'street2' => street_check[:street2],
+          'city' => user.address[:city],
+          'state' => user.address[:state],
+          'country' => user.address[:country],
+          'postal_code' => user.address[:postal_code][0..4]
+        }
+      }
+    }
+  end
+
+  let(:v21_0966_expected) do
     {
       'veteran' => {
         'fullName' => {
@@ -1790,6 +1813,22 @@ RSpec.describe FormProfile, type: :model do
         )
         instance1.prefill
         instance2.prefill
+      end
+    end
+
+    context '10-7959F-1 form profile instances' do
+      let(:instance) { FormProfile.new(form_id: '10-7959F-1', user:) }
+
+      it 'loads the yaml file only once' do
+        expect(YAML).to receive(:load_file).once.and_return(
+          'veteranFullName' => %w[identity_information full_name],
+          'veteranAddress' => %w[contact_information address],
+          'veteranSocialSecurityNumber' => %w[identity_information ssn],
+          'veteranPhoneNumber' => %w[contact_information us_phone],
+          'veteranEmailAddress' => %w[contact_information email],
+          'veteranPhysicalAddress' => %w[form_address]
+        )
+        instance.prefill
       end
     end
   end

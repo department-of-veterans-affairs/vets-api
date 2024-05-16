@@ -21,6 +21,10 @@ module ClaimsApi
       skip_before_action :verify_authenticity_token
       skip_after_action :set_csrf_header
       before_action :authenticate, except: %i[schema]
+      before_action { permit_scopes %w[system/claim.read] if request.get? }
+      before_action except: %i[generate_pdf] do
+        permit_scopes %w[system/claim.write] if request.post? || request.put?
+      end
 
       def schema
         render json: { data: [ClaimsApi::FormSchemas.new(schema_version: 'v2').schemas[self.class::FORM_NUMBER]] }
@@ -99,6 +103,14 @@ module ClaimsApi
 
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
             "Unable to locate Veteran's 'File Number' in Master Person Index (MPI). " \
+            'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
+        end
+      end
+
+      def edipi_check
+        if target_veteran.edipi.blank?
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail:
+            "Unable to locate Veteran's EDIPI in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
       end

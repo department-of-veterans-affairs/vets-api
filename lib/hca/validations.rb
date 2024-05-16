@@ -37,7 +37,7 @@ module HCA
     def parse_short_date(date_string)
       return '' if date_string.blank?
 
-      DateTime.strptime(date_string, '%Y-%m-XX').strftime('%m/%Y')
+      date_string.split('-').excluding('XX').reverse.join('/')
     end
 
     def date_of_birth(input_dob)

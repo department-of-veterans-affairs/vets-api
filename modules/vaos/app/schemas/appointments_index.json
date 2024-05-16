@@ -1,0 +1,405 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "type": "object",
+  "required": [
+    "data"
+  ],
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "identifier",
+          "kind",
+          "cancellable"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "identifier": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "system",
+                "value"
+              ],
+              "properties": {
+                "system": { "type": "string" },
+                "value": { "type": "string" }
+              }
+            }
+          },
+          "kind": {
+            "type": "string",
+            "enum": ["clinic", "cc", "telehealth", "phone"]
+          },
+          "status": {
+            "type": ["string"],
+            "enum": ["proposed", "pending", "booked", "arrived", "noshow", "fulfilled", "cancelled", "entered-in-error", "checked-in"]
+          },
+          "service_type": { "type": "string" },
+          "service_types": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "coding": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "system": { "type": "string" },
+                      "code": { "type": "string" },
+                      "display": { "type": "string" }
+                    }
+                  }
+                },
+                "text": { "type": "string" }
+              }
+            }
+          },
+          "service_category": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "coding": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "system": { "type": "string" },
+                      "code": { "type": "string" },
+                      "display": { "type": "string" }
+                    }
+                  }
+                },
+                "text": { "type": "string" }
+              }
+            }
+          },
+          "reason_code": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "coding": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "system": { "type": "string" },
+                    "code": { "type": "string" },
+                    "display": { "type": "string" }
+                  }
+                }
+              },
+              "text": { "type": "string" }
+            }
+          },
+          "description": { "type": "string" },
+          "priority": { "type": "number" },
+          "patient_icn": { "type": "string" },
+          "location_id": { "type": "string" },
+          "clinic": { "type": "string" },
+          "practitioner_ids": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [ "system", "type" ],
+              "properties": {
+                "system": { "type": "string" },
+                "type": { "type": "string" }
+              }
+            }
+          },
+          "practitioners": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "identifier": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["system", "value"],
+                    "properties": {
+                      "system": { "type": "string" },
+                      "value": { "type": ["string", "null"] }
+                    }
+                  }
+                },
+                "name": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "family": {"type": "string"},
+                    "given": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    }
+                  }
+                },
+                "practice_name": { "type": "string" },
+                "address": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["postal", "physical", "both"]
+                    },
+                    "line": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "city": { "type": "string" },
+                    "state": { "type": "string" },
+                    "postal_code": { "type": "string" },
+                    "country": { "type": "string" },
+                    "text": { "type": "string" }
+                  }
+                },
+                "first_name": { "type": "string" },
+                "last_name": { "type": "string" }
+              }
+            }
+          },
+          "reason": { "type": "string" },
+          "start": { "type": "string" },
+          "end": { "type": "string" },
+          "minutes_duration": { "type": "integer" },
+          "slot": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string" },
+              "start": { "type": "string" },
+              "end": { "type": "string" }
+            }
+          },
+          "created": { "type": "string" },
+          "requested_periods": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "start": { "type": "string" },
+                "end": { "type": "string" }
+              }
+            }
+          },
+          "contact": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "telecom": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [ "email", "phone"]
+                    },
+                    "value": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "preferred_times_for_phone_call": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["Morning", "Afternoon", "Evening"]
+            }
+          },
+          "preferred_location": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "city": { "type": "string" },
+              "state": { "type": "string" }
+            }
+          },
+          "cancelation_reason": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "coding": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "system": { "type": "string" },
+                    "code": { "type": "string" },
+                    "display": { "type": "string" }
+                  }
+                }
+              },
+              "text": { "type": "string" }
+            }
+          },
+          "cancellation_reason": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "system": { "type": "string" },
+              "code": { "type": "string" },
+              "display": { "type": "string" }
+            }
+          },
+          "comment": { "type": "string" },
+          "preferred_language": { "type": "string" },
+          "cancellable": { "type": "boolean" },
+          "patient_instruction": { "type": "string" },
+          "telehealth": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": { "type": "string" },
+              "atlas": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "site_code": { "type": "string" },
+                  "confirmation_code": { "type": "string" },
+                  "address": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "street_address": { "type": "string" },
+                      "city": { "type": "string" },
+                      "state": { "type": "string" },
+                      "zip_code": { "type": "string" },
+                      "country": { "type": "string" },
+                      "latitutde": { "type": "number" },
+                      "longitude": { "type": "number" },
+                      "additional_details": { "type": "string" }
+                    }
+                  }
+                }
+              },
+              "group": { "type": "boolean" },
+              "vvs_kind": { "type": "string" }
+            }
+          },
+          "extension": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "desired_date": {
+                "type": "string"
+              },
+              "cc_location": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "address": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["postal", "physical", "both"]
+                      },
+                      "line": {
+                        "type": "array",
+                        "items": { "type": "string" }
+                      },
+                      "city": { "type": "string" },
+                      "state": { "type": "string" },
+                      "postal_code": { "type": "string" },
+                      "country": { "type": "string" },
+                      "text": { "type": "string" }
+                    }
+                  },
+                  "telecom": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "system": {
+                          "type": "string",
+                          "enum": ["email", "phone"]
+                        },
+                        "value": { "type": "string" }
+                      }
+                    }
+                  },
+                  "practice_name": { "type": "string" }
+                }
+              },
+              "cc_requested_cancellation": { "type": "boolean" },
+              "hsrm_task_id": { "type": "string" },
+              "hsrm_consult_id": { "type": "string" },
+              "vista_status": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "cc_treating_specialty": { "type": "string" },
+              "modality": { "type": "string" },
+              "patient_has_mobile_gfe": { "type": "boolean" },
+              "pre_checkin_allowed": { "type": "boolean" },
+              "e_checkin_allowed": { "type": "boolean" },
+              "clinic": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "vista_site": {
+                    "type": "integer",
+                    "maxLength": 3,
+                    "minLength": 3
+                  },
+                  "id": { "type": "string" },
+                  "service_name": { "type": "string" },
+                  "physical_location": { "type": "string" },
+                  "phone_number": { "type": "string" },
+                  "station_id": { "type": "string" },
+                  "station_name": { "type": "string" },
+                  "primary_stop_code": {
+                    "type": "integer",
+                    "maxLength": 3,
+                    "minLength": 3
+                   },
+                   "primary_stop_code_name": { "type": "string" },
+                   "secondary_stop_code": {
+                    "type": "integer",
+                    "maxLength": 3,
+                    "minLength": 3
+                   },
+                   "secondary_stop_code_name": { "type": "string" },
+                   "patient_direct_scheduling": { "type": "boolean" },
+                   "patient_display": { "type": "boolean" },
+                   "char4": { "type": "string" },
+                   "active": { "type": "boolean" },
+                   "non_count": { "type": "boolean" },
+                   "future_booking_maximum_days": { "type": "integer" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

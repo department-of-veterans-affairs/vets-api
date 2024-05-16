@@ -32,7 +32,7 @@ RSpec.describe CentralMail::DatestampPdf do
       it 'adds text with a datestamp at the given location' do
         Timecop.travel(Time.zone.local(1999, 12, 31, 23, 59, 59)) do
           out_path = instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
-          assert_pdf_stamp(out_path, 'Received via vets.gov at 1999-12-31. Confirmation=VETS-XX-1234')
+          assert_pdf_stamp(out_path, 'Received via vets.gov at 1999-12-31 11:59 PM UTC. Confirmation=VETS-XX-1234')
         end
       end
 
@@ -42,6 +42,22 @@ RSpec.describe CentralMail::DatestampPdf do
                                 template: './lib/pdf_fill/forms/pdfs/686C-674.pdf', multistamp: true)
         pdf_reader = PDF::Reader.new(out_path)
         expect(pdf_reader.pages[0].text).to eq('Received via vets.gov')
+        File.delete(out_path)
+      end
+
+      it 'adds text with a datestamp for all forms except 40-10007 with expected formatting' do
+        out_path = instance.run(text: 'Received via vets.gov', x: 10, y: 10, timestamp: Time.zone.local(2024, 1, 30))
+        pdf_reader = PDF::Reader.new(out_path)
+        expect(pdf_reader.pages[0].text).to eq('Received via vets.gov 2024-01-30 12:00 AM UTC. Confirmation=VETS-XX-1234') # rubocop:disable Layout/LineLength
+        File.delete(out_path)
+      end
+
+      it 'adds text with a datestamp for form 40-10007 with expected formatting' do
+        @file_path = 'tmp/vba_40_10007-stamped.pdf'
+        Prawn::Document.new.render_file @file_path
+        out_path = instance.run(text: 'Received via vets.gov', x: 10, y: 10, timestamp: Time.zone.local(2024, 1, 30))
+        pdf_reader = PDF::Reader.new(out_path)
+        expect(pdf_reader.pages[0].text).to eq('Received via vets.gov 01/30/2024. Confirmation=VETS-XX-1234')
         File.delete(out_path)
       end
 

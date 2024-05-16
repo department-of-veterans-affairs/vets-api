@@ -48,11 +48,24 @@ module ClaimsApi
       auto_claim.save!
     end
 
+    def set_evss_response(auto_claim, error)
+      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+      auto_claim.save!
+
+      auto_claim.evss_response = error&.original_body
+
+      save_auto_claim!(auto_claim, auto_claim.status)
+    end
+
     def get_error_message(error)
       if error.respond_to? :original_body
         error.original_body
       elsif error.respond_to? :message
         error.message
+      elsif error.respond_to? :errors
+        error.errors
+      elsif error.respond_to? :detailed_message
+        error.detailed_message
       else
         error
       end
@@ -61,13 +74,14 @@ module ClaimsApi
     def get_error_key(error_message)
       return error_message if error_message.is_a? String
 
-      error_message.dig(:messages, 0, :key) || error_message
+      error_message&.dig(:messages, 0, :key) || error_message&.dig(:key)
     end
 
     def get_error_text(error_message)
       return error_message if error_message.is_a? String
 
-      error_message.dig(:messages, 0, :text) || error_message
+      error_message&.dig(:messages, 0, :text) || error_message&.dig(:text) ||
+        error_message&.dig(:message) || error_message&.dig(:detail)
     end
 
     def get_error_status_code(error)
@@ -86,13 +100,14 @@ module ClaimsApi
       end
     end
 
-    def will_retry?(error)
-      msg = if error.respond_to? :original_body
+    def will_retry?(auto_claim, error)
+      msg = if auto_claim.evss_response.present?
+              auto_claim.evss_response&.dig(0, 'key')
+            elsif error.respond_to? :original_body
               get_error_key(error.original_body)
             else
               ''
             end
-
       # If there is a match return false because we will not retry
       NO_RETRY_ERROR_CODES.exclude?(msg)
     end
@@ -122,6 +137,14 @@ module ClaimsApi
       ClaimsApi::Logger.log(self.class::LOG_TAG,
                             claim_id:,
                             detail:)
+    end
+
+    def extract_poa_code(poa_form_data)
+      if poa_form_data.key?('serviceOrganization')
+        poa_form_data['serviceOrganization']['poaCode']
+      elsif poa_form_data.key?('representative') # V2 2122a
+        poa_form_data['representative']['poaCode']
+      end
     end
   end
 end

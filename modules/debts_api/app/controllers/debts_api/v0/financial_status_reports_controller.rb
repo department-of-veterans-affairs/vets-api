@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'debts_api/v0/financial_status_report_service'
+require 'debts_api/v0/fsr_rehydration_service'
 
 module DebtsApi
   module V0
@@ -21,6 +22,27 @@ module DebtsApi
           filename: 'VA Form 5655 - Submitted',
           disposition: 'attachment'
         )
+      end
+
+      def submissions
+        submissions = DebtsApi::V0::Form5655Submission.where(user_uuid: current_user.uuid)
+        render json: { 'submissions' => submissions.map { |sub| { 'id' => sub.id } } }
+      end
+
+      def rehydrate
+        submission_id = params[:submission_id]
+
+        DebtsApi::V0::FsrRehydrationService.attempt_rehydration(user_uuid: current_user.uuid, submission_id:)
+
+        render json: { result: 'FSR rehydrated' }
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: "Form5655Submission record #{submission_id} not found." }, status: :not_found
+      rescue DebtsApi::V0::FsrRehydrationService::UserDoesNotOwnsubmission
+        render json: { error: "User #{current_user.uuid} does not own submission #{submission_id}" },
+               status: :unauthorized
+      rescue DebtsApi::V0::FsrRehydrationService::NoInProgressFormDataStored
+        render json: { error: "Form5655Submission record #{submission_id} missing InProgressForm data",
+                       status: :not_found }
       end
 
       private
@@ -147,6 +169,8 @@ module DebtsApi
             :debt_type,
             :deduction_code,
             :p_h_amt_due,
+            :p_h_dfn_number,
+            :p_h_cerner_patient_id,
             :resolution_comment,
             :resolution_option,
             { station: [:facilit_y_num] }

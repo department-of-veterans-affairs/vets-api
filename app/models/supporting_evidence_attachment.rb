@@ -17,6 +17,10 @@ class SupportingEvidenceAttachment < FormAttachment
   end
 
   def converted_filename
-    JSON.parse(file_data)['converted_filename']
+    parsed_file_data['converted_filename']
+  end
+
+  def original_filename
+    parsed_file_data['filename']
   end
 end

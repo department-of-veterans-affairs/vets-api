@@ -3,16 +3,13 @@
 AppealsApi::Engine.routes.draw do
   get '/appeals_status/metadata', to: 'metadata#appeals_status'
   get '/decision_reviews/metadata', to: 'metadata#decision_reviews'
-  get '/v0/healthcheck', to: 'metadata#healthcheck'
-  get '/v1/healthcheck', to: 'metadata#healthcheck'
-  get '/v2/healthcheck', to: 'metadata#healthcheck'
-  get '/v1/appeals_healthcheck', to: 'metadata#healthcheck'
-  get '/v1/appeals_upstream_healthcheck', to: 'metadata#appeals_status_upstream_healthcheck'
-  get '/v0/upstream_healthcheck', to: 'metadata#appeals_status_upstream_healthcheck'
-  get '/v1/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck'
-  get '/v2/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck'
-  get '/v0/appeals', to: 'v0/appeals#index'
-  get '/v1/appeals', to: 'v1/appeals#index'
+  get '/v0/healthcheck', to: 'metadata#healthcheck' # Appeals Status v0
+  get '/v1/healthcheck', to: 'metadata#healthcheck_s3' # Decision Reviews v1
+  get '/v2/healthcheck', to: 'metadata#healthcheck_s3' # Decision Reviews v2
+  get '/v0/upstream_healthcheck', to: 'metadata#appeals_status_upstream_healthcheck' # Appeals Status v0
+  get '/v1/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck' # Decision Reviews v1
+  get '/v2/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck' # Decision Reviews v2
+  get '/v0/appeals', to: 'v0/appeals#index' # Appeals Status v0
 
   namespace :v1, defaults: { format: 'json' } do
     namespace :decision_reviews do
@@ -41,7 +38,7 @@ AppealsApi::Engine.routes.draw do
         collection do
           get 'schema'
           post 'validate'
-          get '/:id/download', action: 'download'
+          # get '/:id/download', action: 'download'
         end
       end
 
@@ -53,7 +50,7 @@ AppealsApi::Engine.routes.draw do
         collection do
           get 'schema'
           post 'validate'
-          get '/:id/download', action: 'download'
+          # get '/:id/download', action: 'download'
         end
       end
 
@@ -63,7 +60,7 @@ AppealsApi::Engine.routes.draw do
         collection do
           get 'schema'
           post 'validate'
-          get '/:id/download', action: 'download'
+          # get '/:id/download', action: 'download'
         end
       end
 
@@ -76,20 +73,10 @@ AppealsApi::Engine.routes.draw do
   namespace :docs do
     namespace :v0, defaults: { format: 'json' } do
       resources :api, only: [:index]
-
-      # Routes below are deprecated - they can be removed once they are no longer used:
-      docs_controller = '/appeals_api/docs/v2/docs'
-      get 'hlr', to: "#{docs_controller}#hlr"
-      get 'nod', to: "#{docs_controller}#nod"
-      get 'sc', to: "#{docs_controller}#sc"
-      get 'ci', to: "#{docs_controller}#ci"
-      get 'la', to: "#{docs_controller}#la"
-      # ...end of deprecated routes
     end
 
     namespace :v1, defaults: { format: 'json' } do
       get 'decision_reviews', to: 'docs#decision_reviews'
-      get 'appeals', to: 'docs#appeals_status'
     end
 
     namespace :v2, defaults: { format: 'json' } do
@@ -112,7 +99,7 @@ AppealsApi::Engine.routes.draw do
     namespace :v0 do
       controller_path = '/appeals_api/notice_of_disagreements/v0/notice_of_disagreements'
 
-      get :healthcheck, to: '/appeals_api/metadata#healthcheck'
+      get :healthcheck, to: '/appeals_api/metadata#healthcheck_s3'
       get :upstream_healthcheck,
           to: '/appeals_api/metadata#mail_status_upstream_healthcheck',
           path: 'upstream-healthcheck'
@@ -172,7 +159,7 @@ AppealsApi::Engine.routes.draw do
     namespace :v0 do
       controller_path = '/appeals_api/supplemental_claims/v0/supplemental_claims'
 
-      get :healthcheck, to: '/appeals_api/metadata#healthcheck'
+      get :healthcheck, to: '/appeals_api/metadata#healthcheck_s3'
       get :upstream_healthcheck,
           to: '/appeals_api/metadata#mail_status_upstream_healthcheck',
           path: 'upstream-healthcheck'

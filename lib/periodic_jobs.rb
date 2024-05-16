@@ -4,6 +4,9 @@
 PERIODIC_JOBS = lambda { |mgr|
   mgr.tz = ActiveSupport::TimeZone.new('America/New_York')
 
+  # Runs at midnight every Tuesday
+  mgr.register('0 0 * * 2', 'LoadAverageDaysForClaimCompletionJob')
+
   mgr.register('*/15 * * * *', 'CovidVaccine::ScheduledBatchJob')
   mgr.register('*/15 * * * *', 'CovidVaccine::ExpandedScheduledSubmissionJob')
   mgr.register('*/30 * * * *', 'SidekiqAlive::CleanupQueues')
@@ -14,14 +17,10 @@ PERIODIC_JOBS = lambda { |mgr|
   # Update NoticeOfDisagreement statuses with their Central Mail status
   mgr.register('15 * * * *', 'AppealsApi::SupplementalClaimUploadStatusBatch')
   # Update SupplementalClaim statuses with their Central Mail status
-  mgr.register('45 0 * * *', 'AppealsApi::HigherLevelReviewCleanUpWeekOldPii')
-  # Remove PII of HigherLevelReviews that have 1) reached one of the 'completed' statuses and 2) are a week old
-  mgr.register('45 0 * * *', 'AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii')
-  # Remove PII of NoticeOfDisagreements that have 1) reached one of the 'completed' statuses and 2) are a week old
-  mgr.register('45 0 * * *', 'AppealsApi::SupplementalClaimCleanUpPii')
-  # Ensures that appeal evidence received "late" (after the appeal has reached "success") is submitted to Central Mail
+  mgr.register('45 0 * * *', 'AppealsApi::CleanUpPii')
+  # Remove PII from appeal records after they have been successfully processed by the VA
   mgr.register('30 * * * *', 'AppealsApi::EvidenceSubmissionBackup')
-  # Remove PII of SupplementalClaims that have 1) reached one of the 'completed' statuses and 2) are a week old
+  # Ensures that appeal evidence received "late" (after the appeal has reached "success") is submitted to Central Mail
   mgr.register('0 23 * * 1-5', 'AppealsApi::DecisionReviewReportDaily')
   # Daily report of appeals submissions
   mgr.register('0 23 * * 1-5', 'AppealsApi::DailyErrorReport')
@@ -39,6 +38,8 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 0 * * *', 'Crm::TopicsDataJob')
   # Update static data cache
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
+  # Update static data cache for form 526
+  mgr.register('0 3 * * *', 'Form526StatusPollingJob')
   # Updates status of FormSubmissions per call to Lighthouse Benefits Intake API
 
   # mgr.register('0 0 * * *', 'VRE::CreateCh31SubmissionsReportJob')
@@ -68,9 +69,6 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 3 * * *', 'DeleteOldTransactionsJob')
   # Deletes old, completed AsyncTransaction records
 
-  mgr.register('30 3 * * 1', 'EVSS::FailedClaimsReport')
-  # Notify developers about EVSS claims which could not be uploaded
-
   mgr.register('0 4 * * *', 'EducationForm::CreateDailyFiscalYearToDateReport')
   # Send the daily report to VA stakeholders about Education Benefits submissions
   mgr.register('5 4 * * 1-5', 'EducationForm::CreateSpoolSubmissionsReport')
@@ -99,11 +97,13 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 13 * * 1', 'Mobile::V0::WeeklyMaintenanceWindowLogger')
   # Weekly logs of maintenance windows
   mgr.register('0 20 * * *', 'ClaimsApi::ClaimAuditor')
+  # Hourly slack alert of errored claim submissions
+  mgr.register('0 * * * *', 'ClaimsApi::ReportHourlyUnsuccessfulSubmissions')
   # Daily alert of pending claims longer than acceptable threshold
   mgr.register('15 23 * * *', 'ClaimsApi::ReportUnsuccessfulSubmissions')
   # Weekly report of unsuccessful claims submissions
-  mgr.register('15 23 1 * *', 'ClaimsApi::ReportMonthlySubmissions')
-  # Weekly report of unsuccessful claims submissions
+  mgr.register('00 00 1 * *', 'ClaimsApi::ReportMonthlySubmissions')
+  # Monthly report of submissions
 
   mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
 

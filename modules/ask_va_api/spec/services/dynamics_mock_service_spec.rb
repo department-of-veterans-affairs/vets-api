@@ -3,11 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe DynamicsMockService do
-  let(:endpoint) { 'get_inquiries_mock_data' }
+  let(:endpoint) { 'inquiries' }
   let(:method) { 'GET' }
   let(:payload) { {} }
   let(:service) { described_class.new(icn: nil, logger: nil) }
-  let(:file_path) { "modules/ask_va_api/config/locales/#{endpoint.tr('/', '_')}.json" }
+  let(:file_path) { "modules/ask_va_api/config/locales/get_#{endpoint}_mock_data.json" }
 
   describe '#call' do
     context 'when the file does not exist' do
@@ -36,52 +36,44 @@ RSpec.describe DynamicsMockService do
 
     context 'when the file contains valid JSON content' do
       let(:expected_result) do
-        {
-          icn: YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']['test_user_228_icn'],
-          id: '1',
-          inquiryNumber: 'A-1',
-          inquiryStatus: 'In Progress',
-          submitterQuestion: 'What is my status?',
-          lastUpdate: '12/20/23',
-          inquiryHasAttachments: true,
-          inquiryHasBeenSplit: true,
-          veteranRelationship: 'self',
-          schoolFacilityCode: '0123',
-          inquiryTopic: 'Status of a pending claim',
-          inquiryLevelOfAuthentication: 'Personal',
-          attachmentNames: [
+        { Data: {
+          Icn: I18n.t('ask_va_api.test_users.test_user_228_icn'),
+          Id: '1',
+          InquiryNumber: 'A-1',
+          InquiryStatus: 'In Progress',
+          SubmitterQuestion: 'What is my status?',
+          LastUpdate: '12/20/23',
+          InquiryHasAttachments: true,
+          InquiryHasBeenSplit: true,
+          VeteranRelationship: 'self',
+          SchoolFacilityCode: '0123',
+          InquiryTopic: 'Status of a pending claim',
+          InquiryLevelOfAuthentication: 'Personal',
+          AttachmentNames: [
             {
-              id: '1',
-              name: 'testfile.txt'
+              Id: '1',
+              Name: 'testfile.txt'
             }
           ]
-        }
+        } }
       end
 
       context 'with id payload' do
         let(:payload) { { id: '1' } }
 
         it 'filters data based on id' do
-          expect(service.call(endpoint:, payload:)).to eq([expected_result])
-        end
-
-        context 'with non-existent id' do
-          let(:payload) { { id: '99' } }
-
-          it 'returns an empty hash' do
-            expect(service.call(endpoint:, payload:)).to eq([])
-          end
+          expect(service.call(endpoint:, payload:)).to eq(expected_result)
         end
       end
 
       context 'with icn payload' do
-        let(:test_users) { YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users'] }
+        let(:test_users) { I18n.t('ask_va_api.test_users') }
         let(:icn) do
           test_users['test_user_228_icn']
         end
 
         it 'filters data based on icn and excludes attachments' do
-          expect(service.call(endpoint:, payload:).first).to eq(expected_result)
+          expect(service.call(endpoint:, payload:).first).to eq(expected_result[:Data])
         end
       end
     end

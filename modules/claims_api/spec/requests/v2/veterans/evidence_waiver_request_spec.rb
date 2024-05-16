@@ -27,7 +27,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
             context 'when success' do
               it 'returns a 200' do
                 mock_ccg(scopes) do |auth_header|
-                  VCR.use_cassette('bgs/benefit_claim/update_5103_200') do
+                  VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
                     allow_any_instance_of(ClaimsApi::LocalBGS)
                       .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
 
@@ -51,7 +51,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
           context 'when claim id is not found' do
             it 'returns a 404' do
               mock_ccg(scopes) do |auth_header|
-                VCR.use_cassette('bgs/benefit_claim/find_bnft_claim_400') do
+                VCR.use_cassette('claims_api/bgs/benefit_claim/find_bnft_claim_400') do
                   allow_any_instance_of(ClaimsApi::LocalBGS)
                     .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
 
@@ -82,7 +82,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
 
             it 'silently passes for an invalid type' do
               mock_ccg(scopes) do |auth_header|
-                VCR.use_cassette('bgs/benefit_claim/update_5103_200') do
+                VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
                   allow_any_instance_of(ClaimsApi::LocalBGS)
                     .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
                   post sub_path, params: { sponsorIcn: sponsor_id }, headers: auth_header
@@ -96,7 +96,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
           context 'when a veteran does not have a file number' do
             it 'returns an error message' do
               mock_ccg(scopes) do |auth_header|
-                VCR.use_cassette('bgs/benefit_claim/update_5103_200') do
+                VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
                   allow_any_instance_of(ClaimsApi::V2::Veterans::EvidenceWaiverController)
                     .to receive(:file_number_check).and_return(@file_number = nil)
 
@@ -108,6 +108,29 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
                     "Unable to locate Veteran's File Number. " \
                     'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
                   )
+                end
+              end
+            end
+          end
+
+          context 'scopes' do
+            let(:invalid_scopes) { %w[system/526-pdf.override] }
+            let(:ews_scopes) { %w[system/claim.write] }
+
+            context 'evidence waiver' do
+              it 'returns a 200 response when successful' do
+                mock_ccg_for_fine_grained_scope(ews_scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
+                    post sub_path, headers: auth_header
+                    expect(response).to have_http_status(:ok)
+                  end
+                end
+              end
+
+              it 'returns a 401 unauthorized with incorrect scopes' do
+                mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
+                  post sub_path, headers: auth_header
+                  expect(response).to have_http_status(:unauthorized)
                 end
               end
             end

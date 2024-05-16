@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
+require_relative '../support/helpers/rails_helper'
 
 RSpec.describe 'user', type: :request do
   include JsonSchemaMatchers
@@ -27,10 +25,22 @@ RSpec.describe 'user', type: :request do
       Flipper.disable(:mobile_lighthouse_letters)
     end
 
+    before do
+      Flipper.enable_actor(:mobile_v1_lighthouse_facilities, user)
+      Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
+      VCR.insert_cassette('sm_client/session')
+    end
+
+    after do
+      Timecop.return
+      VCR.eject_cassette
+      Flipper.disable(:mobile_v1_lighthouse_facilities)
+    end
+
     context 'with no upstream errors' do
       before do
         VCR.use_cassette('mobile/payment_information/payment_information') do
-          VCR.use_cassette('mobile/user/get_facilities') do
+          VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358') do
             VCR.use_cassette('mobile/va_profile/demographics/demographics') do
               get '/mobile/v0/user', headers: sis_headers
             end
@@ -173,6 +183,7 @@ RSpec.describe 'user', type: :request do
             paymentHistory
             preferredName
             scheduleAppointments
+            secureMessaging
             userProfileUpdate
           ]
         )
@@ -209,12 +220,12 @@ RSpec.describe 'user', type: :request do
               {
                 'facilityId' => '757',
                 'isCerner' => true,
-                'facilityName' => 'Cheyenne VA Medical Center'
+                'facilityName' => "Baxter Springs City Soldiers' Lot"
               },
               {
                 'facilityId' => '358',
                 'isCerner' => true,
-                'facilityName' => 'COLUMBUS VAMC'
+                'facilityName' => 'Congressional Cemetery Government Lots'
               }
             ]
           }
@@ -226,8 +237,8 @@ RSpec.describe 'user', type: :request do
 
         before do
           VCR.use_cassette('mobile/payment_information/payment_information') do
-            VCR.use_cassette('mobile/user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+              VCR.use_cassette('lighthouse/facilities/v1/200_facilities_no_ids') do
                 get '/mobile/v0/user', headers: sis_headers
               end
             end
@@ -251,7 +262,7 @@ RSpec.describe 'user', type: :request do
       end
 
       it 'returns a service unavailable error' do
-        VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]) do
           get '/mobile/v0/user', headers: sis_headers
         end
 
@@ -269,7 +280,7 @@ RSpec.describe 'user', type: :request do
 
       it 'returns a record not found error' do
         VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-          VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]) do
             get '/mobile/v0/user', headers: sis_headers
           end
         end
@@ -314,7 +325,7 @@ RSpec.describe 'user', type: :request do
       end
 
       it 'returns a bad gateway error' do
-        VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]) do
           get '/mobile/v0/user', headers: sis_headers
         end
 
@@ -326,7 +337,7 @@ RSpec.describe 'user', type: :request do
     context 'empty get_facility test' do
       before do
         VCR.use_cassette('mobile/payment_information/payment_information') do
-          VCR.use_cassette('mobile/user/get_facilities_empty', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_757_358') do
             VCR.use_cassette('mobile/va_profile/demographics/demographics') do
               get '/mobile/v0/user', headers: sis_headers
             end
@@ -358,7 +369,7 @@ RSpec.describe 'user', type: :request do
     describe 'fax number' do
       let(:user_request) do
         VCR.use_cassette('mobile/payment_information/payment_information') do
-          VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/va_profile/demographics/demographics') do
               get '/mobile/v0/user', headers: sis_headers
             end
@@ -402,7 +413,7 @@ RSpec.describe 'user', type: :request do
           expect(Mobile::V0::Vet360LinkingJob).not_to receive(:perform_async)
 
           VCR.use_cassette('mobile/payment_information/payment_information') do
-            VCR.use_cassette('mobile/user/get_facilities') do
+            VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358') do
               VCR.use_cassette('mobile/va_profile/demographics/demographics') do
                 get '/mobile/v0/user', headers: sis_headers
               end
@@ -415,7 +426,7 @@ RSpec.describe 'user', type: :request do
           Mobile::User.create(icn: user.icn, vet360_link_attempts: 1, vet360_linked: false)
 
           VCR.use_cassette('mobile/payment_information/payment_information') do
-            VCR.use_cassette('mobile/user/get_facilities') do
+            VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_757_358') do
               VCR.use_cassette('mobile/va_profile/demographics/demographics') do
                 get '/mobile/v0/user', headers: sis_headers
 
@@ -434,7 +445,7 @@ RSpec.describe 'user', type: :request do
           expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)
 
           VCR.use_cassette('mobile/payment_information/payment_information') do
-            VCR.use_cassette('mobile/user/get_facilities_no_ids') do
+            VCR.use_cassette('lighthouse/facilities/v1/200_facilities_no_ids') do
               VCR.use_cassette('mobile/va_profile/demographics/demographics') do
                 get '/mobile/v0/user', headers: sis_headers
               end

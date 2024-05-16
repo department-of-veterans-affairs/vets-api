@@ -54,6 +54,7 @@ module Users
       scaffold.prefills_available = prefills_available
       scaffold.services = services
       scaffold.session = session_data
+      scaffold.onboarding = onboarding
     end
 
     def account
@@ -63,6 +64,7 @@ module Users
       nil
     end
 
+    # rubocop:disable Metrics/MethodLength
     def profile
       {
         email: user.email,
@@ -79,9 +81,17 @@ module Users
         sign_in: user.identity.sign_in,
         authn_context: user.authn_context,
         inherited_proof_verified: user.inherited_proof_verified,
-        claims:
+        claims:,
+        icn: user.icn,
+        birls_id: user.birls_id,
+        edipi: user.edipi,
+        sec_id: user.sec_id,
+        logingov_uuid: user.logingov_uuid,
+        idme_uuid: user.idme_uuid,
+        id_theft_flag: user.id_theft_flag
       }
     end
+    # rubocop:enable Metrics/MethodLength
 
     def claims
       if Flipper.enabled?(:profile_user_claims, user)
@@ -96,9 +106,16 @@ module Users
           military_history: Vet360Policy.new(user).military_access?,
           payment_history: BGSPolicy.new(user).access?(log_stats: false),
           personal_information: MPIPolicy.new(user).queryable?,
-          rating_info: LighthousePolicy.new(user).rating_info_access?
+          rating_info: LighthousePolicy.new(user).rating_info_access?,
+          **form_526_required_identifiers
         }
       end
+    end
+
+    def form_526_required_identifiers
+      return {} unless Flipper.enabled?(:form_526_required_identifiers_in_user_object, user)
+
+      { form526_required_identifier_presence: Users::Form526UserIdentifiersStatusService.call(user) }
     end
 
     def vet360_contact_information
@@ -106,6 +123,7 @@ module Users
       return {} if person.blank?
 
       {
+        vet360_id: user.vet360_id,
         email: person.email,
         residential_address: person.residential_address,
         mailing_address: person.mailing_address,
@@ -131,9 +149,12 @@ module Users
           gender: user.gender_mpi,
           given_names: user.given_names,
           is_cerner_patient: !user.cerner_id.nil?,
+          cerner_id: user.cerner_id,
+          cerner_facility_ids: user.cerner_facility_ids,
           facilities: user.va_treatment_facility_ids.map { |id| facility(id) },
           va_patient: user.va_patient?,
-          mhv_account_state: user.mhv_account_state
+          mhv_account_state: user.mhv_account_state,
+          active_mhv_ids: user.active_mhv_ids
         }
       else
         scaffold.errors << Users::ExceptionHandler.new(user.mpi_error, 'MVI').serialize_error
@@ -153,7 +174,7 @@ module Users
     end
 
     def in_progress_forms
-      InProgressForm.for_user(user).map do |form|
+      InProgressForm.submission_pending.for_user(user).map do |form|
         {
           form: form.form_id,
           metadata: form.metadata,
@@ -193,6 +214,12 @@ module Users
         auth_broker: @user.identity.sign_in[:auth_broker],
         ssoe: @session[:ssoe_transactionid] ? true : false,
         transactionid: @session[:ssoe_transactionid]
+      }
+    end
+
+    def onboarding
+      {
+        show: user.show_onboarding_flow_on_login
       }
     end
   end

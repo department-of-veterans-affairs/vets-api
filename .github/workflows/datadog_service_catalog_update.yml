@@ -45,7 +45,7 @@ jobs:
           cmd: yq '.' ${{matrix.file}}
       - name: 'Update Service Catalog in DataDog'
         run: |
-          curl --location --request POST 'https://api.ddog-gov.com/api/v2/services/definitions?schema_version=v2.1' \
+          curl --location --request POST 'https://api.ddog-gov.com/api/v2/services/definitions?schema_version=v2.2' \
           --header 'Accept: application/json' \
           --header 'DD-API-KEY: ${{ secrets.DD_API_KEY }}' \
           --header 'DD-APPLICATION-KEY: ${{ secrets.DD_APP_KEY }}' \

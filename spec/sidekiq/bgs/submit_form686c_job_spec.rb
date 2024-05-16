@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm686cJob, type: :job do
   let(:job) { subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info) }
@@ -106,5 +107,18 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
 
       expect { job }.to raise_error(BGS::SubmitForm686cJob::Invalid686cClaim)
     end
+
+    it 'filters based on error cause' do
+      expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(client_stub).to receive(:submit) { raise_nested_err }
+
+      expect { job }.to raise_error(Sidekiq::JobRetry::Skip)
+    end
   end
+end
+
+def raise_nested_err
+  raise BGS::SubmitForm686cJob::Invalid686cClaim, 'A very specific error occurred: insertBenefitClaim: Invalid zipcode.'
+rescue
+  raise BGS::SubmitForm686cJob::Invalid686cClaim, 'A Generic Error Occurred'
 end

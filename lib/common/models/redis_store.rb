@@ -48,6 +48,8 @@ module Common
     end
 
     def self.find(redis_key = nil)
+      return nil if redis_key.nil?
+
       response = redis_namespace.get(redis_key)
       return nil unless response
 

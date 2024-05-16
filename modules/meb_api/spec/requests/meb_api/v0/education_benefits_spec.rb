@@ -112,11 +112,11 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
                  params: { "education_benefit":
                   { enrollment_verifications: {
                     enrollment_certify_requests: [{
-                      "certified_period_begin_date": '2022-08-01',
-                      "certified_period_end_date": '2022-08-31',
-                      "certified_through_date": '2022-08-31',
-                      "certification_method": 'MEB',
-                      "app_communication": { "response_type": 'Y' }
+                      'certified_period_begin_date': '2022-08-01',
+                      'certified_period_end_date': '2022-08-31',
+                      'certified_through_date': '2022-08-31',
+                      'certification_method': 'MEB',
+                      'app_communication': { 'response_type': 'Y' }
                     }]
                   } } }
             expect(response).to have_http_status(:ok)
@@ -142,6 +142,65 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
         it 'returns a 200 status when it' do
           VCR.use_cassette('dgi/get_exclusion_period_controller') do
             get '/meb_api/v0/exclusion_periods'
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+    end
+
+    describe 'POST /meb_api/v0/submit_claim' do
+      let(:claimant_params) do
+        {
+          form_id: 1,
+          education_benefit: {
+            claimant: {
+              first_name: 'Herbert',
+              middle_name: 'Hoover',
+              last_name: 'Hoover',
+              date_of_birth: '1980-03-11',
+              contact_info: {
+                address_line1: '503 upper park',
+                address_line2: '',
+                city: 'falls church',
+                zipcode: '22046',
+                email_address: 'hhover@test.com',
+                address_type: 'DOMESTIC',
+                mobile_phone_number: '4409938894',
+                country_code: 'US',
+                state_code: 'VA'
+              },
+              notification_method: 'EMAIL'
+            }
+          },
+          relinquished_benefit: {
+            eff_relinquish_date: '2021-10-15',
+            relinquished_benefit: 'Chapter30'
+          },
+          additional_considerations: {
+            active_duty_kicker: 'N/A',
+            academy_rotc_scholarship: 'YES',
+            reserve_kicker: 'N/A',
+            senior_rotc_scholarship: 'YES',
+            active_duty_dod_repay_loan: 'YES'
+          },
+          comments: {
+            disagree_with_service_period: false
+          },
+          direct_deposit: {
+            account_number: '********3123',
+            account_type: 'savings',
+            routing_number: '*******3123'
+          }
+        }
+      end
+
+      context 'direct deposit' do
+        it 'successfully submits with new lighthouse api' do
+          VCR.use_cassette('dgi/submit_claim_lighthouse') do
+            Settings.mobile_lighthouse.rsa_key = OpenSSL::PKey::RSA.generate(2048).to_s
+            Settings.lighthouse.direct_deposit.use_mocks = true
+            post '/meb_api/v0/submit_claim', params: claimant_params
+
             expect(response).to have_http_status(:ok)
           end
         end

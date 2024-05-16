@@ -10,41 +10,6 @@ module Mobile
           @user = user
         end
 
-        def get_claims_and_appeals
-          claims, appeals = Parallel.map([get_all_claims, get_all_appeals], in_threads: 2, &:call)
-
-          full_list = []
-          errors = []
-
-          claims[:errors].nil? ? full_list.push(*claims[:list]) : errors.push(claims[:errors])
-          appeals[:errors].nil? ? full_list.push(*appeals[:list]) : errors.push(appeals[:errors])
-          data = claims_adapter.parse(full_list)
-
-          [data, errors]
-        end
-
-        def get_claims
-          claims = get_all_claims.call
-          data = claims[:errors].nil? ? claims_adapter.parse(claims[:list]) : []
-
-          errors = []
-          errors.push(claims[:errors]) unless claims[:errors].nil?
-          errors.push({ service: 'appeals', error_details: 'Forbidden: User is not authorized for appeals' })
-
-          [data, errors]
-        end
-
-        def get_appeals
-          appeals = get_all_appeals.call
-          data = appeals[:errors].nil? ? claims_adapter.parse(appeals[:list]) : []
-
-          errors = []
-          errors.push(appeals[:errors]) unless appeals[:errors].nil?
-          errors.push({ service: 'claims', error_details: 'Forbidden: User is not authorized for claims' })
-
-          [data, errors]
-        end
-
         def get_claim(id)
           claim = claims_scope.find_by(evss_id: id)
           claim_not_found(id, __method__) unless claim
@@ -108,37 +73,6 @@ module Mobile
           (FileUtils.rm_rf(@base_path) if File.exist?(@base_path)) if @base_path
         end
 
-        private
-
-        def submit_document(file, claim_id, tracked_item_id, document_type, password)
-          document_data = EVSSClaimDocument.new(evss_claim_id: claim_id, file_obj: file, uuid: SecureRandom.uuid,
-                                                file_name: file.original_filename, tracked_item_id:,
-                                                document_type:, password:)
-          raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
-
-          evss_claim_service.upload_document(document_data)
-        end
-
-        def claims_adapter
-          Mobile::V0::Adapters::ClaimsOverview.new
-        end
-
-        def auth_headers
-          @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
-        end
-
-        def appeals_service
-          @appeals_service ||= Caseflow::Service.new
-        end
-
-        def claims_service
-          @claims_service ||= EVSS::ClaimsService.new(auth_headers)
-        end
-
-        def evss_claim_service
-          @evss_claim_service ||= EVSSClaimService.new(@user)
-        end
-
         def get_all_claims
           lambda {
             begin
@@ -164,6 +98,33 @@ module Mobile
               { list: nil, errors: Mobile::V0::Adapters::ClaimsOverviewErrors.new.parse(e, 'appeals') }
             end
           }
+        end
+
+        private
+
+        def submit_document(file, claim_id, tracked_item_id, document_type, password)
+          document_data = EVSSClaimDocument.new(evss_claim_id: claim_id, file_obj: file, uuid: SecureRandom.uuid,
+                                                file_name: file.original_filename, tracked_item_id:,
+                                                document_type:, password:)
+          raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
+
+          evss_claim_service.upload_document(document_data)
+        end
+
+        def auth_headers
+          @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
+        end
+
+        def appeals_service
+          @appeals_service ||= Caseflow::Service.new
+        end
+
+        def claims_service
+          @claims_service ||= EVSS::ClaimsService.new(auth_headers)
+        end
+
+        def evss_claim_service
+          @evss_claim_service ||= EVSSClaimService.new(@user)
         end
 
         def serialize_list(full_list)

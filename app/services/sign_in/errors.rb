@@ -64,5 +64,7 @@ module SignIn
     class InvalidAccessTokenAttributeError < StandardError; end
     class TermsOfUseNotAcceptedError < StandardError; end
     class CredentialLockedError < StandardError; end
+    class InvalidAudienceError < StandardError; end
+    class InvalidScope < StandardError; end
   end
 end

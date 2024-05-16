@@ -12,6 +12,9 @@ on:
       auto_deploy_envs:
         required: true
         type: string
+      commit_sha:  # #${{ github.sha }}
+        required: true
+        type: string
     secrets:
       aws_access_key_id: #${{ secrets.AWS_ACCESS_KEY_ID }}
         required: true
@@ -24,7 +27,7 @@ jobs:
     outputs:
       environments: ${{ steps.set-environments.outputs.environments }}
     steps:
-      - name: Set to auto deploy environments on push to k8s
+      - name: Set to auto deploy environments on push to master
         run: |
           echo "triggered via schedule"
           echo "environments=${{inputs.auto_deploy_envs}}" >> $GITHUB_ENV
@@ -34,7 +37,7 @@ jobs:
           echo "environments=${{ env.environments }}" >> $GITHUB_OUTPUT
   release:
     needs: [prepare-values]
-    if: github.ref == 'refs/heads/k8s'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -70,8 +73,9 @@ jobs:
           token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
           fetch-depth: 1
           path: vsp-infra-application-manifests
+          ref: refs/heads/main
 
-      - name: Update vets-api image name in Manifest repo for parent helm
+      - name: Update vets-api image and version name in Manifest repo for parent helm
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
@@ -80,16 +84,19 @@ jobs:
           envs=( ${{ needs.prepare-values.outputs.environments }} )
           for env in ${envs[*]};
           do
-            yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".image.tag) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".web.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".web.dbMigrate.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".worker.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
           done
           git diff
 
       - name: Add and Commit file
         uses: EndBug/add-and-commit@v9
         with:
-          branch: main
+          new_branch: main
           add: "*"
           cwd: vsp-infra-application-manifests/apps
           author_name: va-vsp-bot
           author_email: devops@va.gov
-          message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}}."
+          message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}} : ${{ inputs.commit_sha }}."

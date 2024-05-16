@@ -41,11 +41,7 @@ module Mobile
                  :ptcpnt_bene_id,
                  :ptcpnt_vet_id,
                  :reason_one_txt,
-                 :spouse_txt,
-                 :veteran_id,
-                 :is_eligible_for_pension,
-                 :is_in_receipt_of_pension,
-                 :net_worth_limit
+                 :spouse_txt
     end
   end
 end

@@ -12,11 +12,11 @@ module DebtsApi
     validates :user_uuid, presence: true
     belongs_to :user_account, dependent: nil, optional: true
     has_kms_key
-    has_encrypted :form_json, :metadata, key: :kms_key, **lockbox_options
+    has_encrypted :form_json, :metadata, :ipf_data, key: :kms_key, **lockbox_options
 
     def kms_encryption_context
       {
-        model_name: Form5655Submission.model_name.to_s,
+        model_name: 'Form5655Submission',
         model_id: id
       }
     end
@@ -37,6 +37,10 @@ module DebtsApi
 
     def form
       @form_hash ||= JSON.parse(form_json)
+    end
+
+    def ipf_form
+      @ipf_form_hash ||= JSON.parse(ipf_data)
     end
 
     def user_cache_id
@@ -91,6 +95,39 @@ module DebtsApi
 
     def streamlined?
       public_metadata.dig('streamlined', 'value') == true
+    end
+
+    def upsert_in_progress_form
+      form = InProgressForm.find_or_initialize_by(form_id: '5655', user_uuid:)
+      form.user_account = user_account_from_uuid(user_uuid)
+      form.real_user_uuid = user_uuid
+
+      form.update!(form_data: ipf_data, metadata: fresh_metadata)
+    end
+
+    def fresh_metadata
+      {
+        'return_url' => '/review-and-submit',
+        'submission' => {
+          'status' => false,
+          'error_message' => false,
+          'id' => false,
+          'timestamp' => false,
+          'has_attempted_submit' => false
+        },
+        'saved_at' => Time.now.to_i,
+        'created_at' => Time.now.to_i,
+        'expiresAt' => (DateTime.now + 60).to_time.to_i,
+        'lastUpdated' => Time.now.to_i,
+        'inProgressFormId' => '5655'
+      }
+    end
+
+    def user_account_from_uuid(user_uuid)
+      UserVerification.where(idme_uuid: user_uuid)
+                      .or(UserVerification.where(logingov_uuid: user_uuid))
+                      .or(UserVerification.where(backing_idme_uuid: user_uuid))
+                      .last&.user_account
     end
   end
 end

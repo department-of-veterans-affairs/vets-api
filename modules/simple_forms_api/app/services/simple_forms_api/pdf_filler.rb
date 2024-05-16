@@ -9,6 +9,9 @@ module SimpleFormsApi
     TEMPLATE_BASE = Rails.root.join('modules', 'simple_forms_api', 'templates')
 
     def initialize(form_number:, form:, name: nil)
+      raise 'form_number is required' if form_number.blank?
+      raise 'form needs a data attribute' unless form&.data
+
       @form = form
       @form_number = form_number
       @name = name || form_number
@@ -20,12 +23,17 @@ module SimpleFormsApi
       stamped_template_path = "tmp/#{name}-stamped.pdf"
       pdftk = PdfForms.new(Settings.binaries.pdftk)
       FileUtils.copy(template_form_path, stamped_template_path)
-      PdfStamper.stamp_pdf(stamped_template_path, form, current_loa)
-      pdftk.fill_form(stamped_template_path, generated_form_path, mapped_data, flatten: true)
-      generated_form_path
-    ensure
-      Common::FileHelpers.delete_file_if_exists(stamped_template_path) if defined?(stamped_template_path)
+      if File.exist? stamped_template_path
+        PdfStamper.stamp_pdf(stamped_template_path, form, current_loa)
+        pdftk.fill_form(stamped_template_path, generated_form_path, mapped_data, flatten: true)
+        Common::FileHelpers.delete_file_if_exists(stamped_template_path)
+        generated_form_path
+      else
+        raise "stamped template file does not exist: #{stamped_template_path}"
+      end
     end
+
+    private
 
     def mapped_data
       template = Rails.root.join('modules', 'simple_forms_api', 'app', 'form_mappings', "#{form_number}.json.erb").read

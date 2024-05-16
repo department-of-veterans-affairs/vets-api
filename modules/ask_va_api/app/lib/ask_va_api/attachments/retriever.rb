@@ -2,7 +2,8 @@
 
 module AskVAApi
   module Attachments
-    ENDPOINT = 'get_attachments_mock_data'
+    ENDPOINT = 'attachment'
+    class AttachmentsRetrieverError < StandardError; end
 
     class Retriever
       attr_reader :id, :service
@@ -15,10 +16,9 @@ module AskVAApi
       def call
         validate_input(id, "Invalid Attachment's ID")
 
-        attachments = fetch_data(payload: { id: })
-        attachments.map do |att|
-          Entity.new(att)
-        end.first
+        attachment = fetch_data(payload: { id: })
+
+        Entity.new(attachment)
       rescue => e
         ErrorHandler.handle_service_error(e)
       end
@@ -30,11 +30,22 @@ module AskVAApi
       end
 
       def fetch_data(payload: {})
-        service.call(endpoint: ENDPOINT, payload:)
+        response = service.call(endpoint: ENDPOINT, payload:)
+        handle_response_data(response)
       end
 
       def validate_input(input, error_message)
         raise ArgumentError, error_message if input.blank?
+      end
+
+      def handle_response_data(response)
+        case response
+        when Hash
+          response[:Data]
+        else
+          error = JSON.parse(response.body, symbolize_names: true)
+          raise(AttachmentsRetrieverError, error[:Message])
+        end
       end
     end
   end

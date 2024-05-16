@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
+require_relative '../support/helpers/rails_helper'
 
 RSpec.describe 'payment information', type: :request do
   include JsonSchemaMatchers
@@ -44,6 +42,16 @@ RSpec.describe 'payment information', type: :request do
   end
 
   describe 'GET /mobile/v0/payment-information/benefits lighthouse' do
+    context 'user without access' do
+      let!(:user) { sis_user(:api_auth, :loa1) }
+
+      it 'returns 403' do
+        get '/mobile/v0/payment-information/benefits', headers: sis_headers
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'with a valid response' do
       it 'matches the payment information schema' do
         VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
@@ -156,6 +164,17 @@ RSpec.describe 'payment information', type: :request do
       }
     end
 
+    context 'user without access' do
+      let!(:user) { sis_user(:api_auth, :loa1) }
+
+      it 'returns 403' do
+        put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                       headers: sis_headers(json: true)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'with a valid response' do
       it 'matches the ppiu schema' do
         allow(DirectDepositEmailJob).to receive(:send_to_emails)
@@ -172,13 +191,13 @@ RSpec.describe 'payment information', type: :request do
     context 'when the user does have an associated email address' do
       subject do
         VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
-          put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers:
+          put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers: sis_headers(json: true)
         end
       end
 
       it 'calls VA Notify background job to send an email' do
-        user.all_emails do |email|
-          expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, nil)
+        user.all_emails.each do |email|
+          expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, 'comp_and_pen')
         end
 
         subject

@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/helpers/mobile_sm_client_helper'
-
+require_relative '../support/helpers/rails_helper'
 RSpec.describe 'Mobile Message Drafts Integration', type: :request do
-  include Mobile::MessagingClientHelper
   include SchemaMatchers
 
-  let!(:user) { sis_user(:mhv, mhv_account_type:) }
+  let!(:user) { sis_user(:mhv, mhv_account_type: 'Premium') }
   let(:reply_id)               { 674_874 }
   let(:created_draft_id)       { 674_942 }
   let(:created_draft_reply_id) { 674_944 }
@@ -17,31 +13,41 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
   let(:draft_signature_only) { attributes_for(:message, body: '\n\n\n\nSignature\nExample', subject: 'Subject 1') }
 
   before do
-    allow(Mobile::V0::Messaging::Client).to receive(:new).and_return(authenticated_client)
+    Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
   end
 
-  context 'Basic User' do
-    let(:mhv_account_type) { 'Basic' }
+  after do
+    Timecop.return
+  end
 
-    it 'is not authorized' do
+  context 'when user does not have access' do
+    let!(:user) { sis_user(:mhv, mhv_account_type: 'Free') }
+
+    it 'returns forbidden' do
       post('/mobile/v0/messaging/health/message_drafts', headers: sis_headers, params:)
-      expect(response).not_to be_successful
-      expect(response.status).to eq(403)
+
+      expect(response).to have_http_status(:forbidden)
     end
   end
 
-  context 'Advanced User' do
-    let(:mhv_account_type) { 'Advanced' }
-
-    it 'is not authorized' do
-      post('/mobile/v0/messaging/health/message_drafts', headers: sis_headers, params:)
+  context 'when not authorized' do
+    it 'responds with 403 error' do
+      VCR.use_cassette('mobile/messages/session_error') do
+        post('/mobile/v0/messaging/health/message_drafts', headers: sis_headers, params:)
+      end
       expect(response).not_to be_successful
-      expect(response.status).to eq(403)
+      expect(response).to have_http_status(:forbidden)
     end
   end
 
-  context 'Premium User' do
-    let(:mhv_account_type) { 'Premium' }
+  context 'when authorized' do
+    before do
+      VCR.insert_cassette('sm_client/session')
+    end
+
+    after do
+      VCR.eject_cassette
+    end
 
     describe 'drafts' do
       let(:params) { { message_draft: draft.slice(:category, :subject, :body, :recipient_id) } }

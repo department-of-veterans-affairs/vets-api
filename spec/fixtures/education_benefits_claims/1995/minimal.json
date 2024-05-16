@@ -7,9 +7,6 @@
 	"vaFileNumber": "12345678",
 	"newSchool": {},
 	"oldSchool": {},
-	"toursOfDuty": [{
-		"serviceBranch": "Army"
-	}],
 	"preferredContactMethod": "mail",
 	"veteranAddress": {
 		"street": "123 Central St",
@@ -18,5 +15,10 @@
 		"state": "MD",
 		"postalCode": "21231"
 	},
+	"applicantServed": "No",
+	"applicantGender": "F",
+  	"dateOfBirth": "1970-01-01",
+	"changeAnotherBenefit": "Yes",
+	"benefitAppliedFor": "chapter30",
 	"email": "test@sample.com",
 	"bankAccount": {}}

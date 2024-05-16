@@ -478,15 +478,6 @@ RSpec.describe ApplicationController, type: :controller do
           expect(controller.payload[:user_uuid]).to eq(user.uuid)
         end
 
-        context 'with a virtual host that is invalid' do
-          let(:header_host_value) { 'unsafe_host' }
-
-          it 'returns bad request' do
-            get :test_authentication
-            expect(response).to have_http_status(:bad_request)
-          end
-        end
-
         context 'with a credential that is locked' do
           let(:user) { build(:user, :loa3, :idme_lock) }
 

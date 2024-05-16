@@ -4,7 +4,7 @@ module Crm
   class CacheData
     attr_reader :cache_client, :service
 
-    def initialize(service: Service.new(icn: nil), cache_client: RedisClient.new)
+    def initialize(service: Service.new(icn: nil), cache_client: AskVAApi::RedisClient.new)
       @cache_client = cache_client
       @service = service
     end
@@ -12,23 +12,32 @@ module Crm
     def call(endpoint:, cache_key:, payload: {})
       data = cache_client.fetch(cache_key)
 
-      if data.nil?
-        fetch_api_data(endpoint:, cache_key:, payload:)
-      else
-        data
-      end
+      data = fetch_api_data(endpoint:, cache_key:, payload:) if data.nil?
+
+      data
     rescue => e
-      ErrorHandler.handle(endpoint, e)
+      ::ErrorHandler.handle_service_error(e)
     end
 
     def fetch_api_data(endpoint:, cache_key:, payload: {})
-      data = service.call(endpoint:, payload:)
+      response = service.call(endpoint:, payload:)
+      data = handle_response_data(response)
 
       cache_client.store_data(key: cache_key, data:, ttl: 86_400)
 
       data
-    rescue => e
-      ErrorHandler.handle(endpoint, e)
+    end
+
+    private
+
+    def handle_response_data(response)
+      case response
+      when Hash
+        response
+      else
+        error = JSON.parse(response.body, symbolize_names: true)
+        raise(StandardError, error[:Message])
+      end
     end
   end
 end

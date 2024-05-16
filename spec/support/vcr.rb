@@ -9,6 +9,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
   c.filter_sensitive_data('<AV_KEY>') { VAProfile::Configuration::SETTINGS.address_validation.api_key }
   c.filter_sensitive_data('<DMC_TOKEN>') { Settings.dmc.client_secret }
+  c.filter_sensitive_data('<BGS_BASE_URL>') { Settings.bgs.url }
   c.filter_sensitive_data('<EE_PASS>') { Settings.hca.ee.pass }
   c.filter_sensitive_data('<EVSS_AWS_BASE_URL>') { Settings.evss.aws.url }
   c.filter_sensitive_data('<EVSS_BASE_URL>') { Settings.evss.url }
@@ -32,6 +33,12 @@ VCR.configure do |c|
   c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
   c.filter_sensitive_data('<MULESOFT_SECRET>') { Settings.form_10_10cg.carma.mulesoft.client_secret }
   c.filter_sensitive_data('<SHAREPOINT_CLIENT_SECRET>') { Settings.vha.sharepoint.client_secret }
+  c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_EDUCATION_RSA_KEY_PATH>') do
+    Settings.lighthouse.benefits_education.rsa_key
+  end
+  c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_EDUCATION_CLIENT_ID>') do
+    Settings.lighthouse.benefits_education.client_id
+  end
 
   c.before_record do |i|
     %i[response request].each do |env|

@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
-require 'evss/pciu/email_address'
-
+require 'va_profile/models/email'
 ##
 # Models Prescription notification preference
 #
@@ -21,7 +20,7 @@ class PrescriptionPreference < Common::Base
   validates(
     :email_address,
     presence: true,
-    format: { with: EVSS::PCIU::EmailAddress::VALID_EMAIL_REGEX },
+    format: { with: VAProfile::Models::Email::VALID_EMAIL_REGEX },
     length: { maximum: 255, minimum: 6 }
   )
 

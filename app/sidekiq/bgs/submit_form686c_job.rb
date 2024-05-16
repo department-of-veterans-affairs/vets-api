@@ -9,7 +9,7 @@ module BGS
     include Sidekiq::Job
     include SentryLogging
 
-    attr_reader :claim, :user, :in_progress_copy, :user_uuid, :saved_claim_id, :vet_info
+    attr_reader :claim, :user, :user_uuid, :saved_claim_id, :vet_info, :icn
 
     sidekiq_options retry: 14
 
@@ -18,43 +18,47 @@ module BGS
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.error('BGS::SubmitForm686cJob failed, retries exhausted!',
                          { user_uuid:, saved_claim_id:, icn:, error: })
-      if Flipper.enabled?(:dependents_central_submission)
-        user ||= BGS::SubmitForm686cJob.generate_user_struct(vet_info)
-        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
-                                                            KmsEncrypted::Box.new.encrypt(vet_info.to_json),
-                                                            KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
-      else
-        DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present? # rubocop:disable Style/IfInsideElse
-      end
+
+      BGS::SubmitForm686cJob.send_backup_submission(vet_info, saved_claim_id, user_uuid)
     end
 
     def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info)
-      @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.info('BGS::SubmitForm686cJob running!', { user_uuid:, saved_claim_id:, icn: })
+      instance_params(encrypted_vet_info, icn, user_uuid, saved_claim_id)
 
-      @user = BGS::SubmitForm686cJob.generate_user_struct(@vet_info)
-      @user_uuid = user_uuid
-      @saved_claim_id = saved_claim_id
-
-      in_progress_form = InProgressForm.find_by(form_id: FORM_ID, user_uuid:)
-      @in_progress_copy = in_progress_form_copy(in_progress_form)
-
-      claim_data = normalize_names_and_addresses!(valid_claim_data)
-
-      BGS::Form686c.new(user, claim).submit(claim_data)
-
-      # If Form 686c job succeeds, then enqueue 674 job.
-      BGS::SubmitForm674Job.perform_async(user_uuid, icn, saved_claim_id, encrypted_vet_info, KmsEncrypted::Box.new.encrypt(user.to_h.to_json)) if claim.submittable_674? # rubocop:disable Layout/LineLength
+      submit_forms(encrypted_vet_info)
 
       send_confirmation_email
-      in_progress_form&.destroy
       Rails.logger.info('BGS::SubmitForm686cJob succeeded!', { user_uuid:, saved_claim_id:, icn: })
+      InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:) unless claim.submittable_674?
     rescue => e
+      handle_filtered_errors!(e:, encrypted_vet_info:)
+
       Rails.logger.warn('BGS::SubmitForm686cJob received error, retrying...',
-                        { user_uuid:, saved_claim_id:, icn:, error: e.message })
+                        { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
       log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
-      salvage_save_in_progress_form(FORM_ID, user_uuid, @in_progress_copy) if @in_progress_copy.present?
       raise
+    end
+
+    def handle_filtered_errors!(e:, encrypted_vet_info:)
+      filter = FILTERED_ERRORS.any? { |filtered| e.message.include?(filtered) || e.cause&.message&.include?(filtered) }
+      return unless filter
+
+      Rails.logger.warn('BGS::SubmitForm686cJob received error, skipping retries...',
+                        { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
+
+      vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
+      self.class.send_backup_submission(vet_info, saved_claim_id, user_uuid)
+      raise Sidekiq::JobRetry::Skip
+    end
+
+    def instance_params(encrypted_vet_info, icn, user_uuid, saved_claim_id)
+      @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
+      @user = BGS::SubmitForm686cJob.generate_user_struct(@vet_info)
+      @icn = icn
+      @user_uuid = user_uuid
+      @saved_claim_id = saved_claim_id
+      @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
     end
 
     def self.generate_user_struct(vet_info)
@@ -74,16 +78,35 @@ module BGS
       )
     end
 
+    def self.send_backup_submission(vet_info, saved_claim_id, user_uuid)
+      if Flipper.enabled?(:dependents_central_submission)
+        user = generate_user_struct(vet_info)
+        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
+                                                            KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+                                                            KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
+      else
+        DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present? # rubocop:disable Style/IfInsideElse
+      end
+      InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
+    rescue => e
+      Rails.logger.warn('BGS::SubmitForm686cJob backup submission failed...',
+                        { user_uuid:, saved_claim_id:, error: e.message, nested_error: e.cause&.message })
+      InProgressForm.find_by(form_id: FORM_ID, user_uuid:)&.submission_pending!
+    end
+
     private
 
-    def valid_claim_data
-      @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
-
+    def submit_forms(encrypted_vet_info)
       claim.add_veteran_info(vet_info)
 
       raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
 
-      claim.formatted_686_data(vet_info)
+      claim_data = normalize_names_and_addresses!(claim.formatted_686_data(vet_info))
+
+      BGS::Form686c.new(user, claim).submit(claim_data)
+
+      # If Form 686c job succeeds, then enqueue 674 job.
+      BGS::SubmitForm674Job.perform_async(user_uuid, icn, saved_claim_id, encrypted_vet_info, KmsEncrypted::Box.new.encrypt(user.to_h.to_json)) if claim.submittable_674? # rubocop:disable Layout/LineLength
     end
 
     def send_confirmation_email

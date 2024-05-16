@@ -42,27 +42,16 @@ module ClaimsApi
 
       queue_flash_updater(auto_claim.flashes, auto_claim_id)
       queue_special_issues_updater(auto_claim.special_issues, auto_claim)
-    rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
-      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = e.messages
-      auto_claim.form_data = orig_form_data
-      auto_claim.save
-      log_exception_to_sentry(e)
     rescue ::Common::Exceptions::BackendServiceException => e
-      ClaimsApi::Logger.log('claims_establisher',
-                            retry: false,
-                            detail: "/submit failure for claimId #{auto_claim&.id}: #{e.original_body}, #{e.class}")
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = [{ 'key' => e.status_code, 'severity' => 'FATAL', 'text' => e.original_body }]
+      auto_claim.evss_response = get_error_message(e) # e.original_body
       auto_claim.form_data = orig_form_data
       auto_claim.save
-      log_exception_to_sentry(e)
     rescue => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = e.detailed_message
+      auto_claim.evss_response = get_error_message(e) # (e.errors.presence || e.detailed_message)
       auto_claim.form_data = orig_form_data
       auto_claim.save
-      log_exception_to_sentry(e)
       raise e
     end
 

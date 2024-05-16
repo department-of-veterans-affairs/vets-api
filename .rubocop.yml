@@ -82,6 +82,8 @@ Layout/LineLength:
 
 Rails:
   Enabled: true
+  Exclude:
+    - 'Dangerfile'
 
 Rails/Output:
   Exclude:

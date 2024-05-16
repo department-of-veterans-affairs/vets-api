@@ -13,7 +13,7 @@ module CentralMail
     def run(settings)
       stamp_path = Common::FileHelpers.random_file_path
       generate_stamp(stamp_path, settings[:text], settings[:x], settings[:y], settings[:text_only], settings[:size],
-                     settings[:timestamp], settings[:page_number], settings[:template])
+                     settings[:timestamp], settings[:page_number], settings[:template], @file_path)
       stamp(@file_path, stamp_path, multistamp: settings[:multistamp])
     ensure
       Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
@@ -21,10 +21,15 @@ module CentralMail
 
     # rubocop:disable Metrics/ParameterLists
     # rubocop:disable Metrics/MethodLength
-    def generate_stamp(stamp_path, text, x, y, text_only, size = 10, timestamp = nil, page_number = nil, template = nil)
+    def generate_stamp(stamp_path, text, x, y, text_only, size = 10, timestamp = nil, page_number = nil,
+                       template = nil, file_path = nil)
       timestamp ||= Time.zone.now
       unless text_only
-        text += " #{I18n.l(timestamp, format: :pdf_stamp)}"
+        text += if file_path == 'tmp/vba_40_10007-stamped.pdf'
+                  " #{I18n.l(timestamp, format: :pdf_stamp4010007)}"
+                else
+                  " #{I18n.l(timestamp, format: :pdf_stamp_utc)}"
+                end
         text += ". #{@append_to_stamp}" if @append_to_stamp
       end
 

@@ -13,8 +13,6 @@ module SignIn
       STATSD_SIS_REFRESH_FAILURE = 'api.sis.refresh.failure'
       STATSD_SIS_REVOKE_SUCCESS = 'api.sis.revoke.success'
       STATSD_SIS_REVOKE_FAILURE = 'api.sis.revoke.failure'
-      STATSD_SIS_INTROSPECT_SUCCESS = 'api.sis.introspect.success'
-      STATSD_SIS_INTROSPECT_FAILURE = 'api.sis.introspect.failure'
       STATSD_SIS_LOGOUT_SUCCESS = 'api.sis.logout.success'
       STATSD_SIS_LOGOUT_FAILURE = 'api.sis.logout.failure'
       STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS = 'api.sis.revoke_all_sessions.success'

@@ -1,22 +1,33 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require Vye::Engine.root / 'spec/rails_helper'
 
 RSpec.describe Vye::Verification, type: :model do
-  let(:user_info) { create(:vye_user_info) }
-
   describe 'create' do
-    let(:attributes) { FactoryBot.attributes_for(:vye_verification, user_info:) }
+    let!(:user_profile) { FactoryBot.create(:vye_user_profile) }
+    let(:verification) { FactoryBot.build(:vye_verification, user_profile:) }
 
     it 'creates a record' do
       expect do
-        Vye::Verification.create!(attributes)
+        verification.save!
       end.to change(Vye::Verification, :count).by(1)
     end
   end
 
   describe 'show todays verifications' do
-    let!(:verification) { FactoryBot.create(:vye_verification, user_info:) }
+    let!(:user_profile) { FactoryBot.create(:vye_user_profile) }
+    let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:) }
+    let!(:award) { FactoryBot.create(:vye_award, user_info:) }
+    let!(:verification) { FactoryBot.create(:vye_verification, award:, user_profile:) }
+
+    before do
+      ssn = '123456789'
+      profile = double(ssn:)
+      find_profile_by_identifier = double(profile:)
+      service = double(find_profile_by_identifier:)
+      allow(MPI::Service).to receive(:new).and_return(service)
+    end
 
     it 'shows todays verifications' do
       expect(Vye::Verification.todays_verifications.length).to eq(1)

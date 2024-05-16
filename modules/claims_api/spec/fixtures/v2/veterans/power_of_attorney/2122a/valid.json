@@ -1,16 +1,29 @@
 {
   "data": {
     "attributes": {
-      "representative": {
-        "poaCode": "083",
-        "firstName": "my",
-        "lastName": "name",
-        "type": "ATTORNEY",
+      "veteran": {
         "address": {
-          "numberAndStreet":  "123",
+          "addressLine1":  "123",
+          "addressLine2": "2a",
           "city": "city",
           "country":  "US",
-          "zipFirstFive": "12345"
+          "stateCode":"OR",
+          "zipCode": "12345",
+          "zipCodeSuffix":"6789"
+        }
+      },
+      "representative": {
+        "poaCode": "067",
+        "registrationNumber": "999999999999",
+        "type": "ATTORNEY",
+        "address": {
+          "addressLine1":  "123",
+          "addressLine2": "2a",
+          "city": "city",
+          "country":  "US",
+          "stateCode":"OR",
+          "zipCode": "12345",
+          "zipCodeSuffix":"6789"
         }
       }
     }

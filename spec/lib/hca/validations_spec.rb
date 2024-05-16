@@ -23,7 +23,8 @@ describe HCA::Validations, run_at: frozen_time do
     'parse_short_date',
     [
       [' ', ''],
-      ['1990-09-XX', '09/1990']
+      ['1990-09-XX', '09/1990'],
+      ['1990-XX-XX', '1990']
     ]
   )
 

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
+require_relative '../support/helpers/rails_helper'
 
 RSpec.describe 'dependents', type: :request do
   let!(:user) { sis_user(ssn: '796043735') }
@@ -10,6 +9,7 @@ RSpec.describe 'dependents', type: :request do
     it 'returns a list of dependents' do
       expected_data = [
         {
+          'id' => UUID_REGEX,
           'type' => 'dependents',
           'attributes' => {
             'awardIndicator' => 'N',
@@ -26,6 +26,7 @@ RSpec.describe 'dependents', type: :request do
           }
         },
         {
+          'id' => UUID_REGEX,
           'type' => 'dependents',
           'attributes' => {
             'awardIndicator' => 'N',
@@ -46,9 +47,9 @@ RSpec.describe 'dependents', type: :request do
       VCR.use_cassette('bgs/claimant_web_service/dependents') do
         get('/mobile/v0/dependents', params: { id: user.participant_id }, headers: sis_headers)
       end
+
       expect(response).to have_http_status(:ok)
-      response_without_ids = response.parsed_body['data'].each { |dependent| dependent.delete('id') }
-      expect(response_without_ids).to eq(expected_data)
+      expect(response.parsed_body['data'].to_a).to match(expected_data)
     end
 
     context 'with an erroneous bgs response' do
@@ -61,6 +62,7 @@ RSpec.describe 'dependents', type: :request do
         }
         allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_raise(BGS::ShareError)
         get('/mobile/v0/dependents', params: { id: user.participant_id }, headers: sis_headers)
+
         expect(response).to have_http_status(:bad_request)
         expect(response.parsed_body).to eq(expected_response)
       end
@@ -83,9 +85,18 @@ RSpec.describe 'dependents', type: :request do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           post('/mobile/v0/dependents', params: test_form, headers: sis_headers)
         end
+
         expect(response).to have_http_status(:accepted)
         submit_form_job_id = BGS::SubmitForm686cJob.jobs.first['jid']
-        expect(response.parsed_body).to eq({ 'data' => { 'submitFormJobId' => submit_form_job_id } })
+        expect(response.parsed_body['data'].to_h).to match(
+          {
+            'id' => UUID_REGEX,
+            'type' => 'dependents',
+            'attributes' => {
+              'submitFormJobId' => submit_form_job_id
+            }
+          }
+        )
       end
     end
 

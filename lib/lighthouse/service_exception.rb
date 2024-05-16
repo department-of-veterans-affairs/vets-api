@@ -86,12 +86,19 @@ module Lighthouse
         .transform_keys(&:to_sym)
     end
 
-    # sends errors to sentry!
+    # log errors
     def self.send_error_logs(error, service_name, lighthouse_client_id, url)
-      base_key_string = "#{lighthouse_client_id} #{url} Lighthouse Error"
+      # Faraday error may contain request data
+      error.response.delete(:request)
+
       Rails.logger.error(
-        error.response,
-        base_key_string
+        service_name,
+        {
+          url:,
+          lighthouse_client_id:,
+          status: error.response[:status],
+          body: error.response[:body]
+        }
       )
 
       extra_context = Sentry.set_extras(

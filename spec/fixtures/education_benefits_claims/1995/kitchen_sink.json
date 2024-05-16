@@ -15,6 +15,7 @@
       "street": "111 Uni Drive"
     }
   },
+  "sponsorSocialSecurityNumber": "111223333",
   "oldSchool": {
     "name": "old school name",
     "address": {
@@ -38,10 +39,14 @@
     "state": "WI",
     "street": "123 Main St"
   },
+  "applicantGender": "F",
+  "dateOfBirth": "1970-01-01",
   "civilianBenefitsAssistance": true,
   "email": "test@sample.com",
   "benefit": "transferOfEntitlement",
   "benefitUpdate": "transferOfEntitlement",
+  "changeAnotherBenefit": "Yes",
+  "benefitAppliedFor": "chapter30",
   "educationType": "tuitionTopUp",
   "educationTypeUpdate": "prepCourseForLoC",
   "educationObjective": "bachelor's degree",
@@ -58,6 +63,7 @@
     "married": true,
     "parentDependent": false
   },
+  "applicantServed": "Yes",
   "toursOfDuty": [{
     "dateRange": {
       "from": "2012-06-26",

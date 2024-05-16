@@ -390,6 +390,9 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
       describe 'Getting an accepted response' do
         response '202', 'upload response' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2',
+                                            'veterans', 'disability_compensation', 'attachments.json').read)
+
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                    'disability_compensation', 'form_526_json_api.json').read
@@ -399,7 +402,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           end
 
           let(:scopes) { %w[system/claim.write] }
-          let(:auto_claim) { create(:auto_established_claim) }
+          let(:auto_claim) { create(:auto_established_claim_v2) }
           let(:attachment1) do
             Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                     .to_s)
@@ -572,6 +575,9 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'disability_compensation', 'default.json').read)
+
           let(:Authorization) { nil }
 
           before do |example|

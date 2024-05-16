@@ -16,9 +16,9 @@ module VAProfile
         faraday.use      :breakers
         faraday.use      Faraday::Response::RaiseError
 
-        faraday.response :betamocks if mock_enabled?
         faraday.response :snakecase, symbolize: false
         faraday.response :json, content_type: /\bjson/ # ensures only json content types parsed
+        faraday.response :betamocks if mock_enabled?
         faraday.adapter Faraday.default_adapter
       end
     end

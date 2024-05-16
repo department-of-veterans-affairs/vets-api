@@ -6,9 +6,106 @@ require 'logging/third_party_transaction'
 
 class Form526Submission < ApplicationRecord
   extend Logging::ThirdPartyTransaction::MethodWrapper
-
+  include AASM
   include SentryLogging
   include Form526ClaimFastTrackingConcern
+
+  # Documentation:
+  # https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/disability/526ez/implementation/form_526_state_machine.md
+  aasm do
+    after_all_transitions :log_status_change
+
+    state :unprocessed, initial: true
+    state :delivered_to_primary, :failed_primary_delivery, :rejected_by_primary,
+          :delivered_to_backup, :failed_backup_delivery, :rejected_by_backup,
+          :in_remediation, :finalized_as_successful, :unprocessable,
+          :processed_in_batch_remediation, :ignorable_duplicate
+
+    # - a submission has been delivered to our happy path
+    # - requires polling to finalize
+    event :deliver_to_primary do
+      transitions to: :delivered_to_primary
+    end
+
+    # - submission failed delivery to primary path for any reason
+    # - requires backup submission or remediation
+    event :fail_primary_delivery do
+      transitions to: :failed_primary_delivery
+    end
+
+    # - a successfully delivered submission has failed 3rd party validations on primary path
+    # - requires backup submission or remediation
+    event :reject_from_primary do
+      transitions to: :rejected_by_primary
+    end
+
+    # - a submission has been delivered to our backup path
+    # - requires polling to finalize
+    event :deliver_to_backup do
+      transitions to: :delivered_to_backup
+    end
+
+    # - a submission has failed to be delivered to our backup path
+    # - requires remediation
+    event :fail_backup_delivery do
+      transitions to: :failed_backup_delivery
+    end
+
+    # - a successfully delivered submission has failed 3rd party validations on backup path
+    # - requires remediation
+    event :reject_from_backup do
+      transitions to: :rejected_by_backup
+    end
+
+    # - Submission has entered a manual remediation flow, e.g. failsafe, paper submission
+    # - requires confirmation of success, e.g. polling or manual confirmation via audit
+    event :begin_remediation do
+      transitions to: :in_remediation
+    end
+
+    # - The only state that means we no longer own completion of this submission
+    # - There is nothing more to do.  E.G.
+    #   - VBMS has accepted and returned the applicable status to us via
+    #     lighthouse benefits intack API
+    #   - Manual remediation has been confirmed successful
+    #   - EVSS has received this submission and now owns it
+    event :finalize_success do
+      transitions to: :finalized_as_successful
+    end
+
+    # - a submission should be ignored
+    # - we probably want to avoid using this state
+    event :mark_as_unprocessable do
+      transitions to: :unprocessable
+    end
+
+    # A special state to indicate this was part of our remediation 'batching'
+    # process in 2023.  These were handled manually and are distinct from `in_remediation`
+    # in that they were not tracked at the time of remediation, but rather later in
+    # the 2024 526 State audit.
+    #
+    # This state is useful to us at the time of creation, but may be something
+    # to flatten to a simple `finalized_as_successful` in the future.
+    event :process_in_batch_remediation do
+      transitions to: :processed_in_batch_remediation
+    end
+
+    # A special state to indicate this was part of our remediation 'batching'
+    # process in 2023.  These submissions may have been processed or not, but
+    # we don't care because they have an earlier, successful duplicate.
+    #
+    # Duplicates are identified by comparing form_json, using this script:
+    # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/teams/benefits/scripts/526/submission_deduper.rb
+    # The result of this script can be evaluated by a qualified stakeholder to make
+    # a judgement call on whether or not a submission is a 'perfect' duplicate.
+    #
+    # IF a submission is found to be an exact duplicate of another
+    # AND its duplicate was previously submitted / remediated successfully
+    # THEN we can ignore it as a duplicate
+    event :ignore_as_duplicate do
+      transitions to: :ignorable_duplicate
+    end
+  end
 
   wrap_with_logging(:start_evss_submission_job,
                     :enqueue_backup_submission,
@@ -47,7 +144,6 @@ class Form526Submission < ApplicationRecord
   #   @return [Timestamp] created at date.
   # @!attribute updated_at
   #   @return [Timestamp] updated at date.
-  #
   has_kms_key
   has_encrypted :auth_headers_json, :birls_ids_tried, :form_json, key: :kms_key, **lockbox_options
 
@@ -59,6 +155,21 @@ class Form526Submission < ApplicationRecord
   belongs_to :user_account, dependent: nil, optional: true
 
   validates(:auth_headers_json, presence: true)
+
+  scope :pending_backup_submissions, lambda {
+    where(aasm_state: 'delivered_to_backup')
+      .where.not(backup_submitted_claim_id: nil)
+  }
+
+  def log_status_change
+    log_hash = {
+      form_submission_id: id,
+      from_state: aasm.from_state,
+      to_state: aasm.to_state,
+      event: aasm.current_event
+    }
+    Rails.logger.info(log_hash)
+  end
 
   FORM_526 = 'form526'
   FORM_526_UPLOADS = 'form526_uploads'

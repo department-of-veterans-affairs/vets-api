@@ -1,42 +1,38 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/helpers/mobile_sm_client_helper'
-
-RSpec.describe 'Mobile Folders Integration', type: :request do
-  include Mobile::MessagingClientHelper
+require_relative '../support/helpers/rails_helper'
+RSpec.describe 'Mobile Folders Integration', skip_json_api_validation: true, type: :request do
   include SchemaMatchers
 
-  let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type:) }
+  let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type: 'Premium') }
   let(:inbox_id) { 0 }
 
   before do
-    allow(Mobile::V0::Messaging::Client).to receive(:new).and_return(authenticated_client)
+    Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
   end
 
-  context 'Basic User' do
-    let(:mhv_account_type) { 'Basic' }
+  after do
+    Timecop.return
+  end
 
-    it 'is not authorized' do
-      get '/mobile/v0/messaging/health/folders', headers: sis_headers
+  context 'when not authorized' do
+    it 'responds with 403 error' do
+      VCR.use_cassette('mobile/messages/session_error') do
+        get '/mobile/v0/messaging/health/folders', headers: sis_headers
+      end
       expect(response).not_to be_successful
-      expect(response.status).to eq(403)
+      expect(response).to have_http_status(:forbidden)
     end
   end
 
-  context 'Advanced User' do
-    let(:mhv_account_type) { 'Advanced' }
-
-    it 'is not authorized' do
-      get '/mobile/v0/messaging/health/folders', headers: sis_headers
-      expect(response).not_to be_successful
-      expect(response.status).to eq(403)
+  context 'when authorized' do
+    before do
+      VCR.insert_cassette('sm_client/session')
     end
-  end
 
-  context 'Premium User' do
-    let(:mhv_account_type) { 'Premium' }
+    after do
+      VCR.eject_cassette
+    end
 
     describe '#index' do
       it 'responds to GET #index' do
@@ -111,6 +107,8 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
           expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(response).to match_camelized_response_schema('folder')
+          link = response.parsed_body.dig('data', 'links', 'self')
+          expect(link).to eq('http://www.example.com/mobile/v0/messaging/health/folders/0')
         end
       end
     end
@@ -151,7 +149,6 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
         VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
           get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", headers: sis_headers
         end
-
         expect(response).to be_successful
         expect(response).to have_http_status(:ok)
         expect(response).to match_camelized_response_schema('messages')

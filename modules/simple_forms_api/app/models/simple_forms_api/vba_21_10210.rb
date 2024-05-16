@@ -3,6 +3,7 @@
 module SimpleFormsApi
   class VBA2110210
     include Virtus.model(nullify_blank: true)
+    STATS_KEY = 'api.simple_forms_api.21_10210'
 
     attribute :data
 
@@ -15,11 +16,15 @@ module SimpleFormsApi
         'veteranFirstName' => data.dig('veteran_full_name', 'first'),
         'veteranLastName' => data.dig('veteran_full_name', 'last'),
         'fileNumber' => data['veteran_va_file_number'].presence || data['veteran_ssn'],
-        'zipCode' => data.dig('veteran_mailing_address', 'postal_code') || '00000',
+        'zipCode' => data.dig('veteran_mailing_address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
+    end
+
+    def zip_code_is_us_based
+      @data.dig('veteran_mailing_address', 'country') == 'USA'
     end
 
     def words_to_remove
@@ -28,16 +33,32 @@ module SimpleFormsApi
         statement + witness_phone + witness_email
     end
 
-    def submission_date_config
-      {
-        should_stamp_date?: true,
-        page_number: 0,
-        title_coords: [460, 710],
-        text_coords: [460, 690]
-      }
+    def desired_stamps
+      [{ coords: [50, 160], text: data['statement_of_truth_signature'], page: 2 }]
     end
 
-    def track_user_identity; end
+    def submission_date_stamps
+      [
+        {
+          coords: [460, 710],
+          text: 'Application Submitted:',
+          page: 0,
+          font_size: 12
+        },
+        {
+          coords: [460, 690],
+          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          page: 0,
+          font_size: 12
+        }
+      ]
+    end
+
+    def track_user_identity(confirmation_number)
+      identity = "#{data['claimant_type']} #{data['claim_ownership']}"
+      StatsD.increment("#{STATS_KEY}.#{identity}")
+      Rails.logger.info('Simple forms api - 21-10210 submission user identity', identity:, confirmation_number:)
+    end
 
     private
 

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require_relative '../../../../rails_helper'
+require 'rails_helper'
+require Vye::Engine.root / 'spec/rails_helper'
 
 RSpec.describe Vye::V1::AddressChangesController, type: :request do
   let!(:current_user) { create(:user) }
@@ -40,7 +41,8 @@ RSpec.describe Vye::V1::AddressChangesController, type: :request do
     end
 
     describe 'where current_user is in VYE' do
-      let!(:user_info) { FactoryBot.create(:vye_user_info, icn: current_user.icn) }
+      let!(:user_profile) { FactoryBot.create(:vye_user_profile, icn: current_user.icn) }
+      let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:) }
 
       it 'creates a new address' do
         post('/vye/v1/address', params:)

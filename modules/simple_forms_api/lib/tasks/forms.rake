@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-PDFTK_HOMEBREW_PATH = '/opt/homebrew/bin/pdftk'
-PDFTK_LOCAL_PATH    = '/usr/local/bin/pdftk'
+PDFTK_HOMEBREW_PATH = '/opt/homebrew/bin/pdftk' unless defined?(PDFTK_HOMEBREW_PATH)
+PDFTK_LOCAL_PATH    = '/usr/local/bin/pdftk' unless defined?(PDFTK_LOCAL_PATH)
 SIMPLE_FORMS_API_MODELS_PATH = 'modules/simple_forms_api/app/models/simple_forms_api'
 SIMPLE_FORMS_API_MAPPINGS_PATH = 'modules/simple_forms_api/app/form_mappings'
 

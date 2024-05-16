@@ -7,6 +7,8 @@ module AppealsApi
   module PdfConstruction
     module NoticeOfDisagreement::V2
       class Structure
+        MAX_ISSUES_ON_MAIN_FORM = 5
+
         def initialize(notice_of_disagreement)
           @notice_of_disagreement = notice_of_disagreement
         end
@@ -27,7 +29,7 @@ module AppealsApi
             form_fields.virtual_tele_hearing => form_data.virtual_tele_hearing,
             form_fields.requesting_extension => form_data.requesting_extension,
             form_fields.appealing_vha_denial => form_data.appealing_vha_denial,
-            form_fields.additional_issues => form_data.additional_pages,
+            form_fields.additional_issues => form_data.extra_contestable_issues,
             form_fields.date_signed => form_data.date_signed
           }
 
@@ -148,20 +150,19 @@ module AppealsApi
           # to handle the contestableIssue content, so we fill the date, and do
           # the content afterwards.
 
-          form_data.contestable_issues.take(5).each_with_index do |issue, index|
+          form_data.contestable_issues.take(MAX_ISSUES_ON_MAIN_FORM).each_with_index do |issue, index|
             options[form_fields.issue_table_decision_date(index)] = issue['attributes']['decisionDate']
           end
 
           options
         end
-        # rubocop:disable Layout/LineLength
 
         def additional_pages?
-          form_data.contestable_issues.count > 5 || form_data.long_preferred_email? || form_data.requesting_extension? || form_data.long_rep_name?
+          form_data.contestable_issues.count > MAX_ISSUES_ON_MAIN_FORM ||
+            form_data.long_preferred_email? ||
+            form_data.requesting_extension? ||
+            form_data.long_rep_name?
         end
-        # rubocop:enable Layout/LineLength
-
-        MAX_ISSUES_ON_MAIN_FORM = 5
 
         def insert_issues_into_text_boxes(pdf, text_opts)
           form_data.contestable_issues.take(MAX_ISSUES_ON_MAIN_FORM).each_with_index do |issue, i|

@@ -1,5 +1,5 @@
-name: build-and-publish
-run-name: Build And Publish
+name: Build And Publish Preview Environment
+run-name: Build And Publish Preview Environment
 on: [push]
 jobs:
   build-and-publish:
@@ -41,7 +41,7 @@ jobs:
             USER_ID=${{ env.VETS_API_USER_ID }}
             RAILS_ENV=production
           context: .
-          file: Dockerfile-k8s
+          file: Dockerfile
           push: true
           tags: |
             ${{ steps.ecr-login.outputs.registry }}/dsva/preview-environment/vets-api:${{ steps.version.outputs.version }}

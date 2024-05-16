@@ -1,20 +1,16 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
+require_relative '../support/helpers/rails_helper'
 
 RSpec.describe 'vaos v2 appointments', type: :request do
   include JsonSchemaMatchers
-
-  before do
-    allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-  end
 
   let!(:user) { sis_user(icn: '1012846043V576341') }
 
   describe 'GET /mobile/v0/appointments' do
     before do
+      allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+      allow(Rails.logger).to receive(:info)
       Timecop.freeze(Time.zone.parse('2022-01-01T19:25:00Z'))
     end
 
@@ -26,6 +22,39 @@ RSpec.describe 'vaos v2 appointments', type: :request do
     let(:end_date) { Time.zone.parse('2023-01-01T00:00:00Z').iso8601 }
     let(:params) { { startDate: start_date, endDate: end_date, include: ['pending'] } }
 
+    describe 'authorization' do
+      context 'when feature flag is off' do
+        before { Flipper.disable('va_online_scheduling') }
+
+        it 'returns forbidden' do
+          get('/mobile/v0/appointments', headers: sis_headers, params:)
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'when user does not have access' do
+        let!(:user) { sis_user(:api_auth, :loa1, icn: nil) }
+
+        it 'returns forbidden' do
+          get('/mobile/v0/appointments', headers: sis_headers, params:)
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'when feature flag is on and user has access' do
+        it 'returns ok' do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
+                get '/mobile/v0/appointments', headers: sis_headers, params:
+              end
+            end
+          end
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+
     context 'backfill facility service returns data' do
       it 'location is populated' do
         VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
@@ -35,6 +64,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
             end
           end
         end
+        expect(response).to have_http_status(:ok)
         location = response.parsed_body.dig('data', 0, 'attributes', 'location')
         physical_location = response.parsed_body.dig('data', 0, 'attributes', 'physicalLocation')
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
@@ -53,6 +83,14 @@ RSpec.describe 'vaos v2 appointments', type: :request do
                                  'url' => nil,
                                  'code' => nil })
         expect(physical_location).to eq('MTZ OPC, LAB')
+        expect(response.parsed_body['meta']).to eq({
+                                                     'pagination' => { 'currentPage' => 1,
+                                                                       'perPage' => 10,
+                                                                       'totalPages' => 1,
+                                                                       'totalEntries' => 1 },
+                                                     'upcomingAppointmentsCount' => 0,
+                                                     'upcomingDaysLimit' => 7
+                                                   })
       end
     end
 
@@ -66,6 +104,9 @@ RSpec.describe 'vaos v2 appointments', type: :request do
             end
           end
         end
+        expect(response).to have_http_status(:ok)
+        expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error',
+                                                          errors: [{ missing_facilities: ['983'] }])
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
         location = response.parsed_body.dig('data', 0, 'attributes', 'location')
         expect(location).to eq({ 'id' => nil,
@@ -99,7 +140,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
     end
 
     context 'backfill clinic service returns data' do
-      it 'healthcareService is populated and vetextId is correct' do
+      it 'vetextId is correct' do
         VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
@@ -108,7 +149,6 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           end
         end
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
-        expect(response.parsed_body.dig('data', 0, 'attributes', 'healthcareService')).to eq('MTZ-LAB (BLOOD WORK)')
         expect(response.parsed_body.dig('data', 0, 'attributes', 'vetextId')).to eq('442;3220827.043')
       end
     end
@@ -125,6 +165,10 @@ RSpec.describe 'vaos v2 appointments', type: :request do
             end
           end
         end
+        expect(response).to have_http_status(:ok)
+        expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error',
+                                                          errors: [{ missing_facilities: ['999AA'] },
+                                                                   { missing_clinics: ['999'] }])
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
         expect(response.parsed_body.dig('data', 0, 'attributes', 'healthcareService')).to be_nil
       end
@@ -157,6 +201,14 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         end
 
         expect(response).to have_http_status(:multi_status)
+        appointment_error = { errors: [{ appointment_errors: [{ system: 'the system',
+                                                                id: 'id-string',
+                                                                status: 'status-string',
+                                                                code: 0,
+                                                                trace_id: 'traceId-string',
+                                                                message: 'msg-string',
+                                                                detail: 'detail-string' }] }] }
+        expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error', appointment_error)
         expect(response.parsed_body['data'].count).to eq(1)
         expect(response.parsed_body['meta']).to include(
           {
@@ -257,6 +309,8 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           end
           expect(response).to have_http_status(:ok)
           expect(appointment['attributes']['healthcareProvider']).to be_nil
+          expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error',
+                                                            errors: [{ missing_providers: ['1407938061'] }])
         end
 
         it 'falls back to nil when provider service returns 500' do
@@ -274,6 +328,8 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           end
           expect(response).to have_http_status(:ok)
           expect(appointment['attributes']['healthcareProvider']).to be_nil
+          expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error',
+                                                            errors: [{ missing_providers: ['1407938061'] }])
         end
       end
 

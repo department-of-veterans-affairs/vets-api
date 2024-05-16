@@ -44,5 +44,25 @@ RSpec.describe Users::Services do
         )
       end
     end
+
+    context 'with an MHV Premium user' do
+      let(:user) { build(:user, :mhv) }
+
+      before do
+        Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
+        VCR.insert_cassette('sm_client/session')
+      end
+
+      after do
+        VCR.eject_cassette
+        Timecop.return
+      end
+
+      it 'returns an array including the MHV services' do
+        %w[health-records medical-records messaging rx].each do |service|
+          expect(subject).to include(service)
+        end
+      end
+    end
   end
 end

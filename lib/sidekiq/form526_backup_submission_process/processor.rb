@@ -13,6 +13,7 @@ require 'central_mail/datestamp_pdf'
 require 'pdf_fill/filler'
 require 'logging/third_party_transaction'
 require 'simple_forms_api_submission/metadata_validator'
+require 'disability_compensation/factories/api_provider_factory'
 
 module Sidekiq
   module Form526BackupSubmissionProcess
@@ -341,7 +342,10 @@ module Sidekiq
       end
 
       def get_form_from_external_api(headers, form_json)
-        EVSS::DisabilityCompensationForm::Service.new(headers).get_form526(form_json)
+        # get the "breakered" version
+        service = choose_provider(headers, breakered: true)
+
+        service.generate_526_pdf(form_json)
       end
 
       def get_uploads
@@ -423,6 +427,18 @@ module Sidekiq
           Common::FileHelpers.delete_file_if_exists(actual_path_to_file) if ::Rails.env.production?
         end
       end
+
+      def choose_provider(headers, breakered: true)
+        ApiProviderFactory.call(
+          type: ApiProviderFactory::FACTORIES[:generate_pdf],
+          # let Flipper - the feature toggle - choose which provider
+          provider: nil,
+          # this sends the auth headers and if we want the "breakered" or "non-breakered" version
+          options: { auth_headers: headers, breakered: },
+          current_user: OpenStruct.new({ flipper_id: submission.user_uuid }),
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
+        )
+      end
     end
 
     class NonBreakeredProcessor < Processor
@@ -444,7 +460,10 @@ module Sidekiq
     end
 
     def get_from_non_breakered_service(headers, form_json)
-      EVSS::DisabilityCompensationForm::NonBreakeredService.new(headers).get_form526(form_json)
+      # get the "non-breakered" version
+      service = choose_provider(headers, breakered: false)
+
+      service.get_form526(form_json)
     end
 
     class NonBreakeredForm526BackgroundLoader

@@ -11,10 +11,37 @@ module CheckIn
       attribute :payload do |object|
         appointments =
           object.payload[:appointments].map do |appt|
-            appt.except!(:patientDFN)
+            appt.except!(:patientDFN, :icn, :edipi)
           end
 
-        raw_demographics = object.payload[:demographics]
+        demographics = prepare_demographics(object.payload[:demographics])
+
+        raw_confirmation = object.payload[:patientDemographicsStatus]
+        demographics_confirmation = if raw_confirmation.nil?
+                                      {}
+                                    else
+                                      {
+                                        demographicsNeedsUpdate: raw_confirmation[:demographicsNeedsUpdate],
+                                        demographicsConfirmedAt: raw_confirmation[:demographicsConfirmedAt],
+                                        nextOfKinNeedsUpdate: raw_confirmation[:nextOfKinNeedsUpdate],
+                                        nextOfKinConfirmedAt: raw_confirmation[:nextOfKinConfirmedAt],
+                                        emergencyContactNeedsUpdate: raw_confirmation[:emergencyContactNeedsUpdate],
+                                        emergencyContactConfirmedAt: raw_confirmation[:emergencyContactConfirmedAt]
+                                      }
+                                    end
+
+        {
+          address: object.payload[:address],
+          demographics:,
+          appointments:,
+          patientDemographicsStatus: demographics_confirmation,
+          setECheckinStartedCalled: object.payload[:setECheckinStartedCalled]
+        }
+      end
+
+      def self.prepare_demographics(raw_demographics)
+        return {} if raw_demographics.nil?
+
         demographics = {
           mailingAddress: address_helper(raw_demographics[:mailingAddress]),
           homeAddress: address_helper(raw_demographics[:homeAddress]),
@@ -24,45 +51,27 @@ module CheckIn
           emailAddress: raw_demographics[:emailAddress]
         }
 
-        raw_next_of_kin = object.payload.dig(:demographics, :nextOfKin1)
-        next_of_kin1 = {
-          name: raw_next_of_kin[:name],
-          relationship: raw_next_of_kin[:relationship],
-          phone: raw_next_of_kin[:phone],
-          workPhone: raw_next_of_kin[:workPhone],
-          address: address_helper(raw_next_of_kin[:address])
-        }
-        demographics.merge!(nextOfKin1: next_of_kin1)
+        demographics.merge!(nextOfKin1: prepare_contact(raw_demographics[:nextOfKin1])) if raw_demographics[:nextOfKin1]
+        if raw_demographics[:emergencyContact]
+          demographics.merge!(emergencyContact: prepare_contact(raw_demographics[:emergencyContact]))
+        end
 
-        raw_emergency_contact = object.payload.dig(:demographics, :emergencyContact)
-        emergency_contact = {
-          name: raw_emergency_contact[:name],
-          relationship: raw_emergency_contact[:relationship],
-          phone: raw_emergency_contact[:phone],
-          workPhone: raw_emergency_contact[:workPhone],
-          address: address_helper(raw_emergency_contact[:address])
-        }
-        demographics.merge!(emergencyContact: emergency_contact)
+        demographics
+      end
 
-        raw_confirmation = object.payload[:patientDemographicsStatus]
-        demographics_confirmation = {
-          demographicsNeedsUpdate: raw_confirmation[:demographicsNeedsUpdate],
-          demographicsConfirmedAt: raw_confirmation[:demographicsConfirmedAt],
-          nextOfKinNeedsUpdate: raw_confirmation[:nextOfKinNeedsUpdate],
-          nextOfKinConfirmedAt: raw_confirmation[:nextOfKinConfirmedAt],
-          emergencyContactNeedsUpdate: raw_confirmation[:emergencyContactNeedsUpdate],
-          emergencyContactConfirmedAt: raw_confirmation[:emergencyContactConfirmedAt]
-        }
-        set_e_check_in_started_called = object.payload[:setECheckinStartedCalled]
+      def self.prepare_contact(raw_contact)
         {
-          demographics:,
-          appointments:,
-          patientDemographicsStatus: demographics_confirmation,
-          setECheckinStartedCalled: set_e_check_in_started_called
+          name: raw_contact[:name],
+          relationship: raw_contact[:relationship],
+          phone: raw_contact[:phone],
+          workPhone: raw_contact[:workPhone],
+          address: address_helper(raw_contact[:address])
         }
       end
 
       def self.address_helper(address)
+        return {} if address.nil?
+
         {
           street1: address[:street1],
           street2: address[:street2],

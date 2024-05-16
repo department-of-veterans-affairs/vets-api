@@ -2,11 +2,11 @@
 
 source 'https://rubygems.org'
 
-ruby '~> 3.2.3'
+ruby '~> 3.2.4'
 
 # Modules
 path 'modules' do
-  gem 'accredited_representatives'
+  gem 'accredited_representative_portal'
   gem 'appeals_api'
   gem 'apps_api'
   gem 'ask_va_api'
@@ -20,10 +20,12 @@ path 'modules' do
   gem 'facilities_api'
   gem 'health_quest'
   gem 'income_limits'
+  gem 'ivc_champva'
   gem 'meb_api'
   gem 'mobile'
   gem 'mocked_authentication'
   gem 'my_health'
+  gem 'representation_management'
   gem 'simple_forms_api'
   gem 'test_user_dashboard'
   gem 'travel_pay'
@@ -36,7 +38,7 @@ path 'modules' do
   gem 'vye'
 end
 
-gem 'rails', '~> 7.0.8'
+gem 'rails', '~> 7.1.3'
 
 gem 'aasm'
 gem 'active_model_serializers'
@@ -56,7 +58,7 @@ gem 'carrierwave-aws'
 gem 'clamav-client', require: 'clamav/client'
 gem 'combine_pdf'
 gem 'config'
-gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/connect_vbms.git', branch: 'master', require: 'vbms'
+gem 'connect_vbms', git: 'https://github.com/adhocteam/connect_vbms', tag: 'v2.0.0.rc', require: 'vbms'
 gem 'date_validator'
 gem 'ddtrace'
 gem 'dogstatsd-ruby', '5.6.1'
@@ -111,7 +113,6 @@ gem 'okcomputer'
 gem 'olive_branch'
 gem 'operating_hours'
 gem 'ox'
-gem 'paper_trail'
 gem 'parallel'
 gem 'pdf-forms'
 gem 'pdf-reader'
@@ -174,7 +175,7 @@ end
 
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.0.0.vsp'
-  gem 'fakeredis'
+  gem 'mock_redis'
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'
   gem 'rspec-retry'
@@ -215,7 +216,7 @@ group :development, :test do
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
   gem 'rubocop-thread_safety'
-  gem 'sidekiq', '>= 6.4.0'
+  gem 'sidekiq', '~> 7.2.0'
   gem 'timecop'
   gem 'webmock'
   gem 'yard'

@@ -37,10 +37,17 @@ RSpec.describe V0::RatedDisabilitiesDiscrepanciesController, type: :controller d
         expect(response).to have_http_status(:ok)
 
         # Lighthouse should return 3 items, but filter out the inactive one, so when comparing
-        # with EVSS (which should return 1 rating), there should be a discrepancy of 2 ratings
+        # with EVSS (which should return 1 rating), there should be a discrepancy of 1 ratings
         expect(Rails.logger).to have_received(:info).with(
-          'Discrepancy of 1 disability ratings',
-          { message_type: 'lh.rated_disabilities.length_discrepancy', revision: 3 }
+          'Discrepancy between Lighthouse and EVSS disability ratings',
+          {
+            message_type: 'lh.rated_disabilities.length_discrepancy',
+            evss_length: 1,
+            evss_rating_ids: ['1'],
+            lighthouse_length: 2,
+            lighthouse_rating_ids: %w[1 2],
+            revision: 5
+          }
         )
       end
 
@@ -53,12 +60,19 @@ RSpec.describe V0::RatedDisabilitiesDiscrepanciesController, type: :controller d
 
         expect(response).to have_http_status(:ok)
 
-        # Lighthouse should return 3 total items, but filter out the deferred one,
+        # Lighthouse should return 4 total items, but filter out the deferred one,
         # so when comparing with EVSS (which should return 1 rating), there should be
-        # a discrepancy of 1 rating
+        # a discrepancy of 2 ratings
         expect(Rails.logger).to have_received(:info).with(
-          'Discrepancy of 1 disability ratings',
-          { message_type: 'lh.rated_disabilities.length_discrepancy', revision: 3 }
+          'Discrepancy between Lighthouse and EVSS disability ratings',
+          {
+            message_type: 'lh.rated_disabilities.length_discrepancy',
+            evss_length: 1,
+            evss_rating_ids: ['1'],
+            lighthouse_length: 3,
+            lighthouse_rating_ids: %w[1 3 5],
+            revision: 5
+          }
         )
       end
     end

@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'support/mr_client_helpers'
 require 'medical_records/client'
+require 'support/shared_examples_for_mhv'
 
 RSpec.describe 'Medical Records Integration', type: :request do
   include MedicalRecords::ClientHelpers
@@ -17,8 +18,38 @@ RSpec.describe 'Medical Records Integration', type: :request do
     sign_in_as(current_user)
   end
 
+  context 'Basic User' do
+    let(:mhv_account_type) { 'Basic' }
+
+    before { get '/my_health/v1/medical_records/allergies' }
+
+    include_examples 'for user account level', message: 'You do not have access to medical records'
+    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to medical records'
+  end
+
+  context 'Advanced User' do
+    let(:mhv_account_type) { 'Advanced' }
+
+    before { get '/my_health/v1/medical_records/allergies' }
+
+    include_examples 'for user account level', message: 'You do not have access to medical records'
+    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to medical records'
+  end
+
   context 'Premium User' do
     let(:mhv_account_type) { 'Premium' }
+
+    context 'not a va patient' do
+      before { get '/my_health/v1/medical_records/allergies' }
+
+      let(:va_patient) { false }
+      let(:current_user) do
+        build(:user, :mhv, :no_vha_facilities, va_patient:, mhv_account_type:)
+      end
+
+      include_examples 'for non va patient user', authorized: false,
+                                                  message: 'You do not have access to medical records'
+    end
 
     it 'responds to GET #index' do
       VCR.use_cassette('mr_client/get_a_list_of_health_conditions') do
@@ -31,33 +62,30 @@ RSpec.describe 'Medical Records Integration', type: :request do
 
     it 'responds to GET #show' do
       VCR.use_cassette('mr_client/get_a_health_condition') do
-        get '/my_health/v1/medical_records/conditions/39274'
+        get '/my_health/v1/medical_records/conditions/4169'
       end
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
     end
 
-    # TODO: These aren't great error-condition tests because they will eventually be valid API calls.
-    # Instead, when we get real data from MHV, update these to record actual error cases. For now I
-    # have commented these out.
+    context 'when the patient is not found' do
+      before do
+        allow_any_instance_of(MedicalRecords::Client).to receive(:list_conditions)
+          .and_raise(MedicalRecords::PatientNotFound)
+        allow_any_instance_of(MedicalRecords::Client).to receive(:get_condition)
+          .and_raise(MedicalRecords::PatientNotFound)
+      end
 
-    # it 'responds with an error to GET #index when no patient ID is provided' do
-    #   VCR.use_cassette('mr_client/get_a_list_of_health_conditions_error') do
-    #     get '/my_health/v1/medical_records/conditions?patient_id='
-    #   end
+      it 'returns a 202 Accepted response for GET #index' do
+        get '/my_health/v1/medical_records/conditions'
+        expect(response).to have_http_status(:accepted)
+      end
 
-    #   expect(response).to have_http_status(:bad_request)
-    #   expect(response.body).to include 'Parameter value missing in request'
-    # end
-
-    # it 'responds with an error to GET #show when no condition ID is provided' do
-    #   VCR.use_cassette('mr_client/get_a_health_condition_error') do
-    #     get '/my_health/v1/medical_records/conditions'
-    #   end
-
-    #   expect(response).to have_http_status(:bad_request)
-    #   expect(response.body).to include 'Parameter value missing in request'
-    # end
+      it 'returns a 202 Accepted response for GET #show' do
+        get '/my_health/v1/medical_records/conditions/39274'
+        expect(response).to have_http_status(:accepted)
+      end
+    end
   end
 end

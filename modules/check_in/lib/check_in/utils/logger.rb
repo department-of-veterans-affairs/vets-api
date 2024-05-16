@@ -29,7 +29,8 @@ module CheckIn
           uuid:,
           controller: ctrl_name,
           action: ctrl_action,
-          initiated_by:
+          initiated_by:,
+          facility_type:
         }
       end
 
@@ -60,7 +61,7 @@ module CheckIn
       end
 
       def uuid
-        ctrl.params[:id] || ctrl.permitted_params[:uuid]
+        ctrl.params[:id] || ctrl.params[:session_id] || ctrl.permitted_params[:uuid]
       end
 
       def initiated_by
@@ -72,6 +73,11 @@ module CheckIn
         else
           ''
         end
+      end
+
+      def facility_type
+        ctrl.params[:facility_type] || ctrl.params.dig(:session, :facility_type) ||
+          ctrl.params.dig(:travel_claims, :facility_type)
       end
     end
   end

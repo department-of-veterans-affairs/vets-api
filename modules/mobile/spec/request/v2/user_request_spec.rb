@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../../support/helpers/sis_session_helper'
-require_relative '../../support/matchers/json_schema_matcher'
+require_relative '../../support/helpers/rails_helper'
 require 'common/client/errors'
 
 RSpec.describe 'user', type: :request do
@@ -12,6 +10,10 @@ RSpec.describe 'user', type: :request do
     let!(:user) { sis_user(idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
     let(:get_user) { get '/mobile/v2/user', headers: sis_headers }
     let(:attributes) { response.parsed_body.dig('data', 'attributes') }
+
+    before { Flipper.enable_actor(:mobile_v1_lighthouse_facilities, user) }
+
+    after { Flipper.disable(:mobile_v1_lighthouse_facilities) }
 
     it 'returns an ok response' do
       get_user

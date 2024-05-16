@@ -1,5 +1,4 @@
-name: Test, Lint, Build & Push to ECR & Update Manifests
-# IMPORTANT: REFACTOR BACK TO SEPARARATE JOBS AFTER K8s is merged to master and uncomment the deploy.yml
+name: Build, Push, & Deploy
 on:
   pull_request:
     branches:
@@ -169,55 +168,14 @@ jobs:
             ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
           cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
           cache-to: type=inline
-
-  deploy: # REMOVE THIS AFTER K8s is merged to master and uncomment the deploy.yml
-    if: github.ref == 'refs/heads/k8s'
-    needs: [tests, linting_and_security, build_and_push]
-    uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@k8s #change to master after testing is successful
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@master
     with:
       ecr_repository: "vets-api"
       manifests_directory: "vets-api"
       auto_deploy_envs: "dev staging prod sandbox"
+      commit_sha: ${{ github.sha }} 
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-  notify_on_failure:
-    runs-on: ubuntu-latest
-    if: failure() && github.ref == 'refs/heads/k8s'
-    needs: [tests, linting_and_security, build_and_push, deploy]
-    steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@010d0da01d0b5a38af31e9c3470dbfdabdecca3a # v4.0.1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: "us-gov-west-1"
-      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
-        with:
-          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
-          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
-      - name: Checkout VSP actions
-        uses: actions/checkout@v2
-        with:
-          repository: department-of-veterans-affairs/vsp-github-actions
-          ref: refs/heads/main
-          token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
-          persist-credentials: false
-          path: ./.github/actions/vsp-github-actions
-      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
-        with:
-          ssm_parameter: /devops/github_actions_slack_socket_token
-          env_variable_name: SLACK_APP_TOKEN
-      - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
-        with:
-          ssm_parameter: /devops/github_actions_slack_bot_user_token
-          env_variable_name: SLACK_BOT_TOKEN
-      - name: slack notify
-        uses: ./.github/actions/vsp-github-actions/slack-socket
-        with:
-          slack_app_token: ${{ env.SLACK_APP_TOKEN }}
-          slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
-          message: "A packer build of ${{ matrix.build_location }} just failed."
-          blocks: "[{\"type\": \"divider\"}, {\"type\": \"section\", \"text\": { \"type\": \"mrkdwn\", \"text\": \":blob-disappointed: GitHub Action Runner Workflow ${{ matrix.build_location }} failed! :blob-disappointed:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Workflow: ${{ github.workflow }} Run #${{ github.run_number }}>\"}}, {\"type\": \"divider\"}]"
-          channel_id: "C039HRTHXDH"

@@ -23,7 +23,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 12 Feb 2024 02:22:38 GMT
+      - Tue, 27 Feb 2024 02:22:38 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
@@ -90,7 +90,6 @@ http_interactions:
       "legal_effective_date": "2018-03-27",
       "individual_ratings": [
         {
-          "description": "Service Connected",
           "decision": "Service Connected",
           "effective_date": "2018-03-27",
           "rating_end_date": null,
@@ -101,9 +100,9 @@ http_interactions:
           "diagnostic_text": "Diabetes mellitus0"
         },
         {
-          "description": "Service Connected",
           "decision": "Deferred",
           "effective_date": "2018-03-12",
+          "rating_end_date": null,
           "rating_percentage": 30,
           "diagnostic_type_code": "6260",
           "diagnostic_type_name": "Tinnitus",          
@@ -112,17 +111,27 @@ http_interactions:
         },
         {
           "decision": "Not Service Connected",
-          "effective_date": "2018-03-27",
+          "effective_date": null,
           "rating_end_date": null,
-          "rating_percentage": 50,
+          "rating_percentage": null,
+          "diagnostic_type_code": "5257",
+          "diagnostic_type_name": "Impairment of the knee, general",
+          "disability_rating_id": "3",
+          "diagnostic_text": "knee condition right"
+        },
+        {
+          "decision": "Not Service Connected",
+          "effective_date": null,
+          "rating_end_date": "2028-10-20",
+          "rating_percentage": null,
           "diagnostic_type_code": "1134",
           "diagnostic_type_name": "Schizophrenia, disorganized type",
-          "disability_rating_id": "2",
+          "disability_rating_id": "5",
           "diagnostic_text": "bilateral hearing loss"
         }
       ]
     }
   }
 }'
-  recorded_at: Mon, 12 Feb 2024 02:22:38 GMT
+  recorded_at: Tue, 27 Feb 2024 02:22:38 GMT
 recorded_with: VCR 6.2.0

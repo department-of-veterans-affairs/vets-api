@@ -146,18 +146,18 @@ describe 'Higher-Level Reviews', openapi_spec:, type: :request do
     end
   end
 
-  path '/higher_level_reviews/{uuid}/download' do
-    get 'Download a watermarked copy of a submitted Higher-Level Review' do
-      tags 'Higher-Level Reviews'
-      operationId 'downloadHlr'
-      security DocHelpers.decision_reviews_security_config
+  # path '/higher_level_reviews/{uuid}/download' do
+  # get 'Download a watermarked copy of a submitted Higher-Level Review' do
+  # tags 'Higher-Level Reviews'
+  # operationId 'downloadHlr'
+  # security DocHelpers.decision_reviews_security_config
 
-      include_examples 'decision reviews PDF download docs', {
-        factory: :extra_higher_level_review_v2,
-        appeal_type_display_name: 'Higher-Level Review'
-      }
-    end
-  end
+  # include_examples 'decision reviews PDF download docs', {
+  # factory: :extra_higher_level_review_v2,
+  # appeal_type_display_name: 'Higher-Level Review'
+  # }
+  # end
+  # end
 
   path '/higher_level_reviews/contestable_issues/{benefit_type}' do
     get 'Returns all contestable issues for a specific veteran.' do

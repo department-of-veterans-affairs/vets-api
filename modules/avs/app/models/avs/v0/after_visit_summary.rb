@@ -33,7 +33,7 @@ module Avs
     attribute :clinic_medications, Array
     attribute :va_medications, Array
     attribute :nonva_medications, Array
-    attribute :med_changes_summary, Array
+    attribute :med_changes_summary, Object
     attribute :lab_results, Array
     attribute :radiology_reports1_yr, String
     attribute :discrete_data, Object

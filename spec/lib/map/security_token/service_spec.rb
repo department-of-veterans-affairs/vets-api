@@ -10,12 +10,13 @@ describe MAP::SecurityToken::Service do
     let(:application) { :some_application }
     let(:icn) { 'some-icn' }
     let(:log_prefix) { '[MAP][SecurityToken][Service]' }
-    let(:expected_request_message) { "#{log_prefix} token request, application: #{application}, icn: #{icn}" }
+    let(:expected_request_message) { "#{log_prefix} token request" }
+    let(:expected_request_payload) { { application:, icn: } }
 
     shared_examples 'STS token request' do
       it 'logs the token request' do
         VCR.use_cassette('map/security_token_service_200_response') do
-          expect(Rails.logger).to receive(:info).with(expected_request_message)
+          expect(Rails.logger).to receive(:info).with(expected_request_message, expected_request_payload)
           expect(Rails.logger).to receive(:info).and_call_original
           subject
         end
@@ -42,12 +43,13 @@ describe MAP::SecurityToken::Service do
       end
 
       context 'and response is successful' do
-        let(:expected_log_message) { "#{log_prefix} token success, application: #{application}, icn: #{icn}" }
+        let(:expected_log_message) { "#{log_prefix} token success" }
+        let(:expected_log_payload) { { application:, icn: } }
 
         it 'logs a token success message',
            vcr: { cassette_name: 'map/security_token_service_200_response' } do
           expect(Rails.logger).to receive(:info).once.and_call_original
-          expect(Rails.logger).to receive(:info).with(expected_log_message)
+          expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
           subject
         end
 

@@ -31,7 +31,7 @@ class SavedClaim < ApplicationRecord
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
   after_initialize do
-    self.form_id = self.class::FORM.upcase
+    self.form_id = self.class::FORM.upcase unless instance_of?(SavedClaim::Burial)
   end
 
   def self.add_form_and_validation(form_id)
@@ -51,7 +51,7 @@ class SavedClaim < ApplicationRecord
 
   def submit_to_structured_data_services!
     # Only 21P-530 burial forms are supported at this time
-    if form_id != '21P-530'
+    unless %w[21P-530 21P-530V2].include?(form_id)
       err_message = "Unsupported form id: #{form_id}"
       raise Common::Exceptions::UnprocessableEntity.new(detail: err_message), err_message
     end
@@ -100,6 +100,10 @@ class SavedClaim < ApplicationRecord
     application = parsed_form
     application[key] = value
     self.form = JSON.generate(application)
+  end
+
+  def business_line
+    ''
   end
 
   private

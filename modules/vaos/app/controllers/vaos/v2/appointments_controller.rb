@@ -11,7 +11,6 @@ module VAOS
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
       NPI_NOT_FOUND_MSG = "We're sorry, we can't display your provider's information right now."
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
-      PID = 'PID'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       APPT_INDEX = "GET '/vaos/v1/patients/<icn>/appointments'"
       APPT_SHOW = "GET '/vaos/v1/patients/<icn>/appointments/<id>'"
@@ -32,7 +31,6 @@ module VAOS
 
         appointments[:data].each do |appt|
           scrape_appt_comments_and_log_details(appt, APPT_INDEX, PAP_COMPLIANCE_TELE)
-          scrape_appt_comments_and_log_details(appt, APPT_INDEX, PID)
         end
 
         serializer = VAOS::V2::VAOSSerializer.new
@@ -62,7 +60,6 @@ module VAOS
         appointment[:location] = get_facility_memoized(appointment[:location_id]) unless appointment[:location_id].nil?
 
         scrape_appt_comments_and_log_details(appointment, APPT_SHOW, PAP_COMPLIANCE_TELE)
-        scrape_appt_comments_and_log_details(appointment, APPT_SHOW, PID)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointment, 'appointments')
@@ -86,7 +83,6 @@ module VAOS
         end
 
         scrape_appt_comments_and_log_details(new_appointment, APPT_CREATE, PAP_COMPLIANCE_TELE)
-        scrape_appt_comments_and_log_details(new_appointment, APPT_CREATE, PID)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(new_appointment, 'appointments')
@@ -227,6 +223,26 @@ module VAOS
         end
       end
 
+      # Checks if the appointment is associated with cerner. It looks through each identifier and checks if the system
+      # contains cerner. If it does, it returns true. Otherwise, it returns false.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is associated with cerner, false otherwise
+      def cerner?(appt)
+        return false if appt.nil?
+
+        identifiers = appt[:identifier]
+
+        return false if identifiers.nil?
+
+        identifiers.each do |identifier|
+          system = identifier[:system]
+          return true if system.include?('cerner')
+        end
+
+        false
+      end
+
       def merge_clinics(appointments)
         appointments.each do |appt|
           unless appt[:clinic].nil? || appt[:location_id].nil?
@@ -247,7 +263,25 @@ module VAOS
       def merge_facilities(appointments)
         appointments.each do |appt|
           appt[:location] = get_facility_memoized(appt[:location_id]) unless appt[:location_id].nil?
+          if cerner?(appt) && contains_substring(extract_all_values(appt[:location]), 'COL OR 1')
+            log_appt_id_location_name(appt)
+          end
         end
+      end
+
+      def log_appt_id_location_name(appt)
+        Rails.logger.info("Details for Cerner 'COL OR 1' Appointment",
+                          appt_cerner_location_data(appt[:id],
+                                                    appt[:location]&.[]('id'),
+                                                    appt[:location]&.[]('name')).to_json)
+      end
+
+      def appt_cerner_location_data(appt_id, facility_location_id, facility_name)
+        {
+          appt_id:,
+          facility_location_id:,
+          facility_name:
+        }
       end
 
       def get_clinic_memoized(location_id, clinic_id)
@@ -273,6 +307,66 @@ module VAOS
         FACILITY_ERROR_MSG
       end
       memoize :get_facility_memoized
+
+      # This method extracts all values from a given object, which can be either an `OpenStruct`, `Hash`, or `Array`.
+      # It recursively traverses the object and collects all values into an array.
+      # In case of an `Array`, it looks inside each element of the array for values.
+      # If the object is neither an OpenStruct, Hash, nor an Array, it returns the unmodified object in an array.
+      #
+      # @param object [OpenStruct, Hash, Array] The object from which to extract values.
+      # This could either be an OpenStruct, Hash or Array.
+      #
+      # @return [Array] An array of all values found in the object.
+      # If the object is not an OpenStruct, Hash, nor an Array, then the unmodified object is returned.
+      #
+      # @example
+      #   extract_all_values({a: 1, b: 2, c: {d: 3, e: 4}})  # => [1, 2, 3, 4]
+      #   extract_all_values(OpenStruct.new(a: 1, b: 2, c: OpenStruct.new(d: 3, e: 4))) # => [1, 2, 3, 4]
+      #   extract_all_values([{a: 1}, {b: 2}]) # => [1, 2]
+      #   extract_all_values({a: 1, b: [{c: 2}, {d: "hello"}]}) # => [1, 2, "hello"]
+      #   extract_all_values("not a hash, openstruct, or array")  # => ["not a hash, openstruct, or array"]
+      #
+      def extract_all_values(object)
+        return [object] unless object.is_a?(OpenStruct) || object.is_a?(Hash) || object.is_a?(Array)
+
+        values = []
+        object = object.to_h if object.is_a?(OpenStruct)
+
+        if object.is_a?(Array)
+          object.each do |o|
+            values += extract_all_values(o)
+          end
+        else
+          object.each_pair do |_, value|
+            case value
+            when OpenStruct, Hash, Array then values += extract_all_values(value)
+            else values << value
+            end
+          end
+        end
+
+        values
+      end
+
+      # This method checks if any string element in the given array contains the specified substring.
+      #
+      # @param arr [Array] The array to be searched.
+      # @param substring [String] The substring to look for.
+      #
+      # @return [Boolean] Returns true if any string element in the array contains the substring, false otherwise.
+      # If the input parameters are not of the correct type the method will return false.
+      #
+      # @example
+      #   contains_substring(['Hello', 'World'], 'ell')  # => true
+      #   contains_substring(['Hello', 'World'], 'xyz')  # => false
+      #   contains_substring('Hello', 'ell')  # => false
+      #   contains_substring(['Hello', 'World'], 123)  # => false
+      #
+      def contains_substring(arr, substring)
+        return false unless arr.is_a?(Array) && substring.is_a?(String)
+
+        arr.any? { |element| element.is_a?(String) && element.include?(substring) }
+      end
 
       def scrape_appt_comments_and_log_details(appt, appt_method, comment_key)
         if appt&.[](:reason)&.include? comment_key

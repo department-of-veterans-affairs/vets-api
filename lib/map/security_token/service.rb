@@ -9,13 +9,13 @@ module MAP
       configuration Configuration
 
       def token(application:, icn:)
-        Rails.logger.info("#{config.logging_prefix} token request, application: #{application}, icn: #{icn}")
+        Rails.logger.info("#{config.logging_prefix} token request", { application:, icn: })
         response = perform(:post,
                            config.token_path,
                            token_params(application, icn),
                            { 'Content-Type' => 'application/x-www-form-urlencoded' })
         sts_token = parse_response(response, application, icn)
-        Rails.logger.info("#{config.logging_prefix} token success, application: #{application}, icn: #{icn}")
+        Rails.logger.info("#{config.logging_prefix} token success", { application:, icn: })
         sts_token
       rescue Common::Client::Errors::ClientError => e
         parse_and_raise_error(e, icn, application)
