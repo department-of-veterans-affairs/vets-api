@@ -28,14 +28,14 @@ RSpec.describe 'VBADocuments::SlackStatusNotifier', type: :job do
 
   context 'when no new expired uploads were found' do
     before do
-      VBADocuments::UploadSubmission.new(status: 'pending', consumer_name: 'sometech').save!
-      VBADocuments::UploadSubmission.new(status: 'uploaded', consumer_name: 'sometech').save!
-      VBADocuments::UploadSubmission.new(status: 'received', consumer_name: 'sometech').save!
-      VBADocuments::UploadSubmission.new(status: 'processing', consumer_name: 'sometech').save!
-      VBADocuments::UploadSubmission.new(status: 'success', consumer_name: 'sometech').save!
-      VBADocuments::UploadSubmission.new(status: 'vbms', consumer_name: 'sometech').save!
-      VBADocuments::UploadSubmission.new(status: 'error', consumer_name: 'sometech').save!
-      VBADocuments::UploadSubmission.new(status: 'expired', consumer_name: 'sometech', created_at: 5.days.ago).save!
+      create(:upload_submission, status: 'pending', consumer_name: 'sometech')
+      create(:upload_submission, status: 'uploaded', consumer_name: 'sometech')
+      create(:upload_submission, status: 'received', consumer_name: 'sometech')
+      create(:upload_submission, status: 'processing', consumer_name: 'sometech')
+      create(:upload_submission, status: 'success', consumer_name: 'sometech')
+      create(:upload_submission, status: 'vbms', consumer_name: 'sometech')
+      create(:upload_submission, status: 'error', consumer_name: 'sometech')
+      create(:upload_submission, status: 'expired', consumer_name: 'sometech', created_at: 5.days.ago)
     end
 
     it 'does nothing' do
@@ -46,8 +46,8 @@ RSpec.describe 'VBADocuments::SlackStatusNotifier', type: :job do
 
   context 'when expired uploads are found and exceed the reporting threshold' do
     before do
-      VBADocuments::UploadSubmission.new(status: 'uploaded', consumer_name: 'sometech').save!
-      VBADocuments::UploadSubmission.new(status: 'expired', consumer_name: 'vagov').save!
+      create(:upload_submission, status: 'uploaded', consumer_name: 'sometech')
+      create(:upload_submission, status: 'expired', consumer_name: 'vagov')
     end
 
     it 'warns using slack' do
@@ -68,14 +68,14 @@ RSpec.describe 'VBADocuments::SlackStatusNotifier', type: :job do
 
   context 'when no new uploaded uploads were found' do
     before do
-      VBADocuments::UploadSubmission.new(status: 'pending', consumer_name: 'sometech2').save!
-      VBADocuments::UploadSubmission.new(status: 'uploaded', consumer_name: 'sometech').save!
-      VBADocuments::UploadSubmission.new(status: 'received', consumer_name: 'sometech').save!
-      VBADocuments::UploadSubmission.new(status: 'processing', consumer_name: 'sometech').save!
-      VBADocuments::UploadSubmission.new(status: 'success', consumer_name: 'sometech').save!
-      VBADocuments::UploadSubmission.new(status: 'vbms', consumer_name: 'sometech').save!
-      VBADocuments::UploadSubmission.new(status: 'error', consumer_name: 'sometech').save!
-      VBADocuments::UploadSubmission.new(status: 'expired', consumer_name: 'sometech', created_at: 5.days.ago).save!
+      create(:upload_submission, status: 'pending', consumer_name: 'sometech2')
+      create(:upload_submission, status: 'uploaded', consumer_name: 'sometech')
+      create(:upload_submission, status: 'received', consumer_name: 'sometech')
+      create(:upload_submission, status: 'processing', consumer_name: 'sometech')
+      create(:upload_submission, status: 'success', consumer_name: 'sometech')
+      create(:upload_submission, status: 'vbms', consumer_name: 'sometech')
+      create(:upload_submission, status: 'error', consumer_name: 'sometech')
+      create(:upload_submission, status: 'expired', consumer_name: 'sometech', created_at: 5.days.ago)
     end
 
     it 'does nothing' do
@@ -87,26 +87,28 @@ RSpec.describe 'VBADocuments::SlackStatusNotifier', type: :job do
   context 'when uploaded uploads are found' do
     before do
       # should pick up since its 5.5 hours old
-      @us_uploaded = VBADocuments::UploadSubmission.new(status: 'uploaded', consumer_name: 'sometech2',
-                                                        created_at: 5.5.hours.ago)
-      @us_uploaded.save!
+      @us_uploaded = create(:upload_submission,
+                            status: 'uploaded',
+                            consumer_name: 'sometech2',
+                            created_at: 5.5.hours.ago)
 
       # should not pick up wrong status
-      VBADocuments::UploadSubmission.new(status: 'vbms', consumer_name: 'vagov').save!
+      create(:upload_submission, status: 'vbms', consumer_name: 'vagov')
 
       # should not pick up, uploaded status but not old enough yet
-      VBADocuments::UploadSubmission.new(status: 'uploaded', consumer_name: 'sometech2').save!
+      create(:upload_submission, status: 'uploaded', consumer_name: 'sometech2')
 
       # should not pick up, uploaded status, but since appeal evidense sub are not considered
       # stuck until they hit their potential max delay of 24 hours plus 100 minutes
-      VBADocuments::UploadSubmission.new(status: 'uploaded',
-                                         consumer_name: 'appeals_api_nod_evidence_submission',
-                                         created_at: 5.5.hours.ago).save!
+      create(:upload_submission,
+             status: 'uploaded',
+             consumer_name: 'appeals_api_nod_evidence_submission',
+             created_at: 5.5.hours.ago)
 
-      @es_us_uploaded = VBADocuments::UploadSubmission.new(status: 'uploaded',
-                                                           consumer_name: 'appeals_api_nod_evidence_submission',
-                                                           created_at: 27.hours.ago)
-      @es_us_uploaded.save!
+      @es_us_uploaded = create(:upload_submission,
+                               status: 'uploaded',
+                               consumer_name: 'appeals_api_nod_evidence_submission',
+                               created_at: 27.hours.ago)
     end
 
     it 'warns using slack' do
