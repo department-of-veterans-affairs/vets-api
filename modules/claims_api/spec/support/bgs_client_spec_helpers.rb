@@ -52,6 +52,10 @@ module BGSClientSpecHelpers
     end
 
     name = File.join('claims_api/bgs', service, action, name)
+    use_soap_cassette(name, &)
+  end
+
+  def use_soap_cassette(name, &)
     VCR.use_cassette(name, VCR_OPTIONS, &)
   end
 end
