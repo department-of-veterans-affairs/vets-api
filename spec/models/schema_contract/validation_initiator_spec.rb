@@ -77,21 +77,5 @@ describe SchemaContract::ValidationInitiator do
         end.not_to raise_error
       end
     end
-
-    context 'when records exist that are over a month old' do
-      before do
-        create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:,
-                                            status: 'initialized', updated_at: 1.month.ago - 2.days)
-        create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:,
-                                            status: 'initialized')
-      end
-
-      it 'removes old records' do
-        expect do
-          job = SchemaContract::DeleteValidationRecordsJob.new
-          job.perform
-        end.to change(SchemaContract::Validation, :count).by(-1)
-      end
-    end
   end
 end
