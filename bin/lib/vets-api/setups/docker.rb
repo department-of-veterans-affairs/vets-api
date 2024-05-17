@@ -45,15 +45,18 @@ module VetsApi
       # Should validate this before saying done
       def setup_db
         puts 'Setting up database...'
-        ShellCommand.run_quiet('docker-compose run --rm --service-ports web bash -c "bundle exec rails db:prepare"')
+        execute_docker_command('bundle exec rails db:prepare')
         puts 'Setting up database...Done'
       end
 
       def setup_parallel_spec
         puts 'Setting up parallel_test...'
-        parallel_setup_command = 'RAILS_ENV=test bundle exec rake parallel:setup'
-        ShellCommand.run_quiet("docker-compose run --rm --service-ports web bash -c \"#{parallel_setup_command}\"")
+        execute_docker_command('RAILS_ENV=test bundle exec rake parallel:setup')
         puts 'Setting up parallel_test...Done'
+      end
+
+      def execute_docker_command(command)
+        ShellCommand.run_quiet("docker-compose run --rm --service-ports web bash -c \"#{command}\"")
       end
     end
   end
