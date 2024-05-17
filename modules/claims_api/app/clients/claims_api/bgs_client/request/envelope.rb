@@ -4,17 +4,13 @@ module ClaimsApi
   module BGSClient
     class Request
       module Envelope
-        Headers =
-          Data.define(
-            :ip,
-            :username,
-            :station_id,
-            :application_name,
-            :external_id
-          )
+        module Aliases
+          TARGET = 'tns'
+          DATA = 'data'
+        end
 
         # rubocop:disable Style/FormatStringToken
-        TEMPLATE = <<~EOXML
+        TEMPLATE = <<~EOXML.freeze
           <?xml version="1.0" encoding="UTF-8"?>
           <env:Envelope
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -41,17 +37,27 @@ module ClaimsApi
               </wsse:Security>
             </env:Header>
             <env:Body>
-              <tns:%{action}>%{body}</tns:%{action}>
+              <#{Aliases::TARGET}:%{action}>%{body}</#{Aliases::TARGET}:%{action}>
             </env:Body>
           </env:Envelope>
         EOXML
         # rubocop:enable Style/FormatStringToken
 
+        Headers =
+          Data.define(
+            :ip,
+            :username,
+            :station_id,
+            :application_name,
+            :external_id
+          )
+
         class << self
-          def build(namespaces:, headers:, action:, body:)
+          def build(namespace:, data_namespace:, headers:, action:, body:)
             namespaces =
-              namespaces.map do |aliaz, uri|
-                %(xmlns:#{aliaz}="#{uri}")
+              [].tap do |value|
+                value << %(xmlns:#{Aliases::TARGET}="#{namespace}")
+                value << %(xmlns:#{Aliases::DATA}="#{data_namespace}") if data_namespace.present?
               end
 
             headers = headers.to_h
@@ -65,6 +71,29 @@ module ClaimsApi
               action:,
               body:
             )
+          end
+        end
+
+        module Body
+          class << self
+            def build
+              builder =
+                Nokogiri::XML::Builder.new(namespace_inheritance: false) do |xml|
+                  # Need to declare an arbitrary root element with placeholder
+                  # namespace in order to leverage namespaced tag building. The
+                  # root element itself is later ignored and only used for its
+                  # contents.
+                  #   https://nokogiri.org/rdoc/Nokogiri/XML/Builder.html#method-i-5B-5D
+                  xml.root("xmlns:#{Aliases::DATA}" => 'placeholder') do
+                    yield(xml, Aliases::DATA)
+                  end
+                end
+
+              builder
+                .doc.at('root')
+                .children
+                .to_xml
+            end
           end
         end
       end
