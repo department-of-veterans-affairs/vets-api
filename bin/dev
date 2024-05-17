@@ -12,7 +12,7 @@ display_help() {
   echo "  configuration specified in the .developer-setup file. The following"
   echo "  configurations are supported:"
   echo "    native - Starts the web and job processes"
-  echo "    docker - Starts the docker-compose up"
+  echo "    docker - Starts the docker process (docker-compose up)"
   echo "    hybrid - Starts the web, job, and deps (clamav postgres redis) processes"
   echo
   echo "Examples:"
