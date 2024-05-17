@@ -7,7 +7,6 @@ require_relative 'rails'
 module VetsApi
   module Setups
     class Docker
-      # check for case where already done
       def run
         puts "\nDocker Setup (This will take a while)... "
         configuring_clamav_antivirus
