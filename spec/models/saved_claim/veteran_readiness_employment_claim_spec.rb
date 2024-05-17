@@ -23,37 +23,37 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     }
   end
 
+  before do
+    allow_any_instance_of(RES::Ch31Form).to receive(:submit).and_return(true)
+  end
+
   describe '#add_claimant_info' do
     it 'adds veteran information' do
-      VCR.use_cassette 'veteran_readiness_employment/add_claimant_info' do
-        claim.add_claimant_info(user_object)
-        claimant_keys = %w[fullName dob pid edipi vet360ID regionalOffice VAFileNumber ssn]
-        expect(claim.parsed_form['veteranInformation']).to include(
-          {
-            'fullName' => {
-              'first' => 'Homer',
-              'middle' => 'John',
-              'last' => 'Simpson'
-            },
-            'dob' => '1986-05-06'
-          }
-        )
+      claim.add_claimant_info(user_object)
+      claimant_keys = %w[fullName dob pid edipi vet360ID regionalOffice VAFileNumber ssn]
+      expect(claim.parsed_form['veteranInformation']).to include(
+        {
+          'fullName' => {
+            'first' => 'Homer',
+            'middle' => 'John',
+            'last' => 'Simpson'
+          },
+          'dob' => '1986-05-06'
+        }
+      )
 
-        expect(
-          claim.parsed_form['veteranInformation'].keys
-        ).to eq(claimant_keys)
-      end
+      expect(
+        claim.parsed_form['veteranInformation'].keys
+      ).to eq(claimant_keys)
     end
 
     it 'does not obtain va_file_number' do
-      VCR.use_cassette 'veteran_readiness_employment/add_claimant_info' do
-        people_service_object = double('people_service')
-        allow(people_service_object).to receive(:find_person_by_participant_id)
-        allow(BGS::People::Request).to receive(:new) { people_service_object }
+      people_service_object = double('people_service')
+      allow(people_service_object).to receive(:find_person_by_participant_id)
+      allow(BGS::People::Request).to receive(:new) { people_service_object }
 
-        claim.add_claimant_info(user_object)
-        expect(claim.parsed_form['veteranInformation']).to include('VAFileNumber' => nil)
-      end
+      claim.add_claimant_info(user_object)
+      expect(claim.parsed_form['veteranInformation']).to include('VAFileNumber' => nil)
     end
   end
 
@@ -68,26 +68,20 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       end
 
       it 'calls #send_to_central_mail!' do
-        pending 'need vcr records'
-        VCR.use_cassette('vbms/document_upload_417') do
-          expect(claim).to receive(:send_to_central_mail!)
-          subject
-        end
+        expect(claim).to receive(:send_to_central_mail!)
+        subject
       end
 
       it 'does not raise an error' do
-        pending 'need vcr records'
-        VCR.use_cassette('vbms/document_upload_417') do
-          allow(claim).to receive(:send_to_central_mail!)
-          expect { subject }.not_to raise_error
-        end
+        allow(claim).to receive(:send_to_central_mail!)
+        expect { subject }.not_to raise_error
       end
     end
 
     context 'when VBMS upload is successful' do
-      before { expect(ClaimsApi::VBMSUploader).to receive(:new) { OpenStruct.new(upload!: true) } }
+      before { expect(ClaimsApi::VBMSUploader).to receive(:new) { OpenStruct.new(upload!: {}) } }
 
-      context 'submission to VRE' do
+      context 'submission to RES' do
         before do
           # As the PERMITTED_OFFICE_LOCATIONS constant at
           # the top of: app/models/saved_claim/veteran_readiness_employment_claim.rb gets changed, you
@@ -98,65 +92,32 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           )
         end
 
-        it 'successfully sends to VRE' do
-          pending 'need vcr records'
-          VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
-            claim.add_claimant_info(user_object)
-            response = claim.send_to_vre(user_object)
-
-            # the business has asked us to put a pause on submissions
-            # so this is just a temporary change but will be put back
-            # expect(response['error_occurred']).to eq(false)
-            expect(response).to eq(nil)
-          end
-        end
-
-        it 'does not successfully send to VRE' do
-          pending 'need vcr records'
-          VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
-            claim.add_claimant_info(user_object)
-            response = claim.send_to_vre(user_object)
-
-            # the business has asked us to put a pause on submissions
-            # so this is just a temporary change but will be put back
-            # expect(response['error_occurred']).to eq(true)
-            expect(response).to eq(nil)
-          end
-        end
-
         it 'sends confirmation email' do
-          pending 'need vcr records'
-          VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
-            expect(claim).to receive(:send_vbms_confirmation_email).with(user_object)
+          expect(claim).to receive(:send_vbms_confirmation_email).with(user_object)
 
-            claim.add_claimant_info(user_object)
-            claim.send_to_vre(user_object)
-          end
+          claim.send_to_vre(user_object)
         end
       end
 
-      context 'non-submission to VRE' do
-        it 'stops submission if location is not in list' do
-          pending 'need vcr records'
-          VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
-            expect_any_instance_of(BGS::RORoutingService).to receive(:get_regional_office_by_zip_code).and_return(
-              { regional_office: { number: '310' } }
-            )
+      # We want all submission to go through with RES
+      # context 'non-submission to RES' do
+      #   it 'stops submission if location is not in list' do
+      #     expect_any_instance_of(BGS::RORoutingService).to receive(:get_regional_office_by_zip_code).and_return(
+      #       { regional_office: { number: '310' } }
+      #     )
 
-            expect(VRE::Ch31Form).not_to receive(:new)
-            claim.add_claimant_info(user_object)
+      #     expect(RES::Ch31Form).not_to receive(:new)
+      #     claim.add_claimant_info(user_object)
 
-            claim.send_to_vre(user_object)
-          end
-        end
-      end
+      #     claim.send_to_vre(user_object)
+      #   end
+      # end
     end
 
     context 'when user has no PID' do
       let(:user_object) { create(:unauthorized_evss_user) }
 
       it 'PDF is sent to Central Mail and not VBMS' do
-        pending 'need vcr records'
         expect(claim).to receive(:send_to_central_mail!).with(user_object).once.and_call_original
         expect(claim).to receive(:process_attachments!)
         expect(claim).to receive(:send_central_mail_confirmation_email)

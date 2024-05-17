@@ -20,7 +20,6 @@ module VRE
     def perform(claim_id, user_uuid)
       claim = SavedClaim::VeteranReadinessEmploymentClaim.find claim_id
       user = User.find user_uuid
-      claim.add_claimant_info(user)
       claim.send_to_vre(user)
     rescue => e
       log_message_to_sentry(

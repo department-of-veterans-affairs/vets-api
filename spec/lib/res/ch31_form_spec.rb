@@ -22,6 +22,7 @@ RSpec.describe RES::Ch31Form do
       }
     }
   end
+  let(:success_message) { OpenStruct.new(body:{ 'success_message' => 'RES has successfully received the request'}) }
 
   describe '#submit' do
     let(:faraday_response) { double('faraday_connection') }
@@ -31,45 +32,34 @@ RSpec.describe RES::Ch31Form do
     end
 
     context 'with a successful submission' do
+      before do
+        allow(service).to receive(:send_to_res).and_return(success_message)
+      end
+
       it 'successfully sends to RES' do
-        pending 'needs VCR request from dev/staging'
-        VCR.use_cassette 'veteran_readiness_employment/send_to_res' do
-          response = service.submit
-          expect(response['error_occurred']).to eq(false)
-        end
+        service.submit
       end
 
       it 'adds a new address if the user is moving within 30 days' do
-        pending 'needs VCR request from dev/staging'
-        VCR.use_cassette 'veteran_readiness_employment/send_to_res' do
-          expect(service).to receive(:new_address) { new_address_hash }
+        expect(service).to receive(:new_address) { new_address_hash }
 
-          service.submit
-        end
+        service.submit
       end
     end
 
     context 'with an unsuccessful submission' do
       it 'does not successfully send to RES' do
-        pending 'needs VCR request from dev/staging'
-        VCR.use_cassette 'veteran_readiness_employment/failed_send_to_res' do
-          expect(service).to receive(:log_exception_to_sentry)
+        expect(service).to receive(:log_exception_to_sentry)
+        allow(service).to receive(:send_to_res).and_return(OpenStruct.new(body: { 'error' => 'Error' }))
 
-          response = service.submit
-
-          expect(response['error_occurred']).to eq(true)
-        end
+        expect { service.submit }.to raise_error(Ch31Error)
       end
 
       it 'handles nil claim' do
-        VCR.use_cassette 'veteran_readiness_employment/failed_send_to_res' do
-          nil_claim_service = RES::Ch31Form.new(user:, claim: nil)
-          expect(nil_claim_service).to receive(:log_exception_to_sentry)
+        nil_claim_service = RES::Ch31Form.new(user:, claim: nil)
+        expect(nil_claim_service).to receive(:log_exception_to_sentry)
 
-          response = nil_claim_service.submit
-
-          expect(response['error_occurred']).to eq(true)
-        end
+        expect { nil_claim_service.submit }.to raise_error(Ch31NilClaimError)
       end
     end
   end

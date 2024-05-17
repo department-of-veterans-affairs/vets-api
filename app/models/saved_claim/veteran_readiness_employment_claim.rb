@@ -111,10 +111,11 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_to_vre(user)
+    add_claimant_info(user)
+
     if user&.participant_id
       begin
-        upload_to_vbms
-        send_vbms_confirmation_email(user)
+        upload_to_vbms(user:)
       rescue
         log_message_to_sentry('Error uploading VRE claim to VBMS. Now attempting to upload claim to central mail...',
                               :warn, { uuid: user.uuid })
@@ -134,8 +135,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     send_to_res(user)
   end
 
-  def upload_to_vbms(doc_type: '1167')
-    add_claimant_info(user)
+  def upload_to_vbms(doc_type: '1167', user:)
     form_path = PdfFill::Filler.fill_form(self, nil, { created_at: })
 
     uploader = ClaimsApi::VBMSUploader.new(
@@ -153,6 +153,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         update!(form: updated_form.to_json)
       end
     end
+
+    send_vbms_confirmation_email(user)
   end
 
   def to_pdf(file_name = nil)
@@ -177,11 +179,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_to_res(user)
-    @office_location = check_office_location[0] if @office_location.nil?
-
-    log_message_to_sentry("VRE claim office location: #{@office_location}",
-                          :info, { uuid: user.uuid })
-
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
 
     log_message_to_sentry("VRE claim email: #{email_addr}, sent to cmp: #{@sent_to_cmp} #{user.present?}",
@@ -194,11 +191,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_vre_email_form(user)
-    @office_location = check_office_location[0] if @office_location.nil?
-
-    log_message_to_sentry("VRE claim office location: #{@office_location}",
-                          :info, { uuid: user.uuid })
-
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
 
     log_message_to_sentry("VRE claim email: #{email_addr}, sent to cmp: #{@sent_to_cmp} #{user.present?}",

@@ -27,7 +27,7 @@ module RES
       response = send_to_res(payload: format_payload_for_res)
       response_body = response.body
 
-      raise Ch31Error if response_body['error_occurred'] == true
+      raise Ch31Error if response_body['success_message'].blank?
 
       log_message_to_sentry(
         'Temp message for testing',
@@ -37,11 +37,25 @@ module RES
       )
       response_body
     rescue Ch31Error => e
-      process_ch_31_error(e, response_body)
+      log_exception_to_sentry(
+        e,
+        {
+          intake_id: response_body['ApplicationIntake'],
+          error_message: response_body['ErrorMessage']
+        },
+        SENTRY_TAG
+      )
 
-      response_body
+      raise
     rescue Ch31NilClaimError => e
-      process_nil_claim_error(e)
+      log_exception_to_sentry(
+        e,
+        {
+          icn: @user.icn
+        },
+        SENTRY_TAG
+      )
+      raise
     end
 
     private
@@ -132,29 +146,6 @@ module RES
         state: client_hash['state'],
         postalCode: client_hash['postalCode']
       }
-    end
-
-    def process_ch_31_error(e, response_body)
-      log_exception_to_sentry(
-        e,
-        {
-          intake_id: response_body['ApplicationIntake'],
-          error_message: response_body['ErrorMessage']
-        },
-        SENTRY_TAG
-      )
-    end
-
-    def process_nil_claim_error(e)
-      log_exception_to_sentry(
-        e,
-        {
-          icn: @user.icn
-        },
-        SENTRY_TAG
-      )
-
-      { 'error_occurred' => true, 'error_message' => 'Claim cannot be null' }
     end
   end
 end
