@@ -106,7 +106,7 @@ module VetsApi
       end
 
       def existing_settings
-        existing_settings = YAML.safe_load(File.read('config/settings.local.yml'), permitted_classes: [Symbol])
+        YAML.safe_load(File.read('config/settings.local.yml'), permitted_classes: [Symbol])
       end
 
       def save_settings(settings)

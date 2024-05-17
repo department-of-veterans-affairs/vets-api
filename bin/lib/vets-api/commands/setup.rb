@@ -9,9 +9,8 @@ require_relative 'command'
 module VetsApi
   module Commands
     class Setup < Command
-
       def self.run(args)
-        Setup.new(args).execute  # Command#execute
+        Setup.new(args).execute # Command#execute
       end
 
       private
@@ -52,7 +51,7 @@ module VetsApi
         unless RUBY_DESCRIPTION.include?(ruby_version)
           puts "\nBefore continuing Ruby #{ruby_version} must be installed"
           puts 'We suggest using a Ruby version manager such as rbenv, asdf, rvm, or chruby' \
-              ' to install and maintain your version of Ruby.'
+               ' to install and maintain your version of Ruby.'
           puts 'More information: https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/native.md#installing-a-ruby-version-manager'
           exit 1
         end

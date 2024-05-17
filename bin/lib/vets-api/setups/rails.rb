@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'yaml'
 require 'rake'
 require 'fileutils'
@@ -5,7 +7,6 @@ require 'fileutils'
 module VetsApi
   module Setups
     module Rails
-
       def install_bundler
         print "Installing bundler gem v#{bundler_version}..."
         ShellCommand.run_quiet("gem install bundler -v #{bundler_version}")

@@ -6,7 +6,7 @@ module VetsApi
   module Commands
     class Lint < Command
       def self.run(args)
-        Lint.new(args).execute  # Command#execute
+        Lint.new(args).execute # Command#execute
       end
 
       private
