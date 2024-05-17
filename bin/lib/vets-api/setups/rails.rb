@@ -13,16 +13,6 @@ module VetsApi
         puts 'Done'
       end
 
-      def bundler_version
-        lockfile_path = "#{Dir.pwd}/Gemfile.lock"
-        lines = File.readlines(lockfile_path).reverse
-
-        bundler_line = lines.each_with_index do |line, index|
-          break index if line.strip == 'BUNDLED WITH'
-        end
-        lines[bundler_line - 1].strip
-      end
-
       def install_gems
         print 'Installing all gems...'
         `bundle install`
@@ -55,10 +45,6 @@ module VetsApi
         end
       end
 
-      def pdftk_installed?
-        ShellCommand.run_quiet('pdftk --help')
-      end
-
       def setup_db
         puts 'Setting up database...'
         ShellCommand.run_quiet('bundle exec rails db:prepare')
@@ -69,6 +55,22 @@ module VetsApi
         puts 'Setting up parallel_test...'
         ShellCommand.run_quiet('RAILS_ENV=test bundle exec rake parallel:setup')
         puts 'Setting up parallel_test...Done'
+      end
+
+      private
+
+      def bundler_version
+        lockfile_path = "#{Dir.pwd}/Gemfile.lock"
+        lines = File.readlines(lockfile_path).reverse
+
+        bundler_line = lines.each_with_index do |line, index|
+          break index if line.strip == 'BUNDLED WITH'
+        end
+        lines[bundler_line - 1].strip
+      end
+
+      def pdftk_installed?
+        ShellCommand.run_quiet('pdftk --help')
       end
     end
   end
