@@ -47,7 +47,7 @@ bin/lint
 
 - `bin/help` - Display `vets-api` related binstub manual
 - `bin/info` - Display version related information
-- `bin/deps` - Starts clamav, postgres, and redis docker containers
+- `bin/dev`  - Starts the server (or containers)
 
 ## FAQ
 

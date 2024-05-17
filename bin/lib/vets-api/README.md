@@ -19,7 +19,7 @@ All other binstubs can be used by Mac, Linux, or Windows.
 - bin/lint
 - bin/setup
 - bin/test
-- bin/deps
+- bin/dev
 
 ### bin/setup
 
