@@ -2,10 +2,13 @@
 
 require 'yaml'
 require 'fileutils'
+require_relative 'rails'
 
 module VetsApi
   module Setups
     class Native
+      include Rails
+
       def run
         puts "\nNative Setup... "
         remove_other_setup_settings
@@ -42,22 +45,6 @@ module VetsApi
         puts 'Done'
       end
 
-      def install_bundler
-        print "Installing bundler gem v#{bundler_version}..."
-        ShellCommand.run_quiet("gem install bundler -v #{bundler_version}")
-        puts 'Done'
-      end
-
-      def bundler_version
-        lockfile_path = "#{Dir.pwd}/Gemfile.lock"
-        lines = File.readlines(lockfile_path).reverse
-
-        bundler_line = lines.each_with_index do |line, index|
-          break index if line.strip == 'BUNDLED WITH'
-        end
-        lines[bundler_line - 1].strip
-      end
-
       def install_postgres
         ShellCommand.run('brew install postgresql@15')
       end
@@ -83,55 +70,6 @@ module VetsApi
           puts 'https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/native.md#osx'
 
         end
-      end
-
-      def install_gems
-        print 'Installing all gems...'
-        `bundle install`
-        puts 'Done'
-      end
-
-      # TODO: create a syscall to prevent logs (except errors) from logging
-      def setup_db
-        puts 'Setting up database...'
-        ShellCommand.run_quiet('bundle exec rails db:setup')
-        puts 'Setting up database...Done'
-      end
-
-      def setup_parallel_spec
-        puts 'Setting up parallel_test...'
-        ShellCommand.run_quiet('RAILS_ENV=test bundle exec rake parallel:setup')
-        puts 'Setting up parallel_test...Done'
-      end
-
-      def configuring_clamav_antivirus
-        print 'Configuring ClamAV in local settings...'
-        file_path = 'config/settings.local.yml'
-        data = YAML.load_file(file_path)
-
-        data['clamav'] = {
-          'mock' => true,
-          'host' => '0.0.0.0',
-          'port' => '33100'
-        }
-
-        File.write(file_path, data.to_yaml)
-
-        puts 'Done'
-      end
-
-      def install_pdftk
-        if pdftk_installed?
-          puts 'Skipping pdftk install (daemon already installed)'
-        else
-          puts 'Installing pdftk...'
-          ShellCommand.run('brew install pdftk-java')
-          puts 'Installing pdftk...Done'
-        end
-      end
-
-      def pdftk_installed?
-        ShellCommand.run_quiet('pdftk --help')
       end
     end
   end

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'yaml'
-require 'rake'
 require 'fileutils'
+require_relative 'rails'
 
 module VetsApi
   module Setups
@@ -39,7 +39,6 @@ module VetsApi
       def docker_build
         puts 'Building Docker Image(s) for This may take a while...'
         ShellCommand.run_quiet('docker-compose build')
-        # system('docker-compose -f docker-compose.test.yml build')
         puts 'Building Docker Image(s)...Done'
       end
 
