@@ -10,19 +10,21 @@ RSpec.describe SchemaContract::DeleteValidationRecordsJob do
   end
 
   context 'when records exist that are over a month old' do
-    before do
-      @old_contract = create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:,
-                                                          status: 'initialized', updated_at: 1.month.ago - 2.days)
-      @new_contract = create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:,
-                                                          status: 'initialized')
+    let!(:old_contract) do
+      create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:,
+                                          status: 'initialized', updated_at: 1.month.ago - 2.days)
+    end
+    let!(:new_contract) do
+      create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:,
+                                          status: 'initialized')
     end
 
     it 'removes old records' do
       job = SchemaContract::DeleteValidationRecordsJob.new
       job.perform
 
-      expect { @old_contract.reload }.to raise_error(ActiveRecord::RecordNotFound)
-      expect { @new_contract.reload }.not_to raise_error(ActiveRecord::RecordNotFound)
+      expect { old_contract.reload }.to raise_error(ActiveRecord::RecordNotFound)
+      expect { new_contract.reload }.not_to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 end
