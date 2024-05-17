@@ -1197,6 +1197,10 @@ features:
     actor_type: user
     description: Enables datadog Real User Monitoring.
     enable_in_development: true
+  va_online_scheduling_cc_direct_scheduling:
+    actor_type: user
+    description: Enables CC direct scheduling.
+    enable_in_development: true
   va_online_scheduling_use_vpg:
     actor_type: user
     enable_in_development: true
