@@ -177,6 +177,11 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_to_res(user)
+    @office_location = check_office_location[0] if @office_location.nil?
+
+    log_message_to_sentry("VRE claim office location: #{@office_location}",
+                          :info, { uuid: user.uuid })
+
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
 
     log_message_to_sentry("VRE claim email: #{email_addr}, sent to cmp: #{@sent_to_cmp} #{user.present?}",
