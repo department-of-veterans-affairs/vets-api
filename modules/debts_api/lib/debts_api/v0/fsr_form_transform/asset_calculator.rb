@@ -1,31 +1,30 @@
 # frozen_string_literal: true
 
 require 'debts_api/v0/fsr_form_transform/utils'
-include FsrFormTransform::Utils
 
 module DebtsApi
   module V0
     module FsrFormTransform
       class AssetCalculator
-
-        CASH_IN_BANK = 'Cash in a bank (savings and checkings)';
-        CASH_ON_HAND = 'Cash on hand (not in bank)';
+        include ::FsrFormTransform::Utils
+        CASH_IN_BANK = 'Cash in a bank (savings and checkings)'
+        CASH_ON_HAND = 'Cash on hand (not in bank)'
         US_BONDS = 'U.S. Savings Bonds'
 
         def initialize(form)
           @form = form
           @enhanced_fsr_active = @form['view:enhanced_financial_status_report']
           @assets = @form['assets']
-          
+
           @monetary_assets = @assets['monetary_assets'] || []
-          @cash_on_hand = sum_values(@monetary_assets.select{|asset| asset['name'] == CASH_ON_HAND}, 'amount')
-          @cash_in_bank = sum_values(@monetary_assets.select{|asset| asset['name'] == CASH_IN_BANK}, 'amount')
-          @us_savings_bonds = @monetary_assets.select{|asset| asset['name'] == US_BONDS}
-          
-          @other_assets = @assets.dig('other_assets')
-          @automobiles = @assets.dig('automobiles')
-          @rec_vehicle_amount = @assets.dig('rec_vehicle_amount')
-          @real_estate_value = @assets['real_estate_value']&.gsub(/[^0-9.-]/, '')&.to_f || 0.0
+          @cash_on_hand = sum_values(@monetary_assets.select { |asset| asset['name'] == CASH_ON_HAND }, 'amount')
+          @cash_in_bank = sum_values(@monetary_assets.select { |asset| asset['name'] == CASH_IN_BANK }, 'amount')
+          @us_savings_bonds = @monetary_assets.select { |asset| asset['name'] == US_BONDS }
+
+          @other_assets = @assets['other_assets']
+          @automobiles = @assets['automobiles']
+          @rec_vehicle_amount = @assets['rec_vehicle_amount']
+          @real_estate_value = @assets['real_estate_value']&.gsub(/[^0-9.-]/, '').to_f
           @real_estate_records = @form['real_estate_records']
           @questions = @form['questions']
         end
@@ -40,13 +39,13 @@ module DebtsApi
             'stocksAndOtherBonds' => '0.00',
             'realEstateOwned' => '0.00',
             'otherAssets' => [],
-            'totalAssets' => '0.00' 
+            'totalAssets' => '0.00'
           }
         end
 
         def transform_assets
           output = default_output
-          output['cashInBank'] = dollars_cents(@cash_in_bank) if @cash_in_bank 
+          output['cashInBank'] = dollars_cents(@cash_in_bank) if @cash_in_bank
           output['cashOnHand'] = dollars_cents(@cash_on_hand) if @cash_on_hand
           output['automobiles'] = @automobiles if @automobiles
           output['trailersBoatsCampers'] = @rec_vehicle_amount if @rec_vehicle_amount
@@ -81,7 +80,7 @@ module DebtsApi
 
         def sum_values(collection, key)
           collection&.sum { |item| item[key]&.gsub(/[^0-9.-]/, '')&.to_f } || 0
-        end 
+        end
       end
     end
   end

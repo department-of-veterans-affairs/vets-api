@@ -43,7 +43,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::AssetCalculator, type: :service d
       transform_assets
     end
 
-    # it 'gets x right' do 
+    # it 'gets x right' do
     #   expected_x = post_transform_fsr_form_data['assets']['x']
     #   actual_x = @assets['x']
     #   expect(actual_x).to eq(expected_x)
@@ -61,46 +61,46 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::AssetCalculator, type: :service d
       expect(actual_cash_on_hand).to eq(expected_cash_on_hand)
     end
 
-    it 'gets automobiles right' do 
+    it 'gets automobiles right' do
       expected_auto = post_transform_fsr_form_data['assets']['automobiles']
       actual_auto = @assets['automobiles']
       expect(actual_auto).to eq(expected_auto)
     end
 
-    it 'gets trailersBoatsCampers right' do 
+    it 'gets trailersBoatsCampers right' do
       expected_toys = post_transform_fsr_form_data['assets']['trailersBoatsCampers']
       actual_toys = @assets['trailersBoatsCampers']
       expect(actual_toys).to eq(expected_toys)
     end
 
-    it 'gets usSavingsBonds right' do 
+    it 'gets usSavingsBonds right' do
       expected_bonds = post_transform_fsr_form_data['assets']['usSavingsBonds']
       actual_bonds = @assets['usSavingsBonds']
       expect(actual_bonds).to eq(expected_bonds)
     end
 
-    it 'gets stocksAndOtherBonds right' do 
+    it 'gets stocksAndOtherBonds right' do
       expected_stocks = post_transform_fsr_form_data['assets']['stocksAndOtherBonds']
       actual_stocks = @assets['stocksAndOtherBonds']
       expect(actual_stocks).to eq(expected_stocks)
     end
-    
-    it 'gets realEstateOwned right' do 
+
+    it 'gets realEstateOwned right' do
       expected_realestate = post_transform_fsr_form_data['assets']['realEstateOwned']
       actual_realestate = @assets['realEstateOwned']
       expect(actual_realestate).to eq(expected_realestate)
     end
 
-    it 'gets otherAssets right' do 
+    it 'gets otherAssets right' do
       expected_other = post_transform_fsr_form_data['assets']['otherAssets']
       actual_other = @assets['otherAssets']
       expect(actual_other).to eq(expected_other)
     end
 
-    it 'gets totalAssets right' do 
+    it 'gets totalAssets right' do
       expected_total = post_transform_fsr_form_data['assets']['totalAssets']
       actual_total = @assets['totalAssets']
       expect(actual_total).to eq(expected_total)
-    end    
+    end
   end
 end

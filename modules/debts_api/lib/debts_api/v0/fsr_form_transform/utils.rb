@@ -7,32 +7,33 @@ module FsrFormTransform
     end
 
     def re_camel(x)
-      return re_camel_array(x) if x.class == Array
-      return re_camel_hash(x) if x.class == Hash
+      return re_camel_array(x) if x.instance_of?(Array)
+
+      re_camel_hash(x) if x.instance_of?(Hash)
     end
 
     def re_camel_array(x)
       result = []
       x.each do |el|
-        if el.class == Hash || el.class == Array
-          result << re_camel(el)
-        else
-          result << el
-        end
+        result << if el.instance_of?(Hash) || el.instance_of?(Array)
+                    re_camel(el)
+                  else
+                    el
+                  end
       end
-      return result
+      result
     end
 
     def re_camel_hash(x)
       result = {}
       x.each do |key, val|
-        if val.class == Hash || val.class == Array
-          result[key.camelcase(:lower)] = re_camel(val)
-        else
-          result[key.camelcase(:lower)] = val
-        end
+        result[key.camelcase(:lower)] = if val.instance_of?(Hash) || val.instance_of?(Array)
+                                          re_camel(val)
+                                        else
+                                          val
+                                        end
       end
-      return result
+      result
     end
   end
 end
