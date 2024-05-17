@@ -5,6 +5,7 @@ module ClaimsApi
     def initialize(error)
       @error = error
       @status = @error&.original_status if @error&.methods&.include?(:original_status)
+      @body = @error&.original_body if @error&.methods&.include?(:original_body)
     end
 
     def build_error

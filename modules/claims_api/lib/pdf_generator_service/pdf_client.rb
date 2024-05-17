@@ -16,7 +16,7 @@ module ClaimsApi
 
     def generate_pdf
       resp = client.post('526', @request_body).body
-      log_outcome_for_claims_api('pdf_generator', 'success', resp)
+      log_outcome_for_claims_api('pdf_generator', 'success', resp.is_a?(String))
 
       resp
     rescue => e
@@ -47,9 +47,8 @@ module ClaimsApi
     end
 
     def log_outcome_for_claims_api(action, status, response)
-      resp = response.is_a?(String)
       ClaimsApi::Logger.log('526_docker_container',
-                            detail: "EVSS DOCKER CONTAINER #{action} #{status},  is a string: #{resp}")
+                            detail: "EVSS DOCKER CONTAINER #{action} #{status},  is a string: #{response}")
     end
 
     def custom_error(error)
