@@ -5,17 +5,14 @@ module ClaimsApi
     module Decide
       class << self
         def perform(id, decision)
-          BGSClient.perform_request(
-            body: dump(id, decision),
-            service_action:
-          )
-        end
+          action =
+            BGSClient::Definitions::
+              ManageRepresentativeService::
+              UpdatePoaRequest::
+              DEFINITION
 
-        private
-
-        def dump(id, decision)
-          Helpers::XmlBuilder.perform(service_action) do |xml, aliaz|
-            xml[aliaz].POARequestUpdate do
+          BGSClient.perform_request(action:) do |xml, data_aliaz|
+            xml[data_aliaz].POARequestUpdate do
               xml.procId(id)
 
               xml.secondaryStatus(decision[:status])
@@ -28,12 +25,6 @@ module ClaimsApi
               xml.VSOUserLastName(representative[:lastName])
             end
           end
-        end
-
-        def service_action
-          BGSClient::ServiceAction::
-            ManageRepresentativeService::
-            UpdatePoaRequest
         end
       end
     end
