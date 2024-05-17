@@ -34,6 +34,13 @@ def help_message
 end
 # rubocop:enable Metrics/MethodLength
 
+def ci_test_command
+  docker = 'docker-compose run web bash -c'
+  runtime_variables = 'CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true'
+  spec = "bundle exec parallel_rspec spec/ modules/ -n 8 -o '--color --tty'"
+  "#{docker} \"#{runtime_variables} #{spec}\""
+end
+
 # rubocop:disable Rails/NegateInclude
 invalid_options = ARGV.select { |o| o.start_with?('--', '-') && !VALID_OPTIONS.include?(o) }
 # rubocop:enable Rails/NegateInclude
@@ -41,8 +48,7 @@ if ARGV.include?('--help') || ARGV.include?('-h')
   help_message
 elsif ARGV.include?('--ci')
   puts 'WARNING: --ci ignores all other options and inputs'
-  ci_test_command = "docker-compose run web bash -c \"CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true \
-   bundle exec parallel_rspec spec/ modules/ -n 8 -o '--color --tty'\""
+  puts "running: #{ci_test_command}"
   system(ci_test_command)
 elsif invalid_options.empty?
   VetsApi::Commands::Test.run(ARGV)

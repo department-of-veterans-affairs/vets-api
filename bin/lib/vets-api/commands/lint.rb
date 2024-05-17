@@ -1,75 +1,50 @@
 # frozen_string_literal: true
 
-require './rakelib/support/shell_command'
+require_relative 'command'
 
 module VetsApi
   module Commands
-    class Lint
-      attr_accessor :options, :inputs
-
+    class Lint < Command
       def self.run(args)
-        Lint.new(args)
-      end
-
-      def initialize(args)
-        @options = args.select { |a| a.start_with?('--', '-') }
-        input_values = args.reject { |a| a.start_with?('--', '-') }
-        @inputs = input_values.empty? ? '' : input_values.join(' ')
-
-        case File.read('.developer-setup').chomp
-        when 'native', 'hybrid'
-          lint_native
-        when 'docker'
-          lint_docker
-        else
-          puts 'Invalid option for .developer-setup'
-        end
-      rescue Errno::ENOENT
-        puts 'You must run `bin/setup` before running other binstubs'
-        exit 1
+        Lint.new(args).execute  # Command#execute
       end
 
       private
 
-      def lint_native
-        unless only_brakeman?
-          puts "running: #{rubocop_command_builder}"
-          ShellCommand.run(rubocop_command_builder)
-          puts
-        end
-        unless only_rubocop?
-          puts "running: #{brakeman_command_builder}"
-          ShellCommand.run(brakeman_command_builder)
-          puts
-          puts 'running: bundle-audit check'
-          ShellCommand.run('bundle-audit check')
-        end
+      def execute_native
+        execute_commands(docker: false)
       end
 
-      def lint_docker
-        docker_rubocop_command = "docker-compose run --rm --service-ports web bash -c \"#{rubocop_command_builder}\""
-        docker_brakeman_command = "docker-compose run --rm --service-ports web bash -c \"#{brakeman_command_builder}\""
-
-        unless only_brakeman?
-          puts "running: #{docker_rubocop_command}"
-          ShellCommand.run(docker_rubocop_command)
-          puts
-        end
-        unless only_rubocop?
-          puts "running: #{docker_brakeman_command}"
-          ShellCommand.run(docker_brakeman_command)
-          puts
-          puts 'running: docker-compose run --rm --service-ports web bash -c "bundle exec bundle-audit check"'
-          ShellCommand.run('docker-compose run --rm --service-ports web bash -c "bundle exec bundle-audit check"')
-        end
+      def execute_hybrid
+        execute_native
       end
 
-      def rubocop_command_builder
+      def execute_docker
+        execute_commands(docker: true)
+      end
+
+      def execute_commands(docker:)
+        execute_command(rubocop_command, docker:) unless only_brakeman?
+        execute_command(brakeman_command, docker:) unless only_rubocop?
+        execute_command(bundle_audit_command, docker:) unless only_rubocop?
+      end
+
+      def execute_command(command, docker: false)
+        command = "docker-compose run --rm --service-ports web bash -c \"#{command}\"" if docker
+        puts "running: #{command}"
+        ShellCommand.run(command)
+      end
+
+      def rubocop_command
         "bundle exec rubocop #{autocorrect} --color #{@inputs}".strip.gsub(/\s+/, ' ')
       end
 
-      def brakeman_command_builder
+      def brakeman_command
         'bundle exec brakeman --ensure-latest --confidence-level=2 --no-pager --format=plain'
+      end
+
+      def bundle_audit_command
+        'bundle exec bundle-audit check'
       end
 
       def autocorrect

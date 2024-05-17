@@ -1,53 +1,42 @@
 # frozen_string_literal: true
 
-require './rakelib/support/shell_command'
+require_relative 'command'
 
 module VetsApi
   module Commands
-    class Test
-      attr_accessor :options, :inputs
-
+    class Test < Command
       def self.run(args)
-        Test.new(args)
-      end
-
-      def initialize(args)
-        @options = args.select { |a| a.start_with?('--', '-') }
-        input_values = args.reject { |a| a.start_with?('--', '-') }
-        @inputs = input_values.empty? ? 'spec modules' : input_values.join(' ')
-
-        case File.read('.developer-setup').chomp
-        when 'native', 'hybrid'
-          test_native
-        when 'docker'
-          test_docker
-        else
-          puts 'Invalid option for .developer-setup'
-        end
-        puts 'Results can be found at log/rspec.log' if @options.include?('--log')
-      rescue Errno::ENOENT
-        puts 'You must run `bin/setup` before running other binstubs'
-        exit 1
+        Test.new(args).execute # Command#execute
       end
 
       private
 
-      def test_native
-        puts "running: #{rspec_command_builer}"
-        ShellCommand.run(rspec_command_builer)
+      def default_inputs
+        'spec modules'
       end
 
-      def test_docker
-        docker_rspec_command = "docker-compose run --rm --service-ports web bash -c \"#{rspec_command_builer}\""
-        puts "running: #{docker_rspec_command}"
-        ShellCommand.run(docker_rspec_command)
+      def execute_native
+        execute_command(rspec_command, docker: false)
       end
 
-      def rspec_command_builer
+      def execute_hybrid
+        execute_native
+      end
+
+      def execute_docker
+        execute_command(rspec_command, docker: true)
+      end
+
+      def execute_command(command, docker:)
+        command = "docker-compose run --rm --service-ports web bash -c \"#{command}\"" if docker
+        puts "running: #{command}"
+        ShellCommand.run(command)
+        puts 'Results can be found at log/rspec.log' if @options.include?('--log')
+      end
+
+      def rspec_command
         runtime_variables = 'RAILS_ENV=test DISABLE_BOOTSNAP=true'
-        "#{runtime_variables} #{coverage} bundle exec #{test_command} #{@inputs} #{test_options}".strip.gsub(
-          /\s+/, ' '
-        )
+        "#{runtime_variables} #{coverage} #{test_command} #{@inputs} #{test_options}".strip.gsub(/\s+/, ' ')
       end
 
       def coverage
@@ -59,7 +48,7 @@ module VetsApi
       end
 
       def test_command
-        parallel? ? 'parallel_rspec' : 'rspec'
+        parallel? ? 'bundle exec parallel_rspec' : 'bundle exec rspec'
       end
 
       def test_options

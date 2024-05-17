@@ -12,64 +12,55 @@ module VetsApi
       class << self
         # TODO: run check to make sure in the correct directory /vets-api
         def run(args)
-          setup_base
+          execute_base
           unless args.first == '--base'
-            store_developer_environment_preference(args.first)
-            setup_developer_environment
+            store_developer_setup_preference(args.first)
+            Setup.new(args).execute
           end
         end
 
         private
 
-        def setup_base
+        def store_developer_setup_preference(input_setup)
+          file_path = '.developer-setup'
+          File.write(file_path, input_setup.tr('--', '')) if input_setup
+        end
+
+        def execute_base
           VetsApi::Setups::Base.new.run
         end
 
-        def store_developer_environment_preference(input_environment)
-          file_path = '.developer-setup'
-          File.write(file_path, input_environment.tr('--', '')) if input_environment
+        def execute_native
+          validate_ruby_version
+          VetsApi::Setups::Native.new.run
         end
 
-        def setup_developer_environment
-          case File.read('.developer-setup').chomp
-          when 'native'
-            setup_native
-          when 'docker'
-            setup_docker
-          when 'hybrid'
-            setup_hybrid
-          else
-            puts 'Invalid option for .developer-setup'
-          end
+        def execute_docker
+          validate_docker_running
+          VetsApi::Setups::Docker.new.run
         end
 
-        def setup_native
-          if RUBY_DESCRIPTION.include?(ruby_version)
-            VetsApi::Setups::Native.new.run
-          else
+        def execute_hybrid
+          validate_ruby_version
+          validate_docker_running
+          VetsApi::Setups::Hybrid.new.run
+        end
+
+        def validate_ruby_version
+          unless RUBY_DESCRIPTION.include?(ruby_version)
             puts "\nBefore continuing Ruby #{ruby_version} must be installed"
             puts 'We suggest using a Ruby version manager such as rbenv, asdf, rvm, or chruby' \
                  ' to install and maintain your version of Ruby.'
             puts 'More information: https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/native.md#installing-a-ruby-version-manager'
+            exit 1
           end
         end
 
-        def setup_docker
-          if docker_running?
-            VetsApi::Setups::Docker.new.run
-          else
+        def validate_docker_running
+          unless docker_running?
             puts "\nBefore continuing Docker Desktop (Engine + Compose) must be installed"
             puts 'More information: https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/docker.md'
-          end
-        end
-
-        def setup_hybrid
-          if RUBY_DESCRIPTION.include?(ruby_version) && docker_running?
-            VetsApi::Setups::Hybrid.new.run
-          else
-            puts "\nBefore continuing Ruby #{ruby_version} AND Docker Desktop (Engine + Compose) must be installed"
-            puts 'More information about Ruby managers: https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/ruby_managers.md'
-            puts 'More information about Docker Desktop (Engine + Compose): https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/ruby_managers.md'
+            exit 1
           end
         end
 

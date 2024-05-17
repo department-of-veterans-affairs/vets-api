@@ -61,6 +61,14 @@ If you need to run a docker command like `docker system prune` or you want to ru
 
 ## Common Issues
 
+### Database Connection
+
+If running natively and you see this error: 
+
+ `PG::ConnectionBad: connection to server on socket "/tmp/.s.PGSQL.5432" failed: No such file or directory`
+
+Resolution: You may need to start the Postgres App
+
 ### Setup Failures 
 
 If issues occur during setup you may need to follow the instructions provided in the docs: [native](native.md), [hybrid](hybrid.md), or [docker](docker.md)
