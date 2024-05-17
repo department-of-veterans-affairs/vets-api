@@ -24,8 +24,9 @@ module V0
     end
 
     def accept_and_provision
-      terms_of_use_agreement = acceptor(async: false).perform!
-      if terms_of_use_agreement.accepted? && provisioner.perform
+      terms_of_use_agreement = acceptor(sync: true).perform!
+      if terms_of_use_agreement.accepted?
+        provisioner.perform
         create_cerner_cookie
         recache_user unless terms_code_temporary_auth?
         render_success(action: 'accept_and_provision', body: { terms_of_use_agreement:, provisioned: true },
@@ -33,7 +34,7 @@ module V0
       else
         render_error(action: 'accept_and_provision', message: 'Failed to accept and provision')
       end
-    rescue TermsOfUse::Errors::AcceptorError => e
+    rescue TermsOfUse::Errors::AcceptorError, TermsOfUse::Errors::ProvisionerError => e
       render_error(action: 'accept_and_provision', message: e.message)
     end
 
@@ -46,24 +47,21 @@ module V0
     end
 
     def update_provisioning
-      if provisioner.perform
-        create_cerner_cookie
-        render_success(action: 'update_provisioning', body: { provisioned: true }, status: :ok)
-      else
-        render_error(action: 'update_provisioning', message: 'Failed to provision')
-      end
+      provisioner.perform
+      create_cerner_cookie
+      render_success(action: 'update_provisioning', body: { provisioned: true }, status: :ok)
     rescue TermsOfUse::Errors::ProvisionerError => e
       render_error(action: 'update_provisioning', message: e.message)
     end
 
     private
 
-    def acceptor(async: true)
+    def acceptor(sync: false)
       TermsOfUse::Acceptor.new(
         user_account: @user_account,
         common_name:,
         version: params[:version],
-        async:
+        sync:
       )
     end
 

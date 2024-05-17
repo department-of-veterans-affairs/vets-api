@@ -92,8 +92,7 @@ module MedicalCopays
       end
 
       def send_statement_notifications(statements_json_byte)
-        # pausing until further notice
-        # CopayNotifications::ParseNewStatementsJob.perform_async(statements_json_byte)
+        CopayNotifications::ParseNewStatementsJob.perform_async(statements_json_byte)
       end
 
       def settings

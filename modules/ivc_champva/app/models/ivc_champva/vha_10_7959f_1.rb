@@ -5,9 +5,12 @@ module IvcChampva
     include Virtus.model(nullify_blank: true)
 
     attribute :data
+    attr_reader :form_id
 
     def initialize(data)
       @data = data
+      @uuid = SecureRandom.uuid
+      @form_id = 'vha_10_7959f_1'
     end
 
     def metadata
@@ -20,7 +23,9 @@ module IvcChampva
         'country' => @data.dig('veteran', 'mailing_address', 'country') || 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
-        'businessLine' => 'CMP'
+        'businessLine' => 'CMP',
+        'uuid' => @uuid,
+        'primaryContactInfo' => @data['primary_contact_info']
       }
     end
 

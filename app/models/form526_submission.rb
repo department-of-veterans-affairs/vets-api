@@ -18,7 +18,8 @@ class Form526Submission < ApplicationRecord
     state :unprocessed, initial: true
     state :delivered_to_primary, :failed_primary_delivery, :rejected_by_primary,
           :delivered_to_backup, :failed_backup_delivery, :rejected_by_backup,
-          :in_remediation, :finalized_as_successful, :unprocessable
+          :in_remediation, :finalized_as_successful, :unprocessable,
+          :processed_in_batch_remediation, :ignorable_duplicate
 
     # - a submission has been delivered to our happy path
     # - requires polling to finalize
@@ -62,7 +63,6 @@ class Form526Submission < ApplicationRecord
       transitions to: :in_remediation
     end
 
-    # TODO: add this transition when we add 526 completion polling
     # - The only state that means we no longer own completion of this submission
     # - There is nothing more to do.  E.G.
     #   - VBMS has accepted and returned the applicable status to us via
@@ -77,6 +77,33 @@ class Form526Submission < ApplicationRecord
     # - we probably want to avoid using this state
     event :mark_as_unprocessable do
       transitions to: :unprocessable
+    end
+
+    # A special state to indicate this was part of our remediation 'batching'
+    # process in 2023.  These were handled manually and are distinct from `in_remediation`
+    # in that they were not tracked at the time of remediation, but rather later in
+    # the 2024 526 State audit.
+    #
+    # This state is useful to us at the time of creation, but may be something
+    # to flatten to a simple `finalized_as_successful` in the future.
+    event :process_in_batch_remediation do
+      transitions to: :processed_in_batch_remediation
+    end
+
+    # A special state to indicate this was part of our remediation 'batching'
+    # process in 2023.  These submissions may have been processed or not, but
+    # we don't care because they have an earlier, successful duplicate.
+    #
+    # Duplicates are identified by comparing form_json, using this script:
+    # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/teams/benefits/scripts/526/submission_deduper.rb
+    # The result of this script can be evaluated by a qualified stakeholder to make
+    # a judgement call on whether or not a submission is a 'perfect' duplicate.
+    #
+    # IF a submission is found to be an exact duplicate of another
+    # AND its duplicate was previously submitted / remediated successfully
+    # THEN we can ignore it as a duplicate
+    event :ignore_as_duplicate do
+      transitions to: :ignorable_duplicate
     end
   end
 
@@ -427,6 +454,15 @@ class Form526Submission < ApplicationRecord
       'date_submitted' => created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.'),
       'first_name' => first_name
     }
+  end
+
+  def veteran_email_address
+    form.dig('form526', 'form526', 'veteran', 'emailAddress')
+  end
+
+  def format_creation_time_for_mailers
+    # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
+    created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
   end
 
   private

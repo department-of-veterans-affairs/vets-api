@@ -8,6 +8,7 @@ RSpec.describe 'Forms uploader', type: :request do
   forms = [
     # TODO: Restore this test when we release 26-4555 to production.
     # 'vba_26_4555.json',
+    'vba_21_4138.json',
     'vba_21_4142.json',
     'vba_21_10210.json',
     'vba_21p_0847.json',
@@ -28,11 +29,15 @@ RSpec.describe 'Forms uploader', type: :request do
     context 'going to Lighthouse Benefits Intake API' do
       let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
       let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
+      let(:random_string) { 'some-unique-simple-forms-file-seed' }
 
       before do
         VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
         VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
         allow(Common::FileHelpers).to receive(:random_file_path).and_return(file_seed)
+        allow(Common::FileHelpers).to receive(:generate_temp_file).and_wrap_original do |original_method, *args|
+          original_method.call(args[0], random_string)
+        end
       end
 
       after do
@@ -512,8 +517,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
       it 'successful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf_to_benefits_intake).and_return([200, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::PdfUploader)
+          .to receive(:upload_to_benefits_intake).and_return([200, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -532,8 +537,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
       it 'unsuccessful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf_to_benefits_intake).and_return([500, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::PdfUploader)
+          .to receive(:upload_to_benefits_intake).and_return([500, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -553,8 +558,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
       it 'successful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf_to_benefits_intake).and_return([200, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::PdfUploader)
+          .to receive(:upload_to_benefits_intake).and_return([200, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -573,8 +578,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
       it 'unsuccessful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf_to_benefits_intake).and_return([500, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::PdfUploader)
+          .to receive(:upload_to_benefits_intake).and_return([500, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -600,11 +605,8 @@ RSpec.describe 'Forms uploader', type: :request do
       it 'successful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        allow_any_instance_of(
-          SimpleFormsApi::V1::UploadsController
-        ).to receive(
-          :upload_pdf_to_benefits_intake
-        ).and_return([200, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::PdfUploader)
+          .to receive(:upload_to_benefits_intake).and_return([200, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -624,11 +626,8 @@ RSpec.describe 'Forms uploader', type: :request do
       it 'unsuccessful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        allow_any_instance_of(
-          SimpleFormsApi::V1::UploadsController
-        ).to receive(
-          :upload_pdf_to_benefits_intake
-        ).and_return([500, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::PdfUploader)
+          .to receive(:upload_to_benefits_intake).and_return([500, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -648,8 +647,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
       it 'successful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf_to_benefits_intake).and_return([200, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::PdfUploader)
+          .to receive(:upload_to_benefits_intake).and_return([200, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -668,8 +667,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
       it 'unsuccessful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf_to_benefits_intake).and_return([500, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::PdfUploader)
+          .to receive(:upload_to_benefits_intake).and_return([500, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
