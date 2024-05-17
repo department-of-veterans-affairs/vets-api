@@ -68,16 +68,16 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       end
 
       it 'calls #send_to_central_mail!' do
-          pending 'need vcr records'
-          VCR.use_cassette('vbms/document_upload_417') do
+        pending 'need vcr records'
+        VCR.use_cassette('vbms/document_upload_417') do
           expect(claim).to receive(:send_to_central_mail!)
           subject
         end
       end
 
       it 'does not raise an error' do
-          pending 'need vcr records'
-          VCR.use_cassette('vbms/document_upload_417') do
+        pending 'need vcr records'
+        VCR.use_cassette('vbms/document_upload_417') do
           allow(claim).to receive(:send_to_central_mail!)
           expect { subject }.not_to raise_error
         end
