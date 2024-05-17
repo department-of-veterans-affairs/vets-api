@@ -9,13 +9,13 @@ module BGSClientSpecHelpers
   # Called `:body_as_xml` as inspired by `:body_as_json`:
   #   https://benoittgt.github.io/vcr/#/request_matching/body_as_json?id=matching-on-body
   body_as_xml_matcher =
-    lambda do |req_a, req_b|
+    lambda do |req_actual, req_expected|
       # I suspect that this is not a fully correct implementation of XML
       # equality but that there is a fully correct implementation of it
       # somewhere out there.
-      xml_a = Nokogiri::XML(req_a.body, &:noblanks).canonicalize
-      xml_b = Nokogiri::XML(req_b.body, &:noblanks).canonicalize
-      xml_a == xml_b
+      xml_actual = Nokogiri::XML(req_actual.body, &:noblanks).canonicalize
+      xml_expected = Nokogiri::XML(req_expected.body, &:noblanks).canonicalize
+      xml_actual == xml_expected
     end
 
   VCR_OPTIONS = {
@@ -25,6 +25,7 @@ module BGSClientSpecHelpers
     ].freeze
   }.freeze
 
+  ##
   # This convenience method affords a handful of quality of life improvements
   # for developing BGS service action wrappers. It makes development a less
   # manual process. It also turns VCR cassettes into a human readable resource
@@ -40,6 +41,7 @@ module BGSClientSpecHelpers
   #   - They will be nicely organized at `claims_api/bgs/:service/:action/:name`
   #   - Cassette matching will be done on canonicalized XML bodies, so
   #     reformatting cassettes for human readability won't defeat matching
+  #
   def use_bgs_cassette(name, &)
     metadata = RSpec.current_example.metadata[:bgs].to_h
     service, action = metadata.values_at(:service, :action)

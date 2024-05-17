@@ -923,6 +923,9 @@ features:
   my_va_update_errors_warnings:
     actor_type: user
     description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released)
+  my_va_lighthouse_uploads_report:
+    actor_type: user
+    description: Use lighthouse /uploads/report endpoint for Form status
   rated_disabilities_detect_discrepancies:
     actor_type: user
     description:
