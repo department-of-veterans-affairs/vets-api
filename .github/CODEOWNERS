@@ -794,6 +794,7 @@ docs/setup/mhv.md @department-of-veterans-affairs/vfs-health-modernization-initi
 docs/setup/mpi.md @department-of-veterans-affairs/octo-identity
 docs/setup/native.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/rswag_setup.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
+docs/setup/running_binstubs.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/running_docker.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/running_natively.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/codespaces.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/cto-engineers
