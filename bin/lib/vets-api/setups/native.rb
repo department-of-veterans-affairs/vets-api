@@ -16,7 +16,7 @@ module VetsApi
         if RbConfig::CONFIG['host_os'] =~ /darwin/i
           install_postgres
           run_brewfile
-          pex_install_postis
+          pex_install_postgis
           configuring_clamav_antivirus
           install_pdftk
         else
@@ -55,7 +55,7 @@ module VetsApi
         puts 'Done'
       end
 
-      def pex_install_postis
+      def pex_install_postgis
         return if ShellCommand.run("psql -U postgres -d vets-api -c 'SELECT PostGIS_Version();' | grep -q '(1 row)'")
 
         g_cppflags = '-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include'
@@ -68,7 +68,7 @@ module VetsApi
           puts
           puts 'Follow the instructions on:'
           puts 'https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/native.md#osx'
-
+          exit 1
         end
       end
     end
