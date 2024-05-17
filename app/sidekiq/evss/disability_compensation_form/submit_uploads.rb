@@ -31,6 +31,17 @@ module EVSS
           bgjob_errors: bgjob_errors.merge(new_error)
         )
 
+        if Flipper.enabled?(:form526_send_document_upload_failure_notification)
+          # Extract original job arguments
+          # (form526_submission_id already extracted above;
+          # line will move there after flipper is removed)
+          form526_submission_id, upload_data = msg['args']
+          # Match existing data check in perform method
+          upload_data = upload_data.first if upload_data.is_a?(Array)
+          guid = upload_data['confirmationCode']
+          Form526DocumentUploadFailureEmail.perform_async(form526_submission_id, guid)
+        end
+
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
         ::Rails.logger.warn(

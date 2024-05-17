@@ -501,6 +501,10 @@ features:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
     enable_in_development: true
+  form526_send_document_upload_failure_notification:
+    actor_type: user
+    description: Enables enqueuing a Form526DocumentUploadFailureEmail if a EVSS::DisabilityCompensationForm::SubmitUploads job exhausts its retries
+    enable_in_development: true
   form0994_confirmation_email:
     actor_type: user
     description: Enables form 0994 email submission confirmation (VaNotify)
@@ -1405,12 +1409,19 @@ features:
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
+  pension_browser_monitoring_enabled:
+    actor_type: user
+    description: Pension Datadog RUM monitoring
   pension_claim_submission_to_lighthouse:
     actor_type: user
     description: Pension claim submission uses Lighthouse API
   pension_multiresponse_styles:
     actor_type: user
     description: Pension uses updated styles for single-page multiresponses
+    enable_in_development: true
+  income_and_assets_form_enabled:
+    actor_type: user
+    description: Enable form 21P-0969 Update Income and Assets Evidence Form
     enable_in_development: true
   central_mail_benefits_intake_submission:
     actor_type: user
