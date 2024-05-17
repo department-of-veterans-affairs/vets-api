@@ -131,7 +131,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
             ratedDisabilityId: '',
             diagnosticCode: 0,
             secondaryDisabilities: nil,
-            specialIssues: ['POW', 'EMP']
+            specialIssues: %w[POW EMP]
           }
         end
 
@@ -159,7 +159,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
             ratedDisabilityId: '',
             diagnosticCode: 0,
             secondaryDisabilities: nil,
-            specialIssues: ['POW', 'EMP']
+            specialIssues: %w[POW EMP]
           }
         end
 
