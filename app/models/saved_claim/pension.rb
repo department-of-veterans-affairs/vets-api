@@ -12,6 +12,10 @@ class SavedClaim::Pension < CentralMailClaim
      'Janesville, Wisconsin 53547-5365']
   end
 
+  def business_line
+    'PMC'
+  end
+
   def attachment_keys
     [:files].freeze
   end
