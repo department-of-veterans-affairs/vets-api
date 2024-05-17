@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_15_192926) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_17_145354) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -1047,6 +1047,21 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_15_192926) do
     t.index ["service_account_id"], name: "index_service_account_configs_on_service_account_id", unique: true
   end
 
+  create_table "sign_in_certificates", force: :cascade do |t|
+    t.string "issuer", null: false
+    t.string "subject", null: false
+    t.string "serial", null: false
+    t.datetime "not_before", null: false
+    t.datetime "not_after", null: false
+    t.text "plaintext", null: false
+    t.bigint "client_config_id"
+    t.bigint "service_account_config_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["client_config_id"], name: "index_sign_in_certificates_on_client_config_id"
+    t.index ["service_account_config_id"], name: "index_sign_in_certificates_on_service_account_config_id"
+  end
+
   create_table "spool_file_events", force: :cascade do |t|
     t.integer "rpo"
     t.integer "number_of_submissions"
@@ -1579,6 +1594,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_15_192926) do
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
+  add_foreign_key "sign_in_certificates", "client_configs"
+  add_foreign_key "sign_in_certificates", "service_account_configs"
   add_foreign_key "terms_of_use_agreements", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
   add_foreign_key "user_credential_emails", "user_verifications"
