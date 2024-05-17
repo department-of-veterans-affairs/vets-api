@@ -64,6 +64,10 @@ root@63aa89d76c17:/src/vets-api# rspec spec/requests/user_request_spec.rb:26
 
 As a general technique, if you're running `vets-api` in Docker and run into a problem, doing a `make rebuild` is a good first step to fix configuration, gem, and other various code problems.
 
+#### `make up` failing
+
+Run `make build` and then try `make up` again.
+
 #### `make up` fails with a message about missing gems
 
 ```bash

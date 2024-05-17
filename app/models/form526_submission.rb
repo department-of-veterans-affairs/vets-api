@@ -456,6 +456,15 @@ class Form526Submission < ApplicationRecord
     }
   end
 
+  def veteran_email_address
+    form.dig('form526', 'form526', 'veteran', 'emailAddress')
+  end
+
+  def format_creation_time_for_mailers
+    # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
+    created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+  end
+
   private
 
   def queue_central_mail_backup_submission_for_non_retryable_error!(e: nil)

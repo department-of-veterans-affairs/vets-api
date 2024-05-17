@@ -12,7 +12,7 @@ module Vye
       def create
         authorize user_info, policy_class: Vye::UserInfoPolicy
 
-        user_info.address_changes.create!(create_params)
+        user_info.address_changes.create!(create_params.merge(origin: 'frontend'))
       end
 
       private
