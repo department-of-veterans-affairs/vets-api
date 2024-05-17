@@ -498,7 +498,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
     describe 'from underlying faraday connection issues' do
       before do
         pattern = %r{/VDC/ManageRepresentativeService}
-        stub_request(:get, pattern).to_raise(
+        stub_request(:post, pattern).to_raise(
           described_class
         )
       end
