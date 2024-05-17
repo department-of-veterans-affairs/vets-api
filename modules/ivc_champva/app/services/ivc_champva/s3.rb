@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-# S3 Module for ivc form submission
-# Return
-#   { success: Boolean, [error_message: String] }
 module IvcChampva
   class S3
     attr_reader :region, :access_key_id, :secret_access_key, :bucket
@@ -14,10 +11,10 @@ module IvcChampva
       @bucket = bucket
     end
 
-    def put_object(key, file, metadata = {})
+    def put_object(key, file, metadata = {}, attachment_ids = {})
       Datadog::Tracing.trace('S3 Put File(s)') do
-        # Convert nil values to empty strings in the metadata
         metadata&.transform_values! { |value| value || '' }
+        metadata['attachment_ids'] = attachment_ids.empty? ? '' : attachment_ids.join(',')
 
         client.put_object({
                             bucket:,

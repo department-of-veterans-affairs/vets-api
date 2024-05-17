@@ -5,10 +5,12 @@ module IvcChampva
     include Virtus.model(nullify_blank: true)
 
     attribute :data
+    attr_reader :form_id
 
     def initialize(data)
       @data = data
       @uuid = SecureRandom.uuid
+      @form_id = 'vha_10_7959c'
     end
 
     def metadata
