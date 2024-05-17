@@ -15,7 +15,7 @@ module ClaimsApi
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
 
-        evss_data = evss_mapper_service(auto_claim, veteran_file_number(auto_claim)).map_claim
+        evss_data = get_evss_data(auto_claim)
 
         log_service_progress(claim_id, 'docker_service',
                              'Submitting mapped data to Docker container')
@@ -32,6 +32,10 @@ module ClaimsApi
         queue_flash_updater(auto_claim.flashes, auto_claim&.id)
         # now upload to benefits documents
         start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
+      end
+
+      def get_evss_data(auto_claim)
+        evss_mapper_service(auto_claim, veteran_file_number(auto_claim)).map_claim
       end
     end
   end
