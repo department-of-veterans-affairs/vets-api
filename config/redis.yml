@@ -193,6 +193,9 @@ development: &defaults
   sidekiq_attr_package:
     namespace: sidekiq_attr_package
     each_ttl: 604800
+  map_sts_token:
+    namespace: map_sts_token
+    each_ttl: 300
 test:
   <<: *defaults
   redis:

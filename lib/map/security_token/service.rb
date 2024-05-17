@@ -2,20 +2,30 @@
 
 require 'map/security_token/configuration'
 require 'map/security_token/errors'
+require 'map/security_token/map_sts_token'
 
 module MAP
   module SecurityToken
     class Service < Common::Client::Base
       configuration Configuration
 
-      def token(application:, icn:)
+      def token(application:, icn:, cache: true)
         Rails.logger.info("#{config.logging_prefix} token request", { application:, icn: })
+        if cache && (cached_token = find_cached_token(icn, application))
+          Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cache: true })
+          return cached_token
+        end
         response = perform(:post,
                            config.token_path,
                            token_params(application, icn),
                            { 'Content-Type' => 'application/x-www-form-urlencoded' })
         sts_token = parse_response(response, application, icn)
-        Rails.logger.info("#{config.logging_prefix} token success", { application:, icn: })
+        redis_attributes = { application: application.to_s,
+                             icn:,
+                             access_token: sts_token[:access_token],
+                             expiration: sts_token[:expiration].utc.iso8601 }
+        MapStsToken.create(redis_attributes)
+        Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cache: false })
         sts_token
       rescue Common::Client::Errors::ClientError => e
         parse_and_raise_error(e, icn, application)
@@ -50,6 +60,16 @@ module MAP
         message = "#{config.logging_prefix} token failed, response unknown"
         Rails.logger.error(message, application:, icn:)
         raise e, "#{message}, application: #{application}, icn: #{icn}"
+      end
+
+      def find_cached_token(icn, application)
+        cached_token = MapStsToken.find(icn)
+        return unless cached_token&.application == application.to_s
+
+        cached_token[:expiration] = Time.zone.parse(cached_token[:expiration])
+        return unless cached_token.expiration > Time.zone.now
+
+        { access_token: cached_token[:access_token], expiration: cached_token[:expiration] }
       end
 
       def client_id_from_application(application)
