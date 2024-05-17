@@ -25,6 +25,7 @@ module Sidekiq
                                  submission_obj.submitted_claim_id.nil?
 
         if send_backup_submission
+          submission_obj.update(submit_endpoint: 'benefits_intake_api')
           backup_job_jid = Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(form526_submission_id)
         end
         vagov_id = JSON.parse(submission_obj.auth_headers_json)['va_eauth_service_transaction_id']
