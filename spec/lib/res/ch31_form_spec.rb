@@ -22,7 +22,7 @@ RSpec.describe RES::Ch31Form do
       }
     }
   end
-  let(:success_message) { OpenStruct.new(body:{ 'success_message' => 'RES has successfully received the request'}) }
+  let(:success_message) { OpenStruct.new(body: { 'success_message' => 'RES has successfully received the request' }) }
 
   describe '#submit' do
     let(:faraday_response) { double('faraday_connection') }
@@ -34,10 +34,6 @@ RSpec.describe RES::Ch31Form do
     context 'with a successful submission' do
       before do
         allow(service).to receive(:send_to_res).and_return(success_message)
-      end
-
-      it 'successfully sends to RES' do
-        service.submit
       end
 
       it 'adds a new address if the user is moving within 30 days' do

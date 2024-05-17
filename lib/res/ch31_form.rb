@@ -22,39 +22,26 @@ module RES
     # @return [Hash] the student's address
     #
     def submit
-      raise Ch31NilClaimError if @claim.nil?
+      if @claim.nil?
+        log_exception_to_sentry(
+          'Ch31NilClaimError',
+          {
+            icn: @user.icn
+          },
+          SENTRY_TAG
+        )
+        raise Ch31NilClaimError
+      end
 
       response = send_to_res(payload: format_payload_for_res)
       response_body = response.body
 
       raise Ch31Error if response_body['success_message'].blank?
 
-      log_message_to_sentry(
-        'Temp message for testing',
-        :warn,
-        { application_intake_id: response_body['application_intake'] },
-        SENTRY_TAG
-      )
       response_body
     rescue Ch31Error => e
-      log_exception_to_sentry(
-        e,
-        {
-          intake_id: response_body['ApplicationIntake'],
-          error_message: response_body['ErrorMessage']
-        },
-        SENTRY_TAG
-      )
+      process_ch_31_error(e, response_body)
 
-      raise
-    rescue Ch31NilClaimError => e
-      log_exception_to_sentry(
-        e,
-        {
-          icn: @user.icn
-        },
-        SENTRY_TAG
-      )
       raise
     end
 
@@ -146,6 +133,17 @@ module RES
         state: client_hash['state'],
         postalCode: client_hash['postalCode']
       }
+    end
+
+    def process_ch_31_error(e, response_body)
+      log_exception_to_sentry(
+        e,
+        {
+          intake_id: response_body['ApplicationIntake'],
+          error_message: response_body['ErrorMessage']
+        },
+        SENTRY_TAG
+      )
     end
   end
 end
