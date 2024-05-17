@@ -33,8 +33,8 @@ module ClaimsApi
       path = Settings.claims_api.pdf_generator_526.path
       content_type = Settings.claims_api.pdf_generator_526.content_type
       Faraday.new("#{url}#{path}",
-                         ssl: { verify: !Rails.env.development? },
-                         headers: { 'Content-Type': content_type.to_s }) do |f|
+                  ssl: { verify: !Rails.env.development? },
+                  headers: { 'Content-Type': content_type.to_s }) do |f|
         f.request :json
         f.response :raise_error
         f.response :logger,
