@@ -69,7 +69,7 @@ module IvcChampva
     end
 
     def upload(file_name, file_path, attachment_ids:)
-      case client.put_object(file_name, file_path, @metadata.except('primary_contact_info'), attachment_ids)
+      case client.put_object(file_name, file_path, @metadata.except('primaryContactInfo'), attachment_ids)
       in { success: true }
         [200]
       in { success: false, error_message: error_message }
