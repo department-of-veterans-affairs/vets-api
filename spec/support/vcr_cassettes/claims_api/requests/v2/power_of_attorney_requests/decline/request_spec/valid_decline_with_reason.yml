@@ -5,7 +5,7 @@ http_interactions:
     uri: "<BGS_BASE_URL>/VDC/ManageRepresentativeService"
     body:
       encoding: UTF-8
-      string: |
+      string: |-
         <?xml version="1.0" encoding="UTF-8" ?>
         <env:Envelope
           xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -33,27 +33,24 @@ http_interactions:
             </wsse:Security>
           </env:Header>
           <env:Body>
-            <tns:readPOARequest>
-              <data:SecondaryStatusList>
-                <SecondaryStatus>Declined</SecondaryStatus>
-              </data:SecondaryStatusList>
-              <data:POACodeList>
-                <POACode>BQX</POACode>
-              </data:POACodeList>
-              <data:POARequestParameter>
-                <pageIndex>1</pageIndex>
-                <pageSize>25</pageSize>
-                <poaSortField>DATE_RECEIVED</poaSortField>
-                <poaSortOrder>DESCENDING</poaSortOrder>
-              </data:POARequestParameter>
-            </tns:readPOARequest>
+            <tns:updatePOARequest>
+              <data:POARequestUpdate>
+                <procId>3854887</procId>
+                <secondaryStatus>Declined</secondaryStatus>
+                <declinedReason>Some reason</declinedReason>
+                <dateRequestActioned>2024-05-09T07:18:04Z</dateRequestActioned>
+                <VSOUserEmail>Beatrice.Stroud44@va.gov</VSOUserEmail>
+                <VSOUserFirstName>BEATRICE</VSOUserFirstName>
+                <VSOUserLastName>STROUD</VSOUserLastName>
+              </data:POARequestUpdate>
+            </tns:updatePOARequest>
           </env:Body>
         </env:Envelope>
     headers:
       User-Agent:
       - Faraday v2.9.0
       Soapaction:
-      - '"readPOARequest"'
+      - '"updatePOARequest"'
       Content-Type:
       - text/xml;charset=UTF-8
       Host:
@@ -64,11 +61,11 @@ http_interactions:
       - "*/*"
   response:
     status:
-      code: 500
-      message: Internal Server Error
+      code: 200
+      message: OK
     headers:
       Date:
-      - Tue, 07 May 2024 10:26:27 GMT
+      - Thu, 09 May 2024 07:18:06 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -83,35 +80,28 @@ http_interactions:
       encoding: UTF-8
       string: |-
         <?xml version='1.0' encoding='UTF-8' ?>
-        <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+        <S:Envelope
+          xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+          xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"
+        >
+          <env:Header />
           <S:Body>
-            <ns0:Fault
-              xmlns:ns0="http://schemas.xmlsoap.org/soap/envelope/"
-              xmlns:ns1="http://www.w3.org/2003/05/soap-envelope"
+            <ns0:updatePOARequestResponse
+              xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
+              xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
+              xmlns:ns2="http://gov.va.vba.benefits.vdc/data"
             >
-              <faultcode>ns0:Server</faultcode>
-              <faultstring>No Record Found</faultstring>
-              <detail>
-                <ns0:MessageException
-                  xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
-                >
-                  <code>5999</code>
-                  <faultCode>Client</faultCode>
-                  <fieldName>POACodeList</fieldName>
-                  <functionName>readPOARequest</functionName>
-                  <jrnDate>Tue May 07 05:26:27 CDT 2024</jrnDate>
-                  <jrnExtnlKeyTxt>xKey</jrnExtnlKeyTxt>
-                  <jrnExtnlUserId>xUid</jrnExtnlUserId>
-                  <jrnLocationId>281</jrnLocationId>
-                  <jrnObjectId>VAgovAPI</jrnObjectId>
-                  <jrnUserId>VAgovAPI</jrnUserId>
-                  <message>No Record Found</message>
-                  <reason>NO_RECORD_FOUND</reason>
-                  <service>ManageRepresentativeService</service>
-                </ns0:MessageException>
-              </detail>
-            </ns0:Fault>
+              <ns2:POARequestUpdate>
+                <VSOUserEmail>Beatrice.Stroud44@va.gov</VSOUserEmail>
+                <VSOUserFirstName>BEATRICE</VSOUserFirstName>
+                <VSOUserLastName>STROUD</VSOUserLastName>
+                <dateRequestActioned>2024-05-09T02:18:04-05:00</dateRequestActioned>
+                <declinedReason>Some reason</declinedReason>
+                <procId>3854887</procId>
+                <secondaryStatus>DEC</secondaryStatus>
+              </ns2:POARequestUpdate>
+            </ns0:updatePOARequestResponse>
           </S:Body>
         </S:Envelope>
-  recorded_at: Tue, 07 May 2024 10:26:27 GMT
+  recorded_at: Thu, 09 May 2024 07:18:07 GMT
 recorded_with: VCR 6.2.0
