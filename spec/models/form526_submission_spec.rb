@@ -142,7 +142,8 @@ RSpec.describe Form526Submission do
       def expect_max_cfi_logged(max_cfi_enabled, disability_claimed, diagnostic_code, total_increase_conditions)
         expect(Rails.logger).to have_received(:info).with(
           'Max CFI form526 submission',
-          { id: subject.id, max_cfi_enabled:, disability_claimed:, diagnostic_code:, total_increase_conditions: }
+          { id: subject.id, max_cfi_enabled:, disability_claimed:, diagnostic_code:, total_increase_conditions:,
+            cfi_checkbox_was_selected: false }
         )
       end
 
@@ -1165,6 +1166,39 @@ RSpec.describe Form526Submission do
         it 'returns false' do
           expect(subject).to be_falsey
         end
+      end
+    end
+  end
+
+  describe '#cfi_checkbox_was_selected?' do
+    subject { form_526_submission.cfi_checkbox_was_selected? }
+
+    let!(:in_progress_form) { create(:in_progress_526_form, user_uuid: user.uuid) }
+    let(:form_526_submission) do
+      Form526Submission.create(
+        user_uuid: user.uuid,
+        user_account: user.user_account,
+        saved_claim_id: saved_claim.id,
+        auth_headers_json: auth_headers.to_json,
+        form_json: File.read('spec/support/disability_compensation_form/submissions/only_526_tinnitus.json')
+      )
+    end
+
+    context 'when associated with a default InProgressForm' do
+      it 'returns false' do
+        expect(subject).to be_falsey
+      end
+    end
+
+    context 'when associated with a InProgressForm that went through CFI being selected' do
+      let(:params) do
+        { form_data: { 'view:claim_type' => { 'view:claiming_increase' => true } } }
+      end
+
+      it 'returns true' do
+        ClaimFastTracking::MaxCfiMetrics.log_form_update(in_progress_form, params)
+        in_progress_form.update!(params)
+        expect(subject).to be_truthy
       end
     end
   end
