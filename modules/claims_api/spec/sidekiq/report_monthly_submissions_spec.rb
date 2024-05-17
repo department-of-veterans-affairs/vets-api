@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../shared_reporting_helper'
+require_relative 'shared_reporting_examples_spec'
 
 RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
   subject { described_class.new }
+
+  include_context 'shared reporting defaults'
 
   describe '#perform' do
     let(:from) { 1.month.ago }
@@ -37,6 +41,8 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
         Timecop.return
       end
     end
+
+    it_behaves_like 'shared reporting behavior'
   end
 
   describe 'when an errored job has exhausted its retries' do
