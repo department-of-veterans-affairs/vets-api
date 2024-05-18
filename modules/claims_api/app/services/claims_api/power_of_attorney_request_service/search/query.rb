@@ -4,8 +4,8 @@ module ClaimsApi
   module PowerOfAttorneyRequestService
     module Search
       module Query
-        Page = PowerOfAttorneyRequest::Searching::Query::Page
-        Sort = PowerOfAttorneyRequest::Searching::Query::Sort
+        Page = PowerOfAttorneyRequest::Search::Query::Page
+        Sort = PowerOfAttorneyRequest::Search::Query::Sort
 
         # TODO: If keeping `dry-schema`, consider a good point to load these
         # extensions. The `hints` extension has to load before our `Schema`
@@ -28,7 +28,9 @@ module ClaimsApi
             optional(:page).hash do
               optional(:number).value(:integer, gteq?: 1)
               optional(:size).value(
-                :integer, gteq?: Page::Size::MIN, lteq?: Page::Size::MAX
+                :integer,
+                gteq?: Page::Size::MIN,
+                lteq?: Page::Size::MAX
               )
             end
 

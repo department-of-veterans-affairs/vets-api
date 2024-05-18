@@ -19,6 +19,16 @@ module ClaimsApi
         ].freeze
       end
 
+      class << self
+        def find(id)
+          Find.perform(id)
+        end
+
+        def update(id, decision)
+          Update.perform(id, decision)
+        end
+      end
+
       Representative =
         Data.define(
           :first_name,
