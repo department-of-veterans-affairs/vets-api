@@ -20,7 +20,6 @@ module VBADocuments
       Rails.logger.info('VBADocuments::SlackInflightNotifier starting.')
       begin
         results = { long_flyers_alerted: long_flyers_alert,
-                    #upload_stalled_alerted: upload_stalled_alert,
                     invalid_parts_alerted: invalid_parts_alert,
                     summary_notification: }
       rescue => e
@@ -54,7 +53,7 @@ module VBADocuments
 
         start_time = upload.metadata['status'][status]['start']
         duration = distance_of_time_in_words(Time.now.to_i - start_time)
-        results += "\n\tStatus \'#{status}\' for #{duration} (GUID: #{upload.guid})"
+        results += "\n\tStatus '#{status}' for #{duration} (GUID: #{upload.guid})"
       end
 
       notify_slack('Status Report (worst offenders over past week)', results)
