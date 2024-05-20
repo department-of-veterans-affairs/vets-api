@@ -697,6 +697,9 @@ features:
   mhv_transitional_medical_records_landing_page:
     actor_type: user
     description: Enables the transitional Medical Records page at /my-health/records
+  mhv_helpdesk_information_enabled:
+    actor_type: user
+    description: Enables the MHV helpdesk information
   mhv_secure_messaging_to_va_gov_release:
     actor_type: user
     description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
@@ -712,10 +715,6 @@ features:
   mhv_secure_messaging_remove_lefthand_nav:
     actor_type: user
     description: Disables/Enables Secure Messaging lefthand navigation for new navigation solution
-    enable_in_development: true
-  mhv_sm_session_policy:
-    actor_type: user
-    description: changes secure messaging policy to use sm sessions endpoint for authorization
     enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
@@ -1180,6 +1179,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to display the physical location of an appointment.
+  va_online_scheduling_enable_OH_reads:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for routing appointment read requests to the VetsAPI Gateway Service(VPG) instead of vaos-service.
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
