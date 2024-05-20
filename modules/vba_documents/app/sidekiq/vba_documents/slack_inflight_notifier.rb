@@ -3,7 +3,7 @@
 require 'sidekiq'
 
 module VBADocuments
-  class SlackNotifier
+  class SlackInflightNotifier
     include Sidekiq::Job
     include ActionView::Helpers::DateHelper
 
@@ -17,16 +17,16 @@ module VBADocuments
       return unless Settings.vba_documents.slack.enabled
 
       fetch_settings
-      Rails.logger.info('VBADocuments::SlackNotifier starting.')
+      Rails.logger.info('VBADocuments::SlackInflightNotifier starting.')
       begin
         results = { long_flyers_alerted: long_flyers_alert,
-                    upload_stalled_alerted: upload_stalled_alert,
+                    #upload_stalled_alerted: upload_stalled_alert,
                     invalid_parts_alerted: invalid_parts_alert,
                     summary_notification: }
       rescue => e
         results = e
       end
-      Rails.logger.info('VBADocuments::SlackNotifier had results', results)
+      Rails.logger.info('VBADocuments::SlackInflightNotifier had results', results)
       results
     end
 
@@ -161,5 +161,3 @@ module VBADocuments
     end
   end
 end
-# load('./modules/vba_documents/app/sidekiq/vba_documents/slack_notifier.rb')
-# SlackNotifier.new.perform
