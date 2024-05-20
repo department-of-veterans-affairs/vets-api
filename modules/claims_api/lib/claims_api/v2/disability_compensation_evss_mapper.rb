@@ -70,7 +70,10 @@ module ClaimsApi
 
       def check_for_pact_special_issue(disability)
         related_to_toxic_exposure = disability[:isRelatedToToxicExposure]
-        disability[:specialIssues] = ['PACT'] if related_to_toxic_exposure
+        if related_to_toxic_exposure
+          disability[:specialIssues] ||= []
+          disability[:specialIssues] << 'PACT'
+        end
       end
 
       def standard_claim
