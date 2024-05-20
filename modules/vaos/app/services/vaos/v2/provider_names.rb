@@ -20,6 +20,7 @@ module VAOS
 
         provider_names = []
         missing_providers = []
+
         practitioners_list.each do |practitioner|
           name, id = find_provider_name(practitioner)
           if name
@@ -35,8 +36,9 @@ module VAOS
       private
 
       def find_provider_name(practitioner)
-        name = find_practitioner_name_in_list(practitioner)
-        return name if name
+        # web does not do this
+        # name = find_practitioner_name_in_list(practitioner)
+        # return name if name
 
         id = find_practitioner_id_in_list(practitioner)
         return nil unless id
@@ -57,7 +59,10 @@ module VAOS
       end
 
       def find_practitioner_id_in_list(practitioner)
-        practitioner.dig(:identifier, 0, :value)
+        practitioner[:identifier]&.each do |i|
+          return i[:value] if i[:system].include? 'us-npi'
+        end
+        nil
       end
 
       def fetch_provider(provider_id)

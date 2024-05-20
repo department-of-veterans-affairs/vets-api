@@ -151,9 +151,12 @@ module VAOS
       #
       # will memoize provider name to avoid duplicate get_provider_with_cache calls
       def find_and_merge_provider_name(appt)
-        found_npi = find_npi(appt)
+        # found_npi = find_npi(appt)
+        practitioners_list = appt[:practitioners]
+        service = ProviderNames.new(current_user)
+        names, _missing_providers = service.form_names_from_appointment_practitioners_list(practitioners_list)
 
-        appt[:preferred_provider_name] = get_provider_name_memoized(found_npi) if found_npi
+        appt[:preferred_provider_name] = names
       end
 
       def find_npi(appt)
