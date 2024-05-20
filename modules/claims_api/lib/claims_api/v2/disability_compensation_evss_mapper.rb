@@ -38,7 +38,7 @@ module ClaimsApi
 
         @evss_claim[:serviceInformation] = {
           servicePeriods: service_periods,
-          confinements: confinements
+          confinements:
         }
         byebug
       end
