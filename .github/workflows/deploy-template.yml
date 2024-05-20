@@ -51,7 +51,7 @@ jobs:
 
       - name: Log into ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Get bot token from Parameter Store
         uses: marvinpinto/action-inject-ssm-secrets@latest
