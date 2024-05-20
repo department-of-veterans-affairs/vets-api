@@ -91,7 +91,7 @@ module Mobile
         end
 
         def merge_provider_names(appointments)
-          provider_names_proxy = ProviderNames.new(@user)
+          provider_names_proxy = VAOS::V2::ProviderNames.new(@user)
           missing_providers = []
           appointments.each do |appt|
             practitioners_list = appt[:practitioners]
