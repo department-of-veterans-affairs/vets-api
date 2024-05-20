@@ -135,7 +135,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     send_to_res(user)
   end
 
-  def upload_to_vbms(doc_type: '1167', user:)
+  def upload_to_vbms(user:, doc_type: '1167')
     form_path = PdfFill::Filler.fill_form(self, nil, { created_at: })
 
     uploader = ClaimsApi::VBMSUploader.new(
