@@ -11,10 +11,31 @@ module MAP
 
       def token(application:, icn:, cache: true)
         Rails.logger.info("#{config.logging_prefix} token request", { application:, icn: })
-        if cache && (cached_token = find_cached_token(icn, application))
-          Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cache: true })
-          return cached_token
+        cache ? find_cached_token(application:, icn:) : request_token(application:, icn:)
+      rescue Common::Client::Errors::ClientError => e
+        parse_and_raise_error(e, icn, application)
+      rescue Errors::ApplicationMismatchError => e
+        Rails.logger.error(e.message, application:, icn:)
+        raise e
+      rescue Errors::MissingICNError => e
+        Rails.logger.error(e.message, application:)
+        raise e
+      end
+
+      private
+
+      def find_cached_token(application:, icn:)
+        cached_token = MapStsToken.find(icn)
+        expiration = Time.zone.parse(cached_token&.expiration || '')
+        unless cached_token&.application == application.to_s && expiration > Time.zone.now
+          return request_token(application:, icn:)
         end
+
+        Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cache: true })
+        { access_token: cached_token[:access_token], expiration: }
+      end
+
+      def request_token(application:, icn:)
         response = perform(:post,
                            config.token_path,
                            token_params(application, icn),
@@ -27,17 +48,7 @@ module MAP
         MapStsToken.create(redis_attributes)
         Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cache: false })
         sts_token
-      rescue Common::Client::Errors::ClientError => e
-        parse_and_raise_error(e, icn, application)
-      rescue Errors::ApplicationMismatchError => e
-        Rails.logger.error(e.message, application:, icn:)
-        raise e
-      rescue Errors::MissingICNError => e
-        Rails.logger.error(e.message, application:)
-        raise e
       end
-
-      private
 
       def parse_and_raise_error(e, icn, application)
         status = e.status
@@ -60,16 +71,6 @@ module MAP
         message = "#{config.logging_prefix} token failed, response unknown"
         Rails.logger.error(message, application:, icn:)
         raise e, "#{message}, application: #{application}, icn: #{icn}"
-      end
-
-      def find_cached_token(icn, application)
-        cached_token = MapStsToken.find(icn)
-        return unless cached_token&.application == application.to_s
-
-        cached_token[:expiration] = Time.zone.parse(cached_token[:expiration])
-        return unless cached_token.expiration > Time.zone.now
-
-        { access_token: cached_token[:access_token], expiration: cached_token[:expiration] }
       end
 
       def client_id_from_application(application)

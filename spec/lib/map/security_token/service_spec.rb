@@ -28,15 +28,16 @@ describe MAP::SecurityToken::Service do
         let(:expected_log_message) { "#{log_prefix} token success" }
 
         shared_examples 'new token request' do
-        it 'does not return a cached token and calls for a new token', vcr: { cassette_name: 'map/security_token_service_200_response' } do
-          expect(Rails.logger).to receive(:info).once.and_call_original
-          expect(Rails.logger).to receive(:info).with(expected_log_message, { application:, icn:, cache: false })
-          expect(subject[:access_token]).not_to eq(map_sts_token)
+          it 'does not return a cached token and calls for a new token',
+             vcr: { cassette_name: 'map/security_token_service_200_response' } do
+            expect(Rails.logger).to receive(:info).once.and_call_original
+            expect(Rails.logger).to receive(:info).with(expected_log_message, { application:, icn:, cache: false })
+            expect(subject[:access_token]).not_to eq(map_sts_token)
+          end
         end
-      end
 
         context 'when a token with a matching ICN is cached' do
-          let(:expiration) { (Time.zone.now + 1.hour) }
+          let(:expiration) { 1.hour.from_now }
           let(:cached_token_application) { application }
           let(:cached_token) do
             {
@@ -56,16 +57,16 @@ describe MAP::SecurityToken::Service do
           end
 
           context 'when the cached token is expired' do
-            let(:expiration) { (Time.zone.now - 1.hour) }
+            let(:expiration) { 1.hour.ago }
 
             it_behaves_like 'new token request'
           end
 
           context 'when the chached token is valid' do
             it 'returns the cached token' do
-                expect(Rails.logger).to receive(:info).once.and_call_original
-                expect(Rails.logger).to receive(:info).with(expected_log_message, { application:, icn:, cache: true })
-                expect(subject[:access_token]).to eq(map_sts_token)
+              expect(Rails.logger).to receive(:info).once.and_call_original
+              expect(Rails.logger).to receive(:info).with(expected_log_message, { application:, icn:, cache: true })
+              expect(subject[:access_token]).to eq(map_sts_token)
             end
           end
         end
@@ -97,7 +98,7 @@ describe MAP::SecurityToken::Service do
 
       context 'and response is successful' do
         let(:expected_log_message) { "#{log_prefix} token success" }
-        let(:expected_log_payload) { { application:, icn: } }
+        let(:expected_log_payload) { { application:, icn:, cache: false } }
 
         it 'logs a token success message',
            vcr: { cassette_name: 'map/security_token_service_200_response' } do
