@@ -34,7 +34,7 @@ module AccreditedRepresentativePortal
 
         poa_requests = AccreditedRepresentativePortal::Services::FetchPoaRequests.new(poa_codes).call
 
-        render json: { records: poa_requests['records'], records_count: poa_requests['meta']['totalRecords'].to_i },
+        render json: { records: poa_requests['data'], records_count: poa_requests['meta']['totalRecords'].to_i },
                status: :ok
       end
 
@@ -65,11 +65,11 @@ module AccreditedRepresentativePortal
           {
             success: true,
             response: {
-              proc_id:,
+              id:,
               action:,
-              status: 'updated',
-              dateRequestActioned: Time.current.iso8601,
-              secondaryStatus: action == 'Accepted' ? 'obsolete' : 'cancelled'
+              responseStatus: 'updated',
+              acceptedOrDeclinedAt: Time.current.iso8601,
+              status: action == 'Accepted' ? 'obsolete' : 'cancelled'
             }
           }
         else

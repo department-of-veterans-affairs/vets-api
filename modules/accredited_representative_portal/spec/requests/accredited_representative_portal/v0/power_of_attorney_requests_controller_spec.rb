@@ -42,7 +42,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         get '/accredited_representative_portal/v0/power_of_attorney_requests', params: { poa_codes: '091,A1Q' }
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
-        expect(json['records']).to be_an_instance_of(Array)
+        expect(json['data']).to be_an_instance_of(Array)
         expect(json['records_count']).to eq(json['records'].size)
       end
     end
@@ -72,8 +72,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         get '/accredited_representative_portal/v0/power_of_attorney_requests', params: { poa_codes: 'XYZ,ABC' }
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
-        expect(json['records']).to be_an_instance_of(Array)
-        expect(json['records']).to be_empty
+        expect(json['data']).to be_an_instance_of(Array)
+        expect(json['data']).to be_empty
         expect(json['records_count']).to eq(0)
       end
     end

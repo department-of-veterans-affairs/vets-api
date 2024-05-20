@@ -9,7 +9,7 @@
 #    `require Rails.root.join('modules/accredited_representative_portal',
 #                             'spec/support/poa_record_generator.rb')`.
 # 3. Generate POA records: `PoaRecordGenerator.generate(num_records: 30)`.
-# 4. Save to a file: `PoaRecordGenerator.generate_and_save_to_file(num_records: 30)`.
+# 4. Save to a file: `PoaRecordGenerator.generate_and_save_to_file(num_records: 30, file_path: 'modules/accredited_representative_portal/spec/fixtures/poa_records.json')`.
 module PoaRecordGenerator
   class << self
     require 'faker'
@@ -21,16 +21,16 @@ module PoaRecordGenerator
     def generate(num_records: 30)
       Faker::UniqueGenerator.clear
 
-      records = num_records.times.map do |i|
+      data = num_records.times.map do |i|
         status = i < 25 ? 'pending' : %w[obsolete expired canceled].sample
         {
-          procId: Faker::Number.unique.number(digits: 10).to_s,
+          id: Faker::Number.unique.number(digits: 10).to_s,
           type: 'powerOfAttorneyRequest',
           attributes: generate_attributes(i, status)
         }
       end
 
-      { records:, meta: { totalRecords: num_records.to_s } }
+      { data:, }
     end
 
     # Generates POA request records and saves them to a specified JSON file.
@@ -46,16 +46,16 @@ module PoaRecordGenerator
 
     def generate_attributes(index, status)
       {
-        poaCode: index.even? ? 'A1Q' : '091',
-        secondaryStatus: status,
-        dateRequestReceived: Faker::Date.backward(days: 30).iso8601,
-        dateRequestActioned: Faker::Date.forward(days: 30).iso8601,
+        status: status,
         declinedReason: status == 'pending' ? nil : Faker::Lorem.sentence,
-        healthInfoAuth: index.even? ? 'Y' : 'N',
-        changeAddressAuth: index.even? ? 'Y' : 'N',
+        powerOfAttorneyCode: index.even? ? '012' : '034',
+        submittedAt: Faker::Date.backward(days: 30).iso8601,
+        acceptedOrDeclinedAt: status == 'pending' ? nil : Faker::Date.forward(days: 30).iso8601,
+        isAddressChangingAuthorized: index.even? ? true : false,
+        isTreatmentDisclosureAuthorized: index.odd? ? true : false,
+        representative: generate_representative,
         claimant: generate_claimant,
-        veteran: generate_veteran,
-        VSORepresentative: generate_representative
+        claimantAddress: generate_claimant_address
       }
     end
 
@@ -63,24 +63,19 @@ module PoaRecordGenerator
       {
         firstName: Faker::Name.first_name,
         lastName: Faker::Name.last_name,
+        participantId: Faker::Number.unique.number(digits: 10).to_s,
+        relationshipToVeteran: %w[Spouse Child Parent Friend].sample
+      }
+    end
+
+    def generate_claimant_address
+      {
         city: Faker::Address.city,
         state: Faker::Address.state_abbr,
         zip: Faker::Address.zip,
         country: Faker::Address.country,
-        militaryPO: nil,
-        militaryPostalCode: nil,
-        participantID: Faker::Number.unique.number(digits: 10).to_s,
-        relationship: %w[Spouse Child Parent Friend].sample
-      }
-    end
-
-    def generate_veteran
-      {
-        firstName: Faker::Name.first_name,
-        lastName: Faker::Name.last_name,
-        middleName: Faker::Name.middle_name,
-        participantID: Faker::Number.unique.number(digits: 10).to_s,
-        sensitivityLevel: %w[Low Medium High].sample
+        militaryPostOffice: nil,
+        militaryPostalCode: nil
       }
     end
 

@@ -30,14 +30,13 @@ module AccreditedRepresentativePortal
       # Currently reads from a static JSON file as a data source.
       # @return [Hash] A hash containing the filtered records and metadata.
       def call
-        file_path = Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures',
-                                    'poa_records.json')
+        file_path = Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'poa_records.json')
         file_data = File.read(file_path)
         all_records_json = JSON.parse(file_data)
-        all_records = all_records_json['records']
+        all_records = all_records_json['data']
 
         filtered_records = all_records.select do |record|
-          @poa_codes.include?(record['attributes']['poaCode'])
+          @poa_codes.include?(record['attributes']['powerOfAttorneyCode'])
         end
 
         { 'records' => filtered_records, 'meta' => { 'totalRecords' => filtered_records.count.to_s } }
