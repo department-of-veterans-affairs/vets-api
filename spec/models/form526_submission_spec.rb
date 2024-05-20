@@ -9,7 +9,8 @@ RSpec.describe Form526Submission do
       user_uuid: user.uuid,
       saved_claim_id: saved_claim.id,
       auth_headers_json: auth_headers.to_json,
-      form_json:
+      form_json:,
+      submit_endpoint:
     )
   end
 
@@ -21,6 +22,41 @@ RSpec.describe Form526Submission do
   let(:saved_claim) { FactoryBot.create(:va526ez) }
   let(:form_json) do
     File.read('spec/support/disability_compensation_form/submissions/only_526.json')
+  end
+  let(:submit_endpoint) { nil }
+
+  describe 'submit_endpoint enum' do
+    context 'when submit_endpoint is evss' do
+      let(:submit_endpoint) { 'evss' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'when submit_endpoint is claims_api' do
+      let(:submit_endpoint) { 'claims_api' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'when submit_endpoint is benefits_intake_api' do
+      let(:submit_endpoint) { 'benefits_intake_api' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'when submit_endpoint is not evss, claims_api or benefits_intake_api' do
+      it 'is invalid' do
+        expect do
+          subject.submit_endpoint = 'other_value'
+        end.to raise_error(ArgumentError, "'other_value' is not a valid submit_endpoint")
+      end
+    end
   end
 
   describe 'scopes' do

@@ -118,7 +118,8 @@ module V0
         user_account: @current_user.user_account,
         saved_claim_id: saved_claim.id,
         auth_headers_json: auth_headers.to_json,
-        form_json: saved_claim.to_submission_data(@current_user)
+        form_json: saved_claim.to_submission_data(@current_user),
+        submit_endpoint: includes_toxic_exposure? ? 'claims_api' : 'evss'
       ) { |sub| sub.add_birls_ids @current_user.birls_id }
       submission.save! && submission
     rescue PG::NotNullViolation => e
@@ -152,6 +153,10 @@ module V0
 
     def stats_key
       'api.disability_compensation'
+    end
+
+    def includes_toxic_exposure?
+      params.permit(:includes_toxic_exposure)[:includes_toxic_exposure] == 'true'
     end
   end
 end
