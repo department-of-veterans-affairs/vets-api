@@ -52,8 +52,7 @@ module ClaimsApi
           )
 
         Envelope.build(
-          namespace: @action.service.bean.namespace,
-          data_namespace: @action.service.bean.data_namespace,
+          namespaces: @action.service.bean.namespaces,
           action: @action.name,
           headers:,
           body:
