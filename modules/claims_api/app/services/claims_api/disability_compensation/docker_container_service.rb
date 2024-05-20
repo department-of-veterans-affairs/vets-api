@@ -13,7 +13,7 @@ module ClaimsApi
 
         auto_claim = get_claim(claim_id)
         # Reset for a rerun on this
-        set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
+        set_pending_state_on_claim(auto_claim)
 
         evss_data = get_evss_data(auto_claim)
 
@@ -26,12 +26,6 @@ module ClaimsApi
                              "Successfully submitted to Docker container with response: #{evss_res}")
         # update with the evss_id returned
         auto_claim.update!(evss_id: evss_res[:claimId])
-        # clear out the evss_response value on successful submssion to docker container
-        clear_evss_response_for_claim(auto_claim)
-        # queue flashes service
-        queue_flash_updater(auto_claim.flashes, auto_claim&.id)
-        # now upload to benefits documents
-        start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
       end
 
       def get_evss_data(auto_claim)

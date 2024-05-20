@@ -9,24 +9,23 @@ module ClaimsApi
       EVSS_DOCUMENT_TYPE = 'L023'
 
       def generate(claim_id, middle_initial) # rubocop:disable Metrics/MethodLength
-        log_service_progress(claim_id, 'pdf',
-                             "526EZ PDF generator started for claim #{claim_id}")
-
         auto_claim = get_claim(claim_id)
 
-        # Reset for a rerun on this
-        set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
+        log_service_progress(auto_claim.id, 'pdf',
+                             "526EZ PDF generator started for claim #{auto_claim.id}")
+
+        return if Settings.claims_api.benefits_documents.use_mocks
 
         mapped_claim = generate_mapped_claim(auto_claim, middle_initial)
         pdf_string = generate_526_pdf(mapped_claim)
 
         if pdf_string.empty?
-          log_service_progress(claim_id, 'pdf',
+          log_service_progress(auto_claim.id, 'pdf',
                                '526EZ PDF generator failed to return PDF string for claim')
 
           set_errored_state_on_claim(auto_claim)
         elsif pdf_string
-          log_service_progress(claim_id, 'pdf',
+          log_service_progress(auto_claim.id, 'pdf',
                                '526EZ PDF generator PDF string returned')
 
           file_name = "#{SecureRandom.hex}.pdf"
@@ -37,7 +36,7 @@ module ClaimsApi
                                                             tempfile: File.open(path)
                                                           })
 
-          log_service_progress(claim_id, 'pdf',
+          log_service_progress(auto_claim.id, 'pdf',
                                "526EZ PDF generator Uploaded 526EZ PDF #{file_name} to S3")
 
           auto_claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
@@ -46,10 +45,10 @@ module ClaimsApi
           ::Common::FileHelpers.delete_file_if_exists(path)
         end
 
-        log_service_progress(claim_id, 'pdf',
+        log_service_progress(auto_claim.id, 'pdf',
                              '526EZ PDF generator job finished')
 
-        claim_id
+        auto_claim.id
       end
 
       def generate_mapped_claim(auto_claim, middle_initial)

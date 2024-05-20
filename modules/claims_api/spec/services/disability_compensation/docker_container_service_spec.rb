@@ -36,7 +36,7 @@ describe ClaimsApi::DisabilityCompensation::DockerContainerService do
   describe '#upload' do
     it 'has a upload method that returns a claim id' do
       VCR.use_cassette('/claims_api/evss/submit') do
-        expect(docker_container_service.send(:upload, claim.id)).to be_a(String)
+        expect(docker_container_service.send(:upload, claim.id)).to eq(true)
       end
     end
   end
