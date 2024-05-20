@@ -155,6 +155,7 @@ class Form526Submission < ApplicationRecord
   belongs_to :user_account, dependent: nil, optional: true
 
   validates(:auth_headers_json, presence: true)
+  enum submit_endpoint: { evss: 0, claims_api: 1, benefits_intake_api: 2 }
 
   scope :pending_backup_submissions, lambda {
     where(aasm_state: 'delivered_to_backup')
