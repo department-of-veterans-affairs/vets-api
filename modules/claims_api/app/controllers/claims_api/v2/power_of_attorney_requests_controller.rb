@@ -3,7 +3,7 @@
 module ClaimsApi
   module V2
     class PowerOfAttorneyRequestsController < PowerOfAttorneyRequests::BaseController
-      def index
+      def index # rubocop:disable Metrics/MethodLength
         index_params =
           params.permit(
             filter: {},

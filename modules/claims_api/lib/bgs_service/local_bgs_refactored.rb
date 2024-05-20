@@ -60,7 +60,7 @@ module ClaimsApi
     # @deprecated Prefer doing just transport against bundled BGS service action
     #   definitions rather than wrapping them at higher abstraction layers.
     #
-    def make_request(
+    def make_request( # rubocop:disable Metrics/MethodLength
       endpoint:, action:, body:, key: nil
     )
       action =

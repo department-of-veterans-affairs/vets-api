@@ -5,7 +5,7 @@ module ClaimsApi
     # TODO: Find and handle some errors.
     module Find
       class << self
-        def perform(id) # rubocop:disable Metrics/MethodLength
+        def perform(id)
           participant_id, proc_id = id.split('_')
 
           action =
