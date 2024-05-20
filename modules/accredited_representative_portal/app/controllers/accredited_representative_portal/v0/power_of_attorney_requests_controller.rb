@@ -6,7 +6,7 @@ module AccreditedRepresentativePortal
       before_action :verify_pilot_enabled_for_user
 
       def accept
-        id = params[:proc_id]
+        id = params[:id]
         result = update_poa_request(id, 'Accepted')
 
         if result[:success]
@@ -17,7 +17,7 @@ module AccreditedRepresentativePortal
       end
 
       def decline
-        id = params[:proc_id]
+        id = params[:id]
         result = update_poa_request(id, 'Declined')
 
         if result[:success]
@@ -47,7 +47,7 @@ module AccreditedRepresentativePortal
       # TODO: This class is slated for update to use the Lighthouse API once the appropriate endpoint
       # is available. For more information on the transition plan, refer to:
       # https://app.zenhub.com/workspaces/accredited-representative-facing-team-65453a97a9cc36069a2ad1d6/issues/gh/department-of-veterans-affairs/va.gov-team/80195
-      def update_poa_request(proc_id, action)
+      def update_poa_request(id, action)
         # TODO: Update the below to use the RepresentativeUser's profile data
         # representative = {
         #   first_name: 'John',
@@ -58,7 +58,7 @@ module AccreditedRepresentativePortal
         # In real implementation, this method will make an actual API call.
         # service_response = ClaimsApi::ManageRepresentativeService.new.update_poa_request(
         #   representative:,
-        #   proc_id:
+        #   id:
         # )
 
         if %w[Accepted Declined].include?(action)
