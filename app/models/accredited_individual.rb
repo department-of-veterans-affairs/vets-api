@@ -12,7 +12,7 @@ class AccreditedIndividual < ApplicationRecord
   #   https://www.va.gov/ogc/apps/accreditation/ that Veteran::Service::Representative uses.
   # 2. The intent of raw_address is to store the address as supplied by OGC for diffing purposes to avoid excess API
   #   calls. Those addresses are not verified and do not contain latitude and longitude. The address information stored
-  #   on the record comes from the Lighthouse Address  Validation API so that geolocation searching is supported
+  #   on the record comes from the Lighthouse Address Validation API so that geolocation searching is supported
   #   for the Find A Representative feature.
   # 3. The representative type should not have a POA code assigned. Representatives should only be associated with the
   #   POA codes of the AccreditedOrganizations they are accredited with.
