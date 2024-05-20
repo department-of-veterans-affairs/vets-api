@@ -1821,11 +1821,12 @@ RSpec.describe FormProfile, type: :model do
 
       it 'loads the yaml file only once' do
         expect(YAML).to receive(:load_file).once.and_return(
-          'veteran_full_name' => %w[identity_information full_name],
-          'veteran_address' => %w[contact_information address],
+          'veteranFullName' => %w[identity_information full_name],
+          'veteranAddress' => %w[contact_information address],
           'veteranSocialSecurityNumber' => %w[identity_information ssn],
-          'phoneNumber' => %w[contact_information us_phone],
-          'emailAddress' => %w[contact_information email]
+          'veteranPhoneNumber' => %w[contact_information us_phone],
+          'veteranEmailAddress' => %w[contact_information email],
+          'veteranPhysicalAddress' => %w[residential_address]
         )
         instance.prefill
       end

@@ -37,17 +37,17 @@ RSpec.describe Vye::V1::VerificationsController, type: :request do
       end
 
       describe 'in VYE' do
+        let(:cur_award_ind) { Vye::Award.cur_award_inds[:future] }
         let(:now) { Time.parse('2024-03-31T12:00:00-00:00') }
-
         let(:date_last_certified) { Date.new(2024, 2, 15) }
-        #       let(:last_day_of_previous_month) { Date.new(2024, 2, 29) }
+        let(:last_day_of_previous_month) { Date.new(2024, 2, 29) } # This is not used only for documentation
         let(:award_begin_date) { Date.new(2024, 3, 30) }
-        #       let(:today) { Date.new(2024, 3, 31) }
+        let(:today) { Date.new(2024, 3, 31) } # This is not used only for documentation
         let(:award_end_date) { Date.new(2024, 4, 1) }
 
         let!(:user_profile) { FactoryBot.create(:vye_user_profile, icn: current_user.icn) }
         let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:, date_last_certified:) }
-        let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:) }
+        let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
 
         let(:award_ids) { user_info.awards.pluck(:id) }
 
@@ -70,12 +70,12 @@ RSpec.describe Vye::V1::VerificationsController, type: :request do
     end
 
     describe 'where the request is coming from IVR' do
+      let(:cur_award_ind) { Vye::Award.cur_award_inds[:future] }
       let(:now) { Time.parse('2024-03-31T12:00:00-00:00') }
-
       let(:date_last_certified) { Date.new(2024, 2, 15) }
-      #     let(:last_day_of_previous_month) { Date.new(2024, 2, 29) }
+      let(:last_day_of_previous_month) { Date.new(2024, 2, 29) } # This is not used only for documentation
       let(:award_begin_date) { Date.new(2024, 3, 30) }
-      #     let(:today) { Date.new(2024, 3, 31) }
+      let(:today) { Date.new(2024, 3, 31) } # This is not used only for documentation
       let(:award_end_date) { Date.new(2024, 4, 1) }
 
       let(:api_key) { Vye::V1::VerificationsController.send(:api_key_actual) }
@@ -83,7 +83,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :request do
 
       let!(:user_profile) { FactoryBot.create(:vye_user_profile, file_number:) }
       let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:, date_last_certified:) }
-      let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:) }
+      let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
 
       let(:award_ids) { user_info.awards.pluck(:id) }
 

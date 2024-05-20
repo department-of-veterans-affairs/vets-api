@@ -57,6 +57,7 @@ module ClaimsApi
 
       def transform_disability_values!(disability)
         disability.delete(:diagnosticCode) if disability&.dig(:diagnosticCode).nil?
+        disability.delete(:serviceRelevance) if disability&.dig(:serviceRelevance).blank?
         if disability&.dig(:secondaryDisabilities).present?
           disability[:secondaryDisabilities] = disability[:secondaryDisabilities]&.map do |secondary|
             secondary.except(:exposureOrEventOrInjury, :approximateDate)
@@ -69,7 +70,10 @@ module ClaimsApi
 
       def check_for_pact_special_issue(disability)
         related_to_toxic_exposure = disability[:isRelatedToToxicExposure]
-        disability[:specialIssues] = ['PACT'] if related_to_toxic_exposure
+        if related_to_toxic_exposure
+          disability[:specialIssues] ||= []
+          disability[:specialIssues] << 'PACT'
+        end
       end
 
       def standard_claim
