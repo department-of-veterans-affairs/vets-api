@@ -25,7 +25,7 @@ module ClaimsApi
       # Auditing BGS for service actions that use more than one namespace, it
       # turns out that there is at most a second namespace used for data type
       # definitions. As such, we'll hardcode that notion and allow callers of
-      # our BGS client to use an alias for it that we provide them.
+      # our BGS client to use an alias for it that we yield to them.
       #   https://github.com/department-of-veterans-affairs/bgs-catalog/blob/main/namespaces.xml
       Namespaces =
         Data.define(
@@ -66,6 +66,15 @@ module ClaimsApi
             bean: ClaimantServiceBean::DEFINITION,
             path: 'ClaimantWebService'
           )
+
+        module FindPoaByParticipantId
+          DEFINITION =
+            Action.new(
+              service: ClaimantWebService::DEFINITION,
+              name: 'findPOAByPtcpntId',
+              key: 'return'
+            )
+        end
       end
 
       ##
@@ -88,6 +97,15 @@ module ClaimsApi
             bean: EBenefitsBenefitClaimStatusWebServiceBean::DEFINITION,
             path: 'EBenefitsBnftClaimStatusWebService'
           )
+
+        module FindBenefitClaimsStatusByParticipantId
+          DEFINITION =
+            Action.new(
+              service: EBenefitsBenefitClaimStatusWebService::DEFINITION,
+              name: 'findBenefitClaimsStatusByPtcpntId',
+              key: 'BenefitClaimsDTO'
+            )
+        end
       end
 
       ##

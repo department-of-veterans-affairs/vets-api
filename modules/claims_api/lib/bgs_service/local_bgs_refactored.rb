@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'bgs_service/local_bgs_refactored/error_handler'
-require 'bgs_service/local_bgs_refactored/find_service_definition'
+require 'bgs_service/local_bgs_refactored/find_definition'
 require 'bgs_service/local_bgs_refactored/miscellaneous'
 
 module ClaimsApi
@@ -63,8 +63,11 @@ module ClaimsApi
     def make_request(
       endpoint:, action:, body:, key: nil
     )
-      service = FindServiceDefinition.perform(endpoint)
-      action = BGSClient::Definitions::Action.new(service:, name: action)
+      action =
+        FindDefinition.for_action(
+          endpoint,
+          action
+        )
 
       request =
         BGSClient.const_get(:Request).new(
@@ -110,7 +113,7 @@ module ClaimsApi
     #   definitions rather than wrapping them at higher abstraction layers.
     #
     def healthcheck(endpoint)
-      service = FindServiceDefinition.perform(endpoint)
+      service = FindDefinition.for_service(endpoint)
       BGSClient.healthcheck(service)
     end
   end
