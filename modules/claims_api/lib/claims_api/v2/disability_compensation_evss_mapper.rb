@@ -40,7 +40,6 @@ module ClaimsApi
           servicePeriods: service_periods,
           confinements:
         }
-        byebug
       end
 
       def current_mailing_address
@@ -117,7 +116,6 @@ module ClaimsApi
       end
 
       def format_confinements(confinements)
-        byebug
         confinements.each do |confinement|
           begin_date = confinement[:approximateBeginDate]
           end_date = confinement[:approximateEndDate]
