@@ -57,7 +57,10 @@ module VAOS
           appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
-        appointment[:location] = appointments_service.get_facility_memoized(appointment[:location_id]) unless appointment[:location_id].nil?
+        unless appointment[:location_id].nil?
+          appointment[:location] =
+            appointments_service.get_facility_memoized(appointment[:location_id])
+        end
 
         scrape_appt_comments_and_log_details(appointment, APPT_SHOW, PAP_COMPLIANCE_TELE)
 
@@ -252,7 +255,10 @@ module VAOS
 
       def merge_facilities(appointments)
         appointments.each do |appt|
-          appt[:location] = appointments_service.get_facility_memoized(appt[:location_id]) unless appt[:location_id].nil?
+          unless appt[:location_id].nil?
+            appt[:location] =
+              appointments_service.get_facility_memoized(appt[:location_id])
+          end
           if cerner?(appt) && contains_substring(extract_all_values(appt[:location]), 'COL OR 1')
             log_appt_id_location_name(appt)
           end

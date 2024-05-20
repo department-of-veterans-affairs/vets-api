@@ -719,7 +719,8 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
           it 'updates the service name, physical location, friendly name, and location' do
             allow_any_instance_of(described_class).to receive(:get_clinic_memoized)
               .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
-            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility_memoized).and_return('Location')
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility_memoized)
+              .and_return('Location')
             allow_any_instance_of(described_class).to receive(:updated_appointment).and_return(updated_appointment)
 
             put '/vaos/v2/appointments/70060', params: { status: 'cancelled' }, headers: inflection_header
