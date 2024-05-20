@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'map/security_token/service'
-require 'map/security_token/map_sts_token'
+require 'map/security_token/token_cache'
 
 describe MAP::SecurityToken::Service do
   describe '#token' do
@@ -48,7 +48,7 @@ describe MAP::SecurityToken::Service do
             }
           end
 
-          before { MAP::SecurityToken::MapStsToken.create(cached_token) }
+          before { MAP::SecurityToken::TokenCache.create(cached_token) }
 
           context 'when the cached token has a different application' do
             let(:cached_token_application) { :some_other_application }

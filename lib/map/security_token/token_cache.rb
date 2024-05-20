@@ -4,7 +4,7 @@ require 'common/models/redis_store'
 
 module MAP
   module SecurityToken
-    class MapStsToken < Common::RedisStore
+    class TokenCache < Common::RedisStore
       redis_store REDIS_CONFIG[:map_sts_token][:namespace]
       redis_ttl REDIS_CONFIG[:map_sts_token][:each_ttl]
       redis_key :icn

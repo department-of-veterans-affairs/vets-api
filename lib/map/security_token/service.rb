@@ -2,7 +2,7 @@
 
 require 'map/security_token/configuration'
 require 'map/security_token/errors'
-require 'map/security_token/map_sts_token'
+require 'map/security_token/token_cache'
 
 module MAP
   module SecurityToken
@@ -25,7 +25,7 @@ module MAP
       private
 
       def find_cached_token(application:, icn:)
-        cached_token = MapStsToken.find(icn)
+        cached_token = TokenCache.find(icn)
         expiration = Time.zone.parse(cached_token&.expiration || '')
         unless cached_token&.application == application.to_s && expiration > Time.zone.now
           return request_token(application:, icn:)
@@ -45,7 +45,7 @@ module MAP
                              icn:,
                              access_token: sts_token[:access_token],
                              expiration: sts_token[:expiration].utc.iso8601 }
-        MapStsToken.create(redis_attributes)
+        TokenCache.create(redis_attributes)
         Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cache: false })
         sts_token
       end
