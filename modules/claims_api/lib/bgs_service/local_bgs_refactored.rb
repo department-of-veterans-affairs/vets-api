@@ -75,10 +75,12 @@ module ClaimsApi
         )
 
       ##
-      # @deprecated Callers should be hydrating domain entities anyway, so
-      #   centralizing `key` configuration here was unnecessary.
+      # @deprecated Every service action result always lives within a particular
+      #   key, so we can always extract the result rather than have expose
+      #   another option to the caller.
       #
       result = request.perform(body)
+      result = { action.key => result }
       result = result[key].to_h if key.present?
 
       request.send(:log_duration, 'transformed_response') do

@@ -14,23 +14,15 @@ module ClaimsApi
               ReadPoaRequestByParticipantId::
               DEFINITION
 
-          response =
+          result =
             BGSClient.perform_request(action) do |xml|
               xml.PtcpntId(participant_id)
             end
 
-          poa_requests =
-            Array.wrap(
-              response.dig(
-                'POARequestRespondReturnVO',
-                'poaRequestRespondReturnVOList'
-              )
-            )
-
-          poa_request =
-            poa_requests.find do |data|
-              data['procID'] == proc_id
-            end
+          poa_requests = Array.wrap(result['poaRequestRespondReturnVOList'])
+          poa_request = poa_requests.find do |data|
+            data['procID'] == proc_id
+          end
 
           Load.perform(poa_request)
         end

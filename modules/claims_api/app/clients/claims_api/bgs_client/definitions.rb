@@ -43,7 +43,8 @@ module ClaimsApi
       Action =
         Data.define(
           :service,
-          :name
+          :name,
+          :key
         )
 
       ##
@@ -133,7 +134,8 @@ module ClaimsApi
           DEFINITION =
             Action.new(
               service: ManageRepresentativeService::DEFINITION,
-              name: 'readPOARequest'
+              name: 'readPOARequest',
+              key: 'POARequestRespondReturnVO'
             )
         end
 
@@ -141,7 +143,8 @@ module ClaimsApi
           DEFINITION =
             Action.new(
               service: ManageRepresentativeService::DEFINITION,
-              name: 'readPOARequestByPtcpntId'
+              name: 'readPOARequestByPtcpntId',
+              key: 'POARequestRespondReturnVO'
             )
         end
 
@@ -149,7 +152,8 @@ module ClaimsApi
           DEFINITION =
             Action.new(
               service: ManageRepresentativeService::DEFINITION,
-              name: 'updatePOARequest'
+              name: 'updatePOARequest',
+              key: 'POARequestUpdate'
             )
         end
       end
