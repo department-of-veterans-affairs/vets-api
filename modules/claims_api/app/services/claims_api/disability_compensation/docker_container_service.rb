@@ -12,8 +12,6 @@ module ClaimsApi
                              'Docker container service started')
 
         auto_claim = get_claim(claim_id)
-        # Reset for a rerun on this
-        set_pending_state_on_claim(auto_claim)
 
         evss_data = get_evss_data(auto_claim)
 

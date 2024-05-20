@@ -51,20 +51,6 @@ module ClaimsApi
       ClaimsApi::AutoEstablishedClaim::ERRORED
     end
 
-    def queue_flash_updater(flashes, auto_claim_id)
-      return if flashes.blank?
-
-      ClaimsApi::FlashUpdater.perform_async(flashes, auto_claim_id)
-    end
-
-    def start_bd_uploader_job(auto_claim)
-      bd_service.perform_async(auto_claim.id)
-    end
-
-    def bd_service
-      ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader
-    end
-
     def evss_mapper_service(auto_claim, file_number)
       ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, file_number)
     end

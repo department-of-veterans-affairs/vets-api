@@ -101,16 +101,15 @@ module ClaimsApi
         def synchronous
           auto_claim = shared_submit_methods
 
-          unless (Flipper.enabled? :claims_load_testing) ||
-                 request.base_url == 'https://sandbox-api.va.gov' ||
-                 Settings.claims_api.benefits_documents.use_mocks
+          unless claims_load_testing || sandbox_request(request) || mocking
             pdf_generation_service.generate(auto_claim&.id, veteran_middle_initial)
             docker_container_service.upload(auto_claim&.id)
             queue_flash_updater(auto_claim.flashes, auto_claim&.id)
             start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
+            auto_claim.reload
           end
 
-          auto_claim.reload
+          auto_claim.evss_id = '12345678' if mocking
 
           render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
             auto_claim, root: :data, async: false
@@ -263,6 +262,18 @@ module ClaimsApi
 
         def bd_service
           ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader
+        end
+
+        def sandbox_request(request)
+          request.base_url == 'https://sandbox-api.va.gov'
+        end
+
+        def claims_load_testing
+          Flipper.enabled? :claims_load_testing
+        end
+
+        def mocking
+          Settings.claims_api.benefits_documents.use_mocks
         end
       end
     end

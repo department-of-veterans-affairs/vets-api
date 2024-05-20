@@ -14,8 +14,6 @@ module ClaimsApi
         log_service_progress(auto_claim.id, 'pdf',
                              "526EZ PDF generator started for claim #{auto_claim.id}")
 
-        return if Settings.claims_api.benefits_documents.use_mocks
-
         mapped_claim = generate_mapped_claim(auto_claim, middle_initial)
         pdf_string = generate_526_pdf(mapped_claim)
 
