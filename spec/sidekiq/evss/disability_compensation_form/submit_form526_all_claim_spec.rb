@@ -419,7 +419,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         end
       end
 
-      context 'with toxic exposure Fipper enabled for user' do
+      context 'with toxic exposure Flipper enabled for user' do
         let(:submission) do
           create(:form526_submission,
                  :with_everything,
