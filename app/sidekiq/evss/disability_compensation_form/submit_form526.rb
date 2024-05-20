@@ -105,7 +105,7 @@ module EVSS
 
           user = OpenStruct.new({ user_account_uuid: user_account.id, flipper_id: user_account.id })
           begin
-            submit_to_claims_api = submssion.submit_endpoint == 'claims_api'
+            submit_to_claims_api = submission.claims_api?
             # send submission data to either EVSS or Lighthouse (LH)
             response = if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration, user) ||
                           submit_to_claims_api # right operand evaluation not needed once fully migrated to LH
@@ -115,9 +115,9 @@ module EVSS
                          # 2. transform submission data to LH format
                          transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
                          body = transform_service.transform(submission.form['form526'])
-                         # 3. send transformed submission data to LH endpoint,
-                         # conditionally setting options argument based on toxic exposure Flipper state for user
+                         # 3. send transformed submission data to LH endpoint
                          service = BenefitsClaims::Service.new(icn)
+                         # conditionally set options argument based on toxic exposure Flipper state for user
                          options = generate_options_hash(submit_to_claims_api, user)
                          raw_response = service.submit526(body, options)
                          # 4. convert LH raw response to a FormSubmitResponse for further processing (claim_id, status)
