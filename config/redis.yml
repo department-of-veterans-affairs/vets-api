@@ -47,6 +47,9 @@ development: &defaults
   medical_records_store:
     namespace: mr-service
     each_ttl: 1200
+  bb_internal_store:
+    namespace: bb-internal-service
+    each_ttl: 1200
   mhv_mr_fhir_session_lock:
     namespace: mhv-mr-fhir-session-lock
     each_ttl: 10

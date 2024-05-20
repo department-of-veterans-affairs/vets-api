@@ -512,6 +512,21 @@ en:
         code: "MEDICALRECORDS_404"
         detail: "The resource could not be found"
         status: 404
+      BBINTERNAL_401:
+        <<: *external_defaults
+        code: "BBINTERNAL_401"
+        detail: "Authentication failed on the upstream server"
+        status: 400
+      BBINTERNAL_403:
+        <<: *external_defaults
+        code: "BBINTERNAL_403"
+        detail: "This user is forbidden from performing requests on the upstream server"
+        status: 403
+      BBINTERNAL_404:
+        <<: *external_defaults
+        code: "BBINTERNAL_404"
+        detail: "The resource could not be found"
+        status: 404
       HCA422:
         <<: *external_defaults
         code: 'HCA422'
