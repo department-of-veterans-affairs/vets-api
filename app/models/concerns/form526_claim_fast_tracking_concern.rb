@@ -166,6 +166,29 @@ module Form526ClaimFastTrackingConcern
   end
 
   def update_classification!
+    if Flipper.enabled?(:disability_526_classifier_multi_contention)
+      update_contention_classification_all!
+    else
+      update_single_contention_classification!
+    end
+
+  def update_contention_classification_all!
+    params = {}
+    classifier_response = classify_vagov_contentions(params)
+    classifier_response['contentions'].each do |contention|
+      contention['contentionText'] = contention['contentionText'].upcase
+      Rails.logger.info('Classified 526Submission', id:, saved_claim_id:, contention.classification, contention.contention_type)
+      # update_form_with_classification_code(classification['classification_code'])
+    end
+  end
+
+  # Submits contention information to the VRO contention classification 
+  # service for single-contention claims.
+  #
+  # note: this method is only used for single-contention claims and is
+  # deprecated in favor of update_contention_classification_all, which handles
+  # both single and multi-contention claims
+  def update_contention_classification_single_contention!
     return unless increase_or_new?
     return unless disabilities.count == 1
 
