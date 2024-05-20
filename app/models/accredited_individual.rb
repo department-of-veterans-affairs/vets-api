@@ -3,12 +3,25 @@
 require 'accredited_representation/constants'
 
 class AccreditedIndividual < ApplicationRecord
-  # rubocop:disable Rails/HasAndBelongsToMany
-  has_and_belongs_to_many :accredited_organizations,
-                          class: 'AccreditedOrganization',
-                          join_table: 'accredited_individuals_accredited_organizations'
+  # Represents an accredited individual (attorney, claims agent, representative) as defined by he OGC accreditation
+  # APIs. Until a form of soft deletion is implemented, these records will only reflect individuals with active
+  # accreditation.
+  #
+  # Key notes:
+  # 1. The core record attributes are populated from the OGC accreditation APIs, not the files found at
+  #   https://www.va.gov/ogc/apps/accreditation/ that Veteran::Service::Representative uses.
+  # 2. The intent of raw_address is to store the address as supplied by OGC for diffing purposes to avoid excess API
+  #   calls. Those addresses are not verified and do not contain latitude and longitude. The address information stored
+  #   on the record comes from the Lighthouse Address  Validation API so that geolocation searching is supported
+  #   for the Find A Representative feature.
+  # 3. The representative type should not have a POA code assigned. Representatives should only be associated with the
+  #   POA codes of the AccreditedOrganizations they are accredited with.
+  # 4. Attorneys and claims agents should have a POA code and should not be accredited with any AccreditedOrganization
+  # 5. The ogc_id is the id from the source table within OGC. It can be used to interact with their show endpoints
+  #   and may be nice to have for troubleshooting purposes.
 
-  # rubocop:enable Rails/HasAndBelongsToMany
+  has_many :accreditations, dependent: :destroy
+  has_many :accredited_organizations, through: :accreditations
 
   validates :ogc_id, :registration_number, :individual_type, presence: true
   validates :poa_code, length: { is: 3 }, allow_blank: true
