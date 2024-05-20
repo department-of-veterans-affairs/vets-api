@@ -109,19 +109,7 @@ module BenefitsClaims
         endpoint += '/generatePDF/minimum-validations'
       end
 
-      # if we're coming straight from the transformation service without
-      # making this a jsonapi request body first ({data: {type:, attributes}}),
-      # this will put it in the correct format for transmission
-
-      body = build_request_body(body)
-
-      # Inflection settings force 'current_va_employee' to render as 'currentVAEmployee' in the above camelize() call
-      # Since Lighthouse needs 'currentVaEmployee', the following workaround renames it.
-      fix_current_va_employee(body)
-
-      # LH PDF generator service crashes with having an empty array for confinements
-      # removes confinements from the request body if confinements  attribute empty or nil
-      remove_empty_confinements(body)
+      body = prepare_submission_body(body)
 
       response = config.post(
         path,
@@ -145,6 +133,27 @@ module BenefitsClaims
       }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
     end
 
+    def prepare_submission_body(body)
+      # if we're coming straight from the transformation service without
+      # making this a jsonapi request body first ({data: {type:, attributes}}),
+      # this will put it in the correct format for transmission
+      body = build_request_body(body)
+
+      # Inflection settings force 'current_va_employee' to render as 'currentVAEmployee' in the above camelize() call
+      # Since Lighthouse needs 'currentVaEmployee', the following workaround renames it.
+      fix_current_va_employee(body)
+
+      # LH PDF generator service crashes with having an empty array for confinements
+      # removes confinements from the request body if confinements attribute empty or nil
+      remove_empty_array(body, 'serviceInformation', 'confinements')
+
+      # Lighthouse expects at least 1 element in the multipleExposures array if it is not null
+      # this removes the multipleExposures array if it is empty
+      remove_empty_array(body, 'toxicExposure', 'multipleExposures')
+
+      body
+    end
+
     def fix_current_va_employee(body)
       if body.dig('data', 'attributes', 'veteranIdentification')&.select do |field|
            field['currentVAEmployee']
@@ -155,11 +164,11 @@ module BenefitsClaims
       end
     end
 
-    def remove_empty_confinements(body)
-      if body.dig('data', 'attributes', 'serviceInformation')&.select do |field|
-        field['confinements']
-      end&.key?('confinements') && body['data']['attributes']['serviceInformation']['confinements'].blank?
-        body['data']['attributes']['serviceInformation'].delete('confinements')
+    def remove_empty_array(body, parent_key, child_key)
+      if body.dig('data', 'attributes', parent_key)&.select do |field|
+        field[child_key]
+      end&.key?(child_key) && body['data']['attributes'][parent_key][child_key].blank?
+        body['data']['attributes'][parent_key].delete(child_key)
       end
     end
 

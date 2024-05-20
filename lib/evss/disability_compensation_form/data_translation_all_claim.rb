@@ -30,6 +30,11 @@ module EVSS
                                "This applicant has indicated that they're terminally ill.\n"
       FORM4142_OVERFLOW_TEXT = 'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \
                                'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
+      FORM0781_OVERFLOW_TEXT = "VA Form 0781/a has been completed by the applicant and sent to the VBMS eFolder\n"
+
+      OVERFLOW_TEXT_THRESHOLD = 4000
+
+      VETERAN_FILE_LIST_STATSD_PREFIX = 'api.form_526.overflow_text.veteran_file_list'
 
       # EVSS validates this date using CST, at some point this may change to EST.
       EVSS_TZ = 'Central Time (US & Canada)'
@@ -86,13 +91,57 @@ module EVSS
       end
 
       def overflow_text
-        return nil unless @has_form4142 || input_form['isTerminallyIll'].present?
-
         overflow = ''
         overflow += TERMILL_OVERFLOW_TEXT if input_form['isTerminallyIll'].present?
         overflow += FORM4142_OVERFLOW_TEXT if @has_form4142
 
+        if Flipper.enabled?(:form526_include_document_upload_list_in_overflow_text)
+          overflow += FORM0781_OVERFLOW_TEXT if input_form['form0781'].present?
+
+          if input_form['attachments'].present?
+            file_guids = input_form['attachments'].pluck('confirmationCode')
+            attachments = SupportingEvidenceAttachment.where(guid: file_guids)
+
+            overflow += veteran_attached_files_text(attachments, overflow.length) if attachments.present?
+          end
+        end
+
         overflow
+      end
+
+      def veteran_attached_files_text(attachments, current_overflow_length)
+        attached_files_note = "The veteran uploaded #{attachments.count} documents along with this claim. " \
+                              "Please verify in VBMS eFolder.\n"
+        filenames_list = list_attachment_filenames(attachments)
+
+        # Display above note only if listing all file names would make notes exceed EVSS overflowText limits
+        if (current_overflow_length + attached_files_note.length + filenames_list.length) < OVERFLOW_TEXT_THRESHOLD
+          attached_files_note += filenames_list
+
+          StatsD.increment("#{VETERAN_FILE_LIST_STATSD_PREFIX}.included_in_overflow_text")
+
+          Rails.logger.info(
+            'Form526 Veteran-attached file names included in overflowText',
+            { file_count: attachments.count, user_uuid: @user.uuid, timestamp: Time.now.utc }
+          )
+        else
+          StatsD.increment("#{VETERAN_FILE_LIST_STATSD_PREFIX}.excluded_from_overflow_text")
+
+          Rails.logger.info(
+            'Form526 Veteran-attached file names truncated from overflowText',
+            { file_count: attachments.count, user_uuid: @user.uuid, timestamp: Time.now.utc }
+          )
+        end
+
+        attached_files_note
+      end
+
+      def list_attachment_filenames(attachments)
+        sorted_filenames = attachments.map(&:original_filename).sort
+
+        sorted_filenames.inject('') do |list, filename|
+          list + "#{filename}\n"
+        end
       end
 
       ###
