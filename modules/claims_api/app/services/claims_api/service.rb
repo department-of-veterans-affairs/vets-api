@@ -22,35 +22,6 @@ module ClaimsApi
       auto_claim.save!
     end
 
-    def set_established_state_on_claim(auto_claim)
-      save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
-    end
-
-    def clear_evss_response_for_claim(auto_claim)
-      auto_claim.evss_response = nil
-      save_auto_claim!(auto_claim, auto_claim.status)
-    end
-
-    def set_errored_state_on_claim(auto_claim)
-      save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::ERRORED)
-    end
-
-    def set_pending_state_on_claim(auto_claim)
-      save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::PENDING)
-    end
-
-    def established_state_value
-      ClaimsApi::AutoEstablishedClaim::ESTABLISHED
-    end
-
-    def pending_state_value
-      ClaimsApi::AutoEstablishedClaim::PENDING
-    end
-
-    def errored_state_value
-      ClaimsApi::AutoEstablishedClaim::ERRORED
-    end
-
     def evss_mapper_service(auto_claim, file_number)
       ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, file_number)
     end
