@@ -12,7 +12,7 @@ module ClaimsApi
     private_constant :Request
 
     class Request
-      def initialize(action:, external_id:)
+      def initialize(action, external_id:)
         @action = action
         @external_id = external_id
       end

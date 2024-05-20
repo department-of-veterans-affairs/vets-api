@@ -15,7 +15,7 @@ module ClaimsApi
               DEFINITION
 
           response =
-            BGSClient.perform_request(action:) do |xml|
+            BGSClient.perform_request(action) do |xml|
               xml.PtcpntId(participant_id)
             end
 

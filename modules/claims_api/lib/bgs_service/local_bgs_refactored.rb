@@ -68,8 +68,7 @@ module ClaimsApi
 
       request =
         BGSClient.const_get(:Request).new(
-          external_id: @external_id,
-          action:
+          action, external_id: @external_id
         )
 
       ##

@@ -79,7 +79,7 @@ module ClaimsApi
                 DEFINITION
 
             response =
-              BGSClient.perform_request(action:) do |xml, data_aliaz|
+              BGSClient.perform_request(action) do |xml, data_aliaz|
                 Query.dump(query, xml, data_aliaz)
               end
 
