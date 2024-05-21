@@ -1433,6 +1433,10 @@ features:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
     enable_in_development: true
+  intent_to_file_lighthouse_enabled:
+    actor_type: user
+    description: Enable new Lighthouse ITF logic
+    enable_in_development: true
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API
