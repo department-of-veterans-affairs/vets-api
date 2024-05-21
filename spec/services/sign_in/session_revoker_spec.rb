@@ -6,11 +6,46 @@ RSpec.describe SignIn::SessionRevoker do
   let(:session_revoker) do
     SignIn::SessionRevoker.new(refresh_token:,
                                anti_csrf_token: input_anti_csrf_token,
-                               access_token:)
+                               access_token:,
+                               device_secret:)
   end
 
   describe '#perform' do
     subject { session_revoker.perform }
+
+    shared_examples 'device_secret session revoker' do
+      context 'and a device_secret is provided' do
+        let(:device_secret) { 'some-device-secret' }
+
+        context 'and other sessions exist with the same device_secret' do
+          let!(:connected_session) do
+            create(:oauth_session, hashed_device_secret: Digest::SHA256.hexdigest(device_secret))
+          end
+
+          it 'destroys all other sessions with the same device_secret' do
+            expect(SignIn::OAuthSession.all).to contain_exactly(session, connected_session)
+            session_revoker.perform
+            expect(SignIn::OAuthSession.all).to eq([])
+          end
+        end
+
+        context 'and no other sessions exist with the same device_secret' do
+          it 'does not attempt to destroy any other sessions' do
+            expect_any_instance_of(SignIn::OAuthSession).to receive(:destroy!).once.and_call_original
+            session_revoker.perform
+          end
+        end
+      end
+
+      context 'and a device_secret is not provided' do
+        let(:device_secret) { nil }
+
+        it 'does not attempt to destroy any other sessions' do
+          expect_any_instance_of(SignIn::OAuthSession).to receive(:destroy!).once.and_call_original
+          session_revoker.perform
+        end
+      end
+    end
 
     context 'given a refresh token' do
       let(:refresh_token) do
@@ -21,6 +56,7 @@ RSpec.describe SignIn::SessionRevoker do
                user_uuid:)
       end
       let(:access_token) { nil }
+      let(:device_secret) { nil }
       let(:parent_refresh_token) { create(:refresh_token, user_uuid:, session_handle:) }
       let(:parent_refresh_token_hash) { Digest::SHA256.hexdigest(parent_refresh_token.to_json) }
       let(:session_hashed_refresh_token) { Digest::SHA256.hexdigest(parent_refresh_token_hash) }
@@ -35,7 +71,8 @@ RSpec.describe SignIn::SessionRevoker do
                hashed_refresh_token: session_hashed_refresh_token,
                handle: session_handle,
                user_account:,
-               client_id:)
+               client_id:,
+               hashed_device_secret: device_secret)
       end
       let(:client_id) { client_config.client_id }
       let(:client_config) { create(:client_config, anti_csrf:) }
@@ -87,6 +124,8 @@ RSpec.describe SignIn::SessionRevoker do
               session_revoker.perform
               expect { session.reload }.to raise_error(ActiveRecord::RecordNotFound)
             end
+
+            it_behaves_like 'device_secret session revoker'
           end
 
           context 'and token hash in session does not match input refresh token or its stored parent' do
@@ -137,6 +176,7 @@ RSpec.describe SignIn::SessionRevoker do
                session_handle:,
                user_uuid:)
       end
+      let(:device_secret) { nil }
       let(:refresh_token) { nil }
       let(:anti_csrf_token) { 'some-anti-csrf-token' }
       let(:input_anti_csrf_token) { anti_csrf_token }
@@ -148,7 +188,8 @@ RSpec.describe SignIn::SessionRevoker do
                refresh_expiration: session_expiration,
                handle: session_handle,
                user_account:,
-               client_id:)
+               client_id:,
+               hashed_device_secret: device_secret)
       end
       let(:client_id) { client_config.client_id }
       let(:client_config) { create(:client_config, anti_csrf:) }
@@ -195,6 +236,8 @@ RSpec.describe SignIn::SessionRevoker do
             session_revoker.perform
             expect { session.reload }.to raise_error(ActiveRecord::RecordNotFound)
           end
+
+          it_behaves_like 'device_secret session revoker'
         end
 
         context 'and session is expired' do
