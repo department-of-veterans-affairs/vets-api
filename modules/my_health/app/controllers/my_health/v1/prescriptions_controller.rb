@@ -45,7 +45,7 @@ module MyHealth
       end
 
       def documentation
-        uri_string = "http://localhost:8080/prescription_documentation/#{params[:ndc]}"
+        uri_string = "http://localhost:8080/rx_documentation/#{params[:ndc]}"
         url = URI.parse(uri_string)
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = url.scheme == 'https'
