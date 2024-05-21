@@ -2,7 +2,6 @@
 
 require 'map/security_token/configuration'
 require 'map/security_token/errors'
-require 'map/security_token/token_cache'
 
 module MAP
   module SecurityToken
@@ -11,7 +10,15 @@ module MAP
 
       def token(application:, icn:, cache: true)
         Rails.logger.info("#{config.logging_prefix} token request", { application:, icn: })
-        cache ? find_cached_token(application:, icn:) : request_token(application:, icn:)
+        Rails.cache.fetch("map_sts_token_#{application}_#{icn}", expires_in: 5.minutes, force: !cache) do
+          response = perform(:post,
+                             config.token_path,
+                             token_params(application, icn),
+                             { 'Content-Type' => 'application/x-www-form-urlencoded' })
+          sts_token = parse_response(response, application, icn)
+          Rails.logger.info("#{config.logging_prefix} token success", { application:, icn: })
+          sts_token
+        end
       rescue Common::Client::Errors::ClientError => e
         parse_and_raise_error(e, icn, application)
       rescue Errors::ApplicationMismatchError => e

@@ -2,14 +2,14 @@
 
 require 'rails_helper'
 require 'map/security_token/service'
-require 'map/security_token/token_cache'
 
 describe MAP::SecurityToken::Service do
   describe '#token' do
-    subject { described_class.new.token(application:, icn:) }
+    subject { described_class.new.token(application:, icn:, cache:) }
 
     let(:application) { :some_application }
     let(:icn) { 'some-icn' }
+    let(:cache) { true }
     let(:log_prefix) { '[MAP][SecurityToken][Service]' }
     let(:expected_request_message) { "#{log_prefix} token request" }
     let(:expected_request_payload) { { application:, icn: } }
@@ -23,55 +23,60 @@ describe MAP::SecurityToken::Service do
         end
       end
 
-      context 'when the "cache" flag is enabled' do
+      context 'token caching' do
         let(:map_sts_token) { SecureRandom.hex(100) }
         let(:expected_log_message) { "#{log_prefix} token success" }
 
         shared_examples 'new token request' do
-          it 'does not return a cached token and calls for a new token',
+          it 'calls for a new token and caches it',
              vcr: { cassette_name: 'map/security_token_service_200_response' } do
-            expect(Rails.logger).to receive(:info).once.and_call_original
-            expect(Rails.logger).to receive(:info).with(expected_log_message, { application:, icn:, cache: false })
+            expect(Rails.cache).to receive(:write).once.and_call_original
             expect(subject[:access_token]).not_to eq(map_sts_token)
           end
+
+          it 'logs a MAP STS token success message',
+             vcr: { cassette_name: 'map/security_token_service_200_response' } do
+            expect(Rails.logger).to receive(:info).once.and_call_original
+            expect(Rails.logger).to receive(:info).with(expected_log_message, { application:, icn: })
+
+            subject
+          end
         end
 
-        context 'when a token with a matching ICN is cached' do
-          let(:expiration) { 1.hour.from_now }
-          let(:cached_token_application) { application }
-          let(:cached_token) do
-            {
-              icn:,
-              application: cached_token_application.to_s,
-              expiration: expiration.utc.iso8601,
-              access_token: map_sts_token
-            }
-          end
+        context 'when the "cache" argument is true' do
+          context 'when a token with a matching application & ICN is cached' do
+            let(:expiration) { 1.hour.from_now }
+            let(:cached_token) { { access_token: map_sts_token, expiration: expiration.utc.iso8601 } }
+            let(:cache_key) { "map_sts_token_#{application}_#{icn}" }
 
-          before { MAP::SecurityToken::TokenCache.create(cached_token) }
+            before do
+              allow(Rails.cache).to receive(:fetch).with(cache_key, expires_in: 5.minutes,
+                                                                    force: false).and_return(cached_token)
+            end
 
-          context 'when the cached token has a different application' do
-            let(:cached_token_application) { :some_other_application }
-
-            it_behaves_like 'new token request'
-          end
-
-          context 'when the cached token is expired' do
-            let(:expiration) { 1.hour.ago }
-
-            it_behaves_like 'new token request'
-          end
-
-          context 'when the chached token is valid' do
-            it 'returns the cached token' do
-              expect(Rails.logger).to receive(:info).once.and_call_original
-              expect(Rails.logger).to receive(:info).with(expected_log_message, { application:, icn:, cache: true })
-              expect(subject[:access_token]).to eq(map_sts_token)
+            context 'when the chached token is valid' do
+              it 'returns the cached token and does not log a MAP STS token success message' do
+                expect(Rails.cache).not_to receive(:write)
+                expect(Rails.logger).not_to receive(:info).with(expected_log_message, { application:, icn: })
+                expect(subject[:access_token]).to eq(map_sts_token)
+              end
             end
           end
+
+          context 'when a token with a matching application & ICN is not cached' do
+            it_behaves_like 'new token request'
+          end
         end
 
-        context 'when a token with a matching ICN is not cached' do
+        context 'when the "cache" argument is false' do
+          let(:cache) { false }
+          let(:cache_key) { "map_sts_token_#{application}_#{icn}" }
+
+          before do
+            allow(Rails.cache).to receive(:fetch).with(cache_key, expires_in: 5.minutes,
+                                                                  force: true).and_call_original
+          end
+
           it_behaves_like 'new token request'
         end
       end
