@@ -321,7 +321,18 @@ module SwaggerSharedComponents
           )
         )
       )
-
+      disability_compensation_synchronous_json_schema = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'config',
+            'schemas',
+            'v2',
+            '526_synchronous.json'
+          )
+        )
+      )
       {
         disability_compensation: {
           name: 'data',
@@ -340,6 +351,27 @@ module SwaggerSharedComponents
                   example: 'form/526'
                 },
                 attributes: disability_compensation_json_schema.except('$schema')
+              }
+            }
+          }
+        },
+        sync_disability_compensation: {
+          name: 'data',
+          required: ['data'],
+          properties: {
+            data: {
+              type: :object,
+              required: %w[id type attributes],
+              properties: {
+                id: {
+                  type: 'string',
+                  example: '7d0de77e-b7bd-4db7-a8d9-69a25482c80a'
+                },
+                type: {
+                  type: 'string',
+                  example: 'form/526'
+                },
+                attributes: disability_compensation_synchronous_json_schema.except('$schema')
               }
             }
           }
