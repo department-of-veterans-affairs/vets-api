@@ -1218,7 +1218,7 @@ RSpec.describe 'Disability Claims', type: :request do
               approximateDate: '2018-11-03',
               ratedDisabilityId: 'ABCDEFGHIJKLMNOPQRSTUVWX',
               diagnosticCode: 9020,
-              specialIssues: ["POW"],
+              specialIssues: ['POW'],
               secondaryDisabilities: [
                 {
                   name: 'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders',
@@ -1255,7 +1255,7 @@ RSpec.describe 'Disability Claims', type: :request do
               approximateDate: '2018-11-03',
               ratedDisabilityId: 'ABCDEFGHIJKLMNOPQRSTUVWX',
               diagnosticCode: 9020,
-              specialIssues: ["POW"],
+              specialIssues: ['POW'],
               secondaryDisabilities: [
                 {
                   name: 'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders',
@@ -1307,7 +1307,7 @@ RSpec.describe 'Disability Claims', type: :request do
               approximateDate: '2018-11-03',
               ratedDisabilityId: 'ABCDEFGHIJKLMNOPQRSTUVWX',
               diagnosticCode: 9020,
-              specialIssues: ["POW"],
+              specialIssues: ['POW'],
               secondaryDisabilities: [
                 {
                   name: 'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders',
