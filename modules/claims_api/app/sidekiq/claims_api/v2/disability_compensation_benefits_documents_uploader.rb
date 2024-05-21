@@ -7,7 +7,8 @@ module ClaimsApi
   module V2
     class DisabilityCompensationBenefitsDocumentsUploader < ClaimsApi::ServiceBase
       LOG_TAG = '526_v2_Benefits_Documents_Uploader_job'
-      sidekiq_options expires_in: 48.hours, retry: true
+      # sidekiq_options expires_in: 48.hours, retry: true
+      sidekiq_options retry: 2, retry: true
 
       def perform(claim_id)
         log_job_progress(claim_id,
