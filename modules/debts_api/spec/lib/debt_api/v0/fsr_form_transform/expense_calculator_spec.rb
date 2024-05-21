@@ -102,7 +102,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::ExpenseCalculator, type: :service
     end
   end
 
-  describe '#transform_expenses' do 
+  describe '#transform_expenses' do
     let(:pre_transform_fsr_form_data) do
       get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/pre_transform')
     end
@@ -110,7 +110,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::ExpenseCalculator, type: :service
       get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/post_transform')
     end
 
-    it 'transforms expenses' do 
+    it 'transforms expenses' do
       expected_expenses = post_transform_fsr_form_data['expenses']
       transformer = described_class.build(pre_transform_fsr_form_data)
       actual_expenses = transformer.transform_expenses

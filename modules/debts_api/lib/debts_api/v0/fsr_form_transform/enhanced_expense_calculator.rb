@@ -66,14 +66,14 @@ module DebtsApi
 
         def transform_expenses
           expenses = default_expenses
-          
+
           expenses['rentOrMortgage'] = dollars_cents(get_rent_mortgage_expenses)
           expenses['food'] = dollars_cents(get_food_expenses)
           expenses['utilities'] = dollars_cents(get_utilities)
           other = get_other_living_expenses
           expenses['otherLivingExpenses'] = {
-            'name'=> other[:name], 
-            'amount'=>dollars_cents(other[:amount])
+            'name' => other[:name],
+            'amount' => dollars_cents(other[:amount])
           }
           expenses['expensesInstallmentContractsAndOtherDebts'] = dollars_cents(get_installments_and_other_debts)
           expenses['totalMonthlyExpenses'] = dollars_cents(get_monthly_expenses)
@@ -84,12 +84,12 @@ module DebtsApi
 
         def default_expenses
           {
-            "rentOrMortgage" => "0.00",
-            "food" => "0.00",
-            "utilities" => "0.00",
-            "otherLivingExpenses" => {},
-            "expensesInstallmentContractsAndOtherDebts" => "0.00",
-            "totalMonthlyExpenses" => "0.00"
+            'rentOrMortgage' => '0.00',
+            'food' => '0.00',
+            'utilities' => '0.00',
+            'otherLivingExpenses' => {},
+            'expensesInstallmentContractsAndOtherDebts' => '0.00',
+            'totalMonthlyExpenses' => '0.00'
           }
         end
 
