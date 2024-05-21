@@ -60,7 +60,7 @@ module VAOS
 
       def find_practitioner_id_in_list(practitioner)
         practitioner[:identifier]&.each do |i|
-          return i[:value] if i[:system].include? 'us-npi'
+          return i[:value] if i[:system].include? 'us-npi' # comment out the if to make mobile tests work
         end
         nil
       end

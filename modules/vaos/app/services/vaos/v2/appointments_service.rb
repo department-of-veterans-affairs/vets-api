@@ -50,6 +50,7 @@ module VAOS
 
             convert_appointment_time(appt)
             fetch_avs_and_update_appt_body(appt) if avs_applicable?(appt) && Flipper.enabled?(AVS_FLIPPER, user)
+            find_and_merge_provider_name(appt) if appt[:kind] == 'cc' && appt[:status] == 'proposed'
           end
           # log count of C&P appointments in the appointments list, per GH#78141
           log_cnp_appt_count(cnp_count) if cnp_count.positive?
@@ -65,26 +66,30 @@ module VAOS
         params = {}
         with_monitoring do
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
-          convert_appointment_time(response.body[:data])
+          appointment = response.body[:data]
+
+          convert_appointment_time(appointment)
 
           # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
-          set_cancellable_false(response.body[:data]) if cnp?(response.body[:data]) || covid?(response.body[:data])
+          set_cancellable_false(appointment) if cnp?(appointment) || covid?(appointment)
 
           # remove service type(s) for non-medical non-CnP appointments per GH#56197
-          unless medical?(response.body[:data]) || cnp?(response.body[:data]) || no_service_cat?(response.body[:data])
-            remove_service_type(response.body[:data])
+          unless medical?(appointment) || cnp?(appointment) || no_service_cat?(appointment)
+            remove_service_type(appointment)
           end
 
           # set requestedPeriods to nil if the appointment is a booked cerner appointment per GH#62912
-          if booked?(response.body[:data]) && cerner?(response.body[:data])
-            response.body[:data][:requested_periods] = nil
+          if booked?(appointment) && cerner?(appointment)
+            appointment[:requested_periods] = nil
           end
 
-          if avs_applicable?(response.body[:data]) && Flipper.enabled?(AVS_FLIPPER, user)
-            fetch_avs_and_update_appt_body(response.body[:data])
+          if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
+            fetch_avs_and_update_appt_body(appointment)
           end
 
-          OpenStruct.new(response.body[:data])
+          find_and_merge_provider_name(appointment) if appointment[:kind] == 'cc' && appointment[:status] == 'proposed'
+
+          OpenStruct.new(appointment)
         end
       end
 
@@ -101,7 +106,10 @@ module VAOS
                      else
                        perform(:post, appointments_base_path, params, headers)
                      end
-          convert_appointment_time(response.body)
+
+          new_appointment = response.body
+          convert_appointment_time(new_appointment)
+          find_and_merge_provider_name(new_appointment) if new_appointment[:kind] == 'cc'
           OpenStruct.new(response.body)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if params[:status] == 'booked'
@@ -197,6 +205,14 @@ module VAOS
 
       def fetch_clinic_appointments(start_time, end_time, statuses)
         get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
+      end
+
+      def find_and_merge_provider_name(appt)
+        practitioners_list = appt[:practitioners]
+        service = ProviderNames.new(user)
+        names, _missing_providers = service.form_names_from_appointment_practitioners_list(practitioners_list)
+
+        appt[:preferred_provider_name] = names
       end
 
       def most_recent_appointment(appointments)

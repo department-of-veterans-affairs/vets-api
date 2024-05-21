@@ -22,10 +22,6 @@ module VAOS
       def index
         appointments
 
-        appointments[:data].each do |appt|
-          find_and_merge_provider_name(appt) if appt[:kind] == 'cc' && appt[:status] == 'proposed'
-        end
-
         _include&.include?('clinics') && merge_clinics(appointments[:data])
         _include&.include?('facilities') && merge_facilities(appointments[:data])
 
@@ -48,8 +44,6 @@ module VAOS
       def show
         appointment
 
-        find_and_merge_provider_name(appointment) if appointment[:kind] == 'cc' && appointment[:status] == 'proposed'
-
         unless appointment[:clinic].nil? || appointment[:location_id].nil?
           clinic = get_clinic_memoized(appointment[:location_id], appointment[:clinic])
           appointment[:service_name] = clinic&.[](:service_name)
@@ -71,8 +65,6 @@ module VAOS
 
       def create
         new_appointment
-
-        find_and_merge_provider_name(new_appointment) if new_appointment[:kind] == 'cc'
 
         unless new_appointment[:clinic].nil? || new_appointment[:location_id].nil?
           clinic = get_clinic_memoized(new_appointment[:location_id], new_appointment[:clinic])
@@ -145,41 +137,6 @@ module VAOS
         @updated_appointment ||=
           appointments_service.update_appointment(update_appt_id, status_update)
       end
-
-      # uses find_npi helper method to extract npi from appointment response,
-      # then uses the npi to look up the provider name via mobile_ppms_service
-      #
-      # will memoize provider name to avoid duplicate get_provider_with_cache calls
-      def find_and_merge_provider_name(appt)
-        # found_npi = find_npi(appt)
-        practitioners_list = appt[:practitioners]
-        service = ProviderNames.new(current_user)
-        names, _missing_providers = service.form_names_from_appointment_practitioners_list(practitioners_list)
-
-        appt[:preferred_provider_name] = names
-      end
-
-      def find_npi(appt)
-        appt[:practitioners]&.each do |a|
-          a[:identifier]&.each do |i|
-            return i[:value] if i[:system].include? 'us-npi'
-          end
-        end
-        nil
-      end
-
-      def get_provider_name_memoized(npi)
-        provider_response = mobile_ppms_service.get_provider_with_cache(npi)
-        provider_response[:name]
-      rescue Common::Exceptions::BackendServiceException => e
-        Rails.logger.warn(
-          "VAOS Error fetching provider name for npi #{npi}",
-          npi:,
-          vamf_msg: e.original_body
-        )
-        NPI_NOT_FOUND_MSG
-      end
-      memoize :get_provider_name_memoized
 
       # Makes a call to the VAOS service to create a new appointment.
       def get_new_appointment
