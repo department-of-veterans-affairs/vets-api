@@ -6,9 +6,7 @@ module DataMigrations
 
     def run
       Form526Submission.where(submit_endpoint: nil).in_batches do |batch|
-        # rubocop:disable Rails/SkipsModelValidations
-        batch.update_all(submit_endpoint: :evss)
-        # rubocop:enable Rails/SkipsModelValidations
+        batch.update_all(submit_endpoint: :evss) # rubocop:disable Rails/SkipsModelValidations
       end
     end
   end
