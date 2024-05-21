@@ -19,7 +19,6 @@ module VAOS
         return nil if practitioners_list.blank?
 
         provider_names = []
-        missing_providers = []
 
         practitioners_list.each do |practitioner|
           name, id = find_provider_name(practitioner)
@@ -29,8 +28,7 @@ module VAOS
             missing_providers << id
           end
         end
-        provider_names = provider_names.compact.join(', ').presence
-        [provider_names, missing_providers]
+        provider_names.compact.join(', ').presence
       end
 
       private
