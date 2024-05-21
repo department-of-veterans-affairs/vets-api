@@ -34,7 +34,7 @@ module ClaimsApi
       def service_information
         info = @data[:serviceInformation]
         service_periods = format_service_periods(info&.dig(:servicePeriods))
-        confinements = format_confinements(info&.dig(:confinements)) unless info&.dig(:confinements).blank?
+        confinements = format_confinements(info&.dig(:confinements)) if info&.dig(:confinements).present?
 
         @evss_claim[:serviceInformation] = {
           servicePeriods: service_periods
