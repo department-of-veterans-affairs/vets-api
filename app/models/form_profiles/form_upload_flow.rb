@@ -4,8 +4,7 @@ class FormProfiles::FormUploadFlow < FormProfile
   def metadata
     {
       version: 0,
-      prefill: true,
-      returnUrl: '/personal-information-1'
+      prefill: true
     }
   end
 end
