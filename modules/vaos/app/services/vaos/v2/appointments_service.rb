@@ -79,9 +79,7 @@ module VAOS
           end
 
           # set requestedPeriods to nil if the appointment is a booked cerner appointment per GH#62912
-          if booked?(appointment) && cerner?(appointment)
-            appointment[:requested_periods] = nil
-          end
+          appointment[:requested_periods] = nil if booked?(appointment) && cerner?(appointment)
 
           if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
             fetch_avs_and_update_appt_body(appointment)

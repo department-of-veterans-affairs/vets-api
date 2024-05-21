@@ -21,12 +21,8 @@ module VAOS
         provider_names = []
 
         practitioners_list.each do |practitioner|
-          name, id = find_provider_name(practitioner)
-          if name
-            provider_names << name
-          else
-            missing_providers << id
-          end
+          name = find_provider_name(practitioner)
+          provider_names << name if name
         end
         provider_names.compact.join(', ').presence
       end
@@ -47,7 +43,7 @@ module VAOS
         name = provider_data&.name&.strip&.presence
         # cache even if it's nil to avoid duplicate requests
         @providers_cache[id] = name
-        [name, id]
+        name
       end
 
       def find_practitioner_name_in_list(practitioner)
