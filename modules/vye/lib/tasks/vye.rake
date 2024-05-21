@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
 namespace :vye do
   namespace :feature do
     desc 'Enables request_allowed feature flag'
@@ -35,6 +36,7 @@ namespace :vye do
       Vye::PendingDocument.destroy_all
 
       Vye::UserProfile.destroy_all
+      Vye::BdnClone.destroy_all
     end
 
     desc 'Build YAML files to load for development from team sensitive data'
@@ -67,10 +69,20 @@ namespace :vye do
 
       files.each do |file|
         source = :team_sensitive
+        locator = format('file: %<name>s', name: file.basename)
         data = YAML.safe_load(file.read, permitted_classes: [Date, DateTime, Symbol, Time])
         records = data.slice(:profile, :info, :address, :awards, :pending_documents)
-        Vye::LoadData.new(source:, bdn_clone:, records:)
+        if Vye::LoadData.new(source:, locator:, bdn_clone:, records:).valid?
+          $stdout.puts format('Vye::LoadData(%<source>s, %<locator>s): succeeded', source:, locator:)
+        else
+          $stdout.puts format('Vye::LoadData(%<source>s, %<locator>s): failed', source:, locator:)
+        end
       end
+
+      id = bdn_clone.id
+      count = bdn_clone.activate!
+      $stdout.puts format('Vye::BdnClone(%<id>u): activated with %<count>u count UserInfo', id:, count:)
     end
   end
 end
+# rubocop:enable Metrics/BlockLength

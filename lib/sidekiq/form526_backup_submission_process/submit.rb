@@ -72,6 +72,8 @@ module Sidekiq
       def perform(form526_submission_id)
         return unless Settings.form526_backup.enabled
 
+        submission = Form526Submission.find(form526_submission_id)
+        submission.update(submit_endpoint: 'benefits_intake_api')
         job_status = Form526JobStatus.find_or_initialize_by(job_id: jid)
         job_status.assign_attributes(form526_submission_id:,
                                      job_class: 'BackupSubmission',
@@ -80,20 +82,24 @@ module Sidekiq
 
         Processor.new(form526_submission_id).process!
         job_status.update(status: Form526JobStatus::STATUS[:success])
-        Form526Submission.find(form526_submission_id).deliver_to_backup!
+        submission.deliver_to_backup!
       rescue => e
         ::Rails.logger.error(
           message: "FORM526 BACKUP SUBMISSION FAILURE. Investigate immediately: #{e.message}.",
           backtrace: e.backtrace,
           submission_id: form526_submission_id
         )
-        bgjob_errors = job_status.bgjob_errors || {}
-        bgjob_errors.merge!(error_hash_for_job_status(e))
-        job_status.update(status: Form526JobStatus::STATUS[:retryable_error], bgjob_errors:)
+        update_job_status_bgjob_errors(job_status, e)
         raise e
       end
 
       private
+
+      def update_job_status_bgjob_errors(job_status, e)
+        bgjob_errors = job_status.bgjob_errors || {}
+        bgjob_errors.merge!(error_hash_for_job_status(e))
+        job_status.update(status: Form526JobStatus::STATUS[:retryable_error], bgjob_errors:)
+      end
 
       def error_hash_for_job_status(e)
         timestamp = Time.zone.now

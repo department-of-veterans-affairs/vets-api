@@ -33,8 +33,8 @@ RSpec.describe 'Power Of Attorney Requests: decline', :bgs, type: :request do
     ]
   end
 
-  describe 'with a valid declination with reason' do
-    let(:id) { 3_854_887 }
+  describe 'with a valid decline with reason' do
+    let(:id) { '600082088_3854887' }
 
     let(:params) do
       {
@@ -52,7 +52,7 @@ RSpec.describe 'Power Of Attorney Requests: decline', :bgs, type: :request do
 
     it 'responds no_content', run_at: '2024-05-09T07:18:04Z' do
       mock_ccg(scopes) do
-        use_soap_cassette(cassette_directory / 'valid_declination_with_reason') do
+        use_soap_cassette(cassette_directory / 'valid_decline_with_reason') do
           subject
         end
       end

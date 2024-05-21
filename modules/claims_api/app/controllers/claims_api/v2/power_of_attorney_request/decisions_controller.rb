@@ -21,7 +21,7 @@ module ClaimsApi
         def declined?
           decision_params[:status] ==
             PowerOfAttorneyRequestService::
-              PoaRequest::Statuses::
+              PoaRequest::Decision::Statuses::
               DECLINED
         end
 

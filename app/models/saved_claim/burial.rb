@@ -20,11 +20,7 @@ class SavedClaim::Burial < CentralMailClaim
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
-    if Flipper.enabled?(:central_mail_benefits_intake_submission)
-      Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
-    else
-      CentralMail::SubmitSavedClaimJob.new.perform(id)
-    end
+    Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
   end
 
   def regional_office
