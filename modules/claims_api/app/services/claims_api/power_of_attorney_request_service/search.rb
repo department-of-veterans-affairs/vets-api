@@ -96,7 +96,7 @@ module ClaimsApi
         }.freeze
 
         FIELDS = {
-          Query::Sort::Fields::SUBMITTED_AT => 'DATE_RECEIVED'
+          Query::Sort::Fields::CREATED_AT => 'DATE_RECEIVED'
         }.freeze
       end
     end

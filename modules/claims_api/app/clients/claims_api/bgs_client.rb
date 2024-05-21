@@ -72,15 +72,15 @@ module ClaimsApi
       end
     end
 
-    ExternalId =
+    class ExternalId <
       Data.define(
         :external_uid,
         :external_key
-      ) do
-        self::DEFAULT = new(
-          external_uid: Settings.bgs.external_uid,
-          external_key: Settings.bgs.external_key
-        )
-      end
+      )
+      DEFAULT = new(
+        external_uid: Settings.bgs.external_uid,
+        external_key: Settings.bgs.external_key
+      )
+    end
   end
 end

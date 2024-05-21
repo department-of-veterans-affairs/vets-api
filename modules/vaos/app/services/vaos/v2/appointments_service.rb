@@ -16,6 +16,7 @@ module VAOS
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
       AVS_APPT_TEST_ID = '192308'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
+      FACILITY_ERROR_MSG = 'Error fetching facility details'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
@@ -149,6 +150,48 @@ module VAOS
 
         nil
       end
+
+      def get_facility(location_id)
+        mobile_facility_service.get_facility_with_cache(location_id)
+      rescue Common::Exceptions::BackendServiceException
+        Rails.logger.error(
+          "Error fetching facility details for location_id #{location_id}",
+          location_id:
+        )
+        FACILITY_ERROR_MSG
+      end
+
+      def get_facility_memoized(location_id)
+        mobile_facility_service.get_facility_with_cache(location_id)
+      rescue Common::Exceptions::BackendServiceException
+        Rails.logger.error(
+          "VAOS Error fetching facility details for location_id #{location_id}",
+          location_id:
+        )
+        FACILITY_ERROR_MSG
+      end
+      memoize :get_facility_memoized
+
+      # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
+      def get_facility_timezone(facility_location_id)
+        facility_info = get_facility_memoized(facility_location_id)
+        if facility_info == FACILITY_ERROR_MSG
+          nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
+        else
+          facility_info[:timezone]&.[](:time_zone_id)
+        end
+      end
+
+      # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
+      def get_facility_timezone_memoized(facility_location_id)
+        facility_info = get_facility(facility_location_id) unless facility_location_id.nil?
+        if facility_info == FACILITY_ERROR_MSG || facility_info.nil?
+          nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
+        else
+          facility_info[:timezone]&.[](:time_zone_id)
+        end
+      end
+      memoize :get_facility_timezone_memoized
 
       private
 
@@ -458,27 +501,6 @@ module VAOS
         else
           date.to_time.utc.in_time_zone(tz).to_datetime
         end
-      end
-
-      # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
-      def get_facility_timezone_memoized(facility_location_id)
-        facility_info = get_facility(facility_location_id) unless facility_location_id.nil?
-        if facility_info == FACILITY_ERROR_MSG || facility_info.nil?
-          nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
-        else
-          facility_info[:timezone]&.[](:time_zone_id)
-        end
-      end
-      memoize :get_facility_timezone_memoized
-
-      def get_facility(location_id)
-        mobile_facility_service.get_facility_with_cache(location_id)
-      rescue Common::Exceptions::BackendServiceException
-        Rails.logger.error(
-          "Error fetching facility details for location_id #{location_id}",
-          location_id:
-        )
-        FACILITY_ERROR_MSG
       end
 
       def log_direct_schedule_submission_errors(e)
