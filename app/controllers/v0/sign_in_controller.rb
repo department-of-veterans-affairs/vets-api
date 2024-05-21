@@ -142,11 +142,12 @@ module V0
     def revoke
       refresh_token = params[:refresh_token].presence
       anti_csrf_token = params[:anti_csrf_token].presence
+      device_secret = params[:device_secret].presence
 
       raise SignIn::Errors::MalformedParamsError.new message: 'Refresh token is not defined' unless refresh_token
 
       decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
-      SignIn::SessionRevoker.new(refresh_token: decrypted_refresh_token, anti_csrf_token:).perform
+      SignIn::SessionRevoker.new(refresh_token: decrypted_refresh_token, anti_csrf_token:, device_secret:).perform
 
       sign_in_logger.info('revoke', decrypted_refresh_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_SUCCESS)
