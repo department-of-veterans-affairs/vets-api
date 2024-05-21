@@ -77,8 +77,7 @@ module EVSS
       #
       # @param submission_id [Integer] The {Form526Submission} id
       #
-      # rubocop:disable Metrics/MethodLength
-      def perform(submission_id)
+      def perform(submission_id) # rubocop:disable Metrics/MethodLength
         send_notifications = true
         @submission_id = submission_id
 
@@ -106,19 +105,21 @@ module EVSS
 
           user = OpenStruct.new({ user_account_uuid: user_account.id, flipper_id: user_account.id })
           begin
+            submit_to_claims_api = submission.claims_api?
             # send submission data to either EVSS or Lighthouse (LH)
-            response = if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration, user)
+            response = if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration, user) ||
+                          submit_to_claims_api # right operand evaluation not needed once fully migrated to LH
                          # submit 526 through LH API
                          # 1. get user's ICN
-                         user_account = UserAccount.find_by(id: submission.user_account_id) ||
-                                        Account.find_by(idme_uuid: submission.user_uuid)
                          icn = user_account.icn
                          # 2. transform submission data to LH format
                          transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
                          body = transform_service.transform(submission.form['form526'])
                          # 3. send transformed submission data to LH endpoint
                          service = BenefitsClaims::Service.new(icn)
-                         raw_response = service.submit526(body)
+                         # conditionally set options argument based on toxic exposure Flipper state for user
+                         options = generate_options_hash(submit_to_claims_api, user)
+                         raw_response = service.submit526(body, options)
                          # 4. convert LH raw response to a FormSubmitResponse for further processing (claim_id, status)
                          # JSON.parse when it matters to get the claim id
                          # something like response_json = JSON.parse(raw_response.body)
@@ -145,12 +146,16 @@ module EVSS
           send_post_evss_notifications(submission) if send_notifications
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       private
 
       def submit_complete_form
         service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
+      end
+
+      def generate_options_hash(submit_to_claims_api, user)
+        te_flipper_disabled_for_user = !Flipper.enabled?(:disability_526_toxic_exposure, user)
+        submit_to_claims_api && te_flipper_disabled_for_user ? { generate_pdf: true } : {}
       end
 
       def response_handler(response)

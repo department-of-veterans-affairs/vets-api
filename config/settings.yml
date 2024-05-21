@@ -414,6 +414,9 @@ intent_to_file:
 ivc_champva:
   prefill: true
 
+form_upload_flow:
+  prefill: true
+
 # Settings for Expiry Scanner
 expiry_scanner:
   slack:

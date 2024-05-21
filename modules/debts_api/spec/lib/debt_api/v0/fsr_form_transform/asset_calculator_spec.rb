@@ -43,12 +43,6 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::AssetCalculator, type: :service d
       transform_assets
     end
 
-    # it 'gets x right' do
-    #   expected_x = post_transform_fsr_form_data['assets']['x']
-    #   actual_x = @assets['x']
-    #   expect(actual_x).to eq(expected_x)
-    # end
-
     it 'gets cashInBank right' do
       expected_cash_in_bank = post_transform_fsr_form_data['assets']['cashInBank']
       actual_cash_in_bank = @assets['cashInBank']
