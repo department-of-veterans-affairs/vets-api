@@ -101,15 +101,13 @@ module ClaimsApi
         def synchronous
           auto_claim = shared_submit_methods
 
-          unless claims_load_testing || sandbox_request(request) || mocking
-            pdf_generation_service.generate(auto_claim&.id, veteran_middle_initial)
+          unless claims_load_testing # || sandbox_request(request)
+            pdf_generation_service.generate(auto_claim&.id, veteran_middle_initial) unless mocking
             docker_container_service.upload(auto_claim&.id)
             queue_flash_updater(auto_claim.flashes, auto_claim&.id)
             start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
             auto_claim.reload
           end
-
-          auto_claim.evss_id = '12345678' if mocking
 
           render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
             auto_claim, root: :data, async: false
