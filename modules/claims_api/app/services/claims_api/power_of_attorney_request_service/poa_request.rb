@@ -8,15 +8,6 @@ module ClaimsApi
     # TODO: Document philosophy around validity of source data?
     # TODO: Do actual conversion elsewhere and just define model here perhaps.
     class PoaRequest
-      module Statuses
-        ALL = [
-          NEW = 'New',
-          PENDING = 'Pending',
-          ACCEPTED = 'Accepted',
-          DECLINED = 'Declined'
-        ].freeze
-      end
-
       class << self
         def load(data)
           new(data)
@@ -29,13 +20,6 @@ module ClaimsApi
           :middle_name,
           :last_name,
           :participant_id
-        )
-
-      Representative =
-        Data.define(
-          :first_name,
-          :last_name,
-          :email
         )
 
       Claimant =
@@ -53,28 +37,41 @@ module ClaimsApi
           :military_postal_code
         )
 
+      class Decision <
+        Data.define(
+          :status,
+          :representative,
+          :declined_reason,
+          :updated_at
+        )
+
+        Representative =
+          Data.define(
+            :first_name,
+            :last_name,
+            :email
+          )
+
+        module Statuses
+          ALL = [
+            NEW = 'New',
+            PENDING = 'Pending',
+            ACCEPTED = 'Accepted',
+            DECLINED = 'Declined'
+          ].freeze
+        end
+      end
+
       def initialize(data)
         @data = data
       end
 
       def id
-        @data['procID'].to_i
+        "#{veteran.participant_id}_#{@data['procID']}"
       end
 
-      def status
-        @data['secondaryStatus'].presence_in(Statuses::ALL)
-      end
-
-      def submitted_at
+      def created_at
         Utilities.time(@data['dateRequestReceived'])
-      end
-
-      def accepted_or_declined_at
-        Utilities.time(@data['dateRequestActioned'])
-      end
-
-      def declined_reason
-        @data['declinedReason'] if status == Statuses::DECLINED
       end
 
       def authorizes_address_changing?
@@ -95,8 +92,7 @@ module ClaimsApi
             first_name: @data['vetFirstName'],
             middle_name: @data['vetMiddleName'],
             last_name: @data['vetLastName'],
-            # TODO: Gotta figure out if this is always present or not.
-            participant_id: @data['vetPtcpntID']&.to_i
+            participant_id: @data['vetPtcpntID']
           )
       end
 
@@ -110,18 +106,17 @@ module ClaimsApi
       end
 
       def claimant
-        @claimant ||= begin
-          # TODO: Check on `claimantRelationship` values in BGS.
-          relationship = @data['claimantRelationship']
-          if relationship.present? && relationship != 'Self'
-            Claimant.new(
-              first_name: @data['claimantFirstName'],
-              last_name: @data['claimantLastName'],
-              participant_id: @data['claimantPtcpntID'].to_i,
-              relationship_to_veteran: relationship
-            )
-          end
-        end
+        # TODO: Check on `claimantRelationship` values in BGS.
+        relationship = @data['claimantRelationship']
+        return if relationship.blank? || relationship == 'Self'
+
+        @claimant ||=
+          Claimant.new(
+            first_name: @data['claimantFirstName'],
+            last_name: @data['claimantLastName'],
+            participant_id: @data['claimantPtcpntID'],
+            relationship_to_veteran: relationship
+          )
       end
 
       def claimant_address
@@ -134,6 +129,36 @@ module ClaimsApi
             military_post_office: @data['claimantMilitaryPO'],
             military_postal_code: @data['claimantMilitaryPostalCode']
           )
+      end
+
+      def decision # rubocop:disable Metrics/MethodLength
+        @decision ||= begin
+          status =
+            @data['secondaryStatus'].presence_in(
+              Decision::Statuses::ALL
+            )
+
+          declined_reason =
+            if status == Decision::Statuses::DECLINED # rubocop:disable Style/IfUnlessModifier
+              @data['declinedReason']
+            end
+
+          representative =
+            Decision::Representative.new(
+              first_name: @data['VSOUserFirstName'],
+              last_name: @data['VSOUserLastName'],
+              email: @data['VSOUserEmail']
+            )
+
+          updated_at = Utilities.time(@data['dateRequestActioned'])
+
+          Decision.new(
+            status:,
+            declined_reason:,
+            representative:,
+            updated_at:
+          )
+        end
       end
 
       module Utilities
