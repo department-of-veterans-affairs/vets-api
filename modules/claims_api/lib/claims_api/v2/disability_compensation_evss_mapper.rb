@@ -34,12 +34,17 @@ module ClaimsApi
       def service_information
         info = @data[:serviceInformation]
         service_periods = format_service_periods(info&.dig(:servicePeriods))
-        confinements = format_confinements(info&.dig(:confinements))
+        confinements = format_confinements(info&.dig(:confinements)) unless info&.dig(:confinements).blank?
 
         @evss_claim[:serviceInformation] = {
-          servicePeriods: service_periods,
-          confinements:
+          servicePeriods: service_periods
         }
+
+        if confinements.present?
+          @evss_claim[:serviceInformation].merge!(
+            { confinements: }
+          )
+        end
       end
 
       def current_mailing_address
