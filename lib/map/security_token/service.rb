@@ -10,14 +10,12 @@ module MAP
 
       def token(application:, icn:, cache: true)
         Rails.logger.info("#{config.logging_prefix} token request", { application:, icn: })
-        Rails.cache.fetch("map_sts_token_#{application}_#{icn}", expires_in: 5.minutes, force: !cache) do
-          response = perform(:post,
-                             config.token_path,
-                             token_params(application, icn),
-                             { 'Content-Type' => 'application/x-www-form-urlencoded' })
-          sts_token = parse_response(response, application, icn)
-          Rails.logger.info("#{config.logging_prefix} token success", { application:, icn: })
-          sts_token
+
+        if cache && (cached_token = Rails.cache.read("map_sts_token_#{application}_#{icn}"))
+          Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cache: })
+          cached_token
+        else
+          request_token(application:, icn:)
         end
       rescue Common::Client::Errors::ClientError => e
         parse_and_raise_error(e, icn, application)
@@ -31,28 +29,13 @@ module MAP
 
       private
 
-      def find_cached_token(application:, icn:)
-        cached_token = TokenCache.find(icn)
-        expiration = Time.zone.parse(cached_token&.expiration || '')
-        unless cached_token&.application == application.to_s && expiration > Time.zone.now
-          return request_token(application:, icn:)
-        end
-
-        Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cache: true })
-        { access_token: cached_token[:access_token], expiration: }
-      end
-
       def request_token(application:, icn:)
         response = perform(:post,
                            config.token_path,
                            token_params(application, icn),
                            { 'Content-Type' => 'application/x-www-form-urlencoded' })
         sts_token = parse_response(response, application, icn)
-        redis_attributes = { application: application.to_s,
-                             icn:,
-                             access_token: sts_token[:access_token],
-                             expiration: sts_token[:expiration].utc.iso8601 }
-        TokenCache.create(redis_attributes)
+        Rails.cache.write("map_sts_token_#{application}_#{icn}", sts_token, expires_in: 5.minutes)
         Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cache: false })
         sts_token
       end
