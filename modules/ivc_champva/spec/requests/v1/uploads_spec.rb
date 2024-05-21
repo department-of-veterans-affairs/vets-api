@@ -11,7 +11,12 @@ RSpec.describe 'Forms uploader', type: :request do
   ]
 
   before do
+    @original_aws_config = Aws.config.dup
     Aws.config.update(stub_responses: true)
+  end
+
+  after do
+    Aws.config = @original_aws_config
   end
 
   describe '#submit' do
