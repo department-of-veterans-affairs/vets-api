@@ -17,6 +17,32 @@ describe AppealsApi::EvidenceSubmissionSerializer do
     expect(rendered_hash[:id]).to eq evidence_submission.guid
   end
 
+  context 'when render_location is true' do
+    let(:upload_submission) { evidence_submission.upload_submission }
+
+    it 'includes location' do
+      allow(upload_submission).to receive(:get_location).and_return("http://another.fakesite.com/rewrittenpath")
+      rendered_with_location_hash = described_class.new(evidence_submission, { render_location: true }).serializable_hash
+
+      location = upload_submission.get_location
+      expect(rendered_with_location_hash[:location]).to eq location
+    end
+
+    it 'raises an error when get_location fails' do
+      allow(upload_submission).to receive(:get_location).and_raise(StandardError, "Test error")
+
+      expect {
+        described_class.new(evidence_submission, { render_location: true }).serializable_hash
+      }.to raise_error(Common::Exceptions::InternalServerError)
+    end
+  end
+
+  context 'when render_location is false' do
+    it 'includes location' do
+      expect(rendered_hash[:location]).to be nil
+    end
+  end
+
   it 'includes :appeal_type' do
     expect(rendered_hash[:appeal_type]).to eq 'NoticeOfDisagreement'
   end
@@ -60,5 +86,15 @@ describe AppealsApi::EvidenceSubmissionSerializer do
       expect(rendered_hash[:detail].length).to eq(max_length_plus_ellipses)
       expect(submission_with_error.detail).to include rendered_hash[:detail][0, 100]
     end
+  end
+
+  # Should this use ISO 8601 format?
+  it 'includes :created_at' do
+    expect(rendered_hash[:created_at].to_s).to eq(evidence_submission.created_at.to_s)
+  end
+
+  # Should this use ISO 8601 format?
+  it 'includes :updated_at' do
+    expect(rendered_hash[:updated_at].to_s).to eq(evidence_submission.updated_at.to_s)
   end
 end
