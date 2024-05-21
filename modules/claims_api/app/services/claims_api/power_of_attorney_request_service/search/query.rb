@@ -16,7 +16,7 @@ module ClaimsApi
         module Sort
           module Fields
             ALL = [
-              SUBMITTED_AT = 'submittedAt'
+              CREATED_AT = 'createdAt'
             ].freeze
           end
 
@@ -33,13 +33,16 @@ module ClaimsApi
             # defaults which is why this is a method.
             def get_default
               {
-                field: Fields::SUBMITTED_AT,
+                field: Fields::CREATED_AT,
                 order: Orders::DESCENDING
               }
             end
           end
         end
 
+        # TODO: If keeping `dry-schema`, consider a good point to load
+        # extensions.
+        #
         # These have to load before our `Schema` definition, otherwise at least
         # the `hints` extension won't do its thing.
         Dry::Schema.load_extensions(:json_schema)
@@ -51,7 +54,7 @@ module ClaimsApi
             required(:filter).hash do
               required(:poaCodes).filled(:array).each(:string)
               optional(:statuses).filled(:array).each(
-                :string, included_in?: PoaRequest::Statuses::ALL
+                :string, included_in?: PoaRequest::Decision::Statuses::ALL
               )
             end
 
@@ -90,7 +93,7 @@ module ClaimsApi
           private
 
           def apply_defaults(query)
-            query[:filter][:statuses] ||= PoaRequest::Statuses::ALL
+            query[:filter][:statuses] ||= PoaRequest::Decision::Statuses::ALL
             query[:sort] ||= Sort.get_default
 
             page = query[:page] ||= {}
