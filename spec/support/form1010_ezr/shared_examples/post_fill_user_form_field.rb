@@ -13,7 +13,7 @@ shared_examples_for 'post-fill user form field' do
     end
   end
 
-  context "when the field is not present, but the field is present in the user session" do
+  context 'when the field is not present, but the field is present in the user session' do
     let(:parsed_form) { {} }
 
     before do

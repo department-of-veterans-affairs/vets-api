@@ -159,7 +159,6 @@ module Form1010Ezr
       post_fill_veteran_ssn(parsed_form)
     end
 
-
     def post_fill_fields(parsed_form)
       post_fill_required_fields(parsed_form)
       post_fill_user_fields(parsed_form)

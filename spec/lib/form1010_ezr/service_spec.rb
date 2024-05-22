@@ -45,13 +45,6 @@ RSpec.describe Form1010Ezr::Service do
     described_class.new(current_user).submit_form(form)
   end
 
-  def expect_statsd_increment_and_post_filled_parsed_form
-    expect(StatsD).to receive(:increment).with('api.1010ezr.missing_ssn')
-    expect(service.send(:post_fill_veteran_ssn, parsed_form)).to eq(
-    { 'veteranSocialSecurityNumber' => current_user.ssn_normalized }
-    )
-  end
-
   describe '#add_financial_flag' do
     context 'when the form has veteran gross income' do
       let(:parsed_form) do
@@ -77,7 +70,7 @@ RSpec.describe Form1010Ezr::Service do
   describe '#post_fill_veteran_full_name' do
     it_behaves_like 'post-fill user form field' do
       let(:klass_method) { 'post_fill_veteran_full_name' }
-      let(:_parsed_form) {
+      let(:_parsed_form) do
         {
           'veteranFullName' => {
             'first' => 'John',
@@ -86,7 +79,7 @@ RSpec.describe Form1010Ezr::Service do
             'suffix' => 'Sr.'
           }
         }
-      }
+      end
       let(:statsd_increment_name) { 'missing_full_name' }
       let(:user_field) { 'veteranFullName' }
       let(:user_data) { current_user.full_name_normalized.compact.stringify_keys }
@@ -96,11 +89,11 @@ RSpec.describe Form1010Ezr::Service do
   describe '#post_fill_veteran_ssn' do
     it_behaves_like 'post-fill user form field' do
       let(:klass_method) { 'post_fill_veteran_ssn' }
-      let(:_parsed_form) {
+      let(:_parsed_form) do
         {
           'veteranSocialSecurityNumber' => '111111234'
         }
-      }
+      end
       let(:statsd_increment_name) { 'missing_ssn' }
       let(:user_field) { 'veteranSocialSecurityNumber' }
       let(:user_data) { current_user.ssn_normalized }
@@ -110,11 +103,11 @@ RSpec.describe Form1010Ezr::Service do
   describe '#post_fill_veteran_date_of_birth' do
     it_behaves_like 'post-fill user form field' do
       let(:klass_method) { 'post_fill_veteran_date_of_birth' }
-      let(:_parsed_form) {
+      let(:_parsed_form) do
         {
           'veteranDateOfBirth' => '1985-04-03'
         }
-      }
+      end
       let(:statsd_increment_name) { 'missing_date_of_birth' }
       let(:user_field) { 'veteranDateOfBirth' }
       let(:user_data) { current_user.birth_date }
