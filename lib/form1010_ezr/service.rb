@@ -97,7 +97,7 @@ module Form1010Ezr
       if validation_errors.present?
         # REMOVE THE FOLLOWING SIX LINES OF CODE ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
         if validation_errors.find { |error| error.include?('veteranDateOfBirth') }.present?
-          PersonalInformationLog.create!(
+          PersonalInformationLog.create(
             data: @unprocessed_user_dob,
             error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure"
           )
@@ -105,7 +105,9 @@ module Form1010Ezr
 
         log_validation_errors(parsed_form)
 
-        Rails.logger.error('10-10EZR form validation failed. Form does not match schema.')
+        Rails.logger.error(
+          "10-10EZR form validation failed. Form does not match schema. Error list: #{validation_errors}"
+        )
         raise Common::Exceptions::SchemaValidationErrors, validation_errors
       end
     end
@@ -136,14 +138,33 @@ module Form1010Ezr
 
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.missing_full_name")
 
-      parsed_form['veteranFullName'] = @user.full_name_normalized&.stringify_keys
+      parsed_form['veteranFullName'] = @user.full_name_normalized.compact.stringify_keys
       parsed_form
     end
 
-    def post_fill_fields(parsed_form)
-      post_fill_required_fields(parsed_form)
+    # Due to issues with receiving submissions that do not include the Veteran's SSN, we'll
+    # try to add it in before we validate the form
+    def post_fill_veteran_ssn(parsed_form)
+      return if parsed_form['veteranSocialSecurityNumber'].present?
+
+      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.missing_ssn")
+
+      parsed_form['veteranSocialSecurityNumber'] = @user.ssn_normalized
+      parsed_form
+    end
+
+    def post_fill_user_fields(parsed_form)
       post_fill_veteran_full_name(parsed_form)
       post_fill_veteran_date_of_birth(parsed_form)
+      post_fill_veteran_ssn(parsed_form)
+    end
+
+
+    def post_fill_fields(parsed_form)
+      post_fill_required_fields(parsed_form)
+      post_fill_user_fields(parsed_form)
+
+      parsed_form.compact
     end
 
     def configure_and_validate_form(parsed_form)
