@@ -64,7 +64,13 @@ ClaimsApi::Engine.routes.draw do
       post '/:veteranId/526/synchronous', to: 'disability_compensation#synchronous'
     end
 
-    resources :power_of_attorney_requests, path: 'power-of-attorney-requests', only: [:index]
+    resources :power_of_attorney_requests, path: 'power-of-attorney-requests', only: [:index] do
+      scope module: :power_of_attorney_request, param: :id do
+        member do
+          resource :decision, only: [:update]
+        end
+      end
+    end
   end
 
   namespace :docs do

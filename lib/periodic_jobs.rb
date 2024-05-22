@@ -162,5 +162,8 @@ PERIODIC_JOBS = lambda { |mgr|
 
   # Updates veteran service organization names
   mgr.register('0 5 * * *', 'Organizations::UpdateNames')
+
+  # Clean SchemaContact::Validation records every night at midnight
+  mgr.register('0 0 * * *', 'SchemaContract::DeleteValidationRecordsJob')
 }
 # rubocop:enable Metrics/BlockLength

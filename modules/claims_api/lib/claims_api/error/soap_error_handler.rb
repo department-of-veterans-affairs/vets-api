@@ -67,8 +67,7 @@ module ClaimsApi
     def soap_logging(status_code)
       ClaimsApi::Logger.log('soap_error_handler',
                             detail: "Returning #{status_code} via local_bgs & soap_error_handler, " \
-                                    "fault_string: #{@fault_string}, with message: #{@fault_message}, " \
-                                    "and fault_code: #{@fault_code}.")
+                                    "fault_string: #{@fault_string}, fault_code: #{@fault_code}.")
     end
   end
 end

@@ -9,7 +9,7 @@ describe ClaimsApi::VnpProcFormService do
   describe 'vnp_proc_form_create' do
     let(:options) { {} }
 
-    it 'responds with a vnc_proc_id' do
+    it 'responds with a vnp_proc_id' do
       options[:vnp_proc_id] = '3831394'
       options[:vnp_ptcpnt_id] = nil
       options[:jrn_dt] = nil

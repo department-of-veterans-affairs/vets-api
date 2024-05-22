@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
 require 'debts_api/v0/fsr_form_transform/expense_calculator'
+require 'debts_api/v0/fsr_form_transform/utils'
 
 module DebtsApi
   module V0
     module FsrFormTransform
       class EnhancedExpenseCalculator
+        include ::FsrFormTransform::Utils
+
         RENT = 'Rent'
         MORTGAGE_PAYMENT = 'Mortgage payment'
         FOOD = 'Food'
@@ -61,7 +64,34 @@ module DebtsApi
           }
         end
 
+        def transform_expenses
+          expenses = default_expenses
+
+          expenses['rentOrMortgage'] = dollars_cents(get_rent_mortgage_expenses)
+          expenses['food'] = dollars_cents(get_food_expenses)
+          expenses['utilities'] = dollars_cents(get_utilities)
+          other = get_other_living_expenses
+          expenses['otherLivingExpenses'] = {
+            'name' => other[:name],
+            'amount' => dollars_cents(other[:amount])
+          }
+          expenses['expensesInstallmentContractsAndOtherDebts'] = dollars_cents(get_installments_and_other_debts)
+          expenses['totalMonthlyExpenses'] = dollars_cents(get_monthly_expenses)
+          expenses
+        end
+
         private
+
+        def default_expenses
+          {
+            'rentOrMortgage' => '0.00',
+            'food' => '0.00',
+            'utilities' => '0.00',
+            'otherLivingExpenses' => {},
+            'expensesInstallmentContractsAndOtherDebts' => '0.00',
+            'totalMonthlyExpenses' => '0.00'
+          }
+        end
 
         def get_rent_mortgage_expenses
           safe_number(@old_rent_mortgage_attr)
