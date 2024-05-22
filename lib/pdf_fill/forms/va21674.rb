@@ -10,58 +10,149 @@ module PdfFill
       KEY = {
         'veteran_information' => {
           'full_name' => {
-            key: 'form1[0].#subform[0].NameofVeteran[0]',
-            limit: 50,
-            question_num: 2,
-            question_suffix: 'A',
-            question_text: 'FIRST NAME-MIDDLE INITIAL-LAST NAME OF VETERAN'
+            'first' => {
+              key: 'form1[0].#subform[0].FirstNameofVeteran[0]',
+              limit: 12,
+              question_num: 1,
+              question_suffix: 'A',
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S NAME'
+            },
+            'middleInitial' => {
+              key: 'form1[0].#subform[0].MiddleInitialofVeteran[0]',
+              limit: 1,
+              question_num: 1,
+              question_suffix: 'B',
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S NAME'
+            },
+            'last' => {
+              key: 'form1[0].#subform[0].LastNameofVeteran[0]',
+              limit: 18,
+              question_num: 1,
+              question_suffix: 'C',
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S NAME'
+            }
           },
           'va_file_number' => {
             key: 'form1[0].#subform[0].VAFileNumber[0]',
-            limit: 10,
-            question_num: 3,
-            question_suffix: 'A',
+            limit: 9,
+            question_num: 2,
             question_text: 'VA FILE NUMBER'
           }
         }, # end veteran_information
         'dependents_application' => {
           'veteran_contact_information' => {
             'phone_number' => {
-              key: 'form1[0].#subform[0].TelePhoneNo.IncludeAreaCode[0]',
-              limit: 16,
-              question_num: 15,
-              question_suffix: 'B',
-              question_text: 'TELEPHONE NO.'
+              'phone_area_code' => {
+                key: 'form1[0].#subform[0].TelephoneNumber_AreaCode[0]',
+                limit: 3,
+                question_num: 16,
+                question_suffix: 'D',
+                question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > TELEPHONE NUMBER'
+              },
+              'phone_first_three_numbers' => {
+                key: 'form1[0].#subform[0].TelephoneNumber_FirstThreeNumbers[0]',
+                limit: 3,
+                question_num: 16,
+                question_suffix: 'D',
+                question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > TELEPHONE NUMBER'
+              },
+              'phone_last_four_numbers' => {
+                key: 'form1[0].#subform[0].TelephoneNumber_LastFourNumbers[0]',
+                limit: 4,
+                question_num: 16,
+                question_suffix: 'D',
+                question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > TELEPHONE NUMBER'
+              }
+            },
+            'international_phone_number' => {
+              key: 'form1[0].#subform[0].TelephoneNumber_International[0]',
+              limit: 12,
+              question_num: 16,
+              question_suffix: 'D',
+              question_text: 'Enter international phone number (if applicable)'
             },
             'email_address' => {
               key: 'form1[0].#subform[0].email[0]',
               limit: 25,
-              question_num: 2,
-              question_suffix: 'B',
+              question_num: 3,
+              question_text: 'E-MAIL ADDRESS OF VETERAN'
+            },
+            'email_address_two' => {
+              key: 'form1[0].#subform[0].email[1]',
+              limit: 25,
+              question_num: 3,
               question_text: 'E-MAIL ADDRESS OF VETERAN'
             }
           }, # end veteran_contact_information
           'student_name_and_ssn' => {
             'full_name' => {
-              key: 'form1[0].#subform[0].NameofStudent[0]',
-              limit: 100,
-              question_num: 4,
-              question_suffix: 'A',
-              question_text: 'FIRST NAME-MIDDLE INITIAL-LAST NAME OF STUDENT'
+              'first' => {
+                key: 'form1[0].#subform[0].FirstNameofStudent[0]',
+                limit: 12,
+                question_num: 4,
+                question_suffix: 'A',
+                question_text: 'STUDENT\'S NAME'
+              },
+              'middleInitial' => {
+                key: 'form1[0].#subform[0].MiddleInitialofStudent[0]',
+                limit: 1,
+                question_num: 4,
+                question_suffix: 'B',
+                question_text: 'STUDENT\'S NAME'
+              },
+              'last' => {
+                key: 'form1[0].#subform[0].LastNameofStudent[0]',
+                limit: 18,
+                question_num: 4,
+                question_suffix: 'C',
+                question_text: 'STUDENT\'S NAME'
+              }
             },
             'ssn' => {
-              key: 'form1[0].#subform[0].SSN[0]',
-              limit: 9,
-              question_num: 4,
-              question_suffix: 'B',
-              question_text: 'STUDENT\'S SOCIAL SECURITY NUMBER'
+              'first' => {
+                key: 'form1[0].#subform[0].StudentSsn_FirstThree[0]',
+                limit: 3,
+                question_num: 5,
+                question_suffix: 'A',
+                question_text: 'STUDENT\'S IDENTIFICATION INFORMATION > SOCIAL SECURITY NUMBER'
+              },
+              'second' => {
+                key: 'form1[0].#subform[0].StudentSsn_MiddleTwo[0]',
+                limit: 2,
+                question_num: 5,
+                question_suffix: 'B',
+                question_text: 'STUDENT\'S IDENTIFICATION INFORMATION > SOCIAL SECURITY NUMBER'
+              },
+              'third' => {
+                key: 'form1[0].#subform[0].StudentSsn_LastFour[0]',
+                limit: 4,
+                question_num: 5,
+                question_suffix: 'C',
+                question_text: 'STUDENT\'S IDENTIFICATION INFORMATION > SOCIAL SECURITY NUMBER'
+              }
             },
             'birth_date' => {
-              key: 'form1[0].#subform[0].Date[0]',
-              limit: 10,
-              question_num: 5,
-              question_suffix: 'A',
-              question_text: 'STUDENT\'S DATE OF BIRTH'
+              'month' => {
+                key: 'form1[0].#subform[0].Student_DOB.month[0]',
+                limit: 2,
+                question_num: 6,
+                question_suffix: 'A',
+                question_text: 'STUDENT\'S IDENTIFICATION INFORMATION > DATE OF BIRTH (MM-DD-YYYY)'
+              },
+              'day' => {
+                key: 'form1[0].#subform[0].Student_DOB.day[0]',
+                limit: 2,
+                question_num: 6,
+                question_suffix: 'B',
+                question_text: 'STUDENT\'S IDENTIFICATION INFORMATION > DATE OF BIRTH (MM-DD-YYYY)'
+              },
+              'year' => {
+                key: 'form1[0].#subform[0].Student_DOB.year[0]',
+                limit: 4,
+                question_num: 6,
+                question_suffix: 'C',
+                question_text: 'STUDENT\'S IDENTIFICATION INFORMATION > DATE OF BIRTH (MM-DD-YYYY)'
+              }
             }
           }, # end student_name_and_ssn
           'student_address_marriage_tuition' => {
@@ -70,75 +161,198 @@ module PdfFill
               'was_married_no' => { key: 'form1[0].#subform[0].NO[0]' }
             },
             'marriage_date' => {
-              key: 'form1[0].#subform[0].DateofMarriage[0]',
-              limit: 10,
-              question_num: 5,
-              question_suffix: 'C',
-              question_text: 'DATE OF MARRIAGE'
+              'month' => {
+                key: 'form1[0].#subform[0].Student_Date_of_Marriage.month[0]',
+                limit: 2,
+                question_num: 7,
+                question_suffix: 'B',
+                question_text: 'DATE OF MARRIAGE'
+              },
+              'day' => {
+                key: 'form1[0].#subform[0].Student_Date_of_Marriage.day[0]',
+                limit: 2,
+                question_num: 7,
+                question_suffix: 'B',
+                question_text: 'DATE OF MARRIAGE'
+              },
+              'year' => {
+                key: 'form1[0].#subform[0].Student_Date_of_Marriage.year[0]',
+                limit: 4,
+                question_num: 7,
+                question_suffix: 'B',
+                question_text: 'DATE OF MARRIAGE'
+              }
             },
             'address' => {
-              key: 'form1[0].#subform[0].AddressofStudent[0]',
-              limit: 70,
-              question_num: 6,
-              question_suffix: 'A',
-              question_text: 'ADDRESS OF STUDENT'
+              'address_line1' => {
+                key: 'form1[0].#subform[0].AddressofStudentStreet[0]',
+                limit: 30,
+                question_num: 8,
+                question_suffix: 'A',
+                question_text: 'Address of Student > No & Street'
+              },
+              'address_line2' => {
+                key: 'form1[0].#subform[0].AddressofStudentAptNumber[0]',
+                limit: 5,
+                question_num: 8,
+                question_suffix: 'B',
+                question_text: 'Address of Student > Apt/Unit Number'
+              },
+              'city' => {
+                key: 'form1[0].#subform[0].AddressofStudentCity[0]',
+                limit: 18,
+                question_num: 8,
+                question_suffix: 'C',
+                question_text: 'Address of Student > City'
+              },
+              'state_code' => {
+                key: 'form1[0].#subform[0].AddressofStudentState[0]',
+                limit: 2,
+                question_num: 8,
+                question_suffix: 'D',
+                question_text: 'Address of Student > State'
+              },
+              'country_name' => {
+                key: 'form1[0].#subform[0].AddressofStudentCountry[0]',
+                limit: 2,
+                question_num: 8,
+                question_suffix: 'E',
+                question_text: 'Address of Student > Country'
+              },
+              'zip_code' => {
+                'firstFive' => {
+                  key: 'form1[0].#subform[0].AddressofStudentPostCode_FirstFive0]',
+                  limit: 5,
+                  question_num: 8,
+                  question_suffix: 'F',
+                  question_text: 'Address of Student > Zip Code (First Five Digits)'
+                },
+                'lastFour' => {
+                  key: 'form1[0].#subform[0].AddressofStudentPostCode_LastFour0]',
+                  limit: 4,
+                  question_num: 8,
+                  question_suffix: 'G',
+                  question_text: 'Address of Student > Zip Code (Last Four Digits)'
+                }
+              }
             },
             'tuition_is_paid_by_gov_agency' => {
               'is_paid_yes' => { key: 'form1[0].#subform[0].YES1[0]' },
               'is_paid_no' => { key: 'form1[0].#subform[0].NO1[0]' }
             },
             'agency_name' => {
-              key: 'form1[0].#subform[0].AGENCYNAMEl[0]',
+              key: 'form1[0].#subform[0].FederalAssistanceProgram[0]',
               limit: 200,
-              question_num: 7,
-              question_suffix: 'B',
-              question_text: 'AGENCY NAME'
+              question_num: 9,
+              question_suffix: 'A',
+              question_text: 'Federally funded school or program'
             },
             'date_payments_began' => {
-              key: 'form1[0].#subform[0].datepaymentsbegan[0]',
-              limit: 10,
-              question_num: 7,
-              question_suffix: 'C',
-              question_text: 'DATE PAYMENTS BEGAN'
+              'month' => {
+                key: 'form1[0].#subform[0].DatePaymentsBegan.month[0]',
+                limit: 2,
+                question_num: 9,
+                question_suffix: 'C',
+                question_text: 'School Attendance Information > DATE PAYMENTS BEGAN (MM-DD-YYYY)'
+              },
+              'day' => {
+                key: 'form1[0].#subform[0].DatePaymentsBegan.day[0]',
+                limit: 2,
+                question_num: 9,
+                question_suffix: 'C',
+                question_text: 'School Attendance Information > DATE PAYMENTS BEGAN (MM-DD-YYYY)'
+              },
+              'year' => {
+                key: 'form1[0].#subform[0].DatePaymentsBegan.year[0]',
+                limit: 4,
+                question_num: 9,
+                question_suffix: 'C',
+                question_text: 'School Attendance Information > DATE PAYMENTS BEGAN (MM-DD-YYYY)'
+              }
             }
           }, # end student_address_marriage_tuition
           'school_information' => {
-            'address' => {
-              key: 'form1[0].#subform[0].NAMEADDRESSSCHOOL[0]',
-              limit: 100,
-              question_num: 8,
-              question_suffix: 'A',
-              question_text: 'NAME AND ADDRESS OF SCHOOL FOR WHICH APPROVAL IS REQUESTED'
-            },
             'training_program' => {
-              key: 'form1[0].#subform[0].NAMETYPECOURSE[0]',
-              limit: 40,
-              question_num: 8,
+              key: 'form1[0].#subform[0].FederalAssistanceType[0]',
+              limit: 200,
+              question_num: 9,
               question_suffix: 'B',
-              question_text: 'NAME OR TYPE OF COURSE OF EDUCATION OR TRAINING'
-            }
+              question_text: 'Type of program or benefit'
+            },
           }, # end school_information
           'current_term_dates' => {
+            'is_school_accredited' => {
+              'is_school_accredited_yes' => { key: 'form1[0].#subform[0].YES4[0]' },
+              'is_school_accredited_no' => { key: 'form1[0].#subform[0].NO4[0]' }
+            },
             'official_school_start_date' => {
-              key: 'form1[0].#subform[0].OFFICIALBEGDATE[0]',
-              limit: 10,
-              question_num: 9,
-              question_suffix: 'A',
-              question_text: 'OFFICIAL BEGINNING DATE OF REGULAR TERM OR COURSE'
+              'month' => {
+                key: 'form1[0].#subform[0].OfficialStartDate.month[0]',
+                limit: 2,
+                question_num: 11,
+                question_suffix: 'A',
+                question_text: 'OFFICIAL BEGINNING DATE OF REGULAR TERM OR COURSE (MM/DD/YYYY)'
+              },
+              'day' => {
+                key: 'form1[0].#subform[0].OfficialStartDate.day[0]',
+                limit: 2,
+                question_num: 11,
+                question_suffix: 'A',
+                question_text: 'OFFICIAL BEGINNING DATE OF REGULAR TERM OR COURSE (MM/DD/YYYY)'
+              },
+              'year' => {
+                key: 'form1[0].#subform[0].OfficialStartDate.year[0]',
+                limit: 4,
+                question_num: 11,
+                question_suffix: 'A',
+                question_text: 'OFFICIAL BEGINNING DATE OF REGULAR TERM OR COURSE (MM/DD/YYYY)'
+              }
             },
             'expected_student_start_date' => {
-              key: 'form1[0].#subform[0].DATESTUDENTSTARED[0]',
-              limit: 10,
-              question_num: 9,
-              question_suffix: 'B',
-              question_text: 'DATE STUDENT STARTED OR EXPECTS TO START COURSE'
+              'month' => {
+                key: 'form1[0].#subform[0].StudentStartDate.month[0]',
+                limit: 2,
+                question_num: 11,
+                question_suffix: 'B',
+                question_text: 'DATE STUDENT STARTED OR EXPECTS TO START COURSE (MM/DD/YYYY)'
+              },
+              'day' => {
+                key: 'form1[0].#subform[0].StudentStartDate.day[0]',
+                limit: 2,
+                question_num: 11,
+                question_suffix: 'B',
+                question_text: 'DATE STUDENT STARTED OR EXPECTS TO START COURSE (MM/DD/YYYY)'
+              },
+              'year' => {
+                key: 'form1[0].#subform[0].StudentStartDate.year[0]',
+                limit: 4,
+                question_num: 11,
+                question_suffix: 'B',
+                question_text: 'DATE STUDENT STARTED OR EXPECTS TO START COURSE (MM/DD/YYYY)'
+              }
             },
             'expected_graduation_date' => {
-              key: 'form1[0].#subform[0].ExpectedDateofGrad[0]',
-              limit: 10,
-              question_num: 9,
-              question_suffix: 'C',
-              question_text: 'EXPECTED DATE OF GRADUATION'
+              'month' => {
+                key: 'form1[0].#subform[0].ExpectedGraduation.month[0]',
+                limit: 2,
+                question_num: 11,
+                question_suffix: 'C',
+                question_text: 'EXPECTED DATE OF GRADUATION (MM/DD/YYYY)'
+              },
+              'day' => {
+                key: 'form1[0].#subform[0].ExpectedGraduation.day[0]',
+                limit: 2,
+                question_num: 11,
+                question_suffix: 'C',
+                question_text: 'EXPECTED DATE OF GRADUATION (MM/DD/YYYY)'
+              },
+              'year' => {
+                key: 'form1[0].#subform[0].ExpectedGraduation.year[0]',
+                limit: 4,
+                question_num: 11,
+                question_suffix: 'C',
+                question_text: 'EXPECTED DATE OF GRADUATION (MM/DD/YYYY)'
+              }
             }
           }, # end current_term_dates
           'program_information' => {
@@ -146,6 +360,7 @@ module PdfFill
               'full_time_yes' => { key: 'form1[0].#subform[0].YES2[0]' },
               'full_time_no' => { key: 'form1[0].#subform[0].NO2[0]' }
             },
+            
             'course_of_study' => {
               key: 'form1[0].#subform[0].Subject[0]',
               limit: 40,
@@ -168,6 +383,31 @@ module PdfFill
               question_text: 'HOURS PER WEEK'
             }
           }, # end program_information
+          'child_stopped_attending_school' => {
+            'date_child_left_school' => {
+              'month' => {
+                key: 'form1[0].#subform[0].DateStoppedAttending.month[0]',
+                limit: 2,
+                question_num: 10,
+                question_suffix: 'A',
+                question_text: 'School Attendance Information > Date student stopped attending continuously (MM-DD-YYYY)'
+              },
+              'day' => {
+                key: 'form1[0].#subform[0].DateStoppedAttending.day[0]',
+                limit: 2,
+                question_num: 10,
+                question_suffix: 'A',
+                question_text: 'School Attendance Information >Date student stopped attending continuously (MM-DD-YYYY)'
+              },
+              'year' => {
+                key: 'form1[0].#subform[0].DateStoppedAttending.year[0]',
+                limit: 4,
+                question_num: 10,
+                question_suffix: 'A',
+                question_text: 'School Attendance Information > Date student stopped attending continuously (MM-DD-YYYY)'
+              }
+            },
+          },
           'student_did_attend_school_last_term' => {
             'did_attend_yes' => { key: 'form1[0].#subform[0].YES3[0]' },
             'did_attend_no' => { key: 'form1[0].#subform[0].NO3[0]' }
@@ -195,30 +435,82 @@ module PdfFill
               question_text: 'HOURS PER WEEK'
             },
             'term_begin' => {
-              key: 'form1[0].#subform[0].BeginDateofLastTerm[0]',
-              limit: 10,
-              question_num: 11,
-              question_suffix: 'E',
-              question_text: 'BEGINNING DATE OF LAST TERM'
+              'month' => {
+                key: 'form1[0].#subform[0].BeginDateofLastTerm.month[0]',
+                limit: 2,
+                question_num: 12,
+                question_suffix: 'B',
+                question_text: 'BEGINNING DATE OF LAST TERM (MM-DD-YYYY)'
+              },
+              'day' => {
+                key: 'form1[0].#subform[0].BeginDateofLastTerm.day[0]',
+                limit: 2,
+                question_num: 12,
+                question_suffix: 'B',
+                question_text: 'BEGINNING DATE OF LAST TERM (MM-DD-YYYY)'
+              },
+              'year' => {
+                key: 'form1[0].#subform[0].BeginDateofLastTerm.year[0]',
+                limit: 4,
+                question_num: 12,
+                question_suffix: 'B',
+                question_text: 'BEGINNING DATE OF LAST TERM (MM-DD-YYYY)'
+              }
             },
             'date_term_ended' => {
-              key: 'form1[0].#subform[0].EndingDateofLastTerm[0]',
-              limit: 10,
-              question_num: 11,
-              question_suffix: 'F',
-              question_text: 'ENDING DATE OF LAST TERM'
+              'month' => {
+                key: 'form1[0].#subform[0].EndDateofLastTerm.month[0]',
+                limit: 2,
+                question_num: 12,
+                question_suffix: 'C',
+                question_text: 'ENDING DATE OF LAST TERM (MM-DD-YYYY)'
+              },
+              'day' => {
+                key: 'form1[0].#subform[0].EndDateofLastTerm.day[0]',
+                limit: 2,
+                question_num: 12,
+                question_suffix: 'C',
+                question_text: 'ENDING DATE OF LAST TERM (MM-DD-YYYY)'
+              },
+              'year' => {
+                key: 'form1[0].#subform[0].EndDateofLastTerm.year[0]',
+                limit: 4,
+                question_num: 12,
+                question_suffix: 'C',
+                question_text: 'ENDING DATE OF LAST TERM (MM-DD-YYYY)'
+              }
             }
           }
         }, # end dependents_application
         'signature' => {
           key: 'form1[0].#subform[0].Signature_PrintName[0]',
           limit: 35,
-          question_num: 15,
+          question_num: 16,
           question_suffix: 'A',
           question_text: 'SIGNATURE'
         },
-        'signatureDate' => {
-          key: 'form1[0].#subform[0].Date17[0]'
+        'signature_date' => {
+          'month' => {
+            key: 'form1[0].#subform[0].SignatureDate.month[0]',
+            limit: 2,
+            question_num: 16,
+            question_suffix: 'B',
+            question_text: 'DATE SIGNED (MM-DD-YYYY)'
+          },
+          'day' => {
+            key: 'form1[0].#subform[0].SignatureDate.day[0]',
+            limit: 2,
+            question_num: 16,
+            question_suffix: 'B',
+            question_text: 'DATE SIGNED (MM-DD-YYYY)'
+          },
+          'year' => {
+            key: 'form1[0].#subform[0].SignatureDate.year[0]',
+            limit: 4,
+            question_num: 16,
+            question_suffix: 'B',
+            question_text: 'DATE SIGNED (MM-DD-YYYY)'
+          }
         }
       }.freeze
 
@@ -226,51 +518,64 @@ module PdfFill
         created_at = options[:created_at] if options[:created_at].present?
         expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
+        
+        veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
 
-        merge_veteran_helpers
+        veteran_contact_information['phone_number'] = expand_phone_number(veteran_contact_information['phone_number'])
+        puts @form_data
+        merge_dates
         merge_student_helpers
-        merge_address_helpers
 
         @form_data
       end
 
-      def merge_veteran_helpers
-        veteran_info = @form_data['veteran_information']
-        veteran_info['full_name'] = combine_full_name(veteran_info['full_name'])
+      def merge_dates
+        dependents_application = @form_data['dependents_application']
+        current_term_dates = dependents_application['current_term_dates']
+        child_stopped_attending_school = dependents_application['child_stopped_attending_school']
+        last_term_school_information = dependents_application['last_term_school_information']
+        student_address_marriage_tuition = dependents_application['student_address_marriage_tuition']
+
+        dependents_application['student_name_and_ssn']['birth_date'] = split_date(dependents_application['student_name_and_ssn']['birth_date'])
+       
+        current_term_dates['official_school_start_date'] = split_date(current_term_dates['official_school_start_date'])
+        current_term_dates['expected_student_start_date'] = split_date(current_term_dates['expected_student_start_date'])
+        current_term_dates['expected_graduation_date'] = split_date(current_term_dates['expected_graduation_date'])
+
+        child_stopped_attending_school['birth_date'] = split_date(child_stopped_attending_school['birth_date'])
+        child_stopped_attending_school['date_child_left_school'] = split_date(child_stopped_attending_school['date_child_left_school'])
+
+        last_term_school_information['term_begin'] = split_date(last_term_school_information['term_begin'])
+        last_term_school_information['date_term_ended'] = split_date(last_term_school_information['date_term_ended'])
+
+        student_address_marriage_tuition['date_payments_began'] = split_date(student_address_marriage_tuition['date_payments_began'])
+        student_address_marriage_tuition['marriage_date'] = split_date(student_address_marriage_tuition['marriage_date'])
+      end
+
+      def expand_phone_number(phone_number)
+        phone_number = phone_number.delete('^0-9')
+        {
+          'phone_area_code' => phone_number[0..2],
+          'phone_first_three_numbers' => phone_number[3..5],
+          'phone_last_four_numbers' => phone_number[6..9]
+        }
       end
 
       def merge_student_helpers
         dependents_application = @form_data['dependents_application']
-        student_info = dependents_application['student_name_and_ssn']
-        student_info['full_name'] = combine_full_name(student_info['full_name'])
+        dependents_application['student_name_and_ssn']['ssn'] = split_ssn(dependents_application['student_name_and_ssn']['ssn'])
+
+        dependents_application['student_address_marriage_tuition']['address']['zip_code'] =
+          split_postal_code(dependents_application['student_address_marriage_tuition']['address'])
+        dependents_application['student_address_marriage_tuition']['address']['country_name'] =
+          extract_country(dependents_application['student_address_marriage_tuition']['address'])
 
         format_checkboxes(dependents_application)
       end
 
-      def merge_address_helpers
-        addr_info = @form_data['dependents_application']
-        format_address(addr_info['student_address_marriage_tuition'], include_name: false)
-
-        format_address(addr_info['school_information']) if addr_info['school_information'].present?
-        format_address(addr_info['last_term_school_information']) if addr_info['last_term_school_information'].present?
-      end
-
-      def format_address(address_info, include_name: true)
-        address = combine_hash(
-          address_info['address'],
-          %w[
-            address_line1
-            address_line2
-            address_line3
-            city
-            state_code
-            zip_code
-            country_name
-          ],
-          ', '
-        )
-        address.prepend("#{address_info['name']} ") if include_name
-        address_info['address'] = address
+      # override from form_helper
+      def select_checkbox(value)
+        value ? 'On' : 'Off'
       end
 
       def format_checkboxes(dependents_application)
@@ -297,7 +602,15 @@ module PdfFill
           'did_attend_yes' => select_checkbox(did_attend),
           'did_attend_no' => select_checkbox(!did_attend)
         }
+
+        is_school_accredited = dependents_application['current_term_dates']['is_school_accredited']
+        dependents_application['current_term_dates']['is_school_accredited'] = {
+          'is_school_accredited_yes' => select_radio_button(is_school_accredited),
+          'is_school_accredited_no' => select_radio_button(!is_school_accredited)
+        }
+
       end
+
     end
   end
 end
