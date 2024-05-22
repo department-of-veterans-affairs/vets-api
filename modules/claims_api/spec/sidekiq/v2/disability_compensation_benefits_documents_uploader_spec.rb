@@ -119,12 +119,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
 
   describe 'when an errored job has a time limitation' do
     it 'logs to the ClaimsApi Logger' do
-      error_msg = 'An error occurred from the BD Uploader Job'
-      msg = { 'args' => [claim.id],
-              'class' => subject,
-              'error_message' => error_msg }
-
-      described_class.within_sidekiq_retries_exhausted_block(msg) do
+      described_class.within_sidekiq_retries_exhausted_block do
         expect(subject).to be_expired_in 48.hours
       end
     end
