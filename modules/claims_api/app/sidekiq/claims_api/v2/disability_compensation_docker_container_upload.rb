@@ -8,8 +8,7 @@ module ClaimsApi
   module V2
     class DisabilityCompensationDockerContainerUpload < ClaimsApi::ServiceBase
       LOG_TAG = '526_v2_Docker_Container_job'
-      # sidekiq_options expires_in: 48.hours, retry: true
-      sidekiq_options retry: 2, retry: true
+      sidekiq_options expires_in: 48.hours, retry: true
 
       def perform(claim_id) # rubocop:disable Metrics/MethodLength
         log_job_progress(claim_id,
