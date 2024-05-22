@@ -212,6 +212,16 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
         expect(service_periods[:serviceComponent]).to eq('Active')
         expect(service_periods[:separationLocationCode]).to eq('98282')
       end
+
+      it 'maps the confinements attribute correctly' do
+        first_confinement = evss_data[:serviceInformation][:confinements][0]
+        second_confinement = evss_data[:serviceInformation][:confinements][1]
+
+        expect(first_confinement[:confinementBeginDate]).to eq('2018-06-04')
+        expect(first_confinement[:confinementEndDate]).to eq('2018-07-04')
+        expect(second_confinement[:confinementBeginDate]).to eq('2020-06')
+        expect(second_confinement[:confinementEndDate]).to eq('2020-07')
+      end
     end
 
     context '526 section 7, service pay information' do
