@@ -73,7 +73,7 @@ module Sidekiq
         return unless Settings.form526_backup.enabled
 
         submission = Form526Submission.find(form526_submission_id)
-        submission.update(submit_endpoint: 'benefits_intake_api')
+        submission.benefits_intake_api!
         job_status = Form526JobStatus.find_or_initialize_by(job_id: jid)
         job_status.assign_attributes(form526_submission_id:,
                                      job_class: 'BackupSubmission',
