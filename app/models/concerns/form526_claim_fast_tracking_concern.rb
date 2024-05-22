@@ -173,6 +173,8 @@ module Form526ClaimFastTrackingConcern
     end
   end
 
+  # Submits contention information to the VRO contention classification service
+  # adds classification to the form for each contention provided a classification
   def update_contention_classification_all!
     params = {}
     classifier_response = classify_vagov_contentions(params)
