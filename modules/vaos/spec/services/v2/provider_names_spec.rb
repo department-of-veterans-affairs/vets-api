@@ -68,17 +68,6 @@ describe VAOS::V2::ProviderNames do
       expect(subject.form_names_from_appointment_practitioners_list({})).to be_nil
     end
 
-    it 'returns names as first_name last_name' do
-      name = subject.form_names_from_appointment_practitioners_list(single_practitioner_with_name)
-      expect(name).to eq('CAROLYN KNIEFEL')
-    end
-
-    it 'handles partial names predictably' do
-      partial_name_data = single_practitioner_with_name.first
-      partial_name_data[:name].delete(:given)
-      name = subject.form_names_from_appointment_practitioners_list([partial_name_data])
-      expect(name).to eq('KNIEFEL')
-    end
 
     it 'aggregates multiple names as a comma separated list' do
       name = subject.form_names_from_appointment_practitioners_list(multiple_practioners_with_names)

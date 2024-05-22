@@ -266,9 +266,11 @@ RSpec.describe 'vaos v2 appointments', type: :request do
       def fetch_appointments
         VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
-                             erb: erb_template_params,
-                             match_requests_on: %i[method uri]) do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200_cc_proposed', match_requests_on: %i[method],
+                                                                                    allow_playback_repeats: true) do
+            # VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
+            #                  erb: erb_template_params,
+            #                  match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri],
                                                                     tag: :force_utf8) do
                 get '/mobile/v0/appointments', headers: sis_headers
@@ -278,18 +280,10 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         end
       end
 
-      context 'when upstream appointments index returns provider names' do
-        xit 'adds names to healthcareProvider field' do
-          fetch_appointments
-          appointment = response.parsed_body['data'].find { |appt| appt['id'] == '76133' }
-          expect(appointment['attributes']['healthcareProvider']).to eq('MATTHEW ENGHAUSER') # this is broken because the appt is not kind == cc and status == proposed
-        end
-      end
-
       context 'when the upstream appointments index returns provider id but no name' do
         let(:appointment) { response.parsed_body['data'].find { |appt| appt['id'] == '76132' } }
 
-        xit 'backfills that data by calling the provider service' do
+        it 'backfills that data by calling the provider service' do
           fetch_appointments
           expect(appointment['attributes']['healthcareProvider']).to eq('DEHGHAN, AMIR') # this is broken because the appt is not kind == cc and status == proposed
         end

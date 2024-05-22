@@ -41,8 +41,7 @@ module VAOS
 
         return @providers_cache[id] if @providers_cache.key?(id)
 
-        provider_data = fetch_provider(id)
-        name = provider_data&.name&.strip&.presence
+        name = fetch_provider(id)
         # cache even if it's nil to avoid duplicate requests
         @providers_cache[id] = name
         name
@@ -62,7 +61,8 @@ module VAOS
       end
 
       def fetch_provider(provider_id)
-        mobile_ppms_service.get_provider_with_cache(provider_id)
+        provider_data = mobile_ppms_service.get_provider_with_cache(provider_id)
+        provider_data&.name&.strip&.presence
       rescue Common::Exceptions::BackendServiceException
         NPI_NOT_FOUND_MSG
       end
