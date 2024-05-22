@@ -301,7 +301,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           'decision' => {
             'status' => 'Accepted',
             'declinedReason' => nil,
-            'updatedAt' => '2024-03-08T14:10:41Z',
+            'createdAt' => '2024-03-08T14:10:41Z',
             'representative' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',

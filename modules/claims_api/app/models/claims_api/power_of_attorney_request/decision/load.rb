@@ -22,7 +22,7 @@ module ClaimsApi
             status:,
             declined_reason:,
             representative:,
-            updated_at:
+            created_at:
           )
         end
 
@@ -48,7 +48,7 @@ module ClaimsApi
           )
         end
 
-        def updated_at
+        def created_at
           Utilities::Load.time(@data['dateRequestActioned'])
         end
       end

@@ -17,8 +17,8 @@ module ClaimsApi
               xml.secondaryStatus(decision.status)
               xml.declinedReason(decision.declined_reason)
 
-              updated_at = Utilities::Dump.time(decision.updated_at)
-              xml.dateRequestActioned(updated_at)
+              created_at = Utilities::Dump.time(decision.created_at)
+              xml.dateRequestActioned(created_at)
 
               xml.VSOUserEmail(decision.representative.email)
               xml.VSOUserFirstName(decision.representative.first_name)
