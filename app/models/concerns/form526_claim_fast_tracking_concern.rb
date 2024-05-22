@@ -173,10 +173,30 @@ module Form526ClaimFastTrackingConcern
     end
   end
 
+  def update_form_with_classification_codes(classified_contentions)
+    classification_codes.each do |classification_code|
+      # form[Form526Submission::FORM_526]['form526']['disabilities'].each do |disability|
+      #   if disability[]
+      #   disability['classificationCode'] = classification_code
+      # end
+    end
+
+    update!(form_json: form.to_json)
+    invalidate_form_hash
+  end
+
+  def classify_vagov_contentions(params)
+    vro_client = VirtualRegionalOffice::Client.new
+    response = vro_client.classify_vagov_contentions(params)
+    response.body
+  end
+
   # Submits contention information to the VRO contention classification service
   # adds classification to the form for each contention provided a classification
   def update_contention_classification_all!
-    params = {}
+    params = {
+      # "contentions": disabilities.map do |disability|
+    }
     classifier_response = classify_vagov_contentions(params)
     classifier_response['contentions'].each do |contention|
       contention['contentionText'] = contention['contentionText'].upcase
