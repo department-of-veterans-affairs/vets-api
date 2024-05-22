@@ -41,13 +41,5 @@ module ClaimsApi
     def set_errored_state_on_claim(auto_claim)
       save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::ERRORED)
     end
-
-    def custom_error(error)
-      ClaimsApi::CustomError.new(error)
-    end
-
-    def error_handler(error)
-      custom_error(error).build_error
-    end
   end
 end
