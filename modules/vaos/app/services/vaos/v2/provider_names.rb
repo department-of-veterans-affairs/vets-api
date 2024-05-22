@@ -32,10 +32,6 @@ module VAOS
       private
 
       def find_provider_name(practitioner)
-        # web does not do this
-        # name = find_practitioner_name_in_list(practitioner)
-        # return name if name
-
         id = find_practitioner_id_in_list(practitioner)
         return nil unless id
 
@@ -55,7 +51,7 @@ module VAOS
 
       def find_practitioner_id_in_list(practitioner)
         practitioner[:identifier]&.each do |i|
-          return i[:value] if i[:system].include? 'us-npi' # comment out the if to make mobile tests work
+          return i[:value] if i[:system].include? 'us-npi'
         end
         nil
       end
