@@ -118,7 +118,7 @@ RSpec.describe 'clinics', type: :request do
           it 'returns a 404 http status' do
             expect_any_instance_of(VAOS::V2::AppointmentsService)
               .to receive(:get_most_recent_visited_clinic_appointment)
-                    .and_return(nil)
+              .and_return(nil)
             get '/vaos/v2/locations/last_visited_clinic', headers: inflection_header
             expect(response).to have_http_status(:not_found)
           end

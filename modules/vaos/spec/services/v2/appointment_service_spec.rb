@@ -281,7 +281,9 @@ describe VAOS::V2::AppointmentsService do
                            match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
             response = subject.get_appointments(start_date2, end_date2)
             expect(response[:data][0][:local_start_time]).to eq('Thu, 02 Sep 2021 08:00:00 -0600')
-            expect(response[:data][6][:requested_periods][0][:local_start_time]).to eq('Wed, 08 Sep 2021 06:00:00 -0600')
+            expect(response[:data][6][:requested_periods][0][:local_start_time]).to eq(
+              'Wed, 08 Sep 2021 06:00:00 -0600'
+            )
           end
         end
       end
@@ -299,10 +301,10 @@ describe VAOS::V2::AppointmentsService do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_data',
                            match_requests_on: %i[method path query]) do
             expected_msg = 'VAOS::V2::AppointmentService#get_appointments has response errors. : ' \
-              '{:failures=>"[{\\"system\\":\\"VSP\\",\\"status\\":\\"500\\",\\"code\\":10000,\\"' \
-              'message\\":\\"Could not fetch appointments from Vista Scheduling Provider\\",\\"' \
-              'detail\\":\\"icn=d12672eba61b7e9bc50bb6085a0697133a5fbadf195e6cade452ddaad7921c1d, ' \
-              'startDate=2022-04-01T19:25Z, endDate=2023-03-01T19:45Z\\"}]"}'
+                           '{:failures=>"[{\\"system\\":\\"VSP\\",\\"status\\":\\"500\\",\\"code\\":10000,\\"' \
+                           'message\\":\\"Could not fetch appointments from Vista Scheduling Provider\\",\\"' \
+                           'detail\\":\\"icn=d12672eba61b7e9bc50bb6085a0697133a5fbadf195e6cade452ddaad7921c1d, ' \
+                           'startDate=2022-04-01T19:25Z, endDate=2023-03-01T19:45Z\\"}]"}'
 
             allow(Rails.logger).to receive(:info)
 
@@ -379,10 +381,11 @@ describe VAOS::V2::AppointmentsService do
 
       context '400' do
         it 'raises a 400 error' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_400', match_requests_on: %i[method path query]) do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_400',
+                           match_requests_on: %i[method path query]) do
             expect { subject.get_appointments(start_date, end_date) }.to raise_error(
-                                                                           Common::Exceptions::BackendServiceException
-                                                                         )
+              Common::Exceptions::BackendServiceException
+            )
           end
         end
       end
@@ -391,8 +394,8 @@ describe VAOS::V2::AppointmentsService do
         it 'raises a 401 error' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_401', match_requests_on: %i[method path query]) do
             expect { subject.get_appointments(start_date, end_date) }.to raise_error(
-                                                                           Common::Exceptions::BackendServiceException
-                                                                         )
+              Common::Exceptions::BackendServiceException
+            )
           end
         end
       end
@@ -401,8 +404,8 @@ describe VAOS::V2::AppointmentsService do
         it 'raises a 403' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_403', match_requests_on: %i[method path query]) do
             expect { subject.get_appointments(start_date, end_date) }.to raise_error(
-                                                                           Common::Exceptions::BackendServiceException
-                                                                         )
+              Common::Exceptions::BackendServiceException
+            )
           end
         end
       end
@@ -411,8 +414,8 @@ describe VAOS::V2::AppointmentsService do
         it 'raises a backend exception' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_500', match_requests_on: %i[method path query]) do
             expect { subject.get_appointments(start_date, end_date) }.to raise_error(
-                                                                           Common::Exceptions::BackendServiceException
-                                                                         )
+              Common::Exceptions::BackendServiceException
+            )
           end
         end
       end
