@@ -171,13 +171,16 @@ module Form526ClaimFastTrackingConcern
     else
       update_single_contention_classification!
     end
+  end
 
   def update_contention_classification_all!
     params = {}
     classifier_response = classify_vagov_contentions(params)
     classifier_response['contentions'].each do |contention|
       contention['contentionText'] = contention['contentionText'].upcase
-      Rails.logger.info('Classified 526Submission', id:, saved_claim_id:, contention.classification, contention.contention_type)
+      Rails.logger.info('Classified 526Submission',
+                        id:, saved_claim_id:, classification: contention['classification'],
+                        contention_type: contention['contention_type'])
       # update_form_with_classification_code(classification['classification_code'])
     end
   end
