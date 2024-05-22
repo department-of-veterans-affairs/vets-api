@@ -4,7 +4,7 @@ module ClaimsApi
   class CustomError
     def initialize(error)
       @error = error
-      @status = @error&.original_status
+      @status = @error&.original_status if @error&.methods&.include?(:original_status)
     end
 
     def build_error
