@@ -26,7 +26,6 @@ unless ENV['NOCOVERAGE']
     add_filter 'app/controllers/concerns/accountable.rb'
     add_filter 'app/models/in_progress_disability_compensation_form.rb'
     add_filter 'app/serializers/appeal_serializer.rb'
-    add_filter 'config/initializers/clamscan.rb'
     add_filter 'lib/apps/configuration.rb'
     add_filter 'lib/apps/responses/response.rb'
     add_filter 'lib/config_helper.rb'
@@ -121,6 +120,7 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 
   config.filter_run focus: true
+  config.filter_run_excluding skip: true unless ENV['PENDING'] == 'true'
   config.run_all_when_everything_filtered = true
   config.example_status_persistence_file_path = 'tmp/specs.txt'
 

@@ -1815,5 +1815,21 @@ RSpec.describe FormProfile, type: :model do
         instance2.prefill
       end
     end
+
+    context '10-7959F-1 form profile instances' do
+      let(:instance) { FormProfile.new(form_id: '10-7959F-1', user:) }
+
+      it 'loads the yaml file only once' do
+        expect(YAML).to receive(:load_file).once.and_return(
+          'veteranFullName' => %w[identity_information full_name],
+          'veteranAddress' => %w[contact_information address],
+          'veteranSocialSecurityNumber' => %w[identity_information ssn],
+          'veteranPhoneNumber' => %w[contact_information us_phone],
+          'veteranEmailAddress' => %w[contact_information email],
+          'veteranPhysicalAddress' => %w[residential_address]
+        )
+        instance.prefill
+      end
+    end
   end
 end

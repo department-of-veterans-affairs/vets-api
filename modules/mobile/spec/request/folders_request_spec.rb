@@ -1,21 +1,17 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-
-RSpec.describe 'Mobile Folders Integration', type: :request do
+require_relative '../support/helpers/rails_helper'
+RSpec.describe 'Mobile Folders Integration', skip_json_api_validation: true, type: :request do
   include SchemaMatchers
 
   let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type: 'Premium') }
   let(:inbox_id) { 0 }
 
   before do
-    Flipper.enable_actor(:mobile_sm_session_policy, user)
     Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
   end
 
   after do
-    Flipper.disable(:mobile_sm_session_policy)
     Timecop.return
   end
 
@@ -153,12 +149,73 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
         VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
           get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", headers: sis_headers
         end
-
         expect(response).to be_successful
         expect(response).to have_http_status(:ok)
         expect(response).to match_camelized_response_schema('messages')
         expect(response.parsed_body['data'].size).to eq(10)
         expect(response.parsed_body.dig('meta', 'pagination', 'perPage')).to eq(100)
+      end
+
+      context 'when there are unsorted messages returned' do
+        let(:unsorted_messages) do
+          [{ id: 674_400,
+             category: 'OTHER',
+             subject: 'General Inquiry - Khan',
+             body: nil,
+             attachment: false,
+             sent_date: 'Fri, 27 Jan 2017 15:51:15 GMT',
+             sender_id: 24_477,
+             sender_name: 'Hall, Lisa',
+             recipient_id: 384_939,
+             recipient_name: 'MVIONE, TEST',
+             read_receipt: nil },
+           { id: 674_220,
+             category: 'MEDICATIONS',
+             subject: 'Medication Inquiry',
+             body: nil,
+             attachment: false,
+             sent_date: 'Mon, 30 Jan 2017 21:49:44 GMT',
+             sender_id: 18_186,
+             sender_name: 'Boyette, Johnnie',
+             recipient_id: 384_939,
+             recipient_name: 'MVIONE, TEST',
+             read_receipt: nil },
+           { id: 669_931,
+             category: 'APPOINTMENTS',
+             subject: 'Appointment Inquiry',
+             body: nil,
+             attachment: false,
+             sent_date: nil,
+             sender_id: 24_477,
+             sender_name: 'Hall, Lisa',
+             recipient_id: 384_939,
+             recipient_name: 'MVIONE, TEST',
+             read_receipt: nil }]
+        end
+
+        before do
+          allow(Rails.logger).to receive(:info)
+          data = [Message.new(unsorted_messages[0]), Message.new(unsorted_messages[1]),
+                  Message.new(unsorted_messages[2])]
+          messages = Common::Collection.new(Message, data:, metadata: {}, errors: {})
+          allow_any_instance_of(Common::Collection).to receive(:sort).and_return(messages)
+        end
+
+        it 'logs messages' do
+          VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
+            get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", headers: sis_headers
+          end
+          expect(Rails.logger).to have_received(:info).with('Mobile Message Bad Sort',
+                                                            { sent_dates: [Time.new('2017-01-27 15:51:15 UTC'),
+                                                                           Time.new('2017-01-30 21:49:44 UTC'), nil],
+                                                              bad_sort_flag: true,
+                                                              nil_sent_dates_count: 1 })
+          expect(response).to be_successful
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('messages')
+          expect(response.parsed_body['data'].size).to eq(3)
+          expect(response.parsed_body.dig('meta', 'pagination', 'perPage')).to eq(100)
+        end
       end
 
       context 'when there are pagination parameters' do

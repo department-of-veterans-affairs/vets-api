@@ -10,11 +10,7 @@ module AskVAApi
     end
 
     def call
-      if fetch_data.is_a?(Array)
-        fetch_data.map { |item| entity_class.new(item) }
-      else
-        entity_class.new(fetch_data)
-      end
+      fetch_data.map { |item| entity_class.new(item) }
     rescue => e
       ::ErrorHandler.handle_service_error(e)
     end

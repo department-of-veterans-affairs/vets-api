@@ -9,11 +9,16 @@ module ClaimsApi
       EVSS_DOCUMENT_TYPE = 'L023'
       LOG_TAG = '526_v2_PDF_Generator_job'
 
-      def perform(claim_id, middle_initial) # rubocop:disable Metrics/MethodLength
+      def perform(claim_id, middle_initial, perform_async = true) # rubocop:disable Metrics/MethodLength,Style/OptionalBooleanParameter
         log_job_progress(claim_id,
                          "526EZ PDF generator started for claim #{claim_id}")
 
         auto_claim = get_claim(claim_id)
+
+        if Settings.claims_api.benefits_documents.use_mocks
+          start_docker_container_job(auto_claim&.id, perform_async)
+          return
+        end
 
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
@@ -50,25 +55,22 @@ module ClaimsApi
 
         log_job_progress(claim_id,
                          '526EZ PDF generator job finished')
-
-        start_docker_container_job(auto_claim&.id) if auto_claim.status != errored_state_value
+        start_docker_container_job(auto_claim&.id, perform_async) if auto_claim.status != errored_state_value
       rescue Faraday::ParsingError, Faraday::TimeoutError => e
-        set_errored_state_on_claim(auto_claim)
-        error_message = get_error_message(e)
+        set_evss_response(auto_claim, e)
         error_status = get_error_status_code(e)
 
         log_job_progress(claim_id,
-                         "526EZ PDF generator faraday error #{e.class}: #{error_status} #{error_message}")
+                         "526EZ PDF generator faraday error #{e.class}: #{error_status} #{auto_claim&.evss_response}")
         log_exception_to_sentry(e)
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
-        set_errored_state_on_claim(auto_claim)
-        error_message = get_error_message(e)
+        set_evss_response(auto_claim, e)
         error_status = get_error_status_code(e)
 
         log_job_progress(claim_id,
-                         "526EZ PDF generator errored #{e.class}: #{error_status} #{error_message}")
+                         "526EZ PDF generator errored #{e.class}: #{error_status} #{auto_claim&.evss_response}")
         log_exception_to_sentry(e)
 
         raise e
@@ -84,11 +86,15 @@ module ClaimsApi
 
       private
 
-      def start_docker_container_job(auto_claim)
-        docker_contaner_service.perform_async(auto_claim)
+      def start_docker_container_job(auto_claim, perform_async = true) # rubocop:disable Style/OptionalBooleanParameter
+        if perform_async
+          docker_container_service.perform_async(auto_claim)
+        else
+          docker_container_service.new.perform(auto_claim)
+        end
       end
 
-      def docker_contaner_service
+      def docker_container_service
         ClaimsApi::V2::DisabilityCompensationDockerContainerUpload
       end
 

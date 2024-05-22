@@ -4,7 +4,48 @@ require 'disability_compensation/requests/form526_request_body'
 
 module EVSS
   module DisabilityCompensationForm
+    # rubocop:disable Metrics/ClassLength
     class Form526ToLighthouseTransform
+      TOXIC_EXPOSURE_CAUSE_MAP = {
+        NEW: 'My condition was caused by an injury or exposure during my military service.',
+        WORSENED: 'My condition existed before I served in the military, but it got worse because of my military ' \
+                  'service.',
+        VA: 'My condition was caused by an injury or event that happened when I was receiving VA care.',
+        SECONDARY: 'My condition was caused by another service-connected disability I already have.'
+      }.freeze
+
+      GULF_WAR_LOCATIONS = {
+        afghanistan: 'Afghanistan',
+        bahrain: 'Bahrain',
+        egypt: 'Egypt',
+        iraq: 'Iraq',
+        israel: 'Israel',
+        jordan: 'Jordan',
+        kuwait: 'Kuwait',
+        neutralzone: 'Neutral zone between Iraq and Saudi Arabia',
+        oman: 'Oman',
+        qatar: 'Qatar',
+        saudiarabia: 'Saudi Arabia',
+        somalia: 'Somalia',
+        syria: 'Syria',
+        uae: 'The United Arab Emirates (UAE)',
+        turkey: 'Turkey',
+        djibouti: 'Djibouti',
+        lebanon: 'Lebanon',
+        uzbekistan: 'Uzbekistan',
+        yemen: 'Yemen',
+        waters:
+        'The waters of the Arabian Sea, Gulf of Aden, Gulf of Oman, Persian Gulf, and Red Sea',
+        airspace: 'The airspace above any of these locations',
+        none: 'None of these locations'
+      }.freeze
+
+      HAZARDS = {
+        asbestos: 'Asbestos',
+        radiation: 'Radiation',
+        mustardgas: 'Mustard Gas'
+      }.freeze
+
       # takes known EVSS Form526Submission format and converts it to a Lighthouse request body
       # evss_data will look like JSON.parse(form526_submission.form_data)
       def transform(evss_data)
@@ -13,16 +54,12 @@ module EVSS
         lh_request_body.claimant_certification = true
         lh_request_body.claim_process_type = evss_claims_process_type(form526) # basic_info[:claim_process_type]
 
-        veteran = form526['veteran']
-        lh_request_body.veteran_identification = transform_veteran(veteran)
-        lh_request_body.change_of_address = transform_change_of_address(veteran) if veteran['changeOfAddress'].present?
-        lh_request_body.homeless = transform_homeless(veteran) if veteran['homelessness'].present?
+        transform_veteran_section(form526, lh_request_body)
 
         service_information = form526['serviceInformation']
         lh_request_body.service_information = transform_service_information(service_information)
 
-        disabilities = form526['disabilities']
-        lh_request_body.disabilities = transform_disabilities(disabilities)
+        transform_disabilities_section(form526, lh_request_body)
 
         direct_deposit = form526['directDeposit']
         lh_request_body.direct_deposit = transform_direct_deposit(direct_deposit) if direct_deposit.present?
@@ -32,6 +69,9 @@ module EVSS
 
         service_pay = form526['servicePay']
         lh_request_body.service_pay = transform_service_pay(service_pay) if service_pay.present?
+
+        toxic_exposure = form526['toxicExposure']
+        lh_request_body.toxic_exposure = transform_toxic_exposure(toxic_exposure) if toxic_exposure.present?
 
         lh_request_body
       end
@@ -157,7 +197,85 @@ module EVSS
         service_pay_target
       end
 
+      def transform_toxic_exposure(toxic_exposure_source)
+        toxic_exposure_target = Requests::ToxicExposure.new
+
+        gulf_war1990 = toxic_exposure_source['gulfWar1990']
+        gulf_war2001 = toxic_exposure_source['gulfWar2001']
+        if gulf_war1990.present? || gulf_war2001.present?
+          toxic_exposure_target.gulf_war_hazard_service =
+            transform_gulf_war(gulf_war1990, gulf_war2001)
+        end
+
+        # create an Array[Requests::MultipleExposures]
+        multiple_exposures = []
+        if toxic_exposure_source['gulfWar1990Details'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar1990Details'])
+        end
+        if toxic_exposure_source['gulfWar2001Details'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar2001Details'])
+        end
+        toxic_exposure_target.multiple_exposures = multiple_exposures
+
+        toxic_exposure_target
+      end
+
+      # @param details [Hash] the object with the exposure information of {location/hazard: {startDate, endDate}}
+      # @param hazard [Boolean] vets-website sends the key to be used as
+      #   both a location and a hazard in different objects
+      # @return Array[Requests::MultipleExposures] array of MultipleExposures or nil
+      def transform_multiple_exposures(details, hazard: false)
+        details&.map do |k, v|
+          obj = Requests::MultipleExposures.new(
+            exposure_dates: Requests::Dates.new
+          )
+
+          obj.exposure_dates.begin_date = convert_date_no_day(v['startDate']) if v['startDate'].present?
+
+          obj.exposure_dates.end_date = convert_date_no_day(v['endDate']) if v['endDate'].present?
+
+          if hazard
+            obj.hazard_exposed_to = HAZARDS[k.to_sym]
+          else
+            obj.exposure_location = GULF_WAR_LOCATIONS[k.to_sym]
+          end
+
+          obj
+        end
+      end
+
       private
+
+      def transform_gulf_war(gulf_war1990, gulf_war2001)
+        filtered_results1990 = gulf_war1990&.filter { |k| k != 'notsure' }
+        gulf_war1990_value = filtered_results1990&.values&.any?(&:present?) && !none_of_these(filtered_results1990)
+        filtered_results2001 = gulf_war2001&.filter { |k| k != 'notsure' }
+        gulf_war2001_value = filtered_results2001&.values&.any?(&:present?) && !none_of_these(filtered_results2001)
+
+        gulf_war_hazard_service = Requests::GulfWarHazardService.new
+        gulf_war_hazard_service.served_in_gulf_war_hazard_locations =
+          gulf_war1990_value || gulf_war2001_value ? 'YES' : 'NO'
+
+        gulf_war_hazard_service
+      end
+
+      def none_of_these(options)
+        none_of_these = options['none']
+        none_of_these.present?
+      end
+
+      def transform_disabilities_section(form526, lh_request_body)
+        disabilities = form526['disabilities']
+        toxic_exposure_conditions = form526['toxicExposure']['conditions'] if form526['toxicExposure'].present?
+        lh_request_body.disabilities = transform_disabilities(disabilities, toxic_exposure_conditions)
+      end
+
+      def transform_veteran_section(form526, lh_request_body)
+        veteran = form526['veteran']
+        lh_request_body.veteran_identification = transform_veteran(veteran)
+        lh_request_body.change_of_address = transform_change_of_address(veteran) if veteran['changeOfAddress'].present?
+        lh_request_body.homeless = transform_homeless(veteran) if veteran['homelessness'].present?
+      end
 
       def transform_separation_pay(service_pay_source, service_pay_target)
         separation_pay_source = service_pay_source['separationPay']
@@ -307,11 +425,14 @@ module EVSS
         approximate_date
       end
 
-      def transform_disabilities(disabilities_source)
+      def transform_disabilities(disabilities_source, toxic_exposure_conditions)
         disabilities_source.map do |disability_source|
           dis = Requests::Disability.new
           dis.disability_action_type = disability_source['disabilityActionType']
           dis.name = disability_source['name']
+          if toxic_exposure_conditions.present? && toxic_exposure_conditions.any?
+            dis.is_related_to_toxic_exposure = is_related_to_toxic_exposure(dis.name, toxic_exposure_conditions)
+          end
           dis.classification_code = disability_source['classificationCode'] if disability_source['classificationCode']
           dis.service_relevance = disability_source['serviceRelevance'] || ''
           dis.rated_disability_id = disability_source['ratedDisabilityId'] if disability_source['ratedDisabilityId']
@@ -319,9 +440,21 @@ module EVSS
           if disability_source['secondaryDisabilities']
             dis.secondary_disabilities = transform_secondary_disabilities(disability_source)
           end
+          if disability_source['cause'].present?
+            dis.exposure_or_event_or_injury = TOXIC_EXPOSURE_CAUSE_MAP[disability_source['cause'].upcase.to_sym]
+          end
+
           dis
         end
       end
+
+      # rubocop:disable Naming/PredicateName
+      def is_related_to_toxic_exposure(condition_name, toxic_exposure_conditions)
+        regex_non_word = /[^\w]/
+        normalized_condition_name = condition_name.gsub(regex_non_word, '').downcase
+        toxic_exposure_conditions[normalized_condition_name].present?
+      end
+      # rubocop:enable Naming/PredicateName
 
       def transform_secondary_disabilities(disability_source)
         disability_source['secondaryDisabilities'].map do |secondary_disability_source|
@@ -409,6 +542,11 @@ module EVSS
       def convert_date(date)
         Date.parse(date).strftime('%Y-%m-%d')
       end
+
+      def convert_date_no_day(date)
+        Date.parse(date).strftime('%Y-%m')
+      end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end

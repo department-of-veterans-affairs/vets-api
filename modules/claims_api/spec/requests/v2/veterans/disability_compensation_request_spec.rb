@@ -10,8 +10,6 @@ RSpec.describe 'Disability Claims', type: :request do
   before do
     Timecop.freeze(Time.zone.now)
     allow_any_instance_of(ClaimsApi::EVSSService::Base).to receive(:submit).and_return OpenStruct.new(claimId: 1337)
-    # evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
-    # allow(evss_service_stub).to receive(:submit) { OpenStruct.new(claimId: 1337) }
   end
 
   after do
@@ -48,6 +46,40 @@ RSpec.describe 'Disability Claims', type: :request do
                 expect(response).to have_http_status(:accepted)
                 expect(response.location).to include(expected)
               end
+            end
+          end
+        end
+      end
+
+      describe 'with updated headers requirements' do
+        let(:no_edipi_target_veteran) do
+          OpenStruct.new(
+            icn: '1012832025V743496',
+            first_name: 'Wesley',
+            last_name: 'Ford',
+            birth_date: '19630211',
+            loa: { current: 3, highest: 3 },
+            edipi: nil,
+            ssn: '796043735',
+            participant_id: '600061742',
+            mpi: OpenStruct.new(
+              icn: '1012832025V743496',
+              profile: OpenStruct.new(ssn: '796043735')
+            )
+          )
+        end
+
+        context 'without the EDIPI value present' do
+          it 'does not allow the submit to occur' do
+            mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
+                .to receive(:target_veteran).and_return(no_edipi_target_veteran)
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response.parsed_body['errors'][0]['detail']).to eq(
+                "Unable to locate Veteran's EDIPI in Master Person Index (MPI). " \
+                'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
+              )
             end
           end
         end
@@ -2393,6 +2425,18 @@ RSpec.describe 'Disability Claims', type: :request do
       end
 
       describe "'disabilites' validations" do
+        context 'when disabilties.name is not present' do
+          it 'responds with 422 bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['disabilities'][0]['name'] = ''
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
         describe "'disabilities.classificationCode' validations" do
           context "when 'disabilites.classificationCode' is valid" do
             it 'returns a successful response' do
@@ -3836,7 +3880,7 @@ RSpec.describe 'Disability Claims', type: :request do
     end
   end
 
-  describe 'POST #submit_form_526 not using md5 lookup' do
+  describe 'POST #submit not using md5 lookup' do
     let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do
@@ -3941,6 +3985,61 @@ RSpec.describe 'Disability Claims', type: :request do
           mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
             post generate_pdf_path, params: data, headers: auth_header
             expect(response).to have_http_status(:unprocessable_entity)
+          end
+        end
+      end
+    end
+  end
+
+  describe 'POST #synchronous' do
+    let(:veteran_id) { '1012832025V743496' }
+    let(:synchronous_path) { "/services/claims/v2/veterans/#{veteran_id}/526/synchronous" }
+    let(:data) do
+      Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
+                      'form_526_json_api.json').read
+    end
+    let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read }
+    let(:synchronous_scopes) { %w[system/526.override system/claim.write] }
+    let(:invalid_scopes) { %w[system/526-pdf.override] }
+
+    context 'submission to synchronous' do
+      it 'returns an empty test object' do
+        mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+          VCR.use_cassette('claims_api/disability_comp') do
+            post synchronous_path, params: data, headers: auth_header
+
+            parsed_res = JSON.parse(response.body)
+            expect(parsed_res['data']['attributes']).to include('claimId')
+          end
+        end
+      end
+
+      it 'returns a 202 response when successful' do
+        mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+          VCR.use_cassette('claims_api/disability_comp') do
+            post synchronous_path, params: data, headers: auth_header
+
+            expect(response).to have_http_status(:accepted)
+          end
+        end
+      end
+
+      it 'returns a 401 unauthorized with incorrect scopes' do
+        mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
+          post synchronous_path, params: data, headers: auth_header
+
+          expect(response).to have_http_status(:unauthorized)
+        end
+      end
+
+      it 'returns a 202 when the s3 upload is mocked' do
+        with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
+          mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+            VCR.use_cassette('claims_api/disability_comp') do
+              post synchronous_path, params: data, headers: auth_header
+
+              expect(response).to have_http_status(:accepted)
+            end
           end
         end
       end

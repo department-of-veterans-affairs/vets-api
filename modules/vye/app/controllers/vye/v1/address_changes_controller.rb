@@ -5,14 +5,14 @@ module Vye
     class Vye::V1::AddressChangesController < Vye::V1::ApplicationController
       include Pundit::Authorization
 
-      service_tag 'vye'
+      service_tag 'verify-your-enrollment'
 
       before_action :convert_params_camel_case_to_snake_case
 
       def create
         authorize user_info, policy_class: Vye::UserInfoPolicy
 
-        user_info.address_changes.create!(create_params)
+        user_info.address_changes.create!(create_params.merge(origin: 'frontend'))
       end
 
       private

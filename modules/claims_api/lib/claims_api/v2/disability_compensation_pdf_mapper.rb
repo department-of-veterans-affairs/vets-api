@@ -427,6 +427,7 @@ module ClaimsApi
           disability.delete('diagnosticCode')
           disability.delete('disabilityActionType')
           disability.delete('isRelatedToToxicExposure')
+          disability.delete('specialIssues')
           sec_dis = disability['secondaryDisabilities']&.map do |secondary_disability|
             # if secondary disability is present a name is required
             # so it is safe to assume both names are present
@@ -608,7 +609,9 @@ module ClaimsApi
       end
 
       def confinements
-        return if @pdf_data[:data][:attributes][:serviceInformation][:confinements].blank?
+        if @pdf_data[:data][:attributes][:serviceInformation][:confinements].blank?
+          return @pdf_data[:data][:attributes][:serviceInformation].delete(:confinements)
+        end
 
         si = []
         @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement] = { confinementDates: [] }
@@ -618,9 +621,7 @@ module ClaimsApi
           end_date =
             make_date_object(confinement[:approximateEndDate], confinement[:approximateEndDate].length)
 
-          si.push({
-                    start: start_date, end: end_date
-                  })
+          si.push({ start: start_date, end: end_date })
           si
         end
         pow = si.present?
