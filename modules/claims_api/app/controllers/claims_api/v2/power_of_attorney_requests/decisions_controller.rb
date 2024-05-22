@@ -4,7 +4,7 @@ module ClaimsApi
   module V2
     module PowerOfAttorneyRequests
       class DecisionsController < BaseController
-        def update
+        def create
           decision_params =
             params.require(:decision).permit(
               :status,
@@ -16,12 +16,6 @@ module ClaimsApi
           PowerOfAttorneyRequestService::Decide.perform(params[:id], attrs)
 
           head :no_content
-        rescue PowerOfAttorneyRequestService::Decide::InvalidStatusTransitionError => e
-          # Rather than `422` given this guidance:
-          #   https://opensource.zalando.com/restful-api-guidelines/#status-code-422
-          #   https://opensource.zalando.com/restful-api-guidelines/#status-code-400
-          error = ::Common::Exceptions::BadRequest.new(detail: e.message)
-          render_error(error)
         end
       end
     end

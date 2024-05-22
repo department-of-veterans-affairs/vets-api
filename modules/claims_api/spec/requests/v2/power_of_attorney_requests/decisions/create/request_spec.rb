@@ -3,20 +3,24 @@
 require 'rails_helper'
 require Rails.root / 'modules/claims_api/spec/rails_helper'
 
-RSpec.describe 'Power Of Attorney Requests: decisions#update', :bgs, type: :request do
+RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :request do
   cassette_directory =
     Pathname.new(
       # This mirrors the path to this spec file. It could be convenient to keep
       # that in sync in case this file moves.
-      'claims_api/requests/v2/power_of_attorney_requests/decisions/update/request_spec'
+      'claims_api/requests/v2/power_of_attorney_requests/decisions/create/request_spec'
     )
 
   def perform_request(params)
-    put(
+    post(
       "/services/claims/v2/power-of-attorney-requests/#{id}/decision",
       params: params.to_json,
       headers:
     )
+
+    return if response.body.blank?
+
+    JSON.parse(response.body)
   end
 
   let(:headers) do
@@ -33,10 +37,10 @@ RSpec.describe 'Power Of Attorney Requests: decisions#update', :bgs, type: :requ
     ]
   end
 
-  describe 'with a valid decline with reason submitted twice and then third time nonterminal' do
+  describe 'with a valid decline with reason submitted twice' do
     let(:id) { '600085312_3853983' }
 
-    it 'responds no_content first and then bad_request second', run_at: '2024-05-09T07:18:04Z' do
+    it 'responds no_content first and then unprocessable_entity second', run_at: '2024-05-09T07:18:04Z' do
       params = {
         'decision' => {
           'status' => 'Declined',
@@ -50,24 +54,26 @@ RSpec.describe 'Power Of Attorney Requests: decisions#update', :bgs, type: :requ
       }
 
       mock_ccg(scopes, allow_playback_repeats: true) do
-        use_soap_cassette(cassette_directory / 'repeated_terminal_and_nonterminal_submissions') do
+        use_soap_cassette(cassette_directory / 'declined_twice') do
           perform_request(params)
 
           expect(response).to(
             have_http_status(:no_content)
           )
 
-          perform_request(params)
+          body = perform_request(params)
 
           expect(response).to(
-            have_http_status(:no_content)
+            have_http_status(:unprocessable_entity)
           )
 
-          params['decision']['status'] = 'Accepted'
-          perform_request(params)
-
-          expect(response).to(
-            have_http_status(:bad_request)
+          expect(body).to eq(
+            'errors' => [
+              {
+                'title' => 'Status Transition must be terminating: [New | Pending] -> [Accepted | Declined]',
+                'detail' => 'status - Transition must be terminating: [New | Pending] -> [Accepted | Declined]'
+              }
+            ]
           )
         end
       end
@@ -76,27 +82,27 @@ RSpec.describe 'Power Of Attorney Requests: decisions#update', :bgs, type: :requ
 
   describe 'status transitions' do
     scenarios = [
-      { previous: 'New',      current: 'New',      http_status: :no_content  },
-      { previous: 'New',      current: 'Pending',  http_status: :no_content  },
-      { previous: 'New',      current: 'Accepted', http_status: :no_content  },
-      { previous: 'New',      current: 'Declined', http_status: :no_content  },
-      { previous: 'Pending',  current: 'New',      http_status: :no_content  },
-      { previous: 'Pending',  current: 'Pending',  http_status: :no_content  },
-      { previous: 'Pending',  current: 'Accepted', http_status: :no_content  },
-      { previous: 'Pending',  current: 'Declined', http_status: :no_content  },
-      { previous: 'Accepted', current: 'New',      http_status: :bad_request },
-      { previous: 'Accepted', current: 'Pending',  http_status: :bad_request },
-      { previous: 'Accepted', current: 'Accepted', http_status: :no_content  },
-      { previous: 'Accepted', current: 'Declined', http_status: :bad_request },
-      { previous: 'Declined', current: 'New',      http_status: :bad_request },
-      { previous: 'Declined', current: 'Pending',  http_status: :bad_request },
-      { previous: 'Declined', current: 'Accepted', http_status: :bad_request },
-      { previous: 'Declined', current: 'Declined', http_status: :no_content  }
+      { previous: 'New',      current: 'New',      http_status: :unprocessable_entity },
+      { previous: 'New',      current: 'Pending',  http_status: :unprocessable_entity },
+      { previous: 'New',      current: 'Accepted', http_status: :no_content           },
+      { previous: 'New',      current: 'Declined', http_status: :no_content           },
+      { previous: 'Pending',  current: 'New',      http_status: :unprocessable_entity },
+      { previous: 'Pending',  current: 'Pending',  http_status: :unprocessable_entity },
+      { previous: 'Pending',  current: 'Accepted', http_status: :no_content           },
+      { previous: 'Pending',  current: 'Declined', http_status: :no_content           },
+      { previous: 'Accepted', current: 'New',      http_status: :unprocessable_entity },
+      { previous: 'Accepted', current: 'Pending',  http_status: :unprocessable_entity },
+      { previous: 'Accepted', current: 'Accepted', http_status: :unprocessable_entity },
+      { previous: 'Accepted', current: 'Declined', http_status: :unprocessable_entity },
+      { previous: 'Declined', current: 'New',      http_status: :unprocessable_entity },
+      { previous: 'Declined', current: 'Pending',  http_status: :unprocessable_entity },
+      { previous: 'Declined', current: 'Accepted', http_status: :unprocessable_entity },
+      { previous: 'Declined', current: 'Declined', http_status: :unprocessable_entity }
     ]
 
     before do
       allow(ClaimsApi::PowerOfAttorneyRequest::Decision).to(
-        receive(:update)
+        receive(:create)
       )
 
       expect(ClaimsApi::PowerOfAttorneyRequest::Decision).to(
