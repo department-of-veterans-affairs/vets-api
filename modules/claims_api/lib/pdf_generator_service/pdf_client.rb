@@ -3,7 +3,9 @@
 require 'common/file_helpers'
 require 'claims_api/claim_logger'
 require 'common/client/errors'
-require 'custom_error'
+require 'jsonapi/parser'
+require 'claims_api/v2/error/lighthouse_error_handler'
+require 'claims_api/common/exceptions/lighthouse/bad_request'
 
 module ClaimsApi
   ##
@@ -23,7 +25,9 @@ module ClaimsApi
       detail = e.respond_to?(:original_body) ? e.original_body : e
       log_outcome_for_claims_api('pdf_generator', 'error', detail)
 
-      error_handler(e)
+      raise ::ClaimsApi::Common::Exceptions::Lighthouse::BadRequest.new(
+        detail: JSON.parse(e.original_body).deep_symbolize_keys
+      )
     end
 
     private
@@ -49,14 +53,6 @@ module ClaimsApi
     def log_outcome_for_claims_api(action, status, response)
       ClaimsApi::Logger.log('526_docker_container',
                             detail: "EVSS DOCKER CONTAINER #{action} #{status},  is a string: #{response}")
-    end
-
-    def custom_error(error)
-      ClaimsApi::CustomError.new(error)
-    end
-
-    def error_handler(error)
-      custom_error(error).build_error
     end
   end
 end

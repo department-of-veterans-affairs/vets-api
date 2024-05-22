@@ -18,6 +18,12 @@ describe ApplicationController, type: :controller do
       raise ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity, error
     end
 
+    def raise_bad_request
+      error = { detail: 'Test 400' }
+
+      raise ClaimsApi::Common::Exceptions::Lighthouse::BadRequest, error
+    end
+
     def raise_resource_not_found
       raise ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(detail: 'Test 404')
     end
@@ -46,6 +52,7 @@ describe ApplicationController, type: :controller do
   before do
     routes.draw do
       get 'raise_unprocessable_entity' => 'anonymous#raise_unprocessable_entity'
+      get 'raise_bad_request' => 'anonymous#raise_bad_request'
       get 'raise_resource_not_found' => 'anonymous#raise_resource_not_found'
       get 'raise_json_526_validation_error' => 'anonymous#raise_json_526_validation_error'
       get 'raise_invalid_token' => 'anonymous#raise_invalid_token'
@@ -69,6 +76,24 @@ describe ApplicationController, type: :controller do
       expect(parsed_body['errors'][0]['title']).to eq('Unprocessable entity')
       expect(parsed_body['errors'][0]['detail']).to eq('invalid, account number is missing or blank')
       expect(parsed_body['errors'][0]['status']).to eq('422')
+      expect(parsed_body['errors'][0]['status']).to be_a(String)
+      expect(parsed_body['errors'][0]['source'].to_s).to include('{"pointer"=>')
+    end
+  end
+
+  it 'returns a 400, Bad Request, in line with LH standards for an array of errors' do
+    mock_ccg(scopes) do |auth_header|
+      request.headers.merge!(auth_header)
+
+      get :raise_bad_request
+
+      expect(response).to have_http_status(:bad_request)
+
+      parsed_body = JSON.parse(response.body)
+      expect(parsed_body['errors'].size).to eq(1)
+      expect(parsed_body['errors'][0]['title']).to eq('Bad Request')
+      expect(parsed_body['errors'][0]['detail']).to eq('Test 400')
+      expect(parsed_body['errors'][0]['status']).to eq('400')
       expect(parsed_body['errors'][0]['status']).to be_a(String)
       expect(parsed_body['errors'][0]['source'].to_s).to include('{"pointer"=>')
     end
