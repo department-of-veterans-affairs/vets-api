@@ -220,6 +220,25 @@ module SwaggerSharedComponents
             example: disability_compensation_request_body_example
           }
         },
+        sync_disability_compensation: {
+          in: :body,
+          name: 'data',
+          required: true,
+          schema: {
+            type: :object,
+            required: ['data'],
+            properties: {
+              data: {
+                type: :object,
+                required: ['attributes', disability_compensation_json_schema['required']],
+                properties: {
+                  attributes: format_schema_for_synchronous_endpoint(disability_compensation_json_schema)
+                }
+              }
+            },
+            example: format_example_for_synchronous_endpoint(disability_compensation_generate_pdf_request_body_example)
+          }
+        },
         disability_compensation_generate_pdf: {
           in: :body,
           name: 'data',
@@ -321,18 +340,6 @@ module SwaggerSharedComponents
           )
         )
       )
-      disability_compensation_synchronous_json_schema = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            '526_synchronous.json'
-          )
-        )
-      )
       {
         disability_compensation: {
           name: 'data',
@@ -354,29 +361,18 @@ module SwaggerSharedComponents
               }
             }
           }
-        },
-        sync_disability_compensation: {
-          name: 'data',
-          required: ['data'],
-          properties: {
-            data: {
-              type: :object,
-              required: %w[id type attributes],
-              properties: {
-                id: {
-                  type: 'string',
-                  example: '7d0de77e-b7bd-4db7-a8d9-69a25482c80a'
-                },
-                type: {
-                  type: 'string',
-                  example: 'form/526'
-                },
-                attributes: disability_compensation_synchronous_json_schema.except('$schema')
-              }
-            }
-          }
         }
       }
+    end
+
+    def self.format_schema_for_synchronous_endpoint(disability_compensation_json_schema)
+      disability_compensation_json_schema["properties"]["claimId"] = {"type": "string"}
+      return disability_compensation_json_schema
+    end
+
+    def self.format_example_for_synchronous_endpoint(disability_compensation_json_example)
+      disability_compensation_json_example["data"]["attributes"]["claimId"] = '600715715'
+      return disability_compensation_json_example
     end
   end
 end

@@ -653,8 +653,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       let(:scopes) { %w[system/claim.read system/claim.write system/526.override] }
 
       parameter name: :disability_comp_request, in: :body,
-                schema: JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas',
-            'v2', '526_synchronous.json')))
+                schema: SwaggerSharedComponents::V2.body_examples[:sync_disability_compensation][:schema]
 
       parameter in: :body, examples: {
         'Minimum Required Attributes' => {
@@ -687,10 +686,9 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           let(:disability_comp_request) do
             data
           end
-byebug
-          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas',
-            'v2', '526_synchronous.json')))
 
+          schema SwaggerSharedComponents::V2.body_examples[:sync_disability_compensation][:schema]
+byebug
           before do |example|
             mock_ccg(scopes) do
               submit_request(example.metadata)
