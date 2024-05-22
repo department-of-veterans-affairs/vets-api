@@ -17,6 +17,7 @@ module SignIn
         user_uuid: decoded_token.sub,
         audience: decoded_token.aud,
         refresh_token_hash: decoded_token.refresh_token_hash,
+        device_secret_hash: decoded_token.device_secret_hash,
         anti_csrf_token: decoded_token.anti_csrf_token,
         last_regeneration_time: Time.zone.at(decoded_token.last_regeneration_time),
         parent_refresh_token_hash: decoded_token.parent_refresh_token_hash,
