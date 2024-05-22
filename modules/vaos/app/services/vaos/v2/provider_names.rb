@@ -10,6 +10,8 @@ module VAOS
     # it's unclear if there will ever be multiple providers on a single appointment,
     # but we've coded for the possibility
     class ProviderNames
+      NPI_NOT_FOUND_MSG = "We're sorry, we can't display your provider's information right now."
+
       def initialize(user)
         @user = user
         @providers_cache = {}
@@ -62,7 +64,7 @@ module VAOS
       def fetch_provider(provider_id)
         mobile_ppms_service.get_provider_with_cache(provider_id)
       rescue Common::Exceptions::BackendServiceException
-        nil
+        NPI_NOT_FOUND_MSG
       end
 
       def mobile_ppms_service

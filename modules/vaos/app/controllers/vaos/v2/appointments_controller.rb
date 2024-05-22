@@ -9,7 +9,6 @@ module VAOS
       extend Memoist
 
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
-      NPI_NOT_FOUND_MSG = "We're sorry, we can't display your provider's information right now."
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       APPT_INDEX = "GET '/vaos/v1/patients/<icn>/appointments'"
@@ -112,11 +111,6 @@ module VAOS
       def mobile_facility_service
         @mobile_facility_service ||=
           VAOS::V2::MobileFacilityService.new(current_user)
-      end
-
-      def mobile_ppms_service
-        @mobile_ppms_service ||=
-          VAOS::V2::MobilePPMSService.new(current_user)
       end
 
       def appointments
