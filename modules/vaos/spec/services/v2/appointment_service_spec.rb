@@ -476,66 +476,144 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe '#get_appointment' do
-    context 'with an appointment' do
-      context 'with Jacqueline Morgan' do
-        it 'returns a proposed appointment' do
-          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(mock_facility)
-          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200',
+    context 'using VAOS' do
+      before do
+        Flipper.disable(:va_online_scheduling_enable_OH_reads)
+        Flipper.disable(:va_online_scheduling_use_vpg)
+      end
+
+      context 'with an appointment' do
+        context 'with Jacqueline Morgan' do
+          it 'returns a proposed appointment' do
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(mock_facility)
+            VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200',
+                             match_requests_on: %i[method path query]) do
+              response = subject.get_appointment('70060')
+              expect(response[:id]).to eq('70060')
+              expect(response[:kind]).to eq('clinic')
+              expect(response[:status]).to eq('proposed')
+              expect(response[:requested_periods][0][:local_start_time]).to eq('Sun, 19 Dec 2021 19:00:00 -0500')
+            end
+          end
+        end
+      end
+
+      context 'when requesting a booked cerner appointment' do
+        let(:user) { build(:user, :vaos) }
+
+        it 'returns a booked cerner appointment with the requested periods set to nil' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_booked_cerner',
                            match_requests_on: %i[method path query]) do
-            response = subject.get_appointment('70060')
-            expect(response[:id]).to eq('70060')
-            expect(response[:kind]).to eq('clinic')
-            expect(response[:status]).to eq('proposed')
-            expect(response[:requested_periods][0][:local_start_time]).to eq('Sun, 19 Dec 2021 19:00:00 -0500')
+            resp = subject.get_appointment('180402')
+            expect(resp[:id]).to eq('180402')
+            expect(resp[:requested_periods]).to be_nil
+          end
+        end
+      end
+
+      context 'when requesting a CnP appointment' do
+        let(:user) { build(:user, :vaos) }
+
+        it 'sets the cancellable attribute to false' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_CnP',
+                           match_requests_on: %i[method path query]) do
+            response = subject.get_appointment('159472')
+            expect(response[:cancellable]).to eq(false)
+          end
+        end
+      end
+
+      context 'when requesting a non-Med non-CnP appointment' do
+        let(:user) { build(:user, :vaos) }
+
+        it 'removes the appointments service type and service types attributes' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_non_med',
+                           match_requests_on: %i[method path query]) do
+            response = subject.get_appointment('159472')
+            expect(response[:service_type]).to be_nil
+            expect(response[:service_types]).to be_nil
+          end
+        end
+      end
+
+      context 'when the upstream server returns a 500' do
+        it 'raises a backend exception' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_500', match_requests_on: %i[method path query]) do
+            expect { subject.get_appointment('00000') }.to raise_error(
+              Common::Exceptions::BackendServiceException
+            )
           end
         end
       end
     end
 
-    context 'when requesting a booked cerner appointment' do
-      let(:user) { build(:user, :vaos) }
+    context 'using VPG' do
+      before do
+        Flipper.enable(:va_online_scheduling_enable_OH_reads)
+        Flipper.enable(:va_online_scheduling_use_vpg)
+      end
 
-      it 'returns a booked cerner appointment with the requested periods set to nil' do
-        VCR.use_cassette('vaos/v2/appointments/get_appointment_200_booked_cerner',
-                         match_requests_on: %i[method path query]) do
-          resp = subject.get_appointment('180402')
-          expect(resp[:id]).to eq('180402')
-          expect(resp[:requested_periods]).to be_nil
+      context 'with an appointment' do
+        context 'with Jacqueline Morgan' do
+          it 'returns a proposed appointment' do
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(mock_facility)
+            VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_vpg',
+                             match_requests_on: %i[method path query]) do
+              response = subject.get_appointment('70060')
+              expect(response[:id]).to eq('70060')
+              expect(response[:kind]).to eq('clinic')
+              expect(response[:status]).to eq('proposed')
+              expect(response[:requested_periods][0][:local_start_time]).to eq('Sun, 19 Dec 2021 19:00:00 -0500')
+            end
+          end
         end
       end
-    end
 
-    context 'when requesting a CnP appointment' do
-      let(:user) { build(:user, :vaos) }
+      context 'when requesting a booked cerner appointment' do
+        let(:user) { build(:user, :vaos) }
 
-      it 'sets the cancellable attribute to false' do
-        VCR.use_cassette('vaos/v2/appointments/get_appointment_200_CnP',
-                         match_requests_on: %i[method path query]) do
-          response = subject.get_appointment('159472')
-          expect(response[:cancellable]).to eq(false)
+        it 'returns a booked cerner appointment with the requested periods set to nil' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_booked_cerner_vpg',
+                           match_requests_on: %i[method path query]) do
+            resp = subject.get_appointment('180402')
+            expect(resp[:id]).to eq('180402')
+            expect(resp[:requested_periods]).to be_nil
+          end
         end
       end
-    end
 
-    context 'when requesting a non-Med non-CnP appointment' do
-      let(:user) { build(:user, :vaos) }
+      context 'when requesting a CnP appointment' do
+        let(:user) { build(:user, :vaos) }
 
-      it 'removes the appointments service type and service types attributes' do
-        VCR.use_cassette('vaos/v2/appointments/get_appointment_200_non_med',
-                         match_requests_on: %i[method path query]) do
-          response = subject.get_appointment('159472')
-          expect(response[:service_type]).to be_nil
-          expect(response[:service_types]).to be_nil
+        it 'sets the cancellable attribute to false' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_CnP_vpg',
+                           match_requests_on: %i[method path query]) do
+            response = subject.get_appointment('159472')
+            expect(response[:cancellable]).to eq(false)
+          end
         end
       end
-    end
 
-    context 'when the upstream server returns a 500' do
-      it 'raises a backend exception' do
-        VCR.use_cassette('vaos/v2/appointments/get_appointment_500', match_requests_on: %i[method path query]) do
-          expect { subject.get_appointment('00000') }.to raise_error(
-            Common::Exceptions::BackendServiceException
-          )
+      context 'when requesting a non-Med non-CnP appointment' do
+        let(:user) { build(:user, :vaos) }
+
+        it 'removes the appointments service type and service types attributes' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_non_med_vpg',
+                           match_requests_on: %i[method path query]) do
+            response = subject.get_appointment('159472')
+            expect(response[:service_type]).to be_nil
+            expect(response[:service_types]).to be_nil
+          end
+        end
+      end
+
+      context 'when the upstream server returns a 500' do
+        it 'raises a backend exception' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_500_vpg', match_requests_on: %i[method path query]) do
+            expect { subject.get_appointment('00000') }.to raise_error(
+              Common::Exceptions::BackendServiceException
+            )
+          end
         end
       end
     end
