@@ -4,7 +4,7 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::EvidenceSubmissionSerializer do
-  let(:evidence_submission) { create(:evidence_submission) }
+  let(:evidence_submission) { build(:evidence_submission) }
   let(:rendered_hash) { described_class.new(evidence_submission).serializable_hash }
 
   context 'when initialized with an object that cannot be called by the delegated attributes' do
@@ -15,33 +15,6 @@ describe AppealsApi::EvidenceSubmissionSerializer do
 
   it 'includes guid' do
     expect(rendered_hash[:id]).to eq evidence_submission.guid
-  end
-
-  context 'when render_location is true' do
-    let(:upload_submission) { evidence_submission.upload_submission }
-
-    it 'includes location' do
-      allow(upload_submission).to receive(:get_location).and_return('http://another.fakesite.com/rewrittenpath')
-      rendered_with_location_hash = described_class.new(evidence_submission,
-                                                        { render_location: true }).serializable_hash
-
-      location = upload_submission.get_location
-      expect(rendered_with_location_hash[:location]).to eq location
-    end
-
-    it 'raises an error when get_location fails' do
-      allow(upload_submission).to receive(:get_location).and_raise(StandardError, 'Test error')
-
-      expect do
-        described_class.new(evidence_submission, { render_location: true }).serializable_hash
-      end.to raise_error(Common::Exceptions::InternalServerError)
-    end
-  end
-
-  context 'when render_location is false' do
-    it 'includes location' do
-      expect(rendered_hash[:location]).to be nil
-    end
   end
 
   it 'includes :appeal_type' do
@@ -74,22 +47,49 @@ describe AppealsApi::EvidenceSubmissionSerializer do
     end
   end
 
+  context 'when render_location is true' do
+    let(:upload_submission) { evidence_submission.upload_submission }
+
+    it 'includes location' do
+      allow(upload_submission).to receive(:get_location).and_return('http://another.fakesite.com/rewrittenpath')
+      rendered_with_location_hash = described_class.new(evidence_submission,
+                                                        { render_location: true }).serializable_hash
+
+      location = upload_submission.get_location
+      expect(rendered_with_location_hash[:location]).to eq location
+    end
+
+    it 'raises an error when get_location fails' do
+      allow(upload_submission).to receive(:get_location).and_raise(StandardError, 'Test error')
+
+      expect do
+        described_class.new(evidence_submission, { render_location: true }).serializable_hash
+      end.to raise_error(Common::Exceptions::InternalServerError)
+    end
+  end
+
+  context 'when render_location is false' do
+    it 'includes location' do
+      expect(rendered_hash[:location]).to be nil
+    end
+  end
+
   context "with 'error' status on parent upload" do
-    let(:submission_with_error) { create(:evidence_submission_with_error) }
-    let(:rendered_hash) { described_class.new(submission_with_error).serializable_hash }
+    let(:submission_with_error) { build(:evidence_submission_with_error) }
+    let(:rendered_error_hash) { described_class.new(submission_with_error).serializable_hash }
 
     it 'includes :status' do
-      expect(rendered_hash[:status]).to eq 'error'
+      expect(rendered_error_hash[:status]).to eq 'error'
     end
 
     it 'includes :code' do
-      expect(rendered_hash[:code]).to eq '404'
+      expect(rendered_error_hash[:code]).to eq '404'
     end
 
     it "truncates :detail value if longer than #{described_class::MAX_DETAIL_DISPLAY_LENGTH}" do
       max_length_plus_ellipses = described_class::MAX_DETAIL_DISPLAY_LENGTH + 3
-      expect(rendered_hash[:detail].length).to eq(max_length_plus_ellipses)
-      expect(submission_with_error.detail).to include rendered_hash[:detail][0, 100]
+      expect(rendered_error_hash[:detail].length).to eq(max_length_plus_ellipses)
+      expect(submission_with_error.detail).to include rendered_error_hash[:detail][0, 100]
     end
   end
 end
