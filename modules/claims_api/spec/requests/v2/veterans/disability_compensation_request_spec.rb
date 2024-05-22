@@ -10,8 +10,6 @@ RSpec.describe 'Disability Claims', type: :request do
   before do
     Timecop.freeze(Time.zone.now)
     allow_any_instance_of(ClaimsApi::EVSSService::Base).to receive(:submit).and_return OpenStruct.new(claimId: 1337)
-    # evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
-    # allow(evss_service_stub).to receive(:submit) { OpenStruct.new(claimId: 1337) }
   end
 
   after do

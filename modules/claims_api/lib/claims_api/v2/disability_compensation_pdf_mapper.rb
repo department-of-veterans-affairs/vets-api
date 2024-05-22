@@ -427,6 +427,7 @@ module ClaimsApi
           disability.delete('diagnosticCode')
           disability.delete('disabilityActionType')
           disability.delete('isRelatedToToxicExposure')
+          disability.delete('specialIssues')
           sec_dis = disability['secondaryDisabilities']&.map do |secondary_disability|
             # if secondary disability is present a name is required
             # so it is safe to assume both names are present
