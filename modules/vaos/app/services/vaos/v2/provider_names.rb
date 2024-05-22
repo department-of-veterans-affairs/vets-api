@@ -2,13 +2,10 @@
 
 module VAOS
   module V2
-    # iterates through a v2 appointment's practitioners list and attempts to find any names in the list.
-    # if the list includes a provider id but no name, it attempts to fetch that name from the PPMS service.
-    # it then aggregates all of those names into a comma separated name string and returns it.
-    # this mirrors the web app behavior as best we understand it, which uses the provider name from the
-    # index if possible and makes a PPMS request when the name is missing but an id is present.
-    # it's unclear if there will ever be multiple providers on a single appointment,
-    # but we've coded for the possibility
+    # Iterates through an appointment's list of practitioners. Uses practitioner npi identifier to request
+    # practitioner information from upstream. Concatenates all found provder names into a comma separated string.
+    # uses both the VAOS::V2::MobilePPMSService cache and a local cache. The local cache prevents the MobilePPMSService
+    # from repeatedly re-requesting the same data if the upstream fails to provide it the first time.
     class ProviderNames
       NPI_NOT_FOUND_MSG = "We're sorry, we can't display your provider's information right now."
 
@@ -23,7 +20,10 @@ module VAOS
         provider_names = []
 
         practitioners_list.each do |practitioner|
-          name = find_provider_name(practitioner)
+          id = find_practitioner_id(practitioner)
+          next unless id
+
+          name = find_provider_name(id)
           provider_names << name if name
         end
         provider_names.compact.join(', ').presence
@@ -31,10 +31,7 @@ module VAOS
 
       private
 
-      def find_provider_name(practitioner)
-        id = find_practitioner_id_in_list(practitioner)
-        return nil unless id
-
+      def find_provider_name(id)
         return @providers_cache[id] if @providers_cache.key?(id)
 
         name = fetch_provider(id)
@@ -43,13 +40,7 @@ module VAOS
         name
       end
 
-      def find_practitioner_name_in_list(practitioner)
-        first_name = practitioner.dig(:name, :given)&.join(' ')&.strip
-        last_name = practitioner.dig(:name, :family)
-        [first_name, last_name].compact.join(' ').presence
-      end
-
-      def find_practitioner_id_in_list(practitioner)
+      def find_practitioner_id(practitioner)
         practitioner[:identifier]&.each do |i|
           return i[:value] if i[:system].include? 'us-npi'
         end

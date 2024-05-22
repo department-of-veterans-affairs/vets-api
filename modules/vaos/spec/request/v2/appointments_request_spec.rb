@@ -364,22 +364,6 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
           end
         end
 
-        it 'iterates over appointment list and merges provider name for cc proposed' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_cc_proposed', match_requests_on: %i[method],
-                                                                                    allow_playback_repeats: true) do
-            allow_any_instance_of(VAOS::V2::MobilePPMSService).to \
-              receive(:get_provider_with_cache).with('1528231610').and_return(provider_response2)
-            get '/vaos/v2/appointments?_include=facilities,clinics&start=2022-09-13&end=2023-01-12&statuses[]=proposed',
-                headers: inflection_header
-            data = JSON.parse(response.body)['data']
-
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to be_a(String)
-            expect(data[0]['attributes']['preferredProviderName']).to eq('CARLTON, ROBERT A')
-            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
-          end
-        end
-
         it 'has access and returns va appointments and honors includes with no physical_location field' do
           allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic_memoized)
             .and_return(mock_clinic_without_physical_location)

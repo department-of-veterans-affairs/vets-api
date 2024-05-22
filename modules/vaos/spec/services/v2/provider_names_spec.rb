@@ -83,7 +83,8 @@ describe VAOS::V2::ProviderNames do
 
       allow_any_instance_of(VAOS::V2::MobilePPMSService)
         .to receive(:get_provider).with('520647669').and_return(response)
-      expect(provider_names.form_names_from_appointment_practitioners_list(practioner_list_with_name)).to eq(response.name)
+      expect(provider_names.form_names_from_appointment_practitioners_list(practioner_list_with_name))
+        .to eq(response.name)
     end
 
     it 'uses response from upstream to form a name when provider id present' do
