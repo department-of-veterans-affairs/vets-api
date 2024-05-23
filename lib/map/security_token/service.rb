@@ -10,13 +10,12 @@ module MAP
 
       def token(application:, icn:, cache: true)
         Rails.logger.info("#{config.logging_prefix} token request", { application:, icn: })
-
-        if cache && (cached_token = Rails.cache.read("map_sts_token_#{application}_#{icn}"))
-          Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cache: })
-          cached_token
-        else
-          request_token(application:, icn:)
+        token = Rails.cache.fetch("map_sts_token_#{application}_#{icn}", expires_in: 5.minutes, force: !cache) do
+          cache = false
+          request_token(application, icn)
         end
+        Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cache: })
+        token
       rescue Common::Client::Errors::ClientError => e
         parse_and_raise_error(e, icn, application)
       rescue Errors::ApplicationMismatchError => e
@@ -29,15 +28,12 @@ module MAP
 
       private
 
-      def request_token(application:, icn:)
+      def request_token(application, icn)
         response = perform(:post,
                            config.token_path,
                            token_params(application, icn),
                            { 'Content-Type' => 'application/x-www-form-urlencoded' })
-        sts_token = parse_response(response, application, icn)
-        Rails.cache.write("map_sts_token_#{application}_#{icn}", sts_token, expires_in: 5.minutes)
-        Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cache: false })
-        sts_token
+        parse_response(response, application, icn)
       end
 
       def parse_and_raise_error(e, icn, application)
