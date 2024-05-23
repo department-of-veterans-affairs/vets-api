@@ -191,18 +191,37 @@ module Form526ClaimFastTrackingConcern
     response.body
   end
 
+  def format_contention_for_vro(disability)
+    contention = {
+      contention_text: disability['name'],
+      contention_type: disability['disabilityActionType'],
+    }
+    contention[:diagnostic_code] = disability['diagnosticCode'] if disability.key?(:diagnosticCode)
+    contention
+  end
+
   # Submits contention information to the VRO contention classification service
   # adds classification to the form for each contention provided a classification
   def update_contention_classification_all!
+    contentions_array = disabilities.map { |disability| format_contention_for_vro(disability) }
     params = {
-      # "contentions": disabilities.map do |disability|
+      claim_id: saved_claim_id,
+      form526_submission_id: id,
+      contentions: contentions_array
     }
     classifier_response = classify_vagov_contentions(params)
     classifier_response['contentions'].each do |contention|
-      contention['contentionText'] = contention['contentionText'].upcase
+      classification = nil
+      if contention.key?(:classification_code) and contention.key?(:classification_name) do
+        classification = {
+          classification_code: contention['classification_code'],
+          classification_name: contention['classification_name']
+        }
+      end
+      # note: claim_type is actually type of contention, but formatting preserved in order to match existing datadog dashboard
       Rails.logger.info('Classified 526Submission',
-                        id:, saved_claim_id:, classification: contention['classification'],
-                        contention_type: contention['contention_type'])
+                        id:, saved_claim_id:, classification:,
+                        claim_type: contention['contention_type'])
       # update_form_with_classification_code(classification['classification_code'])
     end
   end
