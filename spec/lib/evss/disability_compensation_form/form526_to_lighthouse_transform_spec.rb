@@ -368,5 +368,51 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.send(:transform_multiple_exposures, no_location_details['gulfWar1990Details'])
       expect(result.length).to eq(0)
     end
+
+    it 'set served_in_herbicide_hazard_locations correctly' do
+      result = transformer.send(:transform_herbicide, data['herbicide'])
+      expect(result.served_in_herbicide_hazard_locations).to eq('YES')
+
+      with_none_of_these_option = data.merge({
+                                               'herbicide' => {
+                                                 'none' => true
+                                               }
+                                             })
+      result = transformer.send(:transform_herbicide, with_none_of_these_option['herbicide'])
+      expect(result.served_in_herbicide_hazard_locations).to eq('NO')
+
+      falsified_options = data.merge({
+                                       'herbicide' => {
+                                         'cambodia' => false,
+                                         'guam' => false,
+                                         'laos' => false,
+                                         'none' => false
+                                       }
+                                     })
+      result = transformer.send(:transform_herbicide, falsified_options['herbicide'])
+      expect(result.served_in_herbicide_hazard_locations).to eq('NO')
+
+      herbicide_has_no_options = data.merge({
+                                              'herbicide' => {
+                                                'cambodia' => true,
+                                                'guam' => true,
+                                                'laos' => true
+                                              },
+                                              'otherHerbicideLocations' => nil
+                                            })
+      result = transformer.send(:transform_herbicide, herbicide_has_no_options)
+      expect(result.served_in_herbicide_hazard_locations).to eq('YES')
+
+      other_herbicide_has_no_options = data.merge({
+                                                    'herbicide' => nil,
+                                                    'otherHerbicideLocations' => {
+                                                      'description' => 'other location 1, other location 2 etc',
+                                                      'startDate' => '1991-03-01',
+                                                      'endDate' => '1992-01-01'
+                                                    }
+                                                  })
+      result = transformer.send(:transform_herbicide, other_herbicide_has_no_options)
+      expect(result.served_in_herbicide_hazard_locations).to eq('YES')
+    end
   end
 end

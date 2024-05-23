@@ -4,8 +4,7 @@ require 'disability_compensation/requests/form526_request_body'
 
 module EVSS
   module DisabilityCompensationForm
-    # rubocop:disable Metrics/ClassLength
-    class Form526ToLighthouseTransform
+    class Form526ToLighthouseTransform # rubocop:disable Metrics/ClassLength
       TOXIC_EXPOSURE_CAUSE_MAP = {
         NEW: 'My condition was caused by an injury or exposure during my military service.',
         WORSENED: 'My condition existed before I served in the military, but it got worse because of my military ' \
@@ -202,10 +201,14 @@ module EVSS
 
         gulf_war1990 = toxic_exposure_source['gulfWar1990']
         gulf_war2001 = toxic_exposure_source['gulfWar2001']
+        herbicide = toxic_exposure_source['herbicide']
+
         if gulf_war1990.present? || gulf_war2001.present?
           toxic_exposure_target.gulf_war_hazard_service =
             transform_gulf_war(gulf_war1990, gulf_war2001)
         end
+
+        toxic_exposure_target.herbicide_hazard_service = transform_herbicide(herbicide) if herbicide.present?
 
         # create an Array[Requests::MultipleExposures]
         multiple_exposures = []
@@ -257,6 +260,17 @@ module EVSS
           gulf_war1990_value || gulf_war2001_value ? 'YES' : 'NO'
 
         gulf_war_hazard_service
+      end
+
+      def transform_herbicide(herbicide)
+        filtered_results_herbicide = herbicide&.filter { |k| k != 'notsure' }
+        herbicide_value = filtered_results_herbicide&.values&.any?(&:present?) && !none_of_these(filtered_results_herbicide)
+
+        herbicide_service = Requests::HerbicideHazardService.new
+        herbicide_service.served_in_herbicide_hazard_locations =
+          herbicide_value || herbicide['otherHerbicideLocations'].present? ? 'YES' : 'NO'
+
+        herbicide_service
       end
 
       def none_of_these(options)
@@ -547,6 +561,5 @@ module EVSS
         Date.parse(date).strftime('%Y-%m')
       end
     end
-    # rubocop:enable Metrics/ClassLength
   end
 end
