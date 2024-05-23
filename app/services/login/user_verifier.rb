@@ -139,10 +139,10 @@ module Login
     end
 
     def linked_user_verification_is_locked?
-      return false unless existing_user_account
-
-      lock = UserVerification.where(user_account: existing_user_account).any? { |v| v.send(type).present? && v.locked }
-      return false unless lock
+      return false unless existing_user_account &&
+                          UserVerification.where(user_account: existing_user_account).any? do |v|
+                            v.send(type).present? && v.locked
+                          end
 
       Rails.logger.info('[Login::UserVerifier] Locked UserVerification created ' \
                         "type=#{login_type} identifier=#{identifier}")
