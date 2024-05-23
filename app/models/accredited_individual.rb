@@ -41,10 +41,24 @@ class AccreditedIndividual < ApplicationRecord
   # @return [AccreditedIndividual::ActiveRecord_Relation] an ActiveRecord_Relation of
   #   all individuals matching the search criteria
   def self.find_within_max_distance(long, lat, max_distance = AccreditedRepresentation::Constants::DEFAULT_MAX_DISTANCE)
-    query = 'ST_DWithin(ST_SetSRID(ST_MakePoint(:long, :lat), 4326)::geography, location, :max_distance)'
+    query = 'ST_DWithin(ST_SetSRID(ST_MakePoint(:long, :lat), 4326)::geography,' \
+            'accredited_individuals.location, :max_distance)'
     params = { long:, lat:, max_distance: }
 
     where(query, params)
+  end
+
+  #
+  # Find all [AccreditedIndividuals] with a full name with at least the FUZZY_SEARCH_THRESHOLD value of
+  #   word similarity. This gives us a way to fuzzy search for names.
+  # @param search_phrase [String] the word, words, or phrase we want individuals with full names similar to
+  #
+  # @return [AccreditedIndividual::ActiveRecord_Relation] an ActiveRecord_Relation of
+  #   all individuals matching the search criteria
+  def self.find_with_full_name_similar_to(search_phrase)
+    where('word_similarity(?, accredited_individuals.full_name) >= ?',
+          search_phrase,
+          AccreditedRepresentation::Constants::FUZZY_SEARCH_THRESHOLD)
   end
 
   # return all poa_codes associated with the individual
