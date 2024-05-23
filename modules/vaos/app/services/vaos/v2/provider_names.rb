@@ -18,12 +18,11 @@ module VAOS
         return nil if practitioners_list.blank?
 
         provider_names = []
-
         practitioners_list.each do |practitioner|
           id = find_practitioner_id(practitioner)
           next unless id
 
-          name = find_provider_name(id)
+          name = get_name(id)
           provider_names << name if name
         end
         provider_names.compact.join(', ').presence
@@ -31,7 +30,7 @@ module VAOS
 
       private
 
-      def find_provider_name(id)
+      def get_name(id)
         return @providers_cache[id] if @providers_cache.key?(id)
 
         name = fetch_provider(id)

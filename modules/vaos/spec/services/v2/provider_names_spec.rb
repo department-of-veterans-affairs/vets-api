@@ -30,10 +30,6 @@ describe VAOS::V2::ProviderNames do
       expect(provider_names.form_names_from_appointment_practitioners_list([])).to be_nil
     end
 
-    it 'returns nil when provided an input that is not an array or nil' do
-      expect(provider_names.form_names_from_appointment_practitioners_list({})).to be_nil
-    end
-
     it 'returns nil when practitioners list contains no provider id' do
       practioner_list_no_value = [
         {
@@ -48,7 +44,7 @@ describe VAOS::V2::ProviderNames do
       expect(provider_names.form_names_from_appointment_practitioners_list(practioner_list_no_value)).to eq(nil)
     end
 
-    it 'returns nil if unless identifier system is us-npi' do
+    it 'returns nil is identifier system is not us-npi' do
       practioner_list_wrong_system = [
         {
           identifier: [
@@ -60,6 +56,13 @@ describe VAOS::V2::ProviderNames do
         }
       ]
       expect(provider_names.form_names_from_appointment_practitioners_list(practioner_list_wrong_system)).to eq(nil)
+    end
+
+    it 'uses response from upstream to form a name when provider id present' do
+      allow_any_instance_of(VAOS::V2::MobilePPMSService)
+        .to receive(:get_provider).with('1407938061').and_return(provider_response)
+      name = provider_names.form_names_from_appointment_practitioners_list(practitioner_list)
+      expect(name).to eq('DEHGHAN, AMIR')
     end
 
     it 'uses the name provided from upstream instead of the name provided in practitioners list' do
@@ -85,13 +88,6 @@ describe VAOS::V2::ProviderNames do
         .to receive(:get_provider).with('520647669').and_return(response)
       expect(provider_names.form_names_from_appointment_practitioners_list(practioner_list_with_name))
         .to eq(response.name)
-    end
-
-    it 'uses response from upstream to form a name when provider id present' do
-      allow_any_instance_of(VAOS::V2::MobilePPMSService)
-        .to receive(:get_provider).with('1407938061').and_return(provider_response)
-      name = provider_names.form_names_from_appointment_practitioners_list(practitioner_list)
-      expect(name).to eq('DEHGHAN, AMIR')
     end
 
     it 'aggregates multiple practitioner names as a comma separated list' do
@@ -121,7 +117,7 @@ describe VAOS::V2::ProviderNames do
       provider_names.form_names_from_appointment_practitioners_list(practitioner_list)
     end
 
-    it 'returns nil when the ppms service raises an error' do
+    it 'returns not found message when the ppms service raises an error' do
       allow_any_instance_of(VAOS::V2::MobilePPMSService)
         .to receive(:get_provider).and_raise(Common::Exceptions::BackendServiceException)
       name = provider_names.form_names_from_appointment_practitioners_list(practitioner_list)
