@@ -66,5 +66,6 @@ module SignIn
     class CredentialLockedError < StandardError; end
     class InvalidAudienceError < StandardError; end
     class InvalidScope < StandardError; end
+    class TokenExchangerError < StandardError; end
   end
 end

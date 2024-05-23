@@ -12,6 +12,7 @@ module SignIn
 
       ISSUER = 'va.gov sign in'
       USER_ATTRIBUTES = %w[first_name last_name email].freeze
+      OAUTH_TOKEN_TYPE = 'urn.ietf:;params:oauth:token-type:access_token'
     end
   end
 end

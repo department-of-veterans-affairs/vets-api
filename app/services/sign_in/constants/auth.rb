@@ -28,7 +28,8 @@ module SignIn
       CSP_TYPES = [IDME = 'idme', LOGINGOV = 'logingov', DSLOGON = 'dslogon', MHV = 'mhv'].freeze
       OPERATION_TYPES = [SIGN_UP = 'sign_up', AUTHORIZE = 'authorize'].freeze
       GRANT_TYPES = [AUTH_CODE_GRANT = 'authorization_code',
-                     JWT_BEARER_GRANT = 'urn:ietf:params:oauth:grant-type:jwt-bearer'].freeze
+                     JWT_BEARER_GRANT = 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                     TOKEN_EXCHANGE_GRANT = 'urn:ietf:params:oauth:grant-type:token-exchange'].freeze
       ENFORCED_TERMS = [VA_TERMS = 'VA'].freeze
       CLIENT_ASSERTION_TYPE = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
       ASSERTION_ENCODE_ALGORITHM = 'RS256'
