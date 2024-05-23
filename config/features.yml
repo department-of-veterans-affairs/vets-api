@@ -1179,6 +1179,9 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for Start Scheduling action link.
+  va_dependents_v2:
+    actor_type: user
+    description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
   va_online_scheduling_physical_location:
     actor_type: user
     enable_in_development: true
