@@ -553,7 +553,7 @@ GEM
     hashdiff (1.1.0)
     hashery (2.1.2)
     hashie (5.0.0)
-    holidays (8.7.1)
+    holidays (8.8.0)
     http (5.2.0)
       addressable (~> 2.8)
       base64 (~> 0.1)
