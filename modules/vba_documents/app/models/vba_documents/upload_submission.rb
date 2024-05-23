@@ -299,5 +299,3 @@ module VBADocuments
     end
   end
 end
-
-# load './modules/vba_documents/app/models/vba_documents/upload_submission.rb'
