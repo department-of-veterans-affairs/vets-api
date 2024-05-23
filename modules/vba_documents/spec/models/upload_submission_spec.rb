@@ -163,9 +163,9 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload.save!
       expect(upload.detail).to be_nil
       expect(upload.code).to be_nil
+      expect(upload.status).to eq('received')
     end
   end
-
 
   describe 'refresh_status!' do
     it 'updates received status from upstream' do
