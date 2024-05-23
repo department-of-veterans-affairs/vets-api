@@ -6,7 +6,7 @@ describe ClaimsApi::PowerOfAttorneySerializer do
   let(:poa_submission) { build(:power_of_attorney, status: ClaimsApi::PowerOfAttorney::UPLOADED) }
   let(:rendered_hash) { described_class.new(poa_submission).serializable_hash }
 
-  it 'includes date_request_accepted' do
+  it 'includes :date_request_accepted' do
     expect(rendered_hash[:date_request_accepted]).to eq poa_submission.date_request_accepted
   end
 
@@ -30,7 +30,7 @@ describe ClaimsApi::PowerOfAttorneySerializer do
     let(:submitted_poa_submission) { build(:power_of_attorney) }
     let(:submitted_rendered_hash) { described_class.new(submitted_poa_submission).serializable_hash }
 
-    it 'includes status from poa_submission' do
+    it 'includes :status from poa_submission' do
       expect(submitted_rendered_hash[:status]).to eq(submitted_poa_submission.status)
     end
   end
