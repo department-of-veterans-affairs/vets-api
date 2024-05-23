@@ -57,7 +57,10 @@ module VAOS
           appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
-        appointment[:location] = get_facility_memoized(appointment[:location_id]) unless appointment[:location_id].nil?
+        unless appointment[:location_id].nil?
+          appointment[:location] =
+            appointments_service.get_facility_memoized(appointment[:location_id])
+        end
 
         scrape_appt_comments_and_log_details(appointment, APPT_SHOW, PAP_COMPLIANCE_TELE)
 
@@ -79,7 +82,7 @@ module VAOS
         end
 
         unless new_appointment[:location_id].nil?
-          new_appointment[:location] = get_facility_memoized(new_appointment[:location_id])
+          new_appointment[:location] = appointments_service.get_facility_memoized(new_appointment[:location_id])
         end
 
         scrape_appt_comments_and_log_details(new_appointment, APPT_CREATE, PAP_COMPLIANCE_TELE)
@@ -99,7 +102,7 @@ module VAOS
         end
 
         unless updated_appointment[:location_id].nil?
-          updated_appointment[:location] = get_facility_memoized(updated_appointment[:location_id])
+          updated_appointment[:location] = appointments_service.get_facility_memoized(updated_appointment[:location_id])
         end
 
         serializer = VAOS::V2::VAOSSerializer.new
@@ -178,7 +181,7 @@ module VAOS
       # Makes a call to the VAOS service to create a new appointment.
       def get_new_appointment
         if create_params[:kind] == 'clinic' && create_params[:status] == 'booked' # a direct scheduled appointment
-          modify_desired_date(create_params, get_facility_timezone(create_params[:location_id]))
+          modify_desired_date(create_params, appointments_service.get_facility_timezone(create_params[:location_id]))
         end
 
         appointments_service.post_appointment(create_params)
@@ -211,16 +214,6 @@ module VAOS
         utc_date = date.to_time.utc
         timezone_offset = utc_date.in_time_zone(tz).formatted_offset
         utc_date.change(offset: timezone_offset).to_datetime
-      end
-
-      # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
-      def get_facility_timezone(facility_location_id)
-        facility_info = get_facility_memoized(facility_location_id)
-        if facility_info == FACILITY_ERROR_MSG
-          nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
-        else
-          facility_info[:timezone]&.[](:time_zone_id)
-        end
       end
 
       # Checks if the appointment is associated with cerner. It looks through each identifier and checks if the system
@@ -262,7 +255,10 @@ module VAOS
 
       def merge_facilities(appointments)
         appointments.each do |appt|
-          appt[:location] = get_facility_memoized(appt[:location_id]) unless appt[:location_id].nil?
+          unless appt[:location_id].nil?
+            appt[:location] =
+              appointments_service.get_facility_memoized(appt[:location_id])
+          end
           if cerner?(appt) && contains_substring(extract_all_values(appt[:location]), 'COL OR 1')
             log_appt_id_location_name(appt)
           end
@@ -296,17 +292,6 @@ module VAOS
         nil # on error log and return nil, calling code will handle nil
       end
       memoize :get_clinic_memoized
-
-      def get_facility_memoized(location_id)
-        mobile_facility_service.get_facility_with_cache(location_id)
-      rescue Common::Exceptions::BackendServiceException
-        Rails.logger.error(
-          "VAOS Error fetching facility details for location_id #{location_id}",
-          location_id:
-        )
-        FACILITY_ERROR_MSG
-      end
-      memoize :get_facility_memoized
 
       # This method extracts all values from a given object, which can be either an `OpenStruct`, `Hash`, or `Array`.
       # It recursively traverses the object and collects all values into an array.

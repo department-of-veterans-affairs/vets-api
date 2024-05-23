@@ -22,7 +22,7 @@ module ClaimsApi
         FORM_NUMBER = '526'
 
         skip_before_action :validate_json_format, only: [:attachments]
-        before_action :shared_validation, :file_number_check, only: %i[submit validate]
+        before_action :shared_validation, :file_number_check, only: %i[submit validate synchronous]
         before_action :edipi_check, only: %i[submit validate synchronous]
 
         before_action only: %i[generate_pdf] do
@@ -100,10 +100,14 @@ module ClaimsApi
 
         def synchronous
           auto_claim = shared_submit_methods
-          # This kicks off the first of three jobs required to fully establish the claim
-          process_claim(auto_claim, false) unless Flipper.enabled? :claims_load_testing
 
-          auto_claim.reload
+          unless claims_load_testing # || sandbox_request(request)
+            pdf_generation_service.generate(auto_claim&.id, veteran_middle_initial) unless mocking
+            docker_container_service.upload(auto_claim&.id)
+            queue_flash_updater(auto_claim.flashes, auto_claim&.id)
+            start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
+            auto_claim.reload
+          end
 
           render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
             auto_claim, root: :data, async: false
@@ -230,6 +234,44 @@ module ClaimsApi
         def save_auto_claim!(auto_claim)
           auto_claim.validation_method = ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
           auto_claim.save!
+        end
+
+        def pdf_generation_service
+          ClaimsApi::DisabilityCompensation::PdfGenerationService.new
+        end
+
+        def docker_container_service
+          ClaimsApi::DisabilityCompensation::DockerContainerService.new
+        end
+
+        def queue_flash_updater(flashes, auto_claim_id)
+          return if flashes.blank?
+
+          ClaimsApi::FlashUpdater.perform_async(flashes, auto_claim_id)
+        end
+
+        def start_bd_uploader_job(auto_claim)
+          bd_service.perform_async(auto_claim.id)
+        end
+
+        def errored_state_value
+          ClaimsApi::AutoEstablishedClaim::ERRORED
+        end
+
+        def bd_service
+          ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader
+        end
+
+        def sandbox_request(request)
+          request.base_url == 'https://sandbox-api.va.gov'
+        end
+
+        def claims_load_testing
+          Flipper.enabled? :claims_load_testing
+        end
+
+        def mocking
+          Settings.claims_api.benefits_documents.use_mocks
         end
       end
     end

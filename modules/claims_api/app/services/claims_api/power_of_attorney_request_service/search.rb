@@ -24,12 +24,7 @@ module ClaimsApi
           data = []
 
           begin
-            response =
-              BGSClient.perform_request(
-                body: dump(query),
-                service_action:
-              )
-
+            response = perform_request(query)
             result = response['POARequestRespondReturnVO'].to_h
             total_count = result['totalNbrOfRecords'].to_i
 
@@ -59,23 +54,29 @@ module ClaimsApi
 
         private
 
-        def dump(query) # rubocop:disable Metrics/MethodLength
-          Helpers::XmlBuilder.perform(service_action) do |xml, aliaz|
+        def perform_request(query) # rubocop:disable Metrics/MethodLength
+          action =
+            BGSClient::Definitions::
+              ManageRepresentativeService::
+              ReadPoaRequest::
+              DEFINITION
+
+          BGSClient.perform_request(action:) do |xml, data_aliaz|
             filter = query[:filter]
 
-            xml[aliaz].SecondaryStatusList do
+            xml[data_aliaz].SecondaryStatusList do
               filter[:statuses].each do |status|
                 xml.SecondaryStatus(status)
               end
             end
 
-            xml[aliaz].POACodeList do
+            xml[data_aliaz].POACodeList do
               filter[:poaCodes].each do |poa_code|
                 xml.POACode(poa_code)
               end
             end
 
-            xml[aliaz].POARequestParameter do
+            xml[data_aliaz].POARequestParameter do
               page = query[:page]
               xml.pageIndex(page[:number])
               xml.pageSize(page[:size])
@@ -86,12 +87,6 @@ module ClaimsApi
             end
           end
         end
-
-        def service_action
-          BGSClient::ServiceAction::
-            ManageRepresentativeService::
-            ReadPoaRequest
-        end
       end
 
       module Sort
@@ -101,7 +96,7 @@ module ClaimsApi
         }.freeze
 
         FIELDS = {
-          Query::Sort::Fields::SUBMITTED_AT => 'DATE_RECEIVED'
+          Query::Sort::Fields::CREATED_AT => 'DATE_RECEIVED'
         }.freeze
       end
     end
