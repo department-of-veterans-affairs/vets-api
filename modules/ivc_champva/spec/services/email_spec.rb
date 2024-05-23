@@ -68,7 +68,7 @@ RSpec.describe IvcChampva::Email, type: :service do
 
         expect { subject.send_email }.not_to raise_error
 
-        expect(Rails.logger).to have_received(:error).with("Pega Status Update Email Error: Test error")
+        expect(Rails.logger).to have_received(:error).with('Pega Status Update Email Error: Test error')
       end
     end
   end
