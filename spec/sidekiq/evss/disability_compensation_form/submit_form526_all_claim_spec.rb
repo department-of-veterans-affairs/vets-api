@@ -258,6 +258,31 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
     end
 
+    context 'with multi-contention classification disabled' do
+      let(:submission) do
+        create(:form526_submission,
+               :with_multiple_mas_diagnostic_code,
+               user_uuid: user.uuid,
+               auth_headers_json: auth_headers.to_json,
+               saved_claim_id: saved_claim.id)
+      end
+
+      before do
+        Flipper.disable(:disability_526_classifier_multi_contention)
+        # allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+      end
+
+      after do
+        Flipper.disable(:disability_526_classifier_multi_contention)
+      end
+
+      it 'does not call va-gov-claim-classifier' do
+        subject.perform_async(submission.id)
+        expect_any_instance_of(Form526Submission).not_to receive(:classify_vagov_contentions)
+        described_class.drain
+      end
+    end
+
     context 'with multi-contention classification enabled' do
       let(:submission) do
         create(:form526_submission,
