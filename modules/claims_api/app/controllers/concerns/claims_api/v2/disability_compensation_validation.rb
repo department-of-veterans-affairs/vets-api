@@ -150,6 +150,7 @@ module ClaimsApi
         validate_form_526_disability_approximate_begin_date!
         validate_form_526_disability_service_relevance!
         validate_form_526_disability_secondary_disabilities!
+        validate_special_issues!
       end
 
       def validate_disability_name!
@@ -224,6 +225,26 @@ module ClaimsApi
             collect_error_messages(source: "disabilities/#{idx}/serviceRelevance",
                                    detail: 'The serviceRelevance is required if ' \
                                            "disabilityActionType' is NEW.")
+          end
+        end
+      end
+
+      def validate_special_issues!
+        form_attributes['disabilities'].each_with_index do |disability, idx|
+          next if disability['specialIssues'].blank?
+
+          confinements = form_attributes['serviceInformation']&.dig('confinements')
+          disability_action_type = disability&.dig('disabilityActionType')
+          if disability['specialIssues'].include? 'POW'
+            if confinements.blank?
+              collect_error_messages(source: "disabilities/#{idx}/specialIssues",
+                                     detail: 'serviceInformation.confinements is required if ' \
+                                             'specialIssues includes POW.')
+            elsif disability_action_type == 'INCREASE'
+              collect_error_messages(source: "disabilities/#{idx}/specialIssues",
+                                     detail: 'disabilityActionType cannot be INCREASE if ' \
+                                             'specialIssues includes POW.')
+            end
           end
         end
       end
