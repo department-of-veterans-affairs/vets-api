@@ -97,7 +97,7 @@ module Form1010Ezr
       if validation_errors.present?
         # REMOVE THE FOLLOWING SIX LINES OF CODE ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
         if validation_errors.find { |error| error.include?('veteranDateOfBirth') }.present?
-          PersonalInformationLog.create(
+          PersonalInformationLog.create!(
             data: @unprocessed_user_dob,
             error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure"
           )
@@ -138,7 +138,7 @@ module Form1010Ezr
 
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.missing_full_name")
 
-      parsed_form['veteranFullName'] = @user.full_name_normalized.compact.stringify_keys
+      parsed_form['veteranFullName'] = @user.full_name_normalized&.compact&.stringify_keys
       parsed_form
     end
 
