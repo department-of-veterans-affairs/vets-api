@@ -102,7 +102,7 @@ module Login
                                user_account: existing_user_account || UserAccount.new(icn:),
                                backing_idme_uuid:,
                                verified_at:,
-                               locked: existing_user_account ? validate_linked_user_verifications : false)
+                               locked: linked_user_verification_is_locked?)
     end
 
     def user_verification_needs_to_be_updated?
@@ -138,15 +138,15 @@ module Login
       Rails.logger.info("[Login::UserVerifier] Attempting alternate type=#{type}  identifier=#{identifier}")
     end
 
-    def validate_linked_user_verifications
-      linked_user_verifications = UserVerification.where(user_account_id: existing_user_account.id)
-      linked_user_verifications.each do |verification|
-        next if verification.send(type).nil?
+    def linked_user_verification_is_locked?
+      return false unless existing_user_account
 
-        return true if verification.locked
-      end
+      lock = UserVerification.where(user_account: existing_user_account).any? { |v| v.send(type).present? && v.locked }
+      return false unless lock
 
-      false
+      Rails.logger.info('[Login::UserVerifier] Locked UserVerification created ' \
+                        "type=#{login_type} identifier=#{identifier}")
+      true
     end
 
     def existing_user_account

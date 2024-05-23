@@ -284,22 +284,19 @@ RSpec.describe Login::UserVerifier do
 
             context 'and a linked user verification with the same CSP type exists' do
               let!(:linked_user_verification) do
-                case login_value
-                when SignIn::Constants::Auth::IDME
-                  create(:idme_user_verification, user_account: existing_user_account, locked:)
-                when SignIn::Constants::Auth::LOGINGOV
-                  create(:logingov_user_verification, user_account: existing_user_account, locked:)
-                when SignIn::Constants::Auth::DSLOGON
-                  create(:dslogon_user_verification, user_account: existing_user_account, locked:)
-                when SignIn::Constants::Auth::MHV
-                  create(:mhv_user_verification, user_account: existing_user_account, locked:)
-                end
+                create(linked_user_verification_type, user_account: existing_user_account, locked:)
               end
 
               context 'and the linked user verification is locked' do
+                let(:locked_verification_log) do
+                  '[Login::UserVerifier] Locked UserVerification created ' \
+                    "type=#{login_value} identifier=#{authn_identifier}"
+                end
                 let(:locked) { true }
 
                 it 'creates a locked UserVerification object and logs the event' do
+                  expect(Rails.logger).to receive(:info).with(expected_log, { icn: })
+                  expect(Rails.logger).to receive(:info).with(locked_verification_log)
                   expect(subject.locked).to eq(true)
                 end
               end
@@ -393,6 +390,7 @@ RSpec.describe Login::UserVerifier do
       let(:authn_identifier) { user_identity.mhv_correlation_id }
       let(:authn_identifier_type) { :mhv_uuid }
       let(:backing_idme_uuid) { idme_uuid_identifier }
+      let(:linked_user_verification_type) { :mhv_user_verification }
 
       it_behaves_like 'user_verification with nil credential identifier'
       it_behaves_like 'user_verification with defined credential identifier'
@@ -403,6 +401,7 @@ RSpec.describe Login::UserVerifier do
       let(:authn_identifier) { user_identity.idme_uuid }
       let(:authn_identifier_type) { :idme_uuid }
       let(:backing_idme_uuid) { nil }
+      let(:linked_user_verification_type) { :idme_user_verification }
 
       context 'when credential identifier is nil' do
         let(:authn_identifier) { nil }
@@ -427,6 +426,7 @@ RSpec.describe Login::UserVerifier do
       let(:authn_identifier) { user_identity.edipi }
       let(:authn_identifier_type) { :dslogon_uuid }
       let(:backing_idme_uuid) { idme_uuid_identifier }
+      let(:linked_user_verification_type) { :dslogon_user_verification }
 
       it_behaves_like 'user_verification with nil credential identifier'
       it_behaves_like 'user_verification with defined credential identifier'
@@ -437,6 +437,7 @@ RSpec.describe Login::UserVerifier do
       let(:authn_identifier) { user_identity.logingov_uuid }
       let(:authn_identifier_type) { :logingov_uuid }
       let(:backing_idme_uuid) { nil }
+      let(:linked_user_verification_type) { :logingov_user_verification }
 
       it_behaves_like 'user_verification with nil credential identifier'
       it_behaves_like 'user_verification with defined credential identifier'
