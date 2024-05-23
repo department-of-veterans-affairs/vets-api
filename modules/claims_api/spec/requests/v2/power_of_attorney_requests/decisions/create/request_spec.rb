@@ -65,6 +65,78 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
     end
   end
 
+  describe 'with a nonexistent participant id in our composite id' do
+    let(:id) { '1234_5678' }
+
+    it 'responds 404' do
+      params = {
+        'data' => {
+          'type' => 'powerOfAttorneyRequestDecision',
+          'attributes' => {
+            'status' => 'Declined',
+            'declinedReason' => 'Some reason',
+            'representative' => {
+              'firstName' => 'BEATRICE',
+              'lastName' => 'STROUD',
+              'email' => 'Beatrice.Stroud44@va.gov'
+            }
+          }
+        }
+      }
+
+      body =
+        mock_ccg(scopes) do
+          use_soap_cassette(cassette_directory / 'nonexistent_participant_id') do
+            perform_request(params)
+          end
+        end
+
+      expect(response).to(
+        have_http_status(:not_found)
+      )
+
+      expect(body).to(
+        eq({ 'error' => 'Record not found' })
+      )
+    end
+  end
+
+  describe 'with just a nonexistent proc id in our composite id' do
+    let(:id) { '600085312_5678' }
+
+    it 'responds 404' do
+      params = {
+        'data' => {
+          'type' => 'powerOfAttorneyRequestDecision',
+          'attributes' => {
+            'status' => 'Declined',
+            'declinedReason' => 'Some reason',
+            'representative' => {
+              'firstName' => 'BEATRICE',
+              'lastName' => 'STROUD',
+              'email' => 'Beatrice.Stroud44@va.gov'
+            }
+          }
+        }
+      }
+
+      body =
+        mock_ccg(scopes) do
+          use_soap_cassette(cassette_directory / 'nonexistent_proc_id') do
+            perform_request(params)
+          end
+        end
+
+      expect(response).to(
+        have_http_status(:not_found)
+      )
+
+      expect(body).to(
+        eq({ 'error' => 'Record not found' })
+      )
+    end
+  end
+
   describe 'with a valid decline with reason submitted twice' do
     let(:id) { '600085312_3853983' }
 
