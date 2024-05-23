@@ -1,0 +1,184 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["servicePeriods"],
+  "properties": {
+    "alternateNames": {
+      "description": "List any other names under which the Veteran served, if applicable.",
+      "type": ["array", "null"],
+      "nullable": true,
+      "maxItems": 100,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "additionalProperties": false,
+        "examples": ["jane", "janey lee", "jane lee MacDonald"]
+      }
+    },
+    "servicePeriods": {
+      "description": "Identifies the Service dates and Branch the Veteran served in.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": ["serviceBranch", "serviceComponent", "activeDutyBeginDate", "activeDutyEndDate"],
+        "properties": {
+          "serviceBranch": {
+            "description": "Branch of service during period. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
+            "type": "string",
+            "maxLength": 1000,
+            "example": "Air Force"
+          },
+          "serviceComponent": {
+            "type": "string",
+            "description": "",
+            "enum": ["Active", "Reserves", "National Guard"]
+          },
+          "activeDutyBeginDate": {
+            "description": "Date started active duty.",
+            "type": "string",
+            "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+            "example": "2018-06-06"
+          },
+          "activeDutyEndDate": {
+            "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+            "type": "string",
+            "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+            "example": "2018-06-06"
+          },
+          "separationLocationCode": {
+            "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+            "type": ["string", "null"],
+            "nullable": true,
+            "example": "98283"
+          }
+        }
+      }
+    },
+    "servedInActiveCombatSince911": {
+      "type": ["string", "null"],
+      "enum": ["YES", "NO", null],
+      "description": "Did Veteran serve in a combat zone since 9-11-2001?",
+      "example": "YES",
+      "nullable": true
+    },
+    "reservesNationalGuardService": {
+      "type": ["object", "null"],
+      "nullable": true,
+      "additionalProperties": false,
+      "properties": {
+        "component": {
+          "type": ["string", "null"],
+          "nullable": true,
+          "description": "",
+          "enum": ["Reserves", "National Guard", null]
+        },
+        "obligationTermsOfService": {
+          "type": ["object", "null"],
+          "nullable": true,
+          "description": "If 'obligationTermsOfService' is included, the following attributes are required: 'beginDate ' and 'endDate'.",
+          "additionalProperties": false,
+          "properties": {
+            "beginDate": {
+              "type": ["string", "null"],
+              "nullable": true,
+              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+              "example": "2018-06-06"
+            },
+            "endDate": {
+              "type": ["string", "null"],
+              "nullable": true,
+              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+              "example": "2018-06-06"
+            }
+          }
+        },
+        "unitName": {
+          "type": ["string", "null"],
+          "nullable": true,
+          "maxLength": 1000,
+          "pattern": "^$|([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
+        },
+        "unitAddress": {
+          "type": ["string", "null"],
+          "maxLength": 1000,
+          "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+          "nullable": true
+        },
+        "unitPhone": {
+          "type": ["object", "null"],
+          "nullable": true,
+          "additionalProperties": false,
+          "properties": {
+            "areaCode": {
+              "type": ["string", "null"],
+              "nullable": true,
+              "maxLength": 3,
+              "pattern": "^$|^\\d{3}$",
+              "example": "555"
+            },
+            "phoneNumber": {
+              "type": ["string", "null"],
+              "nullable": true,
+              "maxLength": 20,
+              "example": "5555555"
+            }
+          }
+        },
+        "receivingInactiveDutyTrainingPay": {
+          "type": ["string", "null"],
+          "enum": ["YES", "NO", null],
+          "nullable": true,
+          "example": "YES"
+        }
+      }
+    },
+    "federalActivation": {
+      "type": ["object", "null"],
+      "nullable": true,
+      "additionalProperties": false,
+      "properties": {
+        "activationDate": {
+          "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
+          "type": ["string", "null"],
+          "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+          "example": "2018-06-06",
+          "nullable": true
+        },
+        "anticipatedSeparationDate": {
+          "description": "Anticipated date of separation. Date must be in the future.",
+          "type": ["string", "null"],
+          "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+          "example": "2018-06-06",
+          "nullable": true
+        }
+      }
+    },
+    "confinements": {
+      "type": ["array", "null"],
+      "nullable": true,
+      "uniqueItems": true,
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "properties": {
+          "approximateBeginDate": {
+            "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
+            "type": ["string", "null"],
+            "nullable": true,
+            "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+            "example": "2018-06-06 or 2018-06"
+          },
+          "approximateEndDate": {
+            "type": ["string", "null"],
+            "nullable": true,
+            "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+            "example": "2018-06-06 or 2018-06"
+          }
+        }
+      }
+    }
+  }
+}

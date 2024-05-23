@@ -10,6 +10,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
                                    vcr: 'claims_api/disability_comp' do
   let(:scopes) { %w[system/claim.read system/claim.write] }
   let(:generate_pdf_minimum_validations_scopes) { %w[system/claim.read system/claim.write system/526-pdf.override] }
+  let(:synchronous_scopes) { %w[system/claim.read system/claim.write system/526.override] }
 
   path '/veterans/{veteranId}/526' do
     post 'Submits form 526' do
@@ -606,10 +607,10 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
   path '/veterans/{veteranId}/526/synchronous', production: false do
     post 'Submits form 526 and returns the claim ID' do
       tags 'Disability Compensation Claims'
-      operationId 'post526ClaimSynchronou'
+      operationId 'post526ClaimSynchronous'
       security [
-        { productionOauth: ['system/claim.read', 'system/claim.write', 'system/526.override'] },
-        { sandboxOauth: ['system/claim.read', 'system/claim.write', 'system/526.override'] },
+        { productionOauth: ['system/526.override'] },
+        { sandboxOauth: ['system/526.override'] },
         { bearer_token: [] }
       ]
       consumes 'application/json'
@@ -650,10 +651,10 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
 
-      let(:scopes) { %w[system/claim.read system/claim.write system/526.override] }
+      let(:scopes) { %w[system/526.override] }
 
-      parameter name: :disability_comp_request, in: :body,
-                schema: SwaggerSharedComponents::V2.body_examples[:sync_disability_compensation][:schema]
+      parameter name: :disability_comp_request, in: :body, 
+        schema: SwaggerSharedComponents::V2.body_examples[:sync_disability_compensation][:schema]
 
       parameter in: :body, examples: {
         'Minimum Required Attributes' => {
@@ -687,10 +688,10 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             data
           end
 
-          schema SwaggerSharedComponents::V2.body_examples[:sync_disability_compensation][:schema]
-byebug
+          schema SwaggerSharedComponents::V2.schemas[:sync_disability_compensation]
+
           before do |example|
-            mock_ccg(scopes) do
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do
               submit_request(example.metadata)
             end
           end
@@ -710,106 +711,106 @@ byebug
       end
 
       # describe 'Getting an unauthorized reponse' do
-      #   response '401', 'Unauthorized' do
-      #     schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-      #                                       'disability_compensation', 'default.json').read)
+        response '401', 'Unauthorized' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'disability_compensation', 'default.json').read)
 
-      #     let(:data) do
-      #       temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-      #                              'disability_compensation', 'form_526_json_api.json').read
-      #       temp = JSON.parse(temp)
-      #       temp
-      #     end
+          let(:data) do
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                   'disability_compensation', 'form_526_json_api.json').read
+            temp = JSON.parse(temp)
+            temp
+          end
 
-      #     let(:disability_comp_request) do
-      #       data
-      #     end
+          let(:disability_comp_request) do
+            data
+          end
 
-      #     before do |example|
-      #       # skip ccg authorization to fail authorization
-      #       submit_request(example.metadata)
-      #     end
+          before do |example|
+            # skip ccg authorization to fail authorization
+            submit_request(example.metadata)
+          end
 
-      #     after do |example|
-      #       example.metadata[:response][:content] = {
-      #         'application/json' => {
-      #           example: JSON.parse(response.body, symbolize_names: true)
-      #         }
-      #       }
-      #     end
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
 
-      #     it 'returns a 401 response' do |example|
-      #       assert_response_matches_metadata(example.metadata)
-      #     end
-      #   end
-      # end
+          it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
 
-      # describe 'Getting an unprocessable entity response' do
-      #   response '422', 'Unprocessable entity' do
-      #     schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-      #                                       'disability_compensation', 'default_with_source.json').read)
-      #     # Build the dropdown for examples
-      #     def append_example_metadata(example, response)
-      #       example.metadata[:response][:content] = {
-      #         'application/json' => {
-      #           examples: {
-      #             example.metadata[:example_group][:description] => {
-      #               value: JSON.parse(response.body, symbolize_names: true)
-      #             }
-      #           }
-      #         }
-      #       }
-      #     end
+      describe 'Getting an unprocessable entity response' do
+        response '422', 'Unprocessable entity' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'disability_compensation', 'default_with_source.json').read)
+          # Build the dropdown for examples
+          def append_example_metadata(example, response)
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                examples: {
+                  example.metadata[:example_group][:description] => {
+                    value: JSON.parse(response.body, symbolize_names: true)
+                  }
+                }
+              }
+            }
+          end
 
-      #     def make_request(example)
-      #       mock_ccg(scopes) do
-      #         submit_request(example.metadata)
-      #       end
-      #     end
+          def make_request(example)
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do
+              submit_request(example.metadata)
+            end
+          end
 
-      #     context 'Violates JSON Schema' do
-      #       let(:data) { { data: { attributes: nil } } }
+          context 'Violates JSON Schema' do
+            let(:data) { { data: { attributes: nil } } }
 
-      #       let(:disability_comp_request) do
-      #         data
-      #       end
+            let(:disability_comp_request) do
+              data
+            end
 
-      #       before do |example|
-      #         make_request(example)
-      #       end
+            before do |example|
+              make_request(example)
+            end
 
-      #       after do |example|
-      #         append_example_metadata(example, response)
-      #       end
+            after do |example|
+              append_example_metadata(example, response)
+            end
 
-      #       it 'returns a 422 response' do |example|
-      #         assert_response_matches_metadata(example.metadata)
-      #       end
-      #     end
+            it 'returns a 422 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
+          end
 
-      #     context 'Not a JSON Object' do
-      #       let(:data) do
-      #         'This is not valid JSON'
-      #       end
+          context 'Not a JSON Object' do
+            let(:data) do
+              'This is not valid JSON'
+            end
 
-      #       let(:disability_comp_request) do
-      #         data
-      #       end
+            let(:disability_comp_request) do
+              data
+            end
 
-      #       before do |example|
-      #         make_request(example)
-      #       end
+            before do |example|
+              make_request(example)
+            end
 
-      #       after do |example|
-      #         append_example_metadata(example, response)
-      #       end
+            after do |example|
+              append_example_metadata(example, response)
+            end
 
-      #       it 'returns a 422 response' do |example|
-      #         assert_response_matches_metadata(example.metadata)
-      #       end
-      #     end
-      #   end
-      # end
+            it 'returns a 422 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
+          end
+        end
+      end
     end
   end
 end

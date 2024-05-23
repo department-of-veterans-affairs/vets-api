@@ -28,9 +28,9 @@ module ClaimsApi
         before_action only: %i[generate_pdf] do
           permit_scopes(%w[system/526-pdf.override], actions: [:generate_pdf])
         end
-        # before_action only: %i[synchronous] do
-        #   permit_scopes(%w[system/526.override], actions: [:synchronous])
-        # end
+        before_action only: %i[synchronous] do
+          permit_scopes(%w[system/526.override], actions: [:synchronous])
+        end
 
         def submit
           auto_claim = shared_submit_methods
@@ -189,7 +189,11 @@ module ClaimsApi
           # Custom validations for 526 submission, we must check this first
           @claims_api_forms_validation_errors = validate_form_526_submission_values!(target_veteran)
           # JSON validations for 526 submission, will combine with previously captured errors and raise
-          validate_json_schema
+          if params[:action] == "synchronous"
+            validate_json_schema('526_SYNCHRONOUS')
+          else
+            validate_json_schema
+          end
           # if we get here there were only validations file errors
           if @claims_api_forms_validation_errors
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
