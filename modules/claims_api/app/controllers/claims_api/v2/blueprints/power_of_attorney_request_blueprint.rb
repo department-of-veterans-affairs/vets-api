@@ -70,26 +70,24 @@ module ClaimsApi
           )
 
           field(
-            :created_at,
-            datetime_format: :iso8601.to_proc
-          )
-
-          field(
-            :authorizes_address_changing?,
+            :authorizes_address_changing,
             name: :is_address_changing_authorized
           )
 
           field(
-            :authorizes_treatment_disclosure?,
+            :authorizes_treatment_disclosure,
             name: :is_treatment_disclosure_authorized
           )
 
           association :veteran, blueprint: Veteran
-          # E.g., we can remove the key but what are the right semantics?
-          #   `if: -> (field, object, *) { object.claimant }`
           association :claimant, blueprint: Claimant
-          association :decision, blueprint: Decision
           association :claimant_address, blueprint: Address
+          association :decision, blueprint: Decision
+
+          field(
+            :created_at,
+            datetime_format: :iso8601.to_proc
+          )
         end
 
         transform Transformers::LowerCamelTransformer
