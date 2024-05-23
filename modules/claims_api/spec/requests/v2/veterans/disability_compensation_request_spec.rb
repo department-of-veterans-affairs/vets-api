@@ -3939,7 +3939,7 @@ RSpec.describe 'Disability Claims', type: :request do
     let(:generate_pdf_scopes) { %w[system/526-pdf.override] }
     let(:invalid_scopes) { %w[claim.write claim.read] }
     let(:generate_pdf_path) { "/services/claims/v2/veterans/#{veteran_id}/526/generatePDF/minimum-validations" }
-    let(:special_issues) { ["POW"] }
+    let(:special_issues) { ['POW'] }
 
     context 'submission to generatePDF' do
       it 'returns a 200 response when successful' do
