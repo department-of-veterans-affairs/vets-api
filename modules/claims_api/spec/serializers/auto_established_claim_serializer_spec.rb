@@ -7,7 +7,7 @@ describe ClaimsApi::AutoEstablishedClaimSerializer do
   let(:rendered_hash) { ActiveModelSerializers::SerializableResource.new(auto_established_claim, {serializer: described_class} ).as_json }
   let(:rendered_attributes) { rendered_hash[:data][:attributes] }
 
-  it 'includes attributes' do
+  it 'includes :token' do
     expect(rendered_attributes[:token]).to eq auto_established_claim.token
   end
 
