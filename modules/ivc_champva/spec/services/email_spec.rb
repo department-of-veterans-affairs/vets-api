@@ -62,10 +62,13 @@ RSpec.describe IvcChampva::Email, type: :service do
         allow(VANotify::EmailJob).to receive(:perform_async).and_raise(StandardError.new('Test error'))
       end
 
-      it 'handles the error and returns a 500 status' do
+      it 'handles the error and logs it' do
         allow(Datadog::Tracing).to receive(:trace).and_yield
+        allow(Rails.logger).to receive(:error)
 
-        expect { subject.send_email }.to raise_error(StandardError, 'Test error')
+        expect { subject.send_email }.not_to raise_error
+
+        expect(Rails.logger).to have_received(:error).with("Pega Status Update Email Error: Test error")
       end
     end
   end

@@ -25,7 +25,8 @@ module IvcChampva
           }
         )
       rescue => e
-        raise e.message.to_s
+        Rails.logger.error "Pega Status Update Email Error: #{e.message}"
+        Rails.logger.error e.backtrace.join("\n")
       end
     end
 
