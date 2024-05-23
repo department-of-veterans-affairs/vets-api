@@ -39,12 +39,12 @@ module IvcChampva
       }
     end
 
-    # rubocop:disable anonymous block forwarding, Style/RedundantBlockCall
+    # rubocop:disable Naming/BlockForwarding,Style/HashSyntax
     def method_missing(method_name, *args, &block)
       super unless respond_to_missing?(method_name)
       { method: method_name, args: args }
     end
-    # rubocop:enable anonymous block forwarding, Style/RedundantBlockCall
+    # rubocop:enable Naming/BlockForwarding,Style/HashSyntax
 
     def respond_to_missing?(_method_name, _include_private = false)
       true
