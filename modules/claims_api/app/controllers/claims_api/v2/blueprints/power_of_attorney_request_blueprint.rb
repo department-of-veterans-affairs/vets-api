@@ -25,6 +25,22 @@ module ClaimsApi
           )
         end
 
+        class Decision < Blueprinter::Base
+          transform Transformers::LowerCamelTransformer
+
+          fields(
+            :status,
+            :declined_reason
+          )
+
+          field(
+            :updated_at,
+            datetime_format: :iso8601.to_proc
+          )
+
+          association :representative, blueprint: Representative
+        end
+
         class Claimant < Blueprinter::Base
           transform Transformers::LowerCamelTransformer
 
@@ -50,37 +66,28 @@ module ClaimsApi
           transform Transformers::LowerCamelTransformer
 
           fields(
-            :status,
-            :declined_reason,
             :power_of_attorney_code
           )
 
           field(
-            :submitted_at,
-            datetime_format: :iso8601.to_proc
-          )
-
-          field(
-            :accepted_or_declined_at,
-            datetime_format: :iso8601.to_proc
-          )
-
-          field(
-            :authorizes_address_changing?,
+            :authorizes_address_changing,
             name: :is_address_changing_authorized
           )
 
           field(
-            :authorizes_treatment_disclosure?,
+            :authorizes_treatment_disclosure,
             name: :is_treatment_disclosure_authorized
           )
 
           association :veteran, blueprint: Veteran
-          association :representative, blueprint: Representative
-          # E.g., we can remove the key but what are the right semantics?
-          #   `if: -> (field, object, *) { object.claimant }`
           association :claimant, blueprint: Claimant
           association :claimant_address, blueprint: Address
+          association :decision, blueprint: Decision
+
+          field(
+            :created_at,
+            datetime_format: :iso8601.to_proc
+          )
         end
 
         transform Transformers::LowerCamelTransformer

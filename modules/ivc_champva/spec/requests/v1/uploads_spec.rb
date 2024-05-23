@@ -10,6 +10,15 @@ RSpec.describe 'Forms uploader', type: :request do
     'vha_10_7959c.json'
   ]
 
+  before do
+    @original_aws_config = Aws.config.dup
+    Aws.config.update(stub_responses: true)
+  end
+
+  after do
+    Aws.config = @original_aws_config
+  end
+
   describe '#submit' do
     forms.each do |form|
       fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form)

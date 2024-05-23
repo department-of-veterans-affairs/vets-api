@@ -58,7 +58,7 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
       end
     end
 
-    context 'the BRLS file number is the wrong size' do
+    context 'the BIRLS file number is the wrong size' do
       error_original_body = {
         messages: [
           {
