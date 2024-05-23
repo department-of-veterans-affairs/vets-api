@@ -22,7 +22,6 @@ module VAOS
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
       APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
-      APPOINTMENTS_ENABLE_OH_READS = :va_online_scheduling_enable_OH_reads
 
       # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
@@ -34,13 +33,7 @@ module VAOS
         cnp_count = 0
 
         with_monitoring do
-          response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_READS)
-                       perform(:get, appointments_base_path_vpg, params, headers)
-                     else
-                       perform(:get, appointments_base_path_vaos, params, headers)
-                     end
-
+          response = perform(:get, appointments_base_path, params, headers)
           validate_response_schema(response, 'appointments_index')
           response.body[:data].each do |appt|
             # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
@@ -104,9 +97,9 @@ module VAOS
         with_monitoring do
           response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
                         Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
-                       perform(:post, appointments_base_path_vpg, params, headers)
+                       perform(:post, "/vpg/v1/patients/#{user.icn}/appointments", params, headers)
                      else
-                       perform(:post, appointments_base_path_vaos, params, headers)
+                       perform(:post, appointments_base_path, params, headers)
                      end
           convert_appointment_time(response.body)
           OpenStruct.new(response.body)
@@ -578,12 +571,8 @@ module VAOS
         )
       end
 
-      def appointments_base_path_vaos
+      def appointments_base_path
         "/vaos/v1/patients/#{user.icn}/appointments"
-      end
-
-      def appointments_base_path_vpg
-        "/vpg/v1/patients/#{user.icn}/appointments"
       end
 
       def avs_path(sid)
@@ -591,12 +580,7 @@ module VAOS
       end
 
       def get_appointment_base_path(appointment_id)
-        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-           Flipper.enabled?(APPOINTMENTS_ENABLE_OH_READS)
-          "/vpg/v1/patients/#{user.icn}/appointments/#{appointment_id}"
-        else
-          "/vaos/v1/patients/#{user.icn}/appointments/#{appointment_id}"
-        end
+        "/vaos/v1/patients/#{user.icn}/appointments/#{appointment_id}"
       end
 
       def date_params(start_date, end_date)
