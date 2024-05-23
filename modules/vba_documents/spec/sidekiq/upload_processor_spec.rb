@@ -257,28 +257,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
-    context 'with a temp EMMS SYSTEM.IO Exception' do
-      before do
-        allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
-        allow(CentralMail::Service).to receive(:new) { client_stub }
-        allow(faraday_response).to receive(:status).and_return(400)
-        allow(faraday_response).to receive(:body)
-          .and_return('Upstream status: System.IO.IOException: The process cannot access the file ' \
-                      "'\\Sftpemms\d$\SFTPRoot\GCIOEM\prod\Inbound\EMMS-GCIO-19777445.ack' because it is being" \
-                      ' used by another process. at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)')
-        allow(faraday_response).to receive(:success?).and_return(false)
-        allow(client_stub).to receive(:upload).and_return(faraday_response)
-        allow(VBADocuments::UploadStatusUpdater).to receive(:perform_at)
-      end
-
-      it 'sets the upload submission status to received' do
-        described_class.new.perform(upload.guid, test_caller)
-        expect(upload.reload.status).to eq('received')
-        expect(upload.detail).to eq('')
-        expect(VBADocuments::UploadStatusUpdater).to have_received(:perform_at)
-      end
-    end
-
     context 'with a duplicate UUID response from Central Mail' do
       before do
         allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }

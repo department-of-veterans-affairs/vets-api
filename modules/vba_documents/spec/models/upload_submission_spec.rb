@@ -156,6 +156,17 @@ describe VBADocuments::UploadSubmission, type: :model do
     end
   end
 
+  describe 'clear_old_error' do
+    it 'clears error fields when moving out of error status' do
+      upload = FactoryBot.create(:upload_submission, status: 'error', code: 'MAV505', detail: 'Mav Error')
+      upload.status = 'received'
+      upload.save!
+      expect(upload.detail).to be_nil
+      expect(upload.code).to be_nil
+    end
+  end
+
+
   describe 'refresh_status!' do
     it 'updates received status from upstream' do
       expect(client_stub).to receive(:status).and_return(faraday_response)

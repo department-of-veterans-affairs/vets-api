@@ -144,14 +144,6 @@ module VBADocuments
       elsif response.status == 429 && response.body =~ /UUID already in cache/
         @upload.track_uploaded_received(:uuid_already_in_cache_cause, @cause)
         @upload.track_concurrent_duplicate
-      elsif response.body.match?(EMMS_API_SYS_IO_EXCEPTION_REGEX)
-        # This is a temporary EMMS processing error that self resolves, just mark as 'received'
-        # and update the status in 30 minutes.  The schedled status update might also pick up
-        # this submission before waiting 30 minutes and could hit this error again, so we need to 
-        # force an update after waiting 30 minutes
-        @upload.detail = ''
-        handle_successful_submission
-        VBADocuments::UploadStatusUpdater.perform_at(30.minutes.from_now, [@upload.guid])
       else
         map_error(response.status, response.body, VBADocuments::UploadError)
       end
