@@ -1,0 +1,74 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+RSpec.describe 'RepresentationManagement::V0::AccreditedIndividualsController', type: :request do
+  let(:path) { '/representation_management/v0/accredited_individuals' }
+  let(:type) { 'representative' }
+  let(:distance) { 50 }
+  let(:lat) { 38.9072 }
+  let(:long) { -77.0369 }
+
+  let!(:ind1) do
+    create(:accredited_individual,
+           :with_organizations, registration_number: '12300', individual_type: 'representative',
+                                long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',
+                                first_name: 'Bob', last_name: 'Law') # ~6 miles from Washington, D.C.
+  end
+  let!(:ind2) do
+    create(:accredited_individual,
+           :with_organizations, registration_number: '23400', individual_type: 'representative',
+                                long: -77.436649, lat: 39.101481, location: 'POINT(-77.436649 39.101481)',
+                                first_name: 'Eliseo', last_name: 'Schroeder') # ~25 miles from Washington, D.C.
+  end
+  let!(:ind3) do
+    create(:accredited_individual,
+           :with_organizations, registration_number: '34500', individual_type: 'representative',
+                                long: -76.609383, lat: 39.299236, location: 'POINT(-76.609383 39.299236)',
+                                first_name: 'Marci', last_name: 'Weissnat') # ~35 miles from Washington, D.C.
+  end
+  let!(:ind4) do
+    create(:accredited_individual,
+           :with_organizations, registration_number: '45600', individual_type: 'representative',
+                                long: -77.466316, lat: 38.309875, location: 'POINT(-77.466316 38.309875)',
+                                first_name: 'Gerard', last_name: 'Ortiz') # ~47 miles from Washington, D.C.
+  end
+  let!(:ind5) do
+    create(:accredited_individual,
+           :with_organizations, registration_number: '56700', individual_type: 'representative',
+                                long: -76.3483, lat: 39.5359, location: 'POINT(-76.3483 39.5359)',
+                                first_name: 'Adriane', last_name: 'Crona') # ~57 miles from Washington, D.C.
+  end
+  let!(:ind6) do
+    create(:accredited_individual,
+           :with_organizations, registration_number: '67800', individual_type: 'representative',
+                                long: -76.3483, lat: 39.5359, location: 'POINT(-76.3483 39.5359)',
+                                first_name: 'Bob', last_name: 'Lawperson') # ~57 miles from Washington, D.C.
+  end
+  let!(:ind7) do
+    create(:accredited_individual,
+           :with_organizations, registration_number: '78900', individual_type: 'representative',
+                                first_name: 'No', last_name: 'Location') # no location
+  end
+  let!(:ind8) do
+    create(:accredited_individual, registration_number: '89100', individual_type: 'attorney',
+                                   long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',
+                                   first_name: 'Joe', last_name: 'Lawyer') # ~6 miles from Washington, D.C.
+  end
+
+  it 'fuzzy searches within the specified range' do
+    get path, params: { type:, lat:, long:, distance:, name: 'Bob' }
+
+    parsed_response = JSON.parse(response.body)
+
+    expect(parsed_response['data'].pluck('id')).to eq([ind1.id])
+  end
+
+  it 'can search for non-representatives' do
+    get path, params: { type: 'attorney', lat:, long:, distance: }
+
+    parsed_response = JSON.parse(response.body)
+
+    expect(parsed_response['data'].pluck('id')).to eq([ind8.id])
+  end
+end
