@@ -538,18 +538,26 @@ module PdfFill
 
         dependents_application['student_name_and_ssn']['birth_date'] = split_date(dependents_application['student_name_and_ssn']['birth_date'])
        
-        current_term_dates['official_school_start_date'] = split_date(current_term_dates['official_school_start_date'])
-        current_term_dates['expected_student_start_date'] = split_date(current_term_dates['expected_student_start_date'])
-        current_term_dates['expected_graduation_date'] = split_date(current_term_dates['expected_graduation_date'])
+        if current_term_dates.present?
+          current_term_dates['official_school_start_date'] = split_date(current_term_dates['official_school_start_date'])
+          current_term_dates['expected_student_start_date'] = split_date(current_term_dates['expected_student_start_date'])
+          current_term_dates['expected_graduation_date'] = split_date(current_term_dates['expected_graduation_date'])
+        end
 
-        child_stopped_attending_school['birth_date'] = split_date(child_stopped_attending_school['birth_date'])
-        child_stopped_attending_school['date_child_left_school'] = split_date(child_stopped_attending_school['date_child_left_school'])
+        if child_stopped_attending_school.present?
+          child_stopped_attending_school['birth_date'] = split_date(child_stopped_attending_school['birth_date'])
+          child_stopped_attending_school['date_child_left_school'] = split_date(child_stopped_attending_school['date_child_left_school'])
+        end
 
-        last_term_school_information['term_begin'] = split_date(last_term_school_information['term_begin'])
-        last_term_school_information['date_term_ended'] = split_date(last_term_school_information['date_term_ended'])
+        if last_term_school_information.present?
+          last_term_school_information['term_begin'] = split_date(last_term_school_information['term_begin'])
+          last_term_school_information['date_term_ended'] = split_date(last_term_school_information['date_term_ended'])
+        end
 
-        student_address_marriage_tuition['date_payments_began'] = split_date(student_address_marriage_tuition['date_payments_began'])
-        student_address_marriage_tuition['marriage_date'] = split_date(student_address_marriage_tuition['marriage_date'])
+        if student_address_marriage_tuition.present?
+          student_address_marriage_tuition['date_payments_began'] = split_date(student_address_marriage_tuition['date_payments_began'])
+          student_address_marriage_tuition['marriage_date'] = split_date(student_address_marriage_tuition['marriage_date'])
+        end
       end
 
       def expand_phone_number(phone_number)
