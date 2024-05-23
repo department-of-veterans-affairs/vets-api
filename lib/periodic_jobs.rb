@@ -89,7 +89,7 @@ PERIODIC_JOBS = lambda { |mgr|
 
   mgr.register('0 6-18/6 * * *', 'EducationForm::Process10203Submissions')
 
-  mgr.register('* 7 * * *', 'SignIn::DeleteExpiredSessionsJob')
+  mgr.register('0 7 * * *', 'SignIn::DeleteExpiredSessionsJob')
   # Delete expired sessions
 
   mgr.register('0 4 * * *', 'SignIn::CertificateCheckerJob')
