@@ -750,7 +750,7 @@ features:
     enable_in_development: true
   mhv_medical_records_display_settings_page:
     actor_type: user
-    description: Show/hide content related to Vaccines in Medical Records
+    description: Show/hide the Settings Page in Medical Records
     enable_in_development: true
   mhv_medical_records_display_vitals:
     actor_type: user
