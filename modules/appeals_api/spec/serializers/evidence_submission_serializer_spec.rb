@@ -5,7 +5,9 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::EvidenceSubmissionSerializer do
   let(:evidence_submission) { build_stubbed(:evidence_submission) }
-  let(:rendered_hash) { ActiveModelSerializers::SerializableResource.new(evidence_submission, {serializer: described_class} ).as_json }
+  let(:rendered_hash) do
+    ActiveModelSerializers::SerializableResource.new(evidence_submission, { serializer: described_class }).as_json
+  end
   let(:rendered_attributes) { rendered_hash[:data][:attributes] }
 
   context 'when initialized with an object that cannot be called by the delegated attributes' do
@@ -53,8 +55,9 @@ describe AppealsApi::EvidenceSubmissionSerializer do
 
     it 'includes location' do
       allow(upload_submission).to receive(:get_location).and_return('http://another.fakesite.com/rewrittenpath')
-      options = {serializer: described_class, render_location: true }
-      rendered_with_location_hash = ActiveModelSerializers::SerializableResource.new(evidence_submission, options ).as_json
+      options = { serializer: described_class, render_location: true }
+      rendered_with_location_hash = ActiveModelSerializers::SerializableResource.new(evidence_submission,
+                                                                                     options).as_json
       location = upload_submission.get_location
       expect(rendered_with_location_hash[:data][:attributes][:location]).to eq location
     end
