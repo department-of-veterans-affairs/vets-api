@@ -90,11 +90,11 @@
           "secondaryDisabilities": []
         },
         {
-          "name": "Diabetes, mellitus",
+          "name": "plantar fasciitis",
           "classificationCode": "string",
           "disabilityActionType": "NEW",
           "ratedDisabilityId": null,
-          "diagnosticCode": 5238,
+          "diagnosticCode": null,
           "secondaryDisabilities": []
         },
         {

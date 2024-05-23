@@ -269,7 +269,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
       before do
         Flipper.disable(:disability_526_classifier_multi_contention)
-        # allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
       end
 
       after do
@@ -286,10 +285,24 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     context 'with multi-contention classification enabled' do
       let(:submission) do
         create(:form526_submission,
-               :with_multiple_mas_diagnostic_code,
+               :with_mixed_action_disabilities_and_free_text,
                user_uuid: user.uuid,
                auth_headers_json: auth_headers.to_json,
                saved_claim_id: saved_claim.id)
+      end
+
+      it 'does something when multi-contention api endpoint is hit' do
+        VCR.use_cassette('virtual_regional_office/multi_contention_classifier') do
+          described_class.drain
+          submission.reload
+
+          asthma_code = 9012
+          plantar_fasciitis_code = 8994
+          expected_classification_codes = [asthma_code, plantar_fasciitis_code, nil]
+          classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
+          expect(classification_codes).to eq(expected_classification_codes)
+        end
+        expect(submission.disabilities.first['specialIssues']).to be_nil
       end
 
       before do

@@ -194,7 +194,7 @@ module Form526ClaimFastTrackingConcern
   def format_contention_for_vro(disability)
     contention = {
       contention_text: disability['name'],
-      contention_type: disability['disabilityActionType'],
+      contention_type: disability['disabilityActionType']
     }
     contention[:diagnostic_code] = disability['diagnosticCode'] if disability.key?(:diagnosticCode)
     contention
