@@ -94,7 +94,7 @@ module Mobile
             comment:,
             facility_id:,
             sta6aid: facility_id,
-            healthcare_provider: appointment[:healthcare_provider],
+            healthcare_provider: appointment[:preferred_provider_name],
             healthcare_service: nil, # set to nil until we decide what the purpose of this field was meant to be
             location:,
             physical_location: appointment[:physical_location],

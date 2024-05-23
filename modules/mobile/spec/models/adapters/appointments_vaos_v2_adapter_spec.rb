@@ -929,4 +929,10 @@ preferred dates:12/13/2022 PM|pager number:8675309"
       end
     end
   end
+
+  describe 'healthcare provider' do
+    it 'uses the preferred_provider_name' do
+      expect(adapted_appointment[12].healthcare_provider).to eq('Dr. Hauser')
+    end
+  end
 end

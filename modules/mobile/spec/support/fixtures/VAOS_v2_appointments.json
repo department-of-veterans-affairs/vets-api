@@ -876,6 +876,7 @@
     ],
     "cancellable":true,
     "extension":{"cc_location":{"address":{}}},
+    "preferred_provider_name":"Dr. Hauser",
     "location":{
       "id":"984",
       "vista_site":"984",
@@ -895,8 +896,7 @@
         "state":"OH",
         "postal_code":"45428-9000"
       },
-      "health_service":["Audiology", "Cardiology", "DentalServices", "Dermatology", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "Urology", "WomensHealth"],
-      "healthcare_provider":null
+      "health_service":["Audiology", "Cardiology", "DentalServices", "Dermatology", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "Urology", "WomensHealth"]
     }
   },
   {

@@ -260,6 +260,86 @@ RSpec.describe 'vaos v2 appointments', type: :request do
       end
     end
 
+    describe 'healthcare provider names' do
+      let(:erb_template_params) { { start_date: '2021-01-01T00:00:00Z', end_date: '2023-01-26T23:59:59Z' } }
+
+      def fetch_appointments
+        VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
+                             erb: erb_template_params,
+                             match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri],
+                                                                    tag: :force_utf8) do
+                get '/mobile/v0/appointments', headers: sis_headers
+              end
+            end
+          end
+        end
+      end
+
+      # context 'when upstream appointments index returns provider names' do
+      #   it 'adds names to healthcareProvider field' do
+      #     fetch_appointments
+      #     appointment = response.parsed_body['data'].find { |appt| appt['id'] == '76133' }
+      #     expect(appointment['attributes']['healthcareProvider']).to eq('MATTHEW ENGHAUSER')
+      #   end
+      # end
+
+      context 'when the upstream appointments index returns provider id' do
+        let(:appointment) { response.parsed_body['data'].find { |appt| appt['id'] == '76132' } }
+
+        it 'backfills that data by calling the provider service' do
+          fetch_appointments
+          expect(appointment['attributes']['healthcareProvider']).to eq('DEHGHAN, AMIR')
+        end
+
+        it 'falls back to nil when provider does not return provider data' do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
+                               erb: erb_template_params,
+                               match_requests_on: %i[method uri]) do
+                VCR.use_cassette('mobile/providers/get_provider_400', match_requests_on: %i[method uri],
+                                                                      tag: :force_utf8) do
+                  get '/mobile/v0/appointments', headers: sis_headers
+                end
+              end
+            end
+          end
+          expect(response).to have_http_status(:ok)
+          expect(appointment['attributes']['healthcareProvider'])
+            .to eq("We're sorry, we can't display your provider's information right now.")
+        end
+
+        it 'falls back to default message when provider service returns 500' do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
+                               erb: erb_template_params,
+                               match_requests_on: %i[method uri]) do
+                VCR.use_cassette('mobile/providers/get_provider_500', match_requests_on: %i[method uri],
+                                                                      tag: :force_utf8) do
+                  get '/mobile/v0/appointments', headers: sis_headers
+                end
+              end
+            end
+          end
+          expect(response).to have_http_status(:ok)
+          expect(appointment['attributes']['healthcareProvider'])
+            .to eq("We're sorry, we can't display your provider's information right now.")
+        end
+      end
+
+      context 'when upstream appointments index does not include a practitioner id' do
+        it 'sets provider name to nil' do
+          fetch_appointments
+          appointment = response.parsed_body['data'].find { |appt| appt['id'] == '76131' }
+          expect(appointment['attributes']['healthcareProvider']).to be_nil
+        end
+      end
+    end
+
     describe 'appointment IEN' do
       context 'when appointment identifier with the system VistADefinedTerms/409_84 is found' do
         it 'finds an appointment ien' do
@@ -315,8 +395,8 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           appt['attributes']['isPending'] == false && appt['attributes']['status'] == 'BOOKED' &&
             appt_start_time > Time.now.utc && appt_start_time <= 2.weeks.from_now.end_of_day.utc
         end
-        expect(expected_upcoming_pending_count).to eq(2)
-        expect(response.parsed_body['meta']['upcomingAppointmentsCount']).to eq(2)
+        expect(expected_upcoming_pending_count).to eq(1)
+        expect(response.parsed_body['meta']['upcomingAppointmentsCount']).to eq(expected_upcoming_pending_count)
         expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(7)
       end
     end
