@@ -7,6 +7,17 @@ describe ClaimsApi::ClaimDetailSerializer do
   let(:claim) { create(:auto_established_claim_with_supporting_documents, :status_established) }
   let(:rendered_hash) { ActiveModelSerializers::SerializableResource.new(claim, {serializer: described_class} ).as_json }
   let(:rendered_attributes) { rendered_hash[:data][:attributes] }
+  let(:rendered_documents) do
+    [
+      {
+        id: claim.supporting_documents.first[:id],
+        type: "claim_supporting_document",
+        md5: claim.supporting_documents.first[:md5],
+        filename: claim.supporting_documents.first[:filename],
+        uploaded_at: claim.supporting_documents.first[:uploaded_at]
+        }
+    ]
+  end
 
   it 'includes :status' do
     expect(rendered_attributes[:status]).to eq claim.status
@@ -31,7 +42,7 @@ describe ClaimsApi::ClaimDetailSerializer do
   end
 
   it 'includes :supporting_documents' do
-    expect(rendered_attributes[:supporting_documents]).to eq claim.supporting_documents
+    expect(rendered_attributes[:supporting_documents]).to eq rendered_documents
   end
 
 end
