@@ -76,19 +76,6 @@ module SwaggerSharedComponents
         )
       )
 
-      disability_compensation_synchronous_json_schema = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            '526_synchronous.json'
-          )
-        )
-      )
-
       disability_compensation_request_body_example = JSON.parse(
         File.read(
           Rails.root.join(
@@ -227,25 +214,6 @@ module SwaggerSharedComponents
                 required: ['attributes', disability_compensation_json_schema['required']],
                 properties: {
                   attributes: disability_compensation_json_schema
-                }
-              }
-            },
-            example: disability_compensation_request_body_example
-          }
-        },
-        sync_disability_compensation: {
-          in: :body,
-          name: 'data',
-          required: true,
-          schema: {
-            type: :object,
-            required: ['data'],
-            properties: {
-              data: {
-                type: :object,
-                required: ['attributes', disability_compensation_synchronous_json_schema['required']],
-                properties: {
-                  attributes: disability_compensation_synchronous_json_schema
                 }
               }
             },
