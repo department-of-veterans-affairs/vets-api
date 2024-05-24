@@ -88,8 +88,8 @@ RSpec.describe BenefitsClaims::Service do
                                    'multipleExposures' => [],
                                    'herbicideHazardService' => {
                                      'serviceDates' => {
-                                       "beginDate" => "1991-03-01",
-                                       "endDate" => "1992-01-01"
+                                       'beginDate' => '1991-03-01',
+                                       'endDate' => '1992-01-01'
                                      }
                                    }
                                  }

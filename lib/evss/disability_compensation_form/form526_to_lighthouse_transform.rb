@@ -264,7 +264,8 @@ module EVSS
 
       def transform_herbicide(herbicide)
         filtered_results_herbicide = herbicide&.filter { |k| k != 'notsure' }
-        herbicide_value = filtered_results_herbicide&.values&.any?(&:present?) && !none_of_these(filtered_results_herbicide)
+        herbicide_value = filtered_results_herbicide&.values&.any?(&:present?) &&
+                          !none_of_these(filtered_results_herbicide)
 
         herbicide_service = Requests::HerbicideHazardService.new
         herbicide_service.served_in_herbicide_hazard_locations =
