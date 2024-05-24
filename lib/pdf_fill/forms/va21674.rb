@@ -522,7 +522,6 @@ module PdfFill
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
 
         veteran_contact_information['phone_number'] = expand_phone_number(veteran_contact_information['phone_number'])
-        puts @form_data
         merge_dates
         merge_student_helpers
 
