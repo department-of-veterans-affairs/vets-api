@@ -53,11 +53,13 @@ module IvcChampva
 
         if allowed_form_ids.include?(form_id)
           attachment_ids << form_id
-
-          parsed_form_data['supporting_docs'].each do |doc|
+          supporting_docs = parsed_form_data['supporting_docs']
+          supporting_docs&.each do |doc|
             attachment_ids << doc['attachment_id']
           end
         end
+
+        attachment_ids = [@form_id] if attachment_ids.empty?
 
         [attachment_ids, form]
       end
