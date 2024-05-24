@@ -1446,11 +1446,11 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:assertion_value) { nil }
     let(:code_value) { 'some-code' }
     let(:code_verifier_value) { 'some-code-verifier' }
-    let(:grant_type_value) { SignIn::Constants::Auth::AUTH_CODE }
+    let(:grant_type_value) { SignIn::Constants::Auth::AUTH_CODE_GRANT }
     let(:client_assertion) { { client_assertion: client_assertion_value } }
     let(:client_assertion_type) { { client_assertion_type: client_assertion_type_value } }
     let(:client_assertion_value) { 'some-client-assertion' }
-    let(:client_assertion_type_value) { 'some-client-assertion-type' }
+    let(:client_assertion_type_value) { nil }
     let(:type) { nil }
     let(:client_id) { client_config.client_id }
     let(:authentication) { SignIn::Constants::Auth::API }
@@ -1500,20 +1500,20 @@ RSpec.describe V0::SignInController, type: :controller do
 
     context 'when grant_type param is not given' do
       let(:grant_type) { {} }
-      let(:expected_error) { 'Grant Type is not valid' }
+      let(:expected_error) { 'Grant type is not valid' }
 
       it_behaves_like 'error response'
     end
 
     context 'when grant_type param is arbitrary' do
       let(:grant_type_value) { 'some-grant-type' }
-      let(:expected_error) { 'Grant Type is not valid' }
+      let(:expected_error) { 'Grant type is not valid' }
 
       it_behaves_like 'error response'
     end
 
     context 'when grant_type is jwt-bearer' do
-      let(:grant_type_value) { SignIn::Constants::Auth::JWT_BEARER }
+      let(:grant_type_value) { SignIn::Constants::Auth::JWT_BEARER_GRANT }
       let(:assertion_value) { nil }
 
       context 'and assertion is not a valid jwt' do
@@ -1558,19 +1558,7 @@ RSpec.describe V0::SignInController, type: :controller do
           JWT.encode(assertion_payload, private_key, assertion_encode_algorithm)
         end
         let(:expected_log) { '[SignInService] [V0::SignInController] token' }
-        let(:expected_log_values) do
-          {
-            uuid:,
-            service_account_id:,
-            user_attributes: {},
-            user_identifier:,
-            scopes:,
-            audience:,
-            version:,
-            created_time:,
-            expiration_time:
-          }
-        end
+        let(:expected_log_values) { {} }
 
         before do
           allow(Rails.logger).to receive(:info)
@@ -1602,11 +1590,11 @@ RSpec.describe V0::SignInController, type: :controller do
     end
 
     context 'when grant_type is authorization_code' do
-      let(:grant_type_value) { SignIn::Constants::Auth::AUTH_CODE }
+      let(:grant_type_value) { SignIn::Constants::Auth::AUTH_CODE_GRANT }
 
       context 'and code param is not given' do
         let(:code) { {} }
-        let(:expected_error) { 'Code is not valid' }
+        let(:expected_error) { "Code can't be blank" }
 
         it_behaves_like 'error response'
       end
@@ -1654,6 +1642,7 @@ RSpec.describe V0::SignInController, type: :controller do
               let(:user_verification_id) { user_verification.id }
               let(:user_verification) { create(:user_verification) }
               let(:expected_log) { '[SignInService] [V0::SignInController] token' }
+              let(:expected_generator_log) { '[SignInService] [SignIn::TokenResponseGenerator] session created' }
 
               before { allow(Rails.logger).to receive(:info) }
 
@@ -1734,7 +1723,8 @@ RSpec.describe V0::SignInController, type: :controller do
                     created_time: access_token['iat'],
                     expiration_time: access_token['exp']
                   }
-                  expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
+                  expect(Rails.logger).to have_received(:info).with(expected_log, {})
+                  expect(Rails.logger).to have_received(:info).with(expected_generator_log, logger_context)
                 end
 
                 it 'updates StatsD with a token request success' do
@@ -1782,7 +1772,8 @@ RSpec.describe V0::SignInController, type: :controller do
                     created_time: access_token['iat'],
                     expiration_time: access_token['exp']
                   }
-                  expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
+                  expect(Rails.logger).to have_received(:info).with(expected_log, {})
+                  expect(Rails.logger).to have_received(:info).with(expected_generator_log, logger_context)
                 end
 
                 it 'updates StatsD with a token request success' do
@@ -1838,6 +1829,7 @@ RSpec.describe V0::SignInController, type: :controller do
                 let(:user_verification_id) { user_verification.id }
                 let(:user_verification) { create(:user_verification) }
                 let(:expected_log) { '[SignInService] [V0::SignInController] token' }
+                let(:expected_generator_log) { '[SignInService] [SignIn::TokenResponseGenerator] session created' }
 
                 before { allow(Rails.logger).to receive(:info) }
 
@@ -1911,7 +1903,8 @@ RSpec.describe V0::SignInController, type: :controller do
                       created_time: access_token['iat'],
                       expiration_time: access_token['exp']
                     }
-                    expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
+                    expect(Rails.logger).to have_received(:info).with(expected_log, {})
+                    expect(Rails.logger).to have_received(:info).with(expected_generator_log, logger_context)
                   end
 
                   it 'updates StatsD with a token request success' do
@@ -1959,7 +1952,8 @@ RSpec.describe V0::SignInController, type: :controller do
                       created_time: access_token['iat'],
                       expiration_time: access_token['exp']
                     }
-                    expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
+                    expect(Rails.logger).to have_received(:info).with(expected_log, {})
+                    expect(Rails.logger).to have_received(:info).with(expected_generator_log, logger_context)
                   end
 
                   it 'updates StatsD with a token request success' do
