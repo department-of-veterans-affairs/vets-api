@@ -90,7 +90,7 @@ describe VAOS::V2::AppointmentProviderName do
         .to eq(response.name)
     end
 
-    it 'aggregates multiple practitioner names as a comma separated list' do
+    it 'uses the first practitioner when multiple practitioners are in the list' do
       multiple_practitioners_without_names = practitioner_list + [{
         identifier: [
           {
@@ -107,7 +107,7 @@ describe VAOS::V2::AppointmentProviderName do
         .to receive(:get_provider).with('1407938062').and_return(second_provider_response)
       name =
         provider_names.form_names_from_appointment_practitioners_list(multiple_practitioners_without_names)
-      expect(name).to eq('DEHGHAN, AMIR, J. Jones')
+      expect(name).to eq('DEHGHAN, AMIR')
     end
 
     it 'only requests an upstream provider once' do
