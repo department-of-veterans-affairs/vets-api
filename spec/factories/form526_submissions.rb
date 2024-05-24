@@ -193,6 +193,7 @@ FactoryBot.define do
       json = JSON.parse json_string
       # disabilities = json.dig('form526', 'form526', 'disabilities')
       json.to_json
+    end
   end
 
   trait :with_pact_related_disabilities do
