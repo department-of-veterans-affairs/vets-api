@@ -28,17 +28,5 @@ module TravelPay
 
       raise ERROR_MAP[status_code].new(errors: [{title: message, status: status_code}])
     end
-
-    def self.status_code(response)
-      return response.status if response.respond_to?(:status)
-
-      response[:status] if response.instance_of?(Hash) && response&.key?(:status)
-    end
-
-    def self.message(response_body)
-      return response.message if response.respond_to?(:message)
-
-    end
   end
-
 end
