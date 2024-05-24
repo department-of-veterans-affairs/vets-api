@@ -49,7 +49,7 @@ RSpec.describe TravelPay::ClaimsController, type: :request do
 
         allow_any_instance_of(TravelPay::Client)
           .to receive(:get_claims)
-          .and_raise(Faraday::ResourceNotFound)
+          .and_raise(Faraday::ResourceNotFound.new(nil, {status: 404, body: {'message' => 'not found'}}))
 
         sign_in(user)
 
