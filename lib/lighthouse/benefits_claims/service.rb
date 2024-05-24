@@ -151,8 +151,8 @@ module BenefitsClaims
       # this removes the multipleExposures array if it is empty
       remove_empty_array(body, 'toxicExposure', 'multipleExposures')
 
-      # LH PDF generator crashes when herbicide dates are populated.
-      # Nullify them for now until a fix is in place
+      # LH PDF generator crashes when herbicide dates are null.
+      # Send empty object for now until a fix is in place
       fix_herbicide_service_dates(body)
 
       body
