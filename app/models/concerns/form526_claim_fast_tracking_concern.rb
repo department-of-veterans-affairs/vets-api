@@ -196,7 +196,7 @@ module Form526ClaimFastTrackingConcern
       contention_text: disability['name'],
       contention_type: disability['disabilityActionType']
     }
-    contention[:diagnostic_code] = disability['diagnosticCode'] if disability.key?(:diagnosticCode)
+    contention['diagnostic_code'] = disability['diagnosticCode'] if disability['diagnosticCode']
     contention
   end
 

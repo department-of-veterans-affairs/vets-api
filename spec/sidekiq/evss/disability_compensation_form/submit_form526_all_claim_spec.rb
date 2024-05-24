@@ -15,6 +15,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     Flipper.disable(:disability_526_classifier_new_claims)
     Flipper.disable(:disability_compensation_lighthouse_submit_migration)
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
+    Flipper.disable(:disability_526_classifier_multi_contention)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -301,19 +302,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       it 'does something when multi-contention api endpoint is hit' do
-        VCR.use_cassette('virtual_regional_office/multi_contention_classifier') do
-          described_class.drain
-          submission.reload
+        expect(described_class).to be < EVSS::DisabilityCompensationForm::SubmitForm526
+        subject.perform_async(submission.id)
 
-          asthma_code = 9012
-          plantar_fasciitis_code = 8994
-          expected_classification_codes = [asthma_code, plantar_fasciitis_code, nil]
-          classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
-          # disabilities = submission.form['form526']['form526']['disabilities']
-          # expect(disabilities).to eq(expected_classification_codes)
-          expect(classification_codes).to eq(expected_classification_codes)
-        end
-        expect(submission.disabilities.first['specialIssues']).to be_nil
+        expect do
+          VCR.use_cassette('virtual_regional_office/multi_contention_classification') do
+            described_class.drain
+            submission.reload
+
+            classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
+            expect(classification_codes).to eq([9012, 8994, nil])
+          end
+        end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
       end
 
       it 'calls va-gov-claim-classifier' do
