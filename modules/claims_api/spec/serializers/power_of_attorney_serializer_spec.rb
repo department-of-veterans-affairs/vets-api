@@ -4,7 +4,9 @@ require 'rails_helper'
 
 describe ClaimsApi::PowerOfAttorneySerializer do
   let(:poa_submission) { build(:power_of_attorney, status: ClaimsApi::PowerOfAttorney::UPLOADED) }
-  let(:rendered_hash) { ActiveModelSerializers::SerializableResource.new(poa_submission, {serializer: described_class} ).as_json }
+  let(:rendered_hash) do
+    ActiveModelSerializers::SerializableResource.new(poa_submission, { serializer: described_class }).as_json
+  end
   let(:rendered_attributes) { rendered_hash[:data][:attributes] }
 
   it 'includes :date_request_accepted' do
@@ -27,9 +29,11 @@ describe ClaimsApi::PowerOfAttorneySerializer do
   end
 
   context 'when a POA submission does not have a status property of "uploaded"' do
-
     let(:submitted_poa_submission) { build(:power_of_attorney) }
-    let(:submitted_rendered_hash) { ActiveModelSerializers::SerializableResource.new(submitted_poa_submission, {serializer: described_class} ).as_json }
+    let(:submitted_rendered_hash) do
+      ActiveModelSerializers::SerializableResource.new(submitted_poa_submission,
+                                                       { serializer: described_class }).as_json
+    end
     let(:submitted_rendered_attributes) { submitted_rendered_hash[:data][:attributes] }
 
     it 'includes :status from poa_submission' do

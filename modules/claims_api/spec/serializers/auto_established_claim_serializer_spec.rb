@@ -4,7 +4,9 @@ require 'rails_helper'
 
 describe ClaimsApi::AutoEstablishedClaimSerializer do
   let(:auto_established_claim) { build_stubbed(:auto_established_claim) }
-  let(:rendered_hash) { ActiveModelSerializers::SerializableResource.new(auto_established_claim, {serializer: described_class} ).as_json }
+  let(:rendered_hash) do
+    ActiveModelSerializers::SerializableResource.new(auto_established_claim, { serializer: described_class }).as_json
+  end
   let(:rendered_attributes) { rendered_hash[:data][:attributes] }
 
   it 'includes :token' do
@@ -24,11 +26,10 @@ describe ClaimsApi::AutoEstablishedClaimSerializer do
   end
 
   it 'includes :type' do
-    expect(rendered_hash[:data][:type]).to eq "claims_api_claim"
+    expect(rendered_hash[:data][:type]).to eq 'claims_api_claim'
   end
 
   it 'includes :id' do
     expect(rendered_hash[:data][:id]).to eq auto_established_claim.id
   end
-
 end
