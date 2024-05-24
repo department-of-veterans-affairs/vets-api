@@ -309,6 +309,88 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(multi_exp_location).to eq('Guam')
         expect(multi_exp_hazard).to eq('RADIATION')
       end
+
+      it 'maps herbicide correctly when dates are not included' do
+        form_attributes['toxicExposure']['herbicideHazardService']['serviceDates'] = nil
+
+        mapper.map_claim
+
+        toxic_exp_data = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
+        herb_service_dates = toxic_exp_data[:herbicideHazardService][:serviceDates]
+
+        expect(herb_service_dates).to eq(nil)
+      end
+
+      it 'maps additional exposures correctly when dates are not included' do
+        form_attributes['toxicExposure']['additionalHazardExposures']['exposureDates'] = nil
+
+        mapper.map_claim
+
+        toxic_exp_data = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
+        additional_exposure_dates = toxic_exp_data[:additionalHazardExposures][:exposureDates]
+
+        expect(additional_exposure_dates).to eq(nil)
+      end
+
+      context '526 section 4, herbicideHazardService exposures null data' do
+        it 'maps the attributes correctly' do
+          toxic_exp_data = form_attributes['toxicExposure']
+          toxic_exp_data['herbicideHazardService']['serviceDates']['beginDate'] = nil
+          toxic_exp_data['herbicideHazardService']['serviceDates']['endDate'] = nil
+          toxic_exp_data['herbicideHazardService']['servedInHerbicideHazardLocations'] = nil
+          toxic_exp_data['herbicideHazardService']['otherLocationsServed'] = nil
+
+          mapper.map_claim
+
+          exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
+          expect(exposure_info[:herbicideHazardService][:servedInHerbicideHazardLocations]).to eq('NO')
+        end
+      end
+
+      context '526 section 4, additionalHazardExposures null data' do
+        it 'maps the attributes correctly' do
+          toxic_exp_data = form_attributes['toxicExposure']
+          toxic_exp_data['additionalHazardExposures']['exposureDates']['beginDate'] = nil
+          toxic_exp_data['additionalHazardExposures']['exposureDates']['endDate'] = nil
+          toxic_exp_data['additionalHazardExposures']['additionalExposures'] = nil
+          toxic_exp_data['additionalHazardExposures']['specifyOtherExposures'] = nil
+
+          mapper.map_claim
+
+          exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
+          expect(exposure_info[:additionalHazardExposures]).to eq(nil)
+        end
+      end
+
+      context '526 section 4, multiple exposures null data' do
+        it 'maps the attributes correctly' do
+          toxic_exp_data = form_attributes['toxicExposure']
+          toxic_exp_data['multipleExposures'][0]['exposureDates']['beginDate'] = nil
+          toxic_exp_data['multipleExposures'][0]['exposureDates']['endDate'] = nil
+          toxic_exp_data['multipleExposures'][0]['exposureLocation'] = nil
+          toxic_exp_data['multipleExposures'][0]['hazardExposedTo'] = nil
+
+          mapper.map_claim
+
+          exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
+          expect(exposure_info[:multipleExposures]).to eq(nil)
+        end
+      end
+
+      context '526 section 4, multiple exposures null endDate' do
+        it 'maps the attributes correctly' do
+          toxic_exp_data = form_attributes['toxicExposure']
+          toxic_exp_data['multipleExposures'][0]['exposureDates']['endDate'] = nil
+
+          mapper.map_claim
+
+          exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
+          expect(exposure_info[:multipleExposures][0][:exposureLocation]).to eq('Guam')
+          expect(exposure_info[:multipleExposures][0][:hazardExposedTo]).to eq('RADIATION')
+          expect(exposure_info[:multipleExposures][0][:exposureDates][:start][:month]).to eq('12')
+          expect(exposure_info[:multipleExposures][0][:exposureDates][:start][:year]).to eq('2012')
+        end
+      end
     end
 
     context '526 section 5, claimInfo: diabilities' do
@@ -408,66 +490,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
         expect(start_date).to eq(nil)
         expect(no_date).to eq(true)
-      end
-    end
-
-    context '526 section 5, herbicideHazardService exposures null data' do
-      it 'maps the attributes correctly' do
-        toxic_exp_data = form_attributes['toxicExposure']
-        toxic_exp_data['herbicideHazardService']['serviceDates']['beginDate'] = nil
-        toxic_exp_data['herbicideHazardService']['serviceDates']['endDate'] = nil
-        toxic_exp_data['herbicideHazardService']['servedInHerbicideHazardLocations'] = nil
-        toxic_exp_data['herbicideHazardService']['otherLocationsServed'] = nil
-
-        mapper.map_claim
-
-        exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
-        expect(exposure_info[:herbicideHazardService][:servedInHerbicideHazardLocations]).to eq('NO')
-      end
-    end
-
-    context '526 section 5, additionalHazardExposures null data' do
-      it 'maps the attributes correctly' do
-        toxic_exp_data = form_attributes['toxicExposure']
-        toxic_exp_data['additionalHazardExposures']['exposureDates']['beginDate'] = nil
-        toxic_exp_data['additionalHazardExposures']['exposureDates']['endDate'] = nil
-        toxic_exp_data['additionalHazardExposures']['additionalExposures'] = nil
-        toxic_exp_data['additionalHazardExposures']['specifyOtherExposures'] = nil
-
-        mapper.map_claim
-
-        exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
-        expect(exposure_info[:additionalHazardExposures]).to eq(nil)
-      end
-    end
-
-    context '526 section 5, multiple exposures null data' do
-      it 'maps the attributes correctly' do
-        toxic_exp_data = form_attributes['toxicExposure']
-        toxic_exp_data['multipleExposures'][0]['exposureDates']['beginDate'] = nil
-        toxic_exp_data['multipleExposures'][0]['exposureDates']['endDate'] = nil
-        toxic_exp_data['multipleExposures'][0]['exposureLocation'] = nil
-        toxic_exp_data['multipleExposures'][0]['hazardExposedTo'] = nil
-
-        mapper.map_claim
-
-        exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
-        expect(exposure_info[:multipleExposures]).to eq(nil)
-      end
-    end
-
-    context '526 section 5, multiple exposures null endDate' do
-      it 'maps the attributes correctly' do
-        toxic_exp_data = form_attributes['toxicExposure']
-        toxic_exp_data['multipleExposures'][0]['exposureDates']['endDate'] = nil
-
-        mapper.map_claim
-
-        exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
-        expect(exposure_info[:multipleExposures][0][:exposureLocation]).to eq('Guam')
-        expect(exposure_info[:multipleExposures][0][:hazardExposedTo]).to eq('RADIATION')
-        expect(exposure_info[:multipleExposures][0][:exposureDates][:start][:month]).to eq('12')
-        expect(exposure_info[:multipleExposures][0][:exposureDates][:start][:year]).to eq('2012')
       end
     end
 
