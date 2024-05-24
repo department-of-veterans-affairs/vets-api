@@ -3,13 +3,18 @@
 require 'disability_compensation/providers/generate_pdf/generate_pdf_provider'
 
 class LighthouseGeneratePdfProvider
-  include GeneratePdfProvider
+  # [wipn8923] this doesn't actually do anything...?
+  # include ClaimsServiceProvider
 
-  def initialize(_auth_headers)
-    # TODO: Implement in Ticket#
+  def initialize(icn)
+    @icn = icn
   end
 
-  def generate_526_pdf(_form_content)
-    # TODO: Implement in Ticket#
+  def generate_526_pdf(form_content)
+    service.submit526(form_content, nil, nil, { generate_pdf: true })
+  end
+
+  def service
+    @service ||= BenefitsClaims::Service.new(@icn)
   end
 end
