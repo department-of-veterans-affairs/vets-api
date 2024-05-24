@@ -151,6 +151,10 @@ module BenefitsClaims
       # this removes the multipleExposures array if it is empty
       remove_empty_array(body, 'toxicExposure', 'multipleExposures')
 
+      # LH PDF generator crashes when herbicide dates are populated.
+      # Nullify them for now until a fix is in place
+      fix_herbicide_service_dates(body)
+
       body
     end
 
@@ -161,6 +165,14 @@ module BenefitsClaims
         body['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
           body['data']['attributes']['veteranIdentification']['currentVAEmployee']
         body['data']['attributes']['veteranIdentification'].delete('currentVAEmployee')
+      end
+    end
+
+    def fix_herbicide_service_dates(body)
+      if body.dig('data', 'attributes', 'toxicExposure', 'herbicideHazardService')&.select do |field|
+        field['serviceDates']
+      end&.key?('serviceDates')
+        body['data']['attributes']['toxicExposure']['herbicideHazardService']['serviceDates'] = nil
       end
     end
 
