@@ -95,7 +95,20 @@ module SimpleFormsApi
     end
 
     def submission_date_stamps
-      []
+      [
+        {
+          coords: [460, 710],
+          text: 'Application Submitted:',
+          page: 2,
+          font_size: 12
+        },
+        {
+          coords: [460, 690],
+          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          page: 2,
+          font_size: 12
+        }
+      ]
     end
 
     def track_user_identity(confirmation_number)
