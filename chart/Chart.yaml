@@ -83,7 +83,8 @@ type: application
 # 0.12.18 - Disable common configmaps
 # 0.12.19 - Condensed value secrets
 # 0.12.20 - Reverted 12.18 and 12.19 modifications
-version: 0.12.20
+# 0.12.21 - Implemented parent null values
+version: 0.12.21
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to

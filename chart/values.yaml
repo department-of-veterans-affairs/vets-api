@@ -1,12 +1,12 @@
-appName: ""
-target_env: ""
-manualRoll: ""
+appName:
+target_env:
+manualRoll:
 image:
-  value: ""
-  tag: ""
+  value:
+  tag:
   pullPolicy: Always
-vsp_environment: ""
-affinityWeight: ""
+vsp_environment:
+affinityWeight:
 mockData:
   enabled: false
 matchExpressions:
@@ -14,87 +14,87 @@ matchExpressions:
   operator: In
 topologyKey: kubernetes.io/hostname
 annotations:
-  ad.datadoghq.com/vets-api-web.checks: {}
+  ad.datadoghq.com/vets-api-web.checks:
 serviceAccount:
   enabled: false
-  role_arn: ""
-  name: ""
-fsGroup: ""
+  role_arn:
+  name:
+fsGroup:
 #Web configuration
 web:
-  strategyType: ""
-  maxSurge: ""
-  maxUnavailable: ""
+  strategyType:
+  maxSurge:
+  maxUnavailable:
   containers:
     ports:
-      - containerPort: ""
+      - containerPort:
         name: web
-      - containerPort: ""
-        name: ""
+      - containerPort:
+        name:
   healthCheck:
-    host: ""
+    host:
   livenessProbe:
     enabled: false
-    port: ""
-    initialDelaySeconds: ""
-    failureThreshold: ""
-    periodSeconds: ""
-    successThreshold: ""
-    requestPath: ""
+    port:
+    initialDelaySeconds:
+    failureThreshold:
+    periodSeconds:
+    successThreshold:
+    requestPath:
   readinessProbe:
-    port: ""
-    initialDelaySeconds: ""
-    failureThreshold: ""
-    periodSeconds: ""
-    successThreshold: ""
-    requestPath: ""
+    port:
+    initialDelaySeconds:
+    failureThreshold:
+    periodSeconds:
+    successThreshold:
+    requestPath:
   startupProbe:
     enabled: false
-    port: ""
-    initialDelaySeconds: ""
-    failureThreshold: ""
-    periodSeconds: ""
-    successThreshold: ""
-    requestPath: ""
+    port:
+    initialDelaySeconds:
+    failureThreshold:
+    periodSeconds:
+    successThreshold:
+    requestPath:
   socatProxyEnabled: false
-  terminationGracePeriodSeconds: ""
+  terminationGracePeriodSeconds:
   envSecrets:
     - name: DD_APM_ENABLED
       value: false
   resources:
     requests:
-      cpu: ""
-      memory: ""
+      cpu:
+      memory:
     limits:
-      cpu: ""
-      memory: ""
+      cpu:
+      memory:
   ssoeEnabled: false
-  ssoeConfigs: {}
+  ssoeConfigs:
   ingress:
     enabled: true
-    entryPoints: ""
+    entryPoints:
     default:
-      port: ""
-      kind: ""
-      host: ""
-      priority: ""
+      port:
+      kind:
+      host:
+      priority:
     headers:
       enabled: false
       properties: {}
   webServices: {}
   autoscaling:
-    minReplicas: ""
-    maxReplicas: ""
-    targetValue: ""
+    minReplicas:
+    maxReplicas:
+    targetValue:
   service:
     enabled: false
     annotations: {}
-    ports: ""
-    type: ""
+    ports:
+    type:
   externalDns:
-    dnsName: ""
-    recordTTL: ""
-    targets: ""
+    dnsName:
+    recordTTL:
+    targets:
   dbMigrate:
     enabled: false
     envSecrets:
@@ -103,39 +103,39 @@ web:
 #Worker Configuration
 worker:
   enabled: false
-  strategyType: ""
-  maxSurge: ""
-  maxUnavailable: ""
+  strategyType:
+  maxSurge:
+  maxUnavailable:
   containers:
     command: []
     args: []
   autoscaling:
     enabled: false
-    minReplicas: ""
-    maxReplicas: ""
-    targetValue: ""
+    minReplicas:
+    maxReplicas:
+    targetValue:
   healthCheck:
-    requestPath: ""
-    port: ""
-    initialDelaySeconds: ""
-    readinessPath: ""
-    readinessPort: ""
-    timeoutSeconds: ""
-    successThreshold: ""
+    requestPath:
+    port:
+    initialDelaySeconds:
+    readinessPath:
+    readinessPort:
+    timeoutSeconds:
+    successThreshold:
     command: []
-    livesness:
-      failureThreshold: 3
+    liveness:
+      failureThreshold:
     readiness:
-      failureThreshold: 3
-  terminationGracePeriodSeconds: ""
+      failureThreshold:
+  terminationGracePeriodSeconds:
   socatProxyEnabled: false
   envSecrets:
     - name: DD_APM_ENABLED
       value: false
   resources:
     requests:
-      cpu: ""
-      memory: ""
+      cpu:
+      memory:
 # cronJobs configuration
 cronJobs: {}
 
@@ -146,28 +146,28 @@ cronJobs: {}
 clamav:
   enabled: false
   image:
-    tag: ""
-    value: ""
-  volumeMounts: {}
-  ports: {}
-  probes: {}
+    tag:
+    value:
+  volumeMounts:
+  ports:
+  probes:
   resources: {}
 
 
 # Common configuration
 common:
-  socatProxy: {}
+  socatProxy:
   lighthousePreConfigs:
-    name: ""
-    data: ""
-  volumeMounts: {}
-  volumes: {}
-  initContainers: {}
+    name:
+    data:
+  volumeMounts:
+  volumes:
+  initContainers:
   secrets: {}
   configMaps: {}
     # configMap:
-    #   name: ""
+    #   name:
     #   data: {}
     # readinessConfigMap:
-    #   name: ""
+    #   name:
     #   data: {}
