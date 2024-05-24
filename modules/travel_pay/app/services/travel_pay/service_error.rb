@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module TravelPay
   class ServiceError
     ERROR_MAP = {
@@ -19,14 +21,14 @@ module TravelPay
         status_code = error.response_status
         symbolized_body = error.response_body.deep_symbolize_keys
         message = symbolized_body[:message]
-      rescue 
+      rescue
         raise Common::Exceptions::ServiceError
       end
 
       # Log here
       raise Common::Exceptions::ServiceError unless ERROR_MAP.include?(status_code)
 
-      raise ERROR_MAP[status_code].new(errors: [{title: message, status: status_code}])
+      raise ERROR_MAP[status_code].new(errors: [{ title: message, status: status_code }])
     end
   end
 end
