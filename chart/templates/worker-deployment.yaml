@@ -85,6 +85,8 @@ spec:
                   fieldPath: metadata.name
             - name: GIT_REVISION
               value: {{ .Values.image.tag}}
+            - name: DD_COMMIT_SHA
+              value: {{ .Values.image.tag}}
 {{ toYaml .Values.worker.envSecrets | indent 12 }}
           {{- range $keys, $key := .Values.common.secrets }}
           {{- range $secrets, $secret := $key }}
