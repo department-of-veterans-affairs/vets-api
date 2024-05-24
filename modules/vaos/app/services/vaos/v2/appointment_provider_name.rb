@@ -6,7 +6,7 @@ module VAOS
     # practitioner information from upstream. Concatenates all found provder names into a comma separated string.
     # uses both the VAOS::V2::MobilePPMSService cache and a local cache. The local cache prevents the MobilePPMSService
     # from repeatedly re-requesting the same data if the upstream fails to provide it the first time.
-    class ProviderNames
+    class AppointmentProviderName
       NPI_NOT_FOUND_MSG = "We're sorry, we can't display your provider's information right now."
 
       def initialize(user)

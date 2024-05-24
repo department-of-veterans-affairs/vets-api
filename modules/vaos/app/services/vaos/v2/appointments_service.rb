@@ -207,7 +207,7 @@ module VAOS
 
       def find_and_merge_provider_name(appt)
         practitioners_list = appt[:practitioners]
-        service = ProviderNames.new(user)
+        service = AppointmentProviderName.new(user)
         names = service.form_names_from_appointment_practitioners_list(practitioners_list)
 
         appt[:preferred_provider_name] = names

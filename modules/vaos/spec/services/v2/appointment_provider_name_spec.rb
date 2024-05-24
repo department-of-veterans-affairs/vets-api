@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe VAOS::V2::ProviderNames do
+describe VAOS::V2::AppointmentProviderName do
   let(:user) { FactoryBot.build(:user) }
   let(:provider_names) { described_class.new(user) }
   let(:practitioner_list) do
@@ -121,7 +121,7 @@ describe VAOS::V2::ProviderNames do
       allow_any_instance_of(VAOS::V2::MobilePPMSService)
         .to receive(:get_provider).and_raise(Common::Exceptions::BackendServiceException)
       name = provider_names.form_names_from_appointment_practitioners_list(practitioner_list)
-      expect(name).to eq(VAOS::V2::ProviderNames::NPI_NOT_FOUND_MSG)
+      expect(name).to eq(VAOS::V2::AppointmentProviderName::NPI_NOT_FOUND_MSG)
     end
 
     it 'returns nil if the returned provider does not match the expected structure' do

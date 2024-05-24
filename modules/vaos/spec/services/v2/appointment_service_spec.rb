@@ -282,7 +282,8 @@ describe VAOS::V2::AppointmentsService do
 
     context 'when partial success is returned and failures are returned with ICNs' do
       before do
-        allow_any_instance_of(VAOS::V2::ProviderNames).to receive(:form_names_from_appointment_practitioners_list)
+        allow_any_instance_of(VAOS::V2::AppointmentProviderName)
+          .to receive(:form_names_from_appointment_practitioners_list)
           .and_return(nil)
       end
 
