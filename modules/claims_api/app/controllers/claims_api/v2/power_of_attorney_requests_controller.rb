@@ -2,7 +2,7 @@
 
 module ClaimsApi
   module V2
-    class PowerOfAttorneyRequestsController < PowerOfAttorneyRequest::BaseController
+    class PowerOfAttorneyRequestsController < PowerOfAttorneyRequests::BaseController
       def index
         index_params =
           params.permit(
