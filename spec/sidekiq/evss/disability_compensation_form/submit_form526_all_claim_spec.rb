@@ -291,6 +291,15 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                saved_claim_id: saved_claim.id)
       end
 
+      before do
+        Flipper.enable(:disability_526_classifier_multi_contention)
+        # allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+      end
+
+      after do
+        Flipper.disable(:disability_526_classifier_multi_contention)
+      end
+
       it 'does something when multi-contention api endpoint is hit' do
         VCR.use_cassette('virtual_regional_office/multi_contention_classifier') do
           described_class.drain
@@ -300,18 +309,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           plantar_fasciitis_code = 8994
           expected_classification_codes = [asthma_code, plantar_fasciitis_code, nil]
           classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
+          # disabilities = submission.form['form526']['form526']['disabilities']
+          # expect(disabilities).to eq(expected_classification_codes)
           expect(classification_codes).to eq(expected_classification_codes)
         end
         expect(submission.disabilities.first['specialIssues']).to be_nil
-      end
-
-      before do
-        Flipper.enable(:disability_526_classifier_multi_contention)
-        # allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
-      end
-
-      after do
-        Flipper.disable(:disability_526_classifier_multi_contention)
       end
 
       it 'calls va-gov-claim-classifier' do
