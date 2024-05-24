@@ -26,4 +26,25 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
       end
     end
   end
+
+  describe '#choose_provider' do
+    let(:submission) { create(:form526_submission) }
+    # [wipn8923] ?? submissionn has a user_uuid, but what type of record is it?
+    # let(:user) { UserAccount.find(submission
+
+    it 'delegates to the ApiProviderFactory with the correct data' do
+      headers = {}
+      breakered = true
+      expect(ApiProviderFactory).to receive(:call).with({
+        type: ApiProviderFactory::FACTORIES[:generate_pdf],
+        provider: nil,
+        options: { auth_headers: headers, breakered: }, # wipn - headers? / breakered?
+        current_user: OpenStruct.new({ flipper_id: submission.user_uuid }),
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF,
+        icn: user_account.icn
+      })
+
+      subject.new(submission.id).choose_provider(headers, breakered)
+    end
+  end
 end

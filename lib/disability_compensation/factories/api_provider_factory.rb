@@ -172,7 +172,7 @@ class ApiProviderFactory
       # for instance, in the backup process
       EvssGeneratePdfProvider.new(@options[:auth_headers], breakered: @options[:breakered])
     when API_PROVIDER[:lighthouse]
-      LighthouseGeneratePdfProvider.new({})
+      LighthouseGeneratePdfProvider.new(@options[:icn])
     else
       raise NotImplementedError, 'No known Generate Pdf Api Provider type provided'
     end

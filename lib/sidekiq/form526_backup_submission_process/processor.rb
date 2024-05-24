@@ -303,8 +303,6 @@ module Sidekiq
       end
 
       def determine_zip
-        # TODO: Figure out if I need to use currentMailingAddress or changeOfAddress zip?
-        # TODO: I dont think it matters too much though
         z = submission.form.dig('form526', 'form526', 'veteran', 'currentMailingAddress')
         if z.nil? || z['country']&.downcase != 'usa'
           @zip = '00000'
@@ -436,9 +434,15 @@ module Sidekiq
           # this sends the auth headers and if we want the "breakered" or "non-breakered" version
           options: { auth_headers: headers, breakered: },
           current_user: OpenStruct.new({ flipper_id: submission.user_uuid }),
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF,
+          icn: user_account.icn
         )
       end
+    end
+
+    def user_account
+      @user_account ||= UserAccount.find_by(id: submission.user_account_id) ||
+                          Account.find_by(idme_uuid: submission.user_uuid)
     end
 
     class NonBreakeredProcessor < Processor
