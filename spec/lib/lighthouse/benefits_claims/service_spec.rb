@@ -102,7 +102,7 @@ RSpec.describe BenefitsClaims::Service do
                                    'serviceInformation' => {},
                                    'toxicExposure' => {
                                      'herbicideHazardService' => {
-                                       'serviceDates' => nil
+                                       'serviceDates' => {}
                                      }
                                    }
                                  }

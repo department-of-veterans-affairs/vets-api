@@ -172,7 +172,7 @@ module BenefitsClaims
       if body.dig('data', 'attributes', 'toxicExposure', 'herbicideHazardService')&.select do |field|
         field['serviceDates']
       end&.key?('serviceDates')
-        body['data']['attributes']['toxicExposure']['herbicideHazardService']['serviceDates'] = nil
+        body['data']['attributes']['toxicExposure']['herbicideHazardService']['serviceDates'] = {}
       end
     end
 
