@@ -49,14 +49,10 @@ module IvcChampva
         form = "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
         attachment_ids = []
 
-        allowed_form_ids = %w[vha_10_10d vha_10_7959c]
-
-        if allowed_form_ids.include?(form_id)
-          attachment_ids << form_id
-          supporting_docs = parsed_form_data['supporting_docs']
-          supporting_docs&.each do |doc|
-            attachment_ids << doc['attachment_id']
-          end
+        attachment_ids << form_id
+        supporting_docs = parsed_form_data['supporting_docs']
+        supporting_docs&.each do |doc|
+          attachment_ids << doc['attachment_id']
         end
 
         attachment_ids = [@form_id] if attachment_ids.empty?
