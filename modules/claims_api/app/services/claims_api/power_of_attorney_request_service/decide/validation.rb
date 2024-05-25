@@ -5,7 +5,7 @@ module ClaimsApi
     module Decide
       class Validation
         # This error type expects to be instantiated with objects that are
-        # `ActiveModel::Validations`
+        # `ActiveModel::Validations`.
         class Error < ::Common::Exceptions::ValidationErrors
           def i18n_key
             'common.exceptions.validation_errors'
@@ -14,7 +14,8 @@ module ClaimsApi
 
         include ActiveModel::Validations
 
-        validate :status_transition_must_be_terminating
+        # Only genuine decisions are allowed and they are only allowed once.
+        validates_with TerminatingStatusTransitionValidator
 
         class << self
           def perform!(...)
@@ -22,34 +23,11 @@ module ClaimsApi
           end
         end
 
+        attr_reader :previous, :current
+
         def initialize(previous, current)
           @previous = previous
           @current = current
-        end
-
-        private
-
-        TERMINAL_STATUSES = [
-          PowerOfAttorneyRequest::Decision::Statuses::ACCEPTED,
-          PowerOfAttorneyRequest::Decision::Statuses::DECLINED
-        ].freeze
-
-        NONTERMINAL_STATUSES = (
-          PowerOfAttorneyRequest::Decision::Statuses::ALL -
-          TERMINAL_STATUSES
-        ).freeze
-
-        def status_transition_must_be_terminating
-          return if
-            # Genuine decisions are okay once but then frozen.
-            @previous.status.in?(NONTERMINAL_STATUSES) &&
-            @current.status.in?(TERMINAL_STATUSES)
-
-          message =
-            'Transition must be terminating: ' \
-            "[#{NONTERMINAL_STATUSES.join(' | ')}] -> [#{TERMINAL_STATUSES.join(' | ')}]"
-
-          errors.add(:status, message)
         end
 
         def raise_validation_error
