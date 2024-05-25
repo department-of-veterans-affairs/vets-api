@@ -98,7 +98,7 @@ module ClaimsApi
         body.dig(
           "#{@action.name}Response",
           @action.key
-        ).to_h
+        )
       end
 
       # The underlying Faraday exceptions will be the `#cause` of our wrapped

@@ -157,6 +157,32 @@ module ClaimsApi
             )
         end
       end
+
+      module VeteranRepresentativeService
+        DEFINITION =
+          Service.new(
+            bean: VdcBean::DEFINITION,
+            path: 'VeteranRepresentativeService'
+          )
+
+        module ReadAllVeteranRepresentatives
+          DEFINITION =
+            Action.new(
+              service: VeteranRepresentativeService::DEFINITION,
+              name: 'readAllVeteranRepresentatives',
+              key: 'VeteranRepresentativeReturnList'
+            )
+        end
+
+        module CreateVeteranRepresentative
+          DEFINITION =
+            Action.new(
+              service: VeteranRepresentativeService::DEFINITION,
+              name: 'createVeteranRepresentative',
+              key: 'VeteranRepresentativeReturn'
+            )
+        end
+      end
     end
   end
 end
