@@ -4,13 +4,6 @@ require 'rails_helper'
 require Rails.root / 'modules/claims_api/spec/rails_helper'
 
 RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
-  cassette_directory =
-    Pathname.new(
-      # This mirrors the path to this spec file. It could be convenient to keep
-      # that in sync in case this file moves.
-      'claims_api/requests/v2/power_of_attorney_requests/index/request_spec'
-    )
-
   subject do
     get(
       '/services/claims/v2/power-of-attorney-requests',
@@ -207,7 +200,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
 
     it 'returns metadata including defaulted parameters and a total count' do
       mock_ccg(scopes) do
-        use_soap_cassette(cassette_directory / 'minimal_parameter_set') do
+        use_soap_cassette('minimal_parameter_set', use_spec_name_prefix: true) do
           subject
         end
       end
@@ -270,7 +263,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
 
     it 'returns one of a few pages in a decently filtered total result' do
       mock_ccg(scopes) do
-        use_soap_cassette(cassette_directory / 'healthy_parameter_set') do
+        use_soap_cassette('healthy_parameter_set', use_spec_name_prefix: true) do
           subject
         end
       end
@@ -338,7 +331,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
 
     it 'returns bgs max page size of 100' do
       mock_ccg(scopes) do
-        use_soap_cassette(cassette_directory / 'lots_of_records') do
+        use_soap_cassette('lots_of_records', use_spec_name_prefix: true) do
           subject
         end
       end
@@ -371,7 +364,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
     # results.
     it 'returns an empty result set' do
       mock_ccg(scopes) do
-        use_soap_cassette(cassette_directory / 'valid_empty_result') do
+        use_soap_cassette('valid_empty_result', use_spec_name_prefix: true) do
           subject
         end
       end
@@ -428,7 +421,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
     # results.
     it 'returns an empty result set' do
       mock_ccg(scopes) do
-        use_soap_cassette(cassette_directory / 'valid_empty_result_from_high_page_number') do
+        use_soap_cassette('valid_empty_result_from_high_page_number', use_spec_name_prefix: true) do
           subject
         end
       end
@@ -482,7 +475,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
     # results.
     it 'returns an empty result set' do
       mock_ccg(scopes) do
-        use_soap_cassette(cassette_directory / 'nonexistent_poa_code') do
+        use_soap_cassette('nonexistent_poa_code', use_spec_name_prefix: true) do
           subject
         end
       end
@@ -525,7 +518,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
     describe 'from a weird bgs fault' do
       it 'returns a bad gateway error with a fault message' do
         mock_ccg(scopes) do
-          use_soap_cassette(cassette_directory / 'weird_bgs_fault') do
+          use_soap_cassette('weird_bgs_fault', use_spec_name_prefix: true) do
             subject
           end
         end

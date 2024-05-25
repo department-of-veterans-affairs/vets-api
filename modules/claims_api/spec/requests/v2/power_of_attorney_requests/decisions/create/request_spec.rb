@@ -4,13 +4,6 @@ require 'rails_helper'
 require Rails.root / 'modules/claims_api/spec/rails_helper'
 
 RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :request do
-  cassette_directory =
-    Pathname.new(
-      # This mirrors the path to this spec file. It could be convenient to keep
-      # that in sync in case this file moves.
-      'claims_api/requests/v2/power_of_attorney_requests/decisions/create/request_spec'
-    )
-
   def perform_request(params)
     post(
       "/services/claims/v2/power-of-attorney-requests/#{id}/decision",
@@ -86,7 +79,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
 
       body =
         mock_ccg(scopes) do
-          use_soap_cassette(cassette_directory / 'nonexistent_participant_id') do
+          use_soap_cassette('nonexistent_participant_id', use_spec_name_prefix: true) do
             perform_request(params)
           end
         end
@@ -122,7 +115,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
 
       body =
         mock_ccg(scopes) do
-          use_soap_cassette(cassette_directory / 'nonexistent_proc_id') do
+          use_soap_cassette('nonexistent_proc_id', use_spec_name_prefix: true) do
             perform_request(params)
           end
         end
@@ -157,7 +150,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
       }
 
       mock_ccg(scopes, allow_playback_repeats: true) do
-        use_soap_cassette(cassette_directory / 'declined_twice') do
+        use_soap_cassette('declined_twice', use_spec_name_prefix: true) do
           perform_request(params)
 
           expect(response).to(
