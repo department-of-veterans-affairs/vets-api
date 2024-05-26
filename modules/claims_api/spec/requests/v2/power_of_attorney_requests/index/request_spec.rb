@@ -51,12 +51,14 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
   describe 'with every param invalid in almost all ways' do
     let(:params) do
       # These params with `nil` values are generated from this query string:
-      #   `?filter[statuses][]=NotAStatus&sort[field]&sort[order]&page[size]=whoops&page[number]`
+      #   `?filter[decision][statuses][]=NotAStatus&sort[field]&sort[order]&page[size]=whoops&page[number]`
       {
         'filter' => {
-          'statuses' => [
-            'NotAStatus'
-          ]
+          'decision' => {
+            'statuses' => [
+              'NotAStatus'
+            ]
+          }
         },
         'sort' => {
           'field' => nil,
@@ -74,10 +76,6 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
         subject
       end
 
-      expect(subject.response).to(
-        have_http_status(:bad_request)
-      )
-
       expect(subject.body).to eq(
         'errors' => [
           {
@@ -89,10 +87,12 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                     'is missing',
                     'must be an array'
                   ],
-                  'statuses' => {
-                    '0' => [
-                      'must be one of: New, Pending, Accepted, Declined'
-                    ]
+                  'decision' => {
+                    'statuses' => {
+                      '0' => [
+                        'must be one of: None, Accepted, Declined'
+                      ]
+                    }
                   }
                 },
                 'page' => {
@@ -119,9 +119,11 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               },
               'params' => {
                 'filter' => {
-                  'statuses' => [
-                    'NotAStatus'
-                  ]
+                  'decision' => {
+                    'statuses' => [
+                      'NotAStatus'
+                    ]
+                  }
                 },
                 'page' => {
                   'size' => 'whoops',
@@ -135,6 +137,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             }
           }
         ]
+      )
+
+      expect(subject.response).to(
+        have_http_status(:bad_request)
       )
     end
   end
@@ -154,10 +160,6 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
       mock_ccg(scopes) do
         subject
       end
-
-      expect(subject.response).to(
-        have_http_status(:bad_request)
-      )
 
       expect(subject.body).to eq(
         'errors' => [
@@ -184,6 +186,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           }
         ]
       )
+
+      expect(subject.response).to(
+        have_http_status(:bad_request)
+      )
     end
   end
 
@@ -205,10 +211,6 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
         end
       end
 
-      expect(subject.response).to(
-        have_http_status(:ok)
-      )
-
       expect(subject.body['metadata']).to eq(
         'totalCount' => 4,
         'query' => {
@@ -216,12 +218,13 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             'poaCodes' => [
               '083'
             ],
-            'statuses' => %w[
-              New
-              Pending
-              Accepted
-              Declined
-            ]
+            'decision' => {
+              'statuses' => %w[
+                None
+                Accepted
+                Declined
+              ]
+            }
           },
           'page' => {
             'size' => 25,
@@ -232,6 +235,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             'order' => 'desc'
           }
         }
+      )
+
+      expect(subject.response).to(
+        have_http_status(:ok)
       )
     end
   end
@@ -245,10 +252,12 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             083 002 003 065 074 022 091 070
             097 077 1EY 6B6 862 9U7 BQX
           ],
-          'statuses' => %w[
-            Accepted
-            Declined
-          ]
+          'decision' => {
+            'statuses' => %w[
+              Accepted
+              Declined
+            ]
+          }
         },
         'page' => {
           'number' => 2,
@@ -268,14 +277,6 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
         end
       end
 
-      expect(subject.response).to(
-        have_http_status(:ok)
-      )
-
-      expect(subject.body['data'].size).to(
-        eq(5)
-      )
-
       expect(subject.body['data'].first).to eq(
         'id' => '600061742_3854197',
         'type' => 'powerOfAttorneyRequest',
@@ -287,8 +288,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           'veteran' => {
             'firstName' => 'WESLEY',
             'middleName' => 'WATSON',
-            'lastName' => 'FORD',
-            'participantId' => '600061742'
+            'lastName' => 'FORD'
           },
           'claimant' => nil,
           'decision' => {
@@ -310,6 +310,14 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             'militaryPostalCode' => nil
           }
         }
+      )
+
+      expect(subject.body['data'].size).to(
+        eq(5)
+      )
+
+      expect(subject.response).to(
+        have_http_status(:ok)
       )
     end
   end
@@ -336,12 +344,12 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
         end
       end
 
-      expect(subject.response).to(
-        have_http_status(:ok)
-      )
-
       expect(subject.body['data'].size).to(
         eq(100)
+      )
+
+      expect(subject.response).to(
+        have_http_status(:ok)
       )
     end
   end
@@ -353,9 +361,11 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           'poaCodes' => [
             'BQX'
           ],
-          'statuses' => [
-            'Declined'
-          ]
+          'decision' => {
+            'statuses' => [
+              'Declined'
+            ]
+          }
         }
       }
     end
@@ -369,10 +379,6 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
         end
       end
 
-      expect(subject.response).to(
-        have_http_status(:ok)
-      )
-
       expect(subject.body).to eq(
         'metadata' => {
           'totalCount' => 0,
@@ -381,9 +387,11 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               'poaCodes' => [
                 'BQX'
               ],
-              'statuses' => [
-                'Declined'
-              ]
+              'decision' => {
+                'statuses' => [
+                  'Declined'
+                ]
+              }
             },
             'page' => {
               'size' => 25,
@@ -396,6 +404,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           }
         },
         'data' => []
+      )
+
+      expect(subject.response).to(
+        have_http_status(:ok)
       )
     end
   end
@@ -426,10 +438,6 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
         end
       end
 
-      expect(subject.response).to(
-        have_http_status(:ok)
-      )
-
       expect(subject.body).to eq(
         'metadata' => {
           'totalCount' => 0,
@@ -438,12 +446,13 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               'poaCodes' => [
                 'BQX'
               ],
-              'statuses' => %w[
-                New
-                Pending
-                Accepted
-                Declined
-              ]
+              'decision' => {
+                'statuses' => %w[
+                  None
+                  Accepted
+                  Declined
+                ]
+              }
             },
             'page' => {
               'size' => 100,
@@ -456,6 +465,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           }
         },
         'data' => []
+      )
+
+      expect(subject.response).to(
+        have_http_status(:ok)
       )
     end
   end
@@ -480,10 +493,6 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
         end
       end
 
-      expect(subject.response).to(
-        have_http_status(:ok)
-      )
-
       expect(subject.body).to eq(
         'metadata' => {
           'totalCount' => 0,
@@ -492,12 +501,13 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               'poaCodes' => [
                 'ZZZ'
               ],
-              'statuses' => %w[
-                New
-                Pending
-                Accepted
-                Declined
-              ]
+              'decision' => {
+                'statuses' => %w[
+                  None
+                  Accepted
+                  Declined
+                ]
+              }
             },
             'page' => {
               'size' => 25,
@@ -511,6 +521,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
         },
         'data' => []
       )
+
+      expect(subject.response).to(
+        have_http_status(:ok)
+      )
     end
   end
 
@@ -523,10 +537,6 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           end
         end
 
-        expect(subject.response).to(
-          have_http_status(:bad_gateway)
-        )
-
         expect(subject.body).to eq(
           'errors' => [
             {
@@ -534,6 +544,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               'detail' => 'Weird BGFS Fault'
             }
           ]
+        )
+
+        expect(subject.response).to(
+          have_http_status(:bad_gateway)
         )
       end
     end
@@ -552,10 +566,6 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             subject
           end
 
-          expect(subject.response).to(
-            have_http_status(:bad_gateway)
-          )
-
           expect(subject.body).to eq(
             'errors' => [
               {
@@ -563,6 +573,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                 'detail' => 'Exception from WebMock'
               }
             ]
+          )
+
+          expect(subject.response).to(
+            have_http_status(:bad_gateway)
           )
         end
       end
@@ -573,10 +587,6 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             subject
           end
 
-          expect(subject.response).to(
-            have_http_status(:bad_gateway)
-          )
-
           expect(subject.body).to eq(
             'errors' => [
               {
@@ -584,6 +594,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                 'detail' => 'Exception from WebMock'
               }
             ]
+          )
+
+          expect(subject.response).to(
+            have_http_status(:bad_gateway)
           )
         end
       end
@@ -594,10 +608,6 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             subject
           end
 
-          expect(subject.response).to(
-            have_http_status(:gateway_timeout)
-          )
-
           expect(subject.body).to eq(
             'errors' => [
               {
@@ -605,6 +615,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                 'detail' => 'Did not receive a timely response from an upstream server'
               }
             ]
+          )
+
+          expect(subject.response).to(
+            have_http_status(:gateway_timeout)
           )
         end
       end

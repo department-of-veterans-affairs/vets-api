@@ -14,8 +14,8 @@ module ClaimsApi
 
         include ActiveModel::Validations
 
-        # Only genuine decisions are allowed and they are only allowed once.
-        validates_with TerminatingStatusTransitionValidator
+        validate :must_be_original
+        validate :declined_reason_must_be_relevant
 
         class << self
           def perform!(...)
@@ -28,6 +28,25 @@ module ClaimsApi
         def initialize(previous, current)
           @previous = previous
           @current = current
+        end
+
+        private
+
+        def must_be_original
+          return if @previous.blank?
+
+          errors.add :base, <<~MSG.squish
+            must be original
+          MSG
+        end
+
+        def declined_reason_must_be_relevant
+          return if @current.declined?
+          return if @current.declined_reason.blank?
+
+          errors.add :declined_reason, <<~MSG.squish
+            can only accompany a declination
+          MSG
         end
 
         def raise_validation_error
