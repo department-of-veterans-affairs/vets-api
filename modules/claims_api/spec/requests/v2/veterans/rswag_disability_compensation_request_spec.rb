@@ -553,6 +553,8 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
       describe 'Getting a successful response' do
         response '200', 'post pdf response' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
+                                            'disability_compensation', 'success.json').read)
           before do |example|
             mock_ccg_for_fine_grained_scope(generate_pdf_minimum_validations_scopes) do
               submit_request(example.metadata)
@@ -562,7 +564,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           after do |example|
             example.metadata[:response][:content] = {
               'application/json' => {
-                example: 'No example available'
+                example: 'string'
               }
             }
           end
