@@ -2,7 +2,7 @@
 
 module ClaimsApi
   module V2
-    module PowerOfAttorneyRequest
+    module PowerOfAttorneyRequests
       class BaseController < ApplicationController
         # TODO: Figure out appropriate status codes for various upstream service
         # communication failure modes. Using:

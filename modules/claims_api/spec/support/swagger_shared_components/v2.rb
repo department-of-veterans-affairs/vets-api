@@ -321,7 +321,6 @@ module SwaggerSharedComponents
           )
         )
       )
-
       {
         disability_compensation: {
           name: 'data',
@@ -343,8 +342,34 @@ module SwaggerSharedComponents
               }
             }
           }
+        },
+        sync_disability_compensation: {
+          name: 'data',
+          required: ['data'],
+          properties: {
+            data: {
+              type: :object,
+              required: %w[id type attributes],
+              properties: {
+                id: {
+                  type: 'string',
+                  example: '7d0de77e-b7bd-4db7-a8d9-69a25482c80a'
+                },
+                type: {
+                  type: 'string',
+                  example: 'form/8675309'
+                },
+                attributes: format_response_for_sync_endpoint(disability_compensation_json_schema.except('$schema'))
+              }
+            }
+          }
         }
       }
+    end
+
+    def self.format_response_for_sync_endpoint(schema)
+      schema['properties'].merge!({ 'claimId' => { 'type' => 'string', 'example' => '600517517' } })
+      schema
     end
   end
 end
