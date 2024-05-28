@@ -312,7 +312,8 @@ describe SimpleFormsApi::ConfirmationEmail do
           'first_name' => user.first_name.upcase,
           'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
           'confirmation_number' => 'confirmation_number',
-          'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC) (VA Form 21P-534 or VA Form 21P-534EZ)'
+          'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
+                                       ' (VA Form 21P-534 or VA Form 21P-534EZ)'
         }
       )
     end

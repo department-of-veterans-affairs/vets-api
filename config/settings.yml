@@ -414,6 +414,9 @@ intent_to_file:
 ivc_champva:
   prefill: true
 
+form_upload_flow:
+  prefill: true
+
 # Settings for Expiry Scanner
 expiry_scanner:
   slack:
@@ -1319,6 +1322,14 @@ vanotify:
         claim_submission_error_text: fake_template_id
     benefits_decision_review:
       api_key: fake_secret
+    benefits_disability:
+      api_key: fake_secret
+      template_id:
+        form526_document_upload_failure_notification_template_id: form526_document_upload_failure_notification_template_id
+    ivc_champva:
+      api_key: fake_secret
+      template_id:
+        pega_status_update_email_template_id: pega_status_update_email_template_id
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications

@@ -708,7 +708,6 @@ RSpec.describe 'Forms uploader', type: :request do
 
             expect(response).to have_http_status(:ok)
 
-            # TODO: Update expected result for intent to file benefits
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
               'abraham.lincoln@vets.gov',
               'form21_0966_confirmation_email_template_id',
@@ -716,7 +715,8 @@ RSpec.describe 'Forms uploader', type: :request do
                 'first_name' => 'ABRAHAM',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
-                'intent_to_file_benefits' => { 'survivor' => 'true' }
+                'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
+                                             ' (VA Form 21P-534 or VA Form 21P-534EZ)'
               }
             )
           end

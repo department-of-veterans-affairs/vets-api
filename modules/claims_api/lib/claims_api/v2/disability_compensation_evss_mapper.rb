@@ -34,10 +34,17 @@ module ClaimsApi
       def service_information
         info = @data[:serviceInformation]
         service_periods = format_service_periods(info&.dig(:servicePeriods))
+        confinements = format_confinements(info&.dig(:confinements)) if info&.dig(:confinements).present?
 
         @evss_claim[:serviceInformation] = {
           servicePeriods: service_periods
         }
+
+        if confinements.present?
+          @evss_claim[:serviceInformation].merge!(
+            { confinements: }
+          )
+        end
       end
 
       def current_mailing_address
@@ -70,7 +77,10 @@ module ClaimsApi
 
       def check_for_pact_special_issue(disability)
         related_to_toxic_exposure = disability[:isRelatedToToxicExposure]
-        disability[:specialIssues] = ['PACT'] if related_to_toxic_exposure
+        if related_to_toxic_exposure
+          disability[:specialIssues] ||= []
+          disability[:specialIssues] << 'PACT'
+        end
       end
 
       def standard_claim
@@ -107,6 +117,19 @@ module ClaimsApi
 
           end_year = Date.strptime(sp_date[:activeDutyEndDate], '%Y-%m-%d')
           sp_date[:activeDutyEndDate] = end_year.strftime('%Y-%m-%d')
+        end
+      end
+
+      def format_confinements(confinements)
+        confinements.each do |confinement|
+          begin_date = confinement[:approximateBeginDate]
+          end_date = confinement[:approximateEndDate]
+          confinement.delete(:approximateBeginDate)
+          confinement.delete(:approximateEndDate)
+          confinement.merge!(
+            { confinementBeginDate: begin_date,
+              confinementEndDate: end_date }
+          )
         end
       end
     end

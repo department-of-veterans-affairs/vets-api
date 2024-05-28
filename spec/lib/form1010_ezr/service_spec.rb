@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'form1010_ezr/service'
+require 'support/form1010_ezr/shared_examples/post_fill_user_form_field'
 
 RSpec.describe Form1010Ezr::Service do
   include SchemaMatchers
@@ -11,7 +12,19 @@ RSpec.describe Form1010Ezr::Service do
   end
 
   let(:form) { get_fixture('form1010_ezr/valid_form') }
-  let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534') }
+  let(:current_user) do
+    build(
+      :evss_user,
+      :loa3,
+      icn: '1013032368V065534',
+      birth_date: '1986-01-02',
+      first_name: 'FirstName',
+      middle_name: 'MiddleName',
+      last_name: 'ZZTEST',
+      suffix: 'Jr.',
+      ssn: '111111234'
+    )
+  end
   let(:service) { described_class.new(current_user) }
 
   def allow_logger_to_receive_error
@@ -22,8 +35,10 @@ RSpec.describe Form1010Ezr::Service do
     allow(Rails.logger).to receive(:info)
   end
 
-  def expect_logger_error(error_message)
-    expect(Rails.logger).to have_received(:error).with(error_message)
+  def expect_logger_errors(error_messages = [])
+    error_messages.each do |e|
+      expect(Rails.logger).to have_received(:error).with(include(e))
+    end
   end
 
   def submit_form(form)
@@ -49,6 +64,53 @@ RSpec.describe Form1010Ezr::Service do
       it 'doesnt add the financial_flag' do
         expect(service.send(:add_financial_flag, {})).to eq({})
       end
+    end
+  end
+
+  describe '#post_fill_veteran_full_name' do
+    it_behaves_like 'post-fill user form field' do
+      let(:klass_method) { 'post_fill_veteran_full_name' }
+      let(:_parsed_form) do
+        {
+          'veteranFullName' => {
+            'first' => 'John',
+            'middle' => 'Matthew',
+            'last' => 'Smith',
+            'suffix' => 'Sr.'
+          }
+        }
+      end
+      let(:statsd_increment_name) { 'missing_full_name' }
+      let(:user_field) { 'veteranFullName' }
+      let(:user_data) { current_user.full_name_normalized.compact.stringify_keys }
+    end
+  end
+
+  describe '#post_fill_veteran_ssn' do
+    it_behaves_like 'post-fill user form field' do
+      let(:klass_method) { 'post_fill_veteran_ssn' }
+      let(:_parsed_form) do
+        {
+          'veteranSocialSecurityNumber' => '111111234'
+        }
+      end
+      let(:statsd_increment_name) { 'missing_ssn' }
+      let(:user_field) { 'veteranSocialSecurityNumber' }
+      let(:user_data) { current_user.ssn_normalized }
+    end
+  end
+
+  describe '#post_fill_veteran_date_of_birth' do
+    it_behaves_like 'post-fill user form field' do
+      let(:klass_method) { 'post_fill_veteran_date_of_birth' }
+      let(:_parsed_form) do
+        {
+          'veteranDateOfBirth' => '1985-04-03'
+        }
+      end
+      let(:statsd_increment_name) { 'missing_date_of_birth' }
+      let(:user_field) { 'veteranDateOfBirth' }
+      let(:user_data) { current_user.birth_date }
     end
   end
 
@@ -89,6 +151,11 @@ RSpec.describe Form1010Ezr::Service do
           # and then added via the 'post_fill_required_fields' method
           expect(form['isEssentialAcaCoverage']).to eq(nil)
           expect(form['vaMedicalFacility']).to eq(nil)
+          # If the 'veteranDateOfBirth', 'veteranFullName', and/or 'veteranSocialSecurityNumber' fields are missing
+          # from the parsed_form, they should get added in via the 'post_fill_user_fields' method and pass validation
+          form.delete('veteranDateOfBirth')
+          form.delete('veteranFullName')
+          form.delete('veteranSocialSecurityNumber')
 
           submission_response = submit_form(form)
 
@@ -199,7 +266,12 @@ RSpec.describe Form1010Ezr::Service do
             )
             expect(e.errors[0].status).to eq('422')
           end
-          expect_logger_error('10-10EZR form validation failed. Form does not match schema.')
+          expect_logger_errors(
+            [
+              '10-10EZR form validation failed. Form does not match schema.',
+              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+            ]
+          )
         end
 
         it 'increments statsd' do
@@ -249,7 +321,9 @@ RSpec.describe Form1010Ezr::Service do
           end.to raise_error(
             StandardError, 'Uh oh. Some bad error occurred.'
           )
-          expect_logger_error('10-10EZR form submission failed: Uh oh. Some bad error occurred.')
+          expect_logger_errors(
+            ['10-10EZR form submission failed: Uh oh. Some bad error occurred.']
+          )
         end
       end
     end
