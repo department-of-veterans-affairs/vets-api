@@ -239,7 +239,7 @@ RSpec.describe 'Disability compensation form' do
         let(:all_claims_form) { File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json' }
 
         context 'where the includeToxicExposure indicator is true' do
-          it 'matches the rated disabilites schema' do
+          it 'matches the rated disabilities schema' do
             post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('submit_disability_form')
@@ -250,7 +250,7 @@ RSpec.describe 'Disability compensation form' do
         end
 
         context 'where the includeToxicExposure indicator is false' do
-          it 'matches the rated disabilites schema' do
+          it 'matches the rated disabilities schema' do
             json_object = JSON.parse(all_claims_form)
             json_object['form526']['includeToxicExposure'] = false
             updated_form = JSON.generate(json_object)
@@ -263,7 +263,7 @@ RSpec.describe 'Disability compensation form' do
           end
         end
 
-        it 'matches the rated disabilites schema with camel-inflection' do
+        it 'matches the rated disabilities schema with camel-inflection' do
           post '/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers: headers_with_camel
           expect(response).to have_http_status(:ok)
           expect(response).to match_camelized_response_schema('submit_disability_form')
@@ -278,13 +278,13 @@ RSpec.describe 'Disability compensation form' do
       context 'with an `bdd` claim' do
         let(:bdd_form) { File.read 'spec/support/disability_compensation_form/bdd_fe_submission.json' }
 
-        it 'matches the rated disabilites schema' do
+        it 'matches the rated disabilities schema' do
           post('/v0/disability_compensation_form/submit_all_claim', params: bdd_form, headers:)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('submit_disability_form')
         end
 
-        it 'matches the rated disabilites schema with camel-inflection' do
+        it 'matches the rated disabilities schema with camel-inflection' do
           post '/v0/disability_compensation_form/submit_all_claim', params: bdd_form, headers: headers_with_camel
           expect(response).to have_http_status(:ok)
           expect(response).to match_camelized_response_schema('submit_disability_form')
