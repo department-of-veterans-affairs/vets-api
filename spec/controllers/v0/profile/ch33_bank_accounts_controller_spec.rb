@@ -8,6 +8,29 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
   before do
     sign_in_as(user)
     allow_any_instance_of(User).to receive(:common_name).and_return('abraham.lincoln@vets.gov')
+    allow(Flipper).to receive(:enabled?).with(
+      :profile_show_direct_deposit_single_form_edu_downtime,
+      instance_of(User)
+    ).and_return(true)
+  end
+
+  context 'single form feature flag enabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(
+        :profile_show_direct_deposit_single_form_edu_downtime,
+        instance_of(User)
+      ).and_return(true)
+    end
+
+    it 'returns forbidden with message' do
+      get(:index)
+
+      expect(response.status).to eq(403)
+
+      json = JSON.parse(response.body)
+      error = json['errors'].first
+      expect(error['detail']).to eq('This endpoint is deprecated and will be removed soon.')
+    end
   end
 
   context 'unauthorized user' do
