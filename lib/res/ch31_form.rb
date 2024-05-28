@@ -62,7 +62,7 @@ module RES
         internationalNumber: form_data['internationalNumber'],
         email: form_data['email'],
         documentId: form_data['documentId'],
-        receivedDate: @claim.created_at,
+        receivedDate: @claim.created_at.to_date.to_s,
         veteranAddress: mapped_address_hash(form_data['veteranAddress'])
       }
 
@@ -99,7 +99,7 @@ module RES
       vet_info = claim_form_hash['veteranInformation']
 
       vet_info['VAFileNumber'] = vet_info.delete('vaFileNumber') if vet_info.key?('vaFileNumber')
-      vet_info['stationID'], vet_info['regionalOffice'] = vet_info['regionalOffice'].split(' - ')
+      vet_info['stationId'], vet_info['regionalOffice'] = vet_info['regionalOffice'].split(' - ')
 
       vet_info
     end
