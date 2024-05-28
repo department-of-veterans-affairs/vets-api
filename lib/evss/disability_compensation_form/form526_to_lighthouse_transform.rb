@@ -196,7 +196,7 @@ module EVSS
         service_pay_target
       end
 
-      def transform_toxic_exposure(toxic_exposure_source)
+      def transform_toxic_exposure(toxic_exposure_source) # rubocop:disable Metrics/MethodLength
         toxic_exposure_target = Requests::ToxicExposure.new
 
         gulf_war1990 = toxic_exposure_source['gulfWar1990']
