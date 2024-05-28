@@ -31,7 +31,7 @@ module VRE
 
       submitted_claims = get_claims_created_between(build_range(date))
       Ch31SubmissionsReportMailer.build(submitted_claims).deliver_now unless FeatureFlipper.staging_email?
-    rescue => e
+    rescue
       Rails.logger.warn('VRE::CreateCh31SubmissionsReportJob failed, retrying...')
       raise
     end
