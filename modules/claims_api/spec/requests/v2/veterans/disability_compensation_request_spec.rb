@@ -1206,36 +1206,52 @@ RSpec.describe 'Disability Claims', type: :request do
       end
 
       describe 'specialIssues claims' do
+        let(:disabilities) do
+          [{
+            disabilityActionType: 'INCREASE',
+            name: 'Traumatic Brain Injury',
+            classificationCode: '9020',
+            serviceRelevance: 'ABCDEFG',
+            approximateDate: '2018-11-03',
+            ratedDisabilityId: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+            diagnosticCode: 9020,
+            specialIssues: ['EMP'],
+            secondaryDisabilities: [
+              {
+                name: 'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders',
+                disabilityActionType: 'SECONDARY',
+                serviceRelevance: 'ABCDEFGHIJKLMNOPQ',
+                classificationCode: '9010',
+                approximateDate: '2018-12-03',
+                exposureOrEventOrInjury: 'EXPOSURE'
+              }
+            ],
+            isRelatedToToxicExposure: true,
+            exposureOrEventOrInjury: 'EXPOSURE'
+          }]
+        end
+        let(:treatments) do
+          [
+            {
+              center: {
+                name: 'Center One',
+                state: 'GA',
+                city: 'Decatur'
+              },
+              treatedDisabilityNames: ['Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders'],
+              beginDate: '2009-03'
+            }
+          ]
+        end
+
         context 'when specialIssues contains "POW" but disabilityActionType is set to "INCREASE"' do
-          let(:disabilities) do
-            [{
-              disabilityActionType: 'INCREASE',
-              name: 'Traumatic Brain Injury',
-              classificationCode: '9020',
-              serviceRelevance: 'ABCDEFG',
-              approximateDate: '2018-11-03',
-              ratedDisabilityId: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-              diagnosticCode: 9020,
-              specialIssues: ['POW'],
-              secondaryDisabilities: [
-                {
-                  name: 'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders',
-                  disabilityActionType: 'SECONDARY',
-                  serviceRelevance: 'ABCDEFGHIJKLMNOPQ',
-                  classificationCode: '9010',
-                  approximateDate: '2018-12-03',
-                  exposureOrEventOrInjury: 'EXPOSURE'
-                }
-              ],
-              isRelatedToToxicExposure: true,
-              exposureOrEventOrInjury: 'EXPOSURE'
-            }]
-          end
+          let(:special_issues) { ['POW'] }
 
           it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['disabilities'] = disabilities
+              json['data']['attributes']['disabilities'][0]['specialIssues'] = special_issues
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
@@ -1244,44 +1260,6 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when specialIssues contains "EMP" but disabilityActionType is set to "INCREASE"' do
-          let(:disabilities) do
-            [{
-              disabilityActionType: 'INCREASE',
-              name: 'Traumatic Brain Injury',
-              classificationCode: '9020',
-              serviceRelevance: 'ABCDEFG',
-              approximateDate: '2018-11-03',
-              ratedDisabilityId: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-              diagnosticCode: 9020,
-              specialIssues: ['EMP'],
-              secondaryDisabilities: [
-                {
-                  name: 'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders',
-                  disabilityActionType: 'SECONDARY',
-                  serviceRelevance: 'ABCDEFGHIJKLMNOPQ',
-                  classificationCode: '9010',
-                  approximateDate: '2018-12-03',
-                  exposureOrEventOrInjury: 'EXPOSURE'
-                }
-              ],
-              isRelatedToToxicExposure: true,
-              exposureOrEventOrInjury: 'EXPOSURE'
-            }]
-          end
-          let(:treatments) do
-            [
-              {
-                center: {
-                  name: 'Center One',
-                  state: 'GA',
-                  city: 'Decatur'
-                },
-                treatedDisabilityNames: ['Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders'],
-                beginDate: '2009-03'
-              }
-            ]
-          end
-
           it 'responds with a 202' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
@@ -1295,50 +1273,16 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when specialIssues contains "POW" and disabilityActionType is set to "NEW"' do
-          let(:disabilities) do
-            [{
-              disabilityActionType: 'NEW',
-              name: 'Traumatic Brain Injury',
-              classificationCode: '9020',
-              serviceRelevance: 'ABCDEFG',
-              approximateDate: '2018-11-03',
-              ratedDisabilityId: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-              diagnosticCode: 9020,
-              specialIssues: ['POW'],
-              secondaryDisabilities: [
-                {
-                  name: 'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders',
-                  disabilityActionType: 'SECONDARY',
-                  serviceRelevance: 'ABCDEFGHIJKLMNOPQ',
-                  classificationCode: '9010',
-                  approximateDate: '2018-12-03',
-                  exposureOrEventOrInjury: 'EXPOSURE'
-                }
-              ],
-              isRelatedToToxicExposure: true,
-              exposureOrEventOrInjury: 'EXPOSURE'
-            }]
-          end
-          let(:treatments) do
-            [
-              {
-                center: {
-                  name: 'Center One',
-                  state: 'GA',
-                  city: 'Decatur'
-                },
-                treatedDisabilityNames: ['Traumatic Brain Injury',
-                                         'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders'],
-                beginDate: '2009-03'
-              }
-            ]
-          end
+          let(:special_issues) { ['POW'] }
+          let(:disability_action_type) { 'NEW' }
 
           it 'responds with a 202' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['disabilities'] = disabilities
               json['data']['attributes']['treatments'] = treatments
+              json['data']['attributes']['disabilities'][0]['specialIssues'] = special_issues
+              json['data']['attributes']['disabilities'][0]['disabilityActionType'] = disability_action_type
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:accepted)
@@ -1347,50 +1291,16 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when specialIssues contains "POW" & "EMP" and disabilityActionType is set to "NEW"' do
-          let(:disabilities) do
-            [{
-              disabilityActionType: 'NEW',
-              name: 'Traumatic Brain Injury',
-              classificationCode: '9020',
-              serviceRelevance: 'ABCDEFG',
-              approximateDate: '2018-11-03',
-              ratedDisabilityId: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-              diagnosticCode: 9020,
-              specialIssues: %w[POW EMP],
-              secondaryDisabilities: [
-                {
-                  name: 'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders',
-                  disabilityActionType: 'SECONDARY',
-                  serviceRelevance: 'ABCDEFGHIJKLMNOPQ',
-                  classificationCode: '9010',
-                  approximateDate: '2018-12-03',
-                  exposureOrEventOrInjury: 'EXPOSURE'
-                }
-              ],
-              isRelatedToToxicExposure: true,
-              exposureOrEventOrInjury: 'EXPOSURE'
-            }]
-          end
-          let(:treatments) do
-            [
-              {
-                center: {
-                  name: 'Center One',
-                  state: 'GA',
-                  city: 'Decatur'
-                },
-                treatedDisabilityNames: ['Traumatic Brain Injury',
-                                         'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders'],
-                beginDate: '2009-03'
-              }
-            ]
-          end
+          let(:special_issues) { %w[POW EMP] }
+          let(:disability_action_type) { 'NEW' }
 
           it 'responds with a 202' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['disabilities'] = disabilities
               json['data']['attributes']['treatments'] = treatments
+              json['data']['attributes']['disabilities'][0]['specialIssues'] = special_issues
+              json['data']['attributes']['disabilities'][0]['disabilityActionType'] = disability_action_type
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:accepted)
@@ -1399,51 +1309,17 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when specialIssues are added to a secondary disability' do
-          let(:disabilities) do
-            [{
-              disabilityActionType: 'NEW',
-              name: 'Traumatic Brain Injury',
-              classificationCode: '9020',
-              serviceRelevance: 'ABCDEFG',
-              approximateDate: '2018-11-03',
-              ratedDisabilityId: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-              diagnosticCode: 9020,
-              specialIssues: %w[POW EMP],
-              secondaryDisabilities: [
-                {
-                  name: 'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders',
-                  disabilityActionType: 'SECONDARY',
-                  serviceRelevance: 'ABCDEFGHIJKLMNOPQ',
-                  classificationCode: '9010',
-                  approximateDate: '2018-12-03',
-                  exposureOrEventOrInjury: 'EXPOSURE',
-                  specialIssues: ['POW']
-                }
-              ],
-              isRelatedToToxicExposure: true,
-              exposureOrEventOrInjury: 'EXPOSURE'
-            }]
-          end
-          let(:treatments) do
-            [
-              {
-                center: {
-                  name: 'Center One',
-                  state: 'GA',
-                  city: 'Decatur'
-                },
-                treatedDisabilityNames: ['Traumatic Brain Injury',
-                                         'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders'],
-                beginDate: '2009-03'
-              }
-            ]
-          end
+          let(:special_issues) { ['POW'] }
+          let(:disability_action_type) { 'NEW' }
 
           it 'responds with a 404' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['disabilities'] = disabilities
               json['data']['attributes']['treatments'] = treatments
+              json['data']['attributes']['disabilities'][0]['specialIssues'] = special_issues
+              json['data']['attributes']['disabilities'][0]['disabilityActionType'] = disability_action_type
+              json['data']['attributes']['disabilities'][0][:secondaryDisabilities][0]['specialIssues'] = special_issues
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
@@ -1452,53 +1328,17 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when specialIssues contains "POW" and serviceInformation.confinements is blank' do
-          let(:disabilities) do
-            [{
-              disabilityActionType: 'NEW',
-              name: 'Traumatic Brain Injury',
-              classificationCode: '9020',
-              serviceRelevance: 'ABCDEFG',
-              approximateDate: '2018-11-03',
-              ratedDisabilityId: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-              diagnosticCode: 9020,
-              specialIssues: ['POW'],
-              secondaryDisabilities: [
-                {
-                  name: 'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders',
-                  disabilityActionType: 'SECONDARY',
-                  serviceRelevance: 'ABCDEFGHIJKLMNOPQ',
-                  classificationCode: '9010',
-                  approximateDate: '2018-12-03',
-                  exposureOrEventOrInjury: 'EXPOSURE'
-                }
-              ],
-              isRelatedToToxicExposure: true,
-              exposureOrEventOrInjury: 'EXPOSURE'
-            }]
-          end
-          let(:treatments) do
-            [
-              {
-                center: {
-                  name: 'Center One',
-                  state: 'GA',
-                  city: 'Decatur'
-                },
-                treatedDisabilityNames: ['Traumatic Brain Injury',
-                                         'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders'],
-                beginDate: '2009-03'
-              }
-            ]
-          end
           let(:confinements) do
             []
           end
+          let(:special_issues) { ['POW'] }
 
           it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['disabilities'] = disabilities
               json['data']['attributes']['treatments'] = treatments
+              json['data']['attributes']['disabilities'][0]['specialIssues'] = special_issues
               json['data']['attributes']['serviceInformation']['confinements'] = confinements
 
               data = json.to_json
