@@ -2,7 +2,7 @@
 
 module ClaimsApi
   module V2
-    module PowerOfAttorneyRequest
+    module PowerOfAttorneyRequests
       class DecisionsController < BaseController
         def update
           # TODO: Validation where?
@@ -20,8 +20,8 @@ module ClaimsApi
 
         def declined?
           decision_params[:status] ==
-            PowerOfAttorneyRequestService::
-              PoaRequest::Decision::Statuses::
+            PowerOfAttorneyRequest::
+              Decision::Statuses::
               DECLINED
         end
 

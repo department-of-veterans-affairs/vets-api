@@ -58,7 +58,7 @@ RSpec.describe 'Pega callback', type: :request do
         ivc_forms = [IvcChampvaForm.all]
         status_array = ivc_forms.map { |form| form.pluck(:pega_status) }
 
-        # only 2/3 should be updatedinva
+        # only 2/3 should be updated
         expect(status_array.flatten).not_to eq(%w[Processed Processed])
         expect(response).to have_http_status(:ok)
       end
