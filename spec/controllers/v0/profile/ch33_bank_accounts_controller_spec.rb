@@ -11,7 +11,7 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
     allow(Flipper).to receive(:enabled?).with(
       :profile_show_direct_deposit_single_form_edu_downtime,
       instance_of(User)
-    ).and_return(true)
+    ).and_return(false)
   end
 
   context 'single form feature flag enabled' do
