@@ -312,7 +312,7 @@ GEM
       matrix
       ruby-rc4 (>= 0.1.5)
     concurrent-ruby (1.2.3)
-    config (5.4.0)
+    config (5.5.0)
       deep_merge (~> 1.2, >= 1.2.1)
     connection_pool (2.4.1)
     content_disposition (1.0.0)
