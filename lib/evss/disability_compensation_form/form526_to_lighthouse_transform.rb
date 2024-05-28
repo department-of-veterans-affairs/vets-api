@@ -202,13 +202,17 @@ module EVSS
         gulf_war1990 = toxic_exposure_source['gulfWar1990']
         gulf_war2001 = toxic_exposure_source['gulfWar2001']
         herbicide = toxic_exposure_source['herbicide']
+        other_herbicide_locations = toxic_exposure_source['otherHerbicideLocations']
 
         if gulf_war1990.present? || gulf_war2001.present?
           toxic_exposure_target.gulf_war_hazard_service =
             transform_gulf_war(gulf_war1990, gulf_war2001)
         end
 
-        toxic_exposure_target.herbicide_hazard_service = transform_herbicide(herbicide) if herbicide.present?
+        if herbicide.present? || other_herbicide_locations.present?
+          toxic_exposure_target.herbicide_hazard_service = transform_herbicide(herbicide,
+                                                                               other_herbicide_locations)
+        end
 
         # create an Array[Requests::MultipleExposures]
         multiple_exposures = []
@@ -262,19 +266,25 @@ module EVSS
         gulf_war_hazard_service
       end
 
-      def transform_herbicide(herbicide)
+      def transform_herbicide(herbicide, other_herbicide_locations)
         filtered_results_herbicide = herbicide&.filter { |k| k != 'notsure' }
-        herbicide_value = filtered_results_herbicide&.values&.any?(&:present?) &&
+        herbicide_value = (values_present(filtered_results_herbicide) ||
+                          values_present(other_herbicide_locations)) &&
                           !none_of_these(filtered_results_herbicide)
 
         herbicide_service = Requests::HerbicideHazardService.new
-        herbicide_service.served_in_herbicide_hazard_locations =
-          herbicide_value || herbicide['otherHerbicideLocations'].present? ? 'YES' : 'NO'
+        herbicide_service.served_in_herbicide_hazard_locations = herbicide_value ? 'YES' : 'NO'
 
         herbicide_service
       end
 
+      def values_present(obj)
+        obj.present? && obj.values&.any?(&:present?)
+      end
+
       def none_of_these(options)
+        return false if options.blank?
+
         none_of_these = options['none']
         none_of_these.present?
       end
