@@ -343,7 +343,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           mapper.map_claim
 
           exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
-          expect(exposure_info[:herbicideHazardService][:servedInHerbicideHazardLocations]).to eq('NO')
+          expect(exposure_info[:herbicideHazardService]).to eq(nil)
         end
       end
 
@@ -389,6 +389,30 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           expect(exposure_info[:multipleExposures][0][:hazardExposedTo]).to eq('RADIATION')
           expect(exposure_info[:multipleExposures][0][:exposureDates][:start][:month]).to eq('12')
           expect(exposure_info[:multipleExposures][0][:exposureDates][:start][:year]).to eq('2012')
+        end
+      end
+
+      context '526 section 4, gulfWarHazardService' do
+        it "does not default to 'NO'" do
+          toxic_exp_data = form_attributes['toxicExposure']['gulfWarHazardService']
+          toxic_exp_data['servedInGulfWarHazardLocations'] = nil
+
+          mapper.map_claim
+
+          exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
+          expect(exposure_info[:gulfWarHazardService][:servedInGulfWarHazardLocations]).to eq(nil)
+        end
+      end
+
+      context '526 section 4, herbicideHazardService' do
+        it "does not default to 'NO'" do
+          toxic_exp_data = form_attributes['toxicExposure']['herbicideHazardService']
+          toxic_exp_data['servedInHerbicideHazardLocations'] = nil
+
+          mapper.map_claim
+
+          exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
+          expect(exposure_info[:herbicideHazardService][:servedInHerbicideHazardLocations]).to eq(nil)
         end
       end
     end

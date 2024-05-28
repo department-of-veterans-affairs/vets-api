@@ -235,7 +235,7 @@ module ClaimsApi
         if herb.present?
           served_in_herbicide_hazard_locations = @pdf_data[:data][:attributes][:toxicExposure][:herbicideHazardService][:servedInHerbicideHazardLocations]
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:servedInHerbicideHazardLocations] =
-            served_in_herbicide_hazard_locations ? 'YES' : 'NO'
+            served_in_herbicide_hazard_locations ? 'YES' : nil
         end
       end
 
