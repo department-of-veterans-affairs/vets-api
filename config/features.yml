@@ -1420,6 +1420,9 @@ features:
   virtual_agent_upgrade_webchat_14_15_8:
     actor_type: user
     description: If enabled, switches VA webchat from using version 4.15.2 to 4.15.8
+  virtual_agent_component_testing:
+    actor_type: user
+    description: If enabled, allows for testing of the chatbot components
   terms_of_use:
     actor_type: user
     description: This determines whether a user is redirected to the Terms of Use page
