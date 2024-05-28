@@ -1,189 +1,226 @@
-{
-  "veteran_information": {
-    "full_name": {
-      "first": "Adam",
-      "middle": "Brian",
-      "last": "Huberws",
-      "suffix": "Sr."
-    },
-    "ssn": "796-10-4437",
-    "va_file_number": "796104437",
-    "service_number": "123456789",
-    "birth_date": "1950-10-04"
-  },
-  "student_did_attend_school_last_term": true,
-  "last_term_school_information": {
-    "name": "Notre Dame",
-    "address": {
-      "country_name": "USA",
-      "address_line1": "220 Main Building",
-      "address_line2": "Suite 212",
-      "address_line3": "2nd Floor",
-      "city": "Notre Dame",
-      "state_code": "IN",
-      "zip_code": "46556"
-    },
-    "term_begin": "2020-01-09",
-    "date_term_ended": "2020-05-15",
-    "classes_per_week": 5,
-    "hours_per_week": 15
-  },
-  "current_term_dates": {
-    "official_school_start_date": "2020-09-12",
-    "expected_student_start_date": "2020-09-22",
-    "expected_graduation_date": "2025-05-05"
-  },
-  "program_information": {
-    "student_is_enrolled_full_time": false,
-    "course_of_study": "Communications",
-    "classes_per_week": 4,
-    "hours_per_week": 12
-  },
-  "school_information": {
-    "name": "University of Pennsylvania",
-    "training_program": "Communications",
-    "address": {
-      "country_name": "USA",
-      "address_line1": "4201 Henry Ave",
-      "address_line2": "Suite 12",
-      "address_line3": "2nd Floor",
-      "city": "Philadelphia",
-      "state_code": "PA",
-      "zip_code": "19144"
-    }
-  },
-  "student_address_marriage_tuition": {
-    "address": {
-      "country_name": "USA",
-      "address_line1": "1900 W Olney Ave.",
-      "address_line2": "Apt 8",
-      "address_line3": "Suite 35",
-      "city": "Philadelphia",
-      "state_code": "PA",
-      "zip_code": "19141"
-    },
-    "was_married": true,
-    "marriage_date": "2020-02-14",
-    "tuition_is_paid_by_gov_agency": true,
-    "agency_name": "Govt Agency",
-    "date_payments_began": "2018-08-08"
-  },
-  "veteran_contact_information": {
-    "veteran_address": {
-      "country_name": "USA",
-      "address_line1": "One E 161 St",
-      "address_line2": "Apt 6",
-      "address_line3": "Suite 108",
-      "city": "Bronx",
-      "state_code": "NY",
-      "zip_code": "10451"
-    },
-    "phone_number": "6469778000",
-    "email_address": "barrett@test.com"
-  },
-  "student_name_and_ssn": {
-    "full_name": {
-      "first": "Juan",
-      "middle": "Carlos",
-      "last": "Barrett",
-      "suffix": "Jr."
-    },
-    "ssn": "333224444",
-    "birth_date": "2001-10-06"
-  },
-  "household_income": true,
-  "view:selectable686_options": {
-    "report674": true
-  },
-  "privacy_agreement_accepted": true,
-  "format": "json",
-  "controller": "v0/dependents_applications",
-  "action": "create",
-  "dependents_application": {
-    "student_did_attend_school_last_term": true,
-    "last_term_school_information": {
-      "name": "Notre Dame",
-      "address": {
-        "country_name": "USA",
-        "address_line1": "220 Main Building",
-        "address_line2": "Suite 212",
-        "address_line3": "2nd Floor",
-        "city": "Notre Dame",
-        "state_code": "IN",
-        "zip_code": "46556"
-      },
-      "term_begin": "2020-01-09",
-      "date_term_ended": "2020-05-15",
-      "classes_per_week": 5,
-      "hours_per_week": 15
-    },
-    "current_term_dates": {
-      "official_school_start_date": "2020-09-12",
-      "expected_student_start_date": "2020-09-22",
-      "expected_graduation_date": "2025-05-05"
-    },
-    "program_information": {
-      "student_is_enrolled_full_time": false,
-      "course_of_study": "Communications",
-      "classes_per_week": 4,
-      "hours_per_week": 12
-    },
-    "school_information": {
-      "name": "University of Pennsylvania",
-      "training_program": "Communications",
-      "address": {
-        "country_name": "USA",
-        "address_line1": "4201 Henry Ave",
-        "address_line2": "Suite 12",
-        "address_line3": "2nd Floor",
-        "city": "Philadelphia",
-        "state_code": "PA",
-        "zip_code": "19144"
-      }
-    },
-    "student_address_marriage_tuition": {
-      "address": {
-        "country_name": "USA",
-        "address_line1": "1900 W Olney Ave.",
-        "address_line2": "Apt 8",
-        "address_line3": "Suite 35",
-        "city": "Philadelphia",
-        "state_code": "PA",
-        "zip_code": "19141"
-      },
-      "was_married": true,
-      "marriage_date": "2020-02-14",
-      "tuition_is_paid_by_gov_agency": true,
-      "agency_name": "Govt Agency",
-      "date_payments_began": "2018-08-08"
-    },
-    "veteran_contact_information": {
-      "veteran_address": {
-        "country_name": "USA",
-        "address_line1": "One E 161 St",
-        "address_line2": "Apt 6",
-        "address_line3": "Suite 108",
-        "city": "Bronx",
-        "state_code": "NY",
-        "zip_code": "10451"
-      },
-      "phone_number": "6469778000",
-      "email_address": "barrett@test.com"
-    },
-    "student_name_and_ssn": {
-      "full_name": {
-        "first": "Juan",
-        "middle": "Carlos",
-        "last": "Barrett",
-        "suffix": "Jr."
-      },
-      "ssn": "333224444",
-      "birth_date": "2001-10-06"
-    },
-    "household_income": true,
-    "view:selectable686_options": {
-      "report674": true
-    },
-    "privacy_agreement_accepted": true
-  }
-}
+{"veteran_was_married_before": true,
+ "spouse_was_married_before": true,
+ "view:selectable686_options": 
+  {"add_spouse": true,
+   "add_child": true,
+   "report674": true,
+   "report_divorce": true,
+   "report_stepchild_not_in_household": true,
+   "report_death": true,
+   "report_marriage_of_child_under18": true,
+   "report_child18_or_older_is_not_attending_school": true},
+ "dependents_application": 
+  {"household_income": true,
+   "child_stopped_attending_school": 
+    {"full_name": {"first": "testchild", "middle": "middle", "last": "stoppedattending"},
+     "ssn": "987654321",
+     "birth_date": "2005-05-09",
+     "date_child_left_school": "2024-04-02",
+     "dependent_income": true},
+   "child_marriage": 
+    {"full_name": {"first": "child", "middle": "middle", "last": "married"},
+     "ssn": "987654321",
+     "birth_date": "2006-06-01",
+     "date_married": "2024-05-01",
+     "dependent_income": true},
+   "deaths": 
+    [{"date": "2024-04-02",
+      "location": {"is_outside_us": false, "state": "CO", "city": "denver"},
+      "dependent_income": true,
+      "full_name": {"first": "firstname", "middle": "middle", "last": "deceasedlast"},
+      "ssn": "987654321",
+      "birth_date": "2009-01-14",
+      "dependent_type": "CHILD",
+      "child_status": {"child_under18": true, "step_child": true, "adopted": true, "disabled": false, "child_over18_in_school": false}}],
+   "step_children": 
+    [{"supporting_stepchild": true,
+      "living_expenses_paid": "Less than half",
+      "who_does_the_stepchild_live_with": {"first": "divorce", "middle": "middle", "last": "divorcelast"},
+      "address": 
+       {"country_name": "USA",
+        "address_line1": "999 test street",
+        "address_line2": "line two",
+        "address_line3": "line three",
+        "city": "portland",
+        "state_code": "ME",
+        "zip_code": "04102"},
+      "full_name": {"first": "stepchild", "middle": "middle", "last": "stepchildlast"},
+      "ssn": "987654321",
+      "birth_date": "2010-04-03"}],
+   "report_divorce": 
+    {"full_name": {"first": "divorce", "middle": "middle", "last": "divorcelast"},
+     "ssn": "987654321",
+     "birth_date": "1980-01-05",
+     "date": "2005-01-06",
+     "location": {"is_outside_us": false, "state": "MD", "city": "baltimore"},
+     "reason_marriage_ended": "Other",
+     "explanation_of_other": "other",
+     "spouse_income": true},
+   "student_did_attend_school_last_term": true,
+   "last_term_school_information": {"term_begin": "2023-01-01", "date_term_ended": "2023-05-02"},
+   "current_term_dates": 
+    {"official_school_start_date": "2024-01-01", "expected_student_start_date": "2024-01-02", "expected_graduation_date": "2025-01-01", "is_school_accredited": true},
+   "program_information": {"student_is_enrolled_full_time": false, "course_of_study": "training program", "classes_per_week": 4, "hours_per_week": 4},
+   "student_address_marriage_tuition": 
+    {"address": 
+      {"country_name": "USA",
+       "address_line1": "789 fake street",
+       "address_line2": "linetwo",
+       "address_line3": "linethree",
+       "city": "concord",
+       "state_code": "NH",
+       "zip_code": "03301"},
+     "was_married": true,
+     "marriage_date": "2023-01-10",
+     "tuition_is_paid_by_gov_agency": true,
+     "agency_name": "agency name",
+     "date_payments_began": "2024-01-01"},
+   "student_name_and_ssn": 
+    {"full_name": {"first": "student", "middle": "middle", "last": "studentname"},
+     "ssn": "987654321",
+     "birth_date": "2005-01-01",
+     "is_parent": true,
+     "dependent_income": false},
+   "children_to_add": 
+    [{"does_child_live_with_you": false,
+      "child_address_info": 
+       {"person_child_lives_with": {"first": "test", "middle": "middle", "last": "parent"},
+        "address": 
+         {"country_name": "USA",
+          "address_line1": "123 fake street",
+          "address_line2": "address line two",
+          "address_line3": "line three",
+          "city": "denver",
+          "state_code": "CO",
+          "zip_code": "80203"}},
+      "place_of_birth": {"is_outside_us": false, "state": "CO", "city": "denver"},
+      "child_status": 
+       {"biological": false,
+        "adopted": false,
+        "stepchild": true,
+        "biological_stepchild": true,
+        "date_became_dependent": "2016-01-01",
+        "stepchild_parent": {"first": "test", "last": "parentname"},
+        "ssn": "987654321",
+        "birth_date": "1980-01-01"},
+      "not_self_sufficient": false,
+      "previously_married": "No",
+      "child_income": false,
+      "full_name": {"first": "childone", "middle": "middle", "last": "childonelast"},
+      "ssn": "987654321",
+      "birth_date": "2017-01-01"},
+     {"does_child_live_with_you": true,
+      "place_of_birth": {"is_outside_us": false, "state": "AZ", "city": "phoenix"},
+      "child_status": {"biological": true},
+      "not_self_sufficient": false,
+      "previously_married": "Yes",
+      "previous_marriage_details": {"date_marriage_ended": "2023-01-01", "reason_marriage_ended": "Other", "other_reason_marriage_ended": "other reason"},
+      "child_income": false,
+      "full_name": {"first": "childtwo", "middle": "middle", "last": "childtwolast"},
+      "ssn": "987654321",
+      "birth_date": "2018-01-01"},
+     {"does_child_live_with_you": true,
+      "place_of_birth": {"is_outside_us": false, "state": "DE", "city": "wilmington"},
+      "child_status": {"adopted": true},
+      "not_self_sufficient": true,
+      "previously_married": "No",
+      "child_income": false,
+      "full_name": {"first": "childthree", "middle": "middle", "last": "childthreelast"},
+      "ssn": "987654321",
+      "birth_date": "2019-01-01"},
+     {"does_child_live_with_you": true,
+      "place_of_birth": {"is_outside_us": false, "state": "DC", "city": "washington"},
+      "child_status": {"biological": true},
+      "not_self_sufficient": false,
+      "previously_married": "No",
+      "child_income": true,
+      "full_name": {"first": "childfour", "middle": "middle", "last": "childfourlast"},
+      "ssn": "987654321",
+      "birth_date": "2019-01-01"},
+     {"does_child_live_with_you": true,
+      "place_of_birth": {"is_outside_us": false, "state": "KY", "city": "louisville"},
+      "child_status": {"biological": true},
+      "not_self_sufficient": false,
+      "previously_married": "No",
+      "child_income": false,
+      "full_name": {"first": "childfive", "middle": "middle", "last": "childfivelast"},
+      "ssn": "987654321",
+      "birth_date": "2020-01-01"},
+     {"does_child_live_with_you": true,
+      "place_of_birth": {"is_outside_us": false, "state": "NH", "city": "concord"},
+      "child_status": {"biological": true},
+      "not_self_sufficient": false,
+      "previously_married": "No",
+      "child_income": false,
+      "full_name": {"first": "childsix", "middle": "middle", "last": "childsixlast"},
+      "ssn": "987654321",
+      "birth_date": "2021-01-01"}],
+   "veteran_was_married_before": true,
+   "veteran_marriage_history": 
+    [{"start_date": "2019-04-04",
+      "start_location": {"is_outside_us": false, "state": "PA", "city": "philadelphia"},
+      "reason_marriage_ended": "Divorce",
+      "end_date": "2019-05-01",
+      "end_location": {"is_outside_us": false, "state": "TX", "city": "dallas"},
+      "full_name": {"first": "former", "middle": "middle", "last": "spousename"}}],
+   "spouse_was_married_before": true,
+   "spouse_marriage_history": 
+    [{"start_date": "2010-01-01",
+      "start_location": {"is_outside_us": false, "state": "GA", "city": "atlanta"},
+      "reason_marriage_ended": "Other",
+      "reason_marriage_ended_other": "annulled",
+      "end_date": "2010-01-06",
+      "end_location": {"is_outside_us": false, "state": "MA", "city": "boston"},
+      "full_name": {"first": "formerspouse", "middle": "formermiddle", "last": "formerlast"}}],
+   "does_live_with_spouse": 
+    {"spouse_does_live_with_veteran": false,
+     "current_spouse_reason_for_separation": "Other",
+     "address": 
+      {"country_name": "USA",
+       "address_line1": "456 fake street",
+       "address_line2": "line two",
+       "address_line3": "line three",
+       "city": "portland",
+       "state_code": "ME",
+       "zip_code": "04102"},
+     "spouse_income": true},
+   "current_marriage_information": {"date": "2024-01-01", "location": {"is_outside_us": false, "state": "DC", "city": "Washington"}, "type": "CEREMONIAL"},
+   "spouse_information": 
+    {"full_name": {"first": "testfirst", "middle": "testmiddle", "last": "testlast"},
+     "ssn": "987654321",
+     "birth_date": "1980-01-01",
+     "is_veteran": true,
+     "va_file_number": "987654321",
+     "service_number": "987654321"},
+   "veteran_contact_information": 
+    {"veteran_address": 
+      {"country_name": "USA",
+       "address_line1": "123 fake street",
+       "address_line2": "line two",
+       "address_line3": "line three",
+       "city": "portland",
+       "state_code": "ME",
+       "zip_code": "04102"},
+     "phone_number": "5555555555",
+     "email_address": "test@test.com",
+     "international_phone_number": "5555565555",
+     "electronic_correspondence": true},
+   "view:selectable686_options": 
+    {"add_spouse": true,
+     "add_child": true,
+     "report674": true,
+     "report_divorce": true,
+     "report_stepchild_not_in_household": true,
+     "report_death": true,
+     "report_marriage_of_child_under18": true,
+     "report_child18_or_older_is_not_attending_school": true},
+   "privacy_agreement_accepted": true},
+ "veteran_information": 
+  {"full_name": {"first": "Mark", "middle": "", "last": "Webb"},
+   "common_name": "Mark",
+   "va_profile_email": "vets.gov.user+228@gmail.com",
+   "email": "vets.gov.user+228@gmail.com",
+   "participant_id": "123",
+   "ssn": "000000000",
+   "va_file_number": "000000000",
+   "birth_date": "1980-01-01"}}
