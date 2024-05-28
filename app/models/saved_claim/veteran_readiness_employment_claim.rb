@@ -2,6 +2,7 @@
 
 require 'sentry_logging'
 require 'res/ch31_form'
+require 'vre/ch31_form'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include SentryLogging
@@ -84,7 +85,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     updated_form = parsed_form
 
     add_veteran_info(updated_form, user) if user&.loa3?
-    add_office_location(updated_form) if updated_form['veteranInformation'].present?
 
     update!(form: updated_form.to_json)
   end
@@ -112,27 +112,20 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def send_to_vre(user)
     add_claimant_info(user)
+    add_office_location(updated_form) if updated_form['veteranInformation'].present?
 
     if user&.participant_id
-      begin
-        upload_to_vbms(user:)
-      rescue
-        log_message_to_sentry('Error uploading VRE claim to VBMS. Now attempting to upload claim to central mail...',
-                              :warn, { uuid: user.uuid })
-        begin
-          send_to_central_mail!(user)
-        rescue => e
-          log_message_to_sentry('Error uploading VRE claim to central mail after failure uploading claim to vbms',
-                                :error, { uuid: user.uuid })
-          log_exception_to_sentry(e, { uuid: user.uuid })
-        end
-      end
+      upload_to_vbms(user:)
     else
       log_message_to_sentry('Participant id is blank when submitting VRE claim', :warn)
       send_to_central_mail!(user)
     end
 
-    send_to_res(user)
+    if Flipper.enabled?(:veteran_readiness_employment_to_res)
+      send_to_res(user)
+    else
+      send_vre_email_form(user)
+    end
   end
 
   def upload_to_vbms(user:, doc_type: '1167')
@@ -155,6 +148,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     end
 
     send_vbms_confirmation_email(user)
+  rescue
+    log_message_to_sentry('Error uploading VRE claim to VBMS',
+                          :warn, { uuid: user.uuid })
+    send_to_central_mail!(user)
   end
 
   def to_pdf(file_name = nil)
@@ -173,6 +170,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     send_central_mail_confirmation_email(user)
     @sent_to_cmp = true
+  rescue => e
+    log_message_to_sentry('Error uploading VRE claim to central mail',
+                          :error, { uuid: user.uuid })
+    log_exception_to_sentry(e, { uuid: user.uuid })
   end
 
   def send_to_res(user)
