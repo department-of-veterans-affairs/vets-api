@@ -278,15 +278,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         end
       end
 
-      # context 'when upstream appointments index returns provider names' do
-      #   it 'adds names to healthcareProvider field' do
-      #     fetch_appointments
-      #     appointment = response.parsed_body['data'].find { |appt| appt['id'] == '76133' }
-      #     expect(appointment['attributes']['healthcareProvider']).to eq('MATTHEW ENGHAUSER')
-      #   end
-      # end
-
-      context 'when the upstream appointments index returns provider id' do
+      context 'with a proposed, cc appointment that has a us-npi provider id' do
         let(:appointment) { response.parsed_body['data'].find { |appt| appt['id'] == '76132' } }
 
         it 'backfills that data by calling the provider service' do
@@ -328,6 +320,15 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           expect(response).to have_http_status(:ok)
           expect(appointment['attributes']['healthcareProvider'])
             .to eq("We're sorry, we can't display your provider's information right now.")
+        end
+      end
+
+      context 'with a non-proposed, non-cc appointment that does not have a us-npi provider id' do
+        it 'does not attempt to set the provider id' do
+          expect_any_instance_of(VAOS::V2::MobilePPMSService).not_to receive(:get_provider_with_cache).with('76133')
+          fetch_appointments
+          appointment = response.parsed_body['data'].find { |appt| appt['id'] == '76133' }
+          expect(appointment['attributes']['healthcareProvider']).to be_nil
         end
       end
 
