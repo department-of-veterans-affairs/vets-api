@@ -4083,12 +4083,23 @@ RSpec.describe 'Disability Claims', type: :request do
     let(:generate_pdf_scopes) { %w[system/526-pdf.override] }
     let(:invalid_scopes) { %w[claim.write claim.read] }
     let(:generate_pdf_path) { "/services/claims/v2/veterans/#{veteran_id}/526/generatePDF/minimum-validations" }
+    let(:special_issues) { ['POW'] }
 
     context 'submission to generatePDF' do
       it 'returns a 200 response when successful' do
         mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
           post generate_pdf_path, params: data, headers: auth_header
           expect(response.header['Content-Disposition']).to include('filename')
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      it 'returns a 200 response when specialIssues is present for a disability' do
+        json = JSON.parse data
+        json['data']['attributes']['disabilities'][0]['specialIssues'] = special_issues
+        data = json.to_json
+        mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+          post generate_pdf_path, params: data, headers: auth_header
           expect(response).to have_http_status(:ok)
         end
       end

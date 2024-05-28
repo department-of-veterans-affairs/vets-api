@@ -1325,6 +1325,10 @@ vanotify:
       api_key: fake_secret
       template_id:
         form526_document_upload_failure_notification_template_id: form526_document_upload_failure_notification_template_id
+    ivc_champva:
+      api_key: fake_secret
+      template_id:
+        pega_status_update_email_template_id: pega_status_update_email_template_id
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
