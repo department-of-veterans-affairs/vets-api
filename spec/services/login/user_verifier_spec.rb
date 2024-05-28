@@ -58,7 +58,7 @@ RSpec.describe Login::UserVerifier do
       context 'and there is an alternate idme credential identifier' do
         let(:type) { :idme_uuid }
         let(:expected_log_idme) do
-          "[Login::UserVerifier] Attempting alternate type=#{type}  identifier=#{idme_uuid_identifier}"
+          "[Login::UserVerifier] Attempting alternate type=#{type} identifier=#{idme_uuid_identifier}"
         end
         let(:idme_uuid_identifier) { 'some-idme-uuid-identifier' }
         let!(:user_verification) do
@@ -84,7 +84,10 @@ RSpec.describe Login::UserVerifier do
     shared_examples 'user_verification with defined credential identifier' do
       context 'and current user is verified, with an ICN value' do
         let(:icn) { 'some-icn' }
-        let(:expected_log) { "[Login::UserVerifier] New VA.gov user, type=#{login_value}, broker=#{auth_broker}" }
+        let(:expected_log) do
+          '[Login::UserVerifier] New VA.gov user, ' \
+            "type=#{login_value}, broker=#{auth_broker}, identifier=#{authn_identifier}, locked=#{locked}"
+        end
 
         context 'and user_verification for user credential already exists' do
           let(:user_account) { UserAccount.new(icn: user_identity.icn) }
@@ -244,7 +247,10 @@ RSpec.describe Login::UserVerifier do
 
         context 'and user_verification for user credential does not already exist' do
           let(:expected_verified_at_time) { Time.zone.now }
-          let(:expected_log) { "[Login::UserVerifier] New VA.gov user, type=#{login_value}, broker=#{auth_broker}" }
+          let(:expected_log) do
+            '[Login::UserVerifier] New VA.gov user, ' \
+              "type=#{login_value}, broker=#{auth_broker}, identifier=#{authn_identifier}, locked=#{locked}"
+          end
 
           it 'makes a new user log to rails logger' do
             expect(Rails.logger).to receive(:info).with(expected_log, { icn: })
@@ -288,15 +294,10 @@ RSpec.describe Login::UserVerifier do
               end
 
               context 'and the linked user verification is locked' do
-                let(:locked_verification_log) do
-                  '[Login::UserVerifier] Locked UserVerification created ' \
-                    "type=#{login_value} identifier=#{authn_identifier}"
-                end
                 let(:locked) { true }
 
                 it 'creates a locked UserVerification object and logs the event' do
                   expect(Rails.logger).to receive(:info).with(expected_log, { icn: })
-                  expect(Rails.logger).to receive(:info).with(locked_verification_log)
                   expect(subject.locked).to eq(true)
                 end
               end
@@ -327,7 +328,10 @@ RSpec.describe Login::UserVerifier do
 
       context 'and current user is not verified, without an ICN value' do
         let(:icn) { nil }
-        let(:expected_log) { "[Login::UserVerifier] New VA.gov user, type=#{login_value}, broker=#{auth_broker}" }
+        let(:expected_log) do
+          '[Login::UserVerifier] New VA.gov user, ' \
+            "type=#{login_value}, broker=#{auth_broker}, identifier=#{authn_identifier}, locked=#{locked}"
+        end
 
         context 'and user_verification for user credential already exists' do
           let!(:user_verification) do
