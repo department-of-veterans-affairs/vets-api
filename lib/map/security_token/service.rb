@@ -9,12 +9,13 @@ module MAP
       configuration Configuration
 
       def token(application:, icn:, cache: true)
+        cached_response = true
         Rails.logger.info("#{config.logging_prefix} token request", { application:, icn: })
         token = Rails.cache.fetch("map_sts_token_#{application}_#{icn}", expires_in: 5.minutes, force: !cache) do
-          cache = false
+          cached_response = false
           request_token(application, icn)
         end
-        Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cache: })
+        Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cached_response: })
         token
       rescue Common::Client::Errors::ClientError => e
         parse_and_raise_error(e, icn, application)
