@@ -238,8 +238,14 @@ RSpec.describe 'Disability compensation form' do
       context 'with an `all claims` claim' do
         let(:all_claims_form) { File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json' }
 
+        it 'matches the rated disabilities schema' do
+          post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('submit_disability_form')
+        end
+
         context 'where the includeToxicExposure indicator is true' do
-          it 'matches the rated disabilities schema' do
+          it 'creates a submission that includes a toxic exposure component' do
             post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('submit_disability_form')
@@ -250,7 +256,7 @@ RSpec.describe 'Disability compensation form' do
         end
 
         context 'where the includeToxicExposure indicator is false' do
-          it 'matches the rated disabilities schema' do
+          it 'does not create a submission that includes a toxic exposure component' do
             json_object = JSON.parse(all_claims_form)
             json_object['form526']['includeToxicExposure'] = false
             updated_form = JSON.generate(json_object)
