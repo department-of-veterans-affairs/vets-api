@@ -144,6 +144,7 @@
         ]
       }
     ],
+    "includeToxicExposure": true,
     "toxicExposure": {
       "conditions": {
         "arthritis": true

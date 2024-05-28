@@ -54,7 +54,6 @@ module V0
     end
 
     def submit_all_claim
-      form_content = JSON.parse(request.body.string)
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
@@ -105,6 +104,10 @@ module V0
       authorize(api, :rating_info_access?)
     end
 
+    def form_content
+      @form_content ||= JSON.parse(request.body.string)
+    end
+
     def lighthouse?
       Flipper.enabled?(:profile_lighthouse_rating_info, @current_user)
     end
@@ -139,10 +142,6 @@ module V0
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
     end
 
-    def translate_form4142(form_content)
-      EVSS::DisabilityCompensationForm::Form4142.new(@current_user, form_content).translate
-    end
-
     def validate_name_part
       raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?
     end
@@ -156,7 +155,7 @@ module V0
     end
 
     def includes_toxic_exposure?
-      params.permit(:includes_toxic_exposure)[:includes_toxic_exposure] == 'true'
+      form_content['form526']['includeToxicExposure']
     end
   end
 end

@@ -59,6 +59,7 @@ module EVSS
         output_form['overflowText'] = overflow_text
         output_form['bddQualified'] = bdd_qualified?
         output_form['claimSubmissionSource'] = 'VA.gov'
+        output_form['includeToxicExposure'] = input_form['includeToxicExposure']
         output_form.compact!
 
         output_form.update(translate_banking_info)
@@ -67,7 +68,7 @@ module EVSS
         output_form.update(translate_veteran)
         output_form.update(translate_treatments)
         output_form.update(translate_disabilities)
-        output_form.update(add_toxic_exposure) if Flipper.enabled?(:disability_526_toxic_exposure, @user)
+        output_form.update(add_toxic_exposure) if output_form['includeToxicExposure']
 
         @translated_form
       end
@@ -703,6 +704,10 @@ module EVSS
 
       def add_toxic_exposure
         { 'toxicExposure' => input_form['toxicExposure'] }
+      end
+
+      def include_toxic_exposure
+        { 'includeToxicExposure' => input_form['includeToxicExposure'] }
       end
 
       def application_expiration_date
