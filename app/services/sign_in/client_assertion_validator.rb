@@ -59,7 +59,7 @@ module SignIn
     def jwt_decode(with_validation: true)
       decoded_jwt = JWT.decode(
         client_assertion,
-        client_config.client_assertion_public_keys,
+        client_config.assertion_public_keys,
         with_validation,
         {
           verify_expiration: with_validation,
