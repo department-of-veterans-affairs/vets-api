@@ -3,8 +3,6 @@
 module ClaimsApi
   class PowerOfAttorneyRequest
     class Decision
-      # TODO: Error handling.
-      # TODO: Think about our `update` vs `create` semantics.
       module Create
         class << self
           def perform(id, decision)

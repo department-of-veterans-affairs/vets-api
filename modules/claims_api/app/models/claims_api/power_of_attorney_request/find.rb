@@ -19,7 +19,8 @@ module ClaimsApi
             end
           rescue BGSClient::Error::BGSFault => e
             reason = e.detail.dig('MessageException', 'reason')
-            raise Error::RecordNotFound if reason == 'NO_RECORD_FOUND'
+            reason == 'NO_RECORD_FOUND' and
+              raise ::Common::Exceptions::RecordNotFound, id
 
             raise
           end
@@ -29,8 +30,8 @@ module ClaimsApi
             data['procID'] == proc_id
           end
 
-          poa_request or
-            raise Error::RecordNotFound
+          poa_request.nil? and
+            raise ::Common::Exceptions::RecordNotFound, id
 
           Load.perform(poa_request)
         end

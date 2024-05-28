@@ -79,7 +79,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
       expect(subject.body).to eq(
         'errors' => [
           {
-            'title' => 'Bad request',
+            'title' => 'Validation error',
             'detail' => {
               'errors' => {
                 'filter' => {
@@ -117,30 +117,16 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                   ]
                 }
               },
-              'params' => {
-                'filter' => {
-                  'decision' => {
-                    'statuses' => [
-                      'NotAStatus'
-                    ]
-                  }
-                },
-                'page' => {
-                  'size' => 'whoops',
-                  'number' => nil
-                },
-                'sort' => {
-                  'field' => nil,
-                  'order' => nil
-                }
-              }
-            }
+              'params' => params
+            },
+            'code' => '109',
+            'status' => '422'
           }
         ]
       )
 
       expect(subject.response).to(
-        have_http_status(:bad_request)
+        have_http_status(:unprocessable_entity)
       )
     end
   end
@@ -164,7 +150,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
       expect(subject.body).to eq(
         'errors' => [
           {
-            'title' => 'Bad request',
+            'title' => 'Validation error',
             'detail' => {
               'errors' => {
                 'filter' => {
@@ -175,20 +161,16 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                   }
                 }
               },
-              'params' => {
-                'filter' => {
-                  'poaCodes' => [
-                    ''
-                  ]
-                }
-              }
-            }
+              'params' => params
+            },
+            'code' => '109',
+            'status' => '422'
           }
         ]
       )
 
       expect(subject.response).to(
-        have_http_status(:bad_request)
+        have_http_status(:unprocessable_entity)
       )
     end
   end
@@ -541,7 +523,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           'errors' => [
             {
               'title' => 'Bad Gateway',
-              'detail' => 'Weird BGFS Fault'
+              'detail' => 'Bad Gateway'
             }
           ]
         )
@@ -570,7 +552,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             'errors' => [
               {
                 'title' => 'Bad Gateway',
-                'detail' => 'Exception from WebMock'
+                'detail' => 'Bad Gateway'
               }
             ]
           )
@@ -591,7 +573,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             'errors' => [
               {
                 'title' => 'Bad Gateway',
-                'detail' => 'Exception from WebMock'
+                'detail' => 'Bad Gateway'
               }
             ]
           )

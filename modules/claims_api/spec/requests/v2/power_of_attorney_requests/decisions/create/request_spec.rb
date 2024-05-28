@@ -32,6 +32,36 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
     ]
   end
 
+  describe 'when a malformed body is posted' do
+    let(:params) { '{{{{' }
+
+    it 'something' do
+      mock_ccg(scopes) do
+        post(
+          "/services/claims/v2/power-of-attorney-requests/#{id}/decision",
+          params:,
+          headers:
+        )
+      end
+
+      body = JSON.parse(response.body)
+      expect(body).to eq(
+        'errors' => [
+          {
+            'title' => 'Bad request',
+            'detail' => 'Malformed JSON in request body',
+            'code' => '400',
+            'status' => '400'
+          }
+        ]
+      )
+
+      expect(response).to(
+        have_http_status(:bad_request)
+      )
+    end
+  end
+
   describe 'with an body that does not conform to the schema because it is missing status' do
     it 'responds 400' do
       params = {
@@ -48,12 +78,24 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
         }
       }
 
-      mock_ccg(scopes) do
-        perform_request(params)
-      end
+      body =
+        mock_ccg(scopes) do
+          perform_request(params)
+        end
+
+      expect(body).to eq(
+        'errors' => [
+          {
+            'title' => 'Validation error',
+            'detail' => 'object at `/data/attributes` is missing required properties: status',
+            'code' => '109',
+            'status' => '422'
+          }
+        ]
+      )
 
       expect(response).to(
-        have_http_status(:bad_request)
+        have_http_status(:unprocessable_entity)
       )
     end
   end
@@ -84,8 +126,15 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
           end
         end
 
-      expect(body).to(
-        eq({ 'error' => 'Record not found' })
+      expect(body).to eq(
+        'errors' => [
+          {
+            'title' => 'Record not found',
+            'detail' => 'The record identified by 1234_5678 could not be found',
+            'code' => '404',
+            'status' => '404'
+          }
+        ]
       )
 
       expect(response).to(
@@ -120,8 +169,15 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
           end
         end
 
-      expect(body).to(
-        eq({ 'error' => 'Record not found' })
+      expect(body).to eq(
+        'errors' => [
+          {
+            'title' => 'Record not found',
+            'detail' => 'The record identified by 600085312_5678 could not be found',
+            'code' => '404',
+            'status' => '404'
+          }
+        ]
       )
 
       expect(response).to(
@@ -163,7 +219,12 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
             'errors' => [
               {
                 'title' => 'must be original',
-                'detail' => 'base - must be original'
+                'detail' => 'base - must be original',
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/base'
+                },
+                'status' => '422'
               }
             ]
           )
@@ -203,7 +264,12 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
             'errors' => [
               {
                 'title' => 'Declined reason can only accompany a declination',
-                'detail' => 'declined-reason - can only accompany a declination'
+                'detail' => 'declined-reason - can only accompany a declination',
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/declined-reason'
+                },
+                'status' => '422'
               }
             ]
           )
