@@ -82,7 +82,7 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       api_key = Settings.travel_pay.subscription_key
 
-      response = connection(server_url: btsss_url).get("api/v1/claims") do |req|
+      response = connection(server_url: btsss_url).get('api/v1/claims') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['BTSSS-Access-Token'] = btsss_token
         req.headers['Ocp-Apim-Subscription-Key'] = api_key

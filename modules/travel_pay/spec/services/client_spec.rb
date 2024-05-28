@@ -77,7 +77,7 @@ describe TravelPay::Client do
       payload = { ContactID: 'test' }
       fake_btsss_token = JWT.encode(payload, nil, 'none')
 
-      @stubs.get("/api/v1/claims") do
+      @stubs.get('/api/v1/claims') do
         [
           200,
           {},
