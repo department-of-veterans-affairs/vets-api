@@ -286,7 +286,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           expect(appointment['attributes']['healthcareProvider']).to eq('DEHGHAN, AMIR')
         end
 
-        it 'falls back to nil when provider does not return provider data' do
+        it 'falls back to default message when provider service returns 400' do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
