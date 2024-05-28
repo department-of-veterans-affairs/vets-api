@@ -38,12 +38,14 @@ RSpec.describe 'Forms uploader', type: :request do
         allow(Common::FileHelpers).to receive(:generate_temp_file).and_wrap_original do |original_method, *args|
           original_method.call(args[0], random_string)
         end
+        Flipper.disable(:simple_forms_email_confirmations)
       end
 
       after do
         VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
         VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
         Common::FileHelpers.delete_file_if_exists(metadata_file)
+        Flipper.enable(:simple_forms_email_confirmations)
       end
 
       forms.each do |form|
@@ -129,6 +131,8 @@ RSpec.describe 'Forms uploader', type: :request do
           end
 
           it 'returns an expiration date' do
+            Flipper.disable(:form21_0966_confirmation_email)
+
             fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                            'vba_21_0966.json')
             data = JSON.parse(fixture_path.read)
@@ -138,6 +142,8 @@ RSpec.describe 'Forms uploader', type: :request do
             parsed_response_body = JSON.parse(response.body)
             parsed_expiration_date = Time.zone.parse(parsed_response_body['expiration_date'])
             expect(parsed_expiration_date.to_s).to eq (expiration_date + 1.year).to_s
+
+            Flipper.enable(:form21_0966_confirmation_email)
           end
         end
       end
@@ -193,6 +199,8 @@ RSpec.describe 'Forms uploader', type: :request do
       context 'transliterating fields' do
         context 'transliteration succeeds' do
           it 'responds with ok' do
+            Flipper.disable(:form21_0966_confirmation_email)
+
             fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                            'form_with_accented_chars_21_0966.json')
             data = JSON.parse(fixture_path.read)
@@ -200,6 +208,8 @@ RSpec.describe 'Forms uploader', type: :request do
             post '/simple_forms_api/v1/simple_forms', params: data
 
             expect(response).to have_http_status(:ok)
+
+            Flipper.enable(:form21_0966_confirmation_email)
           end
         end
 
@@ -738,7 +748,8 @@ RSpec.describe 'Forms uploader', type: :request do
                 'first_name' => 'ABRAHAM',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
-                'intent_to_file_benefits' => { 'survivor' => 'true' }
+                'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
+                                             ' (VA Form 21P-534 or VA Form 21P-534EZ)'
               }
             )
           end
