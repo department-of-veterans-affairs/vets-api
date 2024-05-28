@@ -3,6 +3,7 @@
 module IvcChampva
   class VHA107959c
     include Virtus.model(nullify_blank: true)
+    include Attachments
 
     attribute :data
     attr_reader :form_id
@@ -38,11 +39,14 @@ module IvcChampva
       }
     end
 
-    def method_missing(_, *args)
-      args&.first
+    # rubocop:disable Naming/BlockForwarding,Style/HashSyntax
+    def method_missing(method_name, *args, &block)
+      super unless respond_to_missing?(method_name)
+      { method: method_name, args: args }
     end
+    # rubocop:enable Naming/BlockForwarding,Style/HashSyntax
 
-    def respond_to_missing?(_)
+    def respond_to_missing?(_method_name, _include_private = false)
       true
     end
   end

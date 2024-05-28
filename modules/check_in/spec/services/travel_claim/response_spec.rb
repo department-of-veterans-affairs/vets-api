@@ -91,6 +91,17 @@ describe TravelClaim::Response do
       end
     end
 
+    context 'when status 408' do
+      it 'returns a formatted response' do
+        error_message = 'BTSSS timeout error'
+        resp = Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408)
+        hsh = { data: { error: true, code: 'CLM_011_CLAIM_TIMEOUT_ERROR', message: error_message },
+                status: resp.status }
+
+        expect(subject.build(response: resp).handle).to eq(hsh)
+      end
+    end
+
     context 'when status 500' do
       it 'returns a formatted response' do
         resp = Faraday::Response.new(response_body: 'Something went wrong', status: 500)
