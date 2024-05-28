@@ -74,7 +74,7 @@ module VAOS
           new_appointment = response.body
           convert_appointment_time(new_appointment)
           find_and_merge_provider_name(new_appointment) if new_appointment[:kind] == 'cc'
-          OpenStruct.new(response.body)
+          OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if params[:status] == 'booked'
           raise e
@@ -184,16 +184,18 @@ module VAOS
         appointment[:requested_periods] = nil if booked?(appointment) && cerner?(appointment)
 
         convert_appointment_time(appointment)
-        fetch_avs_and_update_appt_body(appointment) if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
+        if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
+          fetch_avs_and_update_appt_body(appointment)
+        end
         find_and_merge_provider_name(appointment) if appointment[:kind] == 'cc' && appointment[:status] == 'proposed'
       end
 
-      def find_and_merge_provider_name(appt)
-        practitioners_list = appt[:practitioners]
+      def find_and_merge_provider_name(appointment)
+        practitioners_list = appointment[:practitioners]
         service = AppointmentProviderName.new(user)
         names = service.form_names_from_appointment_practitioners_list(practitioners_list)
 
-        appt[:preferred_provider_name] = names
+        appointment[:preferred_provider_name] = names
       end
 
       def most_recent_appointment(appointments)

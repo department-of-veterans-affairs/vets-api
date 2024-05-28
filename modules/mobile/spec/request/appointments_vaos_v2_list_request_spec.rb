@@ -323,19 +323,20 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         end
       end
 
-      context 'with a non-proposed, non-cc appointment that does not have a us-npi provider id' do
-        it 'does not attempt to set the provider id' do
-          expect_any_instance_of(VAOS::V2::MobilePPMSService).not_to receive(:get_provider_with_cache).with('76133')
+      context 'when appointment does not include a practitioner id' do
+        it 'does not attempt to fetch provider and sets provider name to nil' do
+          expect_any_instance_of(VAOS::V2::MobilePPMSService).not_to receive(:get_provider_with_cache).with('76131')
           fetch_appointments
-          appointment = response.parsed_body['data'].find { |appt| appt['id'] == '76133' }
+          appointment = response.parsed_body['data'].find { |appt| appt['id'] == '76131' }
           expect(appointment['attributes']['healthcareProvider']).to be_nil
         end
       end
 
-      context 'when upstream appointments index does not include a practitioner id' do
-        it 'sets provider name to nil' do
+      context 'with a non-proposed, non-cc appointment that does not have a us-npi provider id' do
+        it 'does not attempt to fetch provider and sets provider name to nil' do
+          expect_any_instance_of(VAOS::V2::MobilePPMSService).not_to receive(:get_provider_with_cache).with('76133')
           fetch_appointments
-          appointment = response.parsed_body['data'].find { |appt| appt['id'] == '76131' }
+          appointment = response.parsed_body['data'].find { |appt| appt['id'] == '76133' }
           expect(appointment['attributes']['healthcareProvider']).to be_nil
         end
       end
