@@ -16,22 +16,26 @@ module CheckIn
     CIE_SUCCESS_TEMPLATE_ID = Settings.vanotify.services.check_in.template_id.claim_submission_success_text
     CIE_DUPLICATE_TEMPLATE_ID = Settings.vanotify.services.check_in.template_id.claim_submission_duplicate_text
     CIE_ERROR_TEMPLATE_ID = Settings.vanotify.services.check_in.template_id.claim_submission_error_text
+    CIE_TIMEOUT_TEMPLATE_ID = Settings.vanotify.services.check_in.template_id.claim_submission_timeout_text
 
     CIE_SMS_SENDER_ID = Settings.vanotify.services.check_in.sms_sender_id
 
     CIE_STATSD_BTSSS_SUCCESS = 'worker.checkin.travel_claim.btsss.success'
     CIE_STATSD_BTSSS_ERROR = 'worker.checkin.travel_claim.btsss.error'
+    CIE_STATSD_BTSSS_TIMEOUT = 'worker.checkin.travel_claim.btsss.timeout'
     CIE_STATSD_BTSSS_DUPLICATE = 'worker.checkin.travel_claim.btsss.duplicate'
 
     # settings for travel claims for oracle health settings
     OH_SUCCESS_TEMPLATE_ID = Settings.vanotify.services.oracle_health.template_id.claim_submission_success_text
     OH_DUPLICATE_TEMPLATE_ID = Settings.vanotify.services.oracle_health.template_id.claim_submission_duplicate_text
     OH_ERROR_TEMPLATE_ID = Settings.vanotify.services.oracle_health.template_id.claim_submission_error_text
+    OH_TIMEOUT_TEMPLATE_ID = Settings.vanotify.services.oracle_health.template_id.claim_submission_timeout_text
 
     OH_SMS_SENDER_ID = Settings.vanotify.services.oracle_health.sms_sender_id
 
     OH_STATSD_BTSSS_SUCCESS = 'worker.oracle_health.travel_claim.btsss.success'
     OH_STATSD_BTSSS_ERROR = 'worker.oracle_health.travel_claim.btsss.error'
+    OH_STATSD_BTSSS_TIMEOUT = 'worker.oracle_health.travel_claim.btsss.timeout'
     OH_STATSD_BTSSS_DUPLICATE = 'worker.oracle_health.travel_claim.btsss.duplicate'
 
     def perform(uuid, appointment_date)
@@ -89,6 +93,8 @@ module CheckIn
                                        [OH_STATSD_BTSSS_SUCCESS, OH_SUCCESS_TEMPLATE_ID]
                                      when TravelClaim::Response::CODE_CLAIM_EXISTS
                                        [OH_STATSD_BTSSS_DUPLICATE, OH_DUPLICATE_TEMPLATE_ID]
+                                     when TravelClaim::Response::CODE_BTSSS_TIMEOUT
+                                       [OH_STATSD_BTSSS_TIMEOUT, OH_TIMEOUT_TEMPLATE_ID]
                                      else
                                        [OH_STATSD_BTSSS_ERROR, OH_ERROR_TEMPLATE_ID]
                                      end
@@ -98,6 +104,8 @@ module CheckIn
                                        [CIE_STATSD_BTSSS_SUCCESS, CIE_SUCCESS_TEMPLATE_ID]
                                      when TravelClaim::Response::CODE_CLAIM_EXISTS
                                        [CIE_STATSD_BTSSS_DUPLICATE, CIE_DUPLICATE_TEMPLATE_ID]
+                                     when TravelClaim::Response::CODE_BTSSS_TIMEOUT
+                                       [CIE_STATSD_BTSSS_TIMEOUT, CIE_TIMEOUT_TEMPLATE_ID]
                                      else
                                        [CIE_STATSD_BTSSS_ERROR, CIE_ERROR_TEMPLATE_ID]
                                      end

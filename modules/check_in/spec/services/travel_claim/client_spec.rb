@@ -188,7 +188,7 @@ describe TravelClaim::Client do
     end
 
     context 'when call to claims service times out' do
-      let(:resp) { Faraday::Response.new(response_body: 'BTSSS timeout error', status: 408) }
+      let(:resp) { Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408) }
       let(:err_msg) { { message: 'BTSSS Timeout Error', uuid: } }
 
       before do
@@ -305,7 +305,7 @@ describe TravelClaim::Client do
     end
 
     context 'when call to claims service times out' do
-      let(:resp) { Faraday::Response.new(response_body: 'BTSSS timeout error', status: 408) }
+      let(:resp) { Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408) }
       let(:err_msg) { { message: 'BTSSS Timeout Error', uuid: } }
 
       before do
