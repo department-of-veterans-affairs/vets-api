@@ -96,7 +96,7 @@ RSpec.describe Form1010Ezr::Service do
         service.send(:post_fill_required_user_fields, parsed_form)
 
         required_user_fields.each do |key, value|
-          expect(parsed_form["#{key}"]).to_not eq(value)
+          expect(parsed_form[key.to_s]).to_not eq(value)
         end
       end
     end
@@ -109,14 +109,14 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       it "increments StatsD and adds/updates the form field(s) to be equal to the current_user's data" do
-        required_user_fields.each do |key, _value|
+        required_user_fields.each_key do |key|
           expect(StatsD).to receive(:increment).with("api.1010ezr.missing_#{key.underscore}")
         end
 
         service.send(:post_fill_required_user_fields, parsed_form)
 
         required_user_fields.each do |key, value|
-          expect(parsed_form["#{key}"]).to eq(value)
+          expect(parsed_form[key.to_s]).to eq(value)
         end
       end
     end
