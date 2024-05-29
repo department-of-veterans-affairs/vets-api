@@ -9,7 +9,6 @@ module RES
     include SentryLogging
     configuration RES::Configuration
     STATSD_KEY_PREFIX = 'api.res'
-    SENTRY_TAG = { team: 'vfs-ebenefits' }.freeze
 
     def initialize(user:, claim:)
       super()
@@ -23,13 +22,7 @@ module RES
     #
     def submit
       if @claim.nil?
-        log_exception_to_sentry(
-          'Ch31NilClaimError',
-          {
-            icn: @user.icn
-          },
-          SENTRY_TAG
-        )
+        Rails.logger.error("Ch31NilClaimError. user icn: #{@user.icn}")
         raise Ch31NilClaimError
       end
 
@@ -137,14 +130,11 @@ module RES
     end
 
     def process_ch_31_error(e, response_body)
-      log_exception_to_sentry(
-        e,
-        {
-          intake_id: response_body['ApplicationIntake'],
-          error_message: response_body['ErrorMessage']
-        },
-        SENTRY_TAG
-      )
+      Rails.logger.error(e)
+      Rails.logger.error({
+                           intake_id: response_body['ApplicationIntake'],
+                           error_message: response_body['ErrorMessage']
+                         })
     end
   end
 end

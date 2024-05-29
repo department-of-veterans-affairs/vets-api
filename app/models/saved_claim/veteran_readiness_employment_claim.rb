@@ -121,7 +121,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     if user&.participant_id
       upload_to_vbms(user:)
     else
-      log_message_to_sentry('Participant id is blank when submitting VRE claim', :warn)
+      Rails.logger.warn('Participane.messaget id is blank when submitting VRE claim')
       send_to_central_mail!(user)
     end
 
@@ -153,8 +153,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     send_vbms_confirmation_email(user)
   rescue
-    log_message_to_sentry('Error uploading VRE claim to VBMS',
-                          :warn, { uuid: user.uuid })
+    Rails.logger.error("Error uploading VRE claim to VBMS. user uuid: #{user.uuid}")
     send_to_central_mail!(user)
   end
 
@@ -170,21 +169,20 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     form_copy['vaFileNumber'] = parsed_form.dig('veteranInformation', 'VAFileNumber')
 
     update!(form: form_copy.to_json)
-    log_message_to_sentry(guid, :warn, { attachment_id: guid }, { team: 'vfs-ebenefits' })
+
+    process_attachments!
+    @sent_to_cmp = true
 
     send_central_mail_confirmation_email(user)
-    @sent_to_cmp = true
   rescue => e
-    log_message_to_sentry('Error uploading VRE claim to central mail',
-                          :error, { uuid: user.uuid })
-    log_exception_to_sentry(e, { uuid: user.uuid })
+    Rails.logger.error("Error uploading VRE claim to central mail. user uuid: #{user.uuid}. #{e}")
   end
 
   def send_to_res(user)
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
 
-    log_message_to_sentry("VRE claim email: #{email_addr}, sent to cmp: #{@sent_to_cmp} #{user.present?}",
-                          :info, { uuid: user.uuid })
+    Rails.logger.info("VRE claim email: #{email_addr}. user uuid: #{user.uuid}.\
+                      sent to cmp: #{@sent_to_cmp} #{user.present?}")
 
     VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr, @sent_to_cmp).deliver_later if user.present?
 
@@ -195,8 +193,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def send_vre_email_form(user)
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
 
-    log_message_to_sentry("VRE claim email: #{email_addr}, sent to cmp: #{@sent_to_cmp} #{user.present?}",
-                          :info, { uuid: user.uuid })
+    Rails.logger.info("VRE claim email: #{email_addr}. user uuid: #{user.uuid}.\
+                      sent to cmp: #{@sent_to_cmp} #{user.present?}")
 
     VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr, @sent_to_cmp).deliver_later if user.present?
 
@@ -239,6 +237,14 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     )
   end
 
+  def process_attachments!
+    refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
+    files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
+    files.find_each { |f| f.update(saved_claim_id: id) }
+
+    Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
+  end
+
   def business_line
     'VRE'
   end
@@ -258,7 +264,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       regional_office_response[:regional_office][:name]
     ]
   rescue => e
-    log_message_to_sentry(e.message, :warn, {}, { team: 'vfs-ebenefits' })
+    Rails.logger.warn(e.message)
     ['000', 'Not Found']
   end
 
