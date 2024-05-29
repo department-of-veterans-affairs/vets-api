@@ -10,9 +10,11 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
   let(:scopes) { %w[system/claim.read system/claim.write] }
   let(:generate_pdf_minimum_validations_scopes) { %w[system/claim.read system/claim.write system/526-pdf.override] }
   let(:synchronous_scopes) { %w[system/claim.read system/claim.write system/526.override] }
+  let(:veteran_mpi_data) { MPIData.new }
+  let(:veteran) { ClaimsApi::Veteran.new }
 
   path '/veterans/{veteranId}/526', vcr: 'claims_api/disability_comp' do
-    post 'Synchronously establishes disability compensation claim' do
+    post 'Establishes disability compensation claim asynchronously' do
       tags 'Disability Compensation Claims'
       operationId 'post526Claim'
       security [
@@ -108,7 +110,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
         end
       end
 
-      describe 'Getting an unauthorized reponse' do
+      describe 'Getting an unauthorized response' do
         response '401', 'Unauthorized' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                             'disability_compensation', 'default.json').read)
@@ -138,6 +140,55 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           end
 
           it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 404 response' do
+        let(:claim_date) { (Time.zone.today - 1.day).to_s }
+        let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+        let(:data) do
+          temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                 'disability_compensation', 'form_526_json_api.json').read
+          temp = JSON.parse(temp)
+          attributes = temp['data']['attributes']
+          attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+            anticipated_separation_date
+          temp['data']['attributes'] = attributes
+          temp.to_json
+          temp
+        end
+
+        let(:disability_comp_request) do
+          data
+        end
+
+        before do |example|
+          expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+          allow(veteran).to receive(:mpi).and_return(nil)
+          mock_ccg(scopes) do
+            submit_request(example.metadata)
+          end
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+
+        response '404', 'Resource not found' do
+          schema JSON.parse(
+            File.read(
+              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 
+                'disability_compensation', 'default.json')
+            )
+          )
+
+          it 'returns a 404 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
@@ -213,7 +264,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
   end
 
   path '/veterans/{veteranId}/526/synchronous', production: false do
-    post 'Submits disability compensation claim asynchronously' do
+    post 'Submits disability compensation claim synchronously' do
       tags 'Disability Compensation Claims'
       operationId 'post526ClaimSynchronous'
       security [
@@ -260,8 +311,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       parameter name: :disability_comp_request, in: :body,
                 schema: SwaggerSharedComponents::V2.body_examples[:disability_compensation][:schema]
 
-      # WE MIGHT NOT NEED BOTH EXAMPLES THIS IS WIP SO JUST HAD THEM IN HERE
-      # EXPECTING THESE DOCS WOULD BE THE SAME AS THE 526, BUT WE MAY GO TO ONE
       parameter in: :body, examples: {
         'Minimum Required Attributes' => {
           value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
@@ -324,7 +373,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
         end
       end
 
-      describe 'Getting an unauthorized reponse' do
+      describe 'Getting an unauthorized response' do
         response '401', 'Unauthorized' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                             'disability_compensation', 'default.json').read)
@@ -354,6 +403,55 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           end
 
           it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 404 response' do
+        let(:claim_date) { (Time.zone.today - 1.day).to_s }
+        let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+        let(:data) do
+          temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                 'disability_compensation', 'form_526_json_api.json').read
+          temp = JSON.parse(temp)
+          attributes = temp['data']['attributes']
+          attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+            anticipated_separation_date
+          temp['data']['attributes'] = attributes
+          temp.to_json
+          temp
+        end
+
+        let(:disability_comp_request) do
+          data
+        end
+
+        before do |example|
+          expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+          allow(veteran).to receive(:mpi).and_return(nil)
+          mock_ccg(scopes) do
+            submit_request(example.metadata)
+          end
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+
+        response '404', 'Resource not found' do
+          schema JSON.parse(
+            File.read(
+              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 
+                'disability_compensation', 'default.json')
+            )
+          )
+
+          it 'returns a 404 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
@@ -523,6 +621,55 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           end
 
           it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 404 response' do
+        let(:claim_date) { (Time.zone.today - 1.day).to_s }
+        let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+        let(:data) do
+          temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                 'disability_compensation', 'form_526_json_api.json').read
+          temp = JSON.parse(temp)
+          attributes = temp['data']['attributes']
+          attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+            anticipated_separation_date
+          temp['data']['attributes'] = attributes
+          temp.to_json
+          temp
+        end
+
+        let(:disability_comp_request) do
+          data
+        end
+
+        before do |example|
+          expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+          allow(veteran).to receive(:mpi).and_return(nil)
+          mock_ccg(scopes) do
+            submit_request(example.metadata)
+          end
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+
+        response '404', 'Resource not found' do
+          schema JSON.parse(
+            File.read(
+              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 
+                'disability_compensation', 'default.json')
+            )
+          )
+
+          it 'returns a 404 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
@@ -812,6 +959,55 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           end
 
           it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 404 response' do
+        let(:claim_date) { (Time.zone.today - 1.day).to_s }
+        let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+        let(:data) do
+          temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                 'disability_compensation', 'form_526_json_api.json').read
+          temp = JSON.parse(temp)
+          attributes = temp['data']['attributes']
+          attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+            anticipated_separation_date
+          temp['data']['attributes'] = attributes
+          temp.to_json
+          temp
+        end
+
+        let(:disability_comp_request) do
+          data
+        end
+
+        before do |example|
+          expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+          allow(veteran).to receive(:mpi).and_return(nil)
+          mock_ccg_for_fine_grained_scope(generate_pdf_minimum_validations_scopes) do
+            submit_request(example.metadata)
+          end
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+
+        response '404', 'Resource not found' do
+          schema JSON.parse(
+            File.read(
+              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 
+                'disability_compensation', 'default.json')
+            )
+          )
+
+          it 'returns a 404 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end

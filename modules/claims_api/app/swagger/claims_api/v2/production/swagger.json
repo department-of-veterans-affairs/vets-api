@@ -1246,7 +1246,7 @@
     },
     "/veterans/{veteranId}/526": {
       "post": {
-        "summary": "Submits form 526",
+        "summary": "Establishes disability compensation claim asynchronously",
         "tags": [
           "Disability Compensation Claims"
         ],
@@ -1912,6 +1912,20 @@
                                     "default": false,
                                     "nullable": true
                                   },
+                                  "specialIssues": {
+                                    "type": "array",
+                                    "nullable": true,
+                                    "uniqueItems": true,
+                                    "items": {
+                                      "maxItems": 2,
+                                      "additionalProperties": false,
+                                      "type": "string",
+                                      "enum": [
+                                        "POW",
+                                        "EMP"
+                                      ]
+                                    }
+                                  },
                                   "secondaryDisabilities": {
                                     "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                     "type": "array",
@@ -2409,6 +2423,10 @@
                               "type": "boolean",
                               "description": "Claimant certifies and authorizes release of information.",
                               "default": false
+                            },
+                            "claimId": {
+                              "type": "string",
+                              "example": "600517517"
                             }
                           }
                         }
@@ -2429,6 +2447,67 @@
                       "title": "Not authorized",
                       "status": "401",
                       "detail": "Not authorized"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "status": "404",
+                      "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.",
+                      "source": {
+                        "pointer": "/modules/claims_api/app/controllers/concerns/claims_api/target_veteran.rb:26:in `build_target_veteran'"
+                      }
                     }
                   ]
                 },
@@ -3194,6 +3273,20 @@
                                   "example": true,
                                   "default": false,
                                   "nullable": true
+                                },
+                                "specialIssues": {
+                                  "type": "array",
+                                  "nullable": true,
+                                  "uniqueItems": true,
+                                  "items": {
+                                    "maxItems": 2,
+                                    "additionalProperties": false,
+                                    "type": "string",
+                                    "enum": [
+                                      "POW",
+                                      "EMP"
+                                    ]
+                                  }
                                 },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
@@ -4123,7 +4216,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2023-10-31"
+                            "anticipatedSeparationDate": "2024-10-31"
                           },
                           "confinements": [
                             {
@@ -4275,6 +4368,67 @@
                       "title": "Not authorized",
                       "status": "401",
                       "detail": "Not authorized"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "status": "404",
+                      "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.",
+                      "source": {
+                        "pointer": "/modules/claims_api/app/controllers/concerns/claims_api/target_veteran.rb:26:in `build_target_veteran'"
+                      }
                     }
                   ]
                 },
@@ -5022,6 +5176,20 @@
                                   "example": true,
                                   "default": false,
                                   "nullable": true
+                                },
+                                "specialIssues": {
+                                  "type": "array",
+                                  "nullable": true,
+                                  "uniqueItems": true,
+                                  "items": {
+                                    "maxItems": 2,
+                                    "additionalProperties": false,
+                                    "type": "string",
+                                    "enum": [
+                                      "POW",
+                                      "EMP"
+                                    ]
+                                  }
                                 },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
@@ -5789,7 +5957,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "50c9845c-7365-47ad-aa0d-9a4f6d3c6ca5",
+                    "id": "28056142-019a-40fc-94c6-a1acfa725e3b",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -5970,7 +6138,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2023-10-31"
+                          "anticipatedSeparationDate": "2024-10-31"
                         },
                         "confinements": [
                           {
@@ -6630,7 +6798,7 @@
                       "status": "404",
                       "detail": "Resource not found",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:71:in `attachments'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:60:in `attachments'"
                       }
                     }
                   ]
@@ -6758,6 +6926,67 @@
                       "title": "Not authorized",
                       "status": "401",
                       "detail": "Not authorized"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "status": "404",
+                      "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.",
+                      "source": {
+                        "pointer": "/modules/claims_api/app/controllers/concerns/claims_api/target_veteran.rb:26:in `build_target_veteran'"
+                      }
                     }
                   ]
                 },
@@ -7427,6 +7656,20 @@
                                   "example": true,
                                   "default": false,
                                   "nullable": true
+                                },
+                                "specialIssues": {
+                                  "type": "array",
+                                  "nullable": true,
+                                  "uniqueItems": true,
+                                  "items": {
+                                    "maxItems": 2,
+                                    "additionalProperties": false,
+                                    "type": "string",
+                                    "enum": [
+                                      "POW",
+                                      "EMP"
+                                    ]
+                                  }
                                 },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
@@ -8605,8 +8848,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-05-03",
-                      "expirationDate": "2025-05-03",
+                      "creationDate": "2024-05-29",
+                      "expirationDate": "2025-05-29",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -9485,7 +9728,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f1dc3e81-4329-4cad-a2ef-fb1db59cff7c",
+                    "id": "1e1f5083-0cac-4a06-b145-5101c1791d69",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -10181,7 +10424,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "18c5340d-ad76-4ea7-9874-fd5edf9ae0bb",
+                    "id": "4f416f5e-cc6b-4948-84d0-bb9b7b32e8c2",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12141,11 +12384,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "df1dc007-5bf6-4e34-9f76-cd3a1ae7d3ae",
+                    "id": "357efa5c-bc71-43be-a924-cbb00a5a81e0",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-05-03",
+                      "dateRequestAccepted": "2024-05-29",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
