@@ -23,4 +23,4 @@ clamav:
   port: '3310'
 ```
 
-These setting at the default, so they can removed as well
+These setting are the default, so they be can removed as well

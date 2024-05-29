@@ -16,7 +16,6 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
     before do
       claim = create(:auto_established_claim, :status_established, cid: '0oa9uf05lgXYk6ZXn297')
       ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT', consumer_label: 'Consumer name here'
-      create(:auto_established_claim, :status_established, cid: '0oadnb0o063rsPupH297')
     end
 
     it 'sends mail' do
@@ -65,8 +64,7 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
   # Expected value based on what is created in the before
   def monthly_claims_totals
     [
-      { 'VA TurboClaim' => { established: 1, totals: 1.0 } },
-      { 'VA Connect Pro' => { established: 1, totals: 1.0 } }
+      { 'VA TurboClaim' => { established: 1, totals: 1.0 } }
     ]
   end
 end

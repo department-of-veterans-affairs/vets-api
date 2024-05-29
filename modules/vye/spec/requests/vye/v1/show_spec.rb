@@ -49,7 +49,7 @@ RSpec.describe Vye::V1::UserInfosController, type: :request do
     end
 
     describe 'when the request is from IVR' do
-      let(:api_key) { Vye::V1::VerificationsController.send(:api_key_actual) }
+      let(:api_key) { described_class.api_key }
       let(:file_number) { '111223333' }
 
       let(:cur_award_ind) { Vye::Award.cur_award_inds[:future] }
@@ -66,14 +66,20 @@ RSpec.describe Vye::V1::UserInfosController, type: :request do
       let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
       let!(:pending_documents) { FactoryBot.create_list(:vye_pending_document, 1, user_profile:) }
 
-      let(:params) { { api_key:, file_number: } }
+      let(:headers) { { 'Content-Type' => 'application/json', 'X-Key-Inflection' => 'camel' } }
+
+      let(:params) do
+        { api_key:, file_number: }
+          .deep_transform_keys! { |key| key.to_s.camelize(:lower) }
+          .slice('apiKey', 'fileNumber')
+      end
 
       before do
         Flipper.enable :vye_request_allowed
       end
 
       it 'returns the user_info' do
-        get('/vye/v1', params:)
+        get('/vye/v1', headers:, params:)
 
         expect(response).to have_http_status(:ok)
       end
