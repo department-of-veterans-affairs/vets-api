@@ -199,10 +199,13 @@ module VAOS
 
       def find_and_merge_provider_name(appointment)
         practitioners_list = appointment[:practitioners]
-        service = AppointmentProviderName.new(user)
-        names = service.form_names_from_appointment_practitioners_list(practitioners_list)
+        names = appointment_provider_name_service.form_names_from_appointment_practitioners_list(practitioners_list)
 
         appointment[:preferred_provider_name] = names
+      end
+
+      def appointment_provider_name_service
+        @appointment_provider_name_service ||= AppointmentProviderName.new(user)
       end
 
       def most_recent_appointment(appointments)
