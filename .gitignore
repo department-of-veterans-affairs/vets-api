@@ -104,6 +104,8 @@ node_modules
 public
 
 # Ignore any files within clamav_tmp
-
 clamav_tmp/*
 !/clamav_tmp/.keep
+
+# Ignore development setup (native, docker, hybrid)
+.developer-setup
