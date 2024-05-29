@@ -141,7 +141,7 @@ GEM
       sidekiq (>= 7.2.0, < 8)
       sidekiq-pro (>= 7.2.0, < 8)
     sidekiq-pro (7.2.0)
-      sidekiq
+      sidekiq (>= 7.2.0, < 8)
 
 GEM
   remote: https://rubygems.org/
@@ -407,8 +407,8 @@ GEM
       dry-initializer (~> 3.0)
       dry-schema (>= 1.12, < 2)
       zeitwerk (~> 2.6)
+    einhorn (1.0.0
     erubi (1.12.0)
-    einhorn (1.0.0)
     et-orbi (1.2.7)
       tzinfo
     ethon (0.16.0)
@@ -514,7 +514,7 @@ GEM
     google-protobuf (4.27.0)
       bigdecimal
       rake (>= 13)
-   google-protobuf (4.27.0-aarch64-linux)
+    google-protobuf (4.27.0-aarch64-linux)
       bigdecimal
       rake (>= 13)
     google-protobuf (4.27.0-java)
