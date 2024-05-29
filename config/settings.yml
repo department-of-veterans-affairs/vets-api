@@ -1656,6 +1656,10 @@ ivc_forms:
     bucket: "bucket"
     enabled: true
     region: "region"
+  sidekiq:
+    missing_form_status_job:
+      enabled: true
+
 
 coverband:
   github_organization: ~
