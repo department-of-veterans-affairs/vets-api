@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# rubocop:disable Metrics/ClassLength
 
 module PdfFill
   module Forms
@@ -278,7 +279,7 @@ module PdfFill
               question_num: 9,
               question_suffix: 'B',
               question_text: 'Type of program or benefit'
-            },
+            }
           }, # end school_information
           'current_term_dates' => {
             'is_school_accredited' => {
@@ -360,7 +361,6 @@ module PdfFill
               'full_time_yes' => { key: 'form1[0].#subform[0].YES2[0]' },
               'full_time_no' => { key: 'form1[0].#subform[0].NO2[0]' }
             },
-            
             'course_of_study' => {
               key: 'form1[0].#subform[0].Subject[0]',
               limit: 40,
@@ -390,7 +390,7 @@ module PdfFill
                 limit: 2,
                 question_num: 10,
                 question_suffix: 'A',
-                question_text: 'School Attendance Information > Date student stopped attending continuously (MM-DD-YYYY)'
+                question_text: 'School Attendance Information > Date student stopped attending continuously (MM-DD-YYYY)' # rubocop:disable Layout/LineLength
               },
               'day' => {
                 key: 'form1[0].#subform[0].DateStoppedAttending.day[0]',
@@ -404,9 +404,9 @@ module PdfFill
                 limit: 4,
                 question_num: 10,
                 question_suffix: 'A',
-                question_text: 'School Attendance Information > Date student stopped attending continuously (MM-DD-YYYY)'
+                question_text: 'School Attendance Information > Date student stopped attending continuously (MM-DD-YYYY)' # rubocop:disable Layout/LineLength
               }
-            },
+            }
           },
           'student_did_attend_school_last_term' => {
             'did_attend_yes' => { key: 'form1[0].#subform[0].YES3[0]' },
@@ -518,7 +518,7 @@ module PdfFill
         created_at = options[:created_at] if options[:created_at].present?
         expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
-        
+
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
 
         veteran_contact_information['phone_number'] = expand_phone_number(veteran_contact_information['phone_number'])
@@ -528,6 +528,7 @@ module PdfFill
         @form_data
       end
 
+      # rubocop:disable Metrics/MethodLength
       def merge_dates
         dependents_application = @form_data['dependents_application']
         current_term_dates = dependents_application['current_term_dates']
@@ -535,17 +536,21 @@ module PdfFill
         last_term_school_information = dependents_application['last_term_school_information']
         student_address_marriage_tuition = dependents_application['student_address_marriage_tuition']
 
-        dependents_application['student_name_and_ssn']['birth_date'] = split_date(dependents_application['student_name_and_ssn']['birth_date'])
-       
+        dependents_application['student_name_and_ssn']['birth_date'] =
+          split_date(dependents_application['student_name_and_ssn']['birth_date'])
+
         if current_term_dates.present?
-          current_term_dates['official_school_start_date'] = split_date(current_term_dates['official_school_start_date'])
-          current_term_dates['expected_student_start_date'] = split_date(current_term_dates['expected_student_start_date'])
+          current_term_dates['official_school_start_date'] =
+            split_date(current_term_dates['official_school_start_date'])
+          current_term_dates['expected_student_start_date'] =
+            split_date(current_term_dates['expected_student_start_date'])
           current_term_dates['expected_graduation_date'] = split_date(current_term_dates['expected_graduation_date'])
         end
 
         if child_stopped_attending_school.present?
           child_stopped_attending_school['birth_date'] = split_date(child_stopped_attending_school['birth_date'])
-          child_stopped_attending_school['date_child_left_school'] = split_date(child_stopped_attending_school['date_child_left_school'])
+          child_stopped_attending_school['date_child_left_school'] =
+            split_date(child_stopped_attending_school['date_child_left_school'])
         end
 
         if last_term_school_information.present?
@@ -554,10 +559,13 @@ module PdfFill
         end
 
         if student_address_marriage_tuition.present?
-          student_address_marriage_tuition['date_payments_began'] = split_date(student_address_marriage_tuition['date_payments_began'])
-          student_address_marriage_tuition['marriage_date'] = split_date(student_address_marriage_tuition['marriage_date'])
+          student_address_marriage_tuition['date_payments_began'] =
+            split_date(student_address_marriage_tuition['date_payments_began'])
+          student_address_marriage_tuition['marriage_date'] =
+            split_date(student_address_marriage_tuition['marriage_date'])
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def expand_phone_number(phone_number)
         phone_number = phone_number.delete('^0-9')
@@ -570,7 +578,8 @@ module PdfFill
 
       def merge_student_helpers
         dependents_application = @form_data['dependents_application']
-        dependents_application['student_name_and_ssn']['ssn'] = split_ssn(dependents_application['student_name_and_ssn']['ssn'])
+        dependents_application['student_name_and_ssn']['ssn'] =
+          split_ssn(dependents_application['student_name_and_ssn']['ssn'])
 
         dependents_application['student_address_marriage_tuition']['address']['zip_code'] =
           split_postal_code(dependents_application['student_address_marriage_tuition']['address'])
@@ -585,6 +594,7 @@ module PdfFill
         value ? 'On' : 'Off'
       end
 
+      # rubocop:disable Metrics/MethodLength
       def format_checkboxes(dependents_application)
         was_married = dependents_application['student_address_marriage_tuition']['was_married']
         dependents_application['student_address_marriage_tuition']['was_married'] = {
@@ -615,9 +625,9 @@ module PdfFill
           'is_school_accredited_yes' => select_radio_button(is_school_accredited),
           'is_school_accredited_no' => select_radio_button(!is_school_accredited)
         }
-
       end
-
+      # rubocop:enable Metrics/MethodLength
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
