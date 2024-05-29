@@ -178,7 +178,8 @@ RSpec.describe Form1010Ezr::Service do
           submission_response = submit_form(form)
 
           expect(Rails.logger).to have_received(:info).with("SubmissionID=#{submission_response[:formSubmissionId]}")
-          expect(Rails.logger).to have_received(:info).with('Payload size for submitted 1010EZR: 12416 bytes')
+          expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZR: ' \
+                                                            'Body size of 12416 bytes with 0 attachment(s)')
         end
       end
 

@@ -43,14 +43,18 @@ module VA1010Forms
     def submission_body(formatted_form)
       content = Gyoku.xml(formatted_form)
       submission_body = soap.build_request(:save_submit_form, message: content).body
-      log_payload_size(formatted_form, submission_body)
+      log_payload_info(formatted_form, submission_body)
 
       submission_body
     end
 
-    def log_payload_size(formatted_form, submission_body)
+    def log_payload_info(formatted_form, submission_body)
       form_name = formatted_form['va:form']['va:formIdentifier']['va:value']
-      Rails.logger.info("Payload size for submitted #{form_name}: #{submission_body.bytesize} bytes")
+      attachment_count = formatted_form['va:form']['va:attachments']&.length || 0
+
+      Rails.logger.info("Payload for submitted #{form_name}: " \
+                        "Body size of #{submission_body.bytesize} bytes " \
+                        "with #{attachment_count} attachment(s)")
     end
   end
 end
