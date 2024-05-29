@@ -99,7 +99,8 @@ module RES
       vet_info = claim_form_hash['veteranInformation']
 
       vet_info['VAFileNumber'] = vet_info.delete('vaFileNumber') if vet_info.key?('vaFileNumber')
-      vet_info['stationId'], vet_info['regionalOffice'] = vet_info['regionalOffice'].split(' - ')
+      vet_info['regionalOffice'] = vet_info['regionalOfficeName']
+      vet_info.delete(:regionalOfficeName)
 
       vet_info
     end

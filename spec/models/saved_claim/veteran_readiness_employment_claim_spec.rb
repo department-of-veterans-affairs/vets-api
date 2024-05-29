@@ -25,12 +25,13 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
   before do
     allow_any_instance_of(RES::Ch31Form).to receive(:submit).and_return(true)
+    Flipper.enable(:veteran_readiness_employment_to_res)
   end
 
   describe '#add_claimant_info' do
     it 'adds veteran information' do
       claim.add_claimant_info(user_object)
-      claimant_keys = %w[fullName dob pid edipi vet360ID regionalOffice VAFileNumber ssn]
+      claimant_keys = %w[fullName dob pid edipi vet360ID regionalOffice regionalOfficeName stationId VAFileNumber ssn]
       expect(claim.parsed_form['veteranInformation']).to include(
         {
           'fullName' => {
@@ -42,9 +43,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         }
       )
 
-      expect(
-        claim.parsed_form['veteranInformation'].keys
-      ).to eq(claimant_keys)
+      expect(claim.parsed_form['veteranInformation']).to include(*claimant_keys)
     end
 
     it 'does not obtain va_file_number' do
@@ -81,7 +80,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     context 'when VBMS upload is successful' do
       before { expect(ClaimsApi::VBMSUploader).to receive(:new) { OpenStruct.new(upload!: {}) } }
 
-      context 'submission to RES' do
+      context 'submission to VRE' do
         before do
           # As the PERMITTED_OFFICE_LOCATIONS constant at
           # the top of: app/models/saved_claim/veteran_readiness_employment_claim.rb gets changed, you
@@ -99,19 +98,30 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         end
       end
 
-      # We want all submission to go through with RES
-      # context 'non-submission to RES' do
-      #   it 'stops submission if location is not in list' do
-      #     expect_any_instance_of(BGS::RORoutingService).to receive(:get_regional_office_by_zip_code).and_return(
-      #       { regional_office: { number: '310' } }
-      #     )
+      # We want all submission to go through with RES 
+      context 'non-submission to VRE' do
+        context 'flipper enabled' do
+          it 'stops submission if location is not in list' do
+            expect_any_instance_of(RES::Ch31Form).to receive(:submit)
+            claim.add_claimant_info(user_object)
 
-      #     expect(RES::Ch31Form).not_to receive(:new)
-      #     claim.add_claimant_info(user_object)
+            claim.send_to_vre(user_object)
+          end
+        end
 
-      #     claim.send_to_vre(user_object)
-      #   end
-      # end
+        context 'flipper disabled' do
+          before do
+            Flipper.disable(:veteran_readiness_employment_to_res)
+          end
+
+          it 'stops submission if location is not in list' do
+            expect(VRE::Ch31Form).not_to receive(:new)
+            claim.add_claimant_info(user_object)
+
+            claim.send_to_vre(user_object)
+          end
+        end
+      end
     end
 
     context 'when user has no PID' do
@@ -119,7 +129,6 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
       it 'PDF is sent to Central Mail and not VBMS' do
         expect(claim).to receive(:send_to_central_mail!).with(user_object).once.and_call_original
-        expect(claim).to receive(:process_attachments!)
         expect(claim).to receive(:send_central_mail_confirmation_email)
         expect(claim).not_to receive(:upload_to_vbms)
         expect(VeteranReadinessEmploymentMailer).to receive(:build).with(

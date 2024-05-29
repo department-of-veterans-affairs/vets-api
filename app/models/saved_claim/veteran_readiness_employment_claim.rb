@@ -85,6 +85,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     updated_form = parsed_form
 
     add_veteran_info(updated_form, user) if user&.loa3?
+    add_office_location(updated_form) if updated_form['veteranInformation'].present?
 
     update!(form: updated_form.to_json)
   end
@@ -107,12 +108,16 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     @office_location = regional_office[0]
     office_name = regional_office[1]
 
-    updated_form['veteranInformation']&.merge!({ 'regionalOffice' => "#{@office_location} - #{office_name}" })
+    updated_form['veteranInformation']&.merge!({ 
+      'regionalOffice' => "#{@office_location} - #{office_name}",
+      'regionalOfficeName' => office_name,
+      'stationId' => @office_location
+    })
+
   end
 
   def send_to_vre(user)
     add_claimant_info(user)
-    add_office_location(updated_form) if updated_form['veteranInformation'].present?
 
     if user&.participant_id
       upload_to_vbms(user:)
