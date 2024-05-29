@@ -5,7 +5,7 @@ module ClaimsApi
     module PowerOfAttorneyRequests
       class BaseController < ApplicationController
         # TODO: Figure out appropriate status codes for various upstream service
-        # communication failure modes. Using:
+        # communication failure modes. Possibly using:
         #   https://opensource.zalando.com/restful-api-guidelines/#http-status-codes-and-errors
         concerning :ErrorHandling do
           included do
@@ -22,6 +22,10 @@ module ClaimsApi
 
             rescue_from(BGSClient::Error::TimeoutError) do
               error = ::Common::Exceptions::GatewayTimeout.new
+              render_error(error)
+            end
+
+            rescue_from(::Common::Exceptions::ValidationErrors) do |error|
               render_error(error)
             end
           end

@@ -24,8 +24,8 @@ module ClaimsApi
           Find.perform(id)
         end
 
-        def update(id, decision)
-          Update.perform(id, decision)
+        def create(id, decision)
+          Create.perform(id, decision)
         end
       end
 
