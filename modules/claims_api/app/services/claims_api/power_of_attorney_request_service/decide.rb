@@ -4,29 +4,37 @@ module ClaimsApi
   module PowerOfAttorneyRequestService
     module Decide
       class << self
-        def perform(id, decision)
-          id = id.split('_').last
+        def perform(id, attrs)
+          previous = PowerOfAttorneyRequest::Decision.find(id)
+          current = build_decision(attrs)
 
-          action =
-            BGSClient::Definitions::
-              ManageRepresentativeService::
-              UpdatePoaRequest::
-              DEFINITION
+          Validation.perform!(
+            previous,
+            current
+          )
 
-          BGSClient.perform_request(action:) do |xml, data_aliaz|
-            xml[data_aliaz].POARequestUpdate do
-              xml.procId(id)
+          PowerOfAttorneyRequest::Decision.create(
+            id, current
+          )
+        end
 
-              xml.secondaryStatus(decision[:status])
-              xml.declinedReason(decision[:declinedReason])
-              xml.dateRequestActioned(Time.current.iso8601)
+        private
 
-              representative = decision[:representative]
-              xml.VSOUserEmail(representative[:email])
-              xml.VSOUserFirstName(representative[:firstName])
-              xml.VSOUserLastName(representative[:lastName])
-            end
-          end
+        # Should hydrating our models from user params be integrated into the
+        # model layer like it is in `ActiveModel`?
+        def build_decision(attrs)
+          representative =
+            PowerOfAttorneyRequest::Decision::Representative.new(
+              **attrs.delete(:representative)
+            )
+
+          PowerOfAttorneyRequest::Decision.new(
+            **attrs,
+            # Assign `created_at` somewhere more obvious near the actual update
+            # event?
+            created_at: Time.current,
+            representative:
+          )
         end
       end
     end

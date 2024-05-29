@@ -5,7 +5,7 @@ http_interactions:
     uri: "<BGS_BASE_URL>/VDC/ManageRepresentativeService"
     body:
       encoding: UTF-8
-      string: |-
+      string: |
         <?xml version="1.0" encoding="UTF-8" ?>
         <env:Envelope
           xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -33,24 +33,16 @@ http_interactions:
             </wsse:Security>
           </env:Header>
           <env:Body>
-            <tns:updatePOARequest>
-              <data:POARequestUpdate>
-                <procId>3854887</procId>
-                <secondaryStatus>Declined</secondaryStatus>
-                <declinedReason>Some reason</declinedReason>
-                <dateRequestActioned>2024-05-09T07:18:04Z</dateRequestActioned>
-                <VSOUserEmail>Beatrice.Stroud44@va.gov</VSOUserEmail>
-                <VSOUserFirstName>BEATRICE</VSOUserFirstName>
-                <VSOUserLastName>STROUD</VSOUserLastName>
-              </data:POARequestUpdate>
-            </tns:updatePOARequest>
+            <tns:readPOARequestByPtcpntId>
+              <PtcpntId>600085312</PtcpntId>
+            </tns:readPOARequestByPtcpntId>
           </env:Body>
         </env:Envelope>
     headers:
       User-Agent:
       - Faraday v2.9.0
       Soapaction:
-      - '"updatePOARequest"'
+      - '"readPOARequestByPtcpntId"'
       Content-Type:
       - text/xml;charset=UTF-8
       Host:
@@ -65,7 +57,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 09 May 2024 07:18:06 GMT
+      - Thu, 23 May 2024 18:30:11 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -86,22 +78,39 @@ http_interactions:
         >
           <env:Header />
           <S:Body>
-            <ns0:updatePOARequestResponse
+            <ns0:readPOARequestByPtcpntIdResponse
               xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
               xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
               xmlns:ns2="http://gov.va.vba.benefits.vdc/data"
             >
-              <ns2:POARequestUpdate>
-                <VSOUserEmail>Beatrice.Stroud44@va.gov</VSOUserEmail>
-                <VSOUserFirstName>BEATRICE</VSOUserFirstName>
-                <VSOUserLastName>STROUD</VSOUserLastName>
-                <dateRequestActioned>2024-05-09T02:18:04-05:00</dateRequestActioned>
-                <declinedReason>Some reason</declinedReason>
-                <procId>3854887</procId>
-                <secondaryStatus>DEC</secondaryStatus>
-              </ns2:POARequestUpdate>
-            </ns0:updatePOARequestResponse>
+              <ns2:POARequestRespondReturnVO>
+                <poaRequestRespondReturnVOList>
+                  <VSOUserEmail>Beatrice.Stroud44@va.gov</VSOUserEmail>
+                  <VSOUserFirstName>BEATRICE</VSOUserFirstName>
+                  <VSOUserLastName>STROUD</VSOUserLastName>
+                  <changeAddressAuth>N</changeAddressAuth>
+                  <claimantCity>BELLE VERNON</claimantCity>
+                  <claimantCountry>USA</claimantCountry>
+                  <claimantMilitaryPO />
+                  <claimantMilitaryPostalCode />
+                  <claimantState>PA</claimantState>
+                  <claimantZip>15012</claimantZip>
+                  <dateRequestActioned>2024-05-09T02:18:04-05:00</dateRequestActioned>
+                  <dateRequestReceived>2024-02-27T14:03:19-06:00</dateRequestReceived>
+                  <declinedReason>Some reason</declinedReason>
+                  <healthInfoAuth>N</healthInfoAuth>
+                  <poaCode>074</poaCode>
+                  <procID>3853983</procID>
+                  <secondaryStatus>Declined</secondaryStatus>
+                  <vetFirstName>BRANDY</vetFirstName>
+                  <vetLastName>BECK</vetLastName>
+                  <vetMiddleName>K</vetMiddleName>
+                  <vetPtcpntID>600085312</vetPtcpntID>
+                </poaRequestRespondReturnVOList>
+                <totalNbrOfRecords>1</totalNbrOfRecords>
+              </ns2:POARequestRespondReturnVO>
+            </ns0:readPOARequestByPtcpntIdResponse>
           </S:Body>
         </S:Envelope>
-  recorded_at: Thu, 09 May 2024 07:18:07 GMT
+  recorded_at: Thu, 23 May 2024 18:30:11 GMT
 recorded_with: VCR 6.2.0

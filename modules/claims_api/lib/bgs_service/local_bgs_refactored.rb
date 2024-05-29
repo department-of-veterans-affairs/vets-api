@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'bgs_service/local_bgs_refactored/error_handler'
-require 'bgs_service/local_bgs_refactored/find_service_definition'
+require 'bgs_service/local_bgs_refactored/find_definition'
 require 'bgs_service/local_bgs_refactored/miscellaneous'
 
 module ClaimsApi
@@ -60,23 +60,27 @@ module ClaimsApi
     # @deprecated Prefer doing just transport against bundled BGS service action
     #   definitions rather than wrapping them at higher abstraction layers.
     #
-    def make_request(
+    def make_request( # rubocop:disable Metrics/MethodLength
       endpoint:, action:, body:, key: nil
     )
-      service = FindServiceDefinition.perform(endpoint)
-      action = BGSClient::Definitions::Action.new(service:, name: action)
+      action =
+        FindDefinition.for_action(
+          endpoint,
+          action
+        )
 
       request =
         BGSClient.const_get(:Request).new(
-          external_id: @external_id,
-          action:
+          action, external_id: @external_id
         )
 
       ##
-      # @deprecated Callers should be hydrating domain entities anyway, so
-      #   centralizing `key` configuration here was unnecessary.
+      # @deprecated Every service action result always lives within a particular
+      #   key, so we can always extract the result rather than have expose
+      #   another option to the caller.
       #
       result = request.perform(body)
+      result = { action.key => result }
       result = result[key].to_h if key.present?
 
       request.send(:log_duration, 'transformed_response') do
@@ -111,7 +115,7 @@ module ClaimsApi
     #   definitions rather than wrapping them at higher abstraction layers.
     #
     def healthcheck(endpoint)
-      service = FindServiceDefinition.perform(endpoint)
+      service = FindDefinition.for_service(endpoint)
       BGSClient.healthcheck(service)
     end
   end
