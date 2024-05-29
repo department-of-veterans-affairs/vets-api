@@ -32,6 +32,10 @@ module ClaimsApi
           rescue_from(::Common::Exceptions::ValidationErrors) do |error|
             render_error(error)
           end
+
+          rescue_from(PowerOfAttorneyRequest::Error::RecordNotFound) do
+            render json: { error: 'Record not found' }, status: :not_found
+          end
         end
       end
     end

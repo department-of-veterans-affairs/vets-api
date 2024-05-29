@@ -2,10 +2,9 @@
 
 module ClaimsApi
   class PowerOfAttorneyRequest
-    # TODO: Find and handle some errors.
     module Find
       class << self
-        def perform(id)
+        def perform(id) # rubocop:disable Metrics/MethodLength
           participant_id, proc_id = id.split('_')
 
           action =
@@ -14,15 +13,24 @@ module ClaimsApi
               ReadPoaRequestByParticipantId::
               DEFINITION
 
-          result =
+          result = begin
             BGSClient.perform_request(action) do |xml|
               xml.PtcpntId(participant_id)
             end
+          rescue BGSClient::Error::BGSFault => e
+            reason = e.detail.dig('MessageException', 'reason')
+            raise Error::RecordNotFound if reason == 'NO_RECORD_FOUND'
+
+            raise
+          end
 
           poa_requests = Array.wrap(result['poaRequestRespondReturnVOList'])
           poa_request = poa_requests.find do |data|
             data['procID'] == proc_id
           end
+
+          poa_request or
+            raise Error::RecordNotFound
 
           Load.perform(poa_request)
         end
