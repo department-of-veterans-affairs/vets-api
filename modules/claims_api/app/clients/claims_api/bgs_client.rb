@@ -20,11 +20,11 @@ module ClaimsApi
       #   One and only one of `body` or `block` is required.
       #
       def perform_request(
-        action:, body: nil,
+        action, body = nil,
         external_id: ExternalId::DEFAULT, &
       )
         const_get(:Request)
-          .new(action:, external_id:)
+          .new(action, external_id:)
           .perform(body, &)
       end
 
@@ -72,15 +72,15 @@ module ClaimsApi
       end
     end
 
-    ExternalId =
+    class ExternalId <
       Data.define(
         :external_uid,
         :external_key
-      ) do
-        self::DEFAULT = new(
-          external_uid: Settings.bgs.external_uid,
-          external_key: Settings.bgs.external_key
-        )
-      end
+      )
+      DEFAULT = new(
+        external_uid: Settings.bgs.external_uid,
+        external_key: Settings.bgs.external_key
+      )
+    end
   end
 end

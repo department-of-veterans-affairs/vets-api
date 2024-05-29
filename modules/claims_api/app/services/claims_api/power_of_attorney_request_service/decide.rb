@@ -2,29 +2,28 @@
 
 module ClaimsApi
   module PowerOfAttorneyRequestService
+    # TODO: Error handling.
     module Decide
       class << self
-        def perform(id, decision)
-          action =
-            BGSClient::Definitions::
-              ManageRepresentativeService::
-              UpdatePoaRequest::
-              DEFINITION
+        def perform(id, params)
+          attrs = params.deep_transform_keys(&:underscore)
 
-          BGSClient.perform_request(action:) do |xml, data_aliaz|
-            xml[data_aliaz].POARequestUpdate do
-              xml.procId(id)
+          representative =
+            PowerOfAttorneyRequest::Decision::Representative.new(
+              **attrs.delete(:representative)
+            )
 
-              xml.secondaryStatus(decision[:status])
-              xml.declinedReason(decision[:declinedReason])
-              xml.dateRequestActioned(Time.current.iso8601)
+          decision =
+            PowerOfAttorneyRequest::Decision.new(
+              **attrs,
+              # Assign `updated_at` somewhere more obvious?
+              updated_at: Time.current,
+              representative:
+            )
 
-              representative = decision[:representative]
-              xml.VSOUserEmail(representative[:email])
-              xml.VSOUserFirstName(representative[:firstName])
-              xml.VSOUserLastName(representative[:lastName])
-            end
-          end
+          PowerOfAttorneyRequest::Decision.update(
+            id, decision
+          )
         end
       end
     end

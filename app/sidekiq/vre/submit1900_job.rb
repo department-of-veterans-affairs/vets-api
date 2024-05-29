@@ -22,9 +22,7 @@ module VRE
       user = User.find user_uuid
       claim.send_to_vre(user)
     rescue => e
-      log_message_to_sentry(
-        'VRE::Submit1900Job failed, retrying...', :warn, e.message
-      )
+      Rails.logger.warn("VRE::Submit1900Job failed, retrying...: #{e.message}")
       raise
     end
   end
