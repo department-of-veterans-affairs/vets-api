@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# require 'debug_me'
+# include DebugMe
+
 namespace :form526 do
   desc <<~HEREDOC
     Get all submissions within a date period:
@@ -714,5 +717,95 @@ namespace :form526 do
     end
 
     Form526Submission.where(id: args.extras).find_each { |sub| puts_mpi_profile sub }
+  end
+
+
+  # TDV: 83430
+  # Use the lighthouse /validate endpoint
+  # to check a selected collection of
+  # Form526Submission records
+  #
+  desc 'Use lighthouse /validate against selected 526 submissions'
+  task :lh_validate, [:start_date, :end_date] => :environment do |task_name, args|
+    params = args.to_h
+
+    if 0 == params.size
+      puts <<~USAGE
+        
+        Send records from the form526_submissions table through
+        the lighthouse validate endpoint. Reports results.
+
+        Usage: bundle exec rake #{task_name}[YYYYMMDD,YYYYNNDD]
+
+        2nd date is optional meaning on or after 1st date.
+        When present the query is between start and end dates inclusive.
+
+      USAGE
+      abort
+    end
+
+    start_date  = validate_yyyymmdd(params[:start_date])
+
+
+    if params[:end_date]
+      end_date  = validate_yyyymmdd(params[:end_date])
+    else
+      end_date  = nil
+    end
+
+    if 2 == params.size
+      if start_date > end_date
+        puts <<~ERROR
+
+          Error:  start_date (#{start_date}) is after end_date (#{end_date})
+
+        ERROR
+        abort
+      end
+    end
+
+    # debug_me{[
+    #   :params,
+    #   :start_date,
+    #   :end_date,
+    # ]}
+
+    submissions = if end_date.nil?
+                    Form526Submission.where('updated_at >= ?', start_date)
+                  else
+                    Form526Submission.where(updated_at: start_date..end_date)
+                  end
+
+    # debug_me{[
+    #   'submissions.to_sql',
+    #   'submissions.count'
+    # ]}
+
+    submissions.each do |f526|
+      # debug_me{[
+      #   "f526.form_content_valid?"
+      # ]}
+    end
+  end # end of task
+
+  ############################################
+  ## Utility Methods
+
+  # Ensure that a date string is correctly formatted
+  # Returns a Date object
+  # abort if invalid
+  def validate_yyyymmdd(a_string)
+    if a_string.match?(/\A[0-9]{8}\z/)
+      return Date.strptime(a_string, '%Y%m%d')
+    else
+      puts <<~ERROR
+
+        Error: bad date (#{a_string}) must be 8 digits in format YYYYMMDD
+
+      ERROR
+      abort
+    end
+
+
   end
 end
