@@ -27,8 +27,8 @@ module SignIn
       CODE_CHALLENGE_METHOD = 'S256'
       CSP_TYPES = [IDME = 'idme', LOGINGOV = 'logingov', DSLOGON = 'dslogon', MHV = 'mhv'].freeze
       OPERATION_TYPES = [SIGN_UP = 'sign_up', AUTHORIZE = 'authorize'].freeze
-      GRANT_TYPES = [AUTH_CODE = 'authorization_code',
-                     JWT_BEARER = 'urn:ietf:params:oauth:grant-type:jwt-bearer'].freeze
+      GRANT_TYPES = [AUTH_CODE_GRANT = 'authorization_code',
+                     JWT_BEARER_GRANT = 'urn:ietf:params:oauth:grant-type:jwt-bearer'].freeze
       ENFORCED_TERMS = [VA_TERMS = 'VA'].freeze
       CLIENT_ASSERTION_TYPE = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
       ASSERTION_ENCODE_ALGORITHM = 'RS256'
@@ -41,6 +41,7 @@ module SignIn
       SERVICE_ACCOUNT_ACCESS_TOKEN_COOKIE_NAME = 'service_account_access_token'
       SCOPES = [DEVICE_SSO = 'device_sso'].freeze
       TOKEN_ROUTE_PATH = '/v0/sign_in/token'
+      DEVICE_SECRET_TOKEN_TYPE = 'urn:x-oath:params:oauth:token-type:device-secret'
     end
   end
 end
