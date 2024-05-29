@@ -47,19 +47,16 @@ module IvcChampva
       def get_attachment_ids_and_form(parsed_form_data)
         form_id = get_form_id
         form = "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
-        attachment_ids = [form_id]
+        attachment_ids = []
 
-        if form_id == 'vha_10_10d'
-          parsed_form_data['applicants'].each do |applicant|
-            next unless applicant.key?('applicant_supporting_documents')
-
-            applicant['applicant_supporting_documents'].each do |documents|
-              documents.each do |document|
-                attachment_ids << document['attachment_id']
-              end
-            end
-          end
+        attachment_ids << form_id
+        supporting_docs = parsed_form_data['supporting_docs']
+        supporting_docs&.each do |doc|
+          attachment_ids << doc['attachment_id']
         end
+
+        attachment_ids = [@form_id] if attachment_ids.empty?
+
         [attachment_ids, form]
       end
 
