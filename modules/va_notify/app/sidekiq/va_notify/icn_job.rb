@@ -6,6 +6,12 @@ module VANotify
     include SentryLogging
     sidekiq_options retry: 14
 
+    sidekiq_retries_exhausted do |msg, _ex|
+      ::Rails.logger.error(
+        'Failure in VANotify::IcnJob#sidekiq_retries_exhausted'
+      )
+    end
+
     def perform(icn, template_id, personalisation = nil, api_key = Settings.vanotify.services.va_gov.api_key)
       notify_client = VaNotify::Service.new(api_key)
 
