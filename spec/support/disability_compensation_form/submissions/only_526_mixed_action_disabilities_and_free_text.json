@@ -99,7 +99,7 @@
         },
         {
           "name": "additional free text entry",
-          "classificationCode": "string",
+          "classificationCode": null,
           "disabilityActionType": "NEW",
           "ratedDisabilityId": null,
           "diagnosticCode": 9999,

@@ -294,7 +294,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
       before do
         Flipper.enable(:disability_526_classifier_multi_contention)
-        # allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
       end
 
       after do

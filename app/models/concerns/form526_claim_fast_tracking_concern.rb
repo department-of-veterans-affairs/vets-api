@@ -174,11 +174,12 @@ module Form526ClaimFastTrackingConcern
   end
 
   def update_form_with_classification_codes(classified_contentions)
-    classification_codes.each do |classification_code|
-      # form[Form526Submission::FORM_526]['form526']['disabilities'].each do |disability|
-      #   if disability[]
-      #   disability['classificationCode'] = classification_code
-      # end
+    puts "updating form with classification codes #{classified_contentions}"
+    classified_contentions.each_with_index do |classified_contention, index|
+      classification_code = classified_contention['classification_code']
+      if classified_contentions[index]['classification_code'].present?
+        form[Form526Submission::FORM_526]['form526']['disabilities'][index]['classificationCode'] = classification_code
+      end
     end
 
     update!(form_json: form.to_json)
@@ -222,8 +223,8 @@ module Form526ClaimFastTrackingConcern
       Rails.logger.info('Classified 526Submission',
                         id:, saved_claim_id:, classification:,
                         claim_type: contention['contention_type'])
-      # update_form_with_classification_code(classification['classification_code'])
     end
+    update_form_with_classification_codes(classifier_response['contentions'])
   end
 
   # Submits contention information to the VRO contention classification 
