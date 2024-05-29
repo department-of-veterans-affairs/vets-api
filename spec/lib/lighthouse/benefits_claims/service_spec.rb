@@ -99,10 +99,15 @@ RSpec.describe BenefitsClaims::Service do
                                'data' => {
                                  'type' => 'form/526',
                                  'attributes' => {
-                                   'serviceInformation' => {},
+                                   'serviceInformation' => {
+                                     'confinements' => []
+                                   },
                                    'toxicExposure' => {
                                      'herbicideHazardService' => {
-                                       'serviceDates' => {}
+                                       'serviceDates' => {
+                                         'beginDate' => '1991-03-01',
+                                         'endDate' => '1992-01-01'
+                                       }
                                      }
                                    }
                                  }

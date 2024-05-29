@@ -145,15 +145,11 @@ module BenefitsClaims
 
       # LH PDF generator service crashes with having an empty array for confinements
       # removes confinements from the request body if confinements attribute empty or nil
-      remove_empty_array(body, 'serviceInformation', 'confinements')
+      # remove_empty_array(body, 'serviceInformation', 'confinements')
 
       # Lighthouse expects at least 1 element in the multipleExposures array if it is not null
       # this removes the multipleExposures array if it is empty
       remove_empty_array(body, 'toxicExposure', 'multipleExposures')
-
-      # LH PDF generator crashes when herbicide dates are null.
-      # Send empty object for now until a fix is in place
-      fix_herbicide_service_dates(body)
 
       body
     end
