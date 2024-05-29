@@ -12,7 +12,7 @@ describe CovidVaccine::V0::ExpandedRegistrationSerializer do
   let(:rendered_attributes) { rendered_hash[:data][:attributes] }
 
   it 'includes :id' do
-    expect(rendered_attributes[:id]).to eq nil
+    expect(rendered_hash[:data][:id].blank?).to be_truthy
   end
 
   it 'includes :created_at' do
