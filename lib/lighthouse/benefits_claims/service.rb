@@ -164,14 +164,6 @@ module BenefitsClaims
       end
     end
 
-    def fix_herbicide_service_dates(body)
-      if body.dig('data', 'attributes', 'toxicExposure', 'herbicideHazardService')&.select do |field|
-        field['serviceDates']
-      end&.key?('serviceDates')
-        body['data']['attributes']['toxicExposure']['herbicideHazardService']['serviceDates'] = {}
-      end
-    end
-
     def remove_empty_array(body, parent_key, child_key)
       if body.dig('data', 'attributes', parent_key)&.select do |field|
         field[child_key]
