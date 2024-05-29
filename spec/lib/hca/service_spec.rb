@@ -27,6 +27,10 @@ describe HCA::Service do
   let(:current_user) { FactoryBot.build(:user, :loa3, icn: nil) }
 
   describe '#submit_form' do
+    before do
+      allow(Rails.logger).to receive(:info)
+    end
+
     it 'doesnt convert validation error to another error' do
       error = HCA::SOAPParser::ValidationError
       expect(service.send(:connection)).to receive(:post).and_raise(error)
@@ -34,6 +38,21 @@ describe HCA::Service do
       expect do
         service.submit_form(build(:health_care_application).parsed_form)
       end.to raise_error(error)
+
+      expect(Rails.logger).to have_received(:info).with('Payload size for submitted 1010EZ: 12783 bytes')
+    end
+
+    context 'logs submission payload size' do
+      it 'works', run_at: 'Wed, 16 Mar 2022 20:01:14 GMT' do
+        VCR.use_cassette(
+          'hca/short_form',
+          VCR::MATCH_EVERYTHING.merge(erb: true)
+        ) do
+          result = HCA::Service.new.submit_form(get_fixture('hca/short_form'))
+          expect(result[:success]).to eq(true)
+          expect(Rails.logger).to have_received(:info).with('Payload size for submitted 1010EZ: 5285 bytes')
+        end
+      end
     end
 
     it 'increments statsd' do
@@ -168,6 +187,7 @@ describe HCA::Service do
         ) do
           result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
           expect(result[:success]).to eq(true)
+          expect(Rails.logger).to have_received(:info).with('Payload size for submitted 1010EZ: 16375 bytes')
         end
       end
 
