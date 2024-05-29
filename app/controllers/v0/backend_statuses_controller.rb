@@ -26,8 +26,8 @@ module V0
       be_status = BackendStatus.new(name: @backend_service)
       case @backend_service
       when BackendServices::GI_BILL_STATUS
-        be_status.is_available = EVSS::GiBillStatus::Service.within_scheduled_uptime?
-        be_status.uptime_remaining = EVSS::GiBillStatus::Service.seconds_until_downtime
+        be_status.is_available = BenefitsEducation::Service.within_scheduled_uptime?
+        be_status.uptime_remaining = BenefitsEducation::Service.seconds_until_downtime
       else
         # default service is up!
         be_status.is_available = true
