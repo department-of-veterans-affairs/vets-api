@@ -783,7 +783,7 @@ namespace :form526 do
 
     submissions.each do |f526|
       # debug_me{[
-      #   "f526.valid?"
+      #   "f526.form_content_valid?"
       # ]}
     end
   end # end of task

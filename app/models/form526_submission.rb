@@ -480,14 +480,8 @@ class Form526Submission < ApplicationRecord
   #       API so should not be used within a request/response
   #       workflow.
   #
-  def valid?
+  def form_content_valid?
     transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
-    
-    # debug_me{[
-    #   :form,
-    #   "form['form526']"
-    # ]}
-
     body = transform_service.transform(form['form526'])
 
     lighthoust_validation_response = lighthouse_service.validate526(body)
