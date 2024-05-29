@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 describe CovidVaccine::V0::RegistrationSubmissionSerializer do
-
   let(:registration) { build_stubbed(:covid_vax_registration) }
 
   let(:rendered_hash) do
@@ -50,5 +49,4 @@ describe CovidVaccine::V0::RegistrationSubmissionSerializer do
   it 'includes :birth_date' do
     expect(rendered_attributes[:birth_date]).to eq registration.raw_form_data['birth_date']
   end
-
 end

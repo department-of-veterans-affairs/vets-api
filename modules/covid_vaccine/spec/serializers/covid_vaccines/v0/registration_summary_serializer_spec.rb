@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 describe CovidVaccine::V0::RegistrationSummarySerializer do
-
   let(:registration) { build_stubbed(:covid_vax_registration) }
 
   let(:rendered_hash) do
@@ -12,7 +11,7 @@ describe CovidVaccine::V0::RegistrationSummarySerializer do
   let(:rendered_attributes) { rendered_hash[:data][:attributes] }
 
   it 'includes :id' do
-    expect(rendered_hash[:data][:id].blank?).to be_truthy
+    expect(rendered_hash[:data][:id]).to be_blank
   end
 
   it 'includes :created_at' do
@@ -26,5 +25,4 @@ describe CovidVaccine::V0::RegistrationSummarySerializer do
   it 'includes :zip_code' do
     expect(rendered_attributes[:zip_code]).to eq registration.raw_form_data['zip_code']
   end
-
 end
