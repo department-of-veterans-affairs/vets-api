@@ -12,6 +12,7 @@ module SimpleFormsApi
       'vba_21_4142' => Settings.vanotify.services.va_gov.template_id.form21_4142_confirmation_email,
       'vba_21_10210' => Settings.vanotify.services.va_gov.template_id.form21_10210_confirmation_email,
       'vba_20_10206' => Settings.vanotify.services.va_gov.template_id.form20_10206_confirmation_email,
+      'vba_20_10207' => Settings.vanotify.services.va_gov.template_id.form20_10207_confirmation_email,
       'vba_40_0247' => Settings.vanotify.services.va_gov.template_id.form40_0247_confirmation_email
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
@@ -92,6 +93,12 @@ module SimpleFormsApi
         email, first_name = form20_10206_contact_info
 
         { email:, personalization: default_personalization(first_name) }
+      when 'vba_20_10207'
+        return unless Flipper.enabled?(:form20_10207_confirmation_email)
+
+        email, first_name = form20_10207_contact_info
+
+        { email:, personalization: default_personalization(first_name) }
       when 'vba_40_0247'
         return unless Flipper.enabled?(:form40_0247_confirmation_email)
 
@@ -123,6 +130,18 @@ module SimpleFormsApi
       # email address not required and optionally entered
       else
         [@form_data['email_address'], @form_data.dig('full_name', 'first')]
+      end
+    end
+
+    # email and first name for form 20-10207
+    def form20_10207_contact_info
+      # veteran
+      if @form_data['preparer_type'] == 'veteran'
+        [@form_data['veteran_email_address'], @form_data['veteran_full_name']['first']]
+
+      # non-veteran
+      else
+        [@form_data['non_veteran_email_address'], @form_data['non_veteran_full_name']['first']]
       end
     end
 
