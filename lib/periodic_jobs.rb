@@ -89,8 +89,11 @@ PERIODIC_JOBS = lambda { |mgr|
 
   mgr.register('0 6-18/6 * * *', 'EducationForm::Process10203Submissions')
 
-  mgr.register('* 7 * * *', 'SignIn::DeleteExpiredSessionsJob')
+  mgr.register('0 7 * * *', 'SignIn::DeleteExpiredSessionsJob')
   # Delete expired sessions
+
+  mgr.register('0 4 * * *', 'SignIn::CertificateCheckerJob')
+  # Log when a client or service account config contains an expired, expiring, or self-signed certificate
 
   mgr.register('0 12 3 * *', 'CypressViewportUpdater::UpdateCypressViewportsJob')
   # Updates Cypress files in vets-website with data from Google Analytics.

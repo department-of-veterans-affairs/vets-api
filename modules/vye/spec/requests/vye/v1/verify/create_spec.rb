@@ -51,7 +51,14 @@ RSpec.describe Vye::V1::VerificationsController, type: :request do
 
         let(:award_ids) { user_info.awards.pluck(:id) }
 
-        let(:params) { { awardIds: award_ids } }
+        let(:headers) { { 'Content-Type' => 'application/json', 'X-Key-Inflection' => 'camel' } }
+
+        let(:params) do
+          { award_ids: }
+            .deep_transform_keys! { |key| key.to_s.camelize(:lower) }
+            .slice('awardIds')
+            .to_json
+        end
 
         before do
           Timecop.travel(now)
@@ -62,7 +69,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :request do
         end
 
         it 'creates a new verification' do
-          post('/vye/v1/verify', params:)
+          post('/vye/v1/verify', headers:, params:)
 
           expect(response).to have_http_status(:no_content)
         end
@@ -78,7 +85,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :request do
       let(:today) { Date.new(2024, 3, 31) } # This is not used only for documentation
       let(:award_end_date) { Date.new(2024, 4, 1) }
 
-      let(:api_key) { Vye::V1::VerificationsController.send(:api_key_actual) }
+      let(:api_key) { described_class.api_key }
       let(:file_number) { '111223333' }
 
       let!(:user_profile) { FactoryBot.create(:vye_user_profile, file_number:) }
