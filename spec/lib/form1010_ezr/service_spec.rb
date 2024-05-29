@@ -168,14 +168,7 @@ RSpec.describe Form1010Ezr::Service do
           expect(form['vaMedicalFacility']).to eq(nil)
           # If the 'veteranDateOfBirth', 'veteranFullName', 'veteranSocialSecurityNumber', and/or 'gender' fields are missing
           # from the parsed_form, they should get added in via the 'post_fill_user_fields' method and pass validation
-          [
-            'veteranDateOfBirth',
-            'veteranFullName',
-            'veteranSocialSecurityNumber',
-            'gender'
-          ].each { |key| form.delete(key) }
-
-          debugger
+          %w[veteranDateOfBirth veteranFullName veteranSocialSecurityNumber gender].each { |key| form.delete(key) }
 
           submission_response = submit_form(form)
 
