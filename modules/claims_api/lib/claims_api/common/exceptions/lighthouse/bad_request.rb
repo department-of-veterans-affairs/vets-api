@@ -6,14 +6,14 @@ module ClaimsApi
       module Lighthouse
         class BadRequest < StandardError
           def initialize(errors)
-            @errors = { errors: [errors] }
+            @errors = errors
 
             super
           end
 
           def errors
             errors_array = []
-            @errors[:errors].each do |err|
+            @errors.each do |err|
               errors_array << {
                 title: err[:title] || 'Bad Request',
                 detail: err[:detail],

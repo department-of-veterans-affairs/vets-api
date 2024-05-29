@@ -19,7 +19,7 @@ describe ApplicationController, type: :controller do
     end
 
     def raise_bad_request
-      error = { detail: 'Test 400' }
+      error = [{ title: 'Test 400' }]
 
       raise ClaimsApi::Common::Exceptions::Lighthouse::BadRequest, error
     end
@@ -91,8 +91,8 @@ describe ApplicationController, type: :controller do
 
       parsed_body = JSON.parse(response.body)
       expect(parsed_body['errors'].size).to eq(1)
-      expect(parsed_body['errors'][0]['title']).to eq('Bad Request')
-      expect(parsed_body['errors'][0]['detail']).to eq('Test 400')
+      expect(parsed_body['errors'][0]['title']).to eq('Test 400')
+      expect(parsed_body['errors'][0]['detail']).to eq(nil)
       expect(parsed_body['errors'][0]['status']).to eq('400')
       expect(parsed_body['errors'][0]['status']).to be_a(String)
       expect(parsed_body['errors'][0]['source'].to_s).to include('{"pointer"=>')
