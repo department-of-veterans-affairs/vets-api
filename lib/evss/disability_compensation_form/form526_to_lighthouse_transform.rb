@@ -75,6 +75,8 @@ module EVSS
         lh_request_body
       end
 
+      private
+
       # returns "STANDARD_CLAIM_PROCESS", "BDD_PROGRAM", or "FDC_PROGRAM"
       # based off of a few attributes in the evss data
       def evss_claims_process_type(form526)
@@ -250,8 +252,6 @@ module EVSS
           obj
         end
       end
-
-      private
 
       def transform_gulf_war(gulf_war1990, gulf_war2001)
         filtered_results1990 = gulf_war1990&.filter { |k| k != 'notsure' }
