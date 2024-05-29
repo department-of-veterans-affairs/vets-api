@@ -108,12 +108,11 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     @office_location = regional_office[0]
     office_name = regional_office[1]
 
-    updated_form['veteranInformation']&.merge!({ 
-      'regionalOffice' => "#{@office_location} - #{office_name}",
-      'regionalOfficeName' => office_name,
-      'stationId' => @office_location
-    })
-
+    updated_form['veteranInformation']&.merge!({
+                                                 'regionalOffice' => "#{@office_location} - #{office_name}",
+                                                 'regionalOfficeName' => office_name,
+                                                 'stationId' => @office_location
+                                               })
   end
 
   def send_to_vre(user)

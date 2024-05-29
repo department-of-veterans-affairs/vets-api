@@ -98,7 +98,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         end
       end
 
-      # We want all submission to go through with RES 
+      # We want all submission to go through with RES
       context 'non-submission to VRE' do
         context 'flipper enabled' do
           it 'stops submission if location is not in list' do
