@@ -141,6 +141,9 @@ Rails.application.routes.draw do
       resources :burial_claims, only: %i[create show]
     end
 
+    post 'form0969', to: 'income_and_assets_claims#create'
+    get 'form0969', to: 'income_and_assets_claims#show'
+
     resources :benefits_claims, only: %i[index show] do
       post :submit5103, on: :member
       post 'benefits_documents', to: 'benefits_documents#create'
