@@ -59,7 +59,7 @@ module ClaimsApi
       ##
       # EBenefitsBnftClaimStatusWebServiceBean
       #
-      module EBenefitsBnftClaimStatusWebServiceBean
+      module EBenefitsBenefitClaimStatusWebServiceBean
         DEFINITION =
           Definitions::Bean.new(
             path: 'EBenefitsBnftClaimStatusWebServiceBean',
@@ -68,10 +68,10 @@ module ClaimsApi
           )
       end
 
-      module EBenefitsBnftClaimStatusWebService
+      module EBenefitsBenefitClaimStatusWebService
         DEFINITION =
           Definitions::Service.new(
-            bean: EBenefitsBnftClaimStatusWebServiceBean::DEFINITION,
+            bean: EBenefitsBenefitClaimStatusWebServiceBean::DEFINITION,
             path: 'EBenefitsBnftClaimStatusWebService'
           )
       end
@@ -100,6 +100,14 @@ module ClaimsApi
             Definitions::Action.new(
               service: ManageRepresentativeService::DEFINITION,
               name: 'readPOARequest'
+            )
+        end
+
+        module ReadPoaRequestByParticipantId
+          DEFINITION =
+            Definitions::Action.new(
+              service: ManageRepresentativeService::DEFINITION,
+              name: 'readPOARequestByPtcpntId'
             )
         end
 
