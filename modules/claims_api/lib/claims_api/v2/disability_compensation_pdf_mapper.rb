@@ -215,8 +215,10 @@ module ClaimsApi
         end
       end
 
-      def herbicide_hazard
+      def herbicide_hazard # rubocop:disable Metrics/MethodLength
         herb = @pdf_data&.dig(:data, :attributes, :toxicExposure, :herbicideHazardService)
+        return if herb.blank?
+
         if herb[:serviceDates].present?
           herbicide_service_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:herbicideHazardService][:serviceDates][:beginDate]
           if herbicide_service_dates_begin.present?
@@ -241,6 +243,8 @@ module ClaimsApi
 
       def additional_exposures
         add = @pdf_data&.dig(:data, :attributes, :toxicExposure, :additionalHazardExposures)
+        return if add.blank?
+
         if add[:exposureDates].present?
           additional_exposure_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:additionalHazardExposures][:exposureDates][:beginDate]
           if additional_exposure_dates_begin.present?

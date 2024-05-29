@@ -2,6 +2,9 @@
 
 module ClaimsApi
   class PowerOfAttorneyRequest
+    # Deserialization is inherently linked to a particular BGS service action,
+    # as it maps from the representation for that action. For now, since only
+    # one such mapping is needed, we showcase it in isolation here.
     class Load
       class << self
         def perform(data)
@@ -30,7 +33,10 @@ module ClaimsApi
       private
 
       def id
-        "#{@data['vetPtcpntID']}_#{@data['procID']}"
+        [
+          @data['vetPtcpntID'],
+          @data['procID']
+        ].join('_')
       end
 
       def power_of_attorney_code
@@ -38,15 +44,15 @@ module ClaimsApi
       end
 
       def authorizes_address_changing
-        Utilities.boolean(@data['changeAddressAuth'])
+        Utilities::Load.boolean(@data['changeAddressAuth'])
       end
 
       def authorizes_treatment_disclosure
-        Utilities.boolean(@data['healthInfoAuth'])
+        Utilities::Load.boolean(@data['healthInfoAuth'])
       end
 
       def created_at
-        Utilities.time(@data['dateRequestReceived'])
+        Utilities::Load.time(@data['dateRequestReceived'])
       end
 
       def veteran
@@ -60,14 +66,14 @@ module ClaimsApi
 
       def claimant
         # TODO: Check on `claimantRelationship` values in BGS.
-        relationship = @data['claimantRelationship']
-        return if relationship.blank? || relationship == 'Self'
+        return if @data['claimantRelationship'].blank?
+        return if @data['claimantRelationship'] == 'Self'
 
         Claimant.new(
           first_name: @data['claimantFirstName'],
           last_name: @data['claimantLastName'],
           participant_id: @data['claimantPtcpntID'],
-          relationship_to_veteran: relationship
+          relationship_to_veteran: @data['claimantRelationship']
         )
       end
 
@@ -82,50 +88,8 @@ module ClaimsApi
         )
       end
 
-      def decision # rubocop:disable Metrics/MethodLength
-        status =
-          @data['secondaryStatus'].presence_in(
-            Decision::Statuses::ALL
-          )
-
-        declined_reason =
-          if status == Decision::Statuses::DECLINED # rubocop:disable Style/IfUnlessModifier
-            @data['declinedReason']
-          end
-
-        updated_at = Utilities.time(@data['dateRequestActioned'])
-
-        representative =
-          Decision::Representative.new(
-            first_name: @data['VSOUserFirstName'],
-            last_name: @data['VSOUserLastName'],
-            email: @data['VSOUserEmail']
-          )
-
-        Decision.new(
-          status:,
-          declined_reason:,
-          representative:,
-          updated_at:
-        )
-      end
-
-      module Utilities
-        class << self
-          def time(value)
-            ActiveSupport::TimeZone['UTC'].parse(value.to_s)
-          end
-
-          def boolean(value)
-            # `else` => `nil`
-            case value
-            when 'Y'
-              true
-            when 'N'
-              false
-            end
-          end
-        end
+      def decision
+        Decision::Load.perform(@data)
       end
     end
   end

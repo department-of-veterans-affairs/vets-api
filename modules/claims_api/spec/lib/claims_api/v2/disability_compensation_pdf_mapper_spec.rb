@@ -310,6 +310,14 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(multi_exp_hazard).to eq('RADIATION')
       end
 
+      it 'maps herbicide correctly when nothing is included' do
+        form_attributes['toxicExposure']['herbicideHazardService'] = nil
+        mapper.map_claim
+
+        herb_exp_data = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService]
+        expect(herb_exp_data).to eq(nil)
+      end
+
       it 'maps herbicide correctly when dates are not included' do
         form_attributes['toxicExposure']['herbicideHazardService']['serviceDates'] = nil
 
@@ -319,6 +327,14 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         herb_service_dates = toxic_exp_data[:herbicideHazardService][:serviceDates]
 
         expect(herb_service_dates).to eq(nil)
+      end
+
+      it 'maps additional exposures correctly when nothing is included' do
+        form_attributes['toxicExposure']['additionalHazardExposures'] = nil
+        mapper.map_claim
+
+        add_exp_data = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:additionalHazardExposures]
+        expect(add_exp_data).to eq(nil)
       end
 
       it 'maps additional exposures correctly when dates are not included' do

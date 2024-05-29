@@ -12,7 +12,7 @@ module ClaimsApi
     private_constant :Request
 
     class Request
-      def initialize(action:, external_id:)
+      def initialize(action, external_id:)
         @action = action
         @external_id = external_id
       end
@@ -52,8 +52,7 @@ module ClaimsApi
           )
 
         Envelope.build(
-          namespace: @action.service.bean.namespace,
-          data_namespace: @action.service.bean.data_namespace,
+          namespaces: @action.service.bean.namespaces,
           action: @action.name,
           headers:,
           body:
@@ -96,8 +95,10 @@ module ClaimsApi
           )
         end
 
-        key = "#{@action.name}Response"
-        body[key].to_h
+        body.dig(
+          "#{@action.name}Response",
+          @action.key
+        ).to_h
       end
 
       # The underlying Faraday exceptions will be the `#cause` of our wrapped
