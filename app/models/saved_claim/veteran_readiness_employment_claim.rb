@@ -122,7 +122,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       upload_to_vbms(user:)
     else
       Rails.logger.warn('Participane.messaget id is blank when submitting VRE claim')
-      send_to_central_mail!(user)
+      send_to_lighthouse!(user)
     end
 
     if Flipper.enabled?(:veteran_readiness_employment_to_res)
@@ -154,14 +154,14 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     send_vbms_confirmation_email(user)
   rescue
     Rails.logger.error("Error uploading VRE claim to VBMS. user uuid: #{user.uuid}")
-    send_to_central_mail!(user)
+    send_to_lighthouse!(user)
   end
 
   def to_pdf(file_name = nil)
     PdfFill::Filler.fill_form(self, file_name, { created_at: })
   end
 
-  def send_to_central_mail!(user)
+  def send_to_lighthouse!(user)
     form_copy = parsed_form.clone
 
     form_copy['veteranSocialSecurityNumber'] = parsed_form.dig('veteranInformation', 'ssn')
@@ -173,7 +173,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     process_attachments!
     @sent_to_cmp = true
 
-    send_central_mail_confirmation_email(user)
+    send_lighthouse_confirmation_email(user)
   rescue => e
     Rails.logger.error("Error uploading VRE claim to central mail. user uuid: #{user.uuid}. #{e}")
   end
@@ -224,7 +224,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     )
   end
 
-  def send_central_mail_confirmation_email(user)
+  def send_lighthouse_confirmation_email(user)
     return if user.va_profile_email.blank?
 
     VANotify::EmailJob.perform_async(

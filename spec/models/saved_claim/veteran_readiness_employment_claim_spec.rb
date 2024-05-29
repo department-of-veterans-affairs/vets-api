@@ -66,13 +66,13 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         allow(VBMS::Client).to receive(:from_env_vars).and_return(@vbms_client)
       end
 
-      it 'calls #send_to_central_mail!' do
-        expect(claim).to receive(:send_to_central_mail!)
+      it 'calls #send_to_lighthouse!' do
+        expect(claim).to receive(:send_to_lighthouse!)
         subject
       end
 
       it 'does not raise an error' do
-        allow(claim).to receive(:send_to_central_mail!)
+        allow(claim).to receive(:send_to_lighthouse!)
         expect { subject }.not_to raise_error
       end
     end
@@ -129,8 +129,8 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
       it 'PDF is sent to Central Mail and not VBMS' do
         expect(claim).to receive(:process_attachments!)
-        expect(claim).to receive(:send_to_central_mail!).with(user_object).once.and_call_original
-        expect(claim).to receive(:send_central_mail_confirmation_email)
+        expect(claim).to receive(:send_to_lighthouse!).with(user_object).once.and_call_original
+        expect(claim).to receive(:send_lighthouse_confirmation_email)
         expect(claim).not_to receive(:upload_to_vbms)
         expect(VeteranReadinessEmploymentMailer).to receive(:build).with(
           user_object.participant_id, 'VRE.VBAPIT@va.gov', true
@@ -163,8 +163,8 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     end
   end
 
-  describe '#send_central_mail_confirmation_email' do
-    subject { claim.send_central_mail_confirmation_email(user_object) }
+  describe '#send_lighthouse_confirmation_email' do
+    subject { claim.send_lighthouse_confirmation_email(user_object) }
 
     it 'calls the VA notify email job' do
       expect(VANotify::EmailJob).to receive(:perform_async).with(
