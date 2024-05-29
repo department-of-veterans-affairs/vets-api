@@ -166,8 +166,9 @@ RSpec.describe Form1010Ezr::Service do
           # and then added via the 'post_fill_required_fields' method
           expect(form['isEssentialAcaCoverage']).to eq(nil)
           expect(form['vaMedicalFacility']).to eq(nil)
-          # If the 'veteranDateOfBirth', 'veteranFullName', 'veteranSocialSecurityNumber', and/or 'gender' fields are missing
-          # from the parsed_form, they should get added in via the 'post_fill_user_fields' method and pass validation
+          # If the 'veteranDateOfBirth', 'veteranFullName', 'veteranSocialSecurityNumber', and/or 'gender' fields are
+          # missing from the parsed_form, they should get added in via the 'post_fill_user_fields' method and
+          # pass validation
           %w[veteranDateOfBirth veteranFullName veteranSocialSecurityNumber gender].each { |key| form.delete(key) }
 
           submission_response = submit_form(form)
