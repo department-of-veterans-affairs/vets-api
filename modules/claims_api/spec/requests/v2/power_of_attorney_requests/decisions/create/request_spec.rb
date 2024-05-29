@@ -23,6 +23,8 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
     JSON.parse(response.body)
   end
 
+  let(:id) { '1234_5678' }
+
   let(:headers) do
     {
       'Content-Type' => 'application/json',
@@ -37,18 +39,47 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
     ]
   end
 
+  describe 'with an body that does not conform to the schema because it is missing status' do
+    it 'responds 400' do
+      params = {
+        'data' => {
+          'type' => 'powerOfAttorneyRequestDecision',
+          'attributes' => {
+            'declinedReason' => 'Some reason',
+            'representative' => {
+              'firstName' => 'BEATRICE',
+              'lastName' => 'STROUD',
+              'email' => 'Beatrice.Stroud44@va.gov'
+            }
+          }
+        }
+      }
+
+      mock_ccg(scopes) do
+        perform_request(params)
+      end
+
+      expect(response).to(
+        have_http_status(:bad_request)
+      )
+    end
+  end
+
   describe 'with a valid decline with reason submitted twice' do
     let(:id) { '600085312_3853983' }
 
     it 'responds no_content first and then unprocessable_entity second', run_at: '2024-05-09T07:18:04Z' do
       params = {
-        'decision' => {
-          'status' => 'Declined',
-          'declinedReason' => 'Some reason',
-          'representative' => {
-            'firstName' => 'BEATRICE',
-            'lastName' => 'STROUD',
-            'email' => 'Beatrice.Stroud44@va.gov'
+        'data' => {
+          'type' => 'powerOfAttorneyRequestDecision',
+          'attributes' => {
+            'status' => 'Declined',
+            'declinedReason' => 'Some reason',
+            'representative' => {
+              'firstName' => 'BEATRICE',
+              'lastName' => 'STROUD',
+              'email' => 'Beatrice.Stroud44@va.gov'
+            }
           }
         }
       }
@@ -112,17 +143,16 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
       )
     end
 
-    let(:id) { 'anything' }
-
     scenarios.each do |scenario|
       describe "when previous: #{scenario[:previous]}, current: #{scenario[:current]}" do
         let(:previous) { scenario[:previous] }
         let(:current) { scenario[:current] }
 
         it "returns http status #{scenario[:http_status]}" do
-          mock_ccg(scopes) do
-            params = {
-              'decision' => {
+          params = {
+            'data' => {
+              'type' => 'powerOfAttorneyRequestDecision',
+              'attributes' => {
                 'status' => current,
                 'declinedReason' => nil,
                 'representative' => {
@@ -132,7 +162,9 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
                 }
               }
             }
+          }
 
+          mock_ccg(scopes) do
             perform_request(params)
           end
 

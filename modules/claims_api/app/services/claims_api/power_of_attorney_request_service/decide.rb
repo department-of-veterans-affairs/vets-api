@@ -30,9 +30,9 @@ module ClaimsApi
 
           PowerOfAttorneyRequest::Decision.new(
             **attrs,
-            # Assign `updated_at` somewhere more obvious near the actual update
+            # Assign `created_at` somewhere more obvious near the actual update
             # event?
-            updated_at: Time.current,
+            created_at: Time.current,
             representative:
           )
         end

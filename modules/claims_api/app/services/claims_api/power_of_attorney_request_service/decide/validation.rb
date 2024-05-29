@@ -4,6 +4,8 @@ module ClaimsApi
   module PowerOfAttorneyRequestService
     module Decide
       class Validation
+        # This error type expects to be instantiated with objects that are
+        # `ActiveModel::Validations`
         class Error < ::Common::Exceptions::ValidationErrors
           def i18n_key
             'common.exceptions.validation_errors'

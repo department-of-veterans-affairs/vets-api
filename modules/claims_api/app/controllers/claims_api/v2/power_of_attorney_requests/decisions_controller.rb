@@ -4,16 +4,17 @@ module ClaimsApi
   module V2
     module PowerOfAttorneyRequests
       class DecisionsController < BaseController
-        def create
-          decision_params =
-            params.require(:decision).permit(
-              :status,
-              :declinedReason,
-              representative: {}
-            ).to_h
+        before_action :validate_json!, only: :create
 
-          attrs = decision_params.deep_transform_keys(&:underscore)
-          PowerOfAttorneyRequestService::Decide.perform(params[:id], attrs)
+        def create
+          attrs =
+            @body.dig('data', 'attributes').deep_transform_keys do |key|
+              key.underscore.to_sym
+            end
+
+          PowerOfAttorneyRequestService::Decide.perform(
+            params[:id], attrs
+          )
 
           head :no_content
         end

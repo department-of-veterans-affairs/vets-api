@@ -7,7 +7,7 @@ module ClaimsApi
         :status,
         :representative,
         :declined_reason,
-        :updated_at
+        :created_at
       )
 
       module Statuses
