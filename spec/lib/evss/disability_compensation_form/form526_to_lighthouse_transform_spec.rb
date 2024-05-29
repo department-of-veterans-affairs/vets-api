@@ -73,28 +73,28 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
     it 'returns "FDC_PROGRAM" by default' do
       data['form526']['bddQualified'] = false
       data['form526']['standardClaim'] = false
-      result = transformer.evss_claims_process_type(data['form526'])
+      result = transformer.send(:evss_claims_process_type, data['form526'])
       expect(result).to eq('FDC_PROGRAM')
     end
 
     it 'sets claimsProcessType to STANDARD_CLAIM_PROCESS in the Lighthouse request body' do
       data['form526']['bddQualified'] = false
       data['form526']['standardClaim'] = true
-      result = transformer.evss_claims_process_type(data['form526'])
+      result = transformer.send(:evss_claims_process_type, data['form526'])
       expect(result).to eq('STANDARD_CLAIM_PROCESS')
     end
 
     it 'sets claimsProcessType to BDD_PROGRAM in the Lighthouse request body' do
       data['form526']['bddQualified'] = true
       data['form526']['standardClaim'] = false
-      result = transformer.evss_claims_process_type(data['form526'])
+      result = transformer.send(:evss_claims_process_type, data['form526'])
       expect(result).to eq('BDD_PROGRAM')
     end
 
     it 'sets claimsProcessType to BDD_PROGRAM in the Lighthouse request body, even if standardClaim is also true' do
       data['form526']['bddQualified'] = true
       data['form526']['standardClaim'] = true
-      result = transformer.evss_claims_process_type(data['form526'])
+      result = transformer.send(:evss_claims_process_type, data['form526'])
       expect(result).to eq('BDD_PROGRAM')
     end
   end
@@ -104,7 +104,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
     let(:data) { submission.form['form526'] }
 
     it 'sets veteran identification correctly' do
-      result = transformer.transform_veteran(data['form526']['veteran'])
+      result = transformer.send(:transform_veteran, data['form526']['veteran'])
       expect(result.current_va_employee).to eq(false)
       expect(result.email_address).not_to be_nil
       expect(result.veteran_number).not_to be_nil
@@ -116,7 +116,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       data['form526']['veteran']['currentMailingAddress']['militaryStateCode'] = 'AE'
       data['form526']['veteran']['currentMailingAddress']['internationalPostalCode'] = '817'
 
-      result = transformer.transform_veteran(data['form526']['veteran'])
+      result = transformer.send(:transform_veteran, data['form526']['veteran'])
       expect(result.mailing_address.city).to eq('APO')
       expect(result.mailing_address.state).to eq('AE')
       expect(result.mailing_address.zip_first_five).to eq('817')
@@ -128,7 +128,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
     let(:data) { submission.form['form526'] }
 
     it 'sets change of address correctly' do
-      result = transformer.transform_change_of_address(data['form526']['veteran'])
+      result = transformer.send(:transform_change_of_address, data['form526']['veteran'])
       expect(result.city).to eq('Portland')
       expect(result.dates).not_to be_nil
     end
@@ -138,7 +138,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       data['form526']['veteran']['changeOfAddress']['militaryStateCode'] = 'AE'
       data['form526']['veteran']['changeOfAddress']['internationalPostalCode'] = '817'
 
-      result = transformer.transform_change_of_address(data['form526']['veteran'])
+      result = transformer.send(:transform_change_of_address, data['form526']['veteran'])
       expect(result.city).to eq('APO')
       expect(result.state).to eq('AE')
       expect(result.zip_first_five).to eq('817')
@@ -151,7 +151,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
     let(:data) { submission.form['form526'] }
 
     it 'sets change of address correctly' do
-      result = transformer.transform_homeless(data['form526']['veteran'])
+      result = transformer.send(:transform_homeless, data['form526']['veteran'])
       expect(result.point_of_contact).to eq('Jane Doe')
       expect(result.currently_homeless).not_to be_nil
       expect(result.risk_of_becoming_homeless).to be_nil
@@ -164,7 +164,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
     let(:data) { submission.form['form526']['form526']['serviceInformation'] }
 
     it 'sets service information correctly' do
-      result = transformer.transform_service_information(data)
+      result = transformer.send(:transform_service_information, data)
       expect(result.service_periods).not_to be_nil
       expect(result.confinements).not_to be_nil
       expect(result.alternate_names).not_to be_nil
