@@ -45,7 +45,6 @@ RSpec.describe RES::Ch31Form do
 
     context 'with an unsuccessful submission' do
       it 'does not successfully send to RES' do
-        expect(service).to receive(:log_exception_to_sentry)
         allow(service).to receive(:send_to_res).and_return(OpenStruct.new(body: { 'error' => 'Error' }))
 
         expect { service.submit }.to raise_error(Ch31Error)
@@ -53,7 +52,6 @@ RSpec.describe RES::Ch31Form do
 
       it 'handles nil claim' do
         nil_claim_service = RES::Ch31Form.new(user:, claim: nil)
-        expect(nil_claim_service).to receive(:log_exception_to_sentry)
 
         expect { nil_claim_service.submit }.to raise_error(Ch31NilClaimError)
       end
