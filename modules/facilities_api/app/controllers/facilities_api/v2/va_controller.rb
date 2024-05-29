@@ -3,6 +3,7 @@
 module FacilitiesApi
   class V2::VAController < ApplicationController
     skip_before_action :verify_authenticity_token
+    
     def search
       params[:facilityIds] = params[:ids] if params[:ids].present?
       api_results = api.get_facilities(lighthouse_params)
