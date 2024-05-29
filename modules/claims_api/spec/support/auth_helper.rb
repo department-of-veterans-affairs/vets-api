@@ -13,8 +13,8 @@ def mock_acg(_scopes)
   end
 end
 
-def mock_ccg(_scopes)
-  VCR.use_cassette('claims_api/token_validation/v3/shows_token_is_valid') do
+def mock_ccg(_scopes, vcr_options = {})
+  VCR.use_cassette('claims_api/token_validation/v3/shows_token_is_valid', vcr_options) do
     auth_header = { authorization: 'Bearer token' }
     yield(auth_header)
   end

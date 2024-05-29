@@ -34,7 +34,7 @@ module ClaimsApi
           )
 
           field(
-            :updated_at,
+            :created_at,
             datetime_format: :iso8601.to_proc
           )
 

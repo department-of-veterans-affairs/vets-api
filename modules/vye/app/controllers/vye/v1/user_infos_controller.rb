@@ -3,17 +3,13 @@
 module Vye
   module V1
     class UserInfosController < Vye::V1::ApplicationController
-      include Pundit::Authorization
       include Vye::Ivr
-
-      service_tag 'verify-your-enrollment'
 
       def show
         authorize user_info, policy_class: Vye::UserInfoPolicy
 
         render json: user_info,
                serializer: Vye::UserInfoSerializer,
-               key_transform: :camel_lower,
                adapter: :json,
                api_key: api_key?,
                include: %i[latest_address pending_documents verifications pending_verifications].freeze
@@ -25,10 +21,6 @@ module Vye
         return super(scoped:) unless api_key?
 
         @user_info = user_info_for_ivr(scoped:)
-      end
-
-      def transformed_params
-        @transform_params ||= params.deep_transform_keys!(&:underscore)
       end
     end
   end
