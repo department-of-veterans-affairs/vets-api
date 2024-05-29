@@ -59,7 +59,7 @@ module EVSS
         output_form['overflowText'] = overflow_text
         output_form['bddQualified'] = bdd_qualified?
         output_form['claimSubmissionSource'] = 'VA.gov'
-        output_form['includeToxicExposure'] = input_form['includeToxicExposure']
+        output_form['includeToxicExposure'] = input_form['includeToxicExposure'] || false
         output_form.compact!
 
         output_form.update(translate_banking_info)
@@ -704,10 +704,6 @@ module EVSS
 
       def add_toxic_exposure
         { 'toxicExposure' => input_form['toxicExposure'] }
-      end
-
-      def include_toxic_exposure
-        { 'includeToxicExposure' => input_form['includeToxicExposure'] }
       end
 
       def application_expiration_date
