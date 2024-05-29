@@ -121,7 +121,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     if user&.participant_id
       upload_to_vbms(user:)
     else
-      Rails.logger.warn('Participane.messaget id is blank when submitting VRE claim')
+      Rails.logger.warn('Participant id is blank when submitting VRE claim')
       send_to_lighthouse!(user)
     end
 
