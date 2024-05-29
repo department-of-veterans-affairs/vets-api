@@ -741,7 +741,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
         { bearer_token: [] }
       ]
       consumes 'application/json'
-      produces 'application/json'
+      produces 'application/pdf'
 
       parameter name: 'veteranId',
                 in: :path,
@@ -766,11 +766,17 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
         This endpoint can be used to generate the PDF based on the request data in the case that the submission was not able to be successfully auto-established. The PDF can then be uploaded via the [Benefits Intake API](https://developer.va.gov/explore/api/benefits-intake) to digitally submit directly to the Veterans Benefits Administration's (VBA) claims intake process.
       VERBIAGE
       description pdf_description
+      let(:schema) do
+        {
+          '$schema' => 'http://json-schema.org/draft-04/schema#',
+          'type' => 'string',
+          'example' => 'binary'
+        }
+      end
+      # schema schema_var
 
       describe 'Getting a successful response' do
         response '200', 'post pdf response' do
-          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
-                                            'disability_compensation', 'success.json').read)
           before do |example|
             mock_ccg_for_fine_grained_scope(generate_pdf_minimum_validations_scopes) do
               submit_request(example.metadata)
@@ -779,7 +785,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
           after do |example|
             example.metadata[:response][:content] = {
-              'application/json' => {
+              'application/pdf' => {
                 example: 'string'
               }
             }
