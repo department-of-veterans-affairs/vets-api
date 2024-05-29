@@ -14,7 +14,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
   let(:veteran) { ClaimsApi::Veteran.new }
 
   path '/veterans/{veteranId}/526', vcr: 'claims_api/disability_comp' do
-    post 'Establishes disability compensation claim asynchronously' do
+    post 'Submits form 526' do
       tags 'Disability Compensation Claims'
       operationId 'post526Claim'
       security [
@@ -182,10 +182,8 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
         response '404', 'Resource not found' do
           schema JSON.parse(
-            File.read(
-              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 
-                'disability_compensation', 'default.json')
-            )
+            Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                            'disability_compensation', 'default_without_source.json').read
           )
 
           it 'returns a 404 response' do |example|
@@ -445,10 +443,8 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
         response '404', 'Resource not found' do
           schema JSON.parse(
-            File.read(
-              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 
-                'disability_compensation', 'default.json')
-            )
+            Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                            'disability_compensation', 'default_without_source.json').read
           )
 
           it 'returns a 404 response' do |example|
@@ -663,10 +659,8 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
         response '404', 'Resource not found' do
           schema JSON.parse(
-            File.read(
-              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 
-                'disability_compensation', 'default.json')
-            )
+            Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                            'disability_compensation', 'default_without_source.json').read
           )
 
           it 'returns a 404 response' do |example|
@@ -843,7 +837,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                            'disability_compensation', 'default.json').read)
+                                            'disability_compensation', 'default_without_source.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:attachment1) do
@@ -1001,10 +995,8 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
         response '404', 'Resource not found' do
           schema JSON.parse(
-            File.read(
-              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 
-                'disability_compensation', 'default.json')
-            )
+            Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                            'disability_compensation', 'default_without_source.json').read
           )
 
           it 'returns a 404 response' do |example|

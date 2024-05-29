@@ -1246,7 +1246,7 @@
     },
     "/veterans/{veteranId}/526": {
       "post": {
-        "summary": "Establishes disability compensation claim asynchronously",
+        "summary": "Submits form 526",
         "tags": [
           "Disability Compensation Claims"
         ],
@@ -2504,10 +2504,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.",
-                      "source": {
-                        "pointer": "/modules/claims_api/app/controllers/concerns/claims_api/target_veteran.rb:26:in `build_target_veteran'"
-                      }
+                      "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."
                     }
                   ]
                 },
@@ -2536,17 +2533,6 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error status code"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
                           }
                         }
                       }
@@ -4304,7 +4290,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7bfe94b4-3859-406e-a0aa-bfeb0ea34bcd",
+                    "id": "8f9d6c62-88df-4cb0-baa6-b47c58c89241",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -5744,10 +5730,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.",
-                      "source": {
-                        "pointer": "/modules/claims_api/app/controllers/concerns/claims_api/target_veteran.rb:26:in `build_target_veteran'"
-                      }
+                      "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."
                     }
                   ]
                 },
@@ -5776,17 +5759,6 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error status code"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
                           }
                         }
                       }
@@ -7665,10 +7637,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.",
-                      "source": {
-                        "pointer": "/modules/claims_api/app/controllers/concerns/claims_api/target_veteran.rb:26:in `build_target_veteran'"
-                      }
+                      "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."
                     }
                   ]
                 },
@@ -7697,17 +7666,6 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error status code"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
                           }
                         }
                       }
@@ -9197,7 +9155,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5bcce0b9-71cc-4fe1-a298-528a45d7f557",
+                    "id": "979551d2-90de-47a5-a436-a57c39a365e9",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -10036,10 +9994,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Resource not found",
-                      "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:60:in `attachments'"
-                      }
+                      "detail": "Resource not found"
                     }
                   ]
                 },
@@ -10068,17 +10023,6 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error status code"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
                           }
                         }
                       }
@@ -10223,10 +10167,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.",
-                      "source": {
-                        "pointer": "/modules/claims_api/app/controllers/concerns/claims_api/target_veteran.rb:26:in `build_target_veteran'"
-                      }
+                      "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."
                     }
                   ]
                 },
@@ -10255,17 +10196,6 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error status code"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
                           }
                         }
                       }
@@ -12806,10 +12736,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not retrieve Power of Attorney with code: A1Q",
-                      "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:128:in `representative'"
-                      }
+                      "detail": "Could not retrieve Power of Attorney with code: A1Q"
                     }
                   ]
                 },
@@ -12968,7 +12895,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7e529ffd-ce8c-4023-bd21-aef44bfcfc3d",
+                    "id": "60efe79e-afcd-4ee3-a621-92ce005c7236",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13168,10 +13095,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 067",
-                      "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
-                      }
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 067"
                     }
                   ]
                 },
@@ -13664,7 +13588,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "96bbdcc4-bd30-4507-ad45-7de5ea27a171",
+                    "id": "7422cce5-93af-463b-ab60-58797df637ca",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -13872,10 +13796,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
-                      "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
-                      }
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083"
                     }
                   ]
                 },
@@ -14491,10 +14412,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 067",
-                      "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
-                      }
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 067"
                     }
                   ]
                 },
@@ -15186,10 +15104,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083",
-                      "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:70:in `validate_registration_number!'"
-                      }
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083"
                     }
                   ]
                 },
@@ -15624,7 +15539,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "14270084-2085-46a6-9bb7-f119e5b834aa",
+                    "id": "cb36f1f9-a09b-485b-8289-7172b94283c5",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
@@ -15788,10 +15703,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find Power of Attorney with id: -1",
-                      "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:32:in `status'"
-                      }
+                      "detail": "Could not find Power of Attorney with id: -1"
                     }
                   ]
                 },
