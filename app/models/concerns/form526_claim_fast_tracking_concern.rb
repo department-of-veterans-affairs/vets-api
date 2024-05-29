@@ -169,7 +169,7 @@ module Form526ClaimFastTrackingConcern
     if Flipper.enabled?(:disability_526_classifier_multi_contention)
       update_contention_classification_all!
     else
-      update_single_contention_classification!
+      update_contention_classification_single_contention!
     end
   end
 
