@@ -84,8 +84,9 @@ module Sidekiq
         job_status.update(status: Form526JobStatus::STATUS[:success])
         submission.deliver_to_backup!
       rescue => e
-        ::Rails.logger.error(
-          message: "FORM526 BACKUP SUBMISSION FAILURE. Investigate immediately: #{e.message}.",
+        ::Rails.logger.warn(
+          message: "Form 526 backup submission failure. retrying...",
+          error_message: e.message,
           backtrace: e.backtrace,
           submission_id: form526_submission_id
         )
