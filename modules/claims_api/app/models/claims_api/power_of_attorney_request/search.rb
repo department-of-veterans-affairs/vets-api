@@ -78,25 +78,14 @@ module ClaimsApi
                 ReadPoaRequest::
                 DEFINITION
 
-            response =
-              BGSClient.perform_request(action:) do |xml, data_aliaz|
+            result =
+              BGSClient.perform_request(action) do |xml, data_aliaz|
                 Query.dump(query, xml, data_aliaz)
               end
 
-            total_count =
-              response.dig(
-                'POARequestRespondReturnVO',
-                'totalNbrOfRecords'
-              ).to_i
+            total_count = result['totalNbrOfRecords'].to_i
 
-            poa_requests =
-              Array.wrap(
-                response.dig(
-                  'POARequestRespondReturnVO',
-                  'poaRequestRespondReturnVOList'
-                )
-              )
-
+            poa_requests = Array.wrap(result['poaRequestRespondReturnVOList'])
             poa_requests.map! do |data|
               Load.perform(data)
             end

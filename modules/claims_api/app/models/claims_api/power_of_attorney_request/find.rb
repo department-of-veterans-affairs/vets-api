@@ -5,7 +5,7 @@ module ClaimsApi
     # TODO: Find and handle some errors.
     module Find
       class << self
-        def perform(id) # rubocop:disable Metrics/MethodLength
+        def perform(id)
           participant_id, proc_id = id.split('_')
 
           action =
@@ -14,23 +14,15 @@ module ClaimsApi
               ReadPoaRequestByParticipantId::
               DEFINITION
 
-          response =
-            BGSClient.perform_request(action:) do |xml|
+          result =
+            BGSClient.perform_request(action) do |xml|
               xml.PtcpntId(participant_id)
             end
 
-          poa_requests =
-            Array.wrap(
-              response.dig(
-                'POARequestRespondReturnVO',
-                'poaRequestRespondReturnVOList'
-              )
-            )
-
-          poa_request =
-            poa_requests.find do |data|
-              data['procID'] == proc_id
-            end
+          poa_requests = Array.wrap(result['poaRequestRespondReturnVOList'])
+          poa_request = poa_requests.find do |data|
+            data['procID'] == proc_id
+          end
 
           Load.perform(poa_request)
         end

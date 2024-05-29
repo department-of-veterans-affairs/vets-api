@@ -13,7 +13,7 @@ module ClaimsApi
                 UpdatePoaRequest::
                 DEFINITION
 
-            BGSClient.perform_request(action:) do |xml, data_aliaz|
+            BGSClient.perform_request(action) do |xml, data_aliaz|
               Dump.perform(id, decision, xml, data_aliaz)
             end
           end
