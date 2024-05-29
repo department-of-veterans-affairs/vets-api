@@ -112,6 +112,7 @@ module Form1010Ezr
       end
     end
 
+    # <---- Post-fill methods ---->
     # Add required fields not included in the JSON schema, but are
     # required in the Enrollment System API
     def post_fill_required_fields(parsed_form)
@@ -120,8 +121,8 @@ module Form1010Ezr
       parsed_form.merge!(required_fields)
     end
 
-    # Due to issues with receiving submissions that do not include the Veteran's DOB, we'll
-    # try to add it in before we validate the form
+    # Due to issues with receiving submissions that do not include the Veteran's DOB, full name, SSN, and/or
+    # gender, we'll try to add them in before we validate the form
     def post_fill_veteran_date_of_birth(parsed_form)
       return if parsed_form['veteranDateOfBirth'].present?
 
@@ -131,8 +132,6 @@ module Form1010Ezr
       parsed_form
     end
 
-    # Due to issues with receiving submissions that do not include the Veteran's full name, we'll
-    # try to add it in before we validate the form
     def post_fill_veteran_full_name(parsed_form)
       return if parsed_form['veteranFullName'].present?
 
@@ -142,8 +141,6 @@ module Form1010Ezr
       parsed_form
     end
 
-    # Due to issues with receiving submissions that do not include the Veteran's SSN, we'll
-    # try to add it in before we validate the form
     def post_fill_veteran_ssn(parsed_form)
       return if parsed_form['veteranSocialSecurityNumber'].present?
 
@@ -153,10 +150,20 @@ module Form1010Ezr
       parsed_form
     end
 
+    def post_fill_veteran_gender(parsed_form)
+      return if parsed_form['gender'].present?
+
+      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.missing_gender")
+
+      parsed_form['gender'] = @user.gender
+      parsed_form
+    end
+
     def post_fill_user_fields(parsed_form)
       post_fill_veteran_full_name(parsed_form)
       post_fill_veteran_date_of_birth(parsed_form)
       post_fill_veteran_ssn(parsed_form)
+      post_fill_veteran_gender(parsed_form)
     end
 
     def post_fill_fields(parsed_form)

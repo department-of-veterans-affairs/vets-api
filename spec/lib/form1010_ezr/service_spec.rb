@@ -22,7 +22,8 @@ RSpec.describe Form1010Ezr::Service do
       middle_name: 'MiddleName',
       last_name: 'ZZTEST',
       suffix: 'Jr.',
-      ssn: '111111234'
+      ssn: '111111234',
+      gender: 'F'
     )
   end
   let(:service) { described_class.new(current_user) }
@@ -114,6 +115,20 @@ RSpec.describe Form1010Ezr::Service do
     end
   end
 
+  describe '#post_fill_veteran_gender' do
+    it_behaves_like 'post-fill user form field' do
+      let(:klass_method) { 'post_fill_veteran_gender' }
+      let(:_parsed_form) do
+        {
+          'gender' => 'M'
+        }
+      end
+      let(:statsd_increment_name) { 'missing_gender' }
+      let(:user_field) { 'gender' }
+      let(:user_data) { current_user.gender }
+    end
+  end
+
   describe '#submit_form' do
     context 'with ezr_async on' do
       before do
@@ -151,11 +166,16 @@ RSpec.describe Form1010Ezr::Service do
           # and then added via the 'post_fill_required_fields' method
           expect(form['isEssentialAcaCoverage']).to eq(nil)
           expect(form['vaMedicalFacility']).to eq(nil)
-          # If the 'veteranDateOfBirth', 'veteranFullName', and/or 'veteranSocialSecurityNumber' fields are missing
+          # If the 'veteranDateOfBirth', 'veteranFullName', 'veteranSocialSecurityNumber', and/or 'gender' fields are missing
           # from the parsed_form, they should get added in via the 'post_fill_user_fields' method and pass validation
-          form.delete('veteranDateOfBirth')
-          form.delete('veteranFullName')
-          form.delete('veteranSocialSecurityNumber')
+          [
+            'veteranDateOfBirth',
+            'veteranFullName',
+            'veteranSocialSecurityNumber',
+            'gender'
+          ].each { |key| form.delete(key) }
+
+          debugger
 
           submission_response = submit_form(form)
 
