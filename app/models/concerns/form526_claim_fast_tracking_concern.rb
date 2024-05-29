@@ -174,7 +174,6 @@ module Form526ClaimFastTrackingConcern
   end
 
   def update_form_with_classification_codes(classified_contentions)
-    puts "updating form with classification codes #{classified_contentions}"
     classified_contentions.each_with_index do |classified_contention, index|
       classification_code = classified_contention['classification_code']
       if classified_contentions[index]['classification_code'].present?
@@ -219,7 +218,8 @@ module Form526ClaimFastTrackingConcern
           classification_name: contention['classification_name']
         }
       end
-      # note: claim_type is actually type of contention, but formatting preserved in order to match existing datadog dashboard
+      # NOTE: claim_type is actually type of contention, but formatting
+      # preserved in order to match existing datadog dashboard
       Rails.logger.info('Classified 526Submission',
                         id:, saved_claim_id:, classification:,
                         claim_type: contention['contention_type'])
@@ -227,7 +227,7 @@ module Form526ClaimFastTrackingConcern
     update_form_with_classification_codes(classifier_response['contentions'])
   end
 
-  # Submits contention information to the VRO contention classification 
+  # Submits contention information to the VRO contention classification
   # service for single-contention claims.
   #
   # note: this method is only used for single-contention claims and is
