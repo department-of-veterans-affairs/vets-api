@@ -42,7 +42,7 @@ module BGSClientSpecHelpers
   #   - Cassette matching will be done on canonicalized XML bodies, so
   #     reformatting cassettes for human readability won't defeat matching
   #
-  def use_bgs_cassette(name, &)
+  def use_bgs_cassette(name, options = {}, &)
     metadata = RSpec.current_example.metadata[:bgs].to_h
     service, action = metadata.values_at(:service, :action)
 
@@ -54,11 +54,11 @@ module BGSClientSpecHelpers
     end
 
     name = File.join('claims_api/bgs', service, action, name)
-    use_soap_cassette(name, &)
+    use_soap_cassette(name, options.with_defaults(VCR_OPTIONS), &)
   end
 
-  def use_soap_cassette(name, &)
-    VCR.use_cassette(name, VCR_OPTIONS, &)
+  def use_soap_cassette(name, options = {}, &)
+    VCR.use_cassette(name, options.with_defaults(VCR_OPTIONS), &)
   end
 end
 
