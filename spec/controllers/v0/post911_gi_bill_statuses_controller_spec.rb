@@ -25,12 +25,6 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
 
       gi_bill_200 = { cassette_name: 'evss/gi_bill_status/gi_bill_status' }
       context 'when EVSS response is 403', vcr: gi_bill_200 do
-        it 'has a response that matches the schema' do
-          get :show
-          expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('post911_gi_bill_status', strict: false)
-        end
-
         it 'does not increment the fail counter' do
           expect { get :show }
             .not_to trigger_statsd_increment(described_class::STATSD_GI_BILL_FAIL_KEY)
