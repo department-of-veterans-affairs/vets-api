@@ -23,7 +23,7 @@ module ClaimsApi
 
           {
             metadata: {
-              totalCount: total_count,
+              total_count:,
               query:
             },
             data:

@@ -68,22 +68,13 @@ module Vye
       @open_cert_payment_date = nil
     end
 
-    # rubocop:disable Metrics/ParameterLists
-    def push_enrollment(
-      award_id:, act_begin:, act_end:,
-      number_hours:, monthly_rate:, payment_date:, trace:
-    )
+    def push_enrollment(**attributes)
       @enrollments.push(
-        Verification.build(
-          user_profile:,
-          award_id:, act_begin:, act_end:,
-          number_hours:, monthly_rate:, payment_date:, trace:
-        )
+        Verification.build(user_profile:, **attributes)
       )
 
       true
     end
-    # rubocop:enable Metrics/ParameterLists
 
     def eval_case_eom
       return unless dlc_before_ldpm?

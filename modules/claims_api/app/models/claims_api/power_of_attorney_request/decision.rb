@@ -7,7 +7,7 @@ module ClaimsApi
         :status,
         :representative,
         :declined_reason,
-        :updated_at
+        :created_at
       )
 
       module Statuses
@@ -17,6 +17,16 @@ module ClaimsApi
           ACCEPTED = 'Accepted',
           DECLINED = 'Declined'
         ].freeze
+      end
+
+      class << self
+        def find(id)
+          Find.perform(id)
+        end
+
+        def create(id, decision)
+          Create.perform(id, decision)
+        end
       end
 
       Representative =
