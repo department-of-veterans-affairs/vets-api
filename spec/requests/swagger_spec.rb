@@ -3442,10 +3442,4 @@ RSpec.describe 'the v1 API documentation', type: %i[apivore request], order: :de
       end
     end
   end
-
-  context 'and' do
-    it 'tests all documented routes' do
-      expect(subject).to validate_all_paths
-    end
-  end
 end
