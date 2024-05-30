@@ -5,27 +5,18 @@ module ClaimsApi
     class << self
       ##
       # @param action [BGSClient::Definitions::Action]
-      # @param body [String, #to_xml, #to_s] (nil)
       # @param external_id [BGSClient::ExternalId] (BGSClient::ExternalId::DEFAULT)
       #
-      # @yield [xml, data_aliaz] rather than pass in the `body` as a param, the
-      #   caller can instead choose to build a body using the xml builder helper
-      #   and data namespace alias that we yield
+      # @yield [xml, data_aliaz]
       # @yieldparam xml [Nokogiri::XML::Builder]
       # @yieldparam data_aliaz [String]
       #
       # @return [Hash]
       #
-      # @raise [BGSClient::Error, ArgumentError]
-      #   One and only one of `body` or `block` is required.
+      # @raise [BGSClient::Error]
       #
-      def perform_request(
-        action, body = nil,
-        external_id: ExternalId::DEFAULT, &
-      )
-        const_get(:Request)
-          .new(action, external_id:)
-          .perform(body, &)
+      def perform_request(action, external_id: ExternalId::DEFAULT, &)
+        const_get(:Request).new(action, external_id:).perform(&)
       end
 
       ##
