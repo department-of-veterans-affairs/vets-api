@@ -55,7 +55,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
     end
   end
 
-  describe 'with every param invalid' do
+  describe 'with every param invalid in almost all ways' do
     let(:params) do
       # These params with `nil` values are generated from this query string:
       #   `?filter[statuses][]=NotAStatus&sort[field]&sort[order]&page[size]=whoops&page[number]`
@@ -116,7 +116,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                 'sort' => {
                   'field' => [
                     'must be a string',
-                    'must be one of: submittedAt'
+                    'must be one of: createdAt'
                   ],
                   'order' => [
                     'must be a string',
@@ -137,6 +137,54 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                 'sort' => {
                   'field' => nil,
                   'order' => nil
+                }
+              }
+            }
+          }
+        ]
+      )
+    end
+  end
+
+  describe 'with a blank poaCode string value' do
+    let(:params) do
+      {
+        'filter' => {
+          'poaCodes' => [
+            ''
+          ]
+        }
+      }
+    end
+
+    it 'explains that it is bad request' do
+      mock_ccg(scopes) do
+        subject
+      end
+
+      expect(subject.response).to(
+        have_http_status(:bad_request)
+      )
+
+      expect(subject.body).to eq(
+        'errors' => [
+          {
+            'title' => 'Bad request',
+            'detail' => {
+              'errors' => {
+                'filter' => {
+                  'poaCodes' => {
+                    '0' => [
+                      'must be filled'
+                    ]
+                  }
+                }
+              },
+              'params' => {
+                'filter' => {
+                  'poaCodes' => [
+                    ''
+                  ]
                 }
               }
             }
@@ -187,7 +235,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             'number' => 1
           },
           'sort' => {
-            'field' => 'submittedAt',
+            'field' => 'createdAt',
             'order' => 'desc'
           }
         }
@@ -214,7 +262,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           'size' => 5
         },
         'sort' => {
-          'field' => 'submittedAt',
+          'field' => 'createdAt',
           'order' => 'asc'
         }
       }
@@ -236,28 +284,30 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
       )
 
       expect(subject.body['data'].first).to eq(
-        'id' => 3_854_197,
+        'id' => '600061742_3854197',
         'type' => 'powerOfAttorneyRequest',
         'attributes' => {
-          'status' => 'Accepted',
-          'declinedReason' => nil,
           'powerOfAttorneyCode' => '074',
-          'submittedAt' => '2024-03-08T13:56:37Z',
-          'acceptedOrDeclinedAt' => '2024-03-08T14:10:41Z',
+          'createdAt' => '2024-03-08T13:56:37Z',
           'isAddressChangingAuthorized' => true,
           'isTreatmentDisclosureAuthorized' => true,
           'veteran' => {
             'firstName' => 'WESLEY',
             'middleName' => 'WATSON',
             'lastName' => 'FORD',
-            'participantId' => 600_061_742
-          },
-          'representative' => {
-            'firstName' => 'BEATRICE',
-            'lastName' => 'STROUD',
-            'email' => 'Beatrice.Stroud44@va.gov'
+            'participantId' => '600061742'
           },
           'claimant' => nil,
+          'decision' => {
+            'status' => 'Accepted',
+            'declinedReason' => nil,
+            'createdAt' => '2024-03-08T14:10:41Z',
+            'representative' => {
+              'firstName' => 'BEATRICE',
+              'lastName' => 'STROUD',
+              'email' => 'Beatrice.Stroud44@va.gov'
+            }
+          },
           'claimantAddress' => {
             'city' => 'WASHINGTON',
             'state' => 'DC',
@@ -347,7 +397,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               'number' => 1
             },
             'sort' => {
-              'field' => 'submittedAt',
+              'field' => 'createdAt',
               'order' => 'desc'
             }
           }
@@ -407,7 +457,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               'number' => 100
             },
             'sort' => {
-              'field' => 'submittedAt',
+              'field' => 'createdAt',
               'order' => 'desc'
             }
           }
@@ -461,7 +511,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               'number' => 1
             },
             'sort' => {
-              'field' => 'submittedAt',
+              'field' => 'createdAt',
               'order' => 'desc'
             }
           }

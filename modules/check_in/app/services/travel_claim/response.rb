@@ -10,7 +10,7 @@ module TravelClaim
     CODE_APPT_NOT_FOUND = 'CLM_003_APPOINTMENT_NOT_FOUND'
     CODE_INVALID_AUTH = 'CLM_020_INVALID_AUTH'
     CODE_SUBMISSION_ERROR = 'CLM_010_CLAIM_SUBMISSION_ERROR'
-
+    CODE_BTSSS_TIMEOUT = 'CLM_011_CLAIM_TIMEOUT_ERROR'
     def self.build(opts = {})
       new(opts)
     end
@@ -26,11 +26,10 @@ module TravelClaim
       rescue
         body
       end
-
       case status
       when 200
         { data: response_body.merge(code: CODE_SUCCESS), status: }
-      when 400, 401, 404
+      when 400, 401, 404, 408
         { data: error_data(message: response_body[:message]), status: }
       else
         { data: unknown_error_data, status: }
@@ -53,6 +52,8 @@ module TravelClaim
                      CODE_APPT_NOT_FOUND
                    when /unauthorized/i
                      CODE_INVALID_AUTH
+                   when /timeout/i
+                     CODE_BTSSS_TIMEOUT
                    else
                      CODE_SUBMISSION_ERROR
                    end

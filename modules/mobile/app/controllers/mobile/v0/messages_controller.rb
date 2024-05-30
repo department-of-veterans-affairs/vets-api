@@ -133,7 +133,7 @@ module Mobile
           message.sent_date
         end
 
-        if bad_sort_flag || nil_counter.positive?
+        if bad_sort_flag || nil_sent_dates_count.positive?
           Rails.logger.info('Mobile Message Bad Sort', sent_dates:, bad_sort_flag:, nil_sent_dates_count:)
         end
       rescue => e

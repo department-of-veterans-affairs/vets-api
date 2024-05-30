@@ -6,7 +6,7 @@ require 'feature_flipper'
 
 RSpec.describe SavedClaim::EducationBenefits::VA10203 do
   let(:instance) { build(:va10203, education_benefits_claim: create(:education_benefits_claim)) }
-  let(:user) { create(:evss_user) }
+  let(:user) { create(:user) }
   let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
 
   it_behaves_like 'saved_claim'
@@ -20,6 +20,21 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
   end
 
   describe '#after_submit' do
+    let(:service) { instance_double(BenefitsEducation::Service) }
+
+    before do
+      allow(BenefitsEducation::Service).to receive(:new).and_return(service)
+      allow(service).to receive(:get_gi_bill_status).and_return({})
+    end
+
+    it 'calls get_gi_bill_status on the service' do
+      instance.after_submit(user)
+      expect(service).to have_received(:get_gi_bill_status)
+      # service created once to get gi bill status,
+      # once to calculate remaining entitlement (for debugging in non-production environment)
+      expect(BenefitsEducation::Service).to have_received(:new).with(user.icn).exactly(2).times
+    end
+
     context 'sends email confirmation via VANotify (with feature flag)' do
       it 'is skipped when feature flag is turned off' do
         Flipper.disable(:form21_10203_confirmation_email)

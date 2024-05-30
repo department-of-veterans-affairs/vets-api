@@ -11,6 +11,14 @@ module SimpleFormsApi
       @data = data
     end
 
+    def desired_stamps
+      [{
+        coords: [[35, 220]],
+        text: data['statement_of_truth_signature'],
+        page: 1
+      }]
+    end
+
     def submission_date_stamps
       []
     end

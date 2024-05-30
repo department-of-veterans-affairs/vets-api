@@ -8,6 +8,7 @@ module ClaimsApi
   module V2
     class DisabilityCompensationDockerContainerUpload < ClaimsApi::ServiceBase
       LOG_TAG = '526_v2_Docker_Container_job'
+      sidekiq_options expires_in: 48.hours, retry: true
 
       def perform(claim_id) # rubocop:disable Metrics/MethodLength
         log_job_progress(claim_id,
@@ -47,10 +48,9 @@ module ClaimsApi
         log_job_progress(claim_id,
                          "Docker container job errored #{e.class}: #{auto_claim&.evss_response}")
         log_exception_to_sentry(e)
-        # if will_retry?
         if will_retry?(auto_claim, e)
           raise e
-        else # form526.submit.noRetryError OR form526.InProcess error retruned
+        else # form526.submit.noRetryError OR form526.InProcess error returned
           {}
         end
       rescue => e
