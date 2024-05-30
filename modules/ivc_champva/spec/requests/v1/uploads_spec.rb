@@ -92,7 +92,7 @@ RSpec.describe 'Forms uploader', type: :request do
       end
     # rubocop:disable Style/HashSyntax, Layout/IndentationConsistency
     it 'returns the correct attachment IDs and form object' do
-      post ivc_champva_v1_forms_path, params: { form_number: form_number }
+      post ivc_champva.v1_forms_path, params: { form_number: form_number }
       attachment_ids, form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
       expect(attachment_ids).to include(form_class.new({}).form_id)
       expect(attachment_ids).to include('doc1')
@@ -106,7 +106,7 @@ RSpec.describe 'Forms uploader', type: :request do
       let(:parsed_form_data) { { 'form_number' => form_number } }
 
       it 'returns only the form ID in attachment_ids' do
-        post ivc_champva_v1_forms_path, params: { form_number: form_number }
+        post ivc_champva.v1_forms_path, params: { form_number: form_number }
         attachment_ids, _form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
         expect(attachment_ids).to eq([form_class.new({}).form_id])
       end
