@@ -5,6 +5,7 @@ require 'hca/overrides_parser'
 
 module VA1010Forms
   module Utils
+    include ActionView::Helpers::NumberHelper
     def es_submit(parsed_form, form_id)
       formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user, form_id)
       submission_body = submission_body(formatted)
@@ -53,7 +54,7 @@ module VA1010Forms
       attachment_count = formatted_form['va:form']['va:attachments']&.length || 0
 
       Rails.logger.info("Payload for submitted #{form_name}: " \
-                        "Body size of #{submission_body.bytesize} bytes " \
+                        "Body size of #{number_to_human_size(submission_body.bytesize)} " \
                         "with #{attachment_count} attachment(s)")
     end
   end

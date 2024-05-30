@@ -40,7 +40,7 @@ describe HCA::Service do
       end.to raise_error(error)
 
       expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZ: ' \
-                                                        'Body size of 12783 bytes with 0 attachment(s)')
+                                                        'Body size of 12.5 KB with 0 attachment(s)')
     end
 
     context 'logs submission payload size' do
@@ -52,7 +52,7 @@ describe HCA::Service do
           result = HCA::Service.new.submit_form(get_fixture('hca/short_form'))
           expect(result[:success]).to eq(true)
           expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZ: ' \
-                                                            'Body size of 5285 bytes with 0 attachment(s)')
+                                                            'Body size of 5.16 KB with 0 attachment(s)')
         end
       end
     end
@@ -190,7 +190,7 @@ describe HCA::Service do
           result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
           expect(result[:success]).to eq(true)
           expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZ: ' \
-                                                            'Body size of 16375 bytes with 2 attachment(s)')
+                                                            'Body size of 16 KB with 2 attachment(s)')
         end
       end
 
