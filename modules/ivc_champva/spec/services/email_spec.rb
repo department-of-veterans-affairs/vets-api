@@ -39,7 +39,8 @@ RSpec.describe IvcChampva::Email, type: :service do
             'file_names' => data[:file_names],
             'pega_status' => data[:pega_status],
             'updated_at' => data[:updated_at]
-          }
+          },
+          Settings.vanotify.services.ivc_champva.api_key
         )
         subject.send_email
       end
