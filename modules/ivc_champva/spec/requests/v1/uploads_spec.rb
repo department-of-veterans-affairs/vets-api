@@ -83,11 +83,11 @@ RSpec.describe 'Forms uploader', type: :request do
     shared_examples 'returns the correct attachment IDs and form object' do |form_number, form_class|
       let(:parsed_form_data) do
         {
-        'form_number' => form_number,
-        'supporting_docs' => [
-          { 'attachment_id' => 'doc1' },
-          { 'attachment_id' => 'doc2' }
-        ]
+          'form_number' => form_number,
+          'supporting_docs' => [
+            { 'attachment_id' => 'doc1' },
+            { 'attachment_id' => 'doc2' }
+          ]
         }
       end
     # rubocop:disable Style/HashSyntax, Layout/IndentationConsistency
