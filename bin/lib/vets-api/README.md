@@ -44,7 +44,7 @@ Run `bin/test --help` for usage info and example
 
 Run `bin/lint --help` for usage info and example 
 
-### bin/dcoker
+### bin/docker
 
 - Replaces Makefile commands
 - Commands include:
