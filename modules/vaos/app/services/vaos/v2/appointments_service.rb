@@ -24,6 +24,7 @@ module VAOS
       APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
       APPOINTMENTS_ENABLE_OH_READS = :va_online_scheduling_enable_OH_reads
 
+      # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
         params = date_params(start_date, end_date)
                  .merge(page_params(pagination_params))
@@ -53,6 +54,7 @@ module VAOS
           }
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def get_appointment(appointment_id)
         params = {}
