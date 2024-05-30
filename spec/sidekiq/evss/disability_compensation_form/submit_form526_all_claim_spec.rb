@@ -299,12 +299,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         expect do
           VCR.use_cassette('virtual_regional_office/multi_contention_classification') do
             described_class.drain
-            submission.reload
-
-            classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
-            expect(classification_codes).to eq([9012, 8994, nil])
           end
         end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+        submission.reload
+
+        classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
+        expect(classification_codes).to eq([9012, 8994, nil])
       end
 
       it 'calls va-gov-claim-classifier' do
