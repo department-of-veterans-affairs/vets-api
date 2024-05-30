@@ -6,7 +6,7 @@ module VANotify
     include SentryLogging
     sidekiq_options retry: 14
 
-    sidekiq_retries_exhausted do |msg, _ex|
+    sidekiq_retries_exhausted do |_msg, _ex|
       ::Rails.logger.error(
         'Failure in VANotify::EmailJob#sidekiq_retries_exhausted'
       )
