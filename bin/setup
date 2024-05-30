@@ -6,7 +6,7 @@ require 'rake'
 
 def help_message
   puts <<~HELP
-    ** A setup (.e.g., --native) is required **
+    ** A setup (.e.g., native) is required and must be the first argument **
 
     Usage:
       bin/setup [setup]
@@ -15,22 +15,22 @@ def help_message
       --help, -h            Display help message for 'setup'
 
     Setups:
-      --native              Setup native developer environment
-      --docker              Setup Docker developer environment
-      --hybrid              Setup hybrid developer environment
-      --base                Setup local settings and Sidekiq Enterprise
+      native              Setup native developer environment
+      docker              Setup Docker developer environment
+      hybrid              Setup hybrid developer environment
+      base                Setup local settings and Sidekiq Enterprise
 
     Examples:
       bin/setup --help      Show help message
-      bin/setup --docker    Setup Docker developer environment
-      bin/setup --base      This is useful for those running Linux or Windows
+      bin/setup docker    Setup Docker developer environment
+      bin/setup base      This is useful for those running Linux or Windows
   HELP
 end
 
 option = ARGV.first
 if ARGV.include?('--help') || ARGV.include?('-h')
   help_message
-elsif ['--native', '--docker', '--hybrid', '--base'].include?(option)
+elsif ['native', 'docker', 'hybrid', 'base'].include?(option)
   VetsApi::Commands::Setup.run(ARGV)
 else
   puts "Invalid setup option \"#{option || 'NULL'}\""
