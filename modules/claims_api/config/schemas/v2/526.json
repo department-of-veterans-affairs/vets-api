@@ -1044,6 +1044,11 @@
       "type": "boolean",
       "description": "Claimant certifies and authorizes release of information.",
       "default": false
+    },
+    "claimNotes": {
+      "type": "string",
+      "description": "An optional notes section.",
+      "maxLength": 4000
     }
   }
 }

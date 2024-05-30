@@ -48,8 +48,10 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         claim_process_type = pdf_data[:data][:attributes][:claimProcessType]
+        claim_notes = pdf_data[:data][:attributes][:claimNotes]
 
         expect(claim_process_type).to eq('STANDARD_CLAIM_PROCESS')
+        expect(claim_notes).to eq('Some things that are important to know, and are not included in any other place.')
       end
 
       describe 'when the claimProcessType is BDD_PROGRAM' do

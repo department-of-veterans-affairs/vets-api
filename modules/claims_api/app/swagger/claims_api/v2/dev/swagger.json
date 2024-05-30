@@ -2424,6 +2424,11 @@
                               "description": "Claimant certifies and authorizes release of information.",
                               "default": false
                             },
+                            "claimNotes": {
+                              "type": "string",
+                              "description": "An optional notes section.",
+                              "maxLength": 4000
+                            },
                             "claimId": {
                               "type": "string",
                               "example": "600517517"
@@ -3724,6 +3729,11 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
+                          },
+                          "claimNotes": {
+                            "type": "string",
+                            "description": "An optional notes section.",
+                            "maxLength": 4000
                           }
                         }
                       }
@@ -4243,7 +4253,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bc1d7188-ab00-44f1-b750-deca551305ff",
+                    "id": "8ed58c63-2737-4fbf-a1bb-8b5d79286e0f",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -4425,7 +4435,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-05-26"
+                          "anticipatedSeparationDate": "2024-06-01"
                         },
                         "confinements": [
                           {
@@ -5603,6 +5613,11 @@
                               "description": "Claimant certifies and authorizes release of information.",
                               "default": false
                             },
+                            "claimNotes": {
+                              "type": "string",
+                              "description": "An optional notes section.",
+                              "maxLength": 4000
+                            },
                             "claimId": {
                               "type": "string",
                               "example": "600517517"
@@ -6903,6 +6918,11 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
+                          },
+                          "claimNotes": {
+                            "type": "string",
+                            "description": "An optional notes section.",
+                            "maxLength": 4000
                           }
                         }
                       }
@@ -8745,6 +8765,11 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
+                          },
+                          "claimNotes": {
+                            "type": "string",
+                            "description": "An optional notes section.",
+                            "maxLength": 4000
                           }
                         }
                       }
@@ -9014,7 +9039,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5930ed85-bbe6-41cb-85f7-1f05232d7d62",
+                    "id": "3e0b168e-e2a1-4ae6-ae82-bcf127adb44b",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -10653,6 +10678,20 @@
                                   "default": false,
                                   "nullable": true
                                 },
+                                "specialIssues": {
+                                  "type": "array",
+                                  "nullable": true,
+                                  "uniqueItems": true,
+                                  "items": {
+                                    "maxItems": 2,
+                                    "additionalProperties": false,
+                                    "type": "string",
+                                    "enum": [
+                                      "POW",
+                                      "EMP"
+                                    ]
+                                  }
+                                },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                   "type": "array",
@@ -11830,8 +11869,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-05-24",
-                      "expirationDate": "2025-05-24",
+                      "creationDate": "2024-05-30",
+                      "expirationDate": "2025-05-30",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -12710,7 +12749,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "aa8c9ccb-358a-4d09-8daf-680f3ca74ad7",
+                    "id": "ffd59642-3899-46ad-801f-66cdc1668bb5",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13406,7 +13445,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d6c2cdcd-35b0-4b70-8257-bd4474e1808b",
+                    "id": "7d3c0b35-73c1-4563-9860-43a2485ea0bb",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15366,11 +15405,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "025ca847-79de-4bc8-815e-4ceda70d7ef1",
+                    "id": "012dfe7d-662e-47ea-a0b0-f36927838872",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-05-24",
+                      "dateRequestAccepted": "2024-05-30",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
