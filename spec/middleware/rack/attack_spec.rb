@@ -162,7 +162,7 @@ RSpec.describe Rack::Attack do
         expect(last_response.status).not_to eq(429)
       end
 
-      get endpoint, nil, other_headers
+      post endpoint, nil, other_headers
     end
 
     context 'response status for repeated requests from the same IP' do
