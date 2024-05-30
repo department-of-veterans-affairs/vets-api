@@ -214,7 +214,7 @@ RSpec.describe Rack::Attack do
   end
 
   describe 'facilities_api/v2/ccp/ip' do
-    let(:endpoint) { '/facilities_api/v2/ccp' }
+    let(:endpoint) { '/facilities_api/v2/ccp/provider' }
     let(:headers) { { 'X-Real-Ip' => '1.2.3.4' } }
     let(:limit) { 8 }
 
