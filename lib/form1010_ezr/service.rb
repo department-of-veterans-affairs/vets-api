@@ -37,7 +37,7 @@ module Form1010Ezr
 
     def submit_sync(parsed_form)
       res = with_monitoring do
-        es_submit(parsed_form, FORM_ID)
+        es_submit(parsed_form, @user, FORM_ID)
       end
 
       # Log the 'formSubmissionId' for successful submissions
