@@ -89,10 +89,7 @@ module VetsApi
 
         print 'Enter Sidekiq Enterprise License or press enter/return to skip: '
         response = $stdin.gets.chomp
-        key_regex = /\A[0-9a-fA-F]{8}:[0-9a-fA-F]{8}\z/
-
-
-        if response && key_regex.match?(response)
+        if response && /\A[0-9a-fA-F]{8}:[0-9a-fA-F]{8}\z/.match?(response)
           print 'Setting Sidekiq Enterprise License... '
           ShellCommand.run_quiet("bundle config enterprise.contribsys.com #{response}")
           if RbConfig::CONFIG['host_os'] =~ /mswin|msys|mingw|cygwin/i

@@ -47,9 +47,9 @@ module VetsApi
 
       def install_postgres
         if ShellCommand.run_quiet('pg_isready') && ShellCommand.run_quiet('pg_config')
-          puts "Skipping Postgres install (already running)"
+          puts 'Skipping Postgres install (already running)'
         elsif ShellCommand.run_quiet('pg_config')
-          puts "ERROR:"
+          puts 'ERROR:'
           puts "\nMake sure postgres is running before continuing"
           exit 1
         else
