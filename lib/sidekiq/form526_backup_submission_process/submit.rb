@@ -85,7 +85,7 @@ module Sidekiq
         submission.deliver_to_backup!
       rescue => e
         ::Rails.logger.warn(
-          message: "Form 526 backup submission failure. retrying...",
+          message: 'Form 526 backup submission failure. retrying...',
           error_message: e.message,
           backtrace: e.backtrace,
           submission_id: form526_submission_id
