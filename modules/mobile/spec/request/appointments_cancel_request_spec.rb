@@ -43,8 +43,6 @@ RSpec.describe 'appointments', type: :request do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
               put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
 
-              puts response.body
-
               expect(response).to have_http_status(:no_content)
             end
           end
@@ -64,8 +62,6 @@ RSpec.describe 'appointments', type: :request do
                              match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
                 put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
-
-                puts response.body
 
                 expect(response).to have_http_status(:no_content)
               end
