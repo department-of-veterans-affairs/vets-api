@@ -133,11 +133,11 @@ module Form1010Ezr
       }
 
       required_user_form_fields.each do |key, value|
-        next if parsed_form["#{key}"].present?
+        next if parsed_form[key].present?
 
         StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.missing_#{key.underscore}")
 
-        parsed_form["#{key}"] = value
+        parsed_form[key] = value
       end
     end
 
