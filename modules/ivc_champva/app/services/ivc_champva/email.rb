@@ -22,7 +22,8 @@ module IvcChampva
             'file_names' => data[:file_names],
             'pega_status' => data[:pega_status],
             'updated_at' => data[:updated_at]
-          }
+          },
+          Settings.vanotify.services.ivc_champva.api_key
         )
       rescue => e
         Rails.logger.error "Pega Status Update Email Error: #{e.message}"
