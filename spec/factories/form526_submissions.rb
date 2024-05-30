@@ -191,7 +191,6 @@ FactoryBot.define do
     form_json do
       json_string = File.read("#{submissions_path}/only_526_mixed_action_disabilities_and_free_text.json")
       json = JSON.parse json_string
-      # disabilities = json.dig('form526', 'form526', 'disabilities')
       json.to_json
     end
   end
