@@ -269,8 +269,14 @@ describe VAOS::V2::AppointmentsService do
       describe 'provider names' do
         context 'with a proposed, cc appointment that has a us-npi provider id' do
           it 'fetches the provider name from upstream' do
+
+            'spec/support/vcr_cassettes/vaos/v2/appointments/get_appointments_200_cc_proposed.yml'
+
+
+            erb_template_params = {service: 'vaos', start_date: '2022-01-01T19:25:00Z', end_date: '2022-12-01T19:45:00Z' }
             allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility_with_cache).and_return(nil)
             VCR.use_cassette('vaos/v2/appointments/get_appointments_with_mixed_provider_types',
+                             erb: erb_template_params,
                              match_requests_on: %i[method path query]) do
               VCR.use_cassette('vaos/v2/mobile_ppms_service/get_provider_200', match_requests_on: %i[method uri],
                                                                                tag: :force_utf8) do
@@ -517,6 +523,10 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe '#get_appointment' do
+    let(:provider_response) do
+      OpenStruct.new({ 'providerIdentifier' => '1407938061', 'name' => 'DEHGHAN, AMIR' })
+    end
+
     context 'using VAOS' do
       before do
         Flipper.disable(:va_online_scheduling_enable_OH_reads)
@@ -573,6 +583,18 @@ describe VAOS::V2::AppointmentsService do
             response = subject.get_appointment('159472')
             expect(response[:service_type]).to be_nil
             expect(response[:service_types]).to be_nil
+          end
+        end
+      end
+
+      # the mix of vcr and mocking is killing me.
+      context 'when the upstream server returns a 500' do
+        it 'raises a backend exception' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_cc_proposed_with_facility_200', match_requests_on: %i[method path query]) do
+            allow_any_instance_of(VAOS::V2::MobilePPMSService).to \
+            receive(:get_provider_with_cache).with('1407938061').and_return(provider_response)
+            response = subject.get_appointment('81063')
+            expect(response.preferred_provider_name).to eq("DEHGHAN, AMIR")
           end
         end
       end
