@@ -259,7 +259,7 @@ module VBADocuments
     def clear_resolved_error
       # before persisting, check if the upload is moving from an error state to
       # to a non-error state and clear out the old error fields
-      if self.status_changed?(from: 'error')
+      if status_changed?(from: 'error')
         self.code = nil
         self.detail = nil
       end

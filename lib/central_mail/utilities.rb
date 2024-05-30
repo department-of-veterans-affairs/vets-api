@@ -19,7 +19,6 @@ module CentralMail
     MISSING_ZIP_CODE_ERROR_MSG = 'Missing ZIP Code. ZIP Code must be 5 digits, ' \
                                  'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
 
-
     def log_submission(uploaded_object, metadata)
       number_pages = metadata.select { |k, _| k.to_s.start_with?('numberPages') }
       page_total = number_pages.reduce(0) { |sum, (_, v)| sum + v }
