@@ -12,20 +12,15 @@ module ClaimsApi
     private_constant :Request
 
     class Request
-      def initialize(action:, external_id:)
+      def initialize(action, external_id:)
         @action = action
         @external_id = external_id
       end
 
-      def perform(body, &)
-        unless [body, block_given?].one? # blank string is counted
-          error_message = 'One and only one of `body` or `block` is required'
-          raise ArgumentError, error_message
-        end
-
+      def perform(&)
         body =
           log_duration('built_request') do
-            body ||= Envelope::Body.build(&)
+            body = Envelope::Body.build(&)
             build_request(body)
           end
 
@@ -52,8 +47,7 @@ module ClaimsApi
           )
 
         Envelope.build(
-          namespace: @action.service.bean.namespace,
-          data_namespace: @action.service.bean.data_namespace,
+          namespaces: @action.service.bean.namespaces,
           action: @action.name,
           headers:,
           body:
@@ -96,8 +90,10 @@ module ClaimsApi
           )
         end
 
-        key = "#{@action.name}Response"
-        body[key].to_h
+        body.dig(
+          "#{@action.name}Response",
+          @action.key
+        ).to_h
       end
 
       # The underlying Faraday exceptions will be the `#cause` of our wrapped

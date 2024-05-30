@@ -525,6 +525,10 @@ features:
     actor_type: user
     description: Enables form 1990e email submission confirmation (VaNotify)
     enable_in_development: true
+  form21_0966_confirmation_email:
+    actor_type: user
+    description: Enables form 21-0966 email submission confirmation (VaNotify)
+    enable_in_development: true
   form21_0972_confirmation_email:
     actor_type: user
     description: Enables form 21-0972 email submission confirmation (VaNotify)
@@ -1230,6 +1234,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for redesigning the appointment details page.
+  va_online_scheduling_recent_locations_filter:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for displaying the most recent facilities on the Choose your VA location page.
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
@@ -1487,3 +1495,7 @@ features:
   toggle_vye_adress_direct_deposit_forms:
     actor_type: user
     description: Enable mailing address and direct deposit for VYE
+  veteran_readiness_employment_to_res:
+    actor_type: user
+    description: Enable RES platform for Veteran Readiness & Employment form submissions, disabled will use VRE email
+    enable_in_development: true
