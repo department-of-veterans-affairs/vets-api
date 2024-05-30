@@ -14,7 +14,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
   let(:veteran) { ClaimsApi::Veteran.new }
 
   path '/veterans/{veteranId}/526', vcr: 'claims_api/disability_comp' do
-    post 'Submits form 526' do
+    post 'Asynchronously establishes disability compensation claim' do
       tags 'Disability Compensation Claims'
       operationId 'post526Claim'
       security [

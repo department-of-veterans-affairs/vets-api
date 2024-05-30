@@ -1246,7 +1246,7 @@
     },
     "/veterans/{veteranId}/526": {
       "post": {
-        "summary": "Submits form 526",
+        "summary": "Asynchronously establishes disability compensation claim",
         "tags": [
           "Disability Compensation Claims"
         ],
@@ -5929,7 +5929,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "37f18535-cf89-44a4-a5d5-704ef1b6e7e0",
+                    "id": "e5cab8ae-80b1-471b-b8a8-8df415340c03",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -8792,8 +8792,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-05-29",
-                      "expirationDate": "2025-05-29",
+                      "creationDate": "2024-05-30",
+                      "expirationDate": "2025-05-30",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -9669,7 +9669,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7d717d4b-7279-4ce1-a467-2148f9d28509",
+                    "id": "7b5691d4-898f-469c-bf0f-0837115bbfda",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -10362,7 +10362,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "053a2937-4e27-41d3-838f-f7455029d89a",
+                    "id": "f1ced04d-bd82-4cbb-b57e-af65bc40aea2",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12313,11 +12313,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8a5c88dd-8882-48fa-9f2e-99413ed4551c",
+                    "id": "049cce04-ec9c-4b1b-80f9-abe30ae3c26b",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-05-29",
+                      "dateRequestAccepted": "2024-05-30",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
