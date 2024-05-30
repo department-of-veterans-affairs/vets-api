@@ -5,6 +5,7 @@ require 'claims_api/common/exceptions/lighthouse/json_validation_error'
 require 'claims_api/common/exceptions/lighthouse/json_disability_compensation_validation_error'
 require 'claims_api/common/exceptions/lighthouse/unprocessable_entity'
 require 'claims_api/common/exceptions/lighthouse/resource_not_found'
+require 'claims_api/common/exceptions/lighthouse/bad_request'
 
 module ClaimsApi
   module V2
@@ -35,7 +36,8 @@ module ClaimsApi
               )
             end
 
-            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity do |err|
+            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity,
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::BadRequest do |err|
               render_error(err)
             end
             rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError do |errs|
