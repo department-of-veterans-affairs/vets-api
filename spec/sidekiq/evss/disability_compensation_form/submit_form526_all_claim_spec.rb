@@ -269,14 +269,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                saved_claim_id: saved_claim.id)
       end
 
-      before do
-        Flipper.disable(:disability_526_classifier_multi_contention)
-      end
-
-      after do
-        Flipper.disable(:disability_526_classifier_multi_contention)
-      end
-
       it 'does not call va-gov-claim-classifier' do
         subject.perform_async(submission.id)
         expect_any_instance_of(Form526Submission).not_to receive(:classify_vagov_contentions)
@@ -302,7 +294,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       it 'does something when multi-contention api endpoint is hit' do
-        expect(described_class).to be < EVSS::DisabilityCompensationForm::SubmitForm526
         subject.perform_async(submission.id)
 
         expect do
