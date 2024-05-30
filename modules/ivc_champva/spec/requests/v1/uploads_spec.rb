@@ -83,14 +83,14 @@ RSpec.describe 'Forms uploader', type: :request do
     shared_examples 'returns the correct attachment IDs and form object' do |form_number, form_class|
     let(:parsed_form_data) do
       {
-      'form_number' => form_number,
-        'supporting_docs' => [
+        'form_number' => form_number,
+          'supporting_docs' => [
             { 'attachment_id' => 'doc1' },
             { 'attachment_id' => 'doc2' }
-        ]
+          ]
       }
     end
-    # rubocop:disable Style/HashSyntax, Layout/IndentationConsistency 
+    # rubocop:disable Style/HashSyntax
     it 'returns the correct attachment IDs and form object' do
       post ivc_champva_v1_forms_path, params: { form_number: form_number }
       attachment_ids, form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
@@ -111,17 +111,18 @@ RSpec.describe 'Forms uploader', type: :request do
         expect(attachment_ids).to eq([form_class.new({}).form_id])
       end
     end
-  end
-  # rubocop:enable Style/HashSyntax, Layout/IndentationConsistency
-
-  form_numbers = [
-    ['10-10D', IvcChampva::VHA1010d],
-    ['10-7959C', IvcChampva::VHA107959c]
-  ]
-  form_numbers.each do |form_number, form_class|
-    context "when form_number is #{form_number}" do
-    include_examples 'returns the correct attachment IDs and form object', form_number, form_class
+    end
+  # rubocop:enable Style/HashSyntax
+  # rubocop:disable Layout/IndentationConsistency
+    form_numbers = [
+      ['10-10D', IvcChampva::VHA1010d],
+      ['10-7959C', IvcChampva::VHA107959c]
+    ]
+    form_numbers.each do |form_number, form_class|
+      context "when form_number is #{form_number}" do
+        include_examples 'returns the correct attachment IDs and form object', form_number, form_class
+      end
     end
   end
-  end
+  # rubocop:enable Layout/IndentationConsistency
 end
