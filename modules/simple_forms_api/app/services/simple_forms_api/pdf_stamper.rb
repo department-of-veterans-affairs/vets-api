@@ -4,7 +4,7 @@ require 'central_mail/datestamp_pdf'
 
 module SimpleFormsApi
   class PdfStamper
-    FORM_REQUIRES_STAMP = %w[26-4555 21-4142 21-10210 21-0845 21P-0847 21-0966 21-0972 20-10207].freeze
+    FORM_REQUIRES_STAMP = %w[20-10207 21-0845 21-0966 21-0972 21-4138 21-10210 21-4142 21P-0847 26-4555].freeze
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
     SUBMISSION_DATE_TITLE = 'Application Submitted:'
 

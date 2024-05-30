@@ -19,8 +19,18 @@ module ClaimsApi
       Bean =
         Data.define(
           :path,
-          :namespace,
-          :data_namespace
+          :namespaces
+        )
+
+      # Auditing BGS for service actions that use more than one namespace, it
+      # turns out that there is at most a second namespace used for data type
+      # definitions. As such, we'll hardcode that notion and allow callers of
+      # our BGS client to use an alias for it that we yield to them.
+      #   https://github.com/department-of-veterans-affairs/bgs-catalog/blob/main/namespaces.xml
+      Namespaces =
+        Data.define(
+          :target,
+          :data
         )
 
       Service =
@@ -33,7 +43,8 @@ module ClaimsApi
       Action =
         Data.define(
           :service,
-          :name
+          :name,
+          :key
         )
 
       ##
@@ -41,19 +52,30 @@ module ClaimsApi
       #
       module ClaimantServiceBean
         DEFINITION =
-          Definitions::Bean.new(
+          Bean.new(
             path: 'ClaimantServiceBean',
-            namespace: 'http://services.share.benefits.vba.va.gov/',
-            data_namespace: nil
+            namespaces: Namespaces.new(
+              target: 'http://services.share.benefits.vba.va.gov/',
+              data: nil
+            )
           )
       end
 
       module ClaimantWebService
         DEFINITION =
-          Definitions::Service.new(
+          Service.new(
             bean: ClaimantServiceBean::DEFINITION,
             path: 'ClaimantWebService'
           )
+
+        module FindPoaByParticipantId
+          DEFINITION =
+            Action.new(
+              service: ClaimantWebService::DEFINITION,
+              name: 'findPOAByPtcpntId',
+              key: 'return'
+            )
+        end
       end
 
       ##
@@ -61,19 +83,30 @@ module ClaimsApi
       #
       module EBenefitsBenefitClaimStatusWebServiceBean
         DEFINITION =
-          Definitions::Bean.new(
+          Bean.new(
             path: 'EBenefitsBnftClaimStatusWebServiceBean',
-            namespace: 'http://services.share.benefits.vba.va.gov/',
-            data_namespace: nil
+            namespaces: Namespaces.new(
+              target: 'http://services.share.benefits.vba.va.gov/',
+              data: nil
+            )
           )
       end
 
       module EBenefitsBenefitClaimStatusWebService
         DEFINITION =
-          Definitions::Service.new(
+          Service.new(
             bean: EBenefitsBenefitClaimStatusWebServiceBean::DEFINITION,
             path: 'EBenefitsBnftClaimStatusWebService'
           )
+
+        module FindBenefitClaimsStatusByParticipantId
+          DEFINITION =
+            Action.new(
+              service: EBenefitsBenefitClaimStatusWebService::DEFINITION,
+              name: 'findBenefitClaimsStatusByPtcpntId',
+              key: 'BenefitClaimsDTO'
+            )
+        end
       end
 
       ##
@@ -81,41 +114,46 @@ module ClaimsApi
       #
       module VdcBean
         DEFINITION =
-          Definitions::Bean.new(
+          Bean.new(
             path: 'VDC',
-            namespace: 'http://gov.va.vba.benefits.vdc/services',
-            data_namespace: 'http://gov.va.vba.benefits.vdc/data'
+            namespaces: Namespaces.new(
+              target: 'http://gov.va.vba.benefits.vdc/services',
+              data: 'http://gov.va.vba.benefits.vdc/data'
+            )
           )
       end
 
       module ManageRepresentativeService
         DEFINITION =
-          Definitions::Service.new(
+          Service.new(
             bean: VdcBean::DEFINITION,
             path: 'ManageRepresentativeService'
           )
 
         module ReadPoaRequest
           DEFINITION =
-            Definitions::Action.new(
+            Action.new(
               service: ManageRepresentativeService::DEFINITION,
-              name: 'readPOARequest'
+              name: 'readPOARequest',
+              key: 'POARequestRespondReturnVO'
             )
         end
 
         module ReadPoaRequestByParticipantId
           DEFINITION =
-            Definitions::Action.new(
+            Action.new(
               service: ManageRepresentativeService::DEFINITION,
-              name: 'readPOARequestByPtcpntId'
+              name: 'readPOARequestByPtcpntId',
+              key: 'POARequestRespondReturnVO'
             )
         end
 
         module UpdatePoaRequest
           DEFINITION =
-            Definitions::Action.new(
+            Action.new(
               service: ManageRepresentativeService::DEFINITION,
-              name: 'updatePOARequest'
+              name: 'updatePOARequest',
+              key: 'POARequestUpdate'
             )
         end
       end

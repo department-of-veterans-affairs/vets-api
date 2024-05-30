@@ -9,7 +9,6 @@ module Vye
         Vye
           .settings
           &.ivr_key
-          &.freeze
       end
     end
   end

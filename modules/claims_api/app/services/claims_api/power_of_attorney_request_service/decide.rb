@@ -2,27 +2,38 @@
 
 module ClaimsApi
   module PowerOfAttorneyRequestService
-    # TODO: Error handling.
     module Decide
       class << self
-        def perform(id, params)
-          attrs = params.deep_transform_keys(&:underscore)
+        def perform(id, attrs)
+          previous = PowerOfAttorneyRequest::Decision.find(id)
+          current = build_decision(attrs)
 
+          Validation.perform!(
+            previous,
+            current
+          )
+
+          PowerOfAttorneyRequest::Decision.create(
+            id, current
+          )
+        end
+
+        private
+
+        # Should hydrating our models from user params be integrated into the
+        # model layer like it is in `ActiveModel`?
+        def build_decision(attrs)
           representative =
             PowerOfAttorneyRequest::Decision::Representative.new(
               **attrs.delete(:representative)
             )
 
-          decision =
-            PowerOfAttorneyRequest::Decision.new(
-              **attrs,
-              # Assign `updated_at` somewhere more obvious?
-              updated_at: Time.current,
-              representative:
-            )
-
-          PowerOfAttorneyRequest::Decision.update(
-            id, decision
+          PowerOfAttorneyRequest::Decision.new(
+            **attrs,
+            # Assign `created_at` somewhere more obvious near the actual update
+            # event?
+            created_at: Time.current,
+            representative:
           )
         end
       end

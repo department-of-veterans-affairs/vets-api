@@ -4,7 +4,8 @@ module ClaimsApi
   class PowerOfAttorneyRequest
     class Decision
       # TODO: Error handling.
-      module Update
+      # TODO: Think about our `update` vs `create` semantics.
+      module Create
         class << self
           def perform(id, decision)
             action =
@@ -13,7 +14,7 @@ module ClaimsApi
                 UpdatePoaRequest::
                 DEFINITION
 
-            BGSClient.perform_request(action:) do |xml, data_aliaz|
+            BGSClient.perform_request(action) do |xml, data_aliaz|
               Dump.perform(id, decision, xml, data_aliaz)
             end
           end
