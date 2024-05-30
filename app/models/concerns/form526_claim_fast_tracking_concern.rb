@@ -165,6 +165,9 @@ module Form526ClaimFastTrackingConcern
     end
   end
 
+  # Contact the VRO classifier service to classify the contentions on this form
+  # update the form with the classification codes
+  # returns true if all of form's contentions were classified
   def update_classification!
     if Flipper.enabled?(:disability_526_classifier_multi_contention)
       update_contention_classification_all!
