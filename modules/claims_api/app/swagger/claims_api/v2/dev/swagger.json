@@ -4243,7 +4243,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "250f72fb-6fd1-4019-8d6d-a3097413a131",
+                    "id": "7682b356-a380-4bf5-bcc0-7245c4f3758c",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -4425,7 +4425,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-05-31"
+                          "anticipatedSeparationDate": "2024-06-01"
                         },
                         "confinements": [
                           {
@@ -9014,7 +9014,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bcc94c05-7282-44f4-b32f-a2878db04ded",
+                    "id": "7a0dc70d-ed3f-428f-962f-6e41c3411ebb",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -9969,7 +9969,11 @@
             "description": "post pdf response",
             "content": {
               "application/pdf": {
-                "example": "string"
+                "example": "string",
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
               }
             }
           },
@@ -11846,8 +11850,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-05-29",
-                      "expirationDate": "2025-05-29",
+                      "creationDate": "2024-05-30",
+                      "expirationDate": "2025-05-30",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -12726,7 +12730,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2a8482df-bb79-48ed-b45d-df3412fe2633",
+                    "id": "b2e659c9-98d0-41ba-bf58-50646e6e997b",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13422,7 +13426,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bcb1065f-e880-4bbb-b98c-ec2ff12e2afe",
+                    "id": "8b54dc23-dd37-4d86-92cb-d3d7f5201712",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15382,11 +15386,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f7b294b0-e261-4888-9833-a819c73ba91d",
+                    "id": "3e0974e0-8226-4f53-b4f8-d3feac722ff1",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-05-29",
+                      "dateRequestAccepted": "2024-05-30",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"

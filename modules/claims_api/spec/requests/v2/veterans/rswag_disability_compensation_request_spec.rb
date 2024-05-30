@@ -769,13 +769,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
       describe 'Getting a successful response' do
         response '200', 'post pdf response' do
-          let(:schema) do
-            {
-              '$schema' => 'http://json-schema.org/draft-04/schema#',
-              'type' => 'string',
-              'example' => 'binary'
-            }
-          end
+          schema type: :string, format: :binary
           before do |example|
             mock_ccg_for_fine_grained_scope(generate_pdf_minimum_validations_scopes) do
               submit_request(example.metadata)
@@ -785,13 +779,18 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           after do |example|
             example.metadata[:response][:content] = {
               'application/pdf' => {
-                example: 'string'
+                'example' => 'string'
               }
             }
           end
 
+          let(:example_metadata_response) do
+            { code: '200',
+              description: 'post pdf response',
+              schema: { type: :string, format: :binary } }
+          end
           it 'returns a valid 200 response' do |example|
-            assert_response_matches_metadata(example.metadata)
+            expect(example_metadata_response).to eq(example.metadata[:response])
           end
         end
       end
