@@ -10,7 +10,7 @@ describe ClaimStatusSerializer do
   let(:claim_status) { 'ELIGIBLE' }
   let(:received_date) { '2022-06-13' }
 
-  let(:claimant_response) do
+  let(:claim_status_response) do
     response = double('response', body: {
         'claimant_id' => claimant,
         'claim_service_id' => claim_service_id,
@@ -36,7 +36,7 @@ describe ClaimStatusSerializer do
   end
 
   let(:rendered_hash) do
-    ActiveModelSerializers::SerializableResource.new(claimant_response, { serializer: described_class }).as_json
+    ActiveModelSerializers::SerializableResource.new(claim_status_response, { serializer: described_class }).as_json
   end
   let(:rendered_attributes) { rendered_hash[:data][:attributes] }
 
