@@ -8,7 +8,7 @@ module VANotify
 
     sidekiq_retries_exhausted do |msg, _ex|
       ::Rails.logger.error(
-        `Failure in VANotify::EmailJob#sidekiq_retries_exhausted with msg: #{msg}`
+        'Failure in VANotify::EmailJob#sidekiq_retries_exhausted'
       )
     end
 
