@@ -770,6 +770,8 @@ namespace :form526 do
     #   :end_date,
     # ]}
 
+    # SMELL: updated_at is not indexed
+    
     submissions = if end_date.nil?
                     Form526Submission.where('updated_at >= ?', start_date)
                   else
@@ -785,6 +787,43 @@ namespace :form526 do
       # debug_me{[
       #   "f526.form_content_valid?"
       # ]}
+      #
+      # TODO: output should be a CSV file that 
+      #       contains the 
+      #         form 526 submission id, 
+      #           ?? submission.id ??
+      #         the job success indicator of the original submission, 
+      #           ??
+      #         the validate value, and if validate is false, 
+      #           true / false
+      #         the reason for failed validation
+      #           ?? could be more than one error
+
+=begin
+  create_table "form526_submissions", id: :serial, force: :cascade do |t|
+    t.string "user_uuid", null: false
+    t.integer "saved_claim_id", null: false
+    t.integer "submitted_claim_id"
+    t.boolean "workflow_complete", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "multiple_birls", comment: "*After* a SubmitForm526 Job fails, a lookup is done to see if the veteran has multiple BIRLS IDs. This field gets set to true if that is the case. If the initial submit job succeeds, this field will remain false whether or not the veteran has multiple BIRLS IDs --so this field cannot technically be used to sum all Form526 veterans that have multiple BIRLS. This field /can/ give us an idea of how often having multiple BIRLS IDs is a problem."
+    t.text "auth_headers_json_ciphertext"
+    t.text "form_json_ciphertext"
+    t.text "birls_ids_tried_ciphertext"
+    t.text "encrypted_kms_key"
+    t.uuid "user_account_id"
+    t.string "backup_submitted_claim_id", comment: "*After* a SubmitForm526 Job has exhausted all attempts, a paper submission is generated and sent to Central Mail Portal.This column will be nil for all submissions where a backup submission is not generated.It will have the central mail id for submissions where a backup submission is submitted."
+    t.string "aasm_state", default: "unprocessed"
+    t.integer "submit_endpoint"
+    t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
+    t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
+    t.index ["user_account_id"], name: "index_form526_submissions_on_user_account_id"
+    t.index ["user_uuid"], name: "index_form526_submissions_on_user_uuid"
+  end
+
+=end
+
     end
   end # end of task
 

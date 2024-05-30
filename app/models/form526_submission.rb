@@ -484,18 +484,22 @@ class Form526Submission < ApplicationRecord
     transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
     body = transform_service.transform(form['form526'])
 
-    lighthoust_validation_response = lighthouse_service.validate526(body)
+    begin
+      lighthoust_validation_response = lighthouse_service.validate526(body)
+    rescue => e
+      # TODO: What now?
+    end
 
     if '200' == lighthoust_validation_response.code
       return true
     elsif '422' == lighthoust_validation_response.code
       return false
-    else
+    # else
       # TODO: ? fake a 422 response inserting a single
       #       fake error to indicate the description of
       #       bad response code
       #
-      raise "SomeKindOfErrorWithLighthouseValidationAPI" 
+      # raise "SomeKindOfErrorWithLighthouseValidationAPI" 
     end
 
     # Since it was not a 200 response code that means
@@ -527,10 +531,15 @@ class Form526Submission < ApplicationRecord
   # }
   #
   def lighthouse_validation_errors
-    if '422' == lighthouse_validation_response&.code
-      lighthouse_validation_response.body["errors"]
-    else
+    if '200' == lighthouse_validation_response&.code
       []
+    elsif '422' == lighthouse_validation_response&.code
+      lighthouse_validation_response.body["errors"]
+    elsif 'xyzzy' == lighthouse_validation_response&.code
+      # TODO: create an Array with one Hash
+      #       having same format as a 422 response code
+    else
+      # TODO: response code was unexpected now what?
     end
   end
 
