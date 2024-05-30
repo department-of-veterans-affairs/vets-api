@@ -122,12 +122,12 @@ module Form526ClaimFastTrackingConcern
 
   def prepare_for_evss!
     begin
-      classification_updated = update_classification!
+      is_claim_fully_classified = update_classification!
     rescue => e
       Rails.logger.error "Contention Classification failed #{e.message}.", backtrace: e.backtrace
     end
 
-    prepare_for_ep_merge! if disabilities.count == 1 && increase_only? && classification_updated
+    prepare_for_ep_merge! if disabilities.count == 1 && increase_only? && is_claim_fully_classified
 
     return if pending_eps? || disabilities_not_service_connected?
 
@@ -202,7 +202,7 @@ module Form526ClaimFastTrackingConcern
 
   # Submits contention information to the VRO contention classification service
   # adds classification to the form for each contention provided a classification
-  def update_contention_classification_all!
+  def update_contention_classification_all! # rubocop:disable Metrics/MethodLength
     contentions_array = disabilities.map { |disability| format_contention_for_vro(disability) }
     params = {
       claim_id: saved_claim_id,
@@ -225,6 +225,7 @@ module Form526ClaimFastTrackingConcern
                         claim_type: contention['contention_type'])
     end
     update_form_with_classification_codes(classifier_response['contentions'])
+    classifier_response['is_fully_classified']
   end
 
   # Submits contention information to the VRO contention classification
