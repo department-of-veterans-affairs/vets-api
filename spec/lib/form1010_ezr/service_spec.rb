@@ -96,7 +96,7 @@ RSpec.describe Form1010Ezr::Service do
         service.send(:post_fill_required_user_fields, parsed_form)
 
         required_user_fields.each do |key, value|
-          expect(parsed_form[key.to_s]).to_not eq(value)
+          expect(parsed_form["#{key}"]).not_to eq(value)
         end
       end
     end
@@ -116,7 +116,7 @@ RSpec.describe Form1010Ezr::Service do
         service.send(:post_fill_required_user_fields, parsed_form)
 
         required_user_fields.each do |key, value|
-          expect(parsed_form[key.to_s]).to eq(value)
+          expect(parsed_form["#{key}"]).to eq(value)
         end
       end
     end
