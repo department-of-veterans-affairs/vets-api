@@ -16,12 +16,22 @@ class InProgressForm < ApplicationRecord
   attr_accessor :skip_exipry_update, :real_user_uuid
 
   RETURN_URL_SQL = "CAST(metadata -> 'returnUrl' AS text)"
+  attribute :user_uuid, CleanUUID.new
+
+  has_kms_key
+  has_encrypted :form_data, key: :kms_key, **lockbox_options
+
+  has_many :form_submissions, dependent: :nullify
+
+  enum :status, %w[pending processing], prefix: :submission, default: :pending
+  scope :submission_pending, -> { where(status: [nil, 'pending']) } # override to include nil
+
   scope :has_attempted_submit, lambda {
                                  where("(metadata -> 'submission' ->> 'hasAttemptedSubmit')::boolean or "\
                                        "(metadata -> 'submission' ->> 'has_attempted_submit')::boolean")
                                }
-  scope :has_errors,           -> { where("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
-  scope :has_no_errors,        -> { where.not("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
+  scope :has_errors,           lambda { where("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
+  scope :has_no_errors,        lambda { where.not("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
   scope :has_error_message,    lambda {
                                  where("(metadata -> 'submission' -> 'errorMessage')::text !='false' or "\
                                        "(metadata -> 'submission' -> 'error_message')::text !='false' ")
@@ -31,21 +41,18 @@ class InProgressForm < ApplicationRecord
   scope :for_form, ->(form_id) { where(form_id:) }
   scope :not_submitted, -> { where.not("metadata -> 'submission' ->> 'status' = ?", 'applicationSubmitted') }
   scope :unsubmitted_fsr, -> { for_form('5655').not_submitted }
-  enum :status, %w[pending processing], prefix: :submission, default: :pending
-  scope :submission_pending, -> { where(status: [nil, 'pending']) } # override to include nil
-  attribute :user_uuid, CleanUUID.new
+
   serialize :form_data, coder: JsonMarshal::Marshaller
-  has_kms_key
-  has_encrypted :form_data, key: :kms_key, **lockbox_options
+
   validates(:form_data, presence: true)
   validates(:user_uuid, presence: true)
   validate(:id_me_user_uuid)
+
+  # https://guides.rubyonrails.org/active_record_callbacks.html
   before_save :serialize_form_data
   before_save :skip_exipry_update_check, if: proc { |form| %w[21P-527EZ 5655].include?(form.form_id) }
   before_save :set_expires_at, unless: :skip_exipry_update
   after_save :log_hca_email_diff
-
-  has_many :form_submissions, dependent: :nullify
 
   def self.form_for_user(form_id, user)
     user_uuid_form = InProgressForm.find_by(form_id:, user_uuid: user.uuid)
