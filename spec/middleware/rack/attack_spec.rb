@@ -151,14 +151,14 @@ RSpec.describe Rack::Attack do
     end
   end
 
-  describe 'facilities_api/v2/ip' do
+  describe 'facilities_api/v2/va/ip' do
     let(:endpoint) { '/facilities_api/v2/va' }
     let(:headers) { { 'X-Real-Ip' => '1.2.3.4' } }
     let(:limit) { 30 }
 
     before do
       limit.times do
-        get endpoint, nil, headers
+        post endpoint, nil, headers
         expect(last_response.status).not_to eq(429)
       end
 
