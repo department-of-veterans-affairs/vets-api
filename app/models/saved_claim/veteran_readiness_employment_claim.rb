@@ -75,7 +75,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   }.freeze
 
   def initialize(args)
-    @sent_to_cmp = false
+    @sent_to_lighthouse = false
     super
   end
 
@@ -171,7 +171,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     update!(form: form_copy.to_json)
 
     process_attachments!
-    @sent_to_cmp = true
+    @sent_to_lighthouse = true
 
     send_lighthouse_confirmation_email(user)
   rescue => e
@@ -181,10 +181,19 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def send_to_res(user)
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
 
-    Rails.logger.info("VRE claim email: #{email_addr}. user uuid: #{user.uuid}.\
-                      sent to cmp: #{@sent_to_cmp} #{user.present?}")
+    Rails.logger.info('VRE claim email: ',
+                      email_addr,
+                      '. user uuid: ',
+                      user.uuid,
+                      '. sent to lighthouse: ',
+                      @sent_to_lighthouse,
+                      '. user present: ',
+                      user.present?)
 
-    VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr, @sent_to_cmp).deliver_later if user.present?
+    if user.present?
+      VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
+                                             @sent_to_lighthouse).deliver_later
+    end
 
     service = RES::Ch31Form.new(user:, claim: self)
     service.submit
@@ -193,10 +202,19 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def send_vre_email_form(user)
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
 
-    Rails.logger.info("VRE claim email: #{email_addr}. user uuid: #{user.uuid}.\
-                      sent to cmp: #{@sent_to_cmp} #{user.present?}")
+    Rails.logger.info('VRE claim email: ',
+                      email_addr,
+                      '. user uuid: ',
+                      user.uuid,
+                      '. sent to lighthouse: ',
+                      @sent_to_lighthouse,
+                      '. user present: ',
+                      user.present?)
 
-    VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr, @sent_to_cmp).deliver_later if user.present?
+    if user.present?
+      VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
+                                             @sent_to_lighthouse).deliver_later
+    end
 
     # During Roll out our partners ask that we check vet location and if within proximity to specific offices,
     # send the data to them. We always send a pdf to VBMS
