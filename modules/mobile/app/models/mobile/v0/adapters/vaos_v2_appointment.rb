@@ -94,7 +94,7 @@ module Mobile
             comment:,
             facility_id:,
             sta6aid: facility_id,
-            healthcare_provider: appointment[:preferred_provider_name],
+            healthcare_provider:,
             healthcare_service: nil, # set to nil until we decide what the purpose of this field was meant to be
             location:,
             physical_location: appointment[:physical_location],
@@ -122,10 +122,16 @@ module Mobile
 
           Mobile::V0::Appointment.new(adapted_appointment)
         end
-
         # rubocop:enable Metrics/MethodLength
 
         private
+
+        # we do not want to use the not found message for mobile because it would result in ugly formatting
+        def healthcare_provider
+          return nil if appointment[:preferred_provider_name] == VAOS::V2::AppointmentProviderName::NPI_NOT_FOUND_MSG
+
+          appointment[:preferred_provider_name]
+        end
 
         def extract_station_and_ien(appointment)
           return nil if appointment[:identifier].nil?
@@ -392,7 +398,6 @@ module Mobile
         end
 
         # rubocop:enable Metrics/MethodLength
-
         def parse_phone(phone)
           # captures area code (\d{3}) number (\d{3}-\d{4})
           # and optional extension (until the end of the string) (?:\sx(\d*))?$

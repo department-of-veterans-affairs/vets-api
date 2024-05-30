@@ -938,5 +938,13 @@ preferred dates:12/13/2022 PM|pager number:8675309"
 
       expect(result.healthcare_provider).to eq('Dr. Hauser')
     end
+
+    it 'converts not found message to nil' do
+      appointment = appointment_data[0]
+      appointment[:preferred_provider_name] = VAOS::V2::AppointmentProviderName::NPI_NOT_FOUND_MSG
+      result = subject.parse([appointment]).first
+
+      expect(result.healthcare_provider).to eq(nil)
+    end
   end
 end
