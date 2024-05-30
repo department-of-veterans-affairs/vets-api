@@ -50,8 +50,8 @@ module VA1010Forms
     end
 
     def log_payload_info(formatted_form, submission_body)
-      form_name = formatted_form['va:form']['va:formIdentifier']['va:value']
-      attachment_count = formatted_form['va:form']['va:attachments']&.length || 0
+      form_name = formatted_form.dig('va:form', 'va:formIdentifier', 'va:value')
+      attachment_count = formatted_form.dig('va:form', 'va:attachments')&.length || 0
 
       Rails.logger.info("Payload for submitted #{form_name}: " \
                         "Body size of #{number_to_human_size(submission_body.bytesize)} " \
