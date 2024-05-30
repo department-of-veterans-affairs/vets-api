@@ -31,7 +31,7 @@ RSpec.describe IvcChampva::Email, type: :service do
       it 'enqueues VANotify::EmailJob with correct parameters' do
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           data[:email],
-          Settings.vanotify.services.va_gov.template_id.ivc_champva_form_callback_email,
+          Settings.vanotify.services.ivc_champva.template_id.pega_status_update_email_template_id,
           {
             'form_number' => data[:form_number],
             'first_name' => data[:first_name],

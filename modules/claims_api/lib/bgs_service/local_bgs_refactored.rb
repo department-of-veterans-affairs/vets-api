@@ -76,10 +76,14 @@ module ClaimsApi
 
       ##
       # @deprecated Every service action result always lives within a particular
-      #   key, so we can always extract the result rather than have expose
-      #   another option to the caller.
+      #   key, so we can always extract the result rather than expose another
+      #   option to the caller.
       #
-      result = request.perform(body)
+      # @deprecated Prefer composing XML documents with an XML builder. Other
+      #   approaches like templating into strings or immediately parsing and
+      #   injecting with open-ended xpath are inconvenient or error-prone.
+      #
+      result = request.perform { |xml| xml << body.to_s }
       result = { action.key => result }
       result = result[key].to_h if key.present?
 
