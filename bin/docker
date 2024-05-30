@@ -34,55 +34,55 @@ clean() {
   echo "Pruning unused Docker objects..."
   docker system prune -f -a
   echo "Rebuilding Docker images..."
-  docker-compose build --no-cache
+  docker compose build --no-cache
   echo "Clean and rebuild completed."
 }
 
 rebuild() {
   stop
   echo "Building Docker images without cache..."
-  docker-compose build --no-cache
+  docker compose build --no-cache
   echo "Build completed."
 }
 
 build() {
   stop
   echo "Building Docker images with cache..."
-  docker-compose build
+  docker compose build
   echo "Build completed."
 }
 
 stop() {
   echo "Stopping all running Docker containers..."
-  docker-compose down
+  docker compose down
   echo "All Docker containers stopped."
 }
 
 startd() {
   echo "Starting Docker containers..."
-  docker-compose up -d
+  docker compose up -d
   echo "Docker containers started."
 }
 
 console() {
   echo "Starting Rails console..."
-  docker-compose run --rm --service-ports web bash -c "bundle exec rails console"
+  docker compose run --rm --service-ports web bash -c "bundle exec rails console"
 }
 
 bundle() {
   echo "Bundling ruby gems..."
-  docker-compose run --rm --service-ports web bash -c "bundle install"
+  docker compose run --rm --service-ports web bash -c "bundle install"
 }
 
 db() {
   echo "Running 'rails db:prepare'..."
-  docker-compose run --rm --service-ports web bash -c "bundle exec rails db:prepare"
+  docker compose run --rm --service-ports web bash -c "bundle exec rails db:prepare"
   db_prepare_parallel
 }
 
 db_prepare_parallel() {
   echo "Running 'parallel_test rails db:prepare'..."
-  docker-compose run --rm --service-ports web bash -c "RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -e 'bundle exec rails db:prepare'"
+  docker compose run --rm --service-ports web bash -c "RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -e 'bundle exec rails db:prepare'"
 }
 
 ci() {

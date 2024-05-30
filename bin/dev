@@ -12,7 +12,7 @@ display_help() {
   echo "  configuration specified in the .developer-setup file. The following"
   echo "  configurations are supported:"
   echo "    native - Starts the web and job processes"
-  echo "    docker - Starts the docker process (docker-compose up)"
+  echo "    docker - Starts the docker process (docker compose up)"
   echo "    hybrid - Starts the web, job, and deps (clamav postgres redis) processes"
   echo
   echo "Examples:"
@@ -43,20 +43,18 @@ processes=""
 case $setup_type in
   native)
     echo "Starting Native...\n"
-    processes="web=1 job=1"
+    exec foreman start -f Procfile.dev -m web=1 job=1
     ;;
   docker)
     echo "Starting Docker...\n"
-    processes="docker=1"
+    docker-compose up
     ;;
   hybrid)
     echo "Starting Hybrid...\n"
-    processes="web=1 job=1 deps=1"
+    exec foreman start -f Procfile.dev -m web=1 job=1 deps=1
     ;;
   *)
     echo "Invalid setup type in .developer-setup! Exiting."
     exit 1
     ;;
 esac
-
-exec foreman start -f Procfile.dev -m $processes
