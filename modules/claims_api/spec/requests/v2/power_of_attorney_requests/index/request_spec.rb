@@ -55,7 +55,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
     end
   end
 
-  describe 'with every param invalid' do
+  describe 'with every param invalid in almost all ways' do
     let(:params) do
       # These params with `nil` values are generated from this query string:
       #   `?filter[statuses][]=NotAStatus&sort[field]&sort[order]&page[size]=whoops&page[number]`
@@ -137,6 +137,54 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                 'sort' => {
                   'field' => nil,
                   'order' => nil
+                }
+              }
+            }
+          }
+        ]
+      )
+    end
+  end
+
+  describe 'with a blank poaCode string value' do
+    let(:params) do
+      {
+        'filter' => {
+          'poaCodes' => [
+            ''
+          ]
+        }
+      }
+    end
+
+    it 'explains that it is bad request' do
+      mock_ccg(scopes) do
+        subject
+      end
+
+      expect(subject.response).to(
+        have_http_status(:bad_request)
+      )
+
+      expect(subject.body).to eq(
+        'errors' => [
+          {
+            'title' => 'Bad request',
+            'detail' => {
+              'errors' => {
+                'filter' => {
+                  'poaCodes' => {
+                    '0' => [
+                      'must be filled'
+                    ]
+                  }
+                }
+              },
+              'params' => {
+                'filter' => {
+                  'poaCodes' => [
+                    ''
+                  ]
                 }
               }
             }
@@ -253,7 +301,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           'decision' => {
             'status' => 'Accepted',
             'declinedReason' => nil,
-            'updatedAt' => '2024-03-08T14:10:41Z',
+            'createdAt' => '2024-03-08T14:10:41Z',
             'representative' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',

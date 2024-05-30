@@ -14,7 +14,7 @@ module IvcChampva
 
         VANotify::EmailJob.perform_async(
           data[:email],
-          Settings.vanotify.services.va_gov.template_id.ivc_champva_form_callback_email,
+          Settings.vanotify.services.ivc_champva.template_id.ivc_champva_form_callback_email,
           {
             'form_number' => data[:form_number],
             'first_name' => data[:first_name],

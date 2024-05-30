@@ -53,11 +53,11 @@ module ClaimsApi
           )
 
         class << self
-          def build(namespace:, data_namespace:, headers:, action:, body:)
+          def build(namespaces:, headers:, action:, body:)
             namespaces =
               [].tap do |value|
-                value << %(xmlns:#{Aliases::TARGET}="#{namespace}")
-                value << %(xmlns:#{Aliases::DATA}="#{data_namespace}") if data_namespace.present?
+                value << %(xmlns:#{Aliases::TARGET}="#{namespaces.target}")
+                value << %(xmlns:#{Aliases::DATA}="#{namespaces.data}") if namespaces.data.present?
               end
 
             headers = headers.to_h

@@ -67,7 +67,7 @@ ClaimsApi::Engine.routes.draw do
     resources :power_of_attorney_requests, path: 'power-of-attorney-requests', only: [:index] do
       scope module: :power_of_attorney_requests, param: :id do
         member do
-          resource :decision, only: [:update]
+          resource :decision, only: [:create]
         end
       end
     end
