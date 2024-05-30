@@ -139,12 +139,14 @@ vanotify:
       template_id:
         claim_submission_success_text: cie_fake_success_template_id
         claim_submission_duplicate_text: cie_fake_duplicate_template_id
+        claim_submission_timeout_text: cie_fake_timeout_template_id
         claim_submission_error_text: cie_fake_error_template_id
     oracle_health:
       sms_sender_id: oh_fake_sms_sender_id
       template_id:
         claim_submission_success_text: oh_fake_success_template_id
         claim_submission_duplicate_text: oh_fake_duplicate_template_id
+        claim_submission_timeout_text: oh_fake_timeout_template_id
         claim_submission_error_text: oh_fake_error_template_id
 
 veteran_readiness_and_employment:
