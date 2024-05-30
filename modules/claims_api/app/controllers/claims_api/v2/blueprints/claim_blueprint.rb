@@ -24,6 +24,7 @@ module ClaimsApi
               end_product_code: claim[:end_product_code],
               evidence_waiver_submitted_5103: claim[:evidence_waiver_submitted_5103],
               lighthouse_id: claim[:lighthouse_id],
+              claim_type_code: claim[:claim_type_code],
               status: claim[:status]
             }
           end
