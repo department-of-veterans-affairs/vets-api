@@ -120,8 +120,39 @@ RSpec.describe Rack::Attack do
     end
   end
 
-  describe 'facilities_va/ip' do
+  describe 'facilities_api/v1/ip' do
     let(:endpoint) { '/facilities_api/v1/va' }
+    let(:headers) { { 'X-Real-Ip' => '1.2.3.4' } }
+    let(:limit) { 30 }
+
+    before do
+      limit.times do
+        get endpoint, nil, headers
+        expect(last_response.status).not_to eq(429)
+      end
+
+      get endpoint, nil, other_headers
+    end
+
+    context 'response status for repeated requests from the same IP' do
+      let(:other_headers) { headers }
+
+      it 'limits requests' do
+        expect(last_response.status).to eq(429)
+      end
+    end
+
+    context 'response status for request from different IP' do
+      let(:other_headers) { { 'X-Real-Ip' => '4.3.2.1' } }
+
+      it 'does not limit request' do
+        expect(last_response.status).not_to eq(429)
+      end
+    end
+  end
+
+  describe 'facilities_api/v2/ip' do
+    let(:endpoint) { '/facilities_api/v2/va' }
     let(:headers) { { 'X-Real-Ip' => '1.2.3.4' } }
     let(:limit) { 30 }
 
@@ -153,6 +184,37 @@ RSpec.describe Rack::Attack do
 
   describe 'facility_locator/ip' do
     let(:endpoint) { '/facilities_api/v1/ccp/provider' }
+    let(:headers) { { 'X-Real-Ip' => '1.2.3.4' } }
+    let(:limit) { 8 }
+
+    before do
+      limit.times do
+        get endpoint, nil, headers
+        expect(last_response.status).not_to eq(429)
+      end
+
+      get endpoint, nil, other_headers
+    end
+
+    context 'response status for repeated requests from the same IP' do
+      let(:other_headers) { headers }
+
+      it 'limits requests' do
+        expect(last_response.status).to eq(429)
+      end
+    end
+
+    context 'response status for request from different IP' do
+      let(:other_headers) { { 'X-Real-Ip' => '4.3.2.1' } }
+
+      it 'limits requests' do
+        expect(last_response.status).not_to eq(429)
+      end
+    end
+  end
+
+  describe 'facilities_api/v2/ccp/ip' do
+    let(:endpoint) { '/facilities_api/v2/ccp' }
     let(:headers) { { 'X-Real-Ip' => '1.2.3.4' } }
     let(:limit) { 8 }
 
