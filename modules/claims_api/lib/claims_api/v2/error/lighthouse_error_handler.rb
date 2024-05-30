@@ -21,7 +21,8 @@ module ClaimsApi
             end
 
             rescue_from ::Common::Exceptions::ResourceNotFound,
-                        ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound do |err|
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound,
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::BadRequest do |err|
                           render_non_source_error(err)
                         end
 
@@ -36,8 +37,7 @@ module ClaimsApi
               )
             end
 
-            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity,
-                        ::ClaimsApi::Common::Exceptions::Lighthouse::BadRequest do |err|
+            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity do |err|
               render_error(err)
             end
             rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError do |errs|
