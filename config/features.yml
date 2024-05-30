@@ -525,6 +525,10 @@ features:
     actor_type: user
     description: Enables form 1990e email submission confirmation (VaNotify)
     enable_in_development: true
+  form21_0966_confirmation_email:
+    actor_type: user
+    description: Enables form 21-0966 email submission confirmation (VaNotify)
+    enable_in_development: true
   form21_0972_confirmation_email:
     actor_type: user
     description: Enables form 21-0972 email submission confirmation (VaNotify)
@@ -748,6 +752,10 @@ features:
     actor_type: user
     description: Show/hide content related to Vaccines in Medical Records
     enable_in_development: true
+  mhv_medical_records_display_settings_page:
+    actor_type: user
+    description: Show/hide the Settings Page in Medical Records
+    enable_in_development: true
   mhv_medical_records_display_vitals:
     actor_type: user
     description: Show/hide content related to Vitals in Medical Records
@@ -952,6 +960,10 @@ features:
   search_dropdown_component_enabled:
     actor_type: user
     description: Enables typeahead 2.0 functionality
+    enable_in_development: true
+  search_gov_maintenance:
+    actor_type: user
+    description: Use when Search.gov system maintenance impacts sitewide search
     enable_in_development: true
   show526_wizard:
     actor_type: user
@@ -1179,6 +1191,9 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for Start Scheduling action link.
+  va_dependents_v2:
+    actor_type: user
+    description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
   va_online_scheduling_physical_location:
     actor_type: user
     enable_in_development: true
@@ -1219,6 +1234,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for redesigning the appointment details page.
+  va_online_scheduling_recent_locations_filter:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for displaying the most recent facilities on the Choose your VA location page.
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
@@ -1409,6 +1428,9 @@ features:
   virtual_agent_upgrade_webchat_14_15_8:
     actor_type: user
     description: If enabled, switches VA webchat from using version 4.15.2 to 4.15.8
+  virtual_agent_component_testing:
+    actor_type: user
+    description: If enabled, allows for testing of the chatbot components
   terms_of_use:
     actor_type: user
     description: This determines whether a user is redirected to the Terms of Use page
@@ -1429,13 +1451,13 @@ features:
   pension_claim_submission_to_lighthouse:
     actor_type: user
     description: Pension claim submission uses Lighthouse API
-  pension_multiresponse_styles:
-    actor_type: user
-    description: Pension uses updated styles for single-page multiresponses
-    enable_in_development: true
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
+    enable_in_development: true
+  intent_to_file_lighthouse_enabled:
+    actor_type: user
+    description: Enable new Lighthouse ITF logic
     enable_in_development: true
   central_mail_benefits_intake_submission:
     actor_type: user

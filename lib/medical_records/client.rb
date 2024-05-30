@@ -155,81 +155,17 @@ module MedicalRecords
       fhir_read(FHIR::DocumentReference, note_id)
     end
 
-    def get_diagnostic_report(record_id)
-      fhir_search(FHIR::DiagnosticReport,
-                  search: { parameters: { _id: record_id, _include: '*', 'status:not': 'entered-in-error' } })
+    def list_labs_and_tests
+      bundle = fhir_search(FHIR::DiagnosticReport,
+                           search: { parameters: { patient: patient_fhir_id, 'status:not': 'entered-in-error' } })
+      sort_bundle(bundle, :effectiveDateTime, :desc)
     end
 
-    ##
-    # Fetch Lab & Tests results for the given patient. This combines the results of three separate calls.
-    #
-    # @param patient_id [Fixnum] MHV patient ID
-    # @return [FHIR::Bundle]
-    #
-    def list_labs_and_tests(page_size = 999, page_num = 1)
-      combined_bundle = FHIR::Bundle.new
-      combined_bundle.type = 'searchset'
-
-      # Make the individual API calls.
-      labs_diagrep_chemhem = list_labs_chemhem_diagnostic_report
-      labs_diagrep_other = list_labs_other_diagnostic_report
-      labs_docref = list_labs_document_reference
-
-      # TODO: Figure out how to do this in threads.
-      # labs_diagrep_chemhem_thread = Thread.new { list_labs_chemhem_diagnostic_report(patient_id) }
-      # labs_diagrep_other_thread = Thread.new { list_labs_other_diagnostic_report(patient_id) }
-      # labs_docref_thread = Thread.new { list_labs_document_reference(patient_id) }
-      # labs_diagrep_chemhem_thread.join
-      # labs_diagrep_other_thread.join
-      # labs_docref_thread.join
-      # labs_diagrep_chemhem = labs_diagrep_chemhem_thread.value
-      # labs_diagrep_other = labs_diagrep_other_thread.value
-      # labs_docref = labs_docref_thread.value
-
-      # Merge the entry arrays into the combined bundle.
-      combined_bundle.entry.concat(labs_diagrep_chemhem.entry) if labs_diagrep_chemhem.entry
-      combined_bundle.entry.concat(labs_diagrep_other.entry) if labs_diagrep_other.entry
-      combined_bundle.entry.concat(labs_docref.entry) if labs_docref.entry
-
-      # Ensure an accurate total count for the combined bundle.
-      combined_bundle.total = (labs_diagrep_chemhem&.total || 0) + (labs_diagrep_other&.total || 0) +
-                              (labs_docref&.total || 0)
-
-      # Sort the combined_bundle.entry array by date in reverse chronological order
-      sort_lab_entries(combined_bundle.entry)
-
-      # Apply pagination
-      combined_bundle.entry = paginate_bundle_entries(combined_bundle.entry, page_size, page_num)
-
-      combined_bundle
+    def get_diagnostic_report(record_id)
+      fhir_read(FHIR::DiagnosticReport, record_id)
     end
 
     protected
-
-    ##
-    # Fetch Chemistry/Hematology results for the given patient
-    #
-    # @param patient_id [Fixnum] MHV patient ID
-    # @return [FHIR::Bundle]
-    #
-    def list_labs_chemhem_diagnostic_report
-      fhir_search(FHIR::DiagnosticReport,
-                  search: { parameters: { patient: patient_fhir_id, category: 'LAB',
-                                          'status:not': 'entered-in-error' } })
-    end
-
-    ##
-    # Fetch Microbiology and Pathology results for the given patient
-    #
-    # @param patient_id [Fixnum] MHV patient ID
-    # @return [FHIR::Bundle]
-    #
-    def list_labs_other_diagnostic_report
-      loinc_codes = "#{MICROBIOLOGY},#{PATHOLOGY}"
-      fhir_search(FHIR::DiagnosticReport,
-                  search: { parameters: { patient: patient_fhir_id, code: loinc_codes,
-                                          'status:not': 'entered-in-error' } })
-    end
 
     ##
     # Fetch EKG and Radiology results for the given patient
@@ -264,8 +200,7 @@ module MedicalRecords
     end
 
     ##
-    # Perform a FHIR search. Returns the first page of results only. Filters out FHIR records
-    # that are not active.
+    # Perform a FHIR search. Returns the first page of results only.
     #
     # @param fhir_model [FHIR::Model] The type of resource to search
     # @param params [Hash] The parameters to pass the search
