@@ -77,19 +77,20 @@ module ClaimsApi
         module Body
           class << self
             def build
-              builder =
-                Nokogiri::XML::Builder.new(namespace_inheritance: false) do |xml|
-                  # Need to declare an arbitrary root element with placeholder
-                  # namespace in order to leverage namespaced tag building. The
-                  # root element itself is later ignored and only used for its
-                  # contents.
-                  #   https://nokogiri.org/rdoc/Nokogiri/XML/Builder.html#method-i-5B-5D
-                  xml.root("xmlns:#{Aliases::DATA}" => 'placeholder') do
-                    yield(xml, Aliases::DATA)
-                  end
-                end
+              xml =
+                Nokogiri::XML::Builder.new(
+                  namespace_inheritance: false
+                )
 
-              builder
+              # Need to declare an arbitrary root element with placeholder
+              # namespace in order to leverage namespaced tag building. The root
+              # element itself is later ignored and only used for its contents.
+              #   https://nokogiri.org/rdoc/Nokogiri/XML/Builder.html#method-i-5B-5D
+              xml.root("xmlns:#{Aliases::DATA}" => 'placeholder') do
+                yield(xml, Aliases::DATA)
+              end
+
+              xml
                 .doc.at('root')
                 .children
                 .to_xml

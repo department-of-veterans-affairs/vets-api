@@ -18,7 +18,7 @@ module ClaimsApi
           # See https://dry-rb.org/gems/dry-schema
           Dry::Schema.Params do
             required(:filter).hash do
-              required(:poaCodes).filled(:array).each(:string)
+              required(:poaCodes).filled(:array).each(:string, :filled?)
               optional(:statuses).filled(:array).each(
                 :string,
                 included_in?: PowerOfAttorneyRequest::Decision::Statuses::ALL

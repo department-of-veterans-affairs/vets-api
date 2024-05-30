@@ -145,7 +145,7 @@ module BenefitsClaims
 
       # LH PDF generator service crashes with having an empty array for confinements
       # removes confinements from the request body if confinements attribute empty or nil
-      remove_empty_array(body, 'serviceInformation', 'confinements')
+      # remove_empty_array(body, 'serviceInformation', 'confinements')
 
       # Lighthouse expects at least 1 element in the multipleExposures array if it is not null
       # this removes the multipleExposures array if it is empty

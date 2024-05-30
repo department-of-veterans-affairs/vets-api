@@ -4,8 +4,7 @@ require 'disability_compensation/requests/form526_request_body'
 
 module EVSS
   module DisabilityCompensationForm
-    # rubocop:disable Metrics/ClassLength
-    class Form526ToLighthouseTransform
+    class Form526ToLighthouseTransform # rubocop:disable Metrics/ClassLength
       TOXIC_EXPOSURE_CAUSE_MAP = {
         NEW: 'My condition was caused by an injury or exposure during my military service.',
         WORSENED: 'My condition existed before I served in the military, but it got worse because of my military ' \
@@ -75,6 +74,8 @@ module EVSS
 
         lh_request_body
       end
+
+      private
 
       # returns "STANDARD_CLAIM_PROCESS", "BDD_PROGRAM", or "FDC_PROGRAM"
       # based off of a few attributes in the evss data
@@ -197,14 +198,22 @@ module EVSS
         service_pay_target
       end
 
-      def transform_toxic_exposure(toxic_exposure_source)
+      def transform_toxic_exposure(toxic_exposure_source) # rubocop:disable Metrics/MethodLength
         toxic_exposure_target = Requests::ToxicExposure.new
 
         gulf_war1990 = toxic_exposure_source['gulfWar1990']
         gulf_war2001 = toxic_exposure_source['gulfWar2001']
+        herbicide = toxic_exposure_source['herbicide']
+        other_herbicide_locations = toxic_exposure_source['otherHerbicideLocations']
+
         if gulf_war1990.present? || gulf_war2001.present?
           toxic_exposure_target.gulf_war_hazard_service =
             transform_gulf_war(gulf_war1990, gulf_war2001)
+        end
+
+        if herbicide.present? || other_herbicide_locations.present?
+          toxic_exposure_target.herbicide_hazard_service = transform_herbicide(herbicide,
+                                                                               other_herbicide_locations)
         end
 
         # create an Array[Requests::MultipleExposures]
@@ -244,8 +253,6 @@ module EVSS
         end
       end
 
-      private
-
       def transform_gulf_war(gulf_war1990, gulf_war2001)
         filtered_results1990 = gulf_war1990&.filter { |k| k != 'notsure' }
         gulf_war1990_value = filtered_results1990&.values&.any?(&:present?) && !none_of_these(filtered_results1990)
@@ -259,7 +266,25 @@ module EVSS
         gulf_war_hazard_service
       end
 
+      def transform_herbicide(herbicide, other_herbicide_locations)
+        filtered_results_herbicide = herbicide&.filter { |k| k != 'notsure' }
+        herbicide_value = (values_present(filtered_results_herbicide) ||
+                          values_present(other_herbicide_locations)) &&
+                          !none_of_these(filtered_results_herbicide)
+
+        herbicide_service = Requests::HerbicideHazardService.new
+        herbicide_service.served_in_herbicide_hazard_locations = herbicide_value ? 'YES' : 'NO'
+
+        herbicide_service
+      end
+
+      def values_present(obj)
+        obj.present? && obj.values&.any?(&:present?)
+      end
+
       def none_of_these(options)
+        return false if options.blank?
+
         none_of_these = options['none']
         none_of_these.present?
       end
@@ -547,6 +572,5 @@ module EVSS
         Date.parse(date).strftime('%Y-%m')
       end
     end
-    # rubocop:enable Metrics/ClassLength
   end
 end

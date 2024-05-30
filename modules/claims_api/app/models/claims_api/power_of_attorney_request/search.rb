@@ -100,7 +100,8 @@ module ClaimsApi
             # we find ourselves in this branch. But if we want to consider a
             # mixture of valid and invalid POA codes to be a valid request the
             # way BGS does, we'd have to check every POA code we were given.
-            raise unless e.message == 'No Record Found'
+            reason = e.detail.dig('MessageException', 'reason')
+            raise unless reason == 'NO_RECORD_FOUND'
           end
 
           [

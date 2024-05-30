@@ -7,7 +7,7 @@ module ClaimsApi
         :status,
         :representative,
         :declined_reason,
-        :updated_at
+        :created_at
       )
 
       module Statuses
@@ -24,8 +24,8 @@ module ClaimsApi
           Find.perform(id)
         end
 
-        def update(id, decision)
-          Update.perform(id, decision)
+        def create(id, decision)
+          Create.perform(id, decision)
         end
       end
 
