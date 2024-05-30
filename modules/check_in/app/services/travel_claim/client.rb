@@ -58,7 +58,7 @@ module TravelClaim
     #
     def submit_claim(token:, patient_icn:, appointment_date:)
       connection(server_url: claims_url).post("/#{claims_base_path}/api/ClaimIngest/submitclaim") do |req|
-        req.options.timeout = 180
+        req.options.timeout = 120
         req.headers = claims_default_header.merge('Authorization' => "Bearer #{token}")
         req.body = claims_data.merge({ ClaimantID: patient_icn, Appointment:
           { AppointmentDateTime: appointment_date } }).to_json
@@ -77,7 +77,7 @@ module TravelClaim
       patient_identifier_type = opts.fetch(:patient_identifier_type, 'icn')
 
       connection(server_url: claims_url).post("/#{claims_base_path}/api/ClaimIngest/submitclaim") do |req|
-        req.options.timeout = 180
+        req.options.timeout = 120
         req.headers = claims_default_header.merge('Authorization' => "Bearer #{token}")
         req.body = claims_data.merge({
                                        ClaimantID: opts[:patient_identifier],
