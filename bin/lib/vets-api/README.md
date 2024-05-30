@@ -20,6 +20,7 @@ All other binstubs can be used by Mac, Linux, or Windows.
 - bin/setup
 - bin/test
 - bin/dev
+- bin/docker
 
 ### bin/setup
 
