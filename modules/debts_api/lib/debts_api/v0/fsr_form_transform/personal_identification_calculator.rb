@@ -6,7 +6,7 @@ module DebtsApi
       class PersonalIdentificationCalculator
         def initialize(form)
           @form = form['personal_identification']
-          @selected_debts_and_copays = @form['selected_debts_and_copays']
+          @selected_debts_and_copays = form['selected_debts_and_copays']
         end
 
         def transform_personal_id
@@ -20,17 +20,13 @@ module DebtsApi
         private
 
         def get_resolution_options
-          @selected_debts_and_copays
-            .map { |debt_copay| resolution_options_map[debt_copay['resolution_option']] }
-            .join(', ')
+          @selected_debts_and_copays.map do |debt_copay|
+            resolution_options_map[debt_copay['resolution_option']]
+          end.join(', ')
         end
 
         def resolution_options_map
-          {
-            waiver: 'Waiver',
-            monthly: 'Extended monthly payments',
-            compromise: 'Compromise'
-          }
+          { 'waiver' => 'Waiver', 'monthly' => 'Extended monthly payments', 'compromise' => 'Compromise' }
         end
       end
     end
