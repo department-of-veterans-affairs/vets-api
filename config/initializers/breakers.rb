@@ -12,13 +12,13 @@ require 'evss/dependents/configuration'
 require 'evss/disability_compensation_form/configuration'
 require 'evss/documents_service'
 require 'evss/letters/service'
-require 'evss/gi_bill_status/service'
 require 'evss/pciu_address/configuration'
 require 'evss/reference_data/configuration'
 require 'facilities/bulk_configuration'
 require 'gi/configuration'
 require 'gibft/configuration'
 require 'hca/configuration'
+require 'lighthouse/benefits_education/configuration'
 require 'mhv_ac/configuration'
 require 'mpi/configuration'
 require 'pagerduty/configuration'
@@ -47,13 +47,13 @@ Rails.application.reloader.to_prepare do
     DecisionReview::Configuration.instance.breakers_service,
     Rx::Configuration.instance.breakers_service,
     BB::Configuration.instance.breakers_service,
+    BenefitsEducation::Configuration.instance.breakers_service,
     EVSS::ClaimsService.breakers_service,
     EVSS::CommonService.breakers_service,
     EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service,
     EVSS::DocumentsService.breakers_service,
     EVSS::Letters::Configuration.instance.breakers_service,
     EVSS::PCIUAddress::Configuration.instance.breakers_service,
-    EVSS::GiBillStatus::Configuration.instance.breakers_service,
     EVSS::Dependents::Configuration.instance.breakers_service,
     EVSS::ReferenceData::Configuration.instance.breakers_service,
     Gibft::Configuration.instance.breakers_service,
