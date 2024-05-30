@@ -21,7 +21,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     IvcChampva::MissingFormStatusJob.new.perform
 
     forms.each do |form|
-      expect(StatsD).to have_received(:increment).with('ivc_champva.form_missing_status', tags: ["id:#{form.id}"])
+      expect(StatsD).to have_received(:increment).with('ivc_champva.form_missing_status', tags: ["id: #{form.id}"])
     end
   end
 
