@@ -23,7 +23,7 @@ module IvcChampva
         StatsD.increment('ivc_champva.form_missing_status', tags: ["id: #{form.id}"])
       end
     rescue => e
-      Rails.logger.error "IVC Forms FormStatusJob Error: #{e.message}"
+      Rails.logger.error "IVC Forms MissingFormStatusJob Error: #{e.message}"
       Rails.logger.error e.backtrace.join("\n")
     end
   end
