@@ -59,4 +59,4 @@ case $setup_type in
     ;;
 esac
 
-exec foreman start -f Procfile -m "$processes"
+exec foreman start -f Procfile.dev -m $processes
