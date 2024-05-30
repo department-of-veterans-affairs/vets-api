@@ -636,15 +636,19 @@ describe VAOS::V2::AppointmentsService do
           before do
             Flipper.enable(:va_online_scheduling_enable_OH_cancellations)
             Flipper.enable(:va_online_scheduling_use_vpg)
+            Flipper.enable(:va_online_scheduling_enable_OH_reads)
           end
 
           it 'returns a cancelled status and the cancelled appointment information' do
-            VCR.use_cassette('vaos/v2/appointments/cancel_appointments_vpg_200',
+            VCR.use_cassette('vaos/v2/appointments/cancel_appointments_vpg_204',
                              match_requests_on: %i[method path query body_as_json]) do
-              VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
-                               match_requests_on: %i[method path query]) do
-                response = subject.update_appointment('70060', 'cancelled')
-                expect(response.status).to eq('cancelled')
+              VCR.use_cassette('vaos/v2/appointments/get_appointment_200_cancelled_vpg',
+                               match_requests_on: %i[method path query body_as_json]) do
+                VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                                 match_requests_on: %i[method path query]) do
+                  response = subject.update_appointment('70060', 'cancelled')
+                  expect(response.status).to eq('cancelled')
+                end
               end
             end
           end
