@@ -21,11 +21,25 @@ class Rack::Attack
     req.remote_ip if req.path == '/facilities_api/v1/va'
   end
 
+  # Rate-limit facilities_va/v2/va lookup -- part of locator.
+  # See https://dsva.slack.com/archives/C0FQSS30V/p1695046907329529
+  # No systemic failure, but potential "DoS" caused a spike in traffic from one IP.
+  throttle('facilities_va/ip', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path == '/facilities_api/v2/va'
+  end
+
   # Rate-limit PPMS lookup, in order to bore abusers.
   # See https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/Postmortems/2021-08-16-facility-locator-possible-DOS.md
   # for details.
   throttle('facility_locator/ip', limit: 8, period: 1.minute) do |req|
     req.remote_ip if req.path == '/facilities_api/v1/ccp/provider'
+  end
+
+  # Rate-limit PPMS lookup, in order to bore abusers.
+  # See https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/Postmortems/2021-08-16-facility-locator-possible-DOS.md
+  # for details.
+  throttle('facility_locator/ip', limit: 8, period: 1.minute) do |req|
+    req.remote_ip if req.path == '/facilities_api/v2/ccp/provider'
   end
 
   throttle('vic_profile_photos_download/ip', limit: 8, period: 5.minutes) do |req|
