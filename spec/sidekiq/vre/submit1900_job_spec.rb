@@ -19,7 +19,8 @@ describe VRE::Submit1900Job do
     end
 
     it 'calls claim.add_claimant_info' do
-      allow(claim).to receive(:send_to_central_mail!)
+      allow(claim).to receive(:send_to_lighthouse!)
+      allow(claim).to receive(:send_to_res)
 
       expect(claim).to receive(:add_claimant_info).with(user)
     end

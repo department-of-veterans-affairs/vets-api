@@ -1370,6 +1370,10 @@ vetext_push:
   user: vets-api-username
   pass: secret
 
+res:
+  base_url: ~
+  api_key: ~
+
 veteran_readiness_and_employment:
   base_url: ~
   credentials: ~
