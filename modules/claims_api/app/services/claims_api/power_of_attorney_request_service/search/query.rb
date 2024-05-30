@@ -4,44 +4,13 @@ module ClaimsApi
   module PowerOfAttorneyRequestService
     module Search
       module Query
-        module Page
-          module Size
-            # For the moment, these values duplicate the behavior of BGS.
-            DEFAULT = 25
-            MAX = 100
-            MIN = 1
-          end
-        end
+        Page = PowerOfAttorneyRequest::Search::Query::Page
+        Sort = PowerOfAttorneyRequest::Search::Query::Sort
 
-        module Sort
-          module Fields
-            ALL = [
-              SUBMITTED_AT = 'submittedAt'
-            ].freeze
-          end
-
-          module Orders
-            ALL = [
-              ASCENDING = 'asc',
-              DESCENDING = 'desc'
-            ].freeze
-          end
-
-          class << self
-            # These only make sense as defaults together. Also it seems sensible
-            # to not return the same hash instance when using these sort param
-            # defaults which is why this is a method.
-            def get_default
-              {
-                field: Fields::SUBMITTED_AT,
-                order: Orders::DESCENDING
-              }
-            end
-          end
-        end
-
-        # These have to load before our `Schema` definition, otherwise at least
-        # the `hints` extension won't do its thing.
+        # TODO: If keeping `dry-schema`, consider a good point to load these
+        # extensions. The `hints` extension has to load before our `Schema`
+        # definition, otherwise it won't do its thing. And that may be true for
+        # the `json_schema` extension too.
         Dry::Schema.load_extensions(:json_schema)
         Dry::Schema.load_extensions(:hints)
 
@@ -49,23 +18,26 @@ module ClaimsApi
           # See https://dry-rb.org/gems/dry-schema
           Dry::Schema.Params do
             required(:filter).hash do
-              required(:poaCodes).filled(:array).each(:string)
+              required(:poaCodes).filled(:array).each(:string, :filled?)
               optional(:statuses).filled(:array).each(
-                :string, included_in?: PoaRequest::Statuses::ALL
+                :string,
+                included_in?: PowerOfAttorneyRequest::Decision::Statuses::ALL
               )
             end
 
             optional(:page).hash do
               optional(:number).value(:integer, gteq?: 1)
               optional(:size).value(
-                :integer, gteq?: Page::Size::MIN, lteq?: Page::Size::MAX
+                :integer,
+                gteq?: Page::Size::MIN,
+                lteq?: Page::Size::MAX
               )
             end
 
             optional(:sort).hash do
               # If the client is going to send one of these, it only really
-              # makes sense to send both, because otherwise it's an
-              # exceptionally weird query for them to make.
+              # makes sense to send both, because otherwise it's kind of a
+              # nonsensical query for them to make.
               required(:field).value(:string, included_in?: Sort::Fields::ALL)
               required(:order).value(:string, included_in?: Sort::Orders::ALL)
             end
@@ -90,8 +62,14 @@ module ClaimsApi
           private
 
           def apply_defaults(query)
-            query[:filter][:statuses] ||= PoaRequest::Statuses::ALL
-            query[:sort] ||= Sort.get_default
+            query[:filter][:statuses] ||=
+              PowerOfAttorneyRequest::Decision::Statuses::ALL
+
+            # These only make sense as defaults together.
+            query[:sort] ||= {
+              field: Sort::Fields::CREATED_AT,
+              order: Sort::Orders::DESCENDING
+            }
 
             page = query[:page] ||= {}
             page[:size] ||= Page::Size::DEFAULT

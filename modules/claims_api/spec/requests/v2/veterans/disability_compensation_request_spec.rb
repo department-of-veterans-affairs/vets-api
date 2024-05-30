@@ -10,8 +10,6 @@ RSpec.describe 'Disability Claims', type: :request do
   before do
     Timecop.freeze(Time.zone.now)
     allow_any_instance_of(ClaimsApi::EVSSService::Base).to receive(:submit).and_return OpenStruct.new(claimId: 1337)
-    # evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
-    # allow(evss_service_stub).to receive(:submit) { OpenStruct.new(claimId: 1337) }
   end
 
   after do
@@ -1202,6 +1200,150 @@ RSpec.describe 'Disability Claims', type: :request do
               ClaimsApi::AutoEstablishedClaim.find(claim_id)
               submissions = ClaimsApi::AutoEstablishedClaim.find(claim_id).submissions
               expect(submissions.size).to be(0)
+            end
+          end
+        end
+      end
+
+      describe 'specialIssues claims' do
+        let(:disabilities) do
+          [{
+            disabilityActionType: 'INCREASE',
+            name: 'Traumatic Brain Injury',
+            classificationCode: '9020',
+            serviceRelevance: 'ABCDEFG',
+            approximateDate: '2018-11-03',
+            ratedDisabilityId: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+            diagnosticCode: 9020,
+            specialIssues: ['EMP'],
+            secondaryDisabilities: [
+              {
+                name: 'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders',
+                disabilityActionType: 'SECONDARY',
+                serviceRelevance: 'ABCDEFGHIJKLMNOPQ',
+                classificationCode: '9010',
+                approximateDate: '2018-12-03',
+                exposureOrEventOrInjury: 'EXPOSURE'
+              }
+            ],
+            isRelatedToToxicExposure: true,
+            exposureOrEventOrInjury: 'EXPOSURE'
+          }]
+        end
+        let(:treatments) do
+          [
+            {
+              center: {
+                name: 'Center One',
+                state: 'GA',
+                city: 'Decatur'
+              },
+              treatedDisabilityNames: ['Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders'],
+              beginDate: '2009-03'
+            }
+          ]
+        end
+
+        context 'when specialIssues contains "POW" but disabilityActionType is set to "INCREASE"' do
+          let(:special_issues) { ['POW'] }
+
+          it 'responds with a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['disabilities'] = disabilities
+              json['data']['attributes']['disabilities'][0]['specialIssues'] = special_issues
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when specialIssues contains "EMP" but disabilityActionType is set to "INCREASE"' do
+          it 'responds with a 202' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['disabilities'] = disabilities
+              json['data']['attributes']['treatments'] = treatments
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when specialIssues contains "POW" and disabilityActionType is set to "NEW"' do
+          let(:special_issues) { ['POW'] }
+          let(:disability_action_type) { 'NEW' }
+
+          it 'responds with a 202' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['disabilities'] = disabilities
+              json['data']['attributes']['treatments'] = treatments
+              json['data']['attributes']['disabilities'][0]['specialIssues'] = special_issues
+              json['data']['attributes']['disabilities'][0]['disabilityActionType'] = disability_action_type
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when specialIssues contains "POW" & "EMP" and disabilityActionType is set to "NEW"' do
+          let(:special_issues) { %w[POW EMP] }
+          let(:disability_action_type) { 'NEW' }
+
+          it 'responds with a 202' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['disabilities'] = disabilities
+              json['data']['attributes']['treatments'] = treatments
+              json['data']['attributes']['disabilities'][0]['specialIssues'] = special_issues
+              json['data']['attributes']['disabilities'][0]['disabilityActionType'] = disability_action_type
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when specialIssues are added to a secondary disability' do
+          let(:special_issues) { ['POW'] }
+          let(:disability_action_type) { 'NEW' }
+
+          it 'responds with a 404' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['disabilities'] = disabilities
+              json['data']['attributes']['treatments'] = treatments
+              json['data']['attributes']['disabilities'][0]['specialIssues'] = special_issues
+              json['data']['attributes']['disabilities'][0]['disabilityActionType'] = disability_action_type
+              json['data']['attributes']['disabilities'][0][:secondaryDisabilities][0]['specialIssues'] = special_issues
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when specialIssues contains "POW" and serviceInformation.confinements is blank' do
+          let(:confinements) do
+            []
+          end
+          let(:special_issues) { ['POW'] }
+
+          it 'responds with a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['disabilities'] = disabilities
+              json['data']['attributes']['treatments'] = treatments
+              json['data']['attributes']['disabilities'][0]['specialIssues'] = special_issues
+              json['data']['attributes']['serviceInformation']['confinements'] = confinements
+
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
@@ -3941,12 +4083,23 @@ RSpec.describe 'Disability Claims', type: :request do
     let(:generate_pdf_scopes) { %w[system/526-pdf.override] }
     let(:invalid_scopes) { %w[claim.write claim.read] }
     let(:generate_pdf_path) { "/services/claims/v2/veterans/#{veteran_id}/526/generatePDF/minimum-validations" }
+    let(:special_issues) { ['POW'] }
 
     context 'submission to generatePDF' do
       it 'returns a 200 response when successful' do
         mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
           post generate_pdf_path, params: data, headers: auth_header
           expect(response.header['Content-Disposition']).to include('filename')
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      it 'returns a 200 response when specialIssues is present for a disability' do
+        json = JSON.parse data
+        json['data']['attributes']['disabilities'][0]['specialIssues'] = special_issues
+        data = json.to_json
+        mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+          post generate_pdf_path, params: data, headers: auth_header
           expect(response).to have_http_status(:ok)
         end
       end

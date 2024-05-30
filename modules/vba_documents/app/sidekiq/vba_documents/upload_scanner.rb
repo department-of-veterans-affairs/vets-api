@@ -63,13 +63,3 @@ module VBADocuments
     end
   end
 end
-# def again
-# load('./modules/vba_documents/app/sidekiq/vba_documents/upload_processor.rb')
-# load('./modules/vba_documents/app/sidekiq/vba_documents/upload_scanner.rb')
-# g = "0f35783e-4b33-4e22-b64f-9a50eb391b49"
-#
-# u = UploadSubmission.find_by_guid(@g)
-# u.status = 'pending'
-# u.save
-# UploadScanner.new.perform
-# end
