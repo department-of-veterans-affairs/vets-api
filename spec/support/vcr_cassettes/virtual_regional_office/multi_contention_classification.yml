@@ -5,7 +5,7 @@ http_interactions:
     uri: http://localhost:8120/va-gov-claim-classifier
     body:
       encoding: UTF-8
-      string: '{"claim_id":98,"form526_submission_id":53,"contentions":[{"contention_text":"Asthma,
+      string: '{"claim_id":366,"form526_submission_id":366,"contentions":[{"contention_text":"Asthma,
         bronchial","contention_type":"INCREASE","diagnostic_code":6602},{"contention_text":"plantar
         fasciitis","contention_type":"NEW"},{"contention_text":"additional free text
         entry","contention_type":"NEW","diagnostic_code":9999}]}'
@@ -26,20 +26,20 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 24 May 2024 23:40:25 GMT
+      - Thu, 30 May 2024 18:34:17 GMT
       Server:
       - uvicorn
       Content-Length:
-      - '490'
+      - '492'
       Content-Type:
       - application/json
       X-Process-Time:
-      - '0.005565166473388672'
+      - '0.004929065704345703'
     body:
       encoding: UTF-8
       string: '{"contentions":[{"classification_code":9012,"classification_name":"Respiratory","diagnostic_code":6602,"contention_type":"INCREASE"},{"classification_code":8994,"classification_name":"Musculoskeletal
-        - Foot","diagnostic_code":null,"contention_type":"NEW"},{"classification_code":null,"classification_name":null,"diagnostic_code":9999,"contention_type":"NEW"}],"claim_id":98,"form526_submission_id":53,"is_fully_classified":false,"num_processed_contentions":3,"num_classified_contentions":0}'
-  recorded_at: Fri, 24 May 2024 23:40:25 GMT
+        - Foot","diagnostic_code":null,"contention_type":"NEW"},{"classification_code":null,"classification_name":null,"diagnostic_code":9999,"contention_type":"NEW"}],"claim_id":366,"form526_submission_id":366,"is_fully_classified":false,"num_processed_contentions":3,"num_classified_contentions":2}'
+  recorded_at: Thu, 30 May 2024 18:34:18 GMT
 - request:
     method: post
     uri: https://viccs-api-test.ibm-intelligent-automation.com/pca/api/test/token
@@ -61,7 +61,7 @@ http_interactions:
       message: Unauthorized
     headers:
       Date:
-      - Fri, 24 May 2024 23:40:26 GMT
+      - Thu, 30 May 2024 18:34:18 GMT
       Content-Type:
       - application/json
       Content-Length:
@@ -79,7 +79,7 @@ http_interactions:
       Referrer-Policy:
       - no-referrer
       Apigw-Requestid:
-      - YTLIqhkLvHMEPPw=
+      - YmP6ujKWvHMEJbQ=
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
       X-Content-Type-Options:
@@ -88,5 +88,5 @@ http_interactions:
       encoding: UTF-8
       string: '{"error":"unauthorized_client","error_description":"Invalid client
         <DMC_TOKEN>"}'
-  recorded_at: Fri, 24 May 2024 23:40:26 GMT
+  recorded_at: Thu, 30 May 2024 18:34:18 GMT
 recorded_with: VCR 6.2.0
