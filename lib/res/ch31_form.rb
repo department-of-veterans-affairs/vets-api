@@ -116,13 +116,8 @@ module RES
 
     def mapped_address_hash(client_hash)
       {
-        # isForeign: client_hash['country'] != 'USA',
-        # isMilitary: client_hash['isMilitary'] || false,
         country: client_hash['country'],
         street: client_hash['street'],
-        # addressLine1: client_hash['street'],
-        # addressLine2: client_hash['street2'],
-        # addressLine3: client_hash['street3'],
         city: client_hash['city'],
         state: client_hash['state'],
         postalCode: client_hash['postalCode']

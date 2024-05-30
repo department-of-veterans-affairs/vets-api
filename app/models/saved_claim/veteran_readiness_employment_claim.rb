@@ -181,14 +181,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def send_to_res(user)
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
 
-    Rails.logger.info('VRE claim email: ',
-                      email_addr,
-                      '. user uuid: ',
-                      user.uuid,
-                      '. sent to lighthouse: ',
-                      @sent_to_lighthouse,
-                      '. user present: ',
-                      user.present?)
+    Rails.logger.info('VRE claim sending to RES service',
+                      {
+                        email: email_addr,
+                        user_uuid: user.uuid,
+                        was_sent: @sent_to_lighthouse,
+                        user_present: user.present?
+                      })
 
     if user.present?
       VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
@@ -202,14 +201,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def send_vre_email_form(user)
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
 
-    Rails.logger.info('VRE claim email: ',
-                      email_addr,
-                      '. user uuid: ',
-                      user.uuid,
-                      '. sent to lighthouse: ',
-                      @sent_to_lighthouse,
-                      '. user present: ',
-                      user.present?)
+    Rails.logger.info('VRE claim sending to VRE service',
+                      {
+                        email: email_addr,
+                        user_uuid: user.uuid,
+                        was_sent: @sent_to_lighthouse,
+                        user_present: user.present?
+                      })
 
     if user.present?
       VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
