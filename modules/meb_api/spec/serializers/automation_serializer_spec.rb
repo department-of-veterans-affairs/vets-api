@@ -7,7 +7,7 @@ describe AutomationSerializer do
 
   let(:claimant) do
     {
-      'claimant_id': 600_010_259,
+      'claimant_id': 600010259,
       'suffix': '',
       'date_of_birth': '1990-08-01',
       'first_name': 'Hector',
@@ -30,20 +30,6 @@ describe AutomationSerializer do
     }
   end
 
-  let(:service_data) do
-    [
-      {
-        'branch_of_service': 'Air Force',
-        'begin_date': '2010-06-01',
-        'end_date': '2020-06-01',
-        'character_of_service': 'Honorable',
-        'reason_for_separation': 'Expiration Term Of Service',
-        'exclusion_periods': [],
-        'training_periods': []
-      }
-    ]
-  end
-
   let(:automation_claimant_response) do
     response = double('response', body: { 'claimant' => claimant, 'service_data' => service_data })
     MebApi::DGI::Automation::ClaimantResponse.new(201, response)
@@ -56,7 +42,7 @@ describe AutomationSerializer do
         'type': 'meb_api_dgi_automation_claimant_responses',
         'attributes': {
           'claimant': {
-            'claimant_id': 600_010_259,
+            'claimant_id': '600010259',
             'suffix': '',
             'date_of_birth': '1990-08-01',
             'first_name': 'Hector',
