@@ -34,6 +34,13 @@ Rails.application.routes.draw do
   get '/inherited_proofing/user_attributes', to: 'inherited_proofing#user_attributes'
   get '/inherited_proofing/callback', to: 'inherited_proofing#callback'
 
+  namespace :ivc_champva do
+    namespace :v1 do
+      post 'forms', to: 'uploads#submit'
+      post 'forms/submit_supporting_documents', to: 'uploads#submit_supporting_documents'
+    end
+  end
+
   namespace :v0, defaults: { format: 'json' } do
     resources :onsite_notifications, only: %i[create index update]
 
