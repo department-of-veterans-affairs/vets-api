@@ -73,10 +73,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 7176cb057f11f66f16889005a1873a084bad188c
+  revision: 70557e02ecd63b9cc10dca138fdfcb17e176e09a
   branch: master
   specs:
-    vets_json_schema (22.1.1)
+    vets_json_schema (22.3.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -140,7 +140,8 @@ GEM
       gserver
       sidekiq (>= 7.2.0, < 8)
       sidekiq-pro (>= 7.2.0, < 8)
-    sidekiq-pro (7.2.0)
+    sidekiq-pro (7.2.1)
+      base64
       sidekiq (>= 7.2.0, < 8)
 
 GEM
@@ -442,6 +443,7 @@ GEM
     fastimage (2.3.1)
     ffi (1.16.3)
     ffi (1.16.3-java)
+    ffi (1.16.3-x86-mingw32)
     ffi-compiler (1.3.2)
       ffi (>= 1.15.5)
       rake
@@ -521,6 +523,9 @@ GEM
       bigdecimal
       ffi (~> 1)
       ffi-compiler (~> 1)
+      rake (>= 13)
+    google-protobuf (4.27.0-x86-mingw32)
+      bigdecimal
       rake (>= 13)
     google-protobuf (4.27.0-x86_64-linux)
       bigdecimal
@@ -683,6 +688,8 @@ GEM
       racc (~> 1.4)
     nokogiri (1.16.5-java)
       racc (~> 1.4)
+    nokogiri (1.16.5-x86-mingw32)
+      racc (~> 1.4)
     nokogiri (1.16.5-x86_64-linux)
       racc (~> 1.4)
     nori (2.7.0)
@@ -736,6 +743,7 @@ GEM
       ruby-rc4
       ttfunk
     pg (1.5.6)
+    pg (1.5.6-x86-mingw32)
     pg_query (5.1.0)
       google-protobuf (>= 3.22.3)
     pg_search (2.3.6)
@@ -1304,4 +1312,4 @@ RUBY VERSION
    ruby 3.2.4p170
 
 BUNDLED WITH
-   2.4.9
+   2.5.10
