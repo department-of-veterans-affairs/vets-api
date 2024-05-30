@@ -12,7 +12,7 @@ module VetsApi
         input_values = args.reject { |a| a.start_with?('--', '-') }
         @inputs = input_values.empty? ? default_inputs : input_values.join(' ')
 
-        unless setup_preference_exists? || self.is_a?(Setup)
+        unless setup_preference_exists? || is_a?(Setup)
           puts 'You must run `bin/setup` before running other binstubs'
           exit 1
         end

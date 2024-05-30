@@ -53,7 +53,7 @@ module VetsApi
       end
 
       def store_developer_setup_preference
-        setup = @inputs.split(' ').first
+        setup = @inputs.split.first
         file_path = '.developer-setup'
         File.write(file_path, setup) if setup
       end

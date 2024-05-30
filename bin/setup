@@ -30,7 +30,7 @@ end
 option = ARGV.first
 if ARGV.include?('--help') || ARGV.include?('-h')
   help_message
-elsif ['native', 'docker', 'hybrid', 'base'].include?(option)
+elsif %w[native docker hybrid base].include?(option)
   VetsApi::Commands::Setup.run(ARGV)
 else
   puts "Invalid setup option \"#{option || 'NULL'}\""
