@@ -153,7 +153,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     send_vbms_confirmation_email(user)
   rescue
-    Rails.logger.error("Error uploading VRE claim to VBMS. user uuid: #{user.uuid}")
+    Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid })
     send_to_lighthouse!(user)
   end
 
@@ -175,7 +175,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     send_lighthouse_confirmation_email(user)
   rescue => e
-    Rails.logger.error("Error uploading VRE claim to central mail. user uuid: #{user.uuid}. #{e}")
+    Rails.logger.error('Error uploading VRE claim to central mail.', { user_uuid: user.uuid, e: })
   end
 
   def send_to_res(user)
