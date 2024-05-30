@@ -771,7 +771,7 @@ namespace :form526 do
     # ]}
 
     # SMELL: updated_at is not indexed
-    
+
     submissions = if end_date.nil?
                     Form526Submission.where('updated_at >= ?', start_date)
                   else
@@ -798,7 +798,10 @@ namespace :form526 do
       #           true / false
       #         the reason for failed validation
       #           ?? could be more than one error
-
+      #
+      # TODO: Where should the CSV file go?
+      #
+      
 =begin
   create_table "form526_submissions", id: :serial, force: :cascade do |t|
     t.string "user_uuid", null: false
