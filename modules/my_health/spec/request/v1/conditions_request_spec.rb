@@ -21,7 +21,7 @@ RSpec.describe 'Medical Records Integration', type: :request do
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
 
-    before { get '/my_health/v1/medical_records/allergies' }
+    before { get '/my_health/v1/medical_records/conditions' }
 
     include_examples 'for user account level', message: 'You do not have access to medical records'
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to medical records'
@@ -30,7 +30,7 @@ RSpec.describe 'Medical Records Integration', type: :request do
   context 'Advanced User' do
     let(:mhv_account_type) { 'Advanced' }
 
-    before { get '/my_health/v1/medical_records/allergies' }
+    before { get '/my_health/v1/medical_records/conditions' }
 
     include_examples 'for user account level', message: 'You do not have access to medical records'
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to medical records'
@@ -40,7 +40,7 @@ RSpec.describe 'Medical Records Integration', type: :request do
     let(:mhv_account_type) { 'Premium' }
 
     context 'not a va patient' do
-      before { get '/my_health/v1/medical_records/allergies' }
+      before { get '/my_health/v1/medical_records/conditions' }
 
       let(:va_patient) { false }
       let(:current_user) do

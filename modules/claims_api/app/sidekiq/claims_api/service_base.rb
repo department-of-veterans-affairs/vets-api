@@ -21,9 +21,24 @@ module ClaimsApi
                             record_id: message['args']&.first,
                             detail: "Job retries exhausted for #{message['class']}",
                             error: message['error_message'])
+
+      classes = %w[ClaimsApi::V2::DisabilityCompensationPdfGenerator
+                   ClaimApi::V2::DisabilityCompensationDockerContainerUpload
+                   ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader].freeze
+
+      claim_id = message&.dig('args', 0)
+
+      if message['class'].present? && classes.include?(message['class']) && claim_id.present?
+        claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+        claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+      end
     end
 
     protected
+
+    def set_errored_state_on_claim(auto_claim)
+      save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::ERRORED)
+    end
 
     def set_established_state_on_claim(auto_claim)
       save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
@@ -32,10 +47,6 @@ module ClaimsApi
     def clear_evss_response_for_claim(auto_claim)
       auto_claim.evss_response = nil
       save_auto_claim!(auto_claim, auto_claim.status)
-    end
-
-    def set_errored_state_on_claim(auto_claim)
-      save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::ERRORED)
     end
 
     def set_pending_state_on_claim(auto_claim)

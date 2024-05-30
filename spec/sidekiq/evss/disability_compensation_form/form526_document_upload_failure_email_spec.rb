@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail, type: :job do
+  subject { described_class }
+
   let!(:form526_submission) do
     create(
       :form526_submission,
@@ -52,34 +54,53 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
         }
       )
 
-      subject.perform(form526_submission.id, form_attachment.guid)
+      subject.perform_async(form526_submission.id, form_attachment.guid)
+      subject.drain
     end
 
-    it 'logs to the Rails logger' do
-      allow(notification_client).to receive(:send_email)
-      exhaustion_time = Time.new(1985, 10, 26).utc
-
-      Timecop.freeze(exhaustion_time) do
-        expect(Rails.logger).to receive(:info).with(
-          'Form526DocumentUploadFailureEmail notification dispatched',
-          {
-            obscured_filename:,
-            form526_submission_id: form526_submission.id,
-            supporting_evidence_attachment_guid: form_attachment.guid,
-            timestamp: exhaustion_time
-          }
-        )
-
-        subject.perform(form526_submission.id, form_attachment.guid)
+    describe 'logging' do
+      before do
+        allow(notification_client).to receive(:send_email)
       end
-    end
 
-    it 'increments a Statsd metric' do
-      allow(notification_client).to receive(:send_email)
+      it 'logs to the Rails logger' do
+        # Necessary to allow multiple logging statements and test has_received on ours
+        # Required as other logging occurs (in lib/sidekiq/form526_job_status_tracker/job_tracker.rb callbacks)
+        allow(Rails.logger).to receive(:info)
+        exhaustion_time = Time.new(1985, 10, 26).utc
 
-      expect { subject.perform(form526_submission.id, form_attachment.guid) }.to trigger_statsd_increment(
-        'api.form_526.veteran_notifications.document_upload_failure_email.success'
-      )
+        Timecop.freeze(exhaustion_time) do
+          subject.perform_async(form526_submission.id, form_attachment.guid)
+          subject.drain
+
+          expect(Rails.logger).to have_received(:info).with(
+            'Form526DocumentUploadFailureEmail notification dispatched',
+            {
+              obscured_filename:,
+              form526_submission_id: form526_submission.id,
+              supporting_evidence_attachment_guid: form_attachment.guid,
+              timestamp: exhaustion_time
+            }
+          )
+        end
+      end
+
+      it 'increments a Statsd metric' do
+        # allow(notification_client).to receive(:send_email)
+        expect do
+          subject.perform_async(form526_submission.id, form_attachment.guid)
+          subject.drain
+        end.to trigger_statsd_increment(
+          'api.form_526.veteran_notifications.document_upload_failure_email.success'
+        )
+      end
+
+      it 'creates a Form526JobStatus' do
+        expect do
+          subject.perform_async(form526_submission.id, form_attachment.guid)
+          subject.drain
+        end.to change(Form526JobStatus, :count).by(1)
+      end
     end
   end
 

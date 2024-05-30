@@ -195,10 +195,8 @@ module ClaimsApi
       # rubocop:disable Layout/LineLength
       def gulfwar_hazard
         gulf = @pdf_data&.dig(:data, :attributes, :toxicExposure, :gulfWarHazardService)
-        if gulf.present?
-          served_gulf_loc = @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:servedInGulfWarHazardLocations]
-          served_gulf_loc == 'NO' || served_gulf_loc.blank? ? 'NO' : 'YES'
-        end
+        return if gulf.blank?
+
         if gulf[:serviceDates].present?
           gulfwar_service_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:gulfWarHazardService][:serviceDates][:beginDate]
           if gulfwar_service_dates_begin.present?
@@ -216,8 +214,10 @@ module ClaimsApi
       end
 
       def herbicide_hazard
-        herb = @pdf_data&.dig(:data, :attributes, :toxicExposure, :herbicideHazardService).present?
-        if herb
+        herb = @pdf_data&.dig(:data, :attributes, :toxicExposure, :herbicideHazardService)
+        return if herb.blank?
+
+        if herb[:serviceDates].present?
           herbicide_service_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:herbicideHazardService][:serviceDates][:beginDate]
           if herbicide_service_dates_begin.present?
             @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates][:start] =
@@ -230,15 +230,14 @@ module ClaimsApi
               make_date_object(herbicide_service_dates_end, herbicide_service_dates_end.length)
           end
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates].delete(:endDate)
-          served_in_herbicide_hazard_locations = @pdf_data[:data][:attributes][:toxicExposure][:herbicideHazardService][:servedInHerbicideHazardLocations]
-          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:servedInHerbicideHazardLocations] =
-            served_in_herbicide_hazard_locations ? 'YES' : 'NO'
         end
       end
 
       def additional_exposures
-        add = @pdf_data&.dig(:data, :attributes, :toxicExposure, :additionalHazardExposures).present?
-        if add
+        add = @pdf_data&.dig(:data, :attributes, :toxicExposure, :additionalHazardExposures)
+        return if add.blank?
+
+        if add[:exposureDates].present?
           additional_exposure_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:additionalHazardExposures][:exposureDates][:beginDate]
           if additional_exposure_dates_begin.present?
             @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:additionalHazardExposures][:exposureDates][:start] =
@@ -427,6 +426,7 @@ module ClaimsApi
           disability.delete('diagnosticCode')
           disability.delete('disabilityActionType')
           disability.delete('isRelatedToToxicExposure')
+          disability.delete('specialIssues')
           sec_dis = disability['secondaryDisabilities']&.map do |secondary_disability|
             # if secondary disability is present a name is required
             # so it is safe to assume both names are present

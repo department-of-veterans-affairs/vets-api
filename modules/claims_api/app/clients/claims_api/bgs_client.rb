@@ -20,11 +20,11 @@ module ClaimsApi
       #   One and only one of `body` or `block` is required.
       #
       def perform_request(
-        action:, body: nil,
+        action, body = nil,
         external_id: ExternalId::DEFAULT, &
       )
         const_get(:Request)
-          .new(action:, external_id:)
+          .new(action, external_id:)
           .perform(body, &)
       end
 

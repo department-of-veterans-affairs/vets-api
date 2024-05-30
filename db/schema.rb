@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_15_192926) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_20_191416) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -99,14 +99,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_15_192926) do
     t.index ["location"], name: "index_accredited_individuals_on_location", using: :gist
     t.index ["poa_code"], name: "index_accredited_individuals_on_poa_code"
     t.index ["registration_number", "individual_type"], name: "index_on_reg_num_and_type_for_accredited_individuals", unique: true
-  end
-
-  create_table "accredited_individuals_accredited_organizations", force: :cascade do |t|
-    t.uuid "accredited_individual_id", null: false
-    t.uuid "accredited_organization_id", null: false
-    t.index ["accredited_individual_id", "accredited_organization_id"], name: "index_accredited_on_indi_and_org_ids", unique: true
-    t.index ["accredited_individual_id"], name: "idx_on_accredited_individual_id_94f42eefad"
-    t.index ["accredited_organization_id"], name: "idx_on_accredited_organization_id_a394d1de51"
   end
 
   create_table "accredited_organizations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1556,8 +1548,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_15_192926) do
   add_foreign_key "account_login_stats", "accounts"
   add_foreign_key "accreditations", "accredited_individuals"
   add_foreign_key "accreditations", "accredited_organizations"
-  add_foreign_key "accredited_individuals_accredited_organizations", "accredited_individuals"
-  add_foreign_key "accredited_individuals_accredited_organizations", "accredited_organizations"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"
