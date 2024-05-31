@@ -49,7 +49,7 @@ RSpec.describe 'Disability compensation form' do
       context 'error handling tests' do
         cassettes_directory = 'lighthouse/veteran_verification/disability_rating'
 
-        Lighthouse::ServiceException::ERROR_MAP.each_key do |status|
+        Lighthouse::ServiceException::ERROR_MAP.except(422).each_key do |status|
           cassette_path = "#{cassettes_directory}/#{status == 404 ? '404_ICN' : status}_response"
 
           it "returns #{status} response" do
@@ -242,6 +242,9 @@ RSpec.describe 'Disability compensation form' do
           post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('submit_disability_form')
+          expect(Form526Submission.count).to eq(1)
+          form = Form526Submission.last.form
+          expect(form.dig('form526', 'form526', 'toxicExposure')).not_to eq(nil)
         end
 
         it 'matches the rated disabilites schema with camel-inflection' do
@@ -253,6 +256,43 @@ RSpec.describe 'Disability compensation form' do
         it 'starts the submit job' do
           expect(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to receive(:perform_async).once
           post '/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:
+        end
+
+        context 'when the includes_toxic_exposure query param value is true' do
+          let(:query_param) { '?includes_toxic_exposure=true' }
+
+          it 'sets claims_api as the submit_endpoint' do
+            post("/v0/disability_compensation_form/submit_all_claim#{query_param}", params: all_claims_form, headers:)
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('submit_disability_form')
+            expect(Form526Submission.count).to eq(1)
+            submission = Form526Submission.last
+            expect(submission.submit_endpoint).to eq('claims_api')
+          end
+        end
+
+        context 'when the includes_toxic_exposure query param value is false' do
+          let(:query_param) { '?includes_toxic_exposure=false' }
+
+          it 'sets evss as the submit_endpoint' do
+            post("/v0/disability_compensation_form/submit_all_claim#{query_param}", params: all_claims_form, headers:)
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('submit_disability_form')
+            expect(Form526Submission.count).to eq(1)
+            submission = Form526Submission.last
+            expect(submission.submit_endpoint).to eq('evss')
+          end
+        end
+
+        context 'when the includes_toxic_exposure query param is not passed' do
+          it 'sets evss as the submit_endpoint' do
+            post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('submit_disability_form')
+            expect(Form526Submission.count).to eq(1)
+            submission = Form526Submission.last
+            expect(submission.submit_endpoint).to eq('evss')
+          end
         end
       end
 

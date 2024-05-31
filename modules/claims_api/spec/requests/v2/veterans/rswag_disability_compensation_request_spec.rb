@@ -6,13 +6,13 @@ require 'rails_helper'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
-describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_api_docs,
-                                   vcr: 'claims_api/disability_comp' do
+describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
   let(:scopes) { %w[system/claim.read system/claim.write] }
   let(:generate_pdf_minimum_validations_scopes) { %w[system/claim.read system/claim.write system/526-pdf.override] }
+  let(:synchronous_scopes) { %w[system/claim.read system/claim.write system/526.override] }
 
-  path '/veterans/{veteranId}/526' do
-    post 'Submits form 526' do
+  path '/veterans/{veteranId}/526', vcr: 'claims_api/disability_comp' do
+    post 'Synchronously establishes disability compensation claim' do
       tags 'Disability Compensation Claims'
       operationId 'post526Claim'
       security [
@@ -212,7 +212,223 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
     end
   end
 
-  path '/veterans/{veteranId}/526/validate' do
+  path '/veterans/{veteranId}/526/synchronous', production: false do
+    post 'Submits disability compensation claim asynchronously' do
+      tags 'Disability Compensation Claims'
+      operationId 'post526ClaimSynchronous'
+      security [
+        { productionOauth: ['system/526.override'] },
+        { sandboxOauth: ['system/526.override'] }
+      ]
+      consumes 'application/json'
+      produces 'application/json'
+
+      get_schema_description = <<~VERBIAGE
+        Automatically establishes a disability compensation claim (21-526EZ) in Veterans Benefits Management System (VBMS). This endpoint synchronously generates a filled and electronically signed 526EZ form and establishes the disability claim in VBMS. The 526EZ form is uploaded asynchronously.
+
+        A 202 response indicates the API submission was accepted and the claim was established in VBMS. Check claim status using the GET veterans/{veteranId}/claims/{id} endpoint. The claim status details response will return the associated 526EZ PDF in the supportingDocuments list.
+
+        **A substantially complete 526EZ claim must include:**
+        * Veteran's name
+        * Sufficient service information for VA to verify the claimed service
+        * At least one claimed disability or medical condition and how it relates to service
+        * Veteran and/or Representative signature
+
+        **Standard and fully developed claims (FDCs)**
+
+        [Fully developed claims (FDCs)](https://www.va.gov/disability/how-to-file-claim/evidence-needed/fully-developed-claims/)
+        are claims certified by the submitter to include all information needed for processing. These claims process faster#{' '}
+        than claims submitted through the standard claim process. If a claim is certified for the FDC, but is missing needed information,#{' '}
+        it will be processed as a standard claim.
+
+        To certify a claim for the FDC process, set the claimProcessType to FDC_PROGRAM.
+      VERBIAGE
+      description get_schema_description
+
+      parameter name: 'veteranId',
+                in: :path,
+                required: true,
+                type: :string,
+                example: '1012667145V762142',
+                description: 'ID of Veteran'
+
+      let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
+      let(:Authorization) { 'Bearer token' }
+
+      let(:scopes) { %w[system/526.override] }
+
+      parameter name: :disability_comp_request, in: :body,
+                schema: SwaggerSharedComponents::V2.body_examples[:disability_compensation][:schema]
+
+      # WE MIGHT NOT NEED BOTH EXAMPLES THIS IS WIP SO JUST HAD THEM IN HERE
+      # EXPECTING THESE DOCS WOULD BE THE SAME AS THE 526, BUT WE MAY GO TO ONE
+      parameter in: :body, examples: {
+        'Minimum Required Attributes' => {
+          value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                            'disability_compensation', 'valid_526_minimum.json').read)
+        },
+        'Maximum Attributes' => {
+          value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                            'disability_compensation', 'form_526_json_api.json').read)
+
+        }
+      }
+
+      describe 'Getting a successful response' do
+        response '202', 'Successful response' do
+          let(:claim_date) { (Time.zone.today - 1.day).to_s }
+          let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+          let(:data) do
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                   'disability_compensation', 'form_526_json_api.json').read
+            temp = JSON.parse(temp)
+            attributes = temp['data']['attributes']
+            attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+              anticipated_separation_date
+            temp['data']['attributes'] = attributes
+            temp.to_json
+            temp
+          end
+
+          let(:disability_comp_request) do
+            data
+          end
+
+          schema SwaggerSharedComponents::V2.schemas[:sync_disability_compensation]
+
+          before do |example|
+            Flipper.disable :claims_load_testing
+
+            with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
+              VCR.use_cassette('claims_api/disability_comp') do
+                VCR.use_cassette('claims_api/evss/submit') do
+                  mock_ccg_for_fine_grained_scope(synchronous_scopes) do
+                    submit_request(example.metadata)
+                  end
+                end
+              end
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a valid 202 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting an unauthorized reponse' do
+        response '401', 'Unauthorized' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'disability_compensation', 'default.json').read)
+
+          let(:data) do
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                   'disability_compensation', 'form_526_json_api.json').read
+            temp = JSON.parse(temp)
+            temp
+          end
+
+          let(:disability_comp_request) do
+            data
+          end
+
+          before do |example|
+            # skip ccg authorization to fail authorization
+            submit_request(example.metadata)
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting an unprocessable entity response' do
+        response '422', 'Unprocessable entity' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'disability_compensation', 'default_with_source.json').read)
+          # Build the dropdown for examples
+          def append_example_metadata(example, response)
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                examples: {
+                  example.metadata[:example_group][:description] => {
+                    value: JSON.parse(response.body, symbolize_names: true)
+                  }
+                }
+              }
+            }
+          end
+
+          def make_request(example)
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          context 'Violates JSON Schema' do
+            let(:data) { { data: { attributes: nil } } }
+
+            let(:disability_comp_request) do
+              data
+            end
+
+            before do |example|
+              make_request(example)
+            end
+
+            after do |example|
+              append_example_metadata(example, response)
+            end
+
+            it 'returns a 422 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
+          end
+
+          context 'Not a JSON Object' do
+            let(:data) do
+              'This is not valid JSON'
+            end
+
+            let(:disability_comp_request) do
+              data
+            end
+
+            before do |example|
+              make_request(example)
+            end
+
+            after do |example|
+              append_example_metadata(example, response)
+            end
+
+            it 'returns a 422 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
+          end
+        end
+      end
+    end
+  end
+
+  path '/veterans/{veteranId}/526/validate', vcr: 'claims_api/disability_comp' do
     post 'Validates a 526 claim form submission.' do
       tags 'Disability Compensation Claims'
       operationId 'post526ClaimValidate'
@@ -340,7 +556,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
     end
   end
 
-  path '/veterans/{veteranId}/526/{id}/attachments' do
+  path '/veterans/{veteranId}/526/{id}/attachments', vcr: 'claims_api/disability_comp' do
     post 'Upload documents supporting a 526 claim' do
       tags 'Disability Compensation Claims'
       operationId 'upload526Attachments'
@@ -390,6 +606,9 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
       describe 'Getting an accepted response' do
         response '202', 'upload response' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2',
+                                            'veterans', 'disability_compensation', 'attachments.json').read)
+
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                    'disability_compensation', 'form_526_json_api.json').read
@@ -399,7 +618,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           end
 
           let(:scopes) { %w[system/claim.write] }
-          let(:auto_claim) { create(:auto_established_claim) }
+          let(:auto_claim) { create(:auto_established_claim_v2) }
           let(:attachment1) do
             Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                     .to_s)
@@ -512,7 +731,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
     end
   end
 
-  path '/veterans/{veteranId}/526/generatePDF/minimum-validations' do
+  path '/veterans/{veteranId}/526/generatePDF/minimum-validations', vcr: 'claims_api/disability_comp' do
     post 'Returns filled out 526EZ form as PDF with minimum validations (restricted access)' do
       tags 'Disability Compensation Claims'
       operationId 'post526Pdf'
@@ -572,6 +791,9 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'disability_compensation', 'default.json').read)
+
           let(:Authorization) { nil }
 
           before do |example|

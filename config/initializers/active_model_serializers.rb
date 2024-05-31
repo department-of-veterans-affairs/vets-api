@@ -66,3 +66,4 @@ end
 ActiveModelSerializers::Adapter::JsonApi::PaginationLinks.prepend CustomPaginationLinks
 ActiveModelSerializers.config.adapter = :json_api
 ActiveModelSerializers.config.key_transform = :underscore
+ActiveSupport::Notifications.unsubscribe(ActiveModelSerializers::Logging::RENDER_EVENT)

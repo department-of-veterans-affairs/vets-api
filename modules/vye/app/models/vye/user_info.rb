@@ -2,33 +2,46 @@
 
 module Vye
   class Vye::UserInfo < ApplicationRecord
-    INCLUDES = %i[address_changes awards pending_documents verifications].freeze
-
-    self.ignored_columns +=
-      [
-        :icn, :ssn_ciphertext, :ssn_digest,                               # moved to UserProfile
-
-        :suffix,                                                          # not needed
-
-        :address_line2_ciphertext, :address_line3_ciphertext,             # moved to AddressChange
-        :address_line4_ciphertext, :address_line5_ciphertext,             # moved to AddressChange
-        :address_line6_ciphertext, :full_name_ciphertext, :zip_ciphertext # moved to AddressChange
-      ]
+    include NeedsEnrollmentVerification
+    # include CanDecodeAttribute
 
     belongs_to :user_profile
+    belongs_to :bdn_clone
 
     has_many :address_changes, dependent: :destroy
+
+    has_one(
+      :backend_address,
+      -> { where(origin: 'backend') },
+      class_name: 'AddressChange',
+      inverse_of: :user_info,
+      dependent: :restrict_with_exception
+    )
+
+    has_one(
+      :latest_address,
+      -> { order(created_at: :desc) },
+      class_name: 'AddressChange',
+      inverse_of: :user_info,
+      dependent: :restrict_with_exception
+    )
+
     has_many :awards, dependent: :destroy
     has_many :direct_deposit_changes, dependent: :destroy
-    has_many :verifications, dependent: :destroy
 
-    enum mr_status: { active: 'A', expired: 'E' }
-    enum indicator: { chapter1606: 'A', chapter1607: 'E', chapter30: 'B', D: 'D' }
+    scope :with_bdn_clone_active, -> { where(bdn_clone_active: true) }
+
+    # decode_attribute :mr_status, with: { active: 'A', expired: 'E' }
+
+    # decode_attribute :indicator, with: { chapter1606: 'A', chapter1607: 'E', chapter30: 'B', D: 'D' }
 
     delegate :icn, to: :user_profile, allow_nil: true
-    delegate :pending_documents, to: :user_profile, allow_nil: true
+    delegate :ssn, to: :mpi_profile, allow_nil: true
+    delegate :pending_documents, to: :user_profile
+    delegate :verifications, to: :user_profile
 
     has_kms_key
+
     has_encrypted(:dob, :file_number, :stub_nm, key: :kms_key, **lockbox_options)
 
     serialize :dob, coder: DateAttributeSerializer
@@ -39,18 +52,36 @@ module Vye
       presence: true
     )
 
-    def verification_required
-      verifications.empty?
+    delegate :veteran_name, to: :backend_address
+
+    def zip_code
+      backend_address&.zip_code&.slice(0, 5)
     end
 
-    def ssn
-      mpi_profile&.ssn
+    def queued_verifications
+      awards.map(&:verifications).flatten
+    end
+
+    def queued_verifications?
+      queued_verifications.any?
     end
 
     private
 
     def mpi_profile
-      @mpi_profile ||= MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: icn)&.profile
+      return @mpi_profile if defined?(@mpi_profile)
+
+      @mpi_profile =
+        if icn.blank?
+          nil
+        else
+          MPI::Service
+            .new
+            .find_profile_by_identifier(
+              identifier_type: 'ICN',
+              identifier: icn
+            )&.profile
+        end
     end
   end
 end

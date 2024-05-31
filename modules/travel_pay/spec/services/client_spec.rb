@@ -44,7 +44,7 @@ describe TravelPay::Client do
         [
           200,
           { 'Content-Type': 'application/json' },
-          '{"access_token": "fake_btsss_token"}'
+          '{"data": {"accessToken": "fake_btsss_token"}}'
         ]
       end
 
@@ -74,6 +74,9 @@ describe TravelPay::Client do
 
   context '/claims' do
     it 'returns a list of claims sorted by most recently updated' do
+      payload = { ContactID: 'test' }
+      fake_btsss_token = JWT.encode(payload, nil, 'none')
+
       @stubs.get('/api/v1/claims') do
         [
           200,
@@ -82,15 +85,30 @@ describe TravelPay::Client do
             'data' => [
               {
                 'id' => 'uuid1',
-                'modified_on' => '2024-01-01'
+                'claimNumber' => 'TC0000000000001',
+                'claimStatus' => 'InProgress',
+                'appointmentDateTime' => '2024-04-22T16:45:34.465Z',
+                'facilityName' => 'Cheyenne VA Medical Center',
+                'createdOn' => '2024-03-22T21:22:34.465Z',
+                'modifiedOn' => '2024-01-01T16:44:34.465Z'
               },
               {
                 'id' => 'uuid2',
-                'modified_on' => '2024-03-01'
+                'claimNumber' => 'TC0000000000002',
+                'claimStatus' => 'InProgress',
+                'appointmentDateTime' => '2024-04-22T16:45:34.465Z',
+                'facilityName' => 'Cheyenne VA Medical Center',
+                'createdOn' => '2024-02-22T21:22:34.465Z',
+                'modifiedOn' => '2024-03-01T00:00:00.0Z'
               },
               {
                 'id' => 'uuid3',
-                'modified_on' => '2024-02-01'
+                'claimNumber' => 'TC0000000000002',
+                'claimStatus' => 'Incomplete',
+                'appointmentDateTime' => '2024-04-22T16:45:34.465Z',
+                'facilityName' => 'Cheyenne VA Medical Center',
+                'createdOn' => '2024-01-22T21:22:34.465Z',
+                'modifiedOn' => '2024-02-01T00:00:00.0Z'
               }
             ]
           }
@@ -98,12 +116,15 @@ describe TravelPay::Client do
       end
 
       expected_ordered_ids = %w[uuid2 uuid3 uuid1]
+      expected_statuses = ['In Progress', 'Incomplete', 'In Progress']
 
       client = TravelPay::Client.new
-      claims = client.get_claims('veis_token', 'btsss_token')
-      actual_claim_ids = claims.pluck(:id)
+      claims = client.get_claims('veis_token', fake_btsss_token)
+      actual_claim_ids = claims[:data].pluck(:id)
+      actual_statuses = claims[:data].pluck(:claimStatus)
 
       expect(actual_claim_ids).to eq(expected_ordered_ids)
+      expect(actual_statuses).to eq(expected_statuses)
     end
   end
 

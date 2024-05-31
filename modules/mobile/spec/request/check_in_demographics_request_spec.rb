@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-
+require_relative '../support/helpers/rails_helper'
 RSpec.describe 'check in demographics', type: :request do
   let(:location_id) { '516' }
   let(:patient_dfn) { '12345' }

@@ -4,6 +4,9 @@
 PERIODIC_JOBS = lambda { |mgr|
   mgr.tz = ActiveSupport::TimeZone.new('America/New_York')
 
+  # Runs at midnight every Tuesday
+  mgr.register('0 0 * * 2', 'LoadAverageDaysForClaimCompletionJob')
+
   mgr.register('*/15 * * * *', 'CovidVaccine::ScheduledBatchJob')
   mgr.register('*/15 * * * *', 'CovidVaccine::ExpandedScheduledSubmissionJob')
   mgr.register('*/30 * * * *', 'SidekiqAlive::CleanupQueues')
@@ -14,12 +17,8 @@ PERIODIC_JOBS = lambda { |mgr|
   # Update NoticeOfDisagreement statuses with their Central Mail status
   mgr.register('15 * * * *', 'AppealsApi::SupplementalClaimUploadStatusBatch')
   # Update SupplementalClaim statuses with their Central Mail status
-  mgr.register('45 0 * * *', 'AppealsApi::HigherLevelReviewCleanUpWeekOldPii')
-  # Remove PII of HigherLevelReviews that have 1) reached one of the 'completed' statuses and 2) are a week old
-  mgr.register('45 0 * * *', 'AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii')
-  # Remove PII of NoticeOfDisagreements that have 1) reached one of the 'completed' statuses and 2) are a week old
-  mgr.register('45 0 * * *', 'AppealsApi::SupplementalClaimCleanUpPii')
-  # Remove PII of SupplementalClaims that have 1) reached one of the 'completed' statuses and 2) are a week old
+  mgr.register('45 0 * * *', 'AppealsApi::CleanUpPii')
+  # Remove PII from appeal records after they have been successfully processed by the VA
   mgr.register('30 * * * *', 'AppealsApi::EvidenceSubmissionBackup')
   # Ensures that appeal evidence received "late" (after the appeal has reached "success") is submitted to Central Mail
   mgr.register('0 23 * * 1-5', 'AppealsApi::DecisionReviewReportDaily')
@@ -90,8 +89,11 @@ PERIODIC_JOBS = lambda { |mgr|
 
   mgr.register('0 6-18/6 * * *', 'EducationForm::Process10203Submissions')
 
-  mgr.register('* 7 * * *', 'SignIn::DeleteExpiredSessionsJob')
+  mgr.register('0 7 * * *', 'SignIn::DeleteExpiredSessionsJob')
   # Delete expired sessions
+
+  mgr.register('0 4 * * *', 'SignIn::CertificateCheckerJob')
+  # Log when a client or service account config contains an expired, expiring, or self-signed certificate
 
   mgr.register('0 12 3 * *', 'CypressViewportUpdater::UpdateCypressViewportsJob')
   # Updates Cypress files in vets-website with data from Google Analytics.
@@ -103,8 +105,8 @@ PERIODIC_JOBS = lambda { |mgr|
   # Daily alert of pending claims longer than acceptable threshold
   mgr.register('15 23 * * *', 'ClaimsApi::ReportUnsuccessfulSubmissions')
   # Weekly report of unsuccessful claims submissions
-  mgr.register('15 23 1 * *', 'ClaimsApi::ReportMonthlySubmissions')
-  # Weekly report of unsuccessful claims submissions
+  mgr.register('00 00 1 * *', 'ClaimsApi::ReportMonthlySubmissions')
+  # Monthly report of submissions
 
   mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
 
@@ -150,8 +152,10 @@ PERIODIC_JOBS = lambda { |mgr|
   # Daily/weekly report of unsuccessful benefits intake submissions
   mgr.register('0 2 1 * *', 'VBADocuments::ReportMonthlySubmissions')
   # Monthly report of benefits intake submissions
-  mgr.register('0 2,9,16 * * 1-5', 'VBADocuments::SlackNotifier')
-  # Notifies slack channel if certain benefits states get stuck
+  mgr.register('0 8,12,17 * * 1-5', 'VBADocuments::SlackInflightNotifier')
+  # Notifies slack channel if certain benefits intake uploads get stuck in Central Mail
+  mgr.register('15 * * * *', 'VBADocuments::SlackStatusNotifier')
+  # Notifies slack channel if Benefits Intake Uploads are stuck in the LH BI service before sending to central mail
   mgr.register('0 2,9,16 * * 1-5', 'VBADocuments::FlipperStatusAlert')
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
 
@@ -163,5 +167,11 @@ PERIODIC_JOBS = lambda { |mgr|
 
   # Updates veteran service organization names
   mgr.register('0 5 * * *', 'Organizations::UpdateNames')
+
+  # Clean SchemaContact::Validation records every night at midnight
+  mgr.register('0 0 * * *', 'SchemaContract::DeleteValidationRecordsJob')
+
+  # Daily 2am job that sends missing Pega statuses to DataDog
+  mgr.register('0 2 * * *', 'IvcChampva::MissingFormStatusJob')
 }
 # rubocop:enable Metrics/BlockLength

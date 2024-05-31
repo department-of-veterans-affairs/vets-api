@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require_relative '../support/helpers/rails_helper'
 require_relative '../support/helpers/iam_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'user', type: :request do
   # this is considered legacy because it's specific to IAM users and is no longer in use by the mobile client.

@@ -8,6 +8,7 @@ RSpec.describe 'Forms uploader', type: :request do
   forms = [
     # TODO: Restore this test when we release 26-4555 to production.
     # 'vba_26_4555.json',
+    'vba_21_4138.json',
     'vba_21_4142.json',
     'vba_21_10210.json',
     'vba_21p_0847.json',
@@ -28,17 +29,23 @@ RSpec.describe 'Forms uploader', type: :request do
     context 'going to Lighthouse Benefits Intake API' do
       let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
       let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
+      let(:random_string) { 'some-unique-simple-forms-file-seed' }
 
       before do
         VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
         VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
         allow(Common::FileHelpers).to receive(:random_file_path).and_return(file_seed)
+        allow(Common::FileHelpers).to receive(:generate_temp_file).and_wrap_original do |original_method, *args|
+          original_method.call(args[0], random_string)
+        end
+        Flipper.disable(:simple_forms_email_confirmations)
       end
 
       after do
         VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
         VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
         Common::FileHelpers.delete_file_if_exists(metadata_file)
+        Flipper.enable(:simple_forms_email_confirmations)
       end
 
       forms.each do |form|
@@ -124,6 +131,8 @@ RSpec.describe 'Forms uploader', type: :request do
           end
 
           it 'returns an expiration date' do
+            Flipper.disable(:form21_0966_confirmation_email)
+
             fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                            'vba_21_0966.json')
             data = JSON.parse(fixture_path.read)
@@ -133,6 +142,8 @@ RSpec.describe 'Forms uploader', type: :request do
             parsed_response_body = JSON.parse(response.body)
             parsed_expiration_date = Time.zone.parse(parsed_response_body['expiration_date'])
             expect(parsed_expiration_date.to_s).to eq (expiration_date + 1.year).to_s
+
+            Flipper.enable(:form21_0966_confirmation_email)
           end
         end
       end
@@ -188,6 +199,8 @@ RSpec.describe 'Forms uploader', type: :request do
       context 'transliterating fields' do
         context 'transliteration succeeds' do
           it 'responds with ok' do
+            Flipper.disable(:form21_0966_confirmation_email)
+
             fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                            'form_with_accented_chars_21_0966.json')
             data = JSON.parse(fixture_path.read)
@@ -195,6 +208,8 @@ RSpec.describe 'Forms uploader', type: :request do
             post '/simple_forms_api/v1/simple_forms', params: data
 
             expect(response).to have_http_status(:ok)
+
+            Flipper.enable(:form21_0966_confirmation_email)
           end
         end
 
@@ -512,8 +527,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
       it 'successful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf_to_benefits_intake).and_return([200, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::PdfUploader)
+          .to receive(:upload_to_benefits_intake).and_return([200, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -532,8 +547,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
       it 'unsuccessful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf_to_benefits_intake).and_return([500, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::PdfUploader)
+          .to receive(:upload_to_benefits_intake).and_return([500, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -553,8 +568,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
       it 'successful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf_to_benefits_intake).and_return([200, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::PdfUploader)
+          .to receive(:upload_to_benefits_intake).and_return([200, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -573,8 +588,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
       it 'unsuccessful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf_to_benefits_intake).and_return([500, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::PdfUploader)
+          .to receive(:upload_to_benefits_intake).and_return([500, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -600,11 +615,8 @@ RSpec.describe 'Forms uploader', type: :request do
       it 'successful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        allow_any_instance_of(
-          SimpleFormsApi::V1::UploadsController
-        ).to receive(
-          :upload_pdf_to_benefits_intake
-        ).and_return([200, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::PdfUploader)
+          .to receive(:upload_to_benefits_intake).and_return([200, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -624,11 +636,8 @@ RSpec.describe 'Forms uploader', type: :request do
       it 'unsuccessful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        allow_any_instance_of(
-          SimpleFormsApi::V1::UploadsController
-        ).to receive(
-          :upload_pdf_to_benefits_intake
-        ).and_return([500, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::PdfUploader)
+          .to receive(:upload_to_benefits_intake).and_return([500, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -648,8 +657,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
       it 'successful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf_to_benefits_intake).and_return([200, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::PdfUploader)
+          .to receive(:upload_to_benefits_intake).and_return([200, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -668,14 +677,94 @@ RSpec.describe 'Forms uploader', type: :request do
 
       it 'unsuccessful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf_to_benefits_intake).and_return([500, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::PdfUploader)
+          .to receive(:upload_to_benefits_intake).and_return([500, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
         expect(response).to have_http_status(:error)
 
         expect(VANotify::EmailJob).not_to have_received(:perform_async)
+      end
+    end
+
+    describe '21_0966' do
+      context 'authenticated user' do
+        let(:data) do
+          fixture_path = Rails.root.join(
+            'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_0966.json'
+          )
+          JSON.parse(fixture_path.read)
+        end
+
+        before do
+          user = create(:user)
+          sign_in_as(user)
+          allow_any_instance_of(User).to receive(:va_profile_email).and_return('abraham.lincoln@vets.gov')
+          allow(VANotify::EmailJob).to receive(:perform_async)
+        end
+
+        context 'veteran preparer' do
+          it 'successful submission' do
+            allow_any_instance_of(SimpleFormsApi::IntentToFile)
+              .to receive(:submit).and_return([confirmation_number, Time.zone.now])
+            allow_any_instance_of(SimpleFormsApi::IntentToFile)
+              .to receive(:existing_intents)
+              .and_return({ 'compensation' => 'false', 'pension' => 'false', 'survivor' => 'false' })
+
+            data['preparer_identification'] = 'VETERAN'
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(response).to have_http_status(:ok)
+
+            expect(VANotify::EmailJob).to have_received(:perform_async).with(
+              'abraham.lincoln@vets.gov',
+              'form21_0966_confirmation_email_template_id',
+              {
+                'first_name' => 'ABRAHAM',
+                'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                'confirmation_number' => confirmation_number,
+                'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
+                                             ' (VA Form 21P-534 or VA Form 21P-534EZ)'
+              }
+            )
+          end
+        end
+
+        context 'non-veteran preparer' do
+          it 'successful submission' do
+            allow_any_instance_of(SimpleFormsApi::PdfUploader)
+              .to receive(:upload_to_benefits_intake).and_return([200, confirmation_number])
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(response).to have_http_status(:ok)
+
+            expect(VANotify::EmailJob).to have_received(:perform_async).with(
+              'abraham.lincoln@vets.gov',
+              'form21_0966_confirmation_email_template_id',
+              {
+                'first_name' => 'ABRAHAM',
+                'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                'confirmation_number' => confirmation_number,
+                'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
+                                             ' (VA Form 21P-534 or VA Form 21P-534EZ)'
+              }
+            )
+          end
+
+          it 'unsuccessful submission' do
+            allow_any_instance_of(SimpleFormsApi::PdfUploader)
+              .to receive(:upload_to_benefits_intake).and_return([500, confirmation_number])
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(response).to have_http_status(:error)
+
+            expect(VANotify::EmailJob).not_to have_received(:perform_async)
+          end
+        end
       end
     end
   end

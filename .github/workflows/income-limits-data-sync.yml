@@ -15,7 +15,7 @@ jobs:
   income_limits_data_sync:
     runs-on: self-hosted
     container:
-      image: public.ecr.aws/docker/library/ruby:3.2.2-bullseye
+      image: public.ecr.aws/docker/library/ruby:3.2.4-bullseye
       env:
         SSL_CERT_FILE: /etc/ssl/certs/ca-certificates.crt
         NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: ${{ env.AWS_REGION }}

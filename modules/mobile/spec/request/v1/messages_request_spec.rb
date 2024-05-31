@@ -1,18 +1,15 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../../support/helpers/sis_session_helper'
+require_relative '../../support/helpers/rails_helper'
 
 RSpec.describe 'Mobile Messages V1 Integration', type: :request do
   let!(:user) { sis_user(:mhv, :api_auth, mhv_correlation_id: '123', mhv_account_type: 'Premium') }
 
   before do
-    Flipper.enable_actor(:mobile_sm_session_policy, user)
     Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
   end
 
   after do
-    Flipper.disable(:mobile_sm_session_policy)
     Timecop.return
   end
 

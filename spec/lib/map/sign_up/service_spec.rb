@@ -187,7 +187,9 @@ describe MAP::SignUp::Service do
     end
 
     context 'when response is successful' do
-      let(:expected_log_message) { "#{log_prefix} update provisioning success, icn: #{icn}" }
+      let(:expected_log_message) do
+        "#{log_prefix} update provisioning success, icn: #{icn}, parsed_response: #{expected_response_hash}"
+      end
       let(:expected_response_hash) do
         {
           agreement_signed: true,
@@ -210,7 +212,9 @@ describe MAP::SignUp::Service do
     end
 
     context 'when response is successful with 406' do
-      let(:expected_log_message) { "#{log_prefix} update provisioning success, icn: #{icn}" }
+      let(:expected_log_message) do
+        "#{log_prefix} update provisioning success, icn: #{icn}, parsed_response: #{expected_response_hash}"
+      end
       let(:expected_response_hash) do
         {
           agreement_signed: true,
@@ -233,7 +237,9 @@ describe MAP::SignUp::Service do
     end
 
     context 'when response is successful with 412' do
-      let(:expected_log_message) { "#{log_prefix} update provisioning success, icn: #{icn}" }
+      let(:expected_log_message) do
+        "#{log_prefix} update provisioning success, icn: #{icn}, parsed_response: #{expected_response_hash}"
+      end
       let(:expected_response_hash) do
         {
           agreement_signed: true,

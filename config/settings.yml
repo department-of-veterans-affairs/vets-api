@@ -97,6 +97,13 @@ binaries:
   pdftk: pdftk
   clamdscan: /usr/bin/clamdscan
 
+clamav:
+  mock: false
+  # host & port here are only used in development here:
+  # config/initializers/clamav.rb
+  host: 'clamav'
+  port: '3310'
+
 db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
 
 database_url: postgis:///vets-api
@@ -402,6 +409,12 @@ adapted_housing:
   prefill: true
 
 intent_to_file:
+  prefill: true
+
+ivc_champva:
+  prefill: true
+
+form_upload_flow:
   prefill: true
 
 # Settings for Expiry Scanner
@@ -911,7 +924,7 @@ vetext:
 hqva_mobile:
   url: "https://veteran.apps.va.gov"
   mock: false
-  key_path: /srv/vets-api/secret/health-quest.key
+  key_path: /app/secret/health-quest.key
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
   facilities:
@@ -934,7 +947,7 @@ hqva_mobile:
     health_api: "health_api"
     pgd_api: "pgd_api"
     mock: false
-    key_path: /srv/vets-api/secret/health-quest.lighthouse.key
+    key_path: /app/secret/health-quest.lighthouse.key
     pgd_api_scopes:
       - "launch launch/patient"
       - "patient/Observation.read"
@@ -1031,7 +1044,7 @@ lighthouse:
       aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token"
       client_id: "0oaaxkp0aeXEJkMFw2p7"
       grant_type: "client_credentials"
-      api_key: /srv/vets-api/secret/lighthouse_fast_track_api.key
+      api_key: /app/secret/lighthouse_fast_track_api.key
   facilities:
     url: https://sandbox-api.va.gov
     api_key: fake_key
@@ -1068,7 +1081,7 @@ vbms:
   cert: vetsapi.client.vbms.aide.oit.va.gov.crt
   client_keyfile: vetsapi.client.vbms.aide.oit.va.gov.p12
   server_cert: vbms.aide.oit.va.gov.crt
-  environment_directory: /srv/vets-api/secret
+  environment_directory: /app/secret
   env: test
 
 vet_verification:
@@ -1262,6 +1275,7 @@ vanotify:
         form1990meb_offramp_confirmation_email: form1990meb_offramp_confirmation_email_template_id
         form1990meb_denied_confirmation_email: form1990meb_denied_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
+        form21_0966_confirmation_email: form21_0966_confirmation_email_template_id
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
         form21_10203_confirmation_email: form21_10203_confirmation_email_template_id
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
@@ -1308,6 +1322,14 @@ vanotify:
         claim_submission_error_text: fake_template_id
     benefits_decision_review:
       api_key: fake_secret
+    benefits_disability:
+      api_key: fake_secret
+      template_id:
+        form526_document_upload_failure_notification_template_id: form526_document_upload_failure_notification_template_id
+    ivc_champva:
+      api_key: fake_secret
+      template_id:
+        pega_status_update_email_template_id: pega_status_update_email_template_id
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
@@ -1347,6 +1369,10 @@ vetext_push:
   base_url: https://vetext1.r01.med.va.gov
   user: vets-api-username
   pass: secret
+
+res:
+  base_url: ~
+  api_key: ~
 
 veteran_readiness_and_employment:
   base_url: ~
@@ -1453,8 +1479,10 @@ check_in:
     service_name: MAP-API
   travel_reimbursement_api:
     auth_url: https://login.microsoftonline.us
+    auth_url_v2: ~
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     claims_url: https://dev.integration.d365.va.gov
+    claims_url_v2: ~
     claims_base_path: EC/ClaimIngestSvc
     redis_token_expiry: 3540 # 59 minutes
     service_name: BTSSS-API
@@ -1632,6 +1660,10 @@ ivc_forms:
     bucket: "bucket"
     enabled: true
     region: "region"
+  sidekiq:
+    missing_form_status_job:
+      enabled: true
+
 
 coverband:
   github_organization: ~

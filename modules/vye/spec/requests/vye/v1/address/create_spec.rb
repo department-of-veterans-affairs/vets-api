@@ -1,14 +1,19 @@
 # frozen_string_literal: true
 
-require_relative '../../../../rails_helper'
+require 'rails_helper'
+require Vye::Engine.root / 'spec/rails_helper'
 
 RSpec.describe Vye::V1::AddressChangesController, type: :request do
   let!(:current_user) { create(:user) }
+
+  let(:headers) { { 'Content-Type' => 'application/json', 'X-Key-Inflection' => 'camel' } }
 
   let(:params) do
     FactoryBot
       .attributes_for(:vye_address_change)
       .deep_transform_keys! { |key| key.to_s.camelize(:lower) }
+      .slice('veteranName', 'address1', 'address2', 'address3', 'address4', 'city', 'state', 'zipCode')
+      .to_json
   end
 
   before do
@@ -44,7 +49,7 @@ RSpec.describe Vye::V1::AddressChangesController, type: :request do
       let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:) }
 
       it 'creates a new address' do
-        post('/vye/v1/address', params:)
+        post('/vye/v1/address', headers:, params:)
         expect(response).to have_http_status(:no_content)
       end
     end

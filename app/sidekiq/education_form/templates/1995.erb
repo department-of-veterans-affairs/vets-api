@@ -95,10 +95,10 @@ Type of Education or Training: <%= @applicant.educationType&.titleize %>
 Type of Education or Training: <%= @applicant.educationTypeUpdate&.titleize %>
 <% end -%>
 Education or Career Goal: <%= @applicant.educationObjective %>
-<% if Settings.vsp_environment.eql?('production') -%>
+
 New School or Training Establishment:
 <%= school_name_and_addr(@applicant.newSchool) %>
-
+<% if Settings.vsp_environment.eql?('production') -%>
 Current/Prior School or Training Establishment:
 <%= school_name_and_addr(@applicant.oldSchool) %>
 
@@ -138,6 +138,8 @@ First name of Parent, Guardian or Custodian: <%= @applicant.minorQuestions.guard
 Middle name of Parent, Guardian or Custodian: <%= @applicant.minorQuestions.guardianMiddleName %>
 
 Last name of Parent, Guardian or Custodian: <%= @applicant.minorQuestions.guardianLastName %>
+
+Suffix of Parent, Guardian or Custodian: <%= @applicant.minorQuestions.guardianSuffix %>
 
 Address of Parent, Guardian or Custodian:
   Country: <%= @applicant.minorQuestions.guardianAddress.country %>

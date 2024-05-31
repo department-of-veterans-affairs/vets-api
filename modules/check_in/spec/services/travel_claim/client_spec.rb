@@ -10,6 +10,7 @@ describe TravelClaim::Client do
 
   before do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_travel_btsss_ssm_urls_enabled').and_return(false)
   end
 
   describe '.build' do
@@ -187,7 +188,7 @@ describe TravelClaim::Client do
     end
 
     context 'when call to claims service times out' do
-      let(:resp) { Faraday::Response.new(response_body: 'BTSSS timeout error', status: 408) }
+      let(:resp) { Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408) }
       let(:err_msg) { { message: 'BTSSS Timeout Error', uuid: } }
 
       before do
@@ -304,7 +305,7 @@ describe TravelClaim::Client do
     end
 
     context 'when call to claims service times out' do
-      let(:resp) { Faraday::Response.new(response_body: 'BTSSS timeout error', status: 408) }
+      let(:resp) { Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408) }
       let(:err_msg) { { message: 'BTSSS Timeout Error', uuid: } }
 
       before do

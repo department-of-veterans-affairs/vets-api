@@ -27,6 +27,7 @@ RSpec.describe 'Fetching user data' do
       let(:mhv_user) { build(:user, :mhv, :no_mpi_profile) }
 
       it 'GET /v0/user - returns proper json' do
+        create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_correlation_id)
         assert_response :success
         expect(response).to match_response_schema('user_loa3')
       end
@@ -194,6 +195,7 @@ RSpec.describe 'Fetching user data' do
     before do
       user = new_user(:loa1)
       sign_in_as(user)
+      create(:user_verification, idme_uuid: user.idme_uuid)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
       VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
         get v0_user_url, params: nil, headers: v0_user_request_headers
@@ -229,6 +231,7 @@ RSpec.describe 'Fetching user data' do
     before do
       user = new_user(:loa1)
       sign_in_as(user)
+      create(:user_verification, idme_uuid: user.idme_uuid)
       get v0_user_url, params: nil, headers: v0_user_request_headers
     end
 

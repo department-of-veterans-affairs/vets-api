@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-PDFTK_HOMEBREW_PATH = '/opt/homebrew/bin/pdftk'
-PDFTK_LOCAL_PATH    = '/usr/local/bin/pdftk'
+PDFTK_HOMEBREW_PATH = '/opt/homebrew/bin/pdftk' unless defined?(PDFTK_HOMEBREW_PATH)
+PDFTK_LOCAL_PATH    = '/usr/local/bin/pdftk' unless defined?(PDFTK_LOCAL_PATH)
 MODELS_PATH = 'modules/ivc_champva/app/models/ivc_champva'
 MAPPINGS_PATH = 'modules/ivc_champva/app/form_mappings'
 
@@ -30,10 +30,13 @@ namespace :ivc_champva do
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
         'fileNumber' => @data.dig('veteran', 'va_file_number').presence || @data.dig('veteran', 'ssn'),
-        'zipCode' => @data.dig('veteran', 'address', 'postal_code'),
+        'zipCode' => @data.dig('veteran', 'address', 'postal_code') || '00000',
+        'country' => @data.dig('veteran', 'address', 'country') || 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
-        'businessLine' => 'CMP'
+        'businessLine' => 'CMP',
+        'uuid' => @uuid,
+        'primaryContactInfo' => @data.dig('primary_contact_info')
       }
     end
     METADATA
@@ -73,7 +76,8 @@ namespace :ivc_champva do
 
       f.puts ''
       f.puts '    def initialize(data)'
-      f.puts '      @data = data'
+      f.puts '      @data = data,'
+      f.puts "      @uuid = #{SecureRandom.uuid}"
       f.puts '    end'
 
       f.puts ''

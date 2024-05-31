@@ -1497,7 +1497,7 @@ RSpec.describe FormProfile, type: :model do
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           v22_10203_expected['remainingEntitlement'] = {
             'months' => 0,
-            'days' => 12
+            'days' => 10
           }
           v22_10203_expected['schoolName'] = 'OLD DOMINION UNIVERSITY'
           v22_10203_expected['schoolCity'] = 'NORFOLK'
@@ -1508,14 +1508,17 @@ RSpec.describe FormProfile, type: :model do
         it 'prefills 10203 with VA Profile and entitlement information' do
           VCR.use_cassette('evss/pciu_address/address_domestic') do
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-              VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
+              VCR.use_cassette('form_10203/gi_bill_status_200_response') do
                 VCR.use_cassette('gi_client/gets_the_institution_details') do
                   VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                    allow_playback_repeats: true) do
+                    expect(BenefitsEducation::Service).to receive(:new).with(user.icn).and_call_original
+
                     prefilled_data = Oj.load(
                       described_class.for(form_id: '22-10203', user:).prefill.to_json
                     )['form_data']
-                    expect(prefilled_data).to eq(form_profile.send(:clean!, v22_10203_expected))
+                    actual = form_profile.send(:clean!, v22_10203_expected)
+                    expect(prefilled_data).to eq(actual)
                   end
                 end
               end
@@ -1813,6 +1816,22 @@ RSpec.describe FormProfile, type: :model do
         )
         instance1.prefill
         instance2.prefill
+      end
+    end
+
+    context '10-7959F-1 form profile instances' do
+      let(:instance) { FormProfile.new(form_id: '10-7959F-1', user:) }
+
+      it 'loads the yaml file only once' do
+        expect(YAML).to receive(:load_file).once.and_return(
+          'veteranFullName' => %w[identity_information full_name],
+          'veteranAddress' => %w[contact_information address],
+          'veteranSocialSecurityNumber' => %w[identity_information ssn],
+          'veteranPhoneNumber' => %w[contact_information us_phone],
+          'veteranEmailAddress' => %w[contact_information email],
+          'veteranPhysicalAddress' => %w[residential_address]
+        )
+        instance.prefill
       end
     end
   end

@@ -3,12 +3,14 @@
 require 'common/client/base'
 require 'lighthouse/benefits_intake/configuration'
 require 'lighthouse/benefits_intake/metadata'
+require 'pdf_utilities/pdf_validator'
 
 module BenefitsIntake
   ##
-  # Proxy Service for the Lighthouse Claims Intake API Service.
-  # We are using it here to submit claims that cannot be auto-established,
-  # via paper submission (electronic PDF submissiont to CMP)
+  # Proxy Service for the Lighthouse Benefits Intake API
+  #
+  # Use this to submit claims that cannot be auto-established,
+  # via paper submission (electronic PDF submission to CMP)
   #
   # https://developer.va.gov/explore/api/benefits-intake/docs
   #
@@ -19,6 +21,13 @@ module BenefitsIntake
     class InvalidDocumentError < StandardError; end
 
     STATSD_KEY_PREFIX = 'api.benefits_intake'
+    PDF_VALIDATOR_OPTIONS = {
+      size_limit_in_bytes: 100_000_000, # 100 MB
+      check_page_dimensions: true,
+      check_encryption: true,
+      width_limit_in_inches: 78,
+      height_limit_in_inches: 101
+    }.freeze
 
     attr_reader :location, :uuid
 
@@ -27,8 +36,8 @@ module BenefitsIntake
     # parameters should be run through validation functions first, to prevent downstream processing errors
     #
     # @param [Hash] metadata
-    # @param [String] document
-    # @param [Array<String>] attachments; optional, default = []
+    # @param [String] document file path
+    # @param [Array<String>] attachments file path; optional, default = []
     # @param [String] upload_url; optional, default = @location
     #
     def perform_upload(metadata:, document:, attachments: [], upload_url: nil)
@@ -52,11 +61,11 @@ module BenefitsIntake
     # @param [Boolean] refresh
     #
     def request_upload(refresh: false)
-      if !@uploads || refresh
-        @uploads = perform :post, 'uploads', {}, {}
+      if refresh || !(@location && @uuid)
+        uploads = perform :post, 'uploads', {}, {}
 
-        @location = @uploads.body.dig('data', 'attributes', 'location')
-        @uuid = @uploads.body.dig('data', 'id')
+        @location = uploads.body.dig('data', 'attributes', 'location')
+        @uuid = uploads.body.dig('data', 'id')
       end
 
       [@location, @uuid]
@@ -68,7 +77,7 @@ module BenefitsIntake
     # @param [String] uuid
     #
     def get_status(uuid:)
-      headers = { 'accept' => Mime[:json].to_s }
+      headers = { 'Accept' => Mime[:json].to_s }
       perform :get, "uploads/#{uuid}", {}, headers
     end
 
@@ -78,7 +87,7 @@ module BenefitsIntake
     # @param [Array<String>] uuids
     #
     def bulk_status(uuids:)
-      headers = { 'Content-Type' => Mime[:json].to_s, 'accept' => Mime[:json].to_s }
+      headers = { 'Content-Type' => Mime[:json].to_s, 'Accept' => Mime[:json].to_s }
       data = { uuids: }.to_json
       perform :post, 'uploads/report', data, headers
     end
@@ -89,7 +98,7 @@ module BenefitsIntake
     # @param [String] uuid
     #
     def download(uuid:)
-      headers = { 'accept' => Mime[:zip].to_s }
+      headers = { 'Accept' => Mime[:zip].to_s }
       perform :get, "uploads/#{uuid}/download", {}, headers
     end
 
@@ -99,27 +108,27 @@ module BenefitsIntake
     #
     # @param [Hash] metadata
     #
-    # @returns [Hash] validated and corrected metadata
+    # @return [Hash] validated and corrected metadata
     #
     def valid_metadata?(metadata:)
       BenefitsIntake::Metadata.validate(metadata)
     end
 
     ##
-    # Validate a file satisfies BenefitsIntake specifications. File must be a PDF.
+    # Validate a file satisfies BenefitsIntake specifications.
+    # ** File must be a PDF.
     #
-    # @param [String] document
-    # @param [Hash] headers; optional, default nil
+    # @param [String] document: path to file
     #
-    def valid_document?(document:, headers: nil)
+    # @returns [String] path to file
+    #
+    def valid_document?(document:)
+      result = PDFUtilities::PDFValidator::Validator.new(document, PDF_VALIDATOR_OPTIONS).validate
+      raise InvalidDocumentError, "Invalid Document: #{result.errors}" unless result.valid_pdf?
+
       doc = File.read(document, mode: 'rb')
-
-      doc_mime = Marcel::MimeType.for(doc)
-      raise TypeError, "Invalid Document MimeType: #{doc_mime}" if doc_mime != Mime[:pdf].to_s
-
-      headers = (headers || {}).merge({ 'Content-Type': doc_mime })
+      headers = { 'Content-Type': Marcel::MimeType.for(doc) }
       response = perform :post, 'uploads/validate_document', doc, headers
-
       raise InvalidDocumentError, "Invalid Document: #{response}" unless response.success?
 
       document
@@ -131,15 +140,14 @@ module BenefitsIntake
     # @param [Hash] metadata
     # @param [String] document
     # @param [Array<String>] attachments; optional, default []
-    # @param [Hash] headers; optional, default nil
     #
     # @return [Hash] payload for upload
     #
-    def valid_upload?(metadata:, document:, attachments: [], headers: nil)
+    def valid_upload?(metadata:, document:, attachments: [])
       {
         metadata: valid_metadata?(metadata:),
-        document: valid_document?(document:, headers:),
-        attachments: attachments.map { |attachment| valid_document?(document: attachment, headers:) }
+        document: valid_document?(document:),
+        attachments: attachments.map { |attachment| valid_document?(document: attachment) }
       }
     end
 

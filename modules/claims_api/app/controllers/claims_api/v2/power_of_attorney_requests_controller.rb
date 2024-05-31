@@ -1,13 +1,35 @@
 # frozen_string_literal: true
 
-require 'bgs_service/manage_representative_service'
-
 module ClaimsApi
   module V2
-    class PowerOfAttorneyRequestsController < ClaimsApi::V2::ApplicationController
-      def index
-        poa_requests = ClaimsApi::PowerOfAttorneyRequestService::Search.perform
-        render json: Blueprints::PowerOfAttorneyRequestBlueprint.render(poa_requests, root: :data)
+    class PowerOfAttorneyRequestsController < PowerOfAttorneyRequests::BaseController
+      def index # rubocop:disable Metrics/MethodLength
+        index_params =
+          params.permit(
+            filter: {},
+            page: {},
+            sort: {}
+          ).to_h
+
+        result =
+          PowerOfAttorneyRequestService::Search.perform(
+            index_params
+          )
+
+        result[:metadata].transform_keys!(
+          total_count: :totalCount
+        )
+
+        result[:data] =
+          Blueprints::PowerOfAttorneyRequestBlueprint.render_as_hash(
+            result[:data]
+          )
+
+        render json: result
+      rescue PowerOfAttorneyRequestService::Search::InvalidQueryError => e
+        detail = { errors: e.errors, params: e.params }
+        error = ::Common::Exceptions::BadRequest.new(detail:)
+        render_error(error)
       end
     end
   end

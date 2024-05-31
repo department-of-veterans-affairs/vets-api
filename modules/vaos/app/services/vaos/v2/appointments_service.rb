@@ -15,10 +15,14 @@ module VAOS
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
       AVS_APPT_TEST_ID = '192308'
+      MANILA_PHILIPPINES_FACILITY_ID = '358'
+      FACILITY_ERROR_MSG = 'Error fetching facility details'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
+      APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
+      APPOINTMENTS_ENABLE_OH_READS = :va_online_scheduling_enable_OH_reads
 
       # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
@@ -30,7 +34,13 @@ module VAOS
         cnp_count = 0
 
         with_monitoring do
-          response = perform(:get, appointments_base_path, params, headers)
+          response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
+                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_READS)
+                       perform(:get, appointments_base_path_vpg, params, headers)
+                     else
+                       perform(:get, appointments_base_path_vaos, params, headers)
+                     end
+
           validate_response_schema(response, 'appointments_index')
           response.body[:data].each do |appt|
             # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
@@ -86,10 +96,18 @@ module VAOS
       end
 
       def post_appointment(request_object_body)
+        filtered_reason_code_text = filter_reason_code_text(request_object_body)
+        request_object_body[:reason_code][:text] = filtered_reason_code_text if filtered_reason_code_text.present?
+
         params = VAOS::V2::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
         params.compact_blank!
         with_monitoring do
-          response = perform(:post, appointments_base_path, params, headers)
+          response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
+                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
+                       perform(:post, appointments_base_path_vpg, params, headers)
+                     else
+                       perform(:post, appointments_base_path_vaos, params, headers)
+                     end
           convert_appointment_time(response.body)
           OpenStruct.new(response.body)
         rescue Common::Exceptions::BackendServiceException => e
@@ -139,6 +157,48 @@ module VAOS
 
         nil
       end
+
+      def get_facility(location_id)
+        mobile_facility_service.get_facility_with_cache(location_id)
+      rescue Common::Exceptions::BackendServiceException
+        Rails.logger.error(
+          "Error fetching facility details for location_id #{location_id}",
+          location_id:
+        )
+        FACILITY_ERROR_MSG
+      end
+
+      def get_facility_memoized(location_id)
+        mobile_facility_service.get_facility_with_cache(location_id)
+      rescue Common::Exceptions::BackendServiceException
+        Rails.logger.error(
+          "VAOS Error fetching facility details for location_id #{location_id}",
+          location_id:
+        )
+        FACILITY_ERROR_MSG
+      end
+      memoize :get_facility_memoized
+
+      # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
+      def get_facility_timezone(facility_location_id)
+        facility_info = get_facility_memoized(facility_location_id)
+        if facility_info == FACILITY_ERROR_MSG
+          nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
+        else
+          facility_info[:timezone]&.[](:time_zone_id)
+        end
+      end
+
+      # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
+      def get_facility_timezone_memoized(facility_location_id)
+        facility_info = get_facility(facility_location_id) unless facility_location_id.nil?
+        if facility_info == FACILITY_ERROR_MSG || facility_info.nil?
+          nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
+        else
+          facility_info[:timezone]&.[](:time_zone_id)
+        end
+      end
+      memoize :get_facility_timezone_memoized
 
       private
 
@@ -271,6 +331,18 @@ module VAOS
         appt[:status] == 'booked' && appt[:start].to_datetime.past?
       end
 
+      # Filters out non-ASCII characters from the reason code text field in the request object body.
+      #
+      # @param request_object_body [Hash, ActionController::Parameters] The request object body containing
+      # the reason code text field.
+      #
+      # @return [String, nil] The filtered reason text, or nil if the reason code text is not present or nil.
+      #
+      def filter_reason_code_text(request_object_body)
+        text = request_object_body&.dig(:reason_code, :text)
+        VAOS::Strings.filter_ascii_characters(text) if text.present?
+      end
+
       # Checks if the appointment is booked.
       #
       # @param appt [Hash] the appointment to check
@@ -390,13 +462,34 @@ module VAOS
         if !appt[:start].nil?
           facility_timezone = get_facility_timezone_memoized(appt[:location_id])
           appt[:local_start_time] = convert_utc_to_local_time(appt[:start], facility_timezone)
+
+          if appt[:location_id] == MANILA_PHILIPPINES_FACILITY_ID
+            log_timezone_info(appt[:location_id], facility_timezone, appt[:start], appt[:local_start_time])
+          end
+
         elsif !appt.dig(:requested_periods, 0, :start).nil?
           appt[:requested_periods].each do |period|
             facility_timezone = get_facility_timezone_memoized(appt[:location_id])
             period[:local_start_time] = convert_utc_to_local_time(period[:start], facility_timezone)
+
+            if appt[:location_id] == MANILA_PHILIPPINES_FACILITY_ID
+              log_timezone_info(appt[:location_id], facility_timezone, period[:start], period[:local_start_time])
+            end
           end
         end
         appt
+      end
+
+      def log_timezone_info(appt_location_id, facility_timezone, appt_start_time_utc, appt_start_time_local)
+        Rails.logger.info(
+          "Timezone info for Manila Philippines location_id #{appt_location_id}",
+          {
+            location_id: appt_location_id,
+            facility_timezone:,
+            appt_start_time_utc:,
+            appt_start_time_local:
+          }.to_json
+        )
       end
 
       # Returns a local [DateTime] object converted from UTC using the facility's timezone offset.
@@ -415,27 +508,6 @@ module VAOS
         else
           date.to_time.utc.in_time_zone(tz).to_datetime
         end
-      end
-
-      # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
-      def get_facility_timezone_memoized(facility_location_id)
-        facility_info = get_facility(facility_location_id) unless facility_location_id.nil?
-        if facility_info == FACILITY_ERROR_MSG || facility_info.nil?
-          nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
-        else
-          facility_info[:timezone]&.[](:time_zone_id)
-        end
-      end
-      memoize :get_facility_timezone_memoized
-
-      def get_facility(location_id)
-        mobile_facility_service.get_facility_with_cache(location_id)
-      rescue Common::Exceptions::BackendServiceException
-        Rails.logger.error(
-          "Error fetching facility details for location_id #{location_id}",
-          location_id:
-        )
-        FACILITY_ERROR_MSG
       end
 
       def log_direct_schedule_submission_errors(e)
@@ -477,26 +549,41 @@ module VAOS
       def partial_errors(response)
         return { failures: [] } if response.body[:failures].blank?
 
-        response.body[:failures].each do |failure|
-          detail = failure[:detail]
-          failure[:detail] = VAOS::Anonymizers.anonymize_icns(detail) if detail.present?
-        end
-
-        if response.status == 200
-          log_message_to_sentry(
-            'VAOS::V2::AppointmentService#get_appointments has response errors.',
-            :info,
-            failures: response.body[:failures].to_json
-          )
-        end
+        log_partial_errors(response)
 
         {
           failures: response.body[:failures]
         }
       end
 
-      def appointments_base_path
+      # Logs partial errors from a response.
+      #
+      # @param response [Faraday::Env] The response object containing the status and body.
+      #
+      # @return [nil]
+      #
+      def log_partial_errors(response)
+        return unless response.status == 200
+
+        failures_dup = response.body[:failures].deep_dup
+        failures_dup.each do |failure|
+          detail = failure[:detail]
+          failure[:detail] = VAOS::Anonymizers.anonymize_icns(detail) if detail.present?
+        end
+
+        log_message_to_sentry(
+          'VAOS::V2::AppointmentService#get_appointments has response errors.',
+          :info,
+          failures: failures_dup.to_json
+        )
+      end
+
+      def appointments_base_path_vaos
         "/vaos/v1/patients/#{user.icn}/appointments"
+      end
+
+      def appointments_base_path_vpg
+        "/vpg/v1/patients/#{user.icn}/appointments"
       end
 
       def avs_path(sid)
@@ -504,7 +591,12 @@ module VAOS
       end
 
       def get_appointment_base_path(appointment_id)
-        "/vaos/v1/patients/#{user.icn}/appointments/#{appointment_id}"
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
+           Flipper.enabled?(APPOINTMENTS_ENABLE_OH_READS)
+          "/vpg/v1/patients/#{user.icn}/appointments/#{appointment_id}"
+        else
+          "/vaos/v1/patients/#{user.icn}/appointments/#{appointment_id}"
+        end
       end
 
       def date_params(start_date, end_date)
@@ -529,7 +621,7 @@ module VAOS
 
       def update_appointment_vpg(appt_id, status)
         url_path = "/vpg/v1/patients/#{user.icn}/appointments/#{appt_id}"
-        body = JSON.generate([VAOS::V2::UpdateAppointmentForm.new(status:).json_patch_op])
+        body = [VAOS::V2::UpdateAppointmentForm.new(status:).json_patch_op]
         perform(:patch, url_path, body, headers)
       end
 

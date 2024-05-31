@@ -3,24 +3,24 @@
 module Vye
   module V1
     class UserInfosController < Vye::V1::ApplicationController
-      include Pundit::Authorization
-
-      service_tag 'vye'
+      include Vye::Ivr
 
       def show
         authorize user_info, policy_class: Vye::UserInfoPolicy
 
         render json: user_info,
                serializer: Vye::UserInfoSerializer,
-               key_transform: :camel_lower,
                adapter: :json,
-               include: %i[awards address_changes pending_documents].freeze
+               api_key: api_key?,
+               include: %i[latest_address pending_documents verifications pending_verifications].freeze
       end
 
       private
 
-      def load_user_info
-        @user_info = Vye::UserProfile.with_assos.find_and_update_icn(user: current_user)&.active_user_info
+      def load_user_info(scoped: Vye::UserProfile.with_assos)
+        return super(scoped:) unless api_key?
+
+        @user_info = user_info_for_ivr(scoped:)
       end
     end
   end

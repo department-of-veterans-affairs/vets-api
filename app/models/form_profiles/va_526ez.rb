@@ -85,7 +85,8 @@ class FormProfiles::VA526ez < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/veteran-information'
+      returnUrl: '/veteran-information',
+      includeToxicExposure: Flipper.enabled?(:disability_526_toxic_exposure, user)
     }
   end
 

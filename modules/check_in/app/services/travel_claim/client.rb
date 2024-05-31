@@ -65,7 +65,7 @@ module TravelClaim
       end
     rescue Faraday::TimeoutError
       Rails.logger.error(message: 'BTSSS Timeout Error', uuid: check_in.uuid)
-      Faraday::Response.new(response_body: 'BTSSS timeout error', status: 408)
+      Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408)
     rescue => e
       log_message_to_sentry(e.original_body, :error,
                             { uuid: check_in.uuid },
@@ -87,7 +87,7 @@ module TravelClaim
       end
     rescue Faraday::TimeoutError
       Rails.logger.error(message: 'BTSSS Timeout Error', uuid: check_in.uuid)
-      Faraday::Response.new(response_body: 'BTSSS timeout error', status: 408)
+      Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408)
     rescue => e
       log_message_to_sentry(e.original_body, :error,
                             { uuid: check_in.uuid },
@@ -156,6 +156,26 @@ module TravelClaim
           TripType: TRIP_TYPE
         }
       }
+    end
+
+    def auth_url
+      if btsss_ssm_urls_enabled? && settings.auth_url_v2.present?
+        settings.auth_url_v2
+      else
+        settings.auth_url
+      end
+    end
+
+    def claims_url
+      if btsss_ssm_urls_enabled? && settings.claims_url_v2.present?
+        settings.claims_url_v2
+      else
+        settings.claims_url
+      end
+    end
+
+    def btsss_ssm_urls_enabled?
+      Flipper.enabled?('check_in_experience_travel_btsss_ssm_urls_enabled') || false
     end
 
     def mock_enabled?
