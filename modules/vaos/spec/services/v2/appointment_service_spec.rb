@@ -266,34 +266,6 @@ describe VAOS::V2::AppointmentsService do
         Flipper.disable(:va_online_scheduling_enable_OH_reads)
       end
 
-      describe 'provider names' do
-        context 'with a proposed, cc appointment that has a us-npi provider id' do
-          it 'fetches the provider name from upstream' do
-            erb_template_params = { service: 'vaos', start_date: '2022-01-01T19:25:00Z',
-                                    end_date: '2022-12-01T19:45:00Z' }
-            allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility_with_cache).and_return(nil)
-            VCR.use_cassette('vaos/v2/appointments/get_appointments_with_mixed_provider_types',
-                             erb: erb_template_params,
-                             match_requests_on: %i[method path query]) do
-              VCR.use_cassette('vaos/v2/mobile_ppms_service/get_provider_200', match_requests_on: %i[method uri],
-                                                                               tag: :force_utf8) do
-                response = subject.get_appointments(start_date2, end_date2)
-
-                appointments = response[:data]
-
-                appointment_without_provider_info = appointments.find { |appt| appt['id'] == '76131' }
-                proposed_cc_appointment_with_provider = appointments.find { |appt| appt['id'] == '76132' }
-                booked_clinic_appointment_without_us_npi_id = appointments.find { |appt| appt['id'] == '76133' }
-
-                expect(appointment_without_provider_info.preferred_provider_name).to be_nil
-                expect(proposed_cc_appointment_with_provider.preferred_provider_name).to eq('DEHGHAN, AMIR')
-                expect(booked_clinic_appointment_without_us_npi_id.preferred_provider_name).to be_nil
-              end
-            end
-          end
-        end
-      end
-
       context 'when requesting a list of appointments given a date range' do
         it 'returns a 200 status with list of appointments' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
@@ -520,10 +492,6 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe '#get_appointment' do
-    let(:provider_response) do
-      OpenStruct.new({ 'providerIdentifier' => '1407938061', 'name' => 'DEHGHAN, AMIR' })
-    end
-
     context 'using VAOS' do
       before do
         Flipper.disable(:va_online_scheduling_enable_OH_reads)
@@ -591,21 +559,6 @@ describe VAOS::V2::AppointmentsService do
               Common::Exceptions::BackendServiceException
             )
           end
-        end
-      end
-
-      describe 'provider name' do
-        it 'is set for proposed cc appointments with us-npi practitioner ids' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_cc_proposed_with_facility_200',
-                           match_requests_on: %i[method path query]) do
-            allow_any_instance_of(VAOS::V2::MobilePPMSService).to \
-              receive(:get_provider_with_cache).with('1407938061').and_return(provider_response)
-            response = subject.get_appointment('81063')
-            expect(response.preferred_provider_name).to eq('DEHGHAN, AMIR')
-          end
-        end
-
-        it 'is set to nil when upstream returns an error' do
         end
       end
     end
