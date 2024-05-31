@@ -4,6 +4,7 @@ module ClaimsApi
   module PowerOfAttorneyRequestService
     module Search
       module Query
+        Filter = PowerOfAttorneyRequest::Search::Query::Filter
         Page = PowerOfAttorneyRequest::Search::Query::Page
         Sort = PowerOfAttorneyRequest::Search::Query::Sort
 
@@ -19,10 +20,11 @@ module ClaimsApi
           Dry::Schema.Params do
             required(:filter).hash do
               required(:poaCodes).filled(:array).each(:string, :filled?)
-              optional(:statuses).filled(:array).each(
-                :string,
-                included_in?: PowerOfAttorneyRequest::Decision::Statuses::ALL
-              )
+              optional(:decision).hash do
+                optional(:statuses).filled(:array).each(
+                  :string, included_in?: Filter::Decision::Statuses::ALL
+                )
+              end
             end
 
             optional(:page).hash do
@@ -46,13 +48,10 @@ module ClaimsApi
         class << self
           def compile!(params)
             result = Schema.call(params)
-
-            if result.failure?
-              raise InvalidQueryError.new(
-                result.messages.to_h,
-                params
-              )
-            end
+            result.success? or raise(
+              ::Common::Exceptions::SchemaValidationErrors,
+              [{ errors: result.messages.to_h, params: }]
+            )
 
             result.to_h.tap do |query|
               apply_defaults(query)
@@ -62,11 +61,12 @@ module ClaimsApi
           private
 
           def apply_defaults(query)
-            query[:filter][:statuses] ||=
-              PowerOfAttorneyRequest::Decision::Statuses::ALL
+            query[:filter][:decision] ||= {}
+            query[:filter][:decision][:statuses] ||=
+              Filter::Decision::Statuses::ALL
 
-            # These only make sense as defaults together.
             query[:sort] ||= {
+              # These only make sense as defaults together.
               field: Sort::Fields::CREATED_AT,
               order: Sort::Orders::DESCENDING
             }
