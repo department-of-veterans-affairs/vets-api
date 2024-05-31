@@ -204,9 +204,10 @@ RSpec.describe 'VBADocuments::SlackStatusNotifier', type: :job do
       expect(VBADocuments::Slack::Messenger).to have_received(:new).with(
         {
           class: 'VBADocuments::SlackStatusNotifier',
-          alert: '1 Benefits Intake Submissions are in error status with an EMMS ConfirmationNumber has already been submitted error.' \
-                 ' Typically, these self resolve without our intervention and susbequent calls for the status of ' \
-                 'these submission return a non-error status, but these appear stuck.  Notify EPPS API team for help',
+          alert: '1 Benefits Intake Submissions are in error status with an EMMS ConfirmationNumber has already been ' \
+                 'submitted error. Typically, these self resolve without our intervention and susbequent calls for ' \
+                 'the status of these submission return a non-error status, but these appear stuck.  Notify EPPS API ' \
+                 'team for help',
           details: "Oldest 50 Stuck errored Submissions\n\n\t(Guid, Age(Hours:Minutes)\n" \
                    "\t#{@us_uploaded.guid} 5:30\n"
         }
