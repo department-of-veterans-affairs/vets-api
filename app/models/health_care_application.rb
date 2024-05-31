@@ -26,13 +26,8 @@ class HealthCareApplication < ApplicationRecord
   validates(:form, presence: true, on: :create)
   validate(:form_matches_schema, on: :create)
 
-  after_save(:send_failure_mail, if: proc do |hca|
-    hca.saved_change_to_attribute?(:state) && hca.failed? && hca.form.present? && hca.parsed_form['email']
-  end)
-
-  after_save(:log_submission_failure, if: proc do |hca|
-    hca.saved_change_to_attribute?(:state) && hca.failed?
-  end)
+  after_save :send_failure_mail, if: %i[submission_failed? email?]
+  after_save :log_submission_failure, if: :submission_failed?
 
   # @param [Account] user
   # @return [Hash]
@@ -59,6 +54,14 @@ class HealthCareApplication < ApplicationRecord
 
   def short_form?
     form.present? && parsed_form['lastServiceBranch'].blank?
+  end
+
+  def submission_failed?
+    saved_change_to_attribute?(:state) && failed?
+  end
+
+  def email?
+    form.present? && parsed_form['email']
   end
 
   def submit_sync
