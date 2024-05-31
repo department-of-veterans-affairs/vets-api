@@ -4,13 +4,6 @@ require 'rails_helper'
 require Rails.root / 'modules/claims_api/spec/rails_helper'
 
 RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
-  cassette_directory =
-    Pathname.new(
-      # This mirrors the path to this spec file. It could be convenient to keep
-      # that in sync in case this file moves.
-      'claims_api/requests/v2/power_of_attorney_requests/index/request_spec'
-    )
-
   subject do
     get(
       '/services/claims/v2/power-of-attorney-requests',
@@ -58,12 +51,14 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
   describe 'with every param invalid in almost all ways' do
     let(:params) do
       # These params with `nil` values are generated from this query string:
-      #   `?filter[statuses][]=NotAStatus&sort[field]&sort[order]&page[size]=whoops&page[number]`
+      #   `?filter[decision][statuses][]=NotAStatus&sort[field]&sort[order]&page[size]=whoops&page[number]`
       {
         'filter' => {
-          'statuses' => [
-            'NotAStatus'
-          ]
+          'decision' => {
+            'statuses' => [
+              'NotAStatus'
+            ]
+          }
         },
         'sort' => {
           'field' => nil,
@@ -81,10 +76,6 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
         subject
       end
 
-      expect(subject.response).to(
-        have_http_status(:bad_request)
-      )
-
       expect(subject.body).to eq(
         'errors' => [
           {
@@ -96,10 +87,12 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                     'is missing',
                     'must be an array'
                   ],
-                  'statuses' => {
-                    '0' => [
-                      'must be one of: New, Pending, Accepted, Declined'
-                    ]
+                  'decision' => {
+                    'statuses' => {
+                      '0' => [
+                        'must be one of: None, Accepted, Declined'
+                      ]
+                    }
                   }
                 },
                 'page' => {
@@ -126,9 +119,11 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               },
               'params' => {
                 'filter' => {
-                  'statuses' => [
-                    'NotAStatus'
-                  ]
+                  'decision' => {
+                    'statuses' => [
+                      'NotAStatus'
+                    ]
+                  }
                 },
                 'page' => {
                   'size' => 'whoops',
@@ -142,6 +137,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             }
           }
         ]
+      )
+
+      expect(subject.response).to(
+        have_http_status(:bad_request)
       )
     end
   end
@@ -161,10 +160,6 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
       mock_ccg(scopes) do
         subject
       end
-
-      expect(subject.response).to(
-        have_http_status(:bad_request)
-      )
 
       expect(subject.body).to eq(
         'errors' => [
@@ -191,6 +186,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           }
         ]
       )
+
+      expect(subject.response).to(
+        have_http_status(:bad_request)
+      )
     end
   end
 
@@ -207,14 +206,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
 
     it 'returns metadata including defaulted parameters and a total count' do
       mock_ccg(scopes) do
-        use_soap_cassette(cassette_directory / 'minimal_parameter_set') do
+        use_soap_cassette('minimal_parameter_set', use_spec_name_prefix: true) do
           subject
         end
       end
-
-      expect(subject.response).to(
-        have_http_status(:ok)
-      )
 
       expect(subject.body['metadata']).to eq(
         'totalCount' => 4,
@@ -223,12 +218,13 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             'poaCodes' => [
               '083'
             ],
-            'statuses' => %w[
-              New
-              Pending
-              Accepted
-              Declined
-            ]
+            'decision' => {
+              'statuses' => %w[
+                None
+                Accepted
+                Declined
+              ]
+            }
           },
           'page' => {
             'size' => 25,
@@ -239,6 +235,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             'order' => 'desc'
           }
         }
+      )
+
+      expect(subject.response).to(
+        have_http_status(:ok)
       )
     end
   end
@@ -252,10 +252,12 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             083 002 003 065 074 022 091 070
             097 077 1EY 6B6 862 9U7 BQX
           ],
-          'statuses' => %w[
-            Accepted
-            Declined
-          ]
+          'decision' => {
+            'statuses' => %w[
+              Accepted
+              Declined
+            ]
+          }
         },
         'page' => {
           'number' => 2,
@@ -270,18 +272,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
 
     it 'returns one of a few pages in a decently filtered total result' do
       mock_ccg(scopes) do
-        use_soap_cassette(cassette_directory / 'healthy_parameter_set') do
+        use_soap_cassette('healthy_parameter_set', use_spec_name_prefix: true) do
           subject
         end
       end
-
-      expect(subject.response).to(
-        have_http_status(:ok)
-      )
-
-      expect(subject.body['data'].size).to(
-        eq(5)
-      )
 
       expect(subject.body['data'].first).to eq(
         'id' => '600061742_3854197',
@@ -294,8 +288,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           'veteran' => {
             'firstName' => 'WESLEY',
             'middleName' => 'WATSON',
-            'lastName' => 'FORD',
-            'participantId' => '600061742'
+            'lastName' => 'FORD'
           },
           'claimant' => nil,
           'decision' => {
@@ -318,6 +311,14 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           }
         }
       )
+
+      expect(subject.body['data'].size).to(
+        eq(5)
+      )
+
+      expect(subject.response).to(
+        have_http_status(:ok)
+      )
     end
   end
 
@@ -338,17 +339,17 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
 
     it 'returns bgs max page size of 100' do
       mock_ccg(scopes) do
-        use_soap_cassette(cassette_directory / 'lots_of_records') do
+        use_soap_cassette('lots_of_records', use_spec_name_prefix: true) do
           subject
         end
       end
 
-      expect(subject.response).to(
-        have_http_status(:ok)
-      )
-
       expect(subject.body['data'].size).to(
         eq(100)
+      )
+
+      expect(subject.response).to(
+        have_http_status(:ok)
       )
     end
   end
@@ -360,9 +361,11 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           'poaCodes' => [
             'BQX'
           ],
-          'statuses' => [
-            'Declined'
-          ]
+          'decision' => {
+            'statuses' => [
+              'Declined'
+            ]
+          }
         }
       }
     end
@@ -371,14 +374,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
     # results.
     it 'returns an empty result set' do
       mock_ccg(scopes) do
-        use_soap_cassette(cassette_directory / 'valid_empty_result') do
+        use_soap_cassette('valid_empty_result', use_spec_name_prefix: true) do
           subject
         end
       end
-
-      expect(subject.response).to(
-        have_http_status(:ok)
-      )
 
       expect(subject.body).to eq(
         'metadata' => {
@@ -388,9 +387,11 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               'poaCodes' => [
                 'BQX'
               ],
-              'statuses' => [
-                'Declined'
-              ]
+              'decision' => {
+                'statuses' => [
+                  'Declined'
+                ]
+              }
             },
             'page' => {
               'size' => 25,
@@ -403,6 +404,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           }
         },
         'data' => []
+      )
+
+      expect(subject.response).to(
+        have_http_status(:ok)
       )
     end
   end
@@ -428,14 +433,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
     # results.
     it 'returns an empty result set' do
       mock_ccg(scopes) do
-        use_soap_cassette(cassette_directory / 'valid_empty_result_from_high_page_number') do
+        use_soap_cassette('valid_empty_result_from_high_page_number', use_spec_name_prefix: true) do
           subject
         end
       end
-
-      expect(subject.response).to(
-        have_http_status(:ok)
-      )
 
       expect(subject.body).to eq(
         'metadata' => {
@@ -445,12 +446,13 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               'poaCodes' => [
                 'BQX'
               ],
-              'statuses' => %w[
-                New
-                Pending
-                Accepted
-                Declined
-              ]
+              'decision' => {
+                'statuses' => %w[
+                  None
+                  Accepted
+                  Declined
+                ]
+              }
             },
             'page' => {
               'size' => 100,
@@ -463,6 +465,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           }
         },
         'data' => []
+      )
+
+      expect(subject.response).to(
+        have_http_status(:ok)
       )
     end
   end
@@ -482,14 +488,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
     # results.
     it 'returns an empty result set' do
       mock_ccg(scopes) do
-        use_soap_cassette(cassette_directory / 'nonexistent_poa_code') do
+        use_soap_cassette('nonexistent_poa_code', use_spec_name_prefix: true) do
           subject
         end
       end
-
-      expect(subject.response).to(
-        have_http_status(:ok)
-      )
 
       expect(subject.body).to eq(
         'metadata' => {
@@ -499,12 +501,13 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               'poaCodes' => [
                 'ZZZ'
               ],
-              'statuses' => %w[
-                New
-                Pending
-                Accepted
-                Declined
-              ]
+              'decision' => {
+                'statuses' => %w[
+                  None
+                  Accepted
+                  Declined
+                ]
+              }
             },
             'page' => {
               'size' => 25,
@@ -518,6 +521,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
         },
         'data' => []
       )
+
+      expect(subject.response).to(
+        have_http_status(:ok)
+      )
     end
   end
 
@@ -525,14 +532,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
     describe 'from a weird bgs fault' do
       it 'returns a bad gateway error with a fault message' do
         mock_ccg(scopes) do
-          use_soap_cassette(cassette_directory / 'weird_bgs_fault') do
+          use_soap_cassette('weird_bgs_fault', use_spec_name_prefix: true) do
             subject
           end
         end
-
-        expect(subject.response).to(
-          have_http_status(:bad_gateway)
-        )
 
         expect(subject.body).to eq(
           'errors' => [
@@ -541,6 +544,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               'detail' => 'Weird BGFS Fault'
             }
           ]
+        )
+
+        expect(subject.response).to(
+          have_http_status(:bad_gateway)
         )
       end
     end
@@ -559,10 +566,6 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             subject
           end
 
-          expect(subject.response).to(
-            have_http_status(:bad_gateway)
-          )
-
           expect(subject.body).to eq(
             'errors' => [
               {
@@ -570,6 +573,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                 'detail' => 'Exception from WebMock'
               }
             ]
+          )
+
+          expect(subject.response).to(
+            have_http_status(:bad_gateway)
           )
         end
       end
@@ -580,10 +587,6 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             subject
           end
 
-          expect(subject.response).to(
-            have_http_status(:bad_gateway)
-          )
-
           expect(subject.body).to eq(
             'errors' => [
               {
@@ -591,6 +594,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                 'detail' => 'Exception from WebMock'
               }
             ]
+          )
+
+          expect(subject.response).to(
+            have_http_status(:bad_gateway)
           )
         end
       end
@@ -601,10 +608,6 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             subject
           end
 
-          expect(subject.response).to(
-            have_http_status(:gateway_timeout)
-          )
-
           expect(subject.body).to eq(
             'errors' => [
               {
@@ -612,6 +615,10 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                 'detail' => 'Did not receive a timely response from an upstream server'
               }
             ]
+          )
+
+          expect(subject.response).to(
+            have_http_status(:gateway_timeout)
           )
         end
       end

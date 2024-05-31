@@ -5,7 +5,7 @@ module ClaimsApi
     module Decide
       class Validation
         # This error type expects to be instantiated with objects that are
-        # `ActiveModel::Validations`
+        # `ActiveModel::Validations`.
         class Error < ::Common::Exceptions::ValidationErrors
           def i18n_key
             'common.exceptions.validation_errors'
@@ -14,13 +14,16 @@ module ClaimsApi
 
         include ActiveModel::Validations
 
-        validate :status_transition_must_be_terminating
+        validate :must_be_original
+        validate :declined_reason_must_be_relevant
 
         class << self
           def perform!(...)
             new(...).validate!
           end
         end
+
+        attr_reader :previous, :current
 
         def initialize(previous, current)
           @previous = previous
@@ -29,27 +32,21 @@ module ClaimsApi
 
         private
 
-        TERMINAL_STATUSES = [
-          PowerOfAttorneyRequest::Decision::Statuses::ACCEPTED,
-          PowerOfAttorneyRequest::Decision::Statuses::DECLINED
-        ].freeze
+        def must_be_original
+          return if @previous.blank?
 
-        NONTERMINAL_STATUSES = (
-          PowerOfAttorneyRequest::Decision::Statuses::ALL -
-          TERMINAL_STATUSES
-        ).freeze
+          errors.add :base, <<~MSG.squish
+            must be original
+          MSG
+        end
 
-        def status_transition_must_be_terminating
-          return if
-            # Genuine decisions are okay once but then frozen.
-            @previous.status.in?(NONTERMINAL_STATUSES) &&
-            @current.status.in?(TERMINAL_STATUSES)
+        def declined_reason_must_be_relevant
+          return if @current.declined?
+          return if @current.declined_reason.blank?
 
-          message =
-            'Transition must be terminating: ' \
-            "[#{NONTERMINAL_STATUSES.join(' | ')}] -> [#{TERMINAL_STATUSES.join(' | ')}]"
-
-          errors.add(:status, message)
+          errors.add :declined_reason, <<~MSG.squish
+            can only accompany a declination
+          MSG
         end
 
         def raise_validation_error

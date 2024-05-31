@@ -53,12 +53,35 @@ module BGSClientSpecHelpers
       HEREDOC
     end
 
+    # Force this option to `false` to "eliminate" it from the method signature
+    # because `true` is incompatible with the whole point of this method.
+    options.merge!(use_spec_name_prefix: false)
     name = File.join('claims_api/bgs', service, action, name)
-    use_soap_cassette(name, options.with_defaults(VCR_OPTIONS), &)
+
+    use_soap_cassette(name, options, &)
   end
 
   def use_soap_cassette(name, options = {}, &)
-    VCR.use_cassette(name, options.with_defaults(VCR_OPTIONS), &)
+    options.with_defaults!(
+      **VCR_OPTIONS,
+      use_spec_name_prefix: false
+    )
+
+    options.delete(:use_spec_name_prefix) and
+      name = spec_name_prefix / name
+
+    VCR.use_cassette(name, options, &)
+  end
+
+  def spec_name_prefix
+    caller.each do |call|
+      call = call.split(':').first
+      next unless call.end_with?('_spec.rb')
+
+      call.delete_prefix!((ClaimsApi::Engine.root / 'spec/').to_s)
+      call.delete_suffix!('.rb')
+      return Pathname('claims_api') / call
+    end
   end
 end
 
