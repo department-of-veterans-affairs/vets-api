@@ -39,7 +39,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
     end
   end
 
-
   context 'setting a correct signed-at date' do
     context 'when a submission was created more than a day before processing' do
       describe '#submission_date' do

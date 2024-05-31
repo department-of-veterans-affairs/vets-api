@@ -8,9 +8,9 @@ require 'simple_forms_api_submission/metadata_validator'
 module DecisionReviewV1
   module Processor
     class Form4142Processor
-      SIGNATURE_DATE_KEY = 'signatureDate'.freeze
-      SIGNATURE_TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S'.freeze
-      TIMEZONE = 'Central Time (US & Canada)'.freeze
+      SIGNATURE_DATE_KEY = 'signatureDate'
+      SIGNATURE_TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S'
+      TIMEZONE = 'Central Time (US & Canada)'
       # @return [Pathname] the generated PDF path
       attr_reader :pdf_path
 
