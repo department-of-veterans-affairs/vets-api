@@ -127,7 +127,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
   describe '#get_file_paths_and_metadata' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
-    form_numbers = ['10-7959C', '10-10D']
+    
+    form_numbers = %w[10-7959C 10-10D]
 
     form_numbers.each do |form_number|
       context "when form_number is #{form_number}" do
@@ -141,8 +142,8 @@ RSpec.describe 'Forms uploader', type: :request do
           }
         end
 
-        it "returns the correct file paths, metadata, and attachment IDs" do
-          allow(controller).to receive(:get_attachment_ids_and_form).and_return([['doc1', 'doc2'], IvcChampva::VHA1010d.new({})])
+        it 'returns the correct file paths, metadata, and attachment IDs' do
+          allow(controller).to receive(:get_attachment_ids_and_form).and_return([%w[doc1 doc2], IvcChampva::VHA1010d.new({})])
           allow_any_instance_of(IvcChampva::PdfFiller).to receive(:generate).and_return('file_path')
           allow(IvcChampva::MetadataValidator).to receive(:validate).and_return('metadata')
           allow_any_instance_of(IvcChampva::VHA1010d).to receive(:handle_attachments).and_return(['file_path'])
@@ -151,9 +152,9 @@ RSpec.describe 'Forms uploader', type: :request do
 
           expect(file_paths).to eq(['file_path'])
           expect(metadata).to eq('metadata')
-          expect(attachment_ids).to eq(['doc1', 'doc2'])
+          expect(attachment_ids).to eq(%w[doc1 doc2])
         end
       end
     end
-  end  
+  end 
 end
