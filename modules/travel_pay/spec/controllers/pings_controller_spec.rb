@@ -40,7 +40,7 @@ RSpec.describe TravelPay::PingsController, type: :request do
       end
 
       it 'requests a token and sends a ping to BTSSS' do
-        VCR.use_cassette('travel_pay/auth_ping', match_requests_on: %i(method path)) do
+        VCR.use_cassette('travel_pay/auth_ping', match_requests_on: %i[method path]) do
           get '/travel_pay/pings/authorized_ping', headers: { 'Authorization' => 'Bearer vagov_token' }
           expect(response.body).to include('Received authorized ping from upstream server with status 200')
         end
