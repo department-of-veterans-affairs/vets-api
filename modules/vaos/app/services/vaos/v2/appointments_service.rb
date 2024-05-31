@@ -118,15 +118,15 @@ module VAOS
 
       def update_appointment(appt_id, status)
         with_monitoring do
-          response = if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS, user) &&
-                        Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
-                       update_appointment_vpg(appt_id, status)
-                     else
-                       update_appointment_vaos(appt_id, status)
-                     end
-
-          convert_appointment_time(response.body)
-          OpenStruct.new(response.body)
+          if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS, user) &&
+             Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
+            update_appointment_vpg(appt_id, status)
+            get_appointment(appt_id)
+          else
+            response = update_appointment_vaos(appt_id, status)
+            convert_appointment_time(response.body)
+            OpenStruct.new(response.body)
+          end
         end
       end
 

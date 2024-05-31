@@ -321,8 +321,6 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
                   params:, headers: inflection_header
               data = JSON.parse(response.body)['data']
 
-              puts response.body
-
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
 
