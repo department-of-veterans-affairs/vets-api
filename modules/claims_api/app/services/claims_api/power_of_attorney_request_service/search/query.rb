@@ -48,13 +48,10 @@ module ClaimsApi
         class << self
           def compile!(params)
             result = Schema.call(params)
-
-            if result.failure?
-              raise InvalidQueryError.new(
-                result.messages.to_h,
-                params
-              )
-            end
+            result.success? or raise(
+              ::Common::Exceptions::SchemaValidationErrors,
+              [{ errors: result.messages.to_h, params: }]
+            )
 
             result.to_h.tap do |query|
               apply_defaults(query)
