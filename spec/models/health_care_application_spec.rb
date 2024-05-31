@@ -479,15 +479,60 @@ RSpec.describe HealthCareApplication, type: :model do
   describe 'when state changes to "failed"' do
     subject do
       health_care_application.update!(state: 'failed')
+      health_care_application
     end
 
-    it 'sends a failure email to the email address provided on the form' do
-      expect(health_care_application).to receive(:send_failure_mail).and_call_original
-      expect(HCASubmissionFailureMailer).to receive(:build).and_call_original
-      subject
+    describe '#send_failure_mail' do
+      context 'has form' do
+        context 'with email address' do
+          it 'sends a failure email to the email address provided on the form' do
+            expect(health_care_application).to receive(:send_failure_mail).and_call_original
+            expect(HCASubmissionFailureMailer).to receive(:build).and_call_original
+            subject
+          end
+        end
+
+        context 'without email address' do
+          subject do
+            health_care_application.parsed_form['email'] = nil
+            super()
+          end
+
+          it 'does not send email' do
+            expect(health_care_application).not_to receive(:send_failure_mail)
+            subject
+          end
+        end
+      end
+
+      context 'does not have form' do
+        subject do
+          health_care_application.form = nil
+          super()
+        end
+
+        context 'with email address' do
+          it 'does not send email' do
+            expect(health_care_application).not_to receive(:send_failure_mail)
+            subject
+          end
+        end
+
+        context 'without email address' do
+          subject do
+            health_care_application.parsed_form['email'] = nil
+            super()
+          end
+
+          it 'does not send email' do
+            expect(health_care_application).not_to receive(:send_failure_mail)
+            subject
+          end
+        end
+      end
     end
 
-    context 'log_submission_failure' do
+    describe '#log_submission_failure' do
       it 'triggers statsd' do
         expect { subject }.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
       end
