@@ -289,6 +289,12 @@ describe VAOS::V2::AppointmentsService do
       end
 
       context 'when partial success is returned and failures are returned with ICNs' do
+        before do
+          allow_any_instance_of(VAOS::V2::AppointmentProviderName)
+            .to receive(:form_names_from_appointment_practitioners_list)
+            .and_return(nil)
+        end
+
         it 'does not anonymizes the ICNs in the response' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_data',
                            match_requests_on: %i[method path query]) do
