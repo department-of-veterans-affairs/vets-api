@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'form1010_ezr/service'
-require 'support/form1010_ezr/shared_examples/post_fill_user_form_field'
 
 RSpec.describe Form1010Ezr::Service do
   include SchemaMatchers
@@ -22,7 +21,8 @@ RSpec.describe Form1010Ezr::Service do
       middle_name: 'MiddleName',
       last_name: 'ZZTEST',
       suffix: 'Jr.',
-      ssn: '111111234'
+      ssn: '111111234',
+      gender: 'F'
     )
   end
   let(:service) { described_class.new(current_user) }
@@ -67,50 +67,58 @@ RSpec.describe Form1010Ezr::Service do
     end
   end
 
-  describe '#post_fill_veteran_full_name' do
-    it_behaves_like 'post-fill user form field' do
-      let(:klass_method) { 'post_fill_veteran_full_name' }
-      let(:_parsed_form) do
+  describe '#post_fill_required_user_fields' do
+    let(:required_user_fields) do
+      {
+        'veteranDateOfBirth' => current_user.birth_date,
+        'veteranFullName' => current_user.full_name_normalized&.compact&.stringify_keys,
+        'veteranSocialSecurityNumber' => current_user.ssn_normalized,
+        'gender' => current_user.gender
+      }
+    end
+
+    context 'when the fields are already present in the form' do
+      let(:parsed_form) do
         {
           'veteranFullName' => {
             'first' => 'John',
             'middle' => 'Matthew',
             'last' => 'Smith',
             'suffix' => 'Sr.'
-          }
+          },
+          'veteranDateOfBirth' => '1991-01-06',
+          'veteranSocialSecurityNumber' => '123456789',
+          'gender' => 'M'
         }
       end
-      let(:statsd_increment_name) { 'missing_full_name' }
-      let(:user_field) { 'veteranFullName' }
-      let(:user_data) { current_user.full_name_normalized.compact.stringify_keys }
-    end
-  end
 
-  describe '#post_fill_veteran_ssn' do
-    it_behaves_like 'post-fill user form field' do
-      let(:klass_method) { 'post_fill_veteran_ssn' }
-      let(:_parsed_form) do
-        {
-          'veteranSocialSecurityNumber' => '111111234'
-        }
-      end
-      let(:statsd_increment_name) { 'missing_ssn' }
-      let(:user_field) { 'veteranSocialSecurityNumber' }
-      let(:user_data) { current_user.ssn_normalized }
-    end
-  end
+      it 'does not update the form fields' do
+        service.send(:post_fill_required_user_fields, parsed_form)
 
-  describe '#post_fill_veteran_date_of_birth' do
-    it_behaves_like 'post-fill user form field' do
-      let(:klass_method) { 'post_fill_veteran_date_of_birth' }
-      let(:_parsed_form) do
-        {
-          'veteranDateOfBirth' => '1985-04-03'
-        }
+        required_user_fields.each do |key, value|
+          expect(parsed_form[key]).not_to eq(value)
+        end
       end
-      let(:statsd_increment_name) { 'missing_date_of_birth' }
-      let(:user_field) { 'veteranDateOfBirth' }
-      let(:user_data) { current_user.birth_date }
+    end
+
+    context 'when one or more fields are not present, but the field(s) are present in the user session' do
+      let(:parsed_form) { {} }
+
+      before do
+        allow(StatsD).to receive(:increment)
+      end
+
+      it "increments StatsD and adds/updates the form field(s) to be equal to the current_user's data" do
+        required_user_fields.each_key do |key|
+          expect(StatsD).to receive(:increment).with("api.1010ezr.missing_#{key.underscore}")
+        end
+
+        service.send(:post_fill_required_user_fields, parsed_form)
+
+        required_user_fields.each do |key, value|
+          expect(parsed_form[key]).to eq(value)
+        end
+      end
     end
   end
 
@@ -151,11 +159,10 @@ RSpec.describe Form1010Ezr::Service do
           # and then added via the 'post_fill_required_fields' method
           expect(form['isEssentialAcaCoverage']).to eq(nil)
           expect(form['vaMedicalFacility']).to eq(nil)
-          # If the 'veteranDateOfBirth', 'veteranFullName', and/or 'veteranSocialSecurityNumber' fields are missing
-          # from the parsed_form, they should get added in via the 'post_fill_user_fields' method and pass validation
-          form.delete('veteranDateOfBirth')
-          form.delete('veteranFullName')
-          form.delete('veteranSocialSecurityNumber')
+          # If the 'veteranDateOfBirth', 'veteranFullName', 'veteranSocialSecurityNumber', and/or 'gender' fields are
+          # missing from the parsed_form, they should get added in via the 'post_fill_user_fields' method and
+          # pass validation
+          %w[veteranDateOfBirth veteranFullName veteranSocialSecurityNumber gender].each { |key| form.delete(key) }
 
           submission_response = submit_form(form)
 
