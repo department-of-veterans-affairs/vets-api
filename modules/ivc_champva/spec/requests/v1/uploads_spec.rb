@@ -124,4 +124,40 @@ RSpec.describe 'Forms uploader', type: :request do
     end
   end
   # rubocop:enable Style/HashSyntax, Layout/IndentationConsistency
+
+  describe '#get_file_paths_and_metadata' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+
+    form_numbers_and_classes = {
+      '10-7959C' => IvcChampva::VHA107959c,
+      '10-10D' => IvcChampva::VHA1010d
+    }
+
+    form_numbers_and_classes.each do |form_number, form_class|
+      context "when form_number is #{form_number}" do
+        let(:parsed_form_data) do
+          {
+            'form_number' => form_number,
+            'supporting_docs' => [
+              { 'attachment_id' => 'doc1' },
+              { 'attachment_id' => 'doc2' }
+            ]
+          }
+        end
+
+        it 'returns the correct file paths, metadata, and attachment IDs' do
+          allow(controller).to receive(:get_attachment_ids_and_form).and_return([%w[doc1 doc2], form_class.new({})])
+          allow_any_instance_of(IvcChampva::PdfFiller).to receive(:generate).and_return('file_path')
+          allow(IvcChampva::MetadataValidator).to receive(:validate).and_return('metadata')
+          allow_any_instance_of(form_class).to receive(:handle_attachments).and_return(['file_path'])
+
+          file_paths, metadata, attachment_ids = controller.send(:get_file_paths_and_metadata, parsed_form_data)
+
+          expect(file_paths).to eq(['file_path'])
+          expect(metadata).to eq('metadata')
+          expect(attachment_ids).to eq(%w[doc1 doc2])
+        end
+      end
+    end
+  end
 end
