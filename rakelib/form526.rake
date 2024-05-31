@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
-# require 'debug_me'
-# include DebugMe
+require 'csv'
+require 'date'
+
+# Used to provide feedback while processing
+# a collection of Form526Submission instances.
+@form526_verbose = ENV.key?('FORM526_VERBOSE')
 
 namespace :form526 do
   desc <<~HEREDOC
@@ -720,32 +724,32 @@ namespace :form526 do
   end
 
 
-  # TDV: 83430
-  # Use the lighthouse /validate endpoint
-  # to check a selected collection of
-  # Form526Submission records
+  # Check a selected collection of form526_submissions
+  # (class: Form526Submission) for valid form526 content.
   #
-  desc 'Use lighthouse /validate against selected 526 submissions'
+  desc 'Check selected form526 submissions for errors'
   task :lh_validate, [:start_date, :end_date] => :environment do |task_name, args|
     params = args.to_h
 
-    if 0 == params.size
-      puts <<~USAGE
-        
+    unless (1..2).include?(params.size)
+      abort_with_message <<~USAGE
         Send records from the form526_submissions table through
-        the lighthouse validate endpoint. Reports results.
+        the lighthouse validate endpoint selecting records based
+        on their created_at timestamp.  Produces a CSV
+        file that shows the results.
 
         Usage: bundle exec rake #{task_name}[YYYYMMDD,YYYYNNDD]
 
         2nd date is optional meaning on or after 1st date.
         When present the query is between start and end dates inclusive.
-
+      
+        form526_verbose? is #{form526_verbose?}
+        Export or unset system environment variable FORM526_VERGOSE as desired
+        to get feedback while processing records.
       USAGE
-      abort
     end
 
     start_date  = validate_yyyymmdd(params[:start_date])
-
 
     if params[:end_date]
       end_date  = validate_yyyymmdd(params[:end_date])
@@ -755,80 +759,70 @@ namespace :form526 do
 
     if 2 == params.size
       if start_date > end_date
-        puts <<~ERROR
-
-          Error:  start_date (#{start_date}) is after end_date (#{end_date})
-
-        ERROR
-        abort
+        abort_with_message "ERROR:  start_date (#{start_date}) is after end_date (#{end_date})"
       end
     end
 
-    # debug_me{[
-    #   :params,
-    #   :start_date,
-    #   :end_date,
-    # ]}
+    csv_filename  = "form526_#{start_date}_#{end_date}_validation.csv"
+    csv_rows      = []
+    csv_header    = ['Rec ID', 'Valid?', 'Original', 'Error']
 
-    # SMELL: updated_at is not indexed
+    # SMELL:  created_at is not indexed
+    #         Not a problem because this is
+    #         a manually launched task with
+    #         an expected low number of records
 
     submissions = if end_date.nil?
-                    Form526Submission.where('updated_at >= ?', start_date)
+                    Form526Submission.where('created_at >= ?', start_date)
                   else
-                    Form526Submission.where(updated_at: start_date..end_date)
+                    Form526Submission.where(created_at: start_date..end_date)
                   end
+  
+    
 
-    # debug_me{[
-    #   'submissions.to_sql',
-    #   'submissions.count'
-    # ]}
+    csv_content = CSV.generate do |csv|
+      csv << csv_header
 
-    submissions.each do |f526|
-      # debug_me{[
-      #   "f526.form_content_valid?"
-      # ]}
-      #
-      # TODO: output should be a CSV file that 
-      #       contains the 
-      #         form 526 submission id, 
-      #           ?? submission.id ??
-      #         the job success indicator of the original submission, 
-      #           ??
-      #         the validate value, and if validate is false, 
-      #           true / false
-      #         the reason for failed validation
-      #           ?? could be more than one error
-      #
-      # TODO: Where should the CSV file go?
-      #
-      
-=begin
-  create_table "form526_submissions", id: :serial, force: :cascade do |t|
-    t.string "user_uuid", null: false
-    t.integer "saved_claim_id", null: false
-    t.integer "submitted_claim_id"
-    t.boolean "workflow_complete", default: false, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.boolean "multiple_birls", comment: "*After* a SubmitForm526 Job fails, a lookup is done to see if the veteran has multiple BIRLS IDs. This field gets set to true if that is the case. If the initial submit job succeeds, this field will remain false whether or not the veteran has multiple BIRLS IDs --so this field cannot technically be used to sum all Form526 veterans that have multiple BIRLS. This field /can/ give us an idea of how often having multiple BIRLS IDs is a problem."
-    t.text "auth_headers_json_ciphertext"
-    t.text "form_json_ciphertext"
-    t.text "birls_ids_tried_ciphertext"
-    t.text "encrypted_kms_key"
-    t.uuid "user_account_id"
-    t.string "backup_submitted_claim_id", comment: "*After* a SubmitForm526 Job has exhausted all attempts, a paper submission is generated and sent to Central Mail Portal.This column will be nil for all submissions where a backup submission is not generated.It will have the central mail id for submissions where a backup submission is submitted."
-    t.string "aasm_state", default: "unprocessed"
-    t.integer "submit_endpoint"
-    t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
-    t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
-    t.index ["user_account_id"], name: "index_form526_submissions_on_user_account_id"
-    t.index ["user_uuid"], name: "index_form526_submissions_on_user_uuid"
-  end
+      submissions.each do |submission|
+        base_row   = [submission.id]
+        base_row  << original_success_indicator(submission)
+        base_row  << submission.form_contnet_valid?
 
-=end
+        # if it was valid then append no errors and
+        # do the next submission
+        if base_row.last
+          base_row << ''
+          csv << base_row
+          puts base_row.join(', ') if form526_verbose?
+          next
+        end
 
+        errors = submission.form_content_errors
+
+        if form526_verbose?
+          print base_row.join(', ')
+          puts " has #{errors.size} errors."
+        end
+
+        errors.each do |error|
+          row   = base_row.dup
+          row  << error['title']
+          csv << row
+          next
+        end
+      end
     end
-  end # end of task
+
+    print "Saving #{csv_filename} to S3 ... " if form526_verbose?
+
+    s3_resource   = Reports::Uploader.new_s3_resource
+    target_bucket = Reports::Uploader.s3_bucket
+    object        = s3_resource.bucket(target_bucket).object(csv_filename)
+    
+    object.put(body: csv_content)
+
+    puts 'Done.' if form526_verbose?
+  end
 
   ############################################
   ## Utility Methods
@@ -838,16 +832,46 @@ namespace :form526 do
   # abort if invalid
   def validate_yyyymmdd(a_string)
     if a_string.match?(/\A[0-9]{8}\z/)
-      return Date.strptime(a_string, '%Y%m%d')
+      begin
+        Date.strptime(a_string, '%Y%m%d')
+      rescue Date::Error
+        abort_with_message "ERROR: bad date (#{a_string}) must be 8 digits in format YYYYMMDD"
+      end
     else
-      puts <<~ERROR
-
-        Error: bad date (#{a_string}) must be 8 digits in format YYYYMMDD
-
-      ERROR
-      abort
+      abort_with_message "ERROR: bad date (#{a_string}) must be 8 digits in format YYYYMMDD"
     end
+  end
 
+  # Send error message to STDOUT and
+  # then abort
+  #
+  def abort_with_message(a_string)
+    print "\n#{a_string}\n\n"
+    abort        
+  end
 
+  def form526_verbose?
+    @form526_verbose
+  end
+
+  # Use the form526_job_statuses has_many link
+  # to get the OSI value
+  #
+  def original_success_indicator(a_submission_record)
+    job_status  = a_submission_record
+                    .form526_job_statuses
+                    .order(:updated_at)
+                    .pluck(:job_class, :status)
+                    .to_h
+
+    if job_status.empty?
+      'Not Processed'
+    elsif 'success' == job_status['SubmitForm526AllClaim']
+      'Primary Success'
+    elsif 'success' == job_status['BackupSubmission']
+      'Backup Success'
+    else
+      'Unknown'
+    end
   end
 end

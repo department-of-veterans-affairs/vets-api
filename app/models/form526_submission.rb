@@ -488,6 +488,7 @@ class Form526Submission < ApplicationRecord
       lighthoust_validation_response = lighthouse_service.validate526(body)
     rescue => e
       # TODO: What now?
+      #       treat as a fake error
     end
 
     if '200' == lighthoust_validation_response.code
