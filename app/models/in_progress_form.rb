@@ -30,8 +30,8 @@ class InProgressForm < ApplicationRecord
                                  where("(metadata -> 'submission' ->> 'hasAttemptedSubmit')::boolean or "\
                                        "(metadata -> 'submission' ->> 'has_attempted_submit')::boolean")
                                }
-  scope :has_errors,           lambda { where("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
-  scope :has_no_errors,        lambda { where.not("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
+  scope :has_errors,           -> { where("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
+  scope :has_no_errors,        -> { where.not("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
   scope :has_error_message,    lambda {
                                  where("(metadata -> 'submission' -> 'errorMessage')::text !='false' or "\
                                        "(metadata -> 'submission' -> 'error_message')::text !='false' ")
@@ -52,6 +52,12 @@ class InProgressForm < ApplicationRecord
   before_save :serialize_form_data
   before_save :skip_exipry_update_check, if: proc { |form| %w[21P-527EZ 5655].include?(form.form_id) }
   before_save :set_expires_at, unless: :skip_exipry_update
+  after_create ->(ipf) { StatsD.increment('in_progress_form.create', tags: ["form_id:#{ipf.form_id}"]) }
+  after_destroy ->(ipf) { StatsD.increment('in_progress_form.destroy', tags: ["form_id:#{ipf.form_id}"]) }
+  after_destroy lambda { |ipf|
+                  StatsD.distribution('in_progress_form.lifespan', Time.current - ipf.created_at,
+                                      tags: ["form_id:#{ipf.form_id}"])
+                }
   after_save :log_hca_email_diff
 
   def self.form_for_user(form_id, user)
