@@ -396,8 +396,8 @@ module Mobile
             location
           end
         end
-
         # rubocop:enable Metrics/MethodLength
+
         def parse_phone(phone)
           # captures area code (\d{3}) number (\d{3}-\d{4})
           # and optional extension (until the end of the string) (?:\sx(\d*))?$
