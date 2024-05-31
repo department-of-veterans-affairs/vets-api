@@ -7,14 +7,13 @@ module TermsOfUse
   class Decliner
     include ActiveModel::Validations
 
-    attr_reader :user_account, :icn, :common_name, :version
+    attr_reader :user_account, :icn, :version
 
-    validates :user_account, :icn, :common_name, :version, presence: true
+    validates :user_account, :icn, :version, presence: true
 
-    def initialize(user_account:, common_name:, version:)
+    def initialize(user_account:, version:)
       @user_account = user_account
       @icn = user_account&.icn
-      @common_name = common_name
       @version = version
 
       validate!
@@ -24,7 +23,11 @@ module TermsOfUse
 
     def perform!
       terms_of_use_agreement.declined!
-      update_sign_up_service
+      if mpi_profile.sec_id
+        update_sign_up_service
+      else
+        Rails.logger.info('[TermsOfUse] [Decliner] Sign Up Service not updated due to user missing sec_id', { icn: })
+      end
       Logger.new(terms_of_use_agreement:).perform
 
       terms_of_use_agreement
@@ -48,8 +51,17 @@ module TermsOfUse
       raise Errors::DeclinerError, error.message
     end
 
+    def signature_name
+      "#{mpi_profile.given_names.first} #{mpi_profile.family_name}"
+    end
+
+    def mpi_profile
+      @mpi_profile ||= MPI::Service.new.find_profile_by_identifier(identifier: icn,
+                                                                   identifier_type: MPI::Constants::ICN)&.profile
+    end
+
     def attr_package_key
-      @attr_package_key ||= Sidekiq::AttrPackage.create(icn:, signature_name: common_name, version:, expires_in: 2.days)
+      @attr_package_key ||= Sidekiq::AttrPackage.create(icn:, signature_name:, version:, expires_in: 2.days)
     end
   end
 end

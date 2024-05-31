@@ -112,6 +112,7 @@ module Form1010Ezr
       end
     end
 
+    # <---- Post-fill methods ---->
     # Add required fields not included in the JSON schema, but are
     # required in the Enrollment System API
     def post_fill_required_fields(parsed_form)
@@ -120,48 +121,29 @@ module Form1010Ezr
       parsed_form.merge!(required_fields)
     end
 
-    # Due to issues with receiving submissions that do not include the Veteran's DOB, we'll
-    # try to add it in before we validate the form
-    def post_fill_veteran_date_of_birth(parsed_form)
-      return if parsed_form['veteranDateOfBirth'].present?
+    # Due to issues with receiving submissions that do not include the Veteran's DOB, full name, SSN, and/or
+    # gender, we'll try to add them in before we validate the form
+    def post_fill_required_user_fields(parsed_form)
+      # User fields that are required in the 10-10EZR schema, but not editable on the frontend
+      required_user_form_fields = {
+        'veteranDateOfBirth' => @user.birth_date,
+        'veteranFullName' => @user.full_name_normalized&.compact&.stringify_keys,
+        'veteranSocialSecurityNumber' => @user.ssn_normalized,
+        'gender' => @user.gender
+      }
 
-      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.missing_date_of_birth")
+      required_user_form_fields.each do |key, value|
+        next if parsed_form[key].present?
 
-      parsed_form['veteranDateOfBirth'] = @user.birth_date
-      parsed_form
-    end
+        StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.missing_#{key.underscore}")
 
-    # Due to issues with receiving submissions that do not include the Veteran's full name, we'll
-    # try to add it in before we validate the form
-    def post_fill_veteran_full_name(parsed_form)
-      return if parsed_form['veteranFullName'].present?
-
-      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.missing_full_name")
-
-      parsed_form['veteranFullName'] = @user.full_name_normalized&.compact&.stringify_keys
-      parsed_form
-    end
-
-    # Due to issues with receiving submissions that do not include the Veteran's SSN, we'll
-    # try to add it in before we validate the form
-    def post_fill_veteran_ssn(parsed_form)
-      return if parsed_form['veteranSocialSecurityNumber'].present?
-
-      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.missing_ssn")
-
-      parsed_form['veteranSocialSecurityNumber'] = @user.ssn_normalized
-      parsed_form
-    end
-
-    def post_fill_user_fields(parsed_form)
-      post_fill_veteran_full_name(parsed_form)
-      post_fill_veteran_date_of_birth(parsed_form)
-      post_fill_veteran_ssn(parsed_form)
+        parsed_form[key] = value
+      end
     end
 
     def post_fill_fields(parsed_form)
       post_fill_required_fields(parsed_form)
-      post_fill_user_fields(parsed_form)
+      post_fill_required_user_fields(parsed_form)
 
       parsed_form.compact
     end
