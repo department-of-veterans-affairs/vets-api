@@ -158,5 +158,5 @@ RSpec.describe 'Forms uploader', type: :request do
       end
     end
   end
-        # rubocop:enable Layout/LineLength
+  # rubocop:enable Layout/LineLength
 end
