@@ -4,42 +4,41 @@ require 'rails_helper'
 require 'dgi/automation/claimant_response'
 
 describe AutomationSerializer do
-
   let(:claimant) do
     {
-      'claimant_id': 600010259,
-      'suffix': '',
-      'date_of_birth': '1990-08-01',
-      'first_name': 'Hector',
-      'last_name': 'Allen',
-      'middle_name': 'James',
-      'notification_method': 'NONE',
-      'contact_info': {
-        'address_line1': '1291 Boston Post Rd',
-        'address_line2': '',
-        'city': 'Madison',
-        'zipcode': '06443',
-        'email_address': 'testing@test.com',
-        'address_type': 'DOMESTIC',
-        'mobile_phone_number': '1231231234',
-        'home_phone_number': '1231231234',
-        'country_code': 'US',
-        'state_code': 'CT'
+      claimant_id: 600_010_259,
+      suffix: '',
+      date_of_birth: '1990-08-01',
+      first_name: 'Hector',
+      last_name: 'Allen',
+      middle_name: 'James',
+      notification_method: 'NONE',
+      contact_info: {
+        address_line1: '1291 Boston Post Rd',
+        address_line2: '',
+        city: 'Madison',
+        zipcode: '06443',
+        email_address: 'testing@test.com',
+        address_type: 'DOMESTIC',
+        mobile_phone_number: '1231231234',
+        home_phone_number: '1231231234',
+        country_code: 'US',
+        state_code: 'CT'
       },
-      'preferred_contact': nil
+      preferred_contact: nil
     }
   end
 
   let(:service_data) do
     [
       {
-        'branch_of_service': 'Air Force',
-        'begin_date': '2010-06-01',
-        'end_date': '2020-06-01',
-        'character_of_service': 'Honorable',
-        'reason_for_separation': 'Expiration Term Of Service',
-        'exclusion_periods': [],
-        'training_periods': []
+        branch_of_service: 'Air Force',
+        begin_date: '2010-06-01',
+        end_date: '2020-06-01',
+        character_of_service: 'Honorable',
+        reason_for_separation: 'Expiration Term Of Service',
+        exclusion_periods: [],
+        training_periods: []
       }
     ]
   end
@@ -51,41 +50,41 @@ describe AutomationSerializer do
 
   let(:expected_response) do
     {
-      'data': {
-        'id': '',
-        'type': 'meb_api_dgi_automation_claimant_responses',
-        'attributes': {
-          'claimant': {
-            'claimant_id': 600010259,
-            'suffix': '',
-            'date_of_birth': '1990-08-01',
-            'first_name': 'Hector',
-            'last_name': 'Allen',
-            'middle_name': 'James',
-            'notification_method': 'NONE',
-            'contact_info': {
-              'address_line1': '1291 Boston Post Rd',
-              'address_line2': '',
-              'city': 'Madison',
-              'zipcode': '06443',
-              'email_address': 'testing@test.com',
-              'address_type': 'DOMESTIC',
-              'mobile_phone_number': '1231231234',
-              'home_phone_number': '1231231234',
-              'country_code': 'US',
-              'state_code': 'CT'
+      data: {
+        id: '',
+        type: 'meb_api_dgi_automation_claimant_responses',
+        attributes: {
+          claimant: {
+            claimant_id: 600_010_259,
+            suffix: '',
+            date_of_birth: '1990-08-01',
+            first_name: 'Hector',
+            last_name: 'Allen',
+            middle_name: 'James',
+            notification_method: 'NONE',
+            contact_info: {
+              address_line1: '1291 Boston Post Rd',
+              address_line2: '',
+              city: 'Madison',
+              zipcode: '06443',
+              email_address: 'testing@test.com',
+              address_type: 'DOMESTIC',
+              mobile_phone_number: '1231231234',
+              home_phone_number: '1231231234',
+              country_code: 'US',
+              state_code: 'CT'
             },
-            'preferred_contact': nil
+            preferred_contact: nil
           },
-          'service_data': [
+          service_data: [
             {
-              'branch_of_service': 'Air Force',
-              'begin_date': '2010-06-01',
-              'end_date': '2020-06-01',
-              'character_of_service': 'Honorable',
-              'reason_for_separation': 'Expiration Term Of Service',
-              'exclusion_periods': [],
-              'training_periods': []
+              branch_of_service: 'Air Force',
+              begin_date: '2010-06-01',
+              end_date: '2020-06-01',
+              character_of_service: 'Honorable',
+              reason_for_separation: 'Expiration Term Of Service',
+              exclusion_periods: [],
+              training_periods: []
             }
           ]
         }
@@ -94,7 +93,8 @@ describe AutomationSerializer do
   end
 
   let(:rendered_hash) do
-    ActiveModelSerializers::SerializableResource.new(automation_claimant_response, { serializer: described_class }).as_json
+    ActiveModelSerializers::SerializableResource.new(automation_claimant_response,
+                                                     { serializer: described_class }).as_json
   end
   let(:rendered_attributes) { rendered_hash[:data][:attributes] }
 

@@ -6,9 +6,9 @@ require 'dgi/eligibility/eligibility_response'
 describe EligibilitySerializer do
   let(:eligibility_response) do
     response = double('response', body: [
-                        { 'veteran_is_eligible': true, 'chapter': 'Chapter33' },
-                        { 'veteran_is_eligible': false, 'chapter': 'Chapter30' },
-                        { 'veteran_is_eligible': false, 'chapter': 'Chapter1606' }
+                        { veteran_is_eligible: true, chapter: 'Chapter33' },
+                        { veteran_is_eligible: false, chapter: 'Chapter30' },
+                        { veteran_is_eligible: false, chapter: 'Chapter1606' }
                       ])
     MebApi::DGI::Eligibility::EligibilityResponse.new(201, response)
   end

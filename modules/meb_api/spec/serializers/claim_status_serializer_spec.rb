@@ -4,32 +4,31 @@ require 'rails_helper'
 require 'dgi/status/status_response'
 
 describe ClaimStatusSerializer do
-
-  let(:claimant) { 600000001 }
-  let(:claim_service_id) { 99000000113358369 }
+  let(:claimant) { 600_000_001 }
+  let(:claim_service_id) { 99_000_000_113_358_369 }
   let(:claim_status) { 'ELIGIBLE' }
   let(:received_date) { '2022-06-13' }
 
   let(:claim_status_response) do
     response = double('response', body: {
-        'claimant_id' => claimant,
-        'claim_service_id' => claim_service_id,
-        'claim_status' => claim_status,
-        'received_date' => received_date
-    })
+                        'claimant_id' => claimant,
+                        'claim_service_id' => claim_service_id,
+                        'claim_status' => claim_status,
+                        'received_date' => received_date
+                      })
     MebApi::DGI::Status::StatusResponse.new(201, response)
   end
 
   let(:expected_response) do
     {
-      'data': {
-        'id': '',
-        'type': 'meb_api_dgi_status_status_responses',
-        'attributes': {
-          'claimant_id': 600000001,
-          'claim_service_id': 99000000113358369,
-          'claim_status': 'ELIGIBLE',
-          'received_date': '2022-06-13'
+      data: {
+        id: '',
+        type: 'meb_api_dgi_status_status_responses',
+        attributes: {
+          claimant_id: 600_000_001,
+          claim_service_id: 99_000_000_113_358_369,
+          claim_status: 'ELIGIBLE',
+          received_date: '2022-06-13'
         }
       }
     }
@@ -59,5 +58,4 @@ describe ClaimStatusSerializer do
   it 'includes :received_date' do
     expect(rendered_attributes[:received_date]).to eq expected_response[:data][:attributes][:received_date]
   end
-
 end

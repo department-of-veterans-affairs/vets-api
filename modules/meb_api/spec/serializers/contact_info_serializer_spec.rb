@@ -6,8 +6,8 @@ require 'dgi/contact_info/response'
 describe ContactInfoSerializer do
   let(:contact_info_response) do
     response = double('response', body: {
-                        'emails' => [{ 'address': 'test@test.com', 'dupe': 'false' }],
-                        'phones' => [{ 'number': '8013090123', 'dupe': 'false' }]
+                        'emails' => [{ address: 'test@test.com', dupe: 'false' }],
+                        'phones' => [{ number: '8013090123', dupe: 'false' }]
                       })
     MebApi::DGI::ContactInfo::Response.new(201, response)
   end

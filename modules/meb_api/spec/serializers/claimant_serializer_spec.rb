@@ -4,8 +4,7 @@ require 'rails_helper'
 require 'dgi/claimant/claimant_response'
 
 describe ClaimantSerializer do
-
-  let(:claimant) { 600010259 }
+  let(:claimant) { 600_010_259 }
 
   let(:claimant_response) do
     response = double('response', body: { 'claimant_id' => claimant })
@@ -14,11 +13,11 @@ describe ClaimantSerializer do
 
   let(:expected_response) do
     {
-      'data': {
-        'id': '',
-        'type': 'meb_api_dgi_claimant_claimant_responses',
-        'attributes': {
-          'claimant_id': '600010259',
+      data: {
+        id: '',
+        type: 'meb_api_dgi_claimant_claimant_responses',
+        attributes: {
+          claimant_id: '600010259'
         }
       }
     }
@@ -36,5 +35,4 @@ describe ClaimantSerializer do
   it 'includes :claimant_id' do
     expect(rendered_attributes[:claimant_id]).to eq expected_response[:data][:attributes][:claimant_id]
   end
-
 end
