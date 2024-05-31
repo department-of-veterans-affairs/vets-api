@@ -3,22 +3,15 @@
 module ClaimsApi
   module V2
     class PowerOfAttorneyRequestsController < PowerOfAttorneyRequests::BaseController
-      def index # rubocop:disable Metrics/MethodLength
-        index_params =
-          params.permit(
-            filter: {},
-            page: {},
-            sort: {}
-          ).to_h
-
+      def index
         result =
           PowerOfAttorneyRequestService::Search.perform(
-            index_params
+            request.query_parameters
           )
 
-        result[:metadata].transform_keys!(
-          total_count: :totalCount
-        )
+        result[:metadata].transform_keys! do |key|
+          key.to_s.camelize(:lower).to_sym
+        end
 
         result[:data] =
           Blueprints::PowerOfAttorneyRequestBlueprint.render_as_hash(
