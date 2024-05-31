@@ -73,8 +73,8 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 8fff0f52de3cd2b1a9bbc4eafc76ee7c176cb852
-  branch: correct-capitalization
+  revision: 23bf453428474f73d1b519fe588b0b707ec9ebd7
+  branch: master
   specs:
     vets_json_schema (22.3.1)
       multi_json (~> 1.0)
