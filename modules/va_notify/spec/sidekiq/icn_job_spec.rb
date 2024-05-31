@@ -80,4 +80,29 @@ RSpec.describe VANotify::IcnJob, type: :worker do
       end
     end
   end
+
+  describe 'when job has failed' do
+    let(:error) { RuntimeError.new('an error occurred!') }
+    let(:msg) do
+      {
+        'jid' => 123,
+        'class' => described_class.to_s,
+        'error_class' => 'RuntimeError',
+        'error_message' => 'an error occurred!'
+    }
+    end
+
+    it 'logs an error to the Rails console' do
+      described_class.within_sidekiq_retries_exhausted_block(msg, error) do
+        expect(Rails.logger).to receive(:error).with(
+          'VANotify::IcnJob retries exhausted',
+          {
+            job_id: 123,
+            error_class: 'RuntimeError',
+            error_message: 'an error occurred!'
+          }
+        )
+      end
+    end
+  end
 end
