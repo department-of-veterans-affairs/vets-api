@@ -43,13 +43,31 @@ describe Veteran::Service::Representative, type: :model do
         ).id).to eq(representative.id)
       end
 
-      it 'finds right user when 2 with the same name exist' do
-        FactoryBot.create(:representative,
-                          basic_attributes)
+      it 'handles a nil value without throwing an exception' do
         expect(Veteran::Service::Representative.for_user(
-          first_name: identity.first_name,
-          last_name: identity.last_name
-        ).id).to eq(representative.id)
+                 first_name: identity.first_name,
+                 last_name: nil
+               )).to eq(false)
+      end
+    end
+
+    it 'finds right user when 2 with the same name exist' do
+      FactoryBot.create(:representative,
+                        basic_attributes)
+      expect(Veteran::Service::Representative.for_user(
+        first_name: identity.first_name,
+        last_name: identity.last_name
+      ).id).to eq(representative.id)
+    end
+
+    describe '#all_for_user' do
+      it 'handles a nil value without throwing an exception' do
+        expect(Veteran::Service::Representative.all_for_user(
+                 first_name: identity.first_name,
+                 last_name: nil,
+                 middle_initial: 'J',
+                 poa_code: '016'
+               )).to eq(false)
       end
     end
   end
@@ -119,16 +137,6 @@ describe Veteran::Service::Representative, type: :model do
           representative.update(first_name: 'Bob')
 
           expect(representative.reload.full_name).to eq('Bob Smith')
-        end
-
-        it 'does not throw an exception when one of the names if nil' do
-          representative = create(:representative, first_name: 'Joe', last_name: nil)
-
-          expect(representative.full_name).to eq('Joe ')
-
-          representative.update(first_name: 'Bob')
-
-          expect(representative.reload.full_name).to eq('Bob ')
         end
       end
     end
