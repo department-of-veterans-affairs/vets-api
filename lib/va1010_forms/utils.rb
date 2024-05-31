@@ -5,11 +5,11 @@ require 'hca/overrides_parser'
 
 module VA1010Forms
   module Utils
-    def es_submit(parsed_form, form_id)
-      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user, form_id)
-      content = Gyoku.xml(formatted)
-      submission = soap.build_request(:save_submit_form, message: content)
-      response = perform(:post, '', submission.body)
+    include ActionView::Helpers::NumberHelper
+    def es_submit(parsed_form, user, form_id)
+      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, user, form_id)
+      submission_body = submission_body(formatted)
+      response = perform(:post, '', submission_body)
 
       root = response.body.locate('S:Envelope/S:Body/submitFormResponse').first
       form_submission_id = root.locate('formSubmissionId').first.text.to_i
@@ -37,6 +37,25 @@ module VA1010Forms
 
     def override_parsed_form(parsed_form)
       HCA::OverridesParser.new(parsed_form).override
+    end
+
+    private
+
+    def submission_body(formatted_form)
+      content = Gyoku.xml(formatted_form)
+      submission_body = soap.build_request(:save_submit_form, message: content).body
+      log_payload_info(formatted_form, submission_body)
+
+      submission_body
+    end
+
+    def log_payload_info(formatted_form, submission_body)
+      form_name = formatted_form.dig('va:form', 'va:formIdentifier', 'va:value')
+      attachment_count = formatted_form.dig('va:form', 'va:attachments')&.length || 0
+
+      Rails.logger.info("Payload for submitted #{form_name}: " \
+                        "Body size of #{number_to_human_size(submission_body.bytesize)} " \
+                        "with #{attachment_count} attachment(s)")
     end
   end
 end

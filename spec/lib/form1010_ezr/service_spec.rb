@@ -177,7 +177,7 @@ RSpec.describe Form1010Ezr::Service do
         end
       end
 
-      it 'logs the submission id', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+      it 'logs the submission id and payload size', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
         VCR.use_cassette(
           'form1010_ezr/authorized_submit',
           { match_requests_on: %i[method uri body], erb: true }
@@ -185,6 +185,8 @@ RSpec.describe Form1010Ezr::Service do
           submission_response = submit_form(form)
 
           expect(Rails.logger).to have_received(:info).with("SubmissionID=#{submission_response[:formSubmissionId]}")
+          expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZR: ' \
+                                                            'Body size of 12.1 KB with 0 attachment(s)')
         end
       end
 
