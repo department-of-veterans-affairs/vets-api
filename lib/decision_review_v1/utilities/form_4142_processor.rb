@@ -15,8 +15,8 @@ module DecisionReviewV1
       attr_reader :request_body
 
       def initialize(form_data:, submission_id: nil)
-        @form = set_signature_date(form_data)
         @submission = Form526Submission.find_by(id: submission_id)
+        @form = set_signature_date(form_data)
         @pdf_path = generate_stamp_pdf
         @uuid = SecureRandom.uuid
         @request_body = {
