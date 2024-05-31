@@ -74,7 +74,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
     Flipper.enable('va_online_scheduling')
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-    allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic_memoized).and_return(mock_clinic)
+    allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_clinic_memoized).and_return(mock_clinic)
     allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility_memoized).and_return(mock_facility)
   end
 
@@ -396,7 +396,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
           end
 
           it 'has access and returns va appointments and honors includes with no physical_location field' do
-            allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic_memoized)
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_clinic_memoized)
               .and_return(mock_clinic_without_physical_location)
             VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
                              match_requests_on: %i[method path query], allow_playback_repeats: true) do
@@ -470,7 +470,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
             VCR.use_cassette('vaos/v2/appointments/get_appointments_200_no_location_id',
                              match_requests_on: %i[method path query], allow_playback_repeats: true) do
               # unstub the get_clinic method for this test 500 error was being returned
-              allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic_memoized).and_call_original
+              allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_clinic_memoized).and_call_original
               get '/vaos/v2/appointments?_include=clinics', params:, headers: inflection_header
               data = JSON.parse(response.body)['data']
               expect(response).to have_http_status(:ok)
@@ -483,7 +483,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
           end
 
           it 'has access and returns va appointments when systems service fails' do
-            allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic_memoized).and_call_original
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_clinic_memoized).and_call_original
             VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_system_service_500',
                              match_requests_on: %i[method path query], allow_playback_repeats: true) do
               get '/vaos/v2/appointments', params:, headers: inflection_header

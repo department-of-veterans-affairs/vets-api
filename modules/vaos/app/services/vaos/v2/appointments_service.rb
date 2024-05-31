@@ -25,7 +25,7 @@ module VAOS
       APPOINTMENTS_ENABLE_OH_READS = :va_online_scheduling_enable_OH_reads
 
       # rubocop:disable Metrics/MethodLength
-      def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
+      def get_appointments(start_date, end_date, statuses = nil, pagination_params = {}, include = {})
         params = date_params(start_date, end_date)
                  .merge(page_params(pagination_params))
                  .merge(status_params(statuses))
@@ -42,14 +42,18 @@ module VAOS
                      end
 
           validate_response_schema(response, 'appointments_index')
-          response.body[:data].each do |appt|
+          appointments = response.body[:data]
+          appointments.each do |appt|
             prepare_appointment(appt)
             cnp_count += 1 if cnp?(appt)
           end
+          # move these into loop
+          merge_clinics(appointments) if include[:clinics]
+          merge_facilities(appointments) if include[:facilities]
           # log count of C&P appointments in the appointments list, per GH#78141
           log_cnp_appt_count(cnp_count) if cnp_count.positive?
           {
-            data: deserialized_appointments(response.body[:data]),
+            data: deserialized_appointments(appointments),
             meta: pagination(pagination_params).merge(partial_errors(response))
           }
         end
@@ -155,7 +159,7 @@ module VAOS
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
       def get_facility_timezone(facility_location_id)
-        facility_info = get_facility_memoized(facility_location_id)
+        facility_info (facility_location_id)
         if facility_info == FACILITY_ERROR_MSG
           nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
         else
@@ -204,6 +208,101 @@ module VAOS
         names = appointment_provider_name_service.form_names_from_appointment_practitioners_list(practitioners_list)
 
         appointment[:preferred_provider_name] = names
+      end
+
+      def merge_clinics(appointments)
+        appointments.each do |appt|
+          unless appt[:clinic].nil? || appt[:location_id].nil?
+            clinic = get_clinic_memoized(appt[:location_id], appt[:clinic])
+            if clinic&.[](:service_name)
+              appt[:service_name] = clinic[:service_name]
+              # In VAOS Service there is no dedicated clinic friendlyName field.
+              # If the clinic is configured with a patient-friendly name then that will be the value
+              # in the clinic service name; otherwise it will be the internal clinic name.
+              appt[:friendly_name] = clinic[:service_name]
+            end
+
+            appt[:physical_location] = clinic[:physical_location] if clinic&.[](:physical_location)
+          end
+        end
+      end
+      # def merge_auxiliary_clinic_info(appointments)
+      #   cached_clinics = {}
+
+      #   location_clinics = appointments.map { |appt| [appt.location_id, appt.clinic] }.reject { |a| a.any?(nil) }.uniq
+      #   location_clinics.each do |location_id, clinic_id|
+      #     cached_clinics[clinic_id] = appointments_helper.get_clinic(location_id, clinic_id)
+      #   end
+
+      #   missing_clinics = []
+
+      #   appointments.each do |appt|
+      #     clinic_id = appt[:clinic]
+      #     next unless clinic_id
+
+      #     service_name = cached_clinics.dig(clinic_id, :service_name)
+      #     appt[:service_name] = service_name
+
+      #     physical_location = cached_clinics.dig(clinic_id, :physical_location)
+      #     appt[:physical_location] = physical_location
+
+      #     missing_clinics << clinic_id unless cached_clinics[clinic_id]
+      #   end
+      #   [appointments, missing_clinics]
+      # end
+
+      def get_clinic_memoized(location_id, clinic_id)
+        mobile_facility_service.get_clinic_with_cache(station_id: location_id, clinic_id:)
+      rescue Common::Exceptions::BackendServiceException => e
+        Rails.logger.error(
+          "Error fetching clinic #{clinic_id} for location #{location_id}",
+          clinic_id:,
+          location_id:,
+          vamf_msg: e.original_body
+        )
+        nil # on error log and return nil, calling code will handle nil
+      end
+      memoize :get_clinic_memoized
+
+      def merge_facilities(appointments)
+        appointments.each do |appt|
+          unless appt[:location_id].nil?
+            appt[:location] =
+              get_facility_memoized(appt[:location_id])
+          end
+          if cerner?(appt) && contains_substring(extract_all_values(appt[:location]), 'COL OR 1')
+            log_appt_id_location_name(appt)
+          end
+        end
+      end
+
+      # def merge_clinic_facility_address(appointments)
+      #   cached_facilities = {}
+
+      #   facility_ids = appointments.map(&:location_id).compact.uniq
+      #   facility_ids.each do |facility_id|
+      #     cached_facilities[facility_id] = appointments_helper.get_facility(facility_id)
+      #   end
+
+      #   missing_facilities = []
+
+      #   appointments.each do |appt|
+      #     facility_id = appt[:location_id]
+      #     next unless facility_id
+
+      #     appt[:location] = cached_facilities[facility_id]
+
+      #     missing_facilities << facility_id unless cached_facilities[facility_id]
+      #   end
+
+      #   [appointments, missing_facilities]
+      # end
+
+      def log_appt_id_location_name(appt)
+        Rails.logger.info("Details for Cerner 'COL OR 1' Appointment",
+                          appt_cerner_location_data(appt[:id],
+                                                    appt[:location]&.[]('id'),
+                                                    appt[:location]&.[]('name')).to_json)
       end
 
       def appointment_provider_name_service

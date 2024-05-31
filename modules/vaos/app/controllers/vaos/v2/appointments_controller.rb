@@ -21,9 +21,6 @@ module VAOS
       def index
         appointments
 
-        _include&.include?('clinics') && merge_clinics(appointments[:data])
-        _include&.include?('facilities') && merge_facilities(appointments[:data])
-
         appointments[:data].each do |appt|
           scrape_appt_comments_and_log_details(appt, APPT_INDEX, PAP_COMPLIANCE_TELE)
         end
@@ -44,7 +41,7 @@ module VAOS
         appointment
 
         unless appointment[:clinic].nil? || appointment[:location_id].nil?
-          clinic = get_clinic_memoized(appointment[:location_id], appointment[:clinic])
+          # clinic = get_clinic_memoized(appointment[:location_id], appointment[:clinic])
           appointment[:service_name] = clinic&.[](:service_name)
           appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
           appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
@@ -66,7 +63,7 @@ module VAOS
         new_appointment
 
         unless new_appointment[:clinic].nil? || new_appointment[:location_id].nil?
-          clinic = get_clinic_memoized(new_appointment[:location_id], new_appointment[:clinic])
+          # clinic = get_clinic_memoized(new_appointment[:location_id], new_appointment[:clinic])
           new_appointment[:service_name] = clinic&.[](:service_name)
           new_appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
           new_appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
@@ -86,7 +83,7 @@ module VAOS
       def update
         updated_appointment
         unless updated_appointment[:clinic].nil? || updated_appointment[:location_id].nil?
-          clinic = get_clinic_memoized(updated_appointment[:location_id], updated_appointment[:clinic])
+          # clinic = get_clinic_memoized(updated_appointment[:location_id], updated_appointment[:clinic])
           updated_appointment[:service_name] = clinic&.[](:service_name)
           updated_appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
           updated_appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
@@ -115,7 +112,7 @@ module VAOS
 
       def appointments
         @appointments ||=
-          appointments_service.get_appointments(start_date, end_date, statuses, pagination_params)
+          appointments_service.get_appointments(start_date, end_date, statuses, pagination_params, include_params)
       end
 
       def appointment
@@ -190,42 +187,6 @@ module VAOS
         false
       end
 
-      def merge_clinics(appointments)
-        appointments.each do |appt|
-          unless appt[:clinic].nil? || appt[:location_id].nil?
-            clinic = get_clinic_memoized(appt[:location_id], appt[:clinic])
-            if clinic&.[](:service_name)
-              appt[:service_name] = clinic[:service_name]
-              # In VAOS Service there is no dedicated clinic friendlyName field.
-              # If the clinic is configured with a patient-friendly name then that will be the value
-              # in the clinic service name; otherwise it will be the internal clinic name.
-              appt[:friendly_name] = clinic[:service_name]
-            end
-
-            appt[:physical_location] = clinic[:physical_location] if clinic&.[](:physical_location)
-          end
-        end
-      end
-
-      def merge_facilities(appointments)
-        appointments.each do |appt|
-          unless appt[:location_id].nil?
-            appt[:location] =
-              appointments_service.get_facility_memoized(appt[:location_id])
-          end
-          if cerner?(appt) && contains_substring(extract_all_values(appt[:location]), 'COL OR 1')
-            log_appt_id_location_name(appt)
-          end
-        end
-      end
-
-      def log_appt_id_location_name(appt)
-        Rails.logger.info("Details for Cerner 'COL OR 1' Appointment",
-                          appt_cerner_location_data(appt[:id],
-                                                    appt[:location]&.[]('id'),
-                                                    appt[:location]&.[]('name')).to_json)
-      end
-
       def appt_cerner_location_data(appt_id, facility_location_id, facility_name)
         {
           appt_id:,
@@ -233,19 +194,6 @@ module VAOS
           facility_name:
         }
       end
-
-      def get_clinic_memoized(location_id, clinic_id)
-        mobile_facility_service.get_clinic_with_cache(station_id: location_id, clinic_id:)
-      rescue Common::Exceptions::BackendServiceException => e
-        Rails.logger.error(
-          "Error fetching clinic #{clinic_id} for location #{location_id}",
-          clinic_id:,
-          location_id:,
-          vamf_msg: e.original_body
-        )
-        nil # on error log and return nil, calling code will handle nil
-      end
-      memoize :get_clinic_memoized
 
       # This method extracts all values from a given object, which can be either an `OpenStruct`, `Hash`, or `Array`.
       # It recursively traverses the object and collects all values into an array.
@@ -437,8 +385,12 @@ module VAOS
         raise Common::Exceptions::InvalidFieldValue.new('end', params[:end])
       end
 
-      def _include
-        appointment_params[:_include]&.split(',')
+      def include_params
+        included = appointment_params[:_include]&.split(',')
+        {
+          clinics: included&.include?('clinics'),
+          facilities: included&.include?('facilities')
+        }
       end
 
       def statuses
