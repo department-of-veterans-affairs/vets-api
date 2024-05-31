@@ -127,7 +127,7 @@ RSpec.describe 'Forms uploader', type: :request do
 
   describe '#get_file_paths_and_metadata' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
-    
+
     form_numbers = %w[10-7959C 10-10D]
 
     form_numbers.each do |form_number|
@@ -142,6 +142,7 @@ RSpec.describe 'Forms uploader', type: :request do
           }
         end
 
+  # rubocop:disable Layout/LineLength
         it 'returns the correct file paths, metadata, and attachment IDs' do
           allow(controller).to receive(:get_attachment_ids_and_form).and_return([%w[doc1 doc2], IvcChampva::VHA1010d.new({})])
           allow_any_instance_of(IvcChampva::PdfFiller).to receive(:generate).and_return('file_path')
@@ -157,4 +158,5 @@ RSpec.describe 'Forms uploader', type: :request do
       end
     end
   end
+  # rubocop:enable Layout/LineLength
 end
