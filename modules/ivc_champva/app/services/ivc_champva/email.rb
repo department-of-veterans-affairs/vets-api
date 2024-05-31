@@ -19,7 +19,7 @@ module IvcChampva
             'form_number' => data[:form_number],
             'first_name' => data[:first_name],
             'last_name' => data[:last_name],
-            'file_names' => data[:file_names],
+            'file_names' => data[:file_names].join("\n"),
             'pega_status' => data[:pega_status],
             'updated_at' => data[:updated_at]
           },
