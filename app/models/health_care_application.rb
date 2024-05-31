@@ -274,7 +274,15 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def send_failure_mail
-    HCASubmissionFailureMailer.build(parsed_form['email'], google_analytics_client_id).deliver_now
+    notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
+
+    # TODO: Pass google_analytics_client_id to the template
+    notify_client.send_email(
+      {
+        email_address: parsed_form['email'],
+        template_id: Settings.vanotify.services.va_gov.template_id.form1010_ez_failure_email
+      }
+    )
   end
 
   # If the hca_use_facilities_API flag is on then vaMedicalFacility will only

@@ -482,12 +482,32 @@ RSpec.describe HealthCareApplication, type: :model do
       health_care_application
     end
 
-    describe '#send_failure_mail' do
+    let(:notification_client) { double('Notifications::Client') }
+
+    before do
+      allow(Notifications::Client).to receive(:new).and_return(notification_client)
+      allow(notification_client).to receive(:send_email)
+    end
+
+    describe '#send_failure_email' do
       context 'has form' do
         context 'with email address' do
+          let(:email_address) { health_care_application.parsed_form['email'] }
+          # TODO: Add google_analytics_client_id to params
+          let(:template_params) do
+            {
+              email_address:,
+              template_id: Settings.vanotify
+                                   .services
+                                   .va_gov
+                                   .template_id
+                                   .form1010_ez_failure_email
+
+            }
+          end
+
           it 'sends a failure email to the email address provided on the form' do
-            expect(health_care_application).to receive(:send_failure_mail).and_call_original
-            expect(HCASubmissionFailureMailer).to receive(:build).and_call_original
+            expect(notification_client).to receive(:send_email).with(template_params)
             subject
           end
         end
