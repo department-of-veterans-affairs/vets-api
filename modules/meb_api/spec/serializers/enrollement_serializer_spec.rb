@@ -4,21 +4,24 @@ require 'rails_helper'
 require 'dgi/enrollment/enrollment_response'
 
 describe EnrollmentSerializer do
+  let(:enrollment_verifications) do
+    [{ 'verification_month' => 'January 2021',
+       'certified_begin_date' => '2021-01-01',
+       'certified_end_date' => '2021-01-31',
+       'certified_through_date' => nil,
+       'certification_method' => nil,
+       'enrollments' => [{
+         'facility_name' => 'UNIVERSITY OF HAWAII AT HILO',
+         'begin_date' => '2020-01-01',
+         'end_date' => '2021-01-01',
+         'total_credit_hours' => 17.0
+       }],
+       'verification_response' => 'NR',
+       'created_date' => nil }]
+  end
+
   let(:eligibility_response) do
-    response = double('response', status: 201, body:
-                        { 'enrollment_verifications' => [{ 'verification_month' => 'January 2021',
-                                                           'certified_begin_date' => '2021-01-01',
-                                                           'certified_end_date' => '2021-01-31',
-                                                           'certified_through_date' => nil,
-                                                           'certification_method' => nil,
-                                                           'enrollments' => [{
-                                                             'facility_name' => 'UNIVERSITY OF HAWAII AT HILO',
-                                                             'begin_date' => '2020-01-01',
-                                                             'end_date' => '2021-01-01',
-                                                             'total_credit_hours' => 17.0
-                                                           }],
-                                                           'verification_response' => 'NR',
-                                                           'created_date' => nil }] })
+    response = double('response', status: 201, body: { 'enrollment_verifications' => enrollment_verifications })
     MebApi::DGI::Enrollment::Response.new(response)
   end
 
