@@ -1,0 +1,53 @@
+---
+:profile:
+  :ssn: '796127781'
+  :file_number: '796127781'
+  :icn: 1012829932V238054
+:info:
+  :file_number: '796127781'
+  :dob: 1980-08-09
+  :stub_nm: ALMITCH
+  :mr_status: A
+  :rem_ent: '3165509'
+  :cert_issue_date: 2016-07-30
+  :del_date: 2026-02-12
+  :date_last_certified: 2023-04-30
+  :rpo_code: 9025
+  :fac_code: molestiae
+  :payment_amt: 4230.27
+  :indicator: B
+  :bdn_clone_active: true
+:address:
+  :veteran_name: Andrea L Mitchell
+  :address1: 79417 Klara Corner
+  :city: Port Jonathan
+  :state: CT
+  :zip_code: '34746'
+  :origin: backend
+:awards:
+- :cur_award_ind: P
+  :award_begin_date: 2023-10-01
+  :award_end_date: 2023-12-17
+  :training_time: 4
+  :payment_date:
+  :monthly_rate: 744.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: C
+  :award_begin_date: 2024-01-22
+  :award_end_date: 2024-05-21
+  :training_time: 3
+  :payment_date:
+  :monthly_rate: 744.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+:pending_documents:
+- :doc_type: AM1999
+  :queue_date: 2024-04-07
+  :rpo: corrupti
