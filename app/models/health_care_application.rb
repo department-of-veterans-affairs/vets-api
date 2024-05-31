@@ -106,11 +106,9 @@ class HealthCareApplication < ApplicationRecord
       raise(Common::Exceptions::ValidationErrors, self)
     end
 
-    has_email = parsed_form['email'].present?
-
-    if has_email || async_compatible
+    if email? || async_compatible
       save!
-      submit_async(has_email)
+      submit_async
     else
       submit_sync
     end
@@ -236,9 +234,9 @@ class HealthCareApplication < ApplicationRecord
     }.compact)
   end
 
-  def submit_async(has_email)
+  def submit_async
     submission_job = 'SubmissionJob'
-    submission_job = "Anon#{submission_job}" unless has_email
+    submission_job = "Anon#{submission_job}" unless email?
 
     @parsed_form = override_parsed_form(parsed_form)
 
