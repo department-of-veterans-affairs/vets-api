@@ -91,7 +91,7 @@
           "to": "2004-01-04"
         },
         "title10Activation": {
-          "anticipatedSeparationDate": "2020-01-01",
+          "anticipatedSeparationDate": "2024-10-01",
           "title10ActivationDate": "1999-03-04"
         },
         "unitName": "Seal Team Six",
@@ -157,6 +157,29 @@
       "gulfWar2001": {
         "djibouti": true,
         "lebanon": true
+      },
+      "herbicide": {
+        "cambodia": true,
+        "guam": true,
+        "laos": true
+      },
+      "herbicideDetails": {
+        "cambodia": {
+          "startDate": "1991-03-01",
+          "endDate": "1992-01-01"
+        },
+        "guam": {
+          "startDate": "1991-02-12",
+          "endDate": "1991-06-01"
+        },
+        "laos": {
+          "startDate": "1991-03-15"
+        }
+      },
+      "otherHerbicideLocations": {
+        "description": "other location 1, other location 2 etc",
+        "startDate": "1991-03-01",
+        "endDate": "1992-01-01"
       }
     },
     "waiveRetirementPay": false,
