@@ -8,6 +8,9 @@ require 'simple_forms_api_submission/metadata_validator'
 module DecisionReviewV1
   module Processor
     class Form4142Processor
+      SIGNATURE_DATE_KEY = 'signatureDate'.freeze
+      SIGNATURE_TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S'.freeze
+      TIMEZONE = 'Central Time (US & Canada)'.freeze
       # @return [Pathname] the generated PDF path
       attr_reader :pdf_path
 
@@ -77,16 +80,16 @@ module DecisionReviewV1
         if @submission.nil?
           Time.now.in_time_zone('Central Time (US & Canada)')
         else
-          @submission.created_at.in_time_zone('Central Time (US & Canada)')
+          @submission.created_at.in_time_zone(TIMEZONE)
         end
       end
 
       def received_date
-        submission_date.strftime('%Y-%m-%d %H:%M:%S')
+        submission_date.strftime(SIGNATURE_TIMESTAMP_FORMAT)
       end
 
       def set_signature_date(incoming_data)
-        incoming_data.merge({ 'signatureDate' => received_date })
+        incoming_data.merge({ SIGNATURE_DATE_KEY => received_date })
       end
     end
   end

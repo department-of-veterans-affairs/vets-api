@@ -38,4 +38,22 @@ describe DecisionReviewV1::Processor::Form4142Processor do
       expect(processor.instance_variable_get(:@request_body)).to be_a(Hash)
     end
   end
+
+
+  context 'setting a correct signed-at date' do
+    context 'when a submission was created more than a day before processing' do
+      describe '#submission_date' do
+        let!(:created_at) { 6.months.ago.in_time_zone(described_class::TIMEZONE) }
+
+        it 'returns the date of submission creation' do
+          Timecop.freeze(created_at) { submission }
+
+          key = described_class::SIGNATURE_DATE_KEY
+          time_format = described_class::SIGNATURE_TIMESTAMP_FORMAT
+          sig_dat = processor.instance_variable_get('@form')[key]
+          expect(sig_dat).to eq(created_at.strftime(time_format))
+        end
+      end
+    end
+  end
 end
