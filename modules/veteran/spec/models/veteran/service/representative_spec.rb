@@ -120,6 +120,16 @@ describe Veteran::Service::Representative, type: :model do
 
           expect(representative.reload.full_name).to eq('Bob Smith')
         end
+
+        it 'does not throw an exception when one of the names if nil' do
+          representative = create(:representative, first_name: 'Joe', last_name: nil)
+
+          expect(representative.full_name).to eq('Joe ')
+
+          representative.update(first_name: 'Bob')
+
+          expect(representative.reload.full_name).to eq('Bob ')
+        end
       end
     end
   end
