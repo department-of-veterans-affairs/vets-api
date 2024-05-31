@@ -18,15 +18,13 @@ module ClaimsApi
       Data.define(
         :first_name,
         :middle_name,
-        :last_name,
-        :participant_id
+        :last_name
       )
 
     Claimant =
       Data.define(
         :first_name,
         :last_name,
-        :participant_id,
         :relationship_to_veteran
       )
 
