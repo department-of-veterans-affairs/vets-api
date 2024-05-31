@@ -83,7 +83,7 @@ class Swagger::V1::Requests::Post911GIBillStatuses
     property :end_date, type: %i[string null], example: '2012-12-01T05:00:00.000+00:00'
     property :facility_code, type: %i[string null], example: '12345678'
     property :facility_name, type: %i[string null], example: 'Purdue University'
-    property :participant_id, type: %i[string null], example: '11170323'
+    property :participant_id, type: %i[integer null], example: '11170323'
     property :training_type, type: %i[string null], example: 'UNDER_GRAD'
     property :term_id, type: %i[string null], example: nil
     property :hour_type, type: %i[string null], example: nil
@@ -107,7 +107,7 @@ class Swagger::V1::Requests::Post911GIBillStatuses
     property :on_campus_hours, type: %i[number null], format: :float, example: 10.5
     property :online_hours, type: %i[number null], format: :float, example: 3.5
     property :yellow_ribbon_amount, type: %i[number null], format: :float, example: 5.25
-    property :type, type: :string
+    property :type, type: %i[string null]
     property :change_effective_date, type: %i[string null], example: '2012-12-01T05:00:00.000+00:00'
   end
 
