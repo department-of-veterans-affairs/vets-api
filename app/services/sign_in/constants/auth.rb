@@ -28,10 +28,9 @@ module SignIn
       CSP_TYPES = [IDME = 'idme', LOGINGOV = 'logingov', DSLOGON = 'dslogon', MHV = 'mhv'].freeze
       OPERATION_TYPES = [SIGN_UP = 'sign_up', AUTHORIZE = 'authorize'].freeze
       GRANT_TYPES = [AUTH_CODE_GRANT = 'authorization_code',
-                     JWT_BEARER_GRANT = 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-                     TOKEN_EXCHANGE_GRANT = 'urn:ietf:params:oauth:grant-type:token-exchange'].freeze
+                     JWT_BEARER_GRANT = Urn::JWT_BEARER_GRANT_TYPE,
+                     TOKEN_EXCHANGE_GRANT = Urn::TOKEN_EXCHANGE_GRANT_TYPE].freeze
       ENFORCED_TERMS = [VA_TERMS = 'VA'].freeze
-      CLIENT_ASSERTION_TYPE = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
       ASSERTION_ENCODE_ALGORITHM = 'RS256'
       IAL = [IAL_ONE = 1, IAL_TWO = 2].freeze
       INFO_COOKIE_NAME = 'vagov_info_token'
@@ -42,7 +41,6 @@ module SignIn
       SERVICE_ACCOUNT_ACCESS_TOKEN_COOKIE_NAME = 'service_account_access_token'
       SCOPES = [DEVICE_SSO = 'device_sso'].freeze
       TOKEN_ROUTE_PATH = '/v0/sign_in/token'
-      DEVICE_SECRET_TOKEN_TYPE = 'urn:x-oath:params:oauth:token-type:device-secret'
     end
   end
 end

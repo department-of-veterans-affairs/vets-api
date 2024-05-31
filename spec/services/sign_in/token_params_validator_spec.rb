@@ -31,6 +31,7 @@ RSpec.describe SignIn::TokenParamsValidator, type: :model do
         client_assertion_type:,
         assertion:,
         subject_token:,
+        subject_token_type:,
         actor_token:,
         actor_token_type:,
         client_id:
@@ -44,6 +45,7 @@ RSpec.describe SignIn::TokenParamsValidator, type: :model do
     let(:client_assertion_type) { nil }
     let(:assertion) { nil }
     let(:subject_token) { nil }
+    let(:subject_token_type) { nil }
     let(:actor_token) { nil }
     let(:actor_token_type) { nil }
     let(:client_id) { nil }
@@ -76,8 +78,8 @@ RSpec.describe SignIn::TokenParamsValidator, type: :model do
       context 'when client_assertion_type is present' do
         let(:client_assertion_type) { 'some-client-assertion-type' }
 
-        context 'when client_assertion_type is CLIENT_ASSERTION_TYPE' do
-          let(:client_assertion_type) { SignIn::Constants::Auth::CLIENT_ASSERTION_TYPE }
+        context 'when client_assertion_type is JWT_BEARER_CLIENT_AUTHENTICATION' do
+          let(:client_assertion_type) { SignIn::Constants::Urn::JWT_BEARER_CLIENT_AUTHENTICATION }
 
           context 'when client_assertion is present' do
             let(:client_assertion) { 'some-client-assertion' }
@@ -106,7 +108,7 @@ RSpec.describe SignIn::TokenParamsValidator, type: :model do
           end
         end
 
-        context 'when client_assertion_type is not CLIENT_ASSERTION_TYPE' do
+        context 'when client_assertion_type is not JWT_BEARER_CLIENT_AUTHENTICATION' do
           let(:client_assertion_type) { 'invalid-client-assertion-type' }
           let(:expected_error_message) { 'Client assertion type is not valid' }
 
@@ -138,6 +140,7 @@ RSpec.describe SignIn::TokenParamsValidator, type: :model do
         {
           grant_type:,
           subject_token:,
+          subject_token_type:,
           actor_token:,
           actor_token_type:,
           client_id:
@@ -145,6 +148,7 @@ RSpec.describe SignIn::TokenParamsValidator, type: :model do
       end
 
       let(:subject_token) { 'some-subject-token' }
+      let(:subject_token_type) { 'some-subject-token-type' }
       let(:actor_token) { 'some-actor_token' }
       let(:actor_token_type) { 'some-actor-token-type' }
       let(:client_id) { 'some-client-id' }
@@ -152,6 +156,13 @@ RSpec.describe SignIn::TokenParamsValidator, type: :model do
       context 'when subject_token is missing' do
         let(:subject_token) { nil }
         let(:expected_error_message) { "Subject token can't be blank" }
+
+        it_behaves_like 'invalid params'
+      end
+
+      context 'when subject_token_type is missing' do
+        let(:subject_token_type) { nil }
+        let(:expected_error_message) { "Subject token type can't be blank" }
 
         it_behaves_like 'invalid params'
       end
