@@ -80,7 +80,7 @@ RSpec.describe VANotify::EmailJob, type: :worker do
         'class' => described_class.to_s,
         'error_class' => 'RuntimeError',
         'error_message' => 'an error occurred!'
-    }
+      }
     end
 
     it 'logs an error to the Rails console' do
