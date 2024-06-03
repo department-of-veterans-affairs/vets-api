@@ -1913,6 +1913,20 @@
                                     "default": false,
                                     "nullable": true
                                   },
+                                  "specialIssues": {
+                                    "type": "array",
+                                    "nullable": true,
+                                    "uniqueItems": true,
+                                    "items": {
+                                      "maxItems": 2,
+                                      "additionalProperties": false,
+                                      "type": "string",
+                                      "enum": [
+                                        "POW",
+                                        "EMP"
+                                      ]
+                                    }
+                                  },
                                   "secondaryDisabilities": {
                                     "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                     "type": "array",
@@ -3247,6 +3261,20 @@
                                   "default": false,
                                   "nullable": true
                                 },
+                                "specialIssues": {
+                                  "type": "array",
+                                  "nullable": true,
+                                  "uniqueItems": true,
+                                  "items": {
+                                    "maxItems": 2,
+                                    "additionalProperties": false,
+                                    "type": "string",
+                                    "enum": [
+                                      "POW",
+                                      "EMP"
+                                    ]
+                                  }
+                                },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                   "type": "array",
@@ -4263,7 +4291,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1d18981c-66bc-447f-b5eb-1845629b9ef6",
+                    "id": "68322ca8-7a2f-47d6-a5fa-68d3dffb0b70",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -9128,7 +9156,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "fadf9574-07ec-478d-a244-ffc0e85de507",
+                    "id": "eab39daa-e6c0-4859-a4aa-70cdc7ed62f3",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12876,7 +12904,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0b9959c8-0c71-4836-8a36-a0de33129082",
+                    "id": "c6f24102-8dec-4e4b-b181-08c2079c2de4",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13569,7 +13597,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "aee6aefa-86d7-4029-a110-3c9d9c6dffa9",
+                    "id": "8ce4c02f-0590-428d-aa47-d84d4378d83c",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15520,7 +15548,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d0953636-9ce2-4916-a109-713d17f84600",
+                    "id": "27120a22-2277-4f40-acfc-f4c3a999c0eb",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
