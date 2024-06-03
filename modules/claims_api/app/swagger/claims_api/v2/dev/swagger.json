@@ -4290,7 +4290,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "80cdc9a9-0daf-4d8d-95ed-416b35a204f3",
+                    "id": "81ec3072-fe32-45bd-924c-b3c503bbc274",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -4472,7 +4472,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-06-01"
+                          "anticipatedSeparationDate": "2024-06-05"
                         },
                         "confinements": [
                           {
@@ -9155,7 +9155,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5a5829de-c3e7-4c25-adad-dd28f2ad0b9b",
+                    "id": "15a7e229-aa24-46c7-aeaf-bc84f4950997",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -10095,8 +10095,12 @@
           "200": {
             "description": "post pdf response",
             "content": {
-              "application/json": {
-                "example": "No example available"
+              "application/pdf": {
+                "example": "string",
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
               }
             }
           },
@@ -10112,7 +10116,9 @@
                       "detail": "Not authorized"
                     }
                   ]
-                },
+                }
+              },
+              "application/pdf": {
                 "schema": {
                   "required": [
                     "errors"
@@ -10170,7 +10176,9 @@
                       "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."
                     }
                   ]
-                },
+                }
+              },
+              "application/pdf": {
                 "schema": {
                   "required": [
                     "errors"
@@ -12018,8 +12026,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-05-30",
-                      "expirationDate": "2025-05-30",
+                      "creationDate": "2024-06-03",
+                      "expirationDate": "2025-06-03",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -12895,7 +12903,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9d0f51db-d2f6-4355-a954-680b67686e9f",
+                    "id": "c51ab677-dc5e-437f-9c17-e8d36801c047",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13588,7 +13596,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3786b563-a24b-4ca7-8c9a-bd7a64b8318f",
+                    "id": "74217a6e-b8d3-421e-aec2-ddf6b189a220",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15539,11 +15547,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4a3e8dfb-c993-4530-a4d7-923867562d01",
+                    "id": "85e742fb-cff4-4f63-be70-82af1c5820cd",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-05-30",
+                      "dateRequestAccepted": "2024-06-03",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
