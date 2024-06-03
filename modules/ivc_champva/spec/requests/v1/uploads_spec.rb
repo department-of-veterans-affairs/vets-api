@@ -162,7 +162,8 @@ RSpec.describe 'Forms uploader', type: :request do
   end
 
   describe '#build_json' do
-  let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+
     context 'when all status codes are 200' do
       it 'returns a status of 200' do
         expect(controller.send(:build_json, [200, 200], 'Error')).to eq({ status: 200 })
@@ -177,7 +178,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
     context 'when status codes are mixed' do
       it 'returns a status of 206 and a partial failure message' do
-        expect(controller.send(:build_json, [200, 400], 'Error')).to eq({ error_message: 'Partial upload failure', status: 206 })
+        expect(controller.send(:build_json, [200, 400], 'Error')).to eq({ error_message: 
+        'Partial upload failure', status: 206 })
       end
     end
   end
