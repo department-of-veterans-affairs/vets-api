@@ -137,7 +137,7 @@ RSpec.describe SignIn::CodeValidator do
         end
 
         context 'when client assertion type equals expected value' do
-          let(:client_assertion_type) { SignIn::Constants::Auth::CLIENT_ASSERTION_TYPE }
+          let(:client_assertion_type) { SignIn::Constants::Urn::JWT_BEARER_CLIENT_AUTHENTICATION }
 
           context 'and jwt was not encoded with expected signature' do
             let(:private_key) { OpenSSL::PKey::RSA.new(2048) }
