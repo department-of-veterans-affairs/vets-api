@@ -18,6 +18,10 @@ module ClaimsApi
         end
 
         def perform
+          return unless status.in?(
+            Statuses::ALL
+          )
+
           Decision.new(
             status:,
             declined_reason:,
@@ -29,13 +33,12 @@ module ClaimsApi
         private
 
         def status
-          @data['secondaryStatus'].presence_in(
-            Statuses::ALL
-          )
+          @data['secondaryStatus']
         end
 
         def declined_reason
-          return if status != Statuses::DECLINED
+          # We won't make this scenario inbound, but maybe legacy data has this.
+          return unless status == Statuses::DECLINED
 
           @data['declinedReason']
         end

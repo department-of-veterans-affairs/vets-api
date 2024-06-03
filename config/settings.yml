@@ -1370,6 +1370,10 @@ vetext_push:
   user: vets-api-username
   pass: secret
 
+res:
+  base_url: ~
+  api_key: ~
+
 veteran_readiness_and_employment:
   base_url: ~
   credentials: ~
@@ -1656,6 +1660,10 @@ ivc_forms:
     bucket: "bucket"
     enabled: true
     region: "region"
+  sidekiq:
+    missing_form_status_job:
+      enabled: true
+
 
 coverband:
   github_organization: ~

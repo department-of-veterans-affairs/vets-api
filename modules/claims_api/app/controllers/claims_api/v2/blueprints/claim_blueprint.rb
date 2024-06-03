@@ -17,6 +17,7 @@ module ClaimsApi
               claim_date: claim[:claim_date],
               claim_phase_dates: claim[:claim_phase_dates],
               claim_type: claim[:claim_type],
+              claim_type_code: claim[:claim_type_code],
               close_date: claim[:close_date],
               decision_letter_sent: claim[:decision_letter_sent],
               development_letter_sent: claim[:development_letter_sent],
@@ -24,7 +25,6 @@ module ClaimsApi
               end_product_code: claim[:end_product_code],
               evidence_waiver_submitted_5103: claim[:evidence_waiver_submitted_5103],
               lighthouse_id: claim[:lighthouse_id],
-              claim_type_code: claim[:claim_type_code],
               status: claim[:status]
             }
           end
