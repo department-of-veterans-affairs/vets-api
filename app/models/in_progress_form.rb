@@ -55,8 +55,8 @@ class InProgressForm < ApplicationRecord
   after_create ->(ipf) { StatsD.increment('in_progress_form.create', tags: ["form_id:#{ipf.form_id}"]) }
   after_destroy ->(ipf) { StatsD.increment('in_progress_form.destroy', tags: ["form_id:#{ipf.form_id}"]) }
   after_destroy lambda { |ipf|
-                  StatsD.distribution('in_progress_form.lifespan', Time.current - ipf.created_at,
-                                      tags: ["form_id:#{ipf.form_id}"])
+                  StatsD.measure('in_progress_form.lifespan', Time.current - ipf.created_at,
+                                 tags: ["form_id:#{ipf.form_id}"])
                 }
   after_save :log_hca_email_diff
 
