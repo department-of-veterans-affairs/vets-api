@@ -5929,7 +5929,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9fcc6bd6-ad32-4cc5-8c1d-19309fdbeb0d",
+                    "id": "35cd67de-8210-4884-9608-0addcefc02dd",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -6869,8 +6869,12 @@
           "200": {
             "description": "post pdf response",
             "content": {
-              "application/json": {
-                "example": "No example available"
+              "application/pdf": {
+                "example": "string",
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
               }
             }
           },
@@ -6886,7 +6890,9 @@
                       "detail": "Not authorized"
                     }
                   ]
-                },
+                }
+              },
+              "application/pdf": {
                 "schema": {
                   "required": [
                     "errors"
@@ -6944,7 +6950,9 @@
                       "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."
                     }
                   ]
-                },
+                }
+              },
+              "application/pdf": {
                 "schema": {
                   "required": [
                     "errors"
@@ -9669,7 +9677,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "093618b5-8acb-49d3-afab-47c155c5a29e",
+                    "id": "f5ac28ed-88e9-4fe1-8b88-6b31fb08a4c7",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -10362,7 +10370,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b4126324-289a-4012-a9d0-406e083dc19f",
+                    "id": "5a3d521d-44a6-4cef-aa57-490f815dd92c",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12313,7 +12321,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0a65c7e3-e3fb-473d-a621-a0255d39039a",
+                    "id": "730fe9d9-e324-4310-a063-d6d56ff58a4e",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
