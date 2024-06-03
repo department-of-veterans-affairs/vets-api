@@ -178,7 +178,7 @@ RSpec.describe 'Forms uploader', type: :request do
 
     context 'when status codes are mixed' do
       it 'returns a status of 206 and a partial failure message' do
-        expect(controller.send(:build_json, [200, 400], 'Error')).to eq({ error_message: 
+        expect(controller.send(:build_json, [200, 400], 'Error')).to eq({ error_message:
         'Partial upload failure', status: 206 })
       end
     end
