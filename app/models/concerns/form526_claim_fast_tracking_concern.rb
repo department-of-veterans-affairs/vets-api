@@ -215,7 +215,7 @@ module Form526ClaimFastTrackingConcern
     classifier_response = classify_vagov_contentions(params)
     classifier_response['contentions'].each do |contention|
       classification = nil
-      if contention.key?(:classification_code) && contention.key?(:classification_name)
+      if contention.key?('classification_code') && contention.key?('classification_name')
         classification = {
           classification_code: contention['classification_code'],
           classification_name: contention['classification_name']
