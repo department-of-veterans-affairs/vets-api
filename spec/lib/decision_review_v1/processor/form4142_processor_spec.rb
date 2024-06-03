@@ -51,6 +51,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
         sig_dat = processor.instance_variable_get('@form')[key]
         expect(sig_dat).to eq(created_at.strftime(time_format))
       end
-      end
     end
   end
+end
