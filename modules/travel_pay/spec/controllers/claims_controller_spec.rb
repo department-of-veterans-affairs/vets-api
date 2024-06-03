@@ -13,9 +13,9 @@ RSpec.describe TravelPay::ClaimsController, type: :request do
     context 'successful response from API' do
       let(:expected_claim_ids) do
         %w[
-          6ea23179-e87c-44ae-a20a-f31fb2c132fb
-          6ea23179-e87c-44ae-a20a-f31fb2c021fb
-          6ea23179-e87c-44ae-a20a-f31fb2c782fb
+          claim_id_1
+          claim_id_2
+          claim_id_3
         ]
       end
 
