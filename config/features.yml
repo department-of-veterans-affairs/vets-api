@@ -1008,7 +1008,7 @@ features:
   show_dgi_direct_deposit_1990EZ:
     actor_type: user
     description: Displays prefill enabled direct deposit component on 1990EZ form.
-    enable_in_development: true
+    enable_in_development: false
   show_meb_1990EZ_maintenance_alert:
     actor_type: user
     description: Displays an alert to users on 1990EZ intro page that the Backend Service is Down.
