@@ -429,6 +429,7 @@ travel_pay:
     resource: 'resource_id'
     tenant_id: 'tenant_id'
     auth_url: 'https://auth.veis.gov'
+  mock: true
   subscription_key: 'api_key'
   base_url: 'https://btsss.gov'
   client_number: '12345'
