@@ -178,9 +178,9 @@ module Form526ClaimFastTrackingConcern
 
   def update_form_with_classification_codes(classified_contentions)
     classified_contentions.each_with_index do |classified_contention, index|
-      classification_code = classified_contention['classification_code']
-      if classified_contentions[index]['classification_code'].present?
-        form[Form526Submission::FORM_526]['form526']['disabilities'][index]['classificationCode'] = classification_code
+      if classified_contention['classification_code'].present?
+        classification_code = classified_contention['classification_code']
+        disabilities[index]['classificationCode'] = classification_code
       end
     end
 
