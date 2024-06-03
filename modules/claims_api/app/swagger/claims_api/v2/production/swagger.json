@@ -1912,20 +1912,6 @@
                                     "default": false,
                                     "nullable": true
                                   },
-                                  "specialIssues": {
-                                    "type": "array",
-                                    "nullable": true,
-                                    "uniqueItems": true,
-                                    "items": {
-                                      "maxItems": 2,
-                                      "additionalProperties": false,
-                                      "type": "string",
-                                      "enum": [
-                                        "POW",
-                                        "EMP"
-                                      ]
-                                    }
-                                  },
                                   "secondaryDisabilities": {
                                     "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                     "type": "array",
@@ -3265,20 +3251,6 @@
                                   "default": false,
                                   "nullable": true
                                 },
-                                "specialIssues": {
-                                  "type": "array",
-                                  "nullable": true,
-                                  "uniqueItems": true,
-                                  "items": {
-                                    "maxItems": 2,
-                                    "additionalProperties": false,
-                                    "type": "string",
-                                    "enum": [
-                                      "POW",
-                                      "EMP"
-                                    ]
-                                  }
-                                },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                   "type": "array",
@@ -3776,11 +3748,6 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
-                          },
-                          "claimNotes": {
-                            "type": "string",
-                            "description": "An optional notes section.",
-                            "maxLength": 4000
                           }
                         }
                       }
@@ -5160,20 +5127,6 @@
                                   "default": false,
                                   "nullable": true
                                 },
-                                "specialIssues": {
-                                  "type": "array",
-                                  "nullable": true,
-                                  "uniqueItems": true,
-                                  "items": {
-                                    "maxItems": 2,
-                                    "additionalProperties": false,
-                                    "type": "string",
-                                    "enum": [
-                                      "POW",
-                                      "EMP"
-                                    ]
-                                  }
-                                },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                   "type": "array",
@@ -5671,11 +5624,6 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
-                          },
-                          "claimNotes": {
-                            "type": "string",
-                            "description": "An optional notes section.",
-                            "maxLength": 4000
                           }
                         }
                       }
@@ -7631,20 +7579,6 @@
                                   "default": false,
                                   "nullable": true
                                 },
-                                "specialIssues": {
-                                  "type": "array",
-                                  "nullable": true,
-                                  "uniqueItems": true,
-                                  "items": {
-                                    "maxItems": 2,
-                                    "additionalProperties": false,
-                                    "type": "string",
-                                    "enum": [
-                                      "POW",
-                                      "EMP"
-                                    ]
-                                  }
-                                },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                   "type": "array",
@@ -8137,11 +8071,6 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
-                          },
-                          "claimNotes": {
-                            "type": "string",
-                            "description": "An optional notes section.",
-                            "maxLength": 4000
                           }
                         }
                       }
