@@ -2,7 +2,17 @@
 
 module SignIn
   class TokenExchanger
+    include ActiveModel::Validations
+
     attr_reader :subject_token, :subject_token_type, :actor_token, :actor_token_type, :client_id
+
+    validate :validate_subject_token!,
+             :validate_subject_token_type!,
+             :validate_actor_token!,
+             :validate_actor_token_type!,
+             :validate_client_id!,
+             :validate_shared_sessions_client!,
+             :validate_device_sso!
 
     def initialize(subject_token:, subject_token_type:, actor_token:, actor_token_type:, client_id:)
       @subject_token = subject_token
@@ -13,21 +23,11 @@ module SignIn
     end
 
     def perform
-      validations!
+      validate!
       create_new_session
     end
 
     private
-
-    def validations!
-      validate_subject_token!
-      validate_subject_token_type!
-      validate_actor_token!
-      validate_actor_token_type!
-      validate_client_id!
-      validate_shared_sessions_client!
-      validate_device_sso!
-    end
 
     def validate_subject_token!
       unless subject_token && current_access_token
@@ -48,10 +48,12 @@ module SignIn
     end
 
     def validate_actor_token!
-      unless hashed_actor_token == current_session.hashed_device_secret &&
-             hashed_actor_token == current_access_token.device_secret_hash
-        raise Errors::InvalidTokenError.new message: 'actor token is invalid'
-      end
+      raise Errors::InvalidTokenError.new message: 'actor token is invalid' unless valid_actor_token?
+    end
+
+    def valid_actor_token?
+      hashed_actor_token == current_session.hashed_device_secret &&
+        hashed_actor_token == current_access_token.device_secret_hash
     end
 
     def hashed_actor_token

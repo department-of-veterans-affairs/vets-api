@@ -2,12 +2,17 @@
 
 module SignIn
   class SessionSpawner
+    include ActiveModel::Validations
+
     attr_reader :credential_email,
                 :user_verification,
                 :user_attributes,
                 :client_config,
                 :hashed_device_secret,
                 :refresh_creation
+
+    validate :validate_credential_lock!,
+             :validate_terms_of_use!
 
     def initialize(current_session:, new_session_client_config:)
       @credential_email = current_session.credential_email
@@ -19,19 +24,21 @@ module SignIn
     end
 
     def perform
-      validate_credential_lock!
-      validate_terms_of_use!
-      SessionContainer.new(session: create_new_session,
-                           refresh_token:,
-                           access_token: create_new_access_token,
-                           anti_csrf_token:,
-                           client_config:)
+      validate!
+
+      SessionContainer.new(
+        session: create_new_session,
+        refresh_token:,
+        access_token: create_new_access_token,
+        anti_csrf_token:,
+        client_config:
+      )
     end
 
     private
 
     def validate_credential_lock!
-      raise SignIn::Errors::CredentialLockedError.new(message: 'Credential is locked') if user_verification.locked
+      raise SignIn::Errors::CredentialLockedError.new message: 'Credential is locked' if user_verification.locked
     end
 
     def validate_terms_of_use!
@@ -84,16 +91,18 @@ module SignIn
     end
 
     def create_new_session
-      OAuthSession.create!(user_account: user_verification.user_account,
-                           user_verification:,
-                           client_id: client_config.client_id,
-                           credential_email:,
-                           handle:,
-                           hashed_refresh_token: double_parent_refresh_token_hash,
-                           refresh_expiration: refresh_expiration_time,
-                           refresh_creation:,
-                           user_attributes:,
-                           hashed_device_secret:)
+      OAuthSession.create!(
+        user_account: user_verification.user_account,
+        user_verification:,
+        client_id: client_config.client_id,
+        credential_email:,
+        handle:,
+        hashed_refresh_token: double_parent_refresh_token_hash,
+        refresh_expiration: refresh_expiration_time,
+        refresh_creation:,
+        user_attributes:,
+        hashed_device_secret:
+      )
     end
 
     def refresh_expiration_time
