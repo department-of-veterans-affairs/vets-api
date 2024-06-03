@@ -283,6 +283,8 @@ class HealthCareApplication < ApplicationRecord
         template_id: Settings.vanotify.services.va_gov.template_id.form1010_ez_failure_email
       }
     )
+  rescue => e
+    log_exception_to_sentry(e)
   end
 
   # If the hca_use_facilities_API flag is on then vaMedicalFacility will only

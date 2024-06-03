@@ -510,6 +510,19 @@ RSpec.describe HealthCareApplication, type: :model do
             expect(notification_client).to receive(:send_email).with(template_params)
             subject
           end
+
+          it 'logs error exception to sentry if sending email fails' do
+            error = Common::Exceptions::BackendServiceException.new(
+              'VANOTIFY_400',
+              { source: VaNotify::Service.to_s },
+              400,
+              'Error'
+            )
+
+            allow(notification_client).to receive(:send_email).and_raise(error)
+            expect(health_care_application).to receive(:log_exception_to_sentry).with(error)
+            subject
+          end
         end
 
         context 'without email address' do
