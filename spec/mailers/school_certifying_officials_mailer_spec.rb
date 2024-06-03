@@ -35,6 +35,12 @@ RSpec.describe SchoolCertifyingOfficialsMailer, type: [:mailer] do
       it 'includes school student id' do
         expect(subject.body.raw_source).to include("Student's school ID number: #{applicant.schoolStudentId}")
       end
+
+      it 'includes updated text' do
+        expect(subject.body.raw_source).to include('this STEM program (specify semester or quarter')
+        expect(subject.body.raw_source).to include('and exclude in-progress credits):')
+        expect(subject.body.raw_source).to include('Total required credits for STEM degree program')
+      end
     end
   end
 end
