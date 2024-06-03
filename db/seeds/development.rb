@@ -24,6 +24,7 @@ vamobile.update!(authentication: SignIn::Constants::Auth::API,
                  pkce: true,
                  access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_LONG_MINUTES,
                  access_token_audience: 'vamobile',
+                 shared_sessions: true,
                  enforced_terms: SignIn::Constants::Auth::VA_TERMS,
                  terms_of_use_url: 'http://localhost:3001/terms-of-use',
                  refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS)
