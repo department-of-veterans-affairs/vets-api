@@ -1912,6 +1912,20 @@
                                     "default": false,
                                     "nullable": true
                                   },
+                                  "specialIssues": {
+                                    "type": "array",
+                                    "nullable": true,
+                                    "uniqueItems": true,
+                                    "items": {
+                                      "maxItems": 2,
+                                      "additionalProperties": false,
+                                      "type": "string",
+                                      "enum": [
+                                        "POW",
+                                        "EMP"
+                                      ]
+                                    }
+                                  },
                                   "secondaryDisabilities": {
                                     "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                     "type": "array",
@@ -3245,6 +3259,20 @@
                                   "example": true,
                                   "default": false,
                                   "nullable": true
+                                },
+                                "specialIssues": {
+                                  "type": "array",
+                                  "nullable": true,
+                                  "uniqueItems": true,
+                                  "items": {
+                                    "maxItems": 2,
+                                    "additionalProperties": false,
+                                    "type": "string",
+                                    "enum": [
+                                      "POW",
+                                      "EMP"
+                                    ]
+                                  }
                                 },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
@@ -5121,6 +5149,20 @@
                                   "default": false,
                                   "nullable": true
                                 },
+                                "specialIssues": {
+                                  "type": "array",
+                                  "nullable": true,
+                                  "uniqueItems": true,
+                                  "items": {
+                                    "maxItems": 2,
+                                    "additionalProperties": false,
+                                    "type": "string",
+                                    "enum": [
+                                      "POW",
+                                      "EMP"
+                                    ]
+                                  }
+                                },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                   "type": "array",
@@ -5887,7 +5929,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e5cab8ae-80b1-471b-b8a8-8df415340c03",
+                    "id": "6373f38b-be48-4975-9c23-cafcf6320988",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -7559,6 +7601,20 @@
                                   "default": false,
                                   "nullable": true
                                 },
+                                "specialIssues": {
+                                  "type": "array",
+                                  "nullable": true,
+                                  "uniqueItems": true,
+                                  "items": {
+                                    "maxItems": 2,
+                                    "additionalProperties": false,
+                                    "type": "string",
+                                    "enum": [
+                                      "POW",
+                                      "EMP"
+                                    ]
+                                  }
+                                },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                   "type": "array",
@@ -8736,8 +8792,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-05-30",
-                      "expirationDate": "2025-05-30",
+                      "creationDate": "2024-06-03",
+                      "expirationDate": "2025-06-03",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -9613,7 +9669,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7b5691d4-898f-469c-bf0f-0837115bbfda",
+                    "id": "7f4b310d-be77-4315-90b9-fc810c355e01",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -10306,7 +10362,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f1ced04d-bd82-4cbb-b57e-af65bc40aea2",
+                    "id": "a7f4cb7e-ed7a-40b9-9600-cf014f2e6843",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12257,11 +12313,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "049cce04-ec9c-4b1b-80f9-abe30ae3c26b",
+                    "id": "2ba16c06-1f19-451c-9723-59255176bb61",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-05-30",
+                      "dateRequestAccepted": "2024-06-03",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
