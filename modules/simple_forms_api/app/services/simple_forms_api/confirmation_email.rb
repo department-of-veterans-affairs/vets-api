@@ -26,7 +26,7 @@ module SimpleFormsApi
     def send
       return unless SUPPORTED_FORMS.include?(form_number)
 
-      data = form_specific_data
+      data = form_specific_data || empty_form_specific_data
 
       return if data[:email].blank? || data[:personalization]['first_name'].blank?
 
@@ -104,6 +104,10 @@ module SimpleFormsApi
       end
     end
     # rubocop:enable Metrics/MethodLength
+
+    def empty_form_specific_data
+      { email: '', personalization: {} }
+    end
 
     # personalization hash shared by all simple form confirmation emails
     def default_personalization(first_name)
