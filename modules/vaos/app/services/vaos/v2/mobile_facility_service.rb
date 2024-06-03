@@ -129,7 +129,7 @@ module VAOS
           "VAOS Error fetching facility details for location_id #{location_id}",
           location_id:
         )
-        FACILITY_ERROR_MSG
+        nil
       end
       memoize :get_facility_memoized
 
@@ -142,7 +142,7 @@ module VAOS
           location_id:,
           vamf_msg: e.original_body
         )
-        nil # on error log and return nil, calling code will handle nil
+        nil
       end
       memoize :get_clinic_memoized
 

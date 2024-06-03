@@ -7,7 +7,6 @@ module VAOS
     class AppointmentsController < VAOS::BaseController
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
-      FACILITY_ERROR_MSG = 'Error fetching facility details'
       APPT_INDEX = "GET '/vaos/v1/patients/<icn>/appointments'"
       APPT_SHOW = "GET '/vaos/v1/patients/<icn>/appointments/<id>'"
       APPT_CREATE = "POST '/vaos/v1/patients/<icn>/appointments'"

@@ -717,14 +717,14 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
-  describe '#get_facility_timezone_memoized' do
+  describe '#get_facility_timezone' do
     let(:facility_location_id) { '983' }
     let(:facility_error_msg) { 'Error fetching facility details' }
 
     context 'with a facility location id' do
       it 'returns the facility timezone' do
         allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(mock_facility)
-        timezone = subject.send(:get_facility_timezone_memoized, facility_location_id)
+        timezone = subject.send(:get_facility_timezone, facility_location_id)
         expect(timezone).to eq('America/New_York')
       end
     end
@@ -732,7 +732,7 @@ describe VAOS::V2::AppointmentsService do
     context 'with an internal server error from the facilities call' do
       it 'returns nil for the timezone' do
         allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(facility_error_msg)
-        timezone = subject.send(:get_facility_timezone_memoized, facility_location_id)
+        timezone = subject.send(:get_facility_timezone, facility_location_id)
         expect(timezone).to eq(nil)
       end
     end
@@ -758,7 +758,7 @@ describe VAOS::V2::AppointmentsService do
     context 'when appt location id is 358' do
       it 'logs the appt location id, timezone info, utc/local times of appt' do
         allow_any_instance_of(VAOS::V2::AppointmentsService)
-          .to receive(:get_facility_timezone_memoized)
+          .to receive(:get_facility_timezone)
           .and_return('Asia/Manila')
         allow(Rails.logger).to receive(:info)
 
@@ -778,7 +778,7 @@ describe VAOS::V2::AppointmentsService do
 
       it 'logs the appt location id, timezone info, utc/local times of appt request' do
         allow_any_instance_of(VAOS::V2::AppointmentsService)
-          .to receive(:get_facility_timezone_memoized)
+          .to receive(:get_facility_timezone)
           .and_return('Asia/Manila')
         allow(Rails.logger).to receive(:info)
 

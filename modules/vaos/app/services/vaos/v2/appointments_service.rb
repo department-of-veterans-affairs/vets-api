@@ -12,11 +12,9 @@ module VAOS
 
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
       VAOS_SERVICE_DATA_KEY = 'VAOSServiceTypesAndCategory'
-      FACILITY_ERROR_MSG = 'Error fetching facility details'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
       AVS_APPT_TEST_ID = '192308'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
-      FACILITY_ERROR_MSG = 'Error fetching facility details'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
@@ -136,36 +134,14 @@ module VAOS
         nil
       end
 
-      def get_facility(location_id)
-        mobile_facility_service.get_facility_with_cache(location_id)
-      rescue Common::Exceptions::BackendServiceException
-        Rails.logger.error(
-          "Error fetching facility details for location_id #{location_id}",
-          location_id:
-        )
-        FACILITY_ERROR_MSG
-      end
-
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
       def get_facility_timezone(facility_location_id)
-        facility_info = mobile_facility_service.get_facility_memoized(facility_location_id)
-        if facility_info == FACILITY_ERROR_MSG
-          nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
-        else
-          facility_info[:timezone]&.[](:time_zone_id)
-        end
-      end
-
-      # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
-      def get_facility_timezone_memoized(facility_location_id)
         facility_info = get_facility(facility_location_id) unless facility_location_id.nil?
-        if facility_info == FACILITY_ERROR_MSG || facility_info.nil?
-          nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
-        else
-          facility_info[:timezone]&.[](:time_zone_id)
-        end
+        return nil if facility_info.nil?
+
+        facility_info[:timezone]&.[](:time_zone_id)
       end
-      memoize :get_facility_timezone_memoized
+      memoize :get_facility_timezone
 
       private
 
@@ -560,7 +536,7 @@ module VAOS
       # with the appointment time to the convert_utc_to_local_time method which does the actual conversion.
       def convert_appointment_time(appt)
         if !appt[:start].nil?
-          facility_timezone = get_facility_timezone_memoized(appt[:location_id])
+          facility_timezone = get_facility_timezone(appt[:location_id])
           appt[:local_start_time] = convert_utc_to_local_time(appt[:start], facility_timezone)
 
           if appt[:location_id] == MANILA_PHILIPPINES_FACILITY_ID
@@ -569,7 +545,7 @@ module VAOS
 
         elsif !appt.dig(:requested_periods, 0, :start).nil?
           appt[:requested_periods].each do |period|
-            facility_timezone = get_facility_timezone_memoized(appt[:location_id])
+            facility_timezone = get_facility_timezone(appt[:location_id])
             period[:local_start_time] = convert_utc_to_local_time(period[:start], facility_timezone)
 
             if appt[:location_id] == MANILA_PHILIPPINES_FACILITY_ID
