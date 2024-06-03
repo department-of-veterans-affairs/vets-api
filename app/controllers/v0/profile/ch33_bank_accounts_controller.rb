@@ -6,6 +6,7 @@ module V0
   module Profile
     class Ch33BankAccountsController < ApplicationController
       service_tag 'direct-deposit'
+      before_action :controller_enabled?
       before_action { authorize :ch33_dd, :access? }
 
       def index
@@ -31,6 +32,12 @@ module V0
       end
 
       private
+
+      def controller_enabled?
+        if Flipper.enabled?(:profile_show_direct_deposit_single_form_edu_downtime, @current_user)
+          raise Common::Exceptions::Forbidden, detail: 'This endpoint is deprecated and will be removed soon.'
+        end
+      end
 
       def render_find_ch33_dd_eft
         get_ch33_dd_eft_info = service.get_ch33_dd_eft_info

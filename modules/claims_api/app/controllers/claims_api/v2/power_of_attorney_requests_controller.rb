@@ -3,33 +3,24 @@
 module ClaimsApi
   module V2
     class PowerOfAttorneyRequestsController < PowerOfAttorneyRequests::BaseController
-      def index # rubocop:disable Metrics/MethodLength
-        index_params =
-          params.permit(
-            filter: {},
-            page: {},
-            sort: {}
-          ).to_h
+      def index
+        service = PowerOfAttorneyRequestService::Search
+        result = service.perform(request.query_parameters)
 
-        result =
-          PowerOfAttorneyRequestService::Search.perform(
-            index_params
-          )
+        render json: serialize(result)
+      end
 
-        result[:metadata].transform_keys!(
-          total_count: :totalCount
-        )
+      private
 
-        result[:data] =
-          Blueprints::PowerOfAttorneyRequestBlueprint.render_as_hash(
-            result[:data]
-          )
+      def serialize(result)
+        blueprint = Blueprints::PowerOfAttorneyRequestBlueprint
+        result[:data] = blueprint.render_as_hash(result[:data])
 
-        render json: result
-      rescue PowerOfAttorneyRequestService::Search::InvalidQueryError => e
-        detail = { errors: e.errors, params: e.params }
-        error = ::Common::Exceptions::BadRequest.new(detail:)
-        render_error(error)
+        result[:metadata].transform_keys! do |key|
+          key.to_s.camelize(:lower).to_sym
+        end
+
+        result
       end
     end
   end

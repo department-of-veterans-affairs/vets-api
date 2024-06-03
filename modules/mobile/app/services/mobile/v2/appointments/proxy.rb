@@ -26,14 +26,12 @@ module Mobile
 
           appointments, missing_facilities = merge_clinic_facility_address(appointments)
           appointments, missing_clinics = merge_auxiliary_clinic_info(appointments)
-          appointments, missing_providers = merge_provider_names(appointments)
 
           appointments = vaos_v2_to_v0_appointment_adapter.parse(appointments)
           failures = [
             { appointment_errors: Array.wrap(response[:meta][:failures]) },
             { missing_facilities: },
-            { missing_clinics: },
-            { missing_providers: }
+            { missing_clinics: }
           ]
           failures.reject! { |failure| failure.values.first&.empty? }
           Rails.logger.info('Mobile Appointment Partial Error', errors: failures) if failures.any?
@@ -88,22 +86,6 @@ module Mobile
             missing_clinics << clinic_id unless cached_clinics[clinic_id]
           end
           [appointments, missing_clinics]
-        end
-
-        def merge_provider_names(appointments)
-          provider_names_proxy = ProviderNames.new(@user)
-          missing_providers = []
-          appointments.each do |appt|
-            practitioners_list = appt[:practitioners]
-            next unless practitioners_list
-
-            names, appointment_missing_providers =
-              provider_names_proxy.form_names_from_appointment_practitioners_list(practitioners_list)
-            appt[:healthcare_provider] = names
-            missing_providers.concat(appointment_missing_providers) unless names
-          end
-
-          [appointments, missing_providers]
         end
 
         def appointments_helper
