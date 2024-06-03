@@ -388,6 +388,17 @@ describe VAOS::V2::MobileFacilityService do
     end
   end
 
+  describe '#get_clinic_memoized' do
+    context 'when clinic service throws an error' do
+      it 'returns nil' do
+        allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic_with_cache)
+          .and_raise(Common::Exceptions::BackendServiceException.new('VAOS_502', {}))
+
+        expect(subject.get_clinic_memoized('123', '3456')).to be_nil
+      end
+    end
+  end
+
   describe '#get_facility' do
     context 'with a valid request' do
       it 'returns a facility' do

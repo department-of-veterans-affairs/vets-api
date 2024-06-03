@@ -146,20 +146,9 @@ module VAOS
         FACILITY_ERROR_MSG
       end
 
-      def get_facility_memoized(location_id)
-        mobile_facility_service.get_facility_with_cache(location_id)
-      rescue Common::Exceptions::BackendServiceException
-        Rails.logger.error(
-          "VAOS Error fetching facility details for location_id #{location_id}",
-          location_id:
-        )
-        FACILITY_ERROR_MSG
-      end
-      memoize :get_facility_memoized
-
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
       def get_facility_timezone(facility_location_id)
-        facility_info = get_facility_memoized(facility_location_id)
+        facility_info = mobile_facility_service.get_facility_memoized(facility_location_id)
         if facility_info == FACILITY_ERROR_MSG
           nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
         else
@@ -177,44 +166,6 @@ module VAOS
         end
       end
       memoize :get_facility_timezone_memoized
-
-      # def merge_auxiliary_clinic_info(appointments)
-      #   cached_clinics = {}
-
-      #   location_clinics = appointments.map { |appt| [appt.location_id, appt.clinic] }.reject { |a| a.any?(nil) }.uniq
-      #   location_clinics.each do |location_id, clinic_id|
-      #     cached_clinics[clinic_id] = appointments_helper.get_clinic(location_id, clinic_id)
-      #   end
-
-      #   missing_clinics = []
-
-      #   appointments.each do |appt|
-      #     clinic_id = appt[:clinic]
-      #     next unless clinic_id
-
-      #     service_name = cached_clinics.dig(clinic_id, :service_name)
-      #     appt[:service_name] = service_name
-
-      #     physical_location = cached_clinics.dig(clinic_id, :physical_location)
-      #     appt[:physical_location] = physical_location
-
-      #     missing_clinics << clinic_id unless cached_clinics[clinic_id]
-      #   end
-      #   [appointments, missing_clinics]
-      # end
-
-      def get_clinic_memoized(location_id, clinic_id)
-        mobile_facility_service.get_clinic_with_cache(station_id: location_id, clinic_id:)
-      rescue Common::Exceptions::BackendServiceException => e
-        Rails.logger.error(
-          "Error fetching clinic #{clinic_id} for location #{location_id}",
-          clinic_id:,
-          location_id:,
-          vamf_msg: e.original_body
-        )
-        nil # on error log and return nil, calling code will handle nil
-      end
-      memoize :get_clinic_memoized
 
       private
 
@@ -251,7 +202,7 @@ module VAOS
       def merge_clinics(appointments)
         appointments.each do |appt|
           unless appt[:clinic].nil? || appt[:location_id].nil?
-            clinic = get_clinic_memoized(appt[:location_id], appt[:clinic])
+            clinic = mobile_facility_service.get_clinic_memoized(appt[:location_id], appt[:clinic])
             if clinic&.[](:service_name)
               appt[:service_name] = clinic[:service_name]
               # In VAOS Service there is no dedicated clinic friendlyName field.
@@ -268,37 +219,13 @@ module VAOS
       def merge_facilities(appointments)
         appointments.each do |appt|
           unless appt[:location_id].nil?
-            appt[:location] =
-              get_facility_memoized(appt[:location_id])
+            appt[:location] = mobile_facility_service.get_facility_memoized(appt[:location_id])
           end
           if cerner?(appt) && contains_substring(extract_all_values(appt[:location]), 'COL OR 1')
             log_appt_id_location_name(appt)
           end
         end
       end
-
-      # def merge_clinic_facility_address(appointments)
-      #   cached_facilities = {}
-
-      #   facility_ids = appointments.map(&:location_id).compact.uniq
-      #   facility_ids.each do |facility_id|
-      #     cached_facilities[facility_id] = appointments_helper.get_facility(facility_id)
-      #   end
-
-      #   missing_facilities = []
-
-      #   appointments.each do |appt|
-      #     facility_id = appt[:location_id]
-      #     next unless facility_id
-
-      #     appt[:location] = cached_facilities[facility_id]
-
-      #     missing_facilities << facility_id unless cached_facilities[facility_id]
-      #   end
-
-      #   [appointments, missing_facilities]
-      # end
-
 
       # This method extracts all values from a given object, which can be either an `OpenStruct`, `Hash`, or `Array`.
       # It recursively traverses the object and collects all values into an array.

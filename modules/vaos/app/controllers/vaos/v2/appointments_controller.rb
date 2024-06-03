@@ -1,13 +1,10 @@
 # frozen_string_literal: true
 
 require 'common/exceptions'
-require 'memoist'
 
 module VAOS
   module V2
     class AppointmentsController < VAOS::BaseController
-      extend Memoist
-
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
       FACILITY_ERROR_MSG = 'Error fetching facility details'

@@ -144,6 +144,7 @@ module Mobile
           identifier[:value]&.split(':', 2)&.second
         end
 
+        # this may need to change
         def friendly_location_name
           return location[:name] if va_appointment?
 

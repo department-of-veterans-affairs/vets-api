@@ -6,6 +6,8 @@ require 'common/client/errors'
 module VAOS
   module V2
     class MobileFacilityService < VAOS::SessionService
+      extend Memoist
+
       # Retrieves information about a VA clinic from the VAOS Service.
       #
       # @param station_id [String] the ID of the VA facility where the clinic is located
@@ -119,6 +121,30 @@ module VAOS
           meta: pagination({})
         }
       end
+
+      def get_facility_memoized(location_id)
+        get_facility_with_cache(location_id)
+      rescue Common::Exceptions::BackendServiceException
+        Rails.logger.error(
+          "VAOS Error fetching facility details for location_id #{location_id}",
+          location_id:
+        )
+        FACILITY_ERROR_MSG
+      end
+      memoize :get_facility_memoized
+
+      def get_clinic_memoized(location_id, clinic_id)
+        get_clinic_with_cache(station_id: location_id, clinic_id:)
+      rescue Common::Exceptions::BackendServiceException => e
+        Rails.logger.error(
+          "Error fetching clinic #{clinic_id} for location #{location_id}",
+          clinic_id:,
+          location_id:,
+          vamf_msg: e.original_body
+        )
+        nil # on error log and return nil, calling code will handle nil
+      end
+      memoize :get_clinic_memoized
 
       # Retrieves information about a VA facility from the Mobile Facility Service given its ID.
       #
