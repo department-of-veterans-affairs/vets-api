@@ -2410,11 +2410,6 @@
                               "description": "Claimant certifies and authorizes release of information.",
                               "default": false
                             },
-                            "claimNotes": {
-                              "type": "string",
-                              "description": "An optional notes section.",
-                              "maxLength": 4000
-                            },
                             "claimId": {
                               "type": "string",
                               "example": "600517517"
@@ -4002,7 +3997,6 @@
                       "type": "form/526",
                       "attributes": {
                         "claimProcessType": "STANDARD_CLAIM_PROCESS",
-                        "claimNotes": "Some things that are important to know, and are not included in any other place.",
                         "veteranIdentification": {
                           "serviceNumber": "123456789",
                           "veteranNumber": {
@@ -5893,11 +5887,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3677e88d-e5dd-4988-9c92-3770d6dfedfb",
+                    "id": "87c190d5-d7ef-4f9f-ab70-26830d16aa63",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
-                      "claimNotes": "Some things that are important to know, and are not included in any other place.",
                       "veteranIdentification": {
                         "serviceNumber": "123456789",
                         "veteranNumber": {
@@ -6656,11 +6649,6 @@
                             },
                             "claimantCertification": {
                               "type": "boolean"
-                            },
-                            "claimNotes": {
-                              "type": "string",
-                              "description": "An optional notes section.",
-                              "maxLength": 4000
                             }
                           }
                         }
@@ -9633,7 +9621,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f1d9372b-b4ac-428a-bb9b-c08a9231d79c",
+                    "id": "ea2d721b-e65b-47d1-917c-95ca7c89743e",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -10326,7 +10314,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1d26989e-47a6-432e-bbda-d2710243b441",
+                    "id": "a0b61a5f-a476-4acc-a766-7713849efd37",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12277,7 +12265,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "15fd9360-2c39-4e58-a6d6-08714be5fefd",
+                    "id": "476699ce-daf8-4ddb-99e6-22a31dcdd30b",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
