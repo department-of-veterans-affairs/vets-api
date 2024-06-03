@@ -59,8 +59,7 @@ module ClaimsApi
         Veteran.new(
           first_name: @data['vetFirstName'],
           middle_name: @data['vetMiddleName'],
-          last_name: @data['vetLastName'],
-          participant_id: @data['vetPtcpntID']
+          last_name: @data['vetLastName']
         )
       end
 
@@ -72,7 +71,6 @@ module ClaimsApi
         Claimant.new(
           first_name: @data['claimantFirstName'],
           last_name: @data['claimantLastName'],
-          participant_id: @data['claimantPtcpntID'],
           relationship_to_veteran: @data['claimantRelationship']
         )
       end

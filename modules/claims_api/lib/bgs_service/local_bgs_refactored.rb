@@ -27,13 +27,14 @@ module ClaimsApi
     #   this, rather than being centralized here.
     include Miscellaneous
 
-    ##
-    # @deprecated Not all (or perhaps any?) of these correspond to genuine bad
-    #   gateway `502` errors.
-    #
     BAD_GATEWAY_EXCEPTIONS = [
       BGSClient::Error::ConnectionFailed,
       BGSClient::Error::SSLError,
+      ##
+      # @deprecated According to VA API Standards, a timeout should correspond
+      #   to the HTTP error code for a gateway timeout, 504:
+      #     https://department-of-veterans-affairs.github.io/va-api-standards/errors/#choosing-an-error-code
+      #
       BGSClient::Error::TimeoutError
     ].freeze
 

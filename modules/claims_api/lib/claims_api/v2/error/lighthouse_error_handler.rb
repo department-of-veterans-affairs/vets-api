@@ -22,7 +22,11 @@ module ClaimsApi
 
             rescue_from ::Common::Exceptions::ResourceNotFound,
                         ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound,
-                        ::Common::Exceptions::Forbidden,
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::BadRequest do |err|
+                          render_non_source_error(err)
+                        end
+
+            rescue_from ::Common::Exceptions::Forbidden,
                         ::Common::Exceptions::ValidationErrorsBadRequest,
                         ::Common::Exceptions::UnprocessableEntity do |err|
                           render_error(err)
@@ -33,8 +37,7 @@ module ClaimsApi
               )
             end
 
-            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity,
-                        ::ClaimsApi::Common::Exceptions::Lighthouse::BadRequest do |err|
+            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity do |err|
               render_error(err)
             end
             rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError do |errs|
@@ -44,6 +47,15 @@ module ClaimsApi
         end
 
         private
+
+        def render_non_source_error(error)
+          render json: {
+            errors: error.errors.map do |e|
+              error_hash = e.as_json.slice('title', 'status', 'detail')
+              error_hash
+            end
+          }, status: error.status_code
+        end
 
         def render_error(error)
           render json: {

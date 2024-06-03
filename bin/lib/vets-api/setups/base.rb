@@ -82,14 +82,14 @@ module VetsApi
 
       # TODO: figure out how to do this with docker
       def prompt_setup_sidekiq_enterprise
-        existing = system('echo $BUNDLE_ENTERPRISE__CONTRIBSYS__COM')
+        unless `bundle config get enterprise.contribsys.com --parseable`.empty?
+          puts 'Skipping Sidekiq Enterprise License (value already set)'
+          return true
+        end
+
         print 'Enter Sidekiq Enterprise License or press enter/return to skip: '
         response = $stdin.gets.chomp
-        key_regex = /\A[0-9a-fA-F]{8}:[0-9a-fA-F]{8}\z/
-
-        if existing && response.empty?
-          puts 'Skipping Sidekiq Enterprise License (value already set)'
-        elsif response && key_regex.match?(response)
+        if response && /\A[0-9a-fA-F]{8}:[0-9a-fA-F]{8}\z/.match?(response)
           print 'Setting Sidekiq Enterprise License... '
           ShellCommand.run_quiet("bundle config enterprise.contribsys.com #{response}")
           if RbConfig::CONFIG['host_os'] =~ /mswin|msys|mingw|cygwin/i

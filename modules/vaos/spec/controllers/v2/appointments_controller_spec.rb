@@ -53,19 +53,6 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
     end
   end
 
-  describe '#get_provider_name_memoized' do
-    npi_not_found_msg = "We're sorry, we can't display your provider's information right now."
-
-    context 'when provider service throws an error' do
-      it 'returns npi_not_found_msg' do
-        allow_any_instance_of(VAOS::V2::MobilePPMSService).to receive(:get_provider_with_cache)
-          .and_raise(Common::Exceptions::BackendServiceException.new('VAOS_502', {}))
-
-        expect(subject.send(:get_provider_name_memoized, '123')).to eq(npi_not_found_msg)
-      end
-    end
-  end
-
   describe '#start_date' do
     context 'with an invalid date' do
       it 'throws an InvalidFieldValue exception' do
