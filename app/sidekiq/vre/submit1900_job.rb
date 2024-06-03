@@ -20,10 +20,10 @@ module VRE
     def perform(claim_id, user_uuid)
       claim = SavedClaim::VeteranReadinessEmploymentClaim.find claim_id
       user = User.find user_uuid
-      claim.add_claimant_info(user)
       claim.send_to_vre(user)
-    rescue
-      Rails.logger.warn('VRE::Submit1900Job failed, retrying...')
+    rescue => e
+      Rails.logger.warn("VRE::Submit1900Job failed, retrying...: #{e.message}")
+      raise
     end
   end
 end

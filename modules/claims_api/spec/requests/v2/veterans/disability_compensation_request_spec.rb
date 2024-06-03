@@ -34,6 +34,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
     context 'submit' do
       let(:submit_path) { "/services/claims/v2/veterans/#{veteran_id}/526" }
+      let(:validate_path) { "/services/claims/v2/veterans/#{veteran_id}/526/validate" }
 
       context 'CCG (Client Credentials Grant) flow' do
         context 'when provided' do
@@ -45,6 +46,14 @@ RSpec.describe 'Disability Claims', type: :request do
                 expected = 'http://www.example.com/services/claims/v2/veterans/1013062086V794840/claims/'
                 expect(response).to have_http_status(:accepted)
                 expect(response.location).to include(expected)
+              end
+            end
+
+            it 'calls shared validation' do
+              mock_ccg(scopes) do |auth_header|
+                expect_any_instance_of(ClaimsApi::V2::DisabilityCompensationValidation)
+                  .to receive(:validate_form_526_submission_values!)
+                post validate_path, params: data, headers: auth_header
               end
             end
           end
