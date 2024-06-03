@@ -37,7 +37,7 @@ module VetsApi
       # Should validate this before saying done
       def docker_build
         puts 'Building Docker Image(s) for This may take a while...'
-        ShellCommand.run_quiet('docker-compose build')
+        ShellCommand.run_quiet('docker compose build')
         puts 'Building Docker Image(s)...Done'
       end
 
@@ -50,12 +50,12 @@ module VetsApi
 
       def setup_parallel_spec
         puts 'Setting up parallel_test...'
-        execute_docker_command('RAILS_ENV=test bundle exec rake parallel:setup')
+        execute_docker_command('RAILS_ENV=test bundle exec rails parallel:setup')
         puts 'Setting up parallel_test...Done'
       end
 
       def execute_docker_command(command)
-        ShellCommand.run_quiet("docker-compose run --rm --service-ports web bash -c \"#{command}\"")
+        ShellCommand.run_quiet("docker compose run --rm --service-ports web bash -c \"#{command}\"")
       end
     end
   end

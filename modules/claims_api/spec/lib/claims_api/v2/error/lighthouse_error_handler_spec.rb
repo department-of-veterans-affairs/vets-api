@@ -95,7 +95,7 @@ describe ApplicationController, type: :controller do
       expect(parsed_body['errors'][0]['detail']).to eq(nil)
       expect(parsed_body['errors'][0]['status']).to eq('400')
       expect(parsed_body['errors'][0]['status']).to be_a(String)
-      expect(parsed_body['errors'][0]['source'].to_s).to include('{"pointer"=>')
+      expect(parsed_body['errors'][0]['source'].to_s).not_to include('{"pointer"=>')
     end
   end
 
@@ -113,7 +113,7 @@ describe ApplicationController, type: :controller do
       expect(parsed_body['errors'][0]['detail']).to eq('Test 404')
       expect(parsed_body['errors'][0]['status']).to eq('404')
       expect(parsed_body['errors'][0]['status']).to be_a(String)
-      expect(parsed_body['errors'][0]['source'].to_s).to include('{"pointer"=>')
+      expect(parsed_body['errors'][0]['source'].to_s).not_to include('{"pointer"=>')
     end
   end
 

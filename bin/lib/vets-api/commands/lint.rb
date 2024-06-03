@@ -27,10 +27,11 @@ module VetsApi
         execute_command(rubocop_command, docker:) unless only_brakeman?
         execute_command(brakeman_command, docker:) unless only_rubocop?
         execute_command(bundle_audit_command, docker:) unless only_rubocop?
+        execute_command(codeowners_command) unless only_rubocop? || only_brakeman?
       end
 
       def execute_command(command, docker: false)
-        command = "docker-compose run --rm --service-ports web bash -c \"#{command}\"" if docker
+        command = "docker compose run --rm --service-ports web bash -c \"#{command}\"" if docker
         puts "running: #{command}"
         ShellCommand.run(command)
       end
@@ -45,6 +46,10 @@ module VetsApi
 
       def bundle_audit_command
         'bundle exec bundle-audit check'
+      end
+
+      def codeowners_command
+        '.github/scripts/check_codeowners.sh'
       end
 
       def autocorrect

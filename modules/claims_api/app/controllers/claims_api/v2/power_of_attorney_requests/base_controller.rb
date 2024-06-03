@@ -4,7 +4,7 @@ module ClaimsApi
   module V2
     module PowerOfAttorneyRequests
       class BaseController < ApplicationController
-        include ExceptionHandling
+        include BGSClientErrorHandling
         include JsonValidation
       end
     end
