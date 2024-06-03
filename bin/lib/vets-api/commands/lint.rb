@@ -31,7 +31,7 @@ module VetsApi
       end
 
       def execute_command(command, docker: false)
-        command = "docker-compose run --rm --service-ports web bash -c \"#{command}\"" if docker
+        command = "docker compose run --rm --service-ports web bash -c \"#{command}\"" if docker
         puts "running: #{command}"
         ShellCommand.run(command)
       end
