@@ -659,7 +659,8 @@ module ClaimsApi
 
           area_code = reserves&.dig(:unitPhone, :areaCode)
           phone_number = reserves&.dig(:unitPhone, :phoneNumber)
-          reserves[:unitPhoneNumber] = convert_phone(area_code + phone_number) if area_code && phone_number
+          phone_number&.delete! '-'
+          reserves[:unitPhoneNumber] = (area_code + phone_number) if area_code && phone_number
           reserves.delete(:unitPhone)
 
           reserves[:receivingInactiveDutyTrainingPay] = handle_yes_no(reserves[:receivingInactiveDutyTrainingPay])
