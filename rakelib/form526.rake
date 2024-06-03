@@ -764,7 +764,6 @@ namespace :form526 do
     end
 
     csv_filename  = "form526_#{start_date}_#{end_date}_validation.csv"
-    csv_rows      = []
     csv_header    = ['Rec ID', 'Valid?', 'Original', 'Error']
 
     # SMELL:  created_at is not indexed

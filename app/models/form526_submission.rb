@@ -485,34 +485,19 @@ class Form526Submission < ApplicationRecord
     body = transform_service.transform(form['form526'])
 
     begin
-      lighthoust_validation_response = lighthouse_service.validate526(body)
+      @lighthoust_validation_response = lighthouse_service.validate526(body)
     rescue => e
-      # TODO: What now?
-      #       treat as a fake error
-    end
-
-    if '200' == lighthoust_validation_response.code
-      return true
-    elsif '422' == lighthoust_validation_response.code
+      fake_lighthouse_response(code: '609', error: e)
       return false
-    # else
-      # TODO: ? fake a 422 response inserting a single
-      #       fake error to indicate the description of
-      #       bad response code
-      #
-      # raise "SomeKindOfErrorWithLighthouseValidationAPI" 
     end
 
-    # Since it was not a 200 response code that means
-    # that the lighthouse API returned some kind of error
-    # like:
-    #   401 - Unauthorized (has a errors array)
-    #   413 - Payload too large (has a message entry)
-    #   429 - Too many requests {has a message entry}
-    #
-    # TODO: Should an except be raises here or
-    #       is that an upstream responsibility.
+    if '200' == lighthoust_validation_response&.code
+      return true
+    elsif '422' == lighthoust_validation_response&.code
+      return false
+    end
 
+    fake_lighthouse_response(code: lighthoust_validation_response&.code)
     return false
   end
 
@@ -534,20 +519,16 @@ class Form526Submission < ApplicationRecord
   def lighthouse_validation_errors
     if '200' == lighthouse_validation_response&.code
       []
-    elsif '422' == lighthouse_validation_response&.code
-      lighthouse_validation_response.body["errors"]
-    elsif 'xyzzy' == lighthouse_validation_response&.code
-      # TODO: create an Array with one Hash
-      #       having same format as a 422 response code
     else
-      # TODO: response code was unexpected now what?
+      lighthouse_validation_response.body["errors"]
     end
   end
+
 
   ###############################################
   private
 
-  attr_accessor :lighthoust_validation_response
+  attr_accessor :lighthouse_validation_response
 
   # Setup the lighthouse service for this
   # user account.  The lighthouse calls the
@@ -557,7 +538,21 @@ class Form526Submission < ApplicationRecord
     lighthouse_validation_response = nil
     BenefitsClaims::Service.new(user_account.icn)
   end
-    
+  
+
+  def fake_lighthouse_response(code: '609', error: 'Unknown')
+    fake_response       = Struct.new(:code, :body).new
+    fake_response.code  = code || '609'
+    fake_response.body  = { 'errors' => [
+                              {
+                                'title' => "Code '#{code}' - #{error}"
+                              }
+                            ]
+                          }
+
+    @lighthouse_validation_response = fake_response    
+  end
+
 
   def queue_central_mail_backup_submission_for_non_retryable_error!(e: nil)
     # Entry-point for backup 526 CMP submission
