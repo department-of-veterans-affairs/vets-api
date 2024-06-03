@@ -3996,6 +3996,7 @@
                       "type": "form/526",
                       "attributes": {
                         "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                        "claimNotes": "Some things that are important to know, and are not included in any other place.",
                         "veteranIdentification": {
                           "mailingAddress": {
                             "addressLine1": "1234 Couch Street",
@@ -4301,7 +4302,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d30d57b9-e195-48fd-82ed-3d00ae7c58e9",
+                    "id": "bcb8a44d-5620-4dbd-99d9-260b73a0c771",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -7234,6 +7235,7 @@
                       "type": "form/526",
                       "attributes": {
                         "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                        "claimNotes": "Some things that are important to know, and are not included in any other place.",
                         "veteranIdentification": {
                           "mailingAddress": {
                             "addressLine1": "1234 Couch Street",
@@ -9183,7 +9185,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "318a6be3-a6ed-4790-957d-7a27d1f57d09",
+                    "id": "98d7520a-b29d-40fa-87ba-a5605a9a0326",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12942,7 +12944,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "04c3a23d-d3fa-4835-954a-5ad9531af22c",
+                    "id": "2ae1082f-23f5-43cb-81b2-059273b84e3d",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13635,7 +13637,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "38017ca9-9137-4622-a02e-1146ca02ba13",
+                    "id": "24d177a7-a596-43c1-b4d4-bd88e8868c9a",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15586,7 +15588,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "17841e65-48a9-4f2b-b3b6-5fce97bfd66c",
+                    "id": "417291ae-10ed-45a6-92b8-852272f25d47",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
