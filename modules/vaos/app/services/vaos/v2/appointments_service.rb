@@ -159,7 +159,7 @@ module VAOS
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
       def get_facility_timezone(facility_location_id)
-        facility_info (facility_location_id)
+        facility_info = get_facility_memoized(facility_location_id)
         if facility_info == FACILITY_ERROR_MSG
           nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
         else
@@ -177,6 +177,44 @@ module VAOS
         end
       end
       memoize :get_facility_timezone_memoized
+
+      # def merge_auxiliary_clinic_info(appointments)
+      #   cached_clinics = {}
+
+      #   location_clinics = appointments.map { |appt| [appt.location_id, appt.clinic] }.reject { |a| a.any?(nil) }.uniq
+      #   location_clinics.each do |location_id, clinic_id|
+      #     cached_clinics[clinic_id] = appointments_helper.get_clinic(location_id, clinic_id)
+      #   end
+
+      #   missing_clinics = []
+
+      #   appointments.each do |appt|
+      #     clinic_id = appt[:clinic]
+      #     next unless clinic_id
+
+      #     service_name = cached_clinics.dig(clinic_id, :service_name)
+      #     appt[:service_name] = service_name
+
+      #     physical_location = cached_clinics.dig(clinic_id, :physical_location)
+      #     appt[:physical_location] = physical_location
+
+      #     missing_clinics << clinic_id unless cached_clinics[clinic_id]
+      #   end
+      #   [appointments, missing_clinics]
+      # end
+
+      def get_clinic_memoized(location_id, clinic_id)
+        mobile_facility_service.get_clinic_with_cache(station_id: location_id, clinic_id:)
+      rescue Common::Exceptions::BackendServiceException => e
+        Rails.logger.error(
+          "Error fetching clinic #{clinic_id} for location #{location_id}",
+          clinic_id:,
+          location_id:,
+          vamf_msg: e.original_body
+        )
+        nil # on error log and return nil, calling code will handle nil
+      end
+      memoize :get_clinic_memoized
 
       private
 
@@ -226,43 +264,6 @@ module VAOS
           end
         end
       end
-      # def merge_auxiliary_clinic_info(appointments)
-      #   cached_clinics = {}
-
-      #   location_clinics = appointments.map { |appt| [appt.location_id, appt.clinic] }.reject { |a| a.any?(nil) }.uniq
-      #   location_clinics.each do |location_id, clinic_id|
-      #     cached_clinics[clinic_id] = appointments_helper.get_clinic(location_id, clinic_id)
-      #   end
-
-      #   missing_clinics = []
-
-      #   appointments.each do |appt|
-      #     clinic_id = appt[:clinic]
-      #     next unless clinic_id
-
-      #     service_name = cached_clinics.dig(clinic_id, :service_name)
-      #     appt[:service_name] = service_name
-
-      #     physical_location = cached_clinics.dig(clinic_id, :physical_location)
-      #     appt[:physical_location] = physical_location
-
-      #     missing_clinics << clinic_id unless cached_clinics[clinic_id]
-      #   end
-      #   [appointments, missing_clinics]
-      # end
-
-      def get_clinic_memoized(location_id, clinic_id)
-        mobile_facility_service.get_clinic_with_cache(station_id: location_id, clinic_id:)
-      rescue Common::Exceptions::BackendServiceException => e
-        Rails.logger.error(
-          "Error fetching clinic #{clinic_id} for location #{location_id}",
-          clinic_id:,
-          location_id:,
-          vamf_msg: e.original_body
-        )
-        nil # on error log and return nil, calling code will handle nil
-      end
-      memoize :get_clinic_memoized
 
       def merge_facilities(appointments)
         appointments.each do |appt|
@@ -297,6 +298,75 @@ module VAOS
 
       #   [appointments, missing_facilities]
       # end
+
+
+      # This method extracts all values from a given object, which can be either an `OpenStruct`, `Hash`, or `Array`.
+      # It recursively traverses the object and collects all values into an array.
+      # In case of an `Array`, it looks inside each element of the array for values.
+      # If the object is neither an OpenStruct, Hash, nor an Array, it returns the unmodified object in an array.
+      #
+      # @param object [OpenStruct, Hash, Array] The object from which to extract values.
+      # This could either be an OpenStruct, Hash or Array.
+      #
+      # @return [Array] An array of all values found in the object.
+      # If the object is not an OpenStruct, Hash, nor an Array, then the unmodified object is returned.
+      #
+      # @example
+      #   extract_all_values({a: 1, b: 2, c: {d: 3, e: 4}})  # => [1, 2, 3, 4]
+      #   extract_all_values(OpenStruct.new(a: 1, b: 2, c: OpenStruct.new(d: 3, e: 4))) # => [1, 2, 3, 4]
+      #   extract_all_values([{a: 1}, {b: 2}]) # => [1, 2]
+      #   extract_all_values({a: 1, b: [{c: 2}, {d: "hello"}]}) # => [1, 2, "hello"]
+      #   extract_all_values("not a hash, openstruct, or array")  # => ["not a hash, openstruct, or array"]
+      #
+      def extract_all_values(object)
+        return [object] unless object.is_a?(OpenStruct) || object.is_a?(Hash) || object.is_a?(Array)
+
+        values = []
+        object = object.to_h if object.is_a?(OpenStruct)
+
+        if object.is_a?(Array)
+          object.each do |o|
+            values += extract_all_values(o)
+          end
+        else
+          object.each_pair do |_, value|
+            case value
+            when OpenStruct, Hash, Array then values += extract_all_values(value)
+            else values << value
+            end
+          end
+        end
+
+        values
+      end
+
+      # This method checks if any string element in the given array contains the specified substring.
+      #
+      # @param arr [Array] The array to be searched.
+      # @param substring [String] The substring to look for.
+      #
+      # @return [Boolean] Returns true if any string element in the array contains the substring, false otherwise.
+      # If the input parameters are not of the correct type the method will return false.
+      #
+      # @example
+      #   contains_substring(['Hello', 'World'], 'ell')  # => true
+      #   contains_substring(['Hello', 'World'], 'xyz')  # => false
+      #   contains_substring('Hello', 'ell')  # => false
+      #   contains_substring(['Hello', 'World'], 123)  # => false
+      #
+      def contains_substring(arr, substring)
+        return false unless arr.is_a?(Array) && substring.is_a?(String)
+
+        arr.any? { |element| element.is_a?(String) && element.include?(substring) }
+      end
+
+      def appt_cerner_location_data(appt_id, facility_location_id, facility_name)
+        {
+          appt_id:,
+          facility_location_id:,
+          facility_name:
+        }
+      end
 
       def log_appt_id_location_name(appt)
         Rails.logger.info("Details for Cerner 'COL OR 1' Appointment",
