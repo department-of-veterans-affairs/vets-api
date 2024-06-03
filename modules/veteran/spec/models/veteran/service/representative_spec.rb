@@ -47,7 +47,7 @@ describe Veteran::Service::Representative, type: :model do
         expect(Veteran::Service::Representative.for_user(
                  first_name: identity.first_name,
                  last_name: nil
-               )).to eq(false)
+               )).to eq(nil)
       end
     end
 
@@ -67,7 +67,7 @@ describe Veteran::Service::Representative, type: :model do
                  last_name: nil,
                  middle_initial: 'J',
                  poa_code: '016'
-               )).to eq(false)
+               )).to eq([])
       end
     end
   end
