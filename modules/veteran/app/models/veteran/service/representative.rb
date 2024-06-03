@@ -27,7 +27,7 @@ module Veteran
       #
       # @return [Array(Veteran::Service::Representative)] All representatives found using the submitted search criteria
       def self.all_for_user(first_name:, last_name:, middle_initial: nil, poa_code: nil)
-        return false if first_name.nil? || last_name.nil?
+        return [] if first_name.nil? || last_name.nil?
 
         representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name&.downcase,
                                 last_name&.downcase)
@@ -42,7 +42,7 @@ module Veteran
       #
       # @return [Veteran::Service::Representative] First representative record found using the submitted search criteria
       def self.for_user(first_name:, last_name:)
-        return false if first_name.nil? || last_name.nil?
+        return nil if first_name.nil? || last_name.nil?
 
         representatives = all_for_user(first_name:, last_name:)
         return nil if representatives.blank?
