@@ -113,7 +113,7 @@ module V0
                                                        anti_csrf_token:).perform
       serializer_response = SignIn::TokenSerializer.new(session_container:,
                                                         cookies: token_cookies).perform
-
+      binding.pry
       sign_in_logger.info('refresh', session_container.access_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS)
 
