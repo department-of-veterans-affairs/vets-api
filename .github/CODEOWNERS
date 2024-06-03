@@ -15,6 +15,7 @@ Gemfile.lock @department-of-veterans-affairs/backend-review-group
 Jenkinsfile @department-of-veterans-affairs/backend-review-group
 Makefile @department-of-veterans-affairs/backend-review-group
 Procfile @department-of-veterans-affairs/backend-review-group
+Procfile.dev @department-of-veterans-affairs/backend-review-group
 .devcontainer @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/cto-engineers
 import-va-certs.sh @department-of-veterans-affairs/backend-review-group
 app/controllers/appeals_base_controller.rb @department-of-veterans-affairs/backend-review-group
@@ -801,6 +802,7 @@ docs/setup/mhv.md @department-of-veterans-affairs/vfs-health-modernization-initi
 docs/setup/mpi.md @department-of-veterans-affairs/octo-identity
 docs/setup/native.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/rswag_setup.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
+docs/setup/running_binstubs.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/running_docker.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/running_natively.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/codespaces.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/cto-engineers
