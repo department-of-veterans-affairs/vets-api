@@ -83,7 +83,7 @@ class Swagger::V1::Requests::Post911GIBillStatuses
     property :end_date, type: %i[string null], example: '2012-12-01T05:00:00.000+00:00'
     property :facility_code, type: %i[string null], example: '12345678'
     property :facility_name, type: %i[string null], example: 'Purdue University'
-    property :participant_id, type: %i[string null], example: 1234
+    property :participant_id, type: %i[integer null], example: 1234
     property :training_type, type: %i[string null], example: 'UNDER_GRAD'
     property :term_id, type: %i[string null], example: nil
     property :hour_type, type: %i[string null], example: nil
