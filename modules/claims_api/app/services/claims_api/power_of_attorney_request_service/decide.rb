@@ -6,7 +6,7 @@ module ClaimsApi
       class << self
         def perform(id, attrs)
           previous = PowerOfAttorneyRequest::Decision.find(id)
-          current = build_decision(attrs)
+          current = PowerOfAttorneyRequest::Decision.build(attrs)
 
           Validation.perform!(
             previous,
@@ -15,25 +15,6 @@ module ClaimsApi
 
           PowerOfAttorneyRequest::Decision.create(
             id, current
-          )
-        end
-
-        private
-
-        # Should hydrating our models from user params be integrated into the
-        # model layer like it is in `ActiveModel`?
-        def build_decision(attrs)
-          representative =
-            PowerOfAttorneyRequest::Decision::Representative.new(
-              **attrs.delete(:representative)
-            )
-
-          PowerOfAttorneyRequest::Decision.new(
-            **attrs,
-            # Assign `created_at` somewhere more obvious near the actual update
-            # event?
-            created_at: Time.current,
-            representative:
           )
         end
       end

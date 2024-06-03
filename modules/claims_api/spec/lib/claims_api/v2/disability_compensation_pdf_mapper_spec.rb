@@ -613,7 +613,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(obl_end).to eq({ month: '06', day: '04', year: '2020' })
         expect(unit_name).to eq('National Guard Unit Name')
         expect(unit_address).to eq('1243 pine court')
-        expect(unit_phone).to eq('555-555-5555')
+        expect(unit_phone).to eq('5555555555')
         expect(act_duty_pay).to eq('YES')
         expect(other_name).to eq('YES')
         expect(alt_names).to eq(['john jacob', 'johnny smith'])
@@ -630,6 +630,17 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
         actual = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:unitPhoneNumber]
         expect(actual).to eq(nil)
+      end
+
+      it 'maps service info correctly when a phone number has a dash' do
+        form_attributes['serviceInformation']['reservesNationalGuardService']['unitPhone']['areaCode'] = '303'
+        arr = form_attributes['serviceInformation']['reservesNationalGuardService']['unitPhone']['phoneNumber'].chars
+        arr.insert(3, '-')
+        form_attributes['serviceInformation']['reservesNationalGuardService']['unitPhone']['phoneNumber'] = arr.join
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:unitPhoneNumber]
+        expect(actual).to eq('3035555555')
       end
 
       it 'maps servedInReservesOrNationalGuard info correctly with a nil' do

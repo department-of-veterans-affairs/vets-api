@@ -149,6 +149,10 @@ vanotify:
         claim_submission_timeout_text: oh_fake_timeout_template_id
         claim_submission_error_text: oh_fake_error_template_id
 
+res:
+  base_url: https://fake_url.com
+  api_key: fake_auth
+
 veteran_readiness_and_employment:
   base_url: https://fake_url.com
   credentials: fake_auth
