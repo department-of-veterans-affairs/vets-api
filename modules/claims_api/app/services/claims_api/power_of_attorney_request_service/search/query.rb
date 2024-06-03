@@ -4,8 +4,9 @@ module ClaimsApi
   module PowerOfAttorneyRequestService
     module Search
       module Query
-        Page = PowerOfAttorneyRequest::Searching::Query::Page
-        Sort = PowerOfAttorneyRequest::Searching::Query::Sort
+        Filter = PowerOfAttorneyRequest::Search::Query::Filter
+        Page = PowerOfAttorneyRequest::Search::Query::Page
+        Sort = PowerOfAttorneyRequest::Search::Query::Sort
 
         # TODO: If keeping `dry-schema`, consider a good point to load these
         # extensions. The `hints` extension has to load before our `Schema`
@@ -18,17 +19,20 @@ module ClaimsApi
           # See https://dry-rb.org/gems/dry-schema
           Dry::Schema.Params do
             required(:filter).hash do
-              required(:poaCodes).filled(:array).each(:string)
-              optional(:statuses).filled(:array).each(
-                :string,
-                included_in?: PowerOfAttorneyRequest::Decision::Statuses::ALL
-              )
+              required(:poaCodes).filled(:array).each(:string, :filled?)
+              optional(:decision).hash do
+                optional(:statuses).filled(:array).each(
+                  :string, included_in?: Filter::Decision::Statuses::ALL
+                )
+              end
             end
 
             optional(:page).hash do
               optional(:number).value(:integer, gteq?: 1)
               optional(:size).value(
-                :integer, gteq?: Page::Size::MIN, lteq?: Page::Size::MAX
+                :integer,
+                gteq?: Page::Size::MIN,
+                lteq?: Page::Size::MAX
               )
             end
 
@@ -44,13 +48,10 @@ module ClaimsApi
         class << self
           def compile!(params)
             result = Schema.call(params)
-
-            if result.failure?
-              raise InvalidQueryError.new(
-                result.messages.to_h,
-                params
-              )
-            end
+            result.success? or raise(
+              ::Common::Exceptions::SchemaValidationErrors,
+              [{ errors: result.messages.to_h, params: }]
+            )
 
             result.to_h.tap do |query|
               apply_defaults(query)
@@ -60,11 +61,12 @@ module ClaimsApi
           private
 
           def apply_defaults(query)
-            query[:filter][:statuses] ||=
-              PowerOfAttorneyRequest::Decision::Statuses::ALL
+            query[:filter][:decision] ||= {}
+            query[:filter][:decision][:statuses] ||=
+              Filter::Decision::Statuses::ALL
 
-            # These only make sense as defaults together.
             query[:sort] ||= {
+              # These only make sense as defaults together.
               field: Sort::Fields::CREATED_AT,
               order: Sort::Orders::DESCENDING
             }

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/models/redis_store'
+
 module Auth
   module ClientCredentials
     class AccessTokenTracker < Common::RedisStore

@@ -14,21 +14,17 @@ module ClaimsApi
       :created_at
     )
 
-    extend Searching
-
     Veteran =
       Data.define(
         :first_name,
         :middle_name,
-        :last_name,
-        :participant_id
+        :last_name
       )
 
     Claimant =
       Data.define(
         :first_name,
         :last_name,
-        :participant_id,
         :relationship_to_veteran
       )
 
@@ -38,5 +34,15 @@ module ClaimsApi
         :military_post_office,
         :military_postal_code
       )
+
+    class << self
+      def find(id)
+        Find.perform(id)
+      end
+
+      def search(query)
+        Search.perform(query)
+      end
+    end
   end
 end

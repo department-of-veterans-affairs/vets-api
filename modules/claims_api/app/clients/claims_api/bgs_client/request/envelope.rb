@@ -53,11 +53,11 @@ module ClaimsApi
           )
 
         class << self
-          def build(namespace:, data_namespace:, headers:, action:, body:)
+          def build(namespaces:, headers:, action:, body:)
             namespaces =
               [].tap do |value|
-                value << %(xmlns:#{Aliases::TARGET}="#{namespace}")
-                value << %(xmlns:#{Aliases::DATA}="#{data_namespace}") if data_namespace.present?
+                value << %(xmlns:#{Aliases::TARGET}="#{namespaces.target}")
+                value << %(xmlns:#{Aliases::DATA}="#{namespaces.data}") if namespaces.data.present?
               end
 
             headers = headers.to_h
@@ -77,19 +77,20 @@ module ClaimsApi
         module Body
           class << self
             def build
-              builder =
-                Nokogiri::XML::Builder.new(namespace_inheritance: false) do |xml|
-                  # Need to declare an arbitrary root element with placeholder
-                  # namespace in order to leverage namespaced tag building. The
-                  # root element itself is later ignored and only used for its
-                  # contents.
-                  #   https://nokogiri.org/rdoc/Nokogiri/XML/Builder.html#method-i-5B-5D
-                  xml.root("xmlns:#{Aliases::DATA}" => 'placeholder') do
-                    yield(xml, Aliases::DATA)
-                  end
-                end
+              xml =
+                Nokogiri::XML::Builder.new(
+                  namespace_inheritance: false
+                )
 
-              builder
+              # Need to declare an arbitrary root element with placeholder
+              # namespace in order to leverage namespaced tag building. The root
+              # element itself is later ignored and only used for its contents.
+              #   https://nokogiri.org/rdoc/Nokogiri/XML/Builder.html#method-i-5B-5D
+              xml.root("xmlns:#{Aliases::DATA}" => 'placeholder') do
+                yield(xml, Aliases::DATA)
+              end
+
+              xml
                 .doc.at('root')
                 .children
                 .to_xml

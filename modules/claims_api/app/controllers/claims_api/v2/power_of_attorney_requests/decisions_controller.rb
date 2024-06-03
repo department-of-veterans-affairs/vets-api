@@ -4,34 +4,22 @@ module ClaimsApi
   module V2
     module PowerOfAttorneyRequests
       class DecisionsController < BaseController
-        def update
-          # TODO: Validation where?
-          raise "Invalid status: #{decision_params[:status]}" unless declined?
+        before_action :validate_json!, only: :create
 
-          PowerOfAttorneyRequestService::Decide.perform(
-            params[:id],
-            decision_params
-          )
+        def create
+          service = PowerOfAttorneyRequestService::Decide
+          service.perform(params[:id], deserialize(@body))
 
           head :no_content
         end
 
         private
 
-        def declined?
-          decision_params[:status] ==
-            PowerOfAttorneyRequest::
-              Decision::Statuses::
-              DECLINED
-        end
-
-        def decision_params
-          @decision_params ||=
-            params.require(:decision).permit(
-              :status,
-              :declinedReason,
-              representative: {}
-            ).to_h
+        def deserialize(body)
+          body = body.dig('data', 'attributes')
+          body.deep_transform_keys do |key|
+            key.underscore.to_sym
+          end
         end
       end
     end

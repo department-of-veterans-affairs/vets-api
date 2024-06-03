@@ -3,16 +3,6 @@
 module ClaimsApi
   module PowerOfAttorneyRequestService
     module Search
-      class InvalidQueryError < StandardError
-        attr_reader :errors, :params
-
-        def initialize(errors, params)
-          @errors = errors
-          @params = params
-          super()
-        end
-      end
-
       class << self
         def perform(params)
           # This ensures that our data is totally valid. If not, it raises. If
@@ -23,7 +13,7 @@ module ClaimsApi
 
           {
             metadata: {
-              totalCount: total_count,
+              total_count:,
               query:
             },
             data:

@@ -1275,6 +1275,7 @@ vanotify:
         form1990meb_offramp_confirmation_email: form1990meb_offramp_confirmation_email_template_id
         form1990meb_denied_confirmation_email: form1990meb_denied_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
+        form21_0966_confirmation_email: form21_0966_confirmation_email_template_id
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
         form21_10203_confirmation_email: form21_10203_confirmation_email_template_id
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
@@ -1325,6 +1326,10 @@ vanotify:
       api_key: fake_secret
       template_id:
         form526_document_upload_failure_notification_template_id: form526_document_upload_failure_notification_template_id
+    ivc_champva:
+      api_key: fake_secret
+      template_id:
+        pega_status_update_email_template_id: pega_status_update_email_template_id
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
@@ -1364,6 +1369,10 @@ vetext_push:
   base_url: https://vetext1.r01.med.va.gov
   user: vets-api-username
   pass: secret
+
+res:
+  base_url: ~
+  api_key: ~
 
 veteran_readiness_and_employment:
   base_url: ~
@@ -1651,6 +1660,10 @@ ivc_forms:
     bucket: "bucket"
     enabled: true
     region: "region"
+  sidekiq:
+    missing_form_status_job:
+      enabled: true
+
 
 coverband:
   github_organization: ~
