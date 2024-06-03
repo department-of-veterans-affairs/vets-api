@@ -22,7 +22,8 @@ module BenefitsClaims
     end
 
     def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      Rails.logger.info(icn: @icn.present?, get_claim: id.present?, client_id: lighthouse_client_id.present?, lighthouse_rsa: lighthouse_rsa_key_path.present?)
+      Rails.logger.info(icn: @icn.present?, get_claim: id.present?, client_id: lighthouse_client_id.present?,
+                        lighthouse_rsa: lighthouse_rsa_key_path.present?)
       claims = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
       claims['data'] = filter_by_status(claims['data'])
       claims
@@ -33,7 +34,8 @@ module BenefitsClaims
     end
 
     def get_claim(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      Rails.logger.info(icn: @icn.present?, get_claim: id.present?, client_id: lighthouse_client_id.present?, lighthouse_rsa: lighthouse_rsa_key_path.present?)
+      Rails.logger.info(icn: @icn.present?, get_claim: id.present?, client_id: lighthouse_client_id.present?,
+                        lighthouse_rsa: lighthouse_rsa_key_path.present?)
       config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
