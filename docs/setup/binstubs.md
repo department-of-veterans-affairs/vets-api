@@ -13,7 +13,7 @@ bin/setup
 - Replaces the existing manual setup setups by combining most of them into one command with minimal prompts (Currently only supports Mac OSX)
 - Some setup steps must be done manually such as Postgres & PostGIS for native
 - `bin/setup` for native, docker, and hybrid developer setup
-- Options include `--native`,`--docker`,`--hybrid`,`--base`
+- Setups include `native`,`docker`,`hybrid`, or `base`
 - Setup preference from setup is stored in .developer-setup
 
 _Note:_ If using the native or hybrid setup you will need to install Ruby before running `bin/setup`
@@ -47,7 +47,7 @@ bin/lint
 
 - `bin/help` - Display `vets-api` related binstub manual
 - `bin/info` - Display version related information
-- `bin/deps` - Starts clamav, postgres, and redis docker containers
+- `bin/dev`  - Starts the server (or containers)
 
 ## FAQ
 

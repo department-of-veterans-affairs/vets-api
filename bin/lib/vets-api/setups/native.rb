@@ -31,7 +31,7 @@ module VetsApi
       private
 
       def remove_other_setup_settings
-        print 'Removing other setup settings...'
+        print 'Updating settings.local.yml...'
         settings_path = 'config/settings.local.yml'
         settings_file = File.read(settings_path)
         settings = YAML.safe_load(settings_file, permitted_classes: [Symbol])
@@ -46,7 +46,15 @@ module VetsApi
       end
 
       def install_postgres
-        ShellCommand.run('brew install postgresql@15')
+        if ShellCommand.run_quiet('pg_isready') && ShellCommand.run_quiet('pg_config')
+          puts 'Skipping Postgres install (already running)'
+        elsif ShellCommand.run_quiet('pg_config')
+          puts 'ERROR:'
+          puts "\nMake sure postgres is running before continuing"
+          exit 1
+        else
+          ShellCommand.run('brew install postgresql@15')
+        end
       end
 
       def run_brewfile

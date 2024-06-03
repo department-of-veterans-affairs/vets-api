@@ -1,0 +1,56 @@
+---
+:profile:
+  :ssn: '796169727'
+  :file_number: '796169727'
+  :icn: 1012829228V424035
+:info:
+  :file_number: '796169727'
+  :dob: 2002-04-11
+  :stub_nm: EVBISHO
+  :mr_status: A
+  :rem_ent: '2746354'
+  :cert_issue_date: 2018-08-16
+  :del_date: 2025-12-04
+  :date_last_certified: 2024-05-08
+  :rpo_code: 7101
+  :fac_code: soluta
+  :payment_amt: 1044.88
+  :indicator: A
+  :bdn_clone_active: true
+:address:
+  :veteran_name: Eric Victor Bishop
+  :address1: 112 Blanda Wall
+  :city: Lake Marielfort
+  :state: RI
+  :zip_code: 76835-8555
+  :origin: backend
+:awards:
+- :cur_award_ind: P
+  :award_begin_date: 2020-09-21
+  :award_end_date: 2020-10-01
+  :training_time: 2
+  :payment_date:
+  :monthly_rate: 195.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: C
+  :award_begin_date: 2020-10-01
+  :award_end_date: 2020-12-03
+  :training_time: 2
+  :payment_date:
+  :monthly_rate: 198.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+:pending_documents:
+- :doc_type: non
+  :queue_date: 2024-05-07
+  :rpo: illo
+- :doc_type: nihil
+  :queue_date: 2024-05-16
+  :rpo: beatae

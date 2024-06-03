@@ -15,6 +15,7 @@ Gemfile.lock @department-of-veterans-affairs/backend-review-group
 Jenkinsfile @department-of-veterans-affairs/backend-review-group
 Makefile @department-of-veterans-affairs/backend-review-group
 Procfile @department-of-veterans-affairs/backend-review-group
+Procfile.dev @department-of-veterans-affairs/backend-review-group
 .devcontainer @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/cto-engineers
 import-va-certs.sh @department-of-veterans-affairs/backend-review-group
 app/controllers/appeals_base_controller.rb @department-of-veterans-affairs/backend-review-group
@@ -802,6 +803,7 @@ docs/setup/mhv.md @department-of-veterans-affairs/vfs-health-modernization-initi
 docs/setup/mpi.md @department-of-veterans-affairs/octo-identity
 docs/setup/native.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/rswag_setup.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
+docs/setup/running_binstubs.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/running_docker.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/running_natively.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/codespaces.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/cto-engineers
@@ -1001,7 +1003,7 @@ modules/va_notify @department-of-veterans-affairs/va-notify-write @department-of
 modules/vaos @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/vaos/app/services/vaos/v2 @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/vba_documents @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-modules/veteran @department-of-veterans-affairs/lighthouse-pivot @department-of-veterans-affairs/accredited-representation-management
+modules/veteran @department-of-veterans-affairs/lighthouse-dash @department-of-veterans-affairs/lighthouse-pivot @department-of-veterans-affairs/accredited-representation-management
 public @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/veteran_confirmation @department-of-veterans-affairs/lighthouse-ninjapigs @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/travel_pay @department-of-veterans-affairs/travel-pay-integration @department-of-veterans-affairs/backend-review-group
