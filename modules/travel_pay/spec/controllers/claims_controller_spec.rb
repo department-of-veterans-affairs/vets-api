@@ -16,7 +16,7 @@ RSpec.describe TravelPay::ClaimsController, type: :request do
           6ea23179-e87c-44ae-a20a-f31fb2c132fb
           6ea23179-e87c-44ae-a20a-f31fb2c021fb
           6ea23179-e87c-44ae-a20a-f31fb2c782fb
-      ]
+        ]
       end
 
       it 'responds with 200' do
