@@ -14,6 +14,15 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
   }
 
   mock_facility = {
+    'test': 'test',
+    'id': '668',
+    'name': 'COL OR 1',
+    'timezone': {
+      'time_zone_id': 'America/New_York'
+    }
+  }
+
+  expected_facility = {
     'test' => 'test',
     'id' => '668',
     'name' => 'COL OR 1',
@@ -368,7 +377,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
               expect(data[0]['attributes']['serviceName']).to eq('service_name')
               expect(data[0]['attributes']['physicalLocation']).to eq('physical_location')
               expect(data[0]['attributes']['friendlyName']).to eq('service_name')
-              expect(data[0]['attributes']['location']).to eq(mock_facility)
+              expect(data[0]['attributes']['location']).to eq(expected_facility)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
           end
@@ -423,7 +432,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
 
               expect(data.size).to eq(16)
               expect(data[0]['attributes']['serviceName']).to eq('service_name')
-              expect(data[0]['attributes']['location']).to eq(mock_facility)
+              expect(data[0]['attributes']['location']).to eq(expected_facility)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
           end
@@ -738,22 +747,17 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
         end
 
         it 'returns a status code of 200 and the cancelled appointment with the updated status' do
-          # stub_facilities
-          # stub_clinics
+          stub_facilities
           VCR.use_cassette('vaos/v2/appointments/cancel_appointments_200', match_requests_on: %i[method path query]) do
-            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
-                             match_requests_on: %i[method path query], allow_playback_repeats: true) do
-              put '/vaos/v2/appointments/70060', params: { status: 'cancelled' }, headers: inflection_header
-              expect(response).to have_http_status(:success)
-              json_body = json_body_for(response)
-              expect(json_body).to match_camelized_schema('vaos/v2/appointment', { strict: false })
-              expect(json_body.dig('attributes', 'status')).to eq('cancelled')
+            put '/vaos/v2/appointments/70060', params: { status: 'cancelled' }, headers: inflection_header
+            expect(response).to have_http_status(:success)
+            json_body = json_body_for(response)
+            expect(json_body).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+            expect(json_body.dig('attributes', 'status')).to eq('cancelled')
 
-
-              expect(json_body.dig('attributes', 'location', 'timezone', 'timeZoneId')).to eq('America/New_York')
-              expect(json_body.dig('attributes', 'requestedPeriods', 0, 'localStartTime'))
-                .to eq('2021-12-19T17:00:00.000-07:00')
-            end
+            expect(json_body.dig('attributes', 'location', 'timezone', 'timeZoneId')).to eq('America/New_York')
+            expect(json_body.dig('attributes', 'requestedPeriods', 0, 'localStartTime'))
+              .to eq('2021-12-19T19:00:00.000-05:00')
           end
         end
 
