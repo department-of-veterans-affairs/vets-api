@@ -3,7 +3,6 @@
 module ClaimsApi
   class PowerOfAttorneyRequest
     class Decision
-      # TODO: Separate error handling from POA request find?
       module Find
         class << self
           def perform(id)

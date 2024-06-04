@@ -1,0 +1,53 @@
+---
+:profile:
+  :ssn: '796263749'
+  :file_number: '796263749'
+  :icn: 1012853277V552077
+:info:
+  :file_number: '796263749'
+  :dob: 1989-07-11
+  :stub_nm: CEBARRE
+  :mr_status: A
+  :rem_ent: '2857144'
+  :cert_issue_date: 2019-02-19
+  :del_date: 2025-09-12
+  :date_last_certified: 2024-04-30
+  :rpo_code: 7550
+  :fac_code: veniam
+  :payment_amt: 6362.97
+  :indicator: A
+  :bdn_clone_active: true
+:address:
+  :veteran_name: Chad E Barrett
+  :address1: 2345 Mann Turnpike
+  :city: Port Roxann
+  :state: NV
+  :zip_code: 78331-3189
+  :origin: backend
+:awards:
+- :cur_award_ind: P
+  :award_begin_date: 2020-09-21
+  :award_end_date: 2020-10-01
+  :training_time: 2
+  :payment_date:
+  :monthly_rate: 195.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: C
+  :award_begin_date: 2020-10-01
+  :award_end_date: 2020-12-03
+  :training_time: 2
+  :payment_date:
+  :monthly_rate: 198.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+:pending_documents:
+- :doc_type: nisi
+  :queue_date: 2024-05-10
+  :rpo: nesciunt
