@@ -37,12 +37,12 @@ module VBADocuments
     EMMS_SYSTEMIO_ERROR_REPORT =
       'Benefits Intake Submissions are in error status with an EMMS System.IO error.' \
       ' Typically, these self resolve without our intervention and susbequent calls for the status of ' \
-      'these submission return a non-error status, but these appear stuck.  Notify EPPS API team for help'
+      'these submission return a non-error status, but these appear stuck.  Notify EMMS API team for help'
 
     EMMS_DUP_CONFIRM_NUMBER_ERROR =
       'Benefits Intake Submissions are in error status with an EMMS ConfirmationNumber has already been ' \
       'submitted error. Typically, these self resolve without our intervention and susbequent calls for the ' \
-      'status of these submission return a non-error status, but these appear stuck.  Notify EPPS API team for help'
+      'status of these submission return a non-error status, but these appear stuck.  Notify EMMS API team for help'
 
     # Consumer's who could have their Submission'ss upload to EMMS\CM delayed
     DELAYED_EVIDENCE_CONSUMERS = %w[appeals_api_nod_evidence_submission appeals_api_sc_evidence_submission].freeze
