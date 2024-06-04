@@ -15,6 +15,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     Flipper.disable(:disability_526_classifier_new_claims)
     Flipper.disable(:disability_compensation_lighthouse_submit_migration)
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
+    Flipper.disable(:disability_526_classifier_multi_contention)
     Flipper.disable(:disability_526_toxic_exposure)
   end
 
@@ -256,6 +257,60 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             end
           end
         end
+      end
+    end
+
+    context 'with multi-contention classification disabled' do
+      let(:submission) do
+        create(:form526_submission,
+               :with_multiple_mas_diagnostic_code,
+               user_uuid: user.uuid,
+               auth_headers_json: auth_headers.to_json,
+               saved_claim_id: saved_claim.id)
+      end
+
+      it 'does not call va-gov-claim-classifier' do
+        subject.perform_async(submission.id)
+        expect_any_instance_of(Form526Submission).not_to receive(:classify_vagov_contentions)
+        described_class.drain
+      end
+    end
+
+    context 'with multi-contention classification enabled' do
+      let(:submission) do
+        create(:form526_submission,
+               :with_mixed_action_disabilities_and_free_text,
+               user_uuid: user.uuid,
+               auth_headers_json: auth_headers.to_json,
+               saved_claim_id: saved_claim.id)
+      end
+
+      before do
+        Flipper.enable(:disability_526_classifier_multi_contention)
+      end
+
+      after do
+        Flipper.disable(:disability_526_classifier_multi_contention)
+      end
+
+      it 'does something when multi-contention api endpoint is hit' do
+        subject.perform_async(submission.id)
+
+        expect do
+          VCR.use_cassette('virtual_regional_office/multi_contention_classification') do
+            described_class.drain
+          end
+        end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+        submission.reload
+
+        classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
+        expect(classification_codes).to eq([9012, 8994, nil])
+      end
+
+      it 'calls va-gov-claim-classifier' do
+        subject.perform_async(submission.id)
+        expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions)
+        described_class.drain
       end
     end
 
