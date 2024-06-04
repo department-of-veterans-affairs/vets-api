@@ -154,8 +154,7 @@ module SimpleFormsApi
 
     def get_relationship_to_vet(key)
       RELATIONSHIP_TO_VETS[key]
-    end  
-
+    end
 
     # rubocop:disable Metrics/MethodLength
     def create_attachment_page(file_path)
