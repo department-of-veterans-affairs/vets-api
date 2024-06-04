@@ -37,7 +37,7 @@ module VAOS
         appointment
 
         unless appointment[:clinic].nil? || appointment[:location_id].nil?
-          clinic = appointments_service.get_clinic_memoized(appointment[:location_id], appointment[:clinic])
+          clinic = mobile_facility_service.get_clinic_memoized(appointment[:location_id], appointment[:clinic])
           appointment[:service_name] = clinic&.[](:service_name)
           appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
           appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
@@ -45,7 +45,7 @@ module VAOS
 
         unless appointment[:location_id].nil?
           appointment[:location] =
-            appointments_service.get_facility_memoized(appointment[:location_id])
+            mobile_facility_service.get_facility_memoized(appointment[:location_id])
         end
 
         scrape_appt_comments_and_log_details(appointment, APPT_SHOW, PAP_COMPLIANCE_TELE)
@@ -59,14 +59,14 @@ module VAOS
         new_appointment
 
         unless new_appointment[:clinic].nil? || new_appointment[:location_id].nil?
-          clinic = appointments_service.get_clinic_memoized(new_appointment[:location_id], new_appointment[:clinic])
+          clinic = mobile_facility_service.get_clinic_memoized(new_appointment[:location_id], new_appointment[:clinic])
           new_appointment[:service_name] = clinic&.[](:service_name)
           new_appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
           new_appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
         unless new_appointment[:location_id].nil?
-          new_appointment[:location] = appointments_service.get_facility_memoized(new_appointment[:location_id])
+          new_appointment[:location] = mobile_facility_service.get_facility_memoized(new_appointment[:location_id])
         end
 
         scrape_appt_comments_and_log_details(new_appointment, APPT_CREATE, PAP_COMPLIANCE_TELE)
@@ -79,14 +79,14 @@ module VAOS
       def update
         updated_appointment
         unless updated_appointment[:clinic].nil? || updated_appointment[:location_id].nil?
-          clinic = appointments_service.get_clinic_memoized(updated_appointment[:location_id], updated_appointment[:clinic])
+          clinic = mobile_facility_service.get_clinic_memoized(updated_appointment[:location_id], updated_appointment[:clinic])
           updated_appointment[:service_name] = clinic&.[](:service_name)
           updated_appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
           updated_appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
         unless updated_appointment[:location_id].nil?
-          updated_appointment[:location] = appointments_service.get_facility_memoized(updated_appointment[:location_id])
+          updated_appointment[:location] = mobile_facility_service.get_facility_memoized(updated_appointment[:location_id])
         end
 
         serializer = VAOS::V2::VAOSSerializer.new

@@ -136,12 +136,20 @@ module VAOS
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
       def get_facility_timezone(facility_location_id)
-        facility_info = get_facility(facility_location_id) unless facility_location_id.nil?
+        facility_info = mobile_facility_service.get_facility_without_default_message(facility_location_id) unless facility_location_id.nil?
         return nil if facility_info.nil?
 
         facility_info[:timezone]&.[](:time_zone_id)
       end
-      memoize :get_facility_timezone
+
+      # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
+      def get_facility_timezone_memoized(facility_location_id)
+        facility_info = mobile_facility_service.get_facility_without_default_message(facility_location_id) unless facility_location_id.nil?
+        return nil if facility_info.nil?
+
+        facility_info[:timezone]&.[](:time_zone_id)
+      end
+      memoize :get_facility_timezone_memoized
 
       private
 
@@ -197,70 +205,10 @@ module VAOS
           unless appt[:location_id].nil?
             appt[:location] = mobile_facility_service.get_facility_memoized(appt[:location_id])
           end
-          if cerner?(appt) && contains_substring(extract_all_values(appt[:location]), 'COL OR 1')
+          if cerner?(appt) && VAOS::AppointmentsHelper.contains_substring(VAOS::AppointmentsHelper.extract_all_values(appt[:location]), 'COL OR 1')
             log_appt_id_location_name(appt)
           end
         end
-      end
-
-      # This method extracts all values from a given object, which can be either an `OpenStruct`, `Hash`, or `Array`.
-      # It recursively traverses the object and collects all values into an array.
-      # In case of an `Array`, it looks inside each element of the array for values.
-      # If the object is neither an OpenStruct, Hash, nor an Array, it returns the unmodified object in an array.
-      #
-      # @param object [OpenStruct, Hash, Array] The object from which to extract values.
-      # This could either be an OpenStruct, Hash or Array.
-      #
-      # @return [Array] An array of all values found in the object.
-      # If the object is not an OpenStruct, Hash, nor an Array, then the unmodified object is returned.
-      #
-      # @example
-      #   extract_all_values({a: 1, b: 2, c: {d: 3, e: 4}})  # => [1, 2, 3, 4]
-      #   extract_all_values(OpenStruct.new(a: 1, b: 2, c: OpenStruct.new(d: 3, e: 4))) # => [1, 2, 3, 4]
-      #   extract_all_values([{a: 1}, {b: 2}]) # => [1, 2]
-      #   extract_all_values({a: 1, b: [{c: 2}, {d: "hello"}]}) # => [1, 2, "hello"]
-      #   extract_all_values("not a hash, openstruct, or array")  # => ["not a hash, openstruct, or array"]
-      #
-      def extract_all_values(object)
-        return [object] unless object.is_a?(OpenStruct) || object.is_a?(Hash) || object.is_a?(Array)
-
-        values = []
-        object = object.to_h if object.is_a?(OpenStruct)
-
-        if object.is_a?(Array)
-          object.each do |o|
-            values += extract_all_values(o)
-          end
-        else
-          object.each_pair do |_, value|
-            case value
-            when OpenStruct, Hash, Array then values += extract_all_values(value)
-            else values << value
-            end
-          end
-        end
-
-        values
-      end
-
-      # This method checks if any string element in the given array contains the specified substring.
-      #
-      # @param arr [Array] The array to be searched.
-      # @param substring [String] The substring to look for.
-      #
-      # @return [Boolean] Returns true if any string element in the array contains the substring, false otherwise.
-      # If the input parameters are not of the correct type the method will return false.
-      #
-      # @example
-      #   contains_substring(['Hello', 'World'], 'ell')  # => true
-      #   contains_substring(['Hello', 'World'], 'xyz')  # => false
-      #   contains_substring('Hello', 'ell')  # => false
-      #   contains_substring(['Hello', 'World'], 123)  # => false
-      #
-      def contains_substring(arr, substring)
-        return false unless arr.is_a?(Array) && substring.is_a?(String)
-
-        arr.any? { |element| element.is_a?(String) && element.include?(substring) }
       end
 
       def appt_cerner_location_data(appt_id, facility_location_id, facility_name)
@@ -536,7 +484,7 @@ module VAOS
       # with the appointment time to the convert_utc_to_local_time method which does the actual conversion.
       def convert_appointment_time(appt)
         if !appt[:start].nil?
-          facility_timezone = get_facility_timezone(appt[:location_id])
+          facility_timezone = get_facility_timezone_memoized(appt[:location_id])
           appt[:local_start_time] = convert_utc_to_local_time(appt[:start], facility_timezone)
 
           if appt[:location_id] == MANILA_PHILIPPINES_FACILITY_ID
@@ -545,7 +493,7 @@ module VAOS
 
         elsif !appt.dig(:requested_periods, 0, :start).nil?
           appt[:requested_periods].each do |period|
-            facility_timezone = get_facility_timezone(appt[:location_id])
+            facility_timezone = get_facility_timezone_memoized(appt[:location_id])
             period[:local_start_time] = convert_utc_to_local_time(period[:start], facility_timezone)
 
             if appt[:location_id] == MANILA_PHILIPPINES_FACILITY_ID

@@ -8,6 +8,8 @@ module VAOS
     class MobileFacilityService < VAOS::SessionService
       extend Memoist
 
+      FACILITY_ERROR_MSG = 'Error fetching facility details'
+
       # Retrieves information about a VA clinic from the VAOS Service.
       #
       # @param station_id [String] the ID of the VA facility where the clinic is located
@@ -129,9 +131,14 @@ module VAOS
           "VAOS Error fetching facility details for location_id #{location_id}",
           location_id:
         )
-        nil
+        FACILITY_ERROR_MSG
       end
       memoize :get_facility_memoized
+
+      def get_facility_without_default_message(location_id)
+        response = get_facility_memoized(location_id)
+        response == FACILITY_ERROR_MSG ? nil : response
+      end
 
       def get_clinic_memoized(location_id, clinic_id)
         get_clinic_with_cache(station_id: location_id, clinic_id:)
