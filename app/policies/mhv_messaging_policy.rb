@@ -38,6 +38,6 @@ MHVMessagingPolicy = Struct.new(:user, :mhv_messaging) do
                       sign_in_service: user.identity.sign_in[:service_name],
                       va_facilities: user.va_treatment_facility_ids.length,
                       va_patient: user.va_patient?,
-                      client: client)
+                      client:)
   end
 end
