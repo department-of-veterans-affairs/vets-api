@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+puts <<~HELP
+  Binstubs
+    help      Show available binstubs
+    info      Display version related information
+    setup     Create the developer environment
+    test      Run test(s) in spec folder(s)
+    lint      Run rubocop, brakeman, and bundle-audit
+    deps      Start dependency containers (clamav, postgres, & redis)
+  Examples:
+    bin/setup --docker
+    bin/test --ci
+    bin/lint --dry --only-rubocop
+  Docs:
+    https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/binstubs.md
+HELP

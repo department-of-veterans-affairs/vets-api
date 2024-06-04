@@ -14,12 +14,16 @@ module BenefitsClaims
 
     def initialize(icn)
       @icn = icn
-      raise ArgumentError, 'no ICN passed in for LH API request.' if icn.blank?
-
-      super()
+      if icn.blank?
+        raise ArgumentError, 'no ICN passed in for LH API request.'
+      else
+        super()
+      end
     end
 
     def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+      Rails.logger.info("Get claims - icn: #{@icn.present?}, client_id: #{lighthouse_client_id.present?},
+                        lighthouse_rsa: #{lighthouse_rsa_key_path.present?}")
       claims = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
       claims['data'] = filter_by_status(claims['data'])
       claims
@@ -30,6 +34,9 @@ module BenefitsClaims
     end
 
     def get_claim(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+      Rails.logger.info("Get claim - icn: #{@icn.present?}, get_claim: #{id.present?},
+                        client_id: #{lighthouse_client_id.present?},
+                        lighthouse_rsa: #{lighthouse_rsa_key_path.present?}")
       config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
@@ -122,6 +129,42 @@ module BenefitsClaims
       handle_error(e, lighthouse_client_id, endpoint)
     end
 
+    # submit form526 to Lighthouse API endpoint:
+    # /services/claims/v2/veterans/{veteranId}/526/validate
+    # @param [hash || Requests::Form526] body: a hash representing the form526
+    # attributes in the Lighthouse request schema
+    # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
+    # @param [string] lighthouse_rsa_key_path: absolute path to the rsa key file
+    # @param [hash] options: options to override aud_claim_url, params, and auth_params
+    # @option options [hash] :body_only only return the body from the request
+    #
+    # NOTE: this method is similar to submit526.  The
+    # only difference is the path and endpoint values
+    #
+    def validate526(body,
+                    lighthouse_client_id = nil,
+                    lighthouse_rsa_key_path = nil,
+                    options = {})
+
+      endpoint  = '{icn}/526/validate'
+      path      = "#{@icn}/526/validate"
+      body      = prepare_submission_body(body)
+
+      response = config.post(
+        path,
+        body,
+        lighthouse_client_id,
+        lighthouse_rsa_key_path,
+        options
+      )
+
+      submit_response(response, options[:body_only])
+    rescue  Faraday::ClientError,
+            Faraday::ServerError => e
+      handle_error(e, lighthouse_client_id, endpoint)
+    end
+
+    ######################################
     private
 
     def build_request_body(body)
@@ -145,7 +188,7 @@ module BenefitsClaims
 
       # LH PDF generator service crashes with having an empty array for confinements
       # removes confinements from the request body if confinements attribute empty or nil
-      remove_empty_array(body, 'serviceInformation', 'confinements')
+      # remove_empty_array(body, 'serviceInformation', 'confinements')
 
       # Lighthouse expects at least 1 element in the multipleExposures array if it is not null
       # this removes the multipleExposures array if it is empty

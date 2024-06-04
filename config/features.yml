@@ -169,6 +169,10 @@ features:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
     enable_in_development: true
+  cst_5103_update_enabled:
+    actor_type: user
+    description: When enabled, claims status tool will use the new 5103 alert designs and hides the ask your claim decision section
+    enable_in_development: true
   cst_claim_phases:
     actor_type: user
     description: When enabled, claims status tool uses the new claim phase designs
@@ -524,6 +528,10 @@ features:
   form1990e_confirmation_email:
     actor_type: user
     description: Enables form 1990e email submission confirmation (VaNotify)
+    enable_in_development: true
+  form21_0966_confirmation_email:
+    actor_type: user
+    description: Enables form 21-0966 email submission confirmation (VaNotify)
     enable_in_development: true
   form21_0972_confirmation_email:
     actor_type: user
@@ -1004,7 +1012,7 @@ features:
   show_dgi_direct_deposit_1990EZ:
     actor_type: user
     description: Displays prefill enabled direct deposit component on 1990EZ form.
-    enable_in_development: true
+    enable_in_development: false
   show_meb_1990EZ_maintenance_alert:
     actor_type: user
     description: Displays an alert to users on 1990EZ intro page that the Backend Service is Down.
@@ -1230,6 +1238,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for redesigning the appointment details page.
+  va_online_scheduling_recent_locations_filter:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for displaying the most recent facilities on the Choose your VA location page.
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
@@ -1417,9 +1429,9 @@ features:
   virtual_agent_enable_pva2_chatbot:
     actor_type: user
     description: If enabled, switches VA chatbot from PVA1 to PVA2
-  virtual_agent_upgrade_webchat_14_15_8:
+  virtual_agent_component_testing:
     actor_type: user
-    description: If enabled, switches VA webchat from using version 4.15.2 to 4.15.8
+    description: If enabled, allows for testing of the chatbot components
   terms_of_use:
     actor_type: user
     description: This determines whether a user is redirected to the Terms of Use page
@@ -1484,3 +1496,13 @@ features:
   toggle_vye_adress_direct_deposit_forms:
     actor_type: user
     description: Enable mailing address and direct deposit for VYE
+  veteran_readiness_employment_to_res:
+    actor_type: user
+    description: Enable RES platform for Veteran Readiness & Employment form submissions, disabled will use VRE email
+    enable_in_development: true
+  vye_login_widget:
+     actor_type: user
+     description: Enable Vye authentication widget
+  toggle_vye_adress_direct_deposit_forms_in_profile: 
+     actor_type: user
+     description: Enable mailing address and direct deposit for VYE in profile page

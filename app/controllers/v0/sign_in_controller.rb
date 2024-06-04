@@ -248,7 +248,7 @@ module V0
 
     def token_params
       params.permit(:grant_type, :code, :code_verifier, :client_assertion, :client_assertion_type,
-                    :assertion, :subject_token, :actor_token, :actor_token_type, :client_id)
+                    :assertion, :subject_token, :subject_token_type, :actor_token, :actor_token_type, :client_id)
     end
 
     def handle_pre_login_error(error, client_id)
