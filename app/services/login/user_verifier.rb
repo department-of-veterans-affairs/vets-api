@@ -142,7 +142,7 @@ module Login
     def locked
       return false unless existing_user_account
 
-      @locked ||= existing_user_account.user_verifications.send(login_type)&.where(locked: true).present?
+      @locked ||= existing_user_account.user_verifications.send(login_type).where(locked: true).present?
     end
 
     def existing_user_account
