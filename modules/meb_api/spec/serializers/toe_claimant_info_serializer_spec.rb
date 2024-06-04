@@ -83,7 +83,6 @@ describe ToeClaimantInfoSerializer do
   end
 
   it 'includes :claimant' do
-    binding.pry
     expect(rendered_attributes[:claimant]).to eq expected_response[:data][:attributes][:claimant]
   end
 
