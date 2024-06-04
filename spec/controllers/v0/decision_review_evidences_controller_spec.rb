@@ -91,7 +91,7 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
         }
       end
 
-      context 'and the feature switch is disabled' do
+      context 'and the save encrypted feature switch is disabled' do
         before { Flipper.disable :decision_review_save_encrypted_attachments }
 
         it 'creates a FormAttachment, logs formatted error, and increments statsd' do
@@ -126,7 +126,7 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
         end
       end
 
-      context 'and the feature switch is enabled' do
+      context 'and the save encrypted feature switch is enabled' do
         before { Flipper.enable :decision_review_save_encrypted_attachments }
 
         it 'creates a FormAttachment, logs formatted status, and stores the encrypted file' do
@@ -141,6 +141,70 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
           expect(Rails.logger).to receive(:info).with(encrypted_log_params_success)
           expect(StatsD).to receive(:increment).with('decision_review.form_10182.evidence_upload_to_s3.success')
 
+          form_attachment = build(attachment_factory_id, guid: form_attachment_guid)
+
+          expect(form_attachment_model).to receive(:new) do
+            expect(form_attachment).to receive(:set_file_data!)
+
+            expect(form_attachment).to receive(:save!) do
+              form_attachment.id = 99
+              form_attachment
+            end
+
+            form_attachment
+          end
+          expect(subject).to receive(:render).with(json: form_attachment).and_call_original # rubocop:disable RSpec/SubjectStub
+
+          post(:create, params:)
+
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)).to eq(expected_response_body)
+        end
+      end
+
+      context 'and the use hexapdf feature switch is disabled' do
+        before { Flipper.disable :decision_review_use_hexapdf_for_encrypted_attachments }
+
+        it 'creates a FormAttachment, logs formatted error, and increments statsd' do
+          request.headers['Source-App-Name'] = '10182-board-appeal'
+          params = { param_namespace => { file_data: pdf_file, password: 'test_password' } }
+
+          expect(Common::PdfHelpers).not_to receive(:unlock_pdf)
+          allow(Rails.logger).to receive(:info)
+          expect(Rails.logger).to receive(:info).with(encrypted_log_params_success)
+          expect(StatsD).to receive(:increment).with('decision_review.form_10182.evidence_upload_to_s3.success')
+          form_attachment = build(attachment_factory_id, guid: form_attachment_guid)
+
+          expect(form_attachment_model).to receive(:new) do
+            expect(form_attachment).to receive(:set_file_data!)
+
+            expect(form_attachment).to receive(:save!) do
+              form_attachment.id = 99
+              form_attachment
+            end
+
+            form_attachment
+          end
+          expect(subject).to receive(:render).with(json: form_attachment).and_call_original # rubocop:disable RSpec/SubjectStub
+
+          post(:create, params:)
+
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)).to eq(expected_response_body)
+        end
+      end
+
+      context 'and the use hexapdf feature switch is enabled' do
+        before { Flipper.enable :decision_review_use_hexapdf_for_encrypted_attachments }
+
+        it 'creates a FormAttachment, logs formatted error, and increments statsd' do
+          request.headers['Source-App-Name'] = '10182-board-appeal'
+          params = { param_namespace => { file_data: pdf_file, password: 'test_password' } }
+
+          expect(Common::PdfHelpers).to receive(:unlock_pdf)
+          allow(Rails.logger).to receive(:info)
+          expect(Rails.logger).to receive(:info).with(encrypted_log_params_success)
+          expect(StatsD).to receive(:increment).with('decision_review.form_10182.evidence_upload_to_s3.success')
           form_attachment = build(attachment_factory_id, guid: form_attachment_guid)
 
           expect(form_attachment_model).to receive(:new) do

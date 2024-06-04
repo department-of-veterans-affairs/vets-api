@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'decision_review_v1/utilities/logging_utils'
+require 'common/pdf_helpers'
 
 # Notice of Disagreement evidence submissions
 module V0
@@ -31,11 +32,29 @@ module V0
           encrypted: password.present?
         }
       }
-      super
+
+      # Unlock pdf with hexapdf instead of using pdftk
+      if password.present? && Flipper.enabled?(:decision_review_use_hexapdf_for_encrypted_attachments)
+        unlocked_pdf = unlock_pdf(filtered_params[:file_data], password)
+        form_attachment.set_file_data!(unlocked_pdf)
+      else
+        super
+      end
+
       log_formatted(**common_log_params.merge(is_success: true))
     rescue => e
       log_formatted(**common_log_params.merge(is_success: false, response_error: e))
       raise e
+    end
+
+    def unlock_pdf(file, password)
+      tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
+      ::Common::PdfHelpers.unlock_pdf(file.tempfile.path, password, tmpf)
+      tmpf.rewind
+
+      file.tempfile.unlink
+      file.tempfile = tmpf
+      file
     end
 
     # Save encrypted attachment data to DB and S3 for manual validation process
