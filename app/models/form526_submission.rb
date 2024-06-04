@@ -484,19 +484,19 @@ class Form526Submission < ApplicationRecord
     body = transform_service.transform(form['form526'])
 
     begin
-      @lighthoust_validation_response = lighthouse_service.validate526(body)
+      @lighthouse_validation_response = lighthouse_service.validate526(body)
     rescue => e
       fake_lighthouse_response(code: '609', error: e)
       return false
     end
 
-    if lighthoust_validation_response&.code == '200'
+    if lighthouse_validation_response&.code == '200'
       return true
-    elsif lighthoust_validation_response&.code == '422'
+    elsif lighthouse_validation_response&.code == '422'
       return false
     end
 
-    fake_lighthouse_response(code: lighthoust_validation_response&.code)
+    fake_lighthouse_response(code: lighthouse_validation_response&.code)
     false
   end
 
