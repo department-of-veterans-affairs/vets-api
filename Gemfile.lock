@@ -6,7 +6,7 @@ GIT
     connect_vbms (2.0.0.rc)
       httpclient (~> 2.8.0)
       httpi (~> 2.4)
-      mail314
+      mail
       nokogiri (>= 1.8.4)
       nori
       xmldsig (~> 0.3.1)
@@ -590,7 +590,6 @@ GEM
     json-schema (4.3.0)
       addressable (>= 2.8)
     json_schemer (2.3.0)
-      base64
       bigdecimal
       hana (~> 1.3)
       regexp_parser (~> 2.0)
