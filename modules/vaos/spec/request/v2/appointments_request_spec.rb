@@ -607,8 +607,6 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
             end
           end
         end
-
-
       end
     end
 
