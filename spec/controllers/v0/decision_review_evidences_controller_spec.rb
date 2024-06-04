@@ -197,7 +197,7 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
       context 'and the use hexapdf feature switch is enabled' do
         before { Flipper.enable :decision_review_use_hexapdf_for_encrypted_attachments }
 
-        it 'creates a FormAttachment, logs formatted error, and increments statsd' do
+        it 'creates a FormAttachment, logs formatted success message, and increments statsd' do
           request.headers['Source-App-Name'] = '10182-board-appeal'
           params = { param_namespace => { file_data: pdf_file, password: 'test_password' } }
 
