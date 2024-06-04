@@ -146,7 +146,7 @@ module SimpleFormsApi
     end
 
     RELATIONSHIP_TO_VETS = {
-      '1' => 'Applicant is service memebr or veteran',
+      '1' => 'Applicant is service member or veteran',
       '2' => 'Spouse or surviving spouse',
       '3' => 'Unmarried adult child',
       '4' => 'other'
