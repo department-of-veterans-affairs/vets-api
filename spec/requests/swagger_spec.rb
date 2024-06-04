@@ -25,7 +25,7 @@ RSpec.describe 'API doc validations', type: :request do
   end
 end
 
-RSpec.describe 'the API documentation', type: %i[apivore request], order: :defined do
+RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :defined do
   include AuthenticatedSessionHelper
 
   subject { Apivore::SwaggerChecker.instance_for('/v0/apidocs.json') }
@@ -1800,27 +1800,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         allow(Settings.evss).to receive(:mock_letters).and_return(false)
       end
 
-      it 'supports getting EVSS Gi Bill Status' do
-        Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 12:15:06'))
-        expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 401)
-        VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
-          # TODO: this cassette was hacked to return all 3 entitlements since
-          # I cannot make swagger doc allow an attr to be :object or :null
-          expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 200, headers)
-        end
-        VCR.use_cassette('evss/gi_bill_status/vet_not_found') do
-          expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 404, headers)
-        end
-        Timecop.return
-      end
-
-      it 'supports Gi Bill Status 503 condition' do
-        # Timecop.freeze(Time.zone.parse('1st Feb 2018 00:15:06'))
-        Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 00:15:06'))
-        expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 503, headers)
-        Timecop.return
-      end
-
       it 'supports getting EVSS Letters' do
         expect(subject).to validate(:get, '/v0/letters', 401)
         VCR.use_cassette('evss/letters/letters') do
@@ -2548,9 +2527,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       context 'ch33 bank accounts methods' do
-        let(:mhv_user) { FactoryBot.build(:ch33_dd_user) }
+        before do
+          allow_any_instance_of(User).to receive(:common_name).and_return('abraham.lincoln@vets.gov')
 
-        before { allow_any_instance_of(User).to receive(:common_name).and_return('abraham.lincoln@vets.gov') }
+          allow(Flipper).to receive(:enabled?).with(
+            :profile_show_direct_deposit_single_form_edu_downtime,
+            instance_of(User)
+          ).and_return(false)
+        end
+
+        let(:mhv_user) { FactoryBot.build(:ch33_dd_user) }
 
         it 'supports the update ch33 bank account api 400 response' do
           res = {
@@ -3429,7 +3415,38 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       subject.untested_mappings.delete('/v0/sign_in/callback')
       subject.untested_mappings.delete('/v0/sign_in/logout')
 
+      subject.untested_mappings.delete('/v0/post911_gi_bill_status')
+
       expect(subject).to validate_all_paths
+    end
+  end
+end
+
+RSpec.describe 'the v1 API documentation', type: %i[apivore request], order: :defined do
+  include AuthenticatedSessionHelper
+
+  subject { Apivore::SwaggerChecker.instance_for('/v1/apidocs.json') }
+
+  let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob', icn: '1012667145V762142') }
+
+  context 'has valid paths' do
+    let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
+
+    context 'GI Bill Status' do
+      it 'supports getting Gi Bill Status' do
+        Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 12:15:06'))
+        expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 401)
+        VCR.use_cassette('lighthouse/benefits_education/200_response') do
+          expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 200, headers)
+        end
+        Timecop.return
+      end
+
+      it 'supports Gi Bill Status 503 condition' do
+        Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 00:15:06'))
+        expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 503, headers)
+        Timecop.return
+      end
     end
   end
 end

@@ -85,7 +85,13 @@ RSpec.describe BenefitsClaims::Service do
                                    'confinements' => []
                                  },
                                  'toxicExposure' => {
-                                   'multipleExposures' => []
+                                   'multipleExposures' => [],
+                                   'herbicideHazardService' => {
+                                     'serviceDates' => {
+                                       'beginDate' => '1991-03-01',
+                                       'endDate' => '1992-01-01'
+                                     }
+                                   }
                                  }
                                })
 
@@ -93,8 +99,17 @@ RSpec.describe BenefitsClaims::Service do
                                'data' => {
                                  'type' => 'form/526',
                                  'attributes' => {
-                                   'serviceInformation' => {},
-                                   'toxicExposure' => {}
+                                   'serviceInformation' => {
+                                     'confinements' => []
+                                   },
+                                   'toxicExposure' => {
+                                     'herbicideHazardService' => {
+                                       'serviceDates' => {
+                                         'beginDate' => '1991-03-01',
+                                         'endDate' => '1992-01-01'
+                                       }
+                                     }
+                                   }
                                  }
                                }
                              })

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
 require 'sentry_logging'
 require 'sidekiq/form526_backup_submission_process/submit'
 require 'logging/third_party_transaction'
@@ -466,7 +467,85 @@ class Form526Submission < ApplicationRecord
     created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
   end
 
+  # Synchronous access to lighthouse API validation boolean for 526 submission
+  # Since this method hits an external API, there could be
+  # exceptions generated for non-200 response codes.
+  #
+  # If return is false then the errors are expected
+  # to be in the lighthouse_validation_errors Array
+  # of Hash.
+  #
+  # NOTE: This is a synchronous access to an external
+  #       API so should not be used within a request/response
+  #       workflow.
+  #
+  def form_content_valid?
+    transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
+    body = transform_service.transform(form['form526'])
+
+    begin
+      @lighthoust_validation_response = lighthouse_service.validate526(body)
+    rescue => e
+      fake_lighthouse_response(code: '609', error: e)
+      return false
+    end
+
+    if lighthoust_validation_response&.code == '200'
+      return true
+    elsif lighthoust_validation_response&.code == '422'
+      return false
+    end
+
+    fake_lighthouse_response(code: lighthoust_validation_response&.code)
+    false
+  end
+
+  # Returns an Array of Hashes when response.code is 422
+  # otherwise its an empty Array.
+  #
+  # The Array#empty? is true when there are not errors
+  # A Hash entry looks like this ...
+  # {
+  #   "title": "Unprocessable entity",
+  #   "detail": "The property / did not contain the required key serviceInformation",
+  #   "status": "422",
+  #   "source": {
+  #     "pointer": "data/attributes/"
+  #   }
+  # }
+  #
+  def lighthouse_validation_errors
+    if lighthouse_validation_response&.code == '200'
+      []
+    else
+      lighthouse_validation_response.body['errors']
+    end
+  end
+
+  ###############################################
   private
+
+  attr_accessor :lighthouse_validation_response
+
+  # Setup the lighthouse service for this
+  # user account.  The lighthouse calls the
+  # user_account.icn the "ID of Veteran"
+  #
+  def lighthouse_service
+    BenefitsClaims::Service.new(user_account.icn)
+  end
+
+  def fake_lighthouse_response(code: '609', error: 'Unknown')
+    fake_response       = Struct.new(:code, :body).new
+    fake_response.code  = code || '609'
+    fake_response.body  = { 'errors' => [
+      {
+        'title' => "Code '#{code}' - #{error}"
+      }
+    ] }
+
+    @lighthouse_validation_response = fake_response
+  end
 
   def queue_central_mail_backup_submission_for_non_retryable_error!(e: nil)
     # Entry-point for backup 526 CMP submission

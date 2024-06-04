@@ -26,6 +26,7 @@ AllCops:
     - db/migrate/*.rb
     - 'vendor/**/*'
     - modules/**/db/migrate/*.rb
+    - 'tmp/**/*'
 
 Style/Documentation:
   Enabled: false
@@ -85,6 +86,7 @@ Rails:
 Rails/Output:
   Exclude:
     - 'lib/tasks/**/*'
+    - 'bin/lib/vets-api/**/*'
 
 Metrics/MethodLength:
   Max: 20
