@@ -65,11 +65,11 @@ module ClaimsApi
       def transform_disability_values!(disability)
         disability.delete(:diagnosticCode) if disability&.dig(:diagnosticCode).nil?
         disability.delete(:serviceRelevance) if disability&.dig(:serviceRelevance).blank?
-        disability.delete(:classificationCode) if disability&.dig(:classificationCode).blank?
+        disability.delete(:classificationCode) if disability&.dig(:classificationCode).nil? # blank is ok
 
         if disability&.dig(:secondaryDisabilities).present?
           disability[:secondaryDisabilities] = disability[:secondaryDisabilities]&.map do |secondary|
-            secondary.delete(:classificationCode) if secondary&.dig(:classificationCode).blank?
+            secondary.delete(:classificationCode) if secondary&.dig(:classificationCode).nil? # blank is ok
 
             secondary.except(:exposureOrEventOrInjury, :approximateDate)
           end

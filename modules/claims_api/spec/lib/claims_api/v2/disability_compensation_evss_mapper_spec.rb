@@ -225,31 +225,6 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
           expect(disability[:classificationCode]).to eq(nil)
         end
       end
-
-      context 'When classificationcode is an empty string' do
-        let(:disability) do
-          {
-            disabilityActionType: 'INCREASE',
-            name: 'hypertension',
-            approximateDate: nil,
-            classificationCode: '',
-            serviceRelevance: '',
-            isRelatedToToxicExposure: false,
-            exposureOrEventOrInjury: '',
-            ratedDisabilityId: '',
-            diagnosticCode: 0,
-            secondaryDisabilities: nil
-          }
-        end
-
-        it 'mapping logic removes attribute' do
-          form_data['data']['attributes']['disabilities'][1] = disability
-          auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
-          evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, file_number).map_claim[:form526]
-          disability = evss_data[:disabilities][1]
-          expect(disability[:classificationCode]).to eq(nil)
-        end
-      end
     end
 
     context '526 section 6, service information: service periods' do
