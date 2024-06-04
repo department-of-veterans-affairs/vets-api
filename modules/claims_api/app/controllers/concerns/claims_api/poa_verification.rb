@@ -6,7 +6,7 @@ module ClaimsApi
   module PoaVerification
     extend ActiveSupport::Concern
 
-    included do # rubocop:disable Metrics/BlockLength
+    included do
       #
       # Validate poa code provided exists in OGC dataset, that provided poa code is a valid/active poa code
       # @param poa_code [String] poa code to validate
@@ -32,8 +32,6 @@ module ClaimsApi
       #
       # @raise [Common::Exceptions::Forbidden] if @current_user is not a representative
       def validate_user_is_accredited!
-        return nil if @current_user.first_name.nil? || @current_user.last_name.nil?
-
         representative = ::Veteran::Service::Representative.for_user(first_name: @current_user.first_name,
                                                                      last_name: @current_user.last_name)
         raise ::Common::Exceptions::Forbidden if representative.blank?
