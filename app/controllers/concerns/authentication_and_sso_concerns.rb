@@ -143,8 +143,7 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
 
     { 'patientIcn' => @current_user.icn,
       'signIn' => @current_user.identity.sign_in.deep_transform_keys { |key| key.to_s.camelize(:lower) },
-      'type' => @current_user.identity.sign_in[:service_name],
-      'clientId' => @current_user.identity.sign_in[:client_id],
+      'credential_used' => @current_user.identity.sign_in[:service_name],
       'session_uuid' => sign_in_service_session ? @access_token.session_handle : @session_object.token,
       'expirationTime' => sign_in_service_session ? sign_in_service_exp_time : @session_object.ttl_in_time.iso8601(0) }
   end
