@@ -752,7 +752,7 @@ namespace :form526 do
 
     end_date = (validate_yyyymmdd(params[:end_date]) if params[:end_date])
 
-    if 2 == params.size && (start_date > end_date)
+    if params.size == 2 && (start_date > end_date)
       abort_with_message "ERROR:  start_date (#{start_date}) is after end_date (#{end_date})"
     end
 
@@ -856,9 +856,9 @@ namespace :form526 do
 
     if job_status.empty?
       'Not Processed'
-    elsif 'success' == job_status['SubmitForm526AllClaim']
+    elsif job_status['SubmitForm526AllClaim'] == 'success'
       'Primary Success'
-    elsif 'success' == job_status['BackupSubmission']
+    elsif job_status['BackupSubmission'] == 'success'
       'Backup Success'
     else
       'Unknown'

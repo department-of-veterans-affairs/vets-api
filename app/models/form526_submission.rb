@@ -490,9 +490,9 @@ class Form526Submission < ApplicationRecord
       return false
     end
 
-    if '200' == lighthoust_validation_response&.code
+    if lighthoust_validation_response&.code == '200'
       return true
-    elsif '422' == lighthoust_validation_response&.code
+    elsif lighthoust_validation_response&.code == '422'
       return false
     end
 
@@ -515,7 +515,7 @@ class Form526Submission < ApplicationRecord
   # }
   #
   def lighthouse_validation_errors
-    if '200' == lighthouse_validation_response&.code
+    if lighthouse_validation_response&.code == '200'
       []
     else
       lighthouse_validation_response.body['errors']
@@ -532,7 +532,6 @@ class Form526Submission < ApplicationRecord
   # user_account.icn the "ID of Veteran"
   #
   def lighthouse_service
-    lighthouse_validation_response = nil
     BenefitsClaims::Service.new(user_account.icn)
   end
 
