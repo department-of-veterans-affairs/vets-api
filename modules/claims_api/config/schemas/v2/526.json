@@ -185,7 +185,7 @@
         "city": {
           "description": "City for the Veteran's new address.",
           "type": "string",
-          "pattern": "^$|([-a-zA-Z'.' ])+$",
+          "pattern": "^$|^([-a-zA-Z'.' ])+$",
           "maxLength": 1000,
           "example": "Portland"
         },
@@ -688,7 +688,7 @@
               "city": {
                 "description": "City of treatment facility.",
                 "type": ["string", "null"],
-                "pattern": "^$|([-a-zA-Z'.' ])+$",
+                "pattern": "^$|^([-a-zA-Z'.' ])+$",
                 "example": "Portland",
                 "nullable": true
               },

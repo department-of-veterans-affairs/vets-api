@@ -1503,7 +1503,7 @@
                                 "city": {
                                   "description": "City for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|([-a-zA-Z'.' ])+$",
+                                  "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                   "maxLength": 1000,
                                   "example": "Portland"
                                 },
@@ -2032,7 +2032,7 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|([-a-zA-Z'.' ])+$",
+                                        "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
@@ -2851,7 +2851,7 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|([-a-zA-Z'.' ])+$",
+                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                 "maxLength": 1000,
                                 "example": "Portland"
                               },
@@ -3380,7 +3380,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -4290,7 +4290,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "42cc8fa0-9edb-409f-a87a-4204cd844fd7",
+                    "id": "2493e87b-9fc2-4027-9956-bfa3bfee4ac7",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -4729,7 +4729,7 @@
                                 "city": {
                                   "description": "City for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|([-a-zA-Z'.' ])+$",
+                                  "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                   "maxLength": 1000,
                                   "example": "Portland"
                                 },
@@ -5258,7 +5258,7 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|([-a-zA-Z'.' ])+$",
+                                        "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
@@ -6077,7 +6077,7 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|([-a-zA-Z'.' ])+$",
+                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                 "maxLength": 1000,
                                 "example": "Portland"
                               },
@@ -6606,7 +6606,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -7966,7 +7966,7 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|([-a-zA-Z'.' ])+$",
+                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                 "maxLength": 1000,
                                 "example": "Portland"
                               },
@@ -8495,7 +8495,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -9155,7 +9155,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0b4c87d5-0a1f-4309-87bb-050221d9bc92",
+                    "id": "70fff69f-827f-41eb-bb0f-f17c7f45135d",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -10329,7 +10329,7 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z'.' ])+$",
+                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                     "example": "Portland",
                                     "maxLength": 1000
                                   },
@@ -12903,7 +12903,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "27c00875-cab2-4b9b-abed-eeb3e7a38d9e",
+                    "id": "d8b6f7d8-16ca-4add-a524-ffe8d80d54df",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13596,7 +13596,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "42ff811b-cef5-495e-af79-0662dedffab1",
+                    "id": "eb3800fb-24de-4c60-8152-be2531f7d230",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15547,7 +15547,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3ada3b45-b706-455b-a206-1d557adaf538",
+                    "id": "416bf788-6bf4-4547-b650-e7d7f977c56d",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
