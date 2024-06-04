@@ -1405,7 +1405,7 @@
                                     "city": {
                                       "description": "City for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                      "pattern": "^([-a-zA-Z'.' ])+$",
                                       "maxLength": 1000,
                                       "example": "Portland"
                                     },
@@ -1503,7 +1503,7 @@
                                 "city": {
                                   "description": "City for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|([-a-zA-Z0-9'.,&# ])+$",
+                                  "pattern": "^$|([-a-zA-Z'.' ])+$",
                                   "maxLength": 1000,
                                   "example": "Portland"
                                 },
@@ -2032,7 +2032,7 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z'.#]([-a-zA-Z'.# ])?)+$",
+                                        "pattern": "^$|([-a-zA-Z'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
@@ -2753,7 +2753,7 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^([-a-zA-Z'.' ])+$",
                                     "maxLength": 1000,
                                     "example": "Portland"
                                   },
@@ -2851,7 +2851,7 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|([-a-zA-Z0-9'.,&# ])+$",
+                                "pattern": "^$|([-a-zA-Z'.' ])+$",
                                 "maxLength": 1000,
                                 "example": "Portland"
                               },
@@ -3380,7 +3380,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.#]([-a-zA-Z'.# ])?)+$",
+                                      "pattern": "^$|([-a-zA-Z'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -4642,7 +4642,7 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^([-a-zA-Z'.' ])+$",
                                     "maxLength": 1000,
                                     "example": "Portland"
                                   },
@@ -4740,7 +4740,7 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|([-a-zA-Z0-9'.,&# ])+$",
+                                "pattern": "^$|([-a-zA-Z'.' ])+$",
                                 "maxLength": 1000,
                                 "example": "Portland"
                               },
@@ -5269,7 +5269,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.#]([-a-zA-Z'.# ])?)+$",
+                                      "pattern": "^$|([-a-zA-Z'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -5929,7 +5929,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "35cd67de-8210-4884-9608-0addcefc02dd",
+                    "id": "8c22f507-cae6-442d-bffb-1455c6ba8f0b",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -7103,7 +7103,7 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^([-a-zA-Z'.' ])+$",
                                     "example": "Portland",
                                     "maxLength": 1000
                                   },
@@ -7201,7 +7201,7 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
+                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                 "example": "Portland",
                                 "maxLength": 1000
                               },
@@ -7730,7 +7730,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.#]([-a-zA-Z'.# ])?)+$",
+                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -8800,8 +8800,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-06-03",
-                      "expirationDate": "2025-06-03",
+                      "creationDate": "2024-06-04",
+                      "expirationDate": "2025-06-04",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -9677,7 +9677,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f5ac28ed-88e9-4fe1-8b88-6b31fb08a4c7",
+                    "id": "4590a6f7-eae1-44d0-b6e8-a72ca9e8f2a4",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -10370,7 +10370,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5a3d521d-44a6-4cef-aa57-490f815dd92c",
+                    "id": "eaceac0a-a3a9-437f-9eed-87daae69143c",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12321,11 +12321,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "730fe9d9-e324-4310-a063-d6d56ff58a4e",
+                    "id": "0b7c4ccc-d3b9-4bfe-9ced-3111bebf0b4b",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-06-03",
+                      "dateRequestAccepted": "2024-06-04",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
