@@ -276,7 +276,7 @@ describe VAOS::V2::AppointmentsService do
         end
 
         it 'returns with list of appointments and appends local start time' do
-          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(mock_facility2)
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility2)
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
                            match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
             response = subject.get_appointments(start_date2, end_date2)
@@ -501,7 +501,7 @@ describe VAOS::V2::AppointmentsService do
       context 'with an appointment' do
         context 'with Jacqueline Morgan' do
           it 'returns a proposed appointment' do
-            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(mock_facility)
+            allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)
             VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200',
                              match_requests_on: %i[method path query]) do
               response = subject.get_appointment('70060')
@@ -572,7 +572,7 @@ describe VAOS::V2::AppointmentsService do
       context 'with an appointment' do
         context 'with Jacqueline Morgan' do
           it 'returns a proposed appointment' do
-            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(mock_facility)
+            allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)
             VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_vpg',
                              match_requests_on: %i[method path query]) do
               response = subject.get_appointment('70060')
@@ -723,7 +723,7 @@ describe VAOS::V2::AppointmentsService do
 
     context 'with a facility location id' do
       it 'returns the facility timezone' do
-        allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(mock_facility)
+        allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)
         timezone = subject.send(:get_facility_timezone, facility_location_id)
         expect(timezone).to eq('America/New_York')
       end
@@ -731,7 +731,7 @@ describe VAOS::V2::AppointmentsService do
 
     context 'with an internal server error from the facilities call' do
       it 'returns nil for the timezone' do
-        allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(facility_error_msg)
+        allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(facility_error_msg)
         timezone = subject.send(:get_facility_timezone, facility_location_id)
         expect(timezone).to eq(nil)
       end
