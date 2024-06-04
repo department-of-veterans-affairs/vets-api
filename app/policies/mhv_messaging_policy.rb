@@ -37,7 +37,6 @@ MHVMessagingPolicy = Struct.new(:user, :mhv_messaging) do
                       mhv_id: user.mhv_correlation_id.presence || 'false',
                       sign_in_service: user.identity.sign_in[:service_name],
                       va_facilities: user.va_treatment_facility_ids.length,
-                      va_patient: user.va_patient?,
-                      client:)
+                      va_patient: user.va_patient?)
   end
 end
