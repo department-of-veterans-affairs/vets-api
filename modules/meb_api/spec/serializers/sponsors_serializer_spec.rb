@@ -4,14 +4,13 @@ require 'rails_helper'
 require 'dgi/forms/response/sponsor_response'
 
 describe SponsorsSerializer do
-
   let(:sponsors) do
     [
       {
-        "first_name"=>"Rodrigo",
-        "last_name"=>"Diaz",
-        "sponsor_relationship"=>"Spouse",
-        "date_of_birth"=>"06/12/1975"
+        'first_name' => 'Rodrigo',
+        'last_name' => 'Diaz',
+        'sponsor_relationship' => 'Spouse',
+        'date_of_birth' => '06/12/1975'
       }
     ]
   end
@@ -29,10 +28,10 @@ describe SponsorsSerializer do
         attributes: {
           sponsors: [
             {
-              "first_name"=>"Rodrigo",
-              "last_name"=>"Diaz",
-              "sponsor_relationship"=>"Spouse",
-              "date_of_birth"=>"06/12/1975"
+              'first_name' => 'Rodrigo',
+              'last_name' => 'Diaz',
+              'sponsor_relationship' => 'Spouse',
+              'date_of_birth' => '06/12/1975'
             }
           ]
         }

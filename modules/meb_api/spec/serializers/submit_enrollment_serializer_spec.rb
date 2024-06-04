@@ -7,9 +7,11 @@ describe SubmitEnrollmentSerializer do
   let(:enrollment_certifys) do
     [
       { 'claimant_id' => 600_000_000, 'certified_period_begin_date' => '2020-02-01',
-        'certified_period_end_date' => '2020-02-31', 'certified_through_date' => '2022-01-31', 'certification_method' => 'MEB' },
+        'certified_period_end_date' => '2020-02-31', 'certified_through_date' => '2022-01-31',
+        'certification_method' => 'MEB' },
       { 'claimant_id' => 600_000_000, 'certified_period_begin_date' => '2020-01-01',
-        'certified_period_end_date' => '2020-01-31', 'certified_through_date' => '2022-01-31', 'certification_method' => 'MEB' }
+        'certified_period_end_date' => '2020-01-31', 'certified_through_date' => '2022-01-31',
+        'certification_method' => 'MEB' }
     ]
   end
 
@@ -26,9 +28,11 @@ describe SubmitEnrollmentSerializer do
         attributes: {
           enrollment_certify_responses: [
             { 'claimant_id' => 600_000_000, 'certified_period_begin_date' => '2020-02-01',
-            'certified_period_end_date' => '2020-02-31', 'certified_through_date' => '2022-01-31', 'certification_method' => 'MEB' },
-          { 'claimant_id' => 600_000_000, 'certified_period_begin_date' => '2020-01-01',
-            'certified_period_end_date' => '2020-01-31', 'certified_through_date' => '2022-01-31', 'certification_method' => 'MEB' }
+              'certified_period_end_date' => '2020-02-31', 'certified_through_date' => '2022-01-31',
+              'certification_method' => 'MEB' },
+            { 'claimant_id' => 600_000_000, 'certified_period_begin_date' => '2020-01-01',
+              'certified_period_end_date' => '2020-01-31', 'certified_through_date' => '2022-01-31',
+              'certification_method' => 'MEB' }
           ]
         }
       }
@@ -46,6 +50,7 @@ describe SubmitEnrollmentSerializer do
   end
 
   it 'includes :enrollment_certify_responses' do
-    expect(rendered_attributes[:enrollment_certify_responses]).to eq expected_response[:data][:attributes][:enrollment_certify_responses]
+    enrollment_certify_responses = expected_response[:data][:attributes][:enrollment_certify_responses]
+    expect(rendered_attributes[:enrollment_certify_responses]).to eq enrollment_certify_responses
   end
 end

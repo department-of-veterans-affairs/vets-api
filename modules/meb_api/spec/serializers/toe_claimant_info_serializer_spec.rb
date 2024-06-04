@@ -8,11 +8,11 @@ describe ToeClaimantInfoSerializer do
     {
       claimant_id: 0,
       suffix: nil,
-      date_of_birth: "1992-04-01",
-      first_name: "Black",
-      last_name: "Johnson",
-      middle_name: "Jet",
-      notification_method: "NONE",
+      date_of_birth: '1992-04-01',
+      first_name: 'Black',
+      last_name: 'Johnson',
+      middle_name: 'Jet',
+      notification_method: 'NONE',
       contact_info: nil,
       preferred_contact: nil
     }
@@ -22,11 +22,11 @@ describe ToeClaimantInfoSerializer do
     {
       transfer_of_entitlements: [
         {
-          fist_name: "SEAN",
-          second_name: "JOHNSON",
-          sponsor_relationship: "Child",
-          sponsor_va_id: 1000000077,
-          date_of_birth: "1971-05-24"
+          fist_name: 'SEAN',
+          second_name: 'JOHNSON',
+          sponsor_relationship: 'Child',
+          sponsor_va_id: 1_000_000_077,
+          date_of_birth: '1971-05-24'
         }
       ]
     }
@@ -34,7 +34,7 @@ describe ToeClaimantInfoSerializer do
 
   let(:claimant_response) do
     body = { 'claimant' => claimant, 'service_data' => nil, 'toe_sponsors' => toe_sponsors }
-    response = double('response', body: body)
+    response = double('response', body:)
     MebApi::DGI::Forms::ClaimantResponse.new(200, response)
   end
 
@@ -44,26 +44,26 @@ describe ToeClaimantInfoSerializer do
         id: '',
         type: 'meb_api_dgi_forms_claimant_responses',
         attributes: {
-          'claimant': {
-            "claimant_id": 0,
-            "suffix": nil,
-            "date_of_birth": "1992-04-01",
-            "first_name": "Black",
-            "last_name": "Johnson",
-            "middle_name": "Jet",
-            "notification_method": "NONE",
-            "contact_info": nil,
-            "preferred_contact": nil
+          claimant: {
+            claimant_id: 0,
+            suffix: nil,
+            date_of_birth: '1992-04-01',
+            first_name: 'Black',
+            last_name: 'Johnson',
+            middle_name: 'Jet',
+            notification_method: 'NONE',
+            contact_info: nil,
+            preferred_contact: nil
           },
-          'service_data': [],
-          'toe_sponsors':{
-            "transfer_of_entitlements":[
+          service_data: [],
+          toe_sponsors: {
+            transfer_of_entitlements: [
               {
-                "fist_name": "SEAN",
-                "second_name": "JOHNSON",
-                "sponsor_relationship": "Child",
-                "sponsor_va_id": 1000000077,
-                "date_of_birth": "1971-05-24"
+                fist_name: 'SEAN',
+                second_name: 'JOHNSON',
+                sponsor_relationship: 'Child',
+                sponsor_va_id: 1_000_000_077,
+                date_of_birth: '1971-05-24'
               }
             ]
           }

@@ -4,9 +4,8 @@ require 'rails_helper'
 require 'dgi/exclusion_period/response'
 
 describe ExclusionPeriodSerializer do
-
   let(:exclusion_period) do
-    response = double('response', status: 201, body: { 'exclusion_periods' => ["ROTC", "NoPayDate"] })
+    response = double('response', status: 201, body: { 'exclusion_periods' => %w[ROTC NoPayDate] })
     MebApi::DGI::ExclusionPeriod::Response.new(response)
   end
 
@@ -16,7 +15,7 @@ describe ExclusionPeriodSerializer do
         id: '',
         type: 'meb_api_dgi_exclusion_period_responses',
         attributes: {
-          exclusion_periods: ["ROTC", "NoPayDate"]
+          exclusion_periods: %w[ROTC NoPayDate]
         }
       }
     }
