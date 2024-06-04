@@ -27,6 +27,17 @@ MHVMessagingPolicy = Struct.new(:user, :mhv_messaging) do
       true
     end
   rescue
+    log_denial_details(client)
     false
+  end
+
+  def log_denial_details(client)
+    Rails.logger.info('SM ACCESS DENIED IN MOBILE POLICY',
+                      account_type: user.mhv_account_type.presence || 'false',
+                      mhv_id: user.mhv_correlation_id.presence || 'false',
+                      sign_in_service: user.identity.sign_in[:service_name],
+                      va_facilities: user.va_treatment_facility_ids.length,
+                      va_patient: user.va_patient?,
+                      client: client)
   end
 end
