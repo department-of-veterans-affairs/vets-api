@@ -20,7 +20,6 @@ RSpec.describe 'API doc validations', type: :request do
     it 'has valid json' do
       get '/v0/apidocs.json'
       json = response.body
-      print JSON.parse(json)
       JSON.parse(json).to_yaml
     end
   end
