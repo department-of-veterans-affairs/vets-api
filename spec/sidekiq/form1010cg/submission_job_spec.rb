@@ -60,6 +60,9 @@ RSpec.describe Form1010cg::SubmissionJob do
         expect(StatsD).to receive(:increment).twice.with('api.form1010cg.async.retries')
         expect(StatsD).to receive(:increment).with('api.form1010cg.async.applications_retried')
 
+        # If we're stubbing StatsD, we also have to expect this because of SavedClaim's after_create metrics logging
+        expect(StatsD).to receive(:increment).with('saved_claim.create', { tags: ['form_id:10-10CG'] })
+
         2.times do
           expect do
             job.perform(claim.id)
