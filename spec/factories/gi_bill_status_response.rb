@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :gi_bill_status_response, class: 'EVSS::GiBillStatus::GiBillStatusResponse' do
+  factory :gi_bill_status_response, class: 'BenefitsEducation::Response' do
     remaining_entitlement { { months: 0, days: 12 } }
     enrollments {
       [{
