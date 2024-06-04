@@ -90,7 +90,7 @@
             "city": {
               "description": "City for the Veteran's current mailing address.",
               "type": "string",
-              "pattern": "^([-a-zA-Z'.' ])+$",
+              "pattern": "^$|^([-a-zA-Z'.' ])+$",
               "maxLength": 1000,
               "example": "Portland"
             },
@@ -809,7 +809,7 @@
             "unitAddress": {
               "type": ["string", "null"],
               "maxLength": 1000,
-              "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+              "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
               "nullable": true
             },
             "unitPhone": {

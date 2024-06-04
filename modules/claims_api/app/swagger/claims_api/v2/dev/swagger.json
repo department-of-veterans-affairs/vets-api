@@ -1405,7 +1405,7 @@
                                     "city": {
                                       "description": "City for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                       "maxLength": 1000,
                                       "example": "Portland"
                                     },
@@ -2174,7 +2174,7 @@
                                     "unitAddress": {
                                       "type": "string",
                                       "maxLength": 1000,
-                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
                                       "nullable": true
                                     },
                                     "unitPhone": {
@@ -2753,7 +2753,7 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z'.' ])+$",
+                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                     "maxLength": 1000,
                                     "example": "Portland"
                                   },
@@ -3522,7 +3522,7 @@
                                   "unitAddress": {
                                     "type": "string",
                                     "maxLength": 1000,
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
                                     "nullable": true
                                   },
                                   "unitPhone": {
@@ -4290,7 +4290,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1ef74ac6-416a-4839-afb1-1ef0d9ddf488",
+                    "id": "42cc8fa0-9edb-409f-a87a-4204cd844fd7",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -4631,7 +4631,7 @@
                                     "city": {
                                       "description": "City for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                       "maxLength": 1000,
                                       "example": "Portland"
                                     },
@@ -5400,7 +5400,7 @@
                                     "unitAddress": {
                                       "type": "string",
                                       "maxLength": 1000,
-                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
                                       "nullable": true
                                     },
                                     "unitPhone": {
@@ -5979,7 +5979,7 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z'.' ])+$",
+                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                     "maxLength": 1000,
                                     "example": "Portland"
                                   },
@@ -6748,7 +6748,7 @@
                                   "unitAddress": {
                                     "type": "string",
                                     "maxLength": 1000,
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
                                     "nullable": true
                                   },
                                   "unitPhone": {
@@ -7868,7 +7868,7 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z'.' ])+$",
+                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                     "maxLength": 1000,
                                     "example": "Portland"
                                   },
@@ -8637,7 +8637,7 @@
                                   "unitAddress": {
                                     "type": "string",
                                     "maxLength": 1000,
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
                                     "nullable": true
                                   },
                                   "unitPhone": {
@@ -9155,7 +9155,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "af4f32ce-252a-4a74-8c76-36b1f4de99a9",
+                    "id": "0b4c87d5-0a1f-4309-87bb-050221d9bc92",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12903,7 +12903,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5b1e71da-8936-4390-b7ce-57d7000e643a",
+                    "id": "27c00875-cab2-4b9b-abed-eeb3e7a38d9e",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13596,7 +13596,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0655b4ec-15cb-4a92-9906-5529ad2b6698",
+                    "id": "42ff811b-cef5-495e-af79-0662dedffab1",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15547,7 +15547,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6a1d99a2-ac9e-48c4-8059-0f6a3c457bfa",
+                    "id": "3ada3b45-b706-455b-a206-1d557adaf538",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",

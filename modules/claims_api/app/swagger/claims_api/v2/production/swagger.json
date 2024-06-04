@@ -1405,7 +1405,7 @@
                                     "city": {
                                       "description": "City for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                       "maxLength": 1000,
                                       "example": "Portland"
                                     },
@@ -1912,6 +1912,20 @@
                                     "default": false,
                                     "nullable": true
                                   },
+                                  "specialIssues": {
+                                    "type": "array",
+                                    "nullable": true,
+                                    "uniqueItems": true,
+                                    "items": {
+                                      "maxItems": 2,
+                                      "additionalProperties": false,
+                                      "type": "string",
+                                      "enum": [
+                                        "POW",
+                                        "EMP"
+                                      ]
+                                    }
+                                  },
                                   "secondaryDisabilities": {
                                     "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                     "type": "array",
@@ -2160,7 +2174,7 @@
                                     "unitAddress": {
                                       "type": "string",
                                       "maxLength": 1000,
-                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
                                       "nullable": true
                                     },
                                     "unitPhone": {
@@ -2739,7 +2753,7 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z'.' ])+$",
+                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                     "maxLength": 1000,
                                     "example": "Portland"
                                   },
@@ -3246,6 +3260,20 @@
                                   "default": false,
                                   "nullable": true
                                 },
+                                "specialIssues": {
+                                  "type": "array",
+                                  "nullable": true,
+                                  "uniqueItems": true,
+                                  "items": {
+                                    "maxItems": 2,
+                                    "additionalProperties": false,
+                                    "type": "string",
+                                    "enum": [
+                                      "POW",
+                                      "EMP"
+                                    ]
+                                  }
+                                },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                   "type": "array",
@@ -3494,7 +3522,7 @@
                                   "unitAddress": {
                                     "type": "string",
                                     "maxLength": 1000,
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
                                     "nullable": true
                                   },
                                   "unitPhone": {
@@ -4614,7 +4642,7 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z'.' ])+$",
+                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                     "maxLength": 1000,
                                     "example": "Portland"
                                   },
@@ -5121,6 +5149,20 @@
                                   "default": false,
                                   "nullable": true
                                 },
+                                "specialIssues": {
+                                  "type": "array",
+                                  "nullable": true,
+                                  "uniqueItems": true,
+                                  "items": {
+                                    "maxItems": 2,
+                                    "additionalProperties": false,
+                                    "type": "string",
+                                    "enum": [
+                                      "POW",
+                                      "EMP"
+                                    ]
+                                  }
+                                },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                   "type": "array",
@@ -5369,7 +5411,7 @@
                                   "unitAddress": {
                                     "type": "string",
                                     "maxLength": 1000,
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
                                     "nullable": true
                                   },
                                   "unitPhone": {
@@ -5887,7 +5929,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8c22f507-cae6-442d-bffb-1455c6ba8f0b",
+                    "id": "1af3c646-ea29-4603-9f17-4b7d22334b27",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -7566,6 +7608,20 @@
                                   "example": true,
                                   "default": false,
                                   "nullable": true
+                                },
+                                "specialIssues": {
+                                  "type": "array",
+                                  "nullable": true,
+                                  "uniqueItems": true,
+                                  "items": {
+                                    "maxItems": 2,
+                                    "additionalProperties": false,
+                                    "type": "string",
+                                    "enum": [
+                                      "POW",
+                                      "EMP"
+                                    ]
+                                  }
                                 },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
@@ -9621,7 +9677,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4590a6f7-eae1-44d0-b6e8-a72ca9e8f2a4",
+                    "id": "92b9a114-3f62-4081-a044-6b75f82ecc82",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -10314,7 +10370,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "eaceac0a-a3a9-437f-9eed-87daae69143c",
+                    "id": "a95e465f-51e3-4537-8971-b23ce73cd3f0",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12265,7 +12321,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0b7c4ccc-d3b9-4bfe-9ced-3111bebf0b4b",
+                    "id": "2c22c10f-fbfa-4b64-8c4a-680a9a796648",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
