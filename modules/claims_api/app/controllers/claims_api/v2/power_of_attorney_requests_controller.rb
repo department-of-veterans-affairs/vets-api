@@ -4,25 +4,23 @@ module ClaimsApi
   module V2
     class PowerOfAttorneyRequestsController < PowerOfAttorneyRequests::BaseController
       def index
-        result =
-          PowerOfAttorneyRequestService::Search.perform(
-            request.query_parameters
-          )
+        service = PowerOfAttorneyRequestService::Search
+        result = service.perform(request.query_parameters)
+
+        render json: serialize(result)
+      end
+
+      private
+
+      def serialize(result)
+        blueprint = Blueprints::PowerOfAttorneyRequestBlueprint
+        result[:data] = blueprint.render_as_hash(result[:data])
 
         result[:metadata].transform_keys! do |key|
           key.to_s.camelize(:lower).to_sym
         end
 
-        result[:data] =
-          Blueprints::PowerOfAttorneyRequestBlueprint.render_as_hash(
-            result[:data]
-          )
-
-        render json: result
-      rescue PowerOfAttorneyRequestService::Search::InvalidQueryError => e
-        detail = { errors: e.errors, params: e.params }
-        error = ::Common::Exceptions::BadRequest.new(detail:)
-        render_error(error)
+        result
       end
     end
   end

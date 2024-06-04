@@ -341,13 +341,27 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.gulf_war_hazard_service.served_in_gulf_war_hazard_locations).to eq('YES')
     end
 
-    it 'transforms gulf war and hazard multiple exposure dates' do
+    it 'transforms gulf war, herbicide and hazard multiple exposure dates' do
       result = transformer.send(:transform_multiple_exposures, data['gulfWar1990Details'])
       expect(result[0].exposure_dates.begin_date).to eq('1991-03')
       expect(result[0].exposure_dates.end_date).to eq('1992-01')
       expect(result[0].exposure_location).to eq('Iraq')
 
-      result = transformer.send(:transform_multiple_exposures, data['otherExposureDetails'], hazard: true)
+      result = transformer.send(:transform_multiple_exposures, data['herbicideDetails'],
+                                EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform::
+                                    MULTIPLE_EXPOSURES_TYPE[:herbicide])
+      expect(result[0].exposure_dates.begin_date).to eq('1991-03')
+      expect(result[0].exposure_dates.end_date).to eq('1992-01')
+      expect(result[0].exposure_location).to eq('Cambodia at Mimot or Krek, Kampong Cham Province')
+
+      result = transformer.send(:transform_multiple_exposures_other_herbicide, data['otherHerbicideLocations'])
+      expect(result[0].exposure_dates.begin_date).to eq('1991-03')
+      expect(result[0].exposure_dates.end_date).to eq('1992-01')
+      expect(result[0].exposure_location).to eq('other location 1, other location 2 etc')
+
+      result = transformer.send(:transform_multiple_exposures, data['otherExposureDetails'],
+                                EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform::
+                                    MULTIPLE_EXPOSURES_TYPE[:hazard])
       expect(result[0].exposure_dates.begin_date).to eq('1991-03')
       expect(result[0].exposure_dates.end_date).to eq('1992-01')
       expect(result[0].hazard_exposed_to).to eq('Asbestos')

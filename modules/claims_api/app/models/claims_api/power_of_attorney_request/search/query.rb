@@ -19,9 +19,9 @@ module ClaimsApi
         module Page
           # These values currently duplicate the behavior of BGS, but they can
           # be changed so long as:
-          #   bgs_min <= min
-          #   max <= bgs_max
-          #   min <= default <= max
+          #   - bgs_min <= min
+          #   - max <= bgs_max
+          #   - min <= default <= max
           module Size
             DEFAULT = 25
             MAX = 100
@@ -69,19 +69,17 @@ module ClaimsApi
 
             xml[data_aliaz].POARequestParameter do
               page = query[:page]
+              sort = query[:sort]
+
               xml.pageIndex(page[:number])
               xml.pageSize(page[:size])
 
-              sort = query[:sort]
               xml.poaSortField(
                 case sort[:field]
                 when Sort::Fields::CREATED_AT
                   'DATE_RECEIVED'
                 else
-                  raise <<~MSG.squish
-                    unknown sort field:
-                    #{sort[:field]}
-                  MSG
+                  raise "unknown sort field: #{sort[:field]}"
                 end
               )
 
@@ -92,10 +90,7 @@ module ClaimsApi
                 when Sort::Orders::DESCENDING
                   'DESCENDING'
                 else
-                  raise <<~MSG.squish
-                    unknown sort order:
-                    #{sort[:order]}
-                  MSG
+                  raise "unknown sort order: #{sort[:order]}"
                 end
               )
             end

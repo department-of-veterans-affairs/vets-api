@@ -21,87 +21,54 @@ module ClaimsApi
       #   `/v2/power_of_attorney_requests/param/decision/post/request.json`
       #
       #
-      # == Alternatively, override the schema path
-      # Overriding the schema path at the controller level could look like:
+      # == Alternately, overriding the schema path
       #
       # ```
-      #   before_action do
-      #     validate_json!(
-      #       schema_path: 'path/to/schema.json'
-      #     )
-      #   end
+      #   before_action -> { validate_json!(schema_path: 'path/to/schema.json') }
       # ```
-      #
-      # Overriding the schema path at the action level could look like:
-      #
-      # ```
-      #   def create
-      #     validate_json!(
-      #       schema_path: 'path/to/schema.json'
-      #     )
-      #   end
-      # ```
-      #
-      # TODO: Add tests.
       #
       module JsonValidation
         extend ActiveSupport::Concern
 
-        class Error < StandardError
-          class BodyParseError < self
-            def initialize
-              super("The request body isn't a JSON object")
-            end
-          end
-
-          class InvalidBodyError < self
-            def initialize(errors)
-              super(errors.pluck('error').join(', '))
-            end
-          end
-
-          class SchemaNotFoundError < self
-            def initialize(path)
-              super <<~MSG
-                Schema not found at #{path}
-                If the file exists, make sure it is a valid schema
-              MSG
-            end
-          end
-        end
-
-        included do
-          rescue_from(Error::BodyParseError, Error::InvalidBodyError) do |error|
-            # TODO: Reconsider error handling.
-            error = ::Common::Exceptions::BadRequest.new(detail: error.message)
-            render_error(error)
+        class SchemaLoadError < StandardError
+          def initialize(path, reason)
+            super <<~MSG.squish
+              Failed to load schema
+              at #{path}
+              because it was #{reason}
+            MSG
           end
         end
 
         private
 
         def validate_json!(schema_path: api_json_schema_path)
-          schema =
-            SCHEMAS.fetch(schema_path) do
-              raise Error::SchemaNotFoundError, schema_path
+          @body =
+            begin
+              MultiJson.load(request.body.string)
+            rescue MultiJson::ParseError
+              detail = 'Malformed JSON in request body'
+              raise ::Common::Exceptions::BadRequest, detail:
             end
 
-          @body = begin
-            JSON.parse(request.body.string)
-          rescue JSON::ParserError
-            ''
-          end
+          schema =
+            begin
+              path = Engine.root / Settings.claims_api.schema_dir / schema_path
+              JSONSchemer.schema(path)
+            rescue Errno::ENOENT
+              raise SchemaLoadError.new(path, 'invalid')
+            rescue JSON::ParserError
+              raise SchemaLoadError.new(path, 'missing')
+            end
 
-          @body.is_a?(Hash) or
-            raise Error::BodyParseError
-
-          errors = schema.validate(@body).to_a
+          errors = schema.validate(@body).pluck('error')
           errors.empty? or
-            raise Error::InvalidBodyError, errors
+            raise ::Common::Exceptions::SchemaValidationErrors, errors
         end
 
         def api_json_schema_path
           path = request.route_uri_pattern.split('/')
+          path.shift if path.first.blank?
           path.last.delete_suffix!('(.:format)')
 
           path.map! do |segment|
@@ -114,23 +81,6 @@ module ClaimsApi
           path << 'request.json'
           path.join('/')
         end
-
-        SCHEMAS =
-          {}.tap do |schemas|
-            base = Engine.root.join(Settings.claims_api.schema_dir)
-            glob = base.join('**/*.json')
-
-            Dir.glob(glob).each do |path|
-              schema = JSONSchemer.schema(Pathname(path))
-              path = path.delete_prefix(base.to_s)
-
-              schemas[path] = schema
-            rescue => e
-              Rails.logger.warn(e)
-            end
-
-            schemas.freeze
-          end
       end
     end
   end

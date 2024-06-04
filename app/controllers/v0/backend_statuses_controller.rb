@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'evss/gi_bill_status/service'
+require 'lighthouse/benefits_education/service'
 require 'backend_services'
 
 module V0
