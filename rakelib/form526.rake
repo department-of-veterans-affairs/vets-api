@@ -723,12 +723,11 @@ namespace :form526 do
     Form526Submission.where(id: args.extras).find_each { |sub| puts_mpi_profile sub }
   end
 
-
   # Check a selected collection of form526_submissions
   # (class: Form526Submission) for valid form526 content.
   #
   desc 'Check selected form526 submissions for errors'
-  task :lh_validate, [:start_date, :end_date] => :environment do |task_name, args|
+  task :lh_validate, %i[start_date end_date] => :environment do |task_name, args|
     params = args.to_h
 
     unless (1..2).include?(params.size)
@@ -742,25 +741,19 @@ namespace :form526 do
 
         2nd date is optional meaning on or after 1st date.
         When present the query is between start and end dates inclusive.
-      
+
         form526_verbose? is #{form526_verbose?}
         Export or unset system environment variable FORM526_VERGOSE as desired
         to get feedback while processing records.
       USAGE
     end
 
-    start_date  = validate_yyyymmdd(params[:start_date])
+    start_date = validate_yyyymmdd(params[:start_date])
 
-    if params[:end_date]
-      end_date  = validate_yyyymmdd(params[:end_date])
-    else
-      end_date  = nil
-    end
+    end_date = (validate_yyyymmdd(params[:end_date]) if params[:end_date])
 
-    if 2 == params.size
-      if start_date > end_date
-        abort_with_message "ERROR:  start_date (#{start_date}) is after end_date (#{end_date})"
-      end
+    if 2 == params.size && (start_date > end_date)
+      abort_with_message "ERROR:  start_date (#{start_date}) is after end_date (#{end_date})"
     end
 
     csv_filename  = "form526_#{start_date}_#{end_date}_validation.csv"
@@ -776,8 +769,6 @@ namespace :form526 do
                   else
                     Form526Submission.where(created_at: start_date..end_date)
                   end
-  
-    
 
     csv_content = CSV.generate do |csv|
       csv << csv_header
@@ -817,7 +808,7 @@ namespace :form526 do
     s3_resource   = Reports::Uploader.new_s3_resource
     target_bucket = Reports::Uploader.s3_bucket
     object        = s3_resource.bucket(target_bucket).object(csv_filename)
-    
+
     object.put(body: csv_content)
 
     puts 'Done.' if form526_verbose?
@@ -846,7 +837,7 @@ namespace :form526 do
   #
   def abort_with_message(a_string)
     print "\n#{a_string}\n\n"
-    abort        
+    abort
   end
 
   def form526_verbose?
@@ -857,11 +848,11 @@ namespace :form526 do
   # to get the OSI value
   #
   def original_success_indicator(a_submission_record)
-    job_status  = a_submission_record
-                    .form526_job_statuses
-                    .order(:updated_at)
-                    .pluck(:job_class, :status)
-                    .to_h
+    job_status = a_submission_record
+                 .form526_job_statuses
+                 .order(:updated_at)
+                 .pluck(:job_class, :status)
+                 .to_h
 
     if job_status.empty?
       'Not Processed'

@@ -122,8 +122,7 @@ module BenefitsClaims
       handle_error(e, lighthouse_client_id, endpoint)
     end
 
-
-    # submit form526 to Lighthouse API endpoint: 
+    # submit form526 to Lighthouse API endpoint:
     # /services/claims/v2/veterans/{veteranId}/526/validate
     # @param [hash || Requests::Form526] body: a hash representing the form526
     # attributes in the Lighthouse request schema
@@ -131,18 +130,14 @@ module BenefitsClaims
     # @param [string] lighthouse_rsa_key_path: absolute path to the rsa key file
     # @param [hash] options: options to override aud_claim_url, params, and auth_params
     # @option options [hash] :body_only only return the body from the request
-    # @option options [string] :aud_claim_url option to override the aud_claim_url for LH Veteran Verification APIs
-    # @option options [hash] :auth_params a hash to send in auth params to create the access token
-    # @option options [hash] :generate_pdf call the generatePdf endpoint to receive the 526 pdf
-    # 
+    #
     # NOTE: this method is similar to submit526.  The
     # only difference is the path and endpoint values
     #
-    def validate526(body, 
-                    lighthouse_client_id = nil, 
-                    lighthouse_rsa_key_path = nil, 
-                    options = {}
-                  )
+    def validate526(body,
+                    lighthouse_client_id = nil,
+                    lighthouse_rsa_key_path = nil,
+                    options = {})
 
       endpoint  = '{icn}/526/validate'
       path      = "#{@icn}/526/validate"
@@ -151,17 +146,16 @@ module BenefitsClaims
       response = config.post(
         path,
         body,
-        lighthouse_client_id, 
-        lighthouse_rsa_key_path, 
+        lighthouse_client_id,
+        lighthouse_rsa_key_path,
         options
       )
 
       submit_response(response, options[:body_only])
-    rescue  Faraday::ClientError, 
+    rescue  Faraday::ClientError,
             Faraday::ServerError => e
       handle_error(e, lighthouse_client_id, endpoint)
     end
-
 
     ######################################
     private

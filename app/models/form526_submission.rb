@@ -467,7 +467,6 @@ class Form526Submission < ApplicationRecord
     created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
   end
 
-
   # Synchronous access to lighthouse API validation boolean for 526 submission
   # Since this method hits an external API, there could be
   # exceptions generated for non-200 response codes.
@@ -498,9 +497,8 @@ class Form526Submission < ApplicationRecord
     end
 
     fake_lighthouse_response(code: lighthoust_validation_response&.code)
-    return false
+    false
   end
-
 
   # Returns an Array of Hashes when response.code is 422
   # otherwise its an empty Array.
@@ -520,10 +518,9 @@ class Form526Submission < ApplicationRecord
     if '200' == lighthouse_validation_response&.code
       []
     else
-      lighthouse_validation_response.body["errors"]
+      lighthouse_validation_response.body['errors']
     end
   end
-
 
   ###############################################
   private
@@ -538,21 +535,18 @@ class Form526Submission < ApplicationRecord
     lighthouse_validation_response = nil
     BenefitsClaims::Service.new(user_account.icn)
   end
-  
 
   def fake_lighthouse_response(code: '609', error: 'Unknown')
     fake_response       = Struct.new(:code, :body).new
     fake_response.code  = code || '609'
     fake_response.body  = { 'errors' => [
-                              {
-                                'title' => "Code '#{code}' - #{error}"
-                              }
-                            ]
-                          }
+      {
+        'title' => "Code '#{code}' - #{error}"
+      }
+    ] }
 
-    @lighthouse_validation_response = fake_response    
+    @lighthouse_validation_response = fake_response
   end
-
 
   def queue_central_mail_backup_submission_for_non_retryable_error!(e: nil)
     # Entry-point for backup 526 CMP submission
