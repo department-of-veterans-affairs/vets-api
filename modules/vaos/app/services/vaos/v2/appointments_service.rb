@@ -16,7 +16,6 @@ module VAOS
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
       AVS_APPT_TEST_ID = '192308'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
-      FACILITY_ERROR_MSG = 'Error fetching facility details'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
@@ -35,7 +34,7 @@ module VAOS
 
         with_monitoring do
           response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_READS)
+                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_READS, user)
                        perform(:get, appointments_base_path_vpg, params, headers)
                      else
                        perform(:get, appointments_base_path_vaos, params, headers)
@@ -74,7 +73,7 @@ module VAOS
         params.compact_blank!
         with_monitoring do
           response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
+                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS, user)
                        perform(:post, appointments_base_path_vpg, params, headers)
                      else
                        perform(:post, appointments_base_path_vaos, params, headers)
@@ -596,7 +595,7 @@ module VAOS
 
       def get_appointment_base_path(appointment_id)
         if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-           Flipper.enabled?(APPOINTMENTS_ENABLE_OH_READS)
+           Flipper.enabled?(APPOINTMENTS_ENABLE_OH_READS, user)
           "/vpg/v1/patients/#{user.icn}/appointments/#{appointment_id}"
         else
           "/vaos/v1/patients/#{user.icn}/appointments/#{appointment_id}"
