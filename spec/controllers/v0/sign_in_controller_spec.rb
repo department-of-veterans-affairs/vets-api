@@ -2453,7 +2453,9 @@ RSpec.describe V0::SignInController, type: :controller do
               version: access_token['version'],
               last_regeneration_time: access_token['last_regeneration_time'],
               created_time: access_token['iat'],
-              expiration_time: access_token['exp']
+              expiration_time: access_token['exp'],
+              type: user_verification.credential_type,
+              icn: user_account.icn
             }
             expect(Rails.logger).to have_received(:info).with(expected_log_message, logger_context)
           end
@@ -2501,7 +2503,9 @@ RSpec.describe V0::SignInController, type: :controller do
               version: access_token['version'],
               last_regeneration_time: access_token['last_regeneration_time'],
               created_time: access_token['iat'],
-              expiration_time: access_token['exp']
+              expiration_time: access_token['exp'],
+              type: user_verification.credential_type,
+              icn: user_account.icn
             }
             expect(Rails.logger).to have_received(:info).with(expected_log_message, logger_context)
           end

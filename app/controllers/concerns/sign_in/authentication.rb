@@ -26,7 +26,6 @@ module SignIn
 
     def load_user(skip_expiration_check: false)
       @current_user = load_user_object
-      binding.pry
       validate_request_ip
       @current_user.present?
     rescue Errors::AccessTokenExpiredError => e
