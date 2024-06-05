@@ -376,6 +376,7 @@
                           "phaseChangeDate": "2017-10-18"
                         },
                         "claimType": "Compensation",
+                        "claimTypeCode": "400PREDSCHRG",
                         "closeDate": "2017-10-18",
                         "decisionLetterSent": false,
                         "developmentLetterSent": false,
@@ -2409,10 +2410,6 @@
                               "type": "boolean",
                               "description": "Claimant certifies and authorizes release of information.",
                               "default": false
-                            },
-                            "claimId": {
-                              "type": "string",
-                              "example": "600517517"
                             }
                           }
                         }
@@ -5887,7 +5884,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "87c190d5-d7ef-4f9f-ab70-26830d16aa63",
+                    "id": "5349a013-6a61-4051-93b6-1c33ad7befce",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -9621,7 +9618,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ea2d721b-e65b-47d1-917c-95ca7c89743e",
+                    "id": "6d543867-70d7-44dc-92cd-4fff9c06e3af",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -10314,7 +10311,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a0b61a5f-a476-4acc-a766-7713849efd37",
+                    "id": "aab35a47-e87f-4b33-86c5-e42a7bf7a31c",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12265,7 +12262,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "476699ce-daf8-4ddb-99e6-22a31dcdd30b",
+                    "id": "0ca794e1-0b20-4010-929e-39261834f7f6",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
