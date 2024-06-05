@@ -14,7 +14,7 @@ metadata:
   annotations:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/sync-wave: "-1"
-    argocd.argoproj.io/sync-options: Prune=false
+    argocd.argoproj.io/sync-options: Delete=false,Prune=false
 spec:
   query: (({{ $threads }}{{ $root.Values.target_env }}{{ $deployment}}{{ $name }}} - {{ $pool }}{{ $root.Values.target_env }}{{ $deployment}}{{ $name }}}) / {{ $threads }}{{ $root.Values.target_env }}{{ $deployment}}{{ $name }}})*100
 
@@ -31,7 +31,7 @@ metadata:
   annotations:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/sync-wave: "-1"
-    argocd.argoproj.io/sync-options: Delete=false Prune=false
+    argocd.argoproj.io/sync-options: Delete=false,Prune=false
 spec:
   query: avg:sidekiq.enqueued{env:eks-{{ .Values.target_env }}}
 {{- end }}

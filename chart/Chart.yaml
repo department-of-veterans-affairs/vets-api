@@ -86,7 +86,8 @@ type: application
 # 0.12.21 - Implemented parent null values
 # 0.12.22 - datadog metric prune false
 # 0.12.23 - datadog metric delete false
-version: 0.12.23
+# 0.12.24 - datadog metric delete/prune false
+version: 0.12.24
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
