@@ -101,7 +101,6 @@ Rails.application.routes.draw do
       get 'icn', to: 'users#icn'
     end
     resource :veteran_onboarding, only: %i[show update]
-    resource :post911_gi_bill_status, only: [:show]
 
     resource :education_benefits_claims, only: %i[create show] do
       collection do
