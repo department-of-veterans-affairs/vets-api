@@ -23,7 +23,7 @@ module IvcChampva
         'zipCode' => @data.dig('veteran', 'address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
-        'businessLine' => 'CMP'
+        'businessLine' => 'CMP',
         'country' => @data.dig('applicant_address', 'country') || 'USA',
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info']
