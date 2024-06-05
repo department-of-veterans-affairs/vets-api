@@ -164,7 +164,6 @@ module V0
       Swagger::Requests::OnsiteNotifications,
       Swagger::Requests::PensionClaims,
       Swagger::Requests::IncomeAndAssetsClaims,
-      Swagger::Requests::Post911GIBillStatuses,
       Swagger::Requests::PPIU,
       Swagger::Requests::PreneedsClaims,
       Swagger::Requests::Prescriptions::Prescriptions,
