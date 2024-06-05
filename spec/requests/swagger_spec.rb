@@ -420,6 +420,30 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
+    it 'supports adding an income and assets statement' do
+      expect(subject).to validate(
+        :post,
+        '/v0/form0969',
+        200,
+        '_data' => {
+          'income_and_assets_claim' => {
+            'form' => build(:income_and_assets_claim).form
+          }
+        }
+      )
+
+      expect(subject).to validate(
+        :post,
+        '/v0/form0969',
+        422,
+        '_data' => {
+          'income_and_assets_claim' => {
+            'invalid-form' => { invalid: true }.to_json
+          }
+        }
+      )
+    end
+
     context 'MDOT tests' do
       let(:user_details) do
         {
