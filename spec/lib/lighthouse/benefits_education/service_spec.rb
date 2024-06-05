@@ -45,7 +45,6 @@ RSpec.describe BenefitsEducation::Service do
   end
 
   describe 'uptime/downtime tests' do
-    # tests shamelessly stolen from spec/lib/evss/gi_bill_status/service_spec.rb
     let(:tz) { ActiveSupport::TimeZone.new(described_class::OPERATING_ZONE) }
     let(:late_time) { tz.parse('1st Feb 2018 23:00:00') }
     let(:early_time) { tz.parse('1st Feb 2018 1:00:00') }
