@@ -274,13 +274,13 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def send_failure_mail
-    notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
+    notify_client = VaNotify::Service.new(Settings.vanotify.services.health_apps_1010.api_key)
 
     # TODO: Pass google_analytics_client_id to the template
     notify_client.send_email(
       {
         email_address: parsed_form['email'],
-        template_id: Settings.vanotify.services.va_gov.template_id.form1010_ez_failure_email
+        template_id: Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email
       }
     )
   rescue => e

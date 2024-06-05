@@ -499,7 +499,7 @@ RSpec.describe HealthCareApplication, type: :model do
               email_address:,
               template_id: Settings.vanotify
                                    .services
-                                   .va_gov
+                                   .health_apps_1010
                                    .template_id
                                    .form1010_ez_failure_email
 
