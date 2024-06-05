@@ -4,12 +4,12 @@ require 'rails_helper'
 
 RSpec.describe 'PdfGenerator2122Controller', type: :request do
   describe 'POST #create' do
-    let(:base_path) { '/representation_management/v0/pdf_generator_2122' }
+    let(:base_path) { '/representation_management/v0/pdf_generator2122' }
 
     # context 'when submitting all required data' do
     #   let(:all_required_params) do
     #     {
-    #       veteran_address_line_1: '123 Fake St.',
+    #       veteran_address_line1: '123 Fake St.',
     #       flags: [{ flag_type: 'email', flagged_value: 'example@email.com' }]
     #     }
     #   end
@@ -23,7 +23,8 @@ RSpec.describe 'PdfGenerator2122Controller', type: :request do
     context 'when submitting incomplete data' do
       let(:incomplete_params) do
         {
-          veteran_address_line_1: "123 Fake St."
+          veteran_address_line1: '123 Fake St.',
+          consent_limits: %w[limit1 limit2]
         }
       end
 
