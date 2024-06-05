@@ -120,6 +120,12 @@ module Form526ClaimFastTrackingConcern
     disabilities.pluck('diagnosticCode')
   end
 
+  def eligible_for_ep_merge?
+    return false unless disabilities.count == 1
+
+    Flipper.enabled?(:disability_526_ep_merge_new_claims, User.find(user_uuid)) ? increase_or_new? : increase_only?
+  end
+
   def prepare_for_evss!
     begin
       is_claim_fully_classified = update_classification!
@@ -127,7 +133,7 @@ module Form526ClaimFastTrackingConcern
       Rails.logger.error "Contention Classification failed #{e.message}.", backtrace: e.backtrace
     end
 
-    prepare_for_ep_merge! if disabilities.count == 1 && increase_only? && is_claim_fully_classified
+    prepare_for_ep_merge! if eligible_for_ep_merge? && is_claim_fully_classified
 
     return if pending_eps? || disabilities_not_service_connected?
 
