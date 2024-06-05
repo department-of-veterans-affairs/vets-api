@@ -136,7 +136,7 @@ module VAOS
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
       def get_facility_timezone(facility_location_id)
-        facility_info = mobile_facility_service.get_facility_without_default_message(facility_location_id) unless facility_location_id.nil?
+        facility_info = mobile_facility_service.get_facility_memoized(facility_location_id) unless facility_location_id.nil?
         return nil if facility_info.nil?
 
         facility_info[:timezone]&.[](:time_zone_id)
@@ -144,7 +144,7 @@ module VAOS
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
       def get_facility_timezone_memoized(facility_location_id)
-        facility_info = mobile_facility_service.get_facility_without_default_message(facility_location_id) unless facility_location_id.nil?
+        facility_info = mobile_facility_service.get_facility_memoized(facility_location_id) unless facility_location_id.nil?
         return nil if facility_info.nil?
 
         facility_info[:timezone]&.[](:time_zone_id)

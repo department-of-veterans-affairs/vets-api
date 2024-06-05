@@ -731,7 +731,7 @@ describe VAOS::V2::AppointmentsService do
 
     context 'with an internal server error from the facilities call' do
       it 'returns nil for the timezone' do
-        allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(facility_error_msg)
+        allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_raise(Common::Exceptions::BackendServiceException)
         timezone = subject.send(:get_facility_timezone, facility_location_id)
         expect(timezone).to eq(nil)
       end

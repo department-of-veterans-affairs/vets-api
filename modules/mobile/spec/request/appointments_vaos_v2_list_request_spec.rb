@@ -451,8 +451,6 @@ RSpec.describe 'vaos v2 appointments', type: :request do
             end
           end
           expect(response).to have_http_status(:ok)
-          expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error',
-                                                            errors: [{ missing_facilities: ['983'] }])
           expect(response.body).to match_json_schema('VAOS_v2_appointments')
           location = response.parsed_body.dig('data', 0, 'attributes', 'location')
           expect(location).to eq({ 'id' => nil,
@@ -501,9 +499,6 @@ RSpec.describe 'vaos v2 appointments', type: :request do
             end
           end
           expect(response).to have_http_status(:ok)
-          expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error',
-                                                            errors: [{ missing_facilities: ['999AA'] },
-                                                                     { missing_clinics: ['999'] }])
           expect(response.body).to match_json_schema('VAOS_v2_appointments')
           expect(response.parsed_body.dig('data', 0, 'attributes', 'healthcareService')).to be_nil
         end

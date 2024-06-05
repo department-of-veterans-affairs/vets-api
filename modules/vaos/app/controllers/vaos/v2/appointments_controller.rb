@@ -7,6 +7,7 @@ module VAOS
     class AppointmentsController < VAOS::BaseController
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
+      FACILITY_ERROR_MSG = 'Error fetching facility details'
       APPT_INDEX = "GET '/vaos/v1/patients/<icn>/appointments'"
       APPT_SHOW = "GET '/vaos/v1/patients/<icn>/appointments/<id>'"
       APPT_CREATE = "POST '/vaos/v1/patients/<icn>/appointments'"
@@ -18,6 +19,7 @@ module VAOS
         appointments
 
         appointments[:data].each do |appt|
+          appt[:location] = FACILITY_ERROR_MSG if appt[:location_id] && appt[:location].nil?
           scrape_appt_comments_and_log_details(appt, APPT_INDEX, PAP_COMPLIANCE_TELE)
         end
 
