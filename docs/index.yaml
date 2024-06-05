@@ -3,7 +3,17 @@ entries:
   vets-api:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.197509-05:00"
+    created: "2024-06-05T14:42:27.187794-05:00"
+    description: A Helm chart for Kubernetes
+    digest: ca23cfbfb2f10c9b746d8ce48ef5c6ce4359afc81609650e7607de3fcb67f6ea
+    name: vets-api
+    type: application
+    urls:
+    - https://department-of-veterans-affairs.github.io/vets-api/vets-api-0.12.24.tgz
+    version: 0.12.24
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2024-06-05T14:42:27.187306-05:00"
     description: A Helm chart for Kubernetes
     digest: e72fa82d2300414998d1c2aff241bd595d9473f95a19600bb576cca1254f9e3c
     name: vets-api
@@ -13,7 +23,7 @@ entries:
     version: 0.12.23
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.197133-05:00"
+    created: "2024-06-05T14:42:27.186844-05:00"
     description: A Helm chart for Kubernetes
     digest: 88da45698e4d90e36694d3d1c0ae29dfa3d7e058634220e92ef7c2503866901b
     name: vets-api
@@ -23,7 +33,7 @@ entries:
     version: 0.12.22
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.196756-05:00"
+    created: "2024-06-05T14:42:27.18636-05:00"
     description: A Helm chart for Kubernetes
     digest: a564be9d99f2b1367c315787f14644a41644e17c0fa860dd963ed5001e05e728
     name: vets-api
@@ -33,7 +43,7 @@ entries:
     version: 0.12.21
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.196171-05:00"
+    created: "2024-06-05T14:42:27.185669-05:00"
     description: A Helm chart for Kubernetes
     digest: 46e0d7e1f28de1631047f233aea02e32442fd628a9011977a1138b3b74fd7940
     name: vets-api
@@ -43,7 +53,7 @@ entries:
     version: 0.12.20
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.195599-05:00"
+    created: "2024-06-05T14:42:27.185016-05:00"
     description: A Helm chart for Kubernetes
     digest: 94513804b1f65f74e1535224b556fb1b419895775b188bd2b4380a01d3f9f493
     name: vets-api
@@ -53,7 +63,7 @@ entries:
     version: 0.12.19
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.195163-05:00"
+    created: "2024-06-05T14:42:27.184472-05:00"
     description: A Helm chart for Kubernetes
     digest: 67885c1b343ecfeab1a978f5d8202784d80ea7608bf8b339cf143f8ed43176b1
     name: vets-api
@@ -63,7 +73,7 @@ entries:
     version: 0.12.18
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.194736-05:00"
+    created: "2024-06-05T14:42:27.183589-05:00"
     description: A Helm chart for Kubernetes
     digest: fcd2e9f13821f222a3aab794af5339ecf69c3e0d6eea2e7a284de2dc64fe9d54
     name: vets-api
@@ -73,7 +83,7 @@ entries:
     version: 0.12.17
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.194297-05:00"
+    created: "2024-06-05T14:42:27.18265-05:00"
     description: A Helm chart for Kubernetes
     digest: 4b48291360b1d722e53f272dbc0bea7cceedf0d943e10525c3eff6a0d2ac07d4
     name: vets-api
@@ -83,7 +93,7 @@ entries:
     version: 0.12.16
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.193853-05:00"
+    created: "2024-06-05T14:42:27.182132-05:00"
     description: A Helm chart for Kubernetes
     digest: 57f329938085d269b21a4b07c7e28e49908110691a69612f909b34cf3a6dd898
     name: vets-api
@@ -93,7 +103,7 @@ entries:
     version: 0.12.15
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.193397-05:00"
+    created: "2024-06-05T14:42:27.181624-05:00"
     description: A Helm chart for Kubernetes
     digest: 79335f2655428912690a40f6eb3aa3448d5105c76bd3b2d237f2aa3eb3e63a74
     name: vets-api
@@ -103,7 +113,7 @@ entries:
     version: 0.12.14
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.192107-05:00"
+    created: "2024-06-05T14:42:27.181096-05:00"
     description: A Helm chart for Kubernetes
     digest: 751f712809553645c488131b56efbf56231e40332eb05c29fff947e62dbfba16
     name: vets-api
@@ -113,7 +123,7 @@ entries:
     version: 0.12.13
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.191644-05:00"
+    created: "2024-06-05T14:42:27.180572-05:00"
     description: A Helm chart for Kubernetes
     digest: 83383bf5879c3e0f21ac955af0dc88b50f216862c06defa568cc9fc150a8ac68
     name: vets-api
@@ -123,7 +133,7 @@ entries:
     version: 0.12.12
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.191231-05:00"
+    created: "2024-06-05T14:42:27.180035-05:00"
     description: A Helm chart for Kubernetes
     digest: f29383abad81965a32298b500aa2b6359428c3463377d07c748a3fb5092282eb
     name: vets-api
@@ -133,7 +143,7 @@ entries:
     version: 0.12.11
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.190805-05:00"
+    created: "2024-06-05T14:42:27.179521-05:00"
     description: A Helm chart for Kubernetes
     digest: ba7096647b57748e1cd8cea8448261bee94e5c43438eaa67cea156c50db2678c
     name: vets-api
@@ -143,7 +153,7 @@ entries:
     version: 0.12.10
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.190349-05:00"
+    created: "2024-06-05T14:42:27.178993-05:00"
     description: A Helm chart for Kubernetes
     digest: 88a0b227dff797dfe4baafb312fd7cb6344006f66b31c0dc56e47665fc70e7ef
     name: vets-api
@@ -153,7 +163,7 @@ entries:
     version: 0.12.09
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.189927-05:00"
+    created: "2024-06-05T14:42:27.178443-05:00"
     description: A Helm chart for Kubernetes
     digest: d8182576b18b22bd69a63f93fc2191b5daf07999e56eb02eb4cb728e78b70f20
     name: vets-api
@@ -163,7 +173,7 @@ entries:
     version: 0.12.08
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.189472-05:00"
+    created: "2024-06-05T14:42:27.177766-05:00"
     description: A Helm chart for Kubernetes
     digest: a7a7af8cafcbe3dd0cb3eb6a36e9e83888ca8d6e49630980564bc69b23f1f691
     name: vets-api
@@ -173,7 +183,7 @@ entries:
     version: 0.12.07
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.188987-05:00"
+    created: "2024-06-05T14:42:27.177078-05:00"
     description: A Helm chart for Kubernetes
     digest: ecb2684534d7c844ebe6e3d55b9189dd44559b51ecc7263ceca46ffc8302df60
     name: vets-api
@@ -183,7 +193,7 @@ entries:
     version: 0.12.06
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.188465-05:00"
+    created: "2024-06-05T14:42:27.175727-05:00"
     description: A Helm chart for Kubernetes
     digest: 94ceb75f2e829ba55e53c792c8e2ec87022ec04b76af1864f2dc73b721c00009
     name: vets-api
@@ -193,7 +203,7 @@ entries:
     version: 0.12.05
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.187893-05:00"
+    created: "2024-06-05T14:42:27.175137-05:00"
     description: A Helm chart for Kubernetes
     digest: 445fe6c25143ac9a0e10f0c70dcfaac82a0d96cdb27f1a09378b6ec9a955d2e8
     name: vets-api
@@ -203,7 +213,7 @@ entries:
     version: 0.12.04
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.186411-05:00"
+    created: "2024-06-05T14:42:27.174568-05:00"
     description: A Helm chart for Kubernetes
     digest: 9e3e6badb826b490b235e100b28c3b6fbe6523dab671bc700fa87bfa961b0ce9
     name: vets-api
@@ -213,7 +223,7 @@ entries:
     version: 0.12.03
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.185958-05:00"
+    created: "2024-06-05T14:42:27.173994-05:00"
     description: A Helm chart for Kubernetes
     digest: a23019cf3ddca2e5daf538ea2349c35e35468315d5c4339f36f40dc3e2eec65b
     name: vets-api
@@ -223,7 +233,7 @@ entries:
     version: 0.12.02
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.185497-05:00"
+    created: "2024-06-05T14:42:27.173242-05:00"
     description: A Helm chart for Kubernetes
     digest: c4d54abd197da6aed051d4e9195f5c71f06bf56591ff606ceb97b83777053a25
     name: vets-api
@@ -233,7 +243,7 @@ entries:
     version: 0.12.01
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.185005-05:00"
+    created: "2024-06-05T14:42:27.172634-05:00"
     description: A Helm chart for Kubernetes
     digest: 94ff2caca33f63e92df0820b95e91062e1f925761e38d2b8c5e98b9338e4aa3a
     name: vets-api
@@ -243,7 +253,7 @@ entries:
     version: 0.12.00
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-06-05T14:23:30.184365-05:00"
+    created: "2024-06-05T14:42:27.171975-05:00"
     description: A Helm chart for Kubernetes
     digest: ea9316e3681d8532d3fbdaebcf5ff221b41086e92e8de647af118f55d7a93811
     name: vets-api
@@ -251,4 +261,4 @@ entries:
     urls:
     - https://department-of-veterans-affairs.github.io/vets-api/vets-api-0.1.0.tgz
     version: 0.1.0
-generated: "2024-06-05T14:23:30.183608-05:00"
+generated: "2024-06-05T14:42:27.170972-05:00"
