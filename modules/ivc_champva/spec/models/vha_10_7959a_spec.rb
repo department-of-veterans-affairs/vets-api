@@ -33,7 +33,6 @@ RSpec.describe IvcChampva::VHA107959a do
       expect(metadata).to include(
         'veteranFirstName' => 'John',
         'veteranLastName' => 'Doe',
-    #    'fileNumber' => '123456789',
         'zipCode' => '12345',
         'country' => 'USA',
         'source' => 'VA Platform Digital Forms',
