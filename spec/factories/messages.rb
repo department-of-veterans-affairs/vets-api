@@ -22,5 +22,10 @@ FactoryBot.define do
     recipient_id { 613_586 }
     recipient_name { 'Recipient 1' }
     read_receipt { 'READ' }
+
+    trait :with_attachments do
+      attachment { true }
+      attachments { build_list(:attachment, 3) }
+    end
   end
 end
