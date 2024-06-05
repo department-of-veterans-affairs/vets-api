@@ -1382,7 +1382,7 @@
                                     "addressLine1": {
                                       "description": "Address line 1 for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                       "maxLength": 20,
                                       "example": "1234 Couch Street"
                                     },
@@ -1482,7 +1482,7 @@
                                 "addressLine1": {
                                   "description": "Address line 1 for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                  "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                   "maxLength": 20,
                                   "example": "1234 Couch Street"
                                 },
@@ -2716,7 +2716,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -2816,7 +2816,7 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
@@ -4591,7 +4591,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -4691,7 +4691,7 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
@@ -5887,7 +5887,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b2287535-5ee5-443c-b48a-f04fa08fcdb6",
+                    "id": "b372e0a4-6cf9-4c0e-990d-ae3b2db0ee48",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -7038,7 +7038,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^([-a-zA-Z0-9'.' ])+$",
                                     "maxLength": 325,
                                     "example": "1234 Couch Street"
                                   },
@@ -7138,7 +7138,7 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
+                                "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                 "maxLength": 325,
                                 "example": "1234 Couch Street"
                               },
@@ -8744,8 +8744,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-06-04",
-                      "expirationDate": "2025-06-04",
+                      "creationDate": "2024-06-05",
+                      "expirationDate": "2025-06-05",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -9621,7 +9621,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "17994818-d0e1-433d-93ba-9c171b400c7e",
+                    "id": "42d61da4-9283-4edb-8749-40e759daf614",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -10314,7 +10314,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0db09899-6634-4ac9-a02a-0acc8b7694ef",
+                    "id": "ed39ac7b-5725-4f01-9ee0-9e1006e441c4",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12265,11 +12265,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1deed8c7-1ac2-4364-b81c-1d20be8503a7",
+                    "id": "8edf51b4-1070-4a94-9aa7-1acdc2108fb6",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-06-04",
+                      "dateRequestAccepted": "2024-06-05",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"

@@ -70,7 +70,7 @@
             "addressLine1": {
               "description": "Address line 1 for the Veteran's current mailing address.",
               "type": "string",
-              "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+              "pattern": "^([-a-zA-Z0-9'.' ])+$",
               "maxLength": 325,
               "example": "1234 Couch Street"
             },
@@ -167,7 +167,7 @@
         "addressLine1": {
           "description": "Address line 1 for the Veteran's new address.",
           "type": "string",
-          "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
+          "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
           "maxLength": 325,
           "example": "1234 Couch Street"
         },

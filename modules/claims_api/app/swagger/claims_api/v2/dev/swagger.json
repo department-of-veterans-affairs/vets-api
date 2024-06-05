@@ -1382,7 +1382,7 @@
                                     "addressLine1": {
                                       "description": "Address line 1 for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                       "maxLength": 20,
                                       "example": "1234 Couch Street"
                                     },
@@ -1482,7 +1482,7 @@
                                 "addressLine1": {
                                   "description": "Address line 1 for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                  "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                   "maxLength": 20,
                                   "example": "1234 Couch Street"
                                 },
@@ -2730,7 +2730,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -2830,7 +2830,7 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
@@ -4290,7 +4290,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2493e87b-9fc2-4027-9956-bfa3bfee4ac7",
+                    "id": "144d91be-2ff9-4eb4-865b-8dbd66197051",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -4472,7 +4472,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-06-06"
+                          "anticipatedSeparationDate": "2024-06-07"
                         },
                         "confinements": [
                           {
@@ -4608,7 +4608,7 @@
                                     "addressLine1": {
                                       "description": "Address line 1 for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                       "maxLength": 20,
                                       "example": "1234 Couch Street"
                                     },
@@ -4708,7 +4708,7 @@
                                 "addressLine1": {
                                   "description": "Address line 1 for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                  "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                   "maxLength": 20,
                                   "example": "1234 Couch Street"
                                 },
@@ -5956,7 +5956,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -6056,7 +6056,7 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
@@ -7845,7 +7845,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -7945,7 +7945,7 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
@@ -9155,7 +9155,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "70fff69f-827f-41eb-bb0f-f17c7f45135d",
+                    "id": "76cf98a8-5373-4d52-9d9b-c6427be79ade",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -10306,7 +10306,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^([-a-zA-Z0-9'.' ])+$",
                                     "maxLength": 325,
                                     "example": "1234 Couch Street"
                                   },
@@ -10406,7 +10406,7 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
+                                "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                 "maxLength": 325,
                                 "example": "1234 Couch Street"
                               },
@@ -12026,8 +12026,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-06-04",
-                      "expirationDate": "2025-06-04",
+                      "creationDate": "2024-06-05",
+                      "expirationDate": "2025-06-05",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -12903,7 +12903,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d8b6f7d8-16ca-4add-a524-ffe8d80d54df",
+                    "id": "d69a3df9-7039-4d80-a5c0-f6e2c9c3663b",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13596,7 +13596,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "eb3800fb-24de-4c60-8152-be2531f7d230",
+                    "id": "e36f4dff-ff69-4daf-9e43-9cddda7aa610",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15547,11 +15547,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "416bf788-6bf4-4547-b650-e7d7f977c56d",
+                    "id": "7a24537c-cd2d-4738-b540-5f8475c6ce5e",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-06-04",
+                      "dateRequestAccepted": "2024-06-05",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
