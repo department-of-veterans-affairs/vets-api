@@ -122,7 +122,7 @@ module VAOS
         }
       end
 
-      def get_facility_memoized(location_id)
+      def get_facility(location_id)
         get_facility_with_cache(location_id)
       rescue Common::Exceptions::BackendServiceException
         Rails.logger.error(
@@ -131,7 +131,7 @@ module VAOS
         )
         nil
       end
-      memoize :get_facility_memoized
+      memoize :get_facility
 
       def get_clinic_memoized(location_id, clinic_id)
         get_clinic_with_cache(station_id: location_id, clinic_id:)

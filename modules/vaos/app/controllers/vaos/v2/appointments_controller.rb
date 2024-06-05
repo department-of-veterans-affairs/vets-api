@@ -49,7 +49,7 @@ module VAOS
 
         unless appointment[:location_id].nil?
           appointment[:location] =
-            mobile_facility_service.get_facility_memoized(appointment[:location_id])
+            mobile_facility_service.get_facility(appointment[:location_id])
         end
 
         scrape_appt_comments_and_log_details(appointment, APPT_SHOW, PAP_COMPLIANCE_TELE)
@@ -70,7 +70,7 @@ module VAOS
         end
 
         unless new_appointment[:location_id].nil?
-          new_appointment[:location] = mobile_facility_service.get_facility_memoized(new_appointment[:location_id])
+          new_appointment[:location] = mobile_facility_service.get_facility(new_appointment[:location_id])
         end
 
         scrape_appt_comments_and_log_details(new_appointment, APPT_CREATE, PAP_COMPLIANCE_TELE)
@@ -90,7 +90,7 @@ module VAOS
         end
 
         unless updated_appointment[:location_id].nil?
-          updated_appointment[:location] = mobile_facility_service.get_facility_memoized(updated_appointment[:location_id])
+          updated_appointment[:location] = mobile_facility_service.get_facility(updated_appointment[:location_id])
         end
 
         serializer = VAOS::V2::VAOSSerializer.new

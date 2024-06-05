@@ -488,7 +488,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
 
       context 'backfill clinic service uses facility id that does not exist' do
         it 'healthcareService is nil' do
-          allow_any_instance_of(Mobile::AppointmentsHelper).to receive(:get_clinic).and_return(nil)
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic).and_return(nil)
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_facility_404', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinic_bad_facility_id_500',
                              match_requests_on: %i[method uri]) do

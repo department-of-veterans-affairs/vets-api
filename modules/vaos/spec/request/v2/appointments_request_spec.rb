@@ -100,7 +100,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
   end
 
   let(:stub_facilities) do
-    allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility_memoized).and_return(mock_facility)
+    allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)
   end
 
   let(:stub_clinics) do
@@ -387,7 +387,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
                              match_requests_on: %i[method path query], allow_playback_repeats: true) do
               allow(Rails.logger).to receive(:info).at_least(:once)
               allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(
-                :get_facility_memoized
+                :get_facility
               ).and_return(mock_appt_location_openstruct)
               get '/vaos/v2/appointments?_include=facilities,clinics', params:, headers: inflection_header
               data = JSON.parse(response.body)['data']
@@ -707,7 +707,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
 
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic_memoized)
             .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
-          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility_memoized).and_return('Location')
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return('Location')
           allow_any_instance_of(described_class).to receive(:appointment).and_return(appointment)
 
           get '/vaos/v2/appointments/70060', headers: inflection_header
@@ -767,7 +767,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
           it 'updates the service name, physical location, friendly name, and location' do
             allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic_memoized)
               .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
-            allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility_memoized)
+            allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility)
               .and_return('Location')
             allow_any_instance_of(described_class).to receive(:updated_appointment).and_return(updated_appointment)
 

@@ -136,7 +136,7 @@ module VAOS
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
       def get_facility_timezone(facility_location_id)
-        facility_info = mobile_facility_service.get_facility_memoized(facility_location_id) unless facility_location_id.nil?
+        facility_info = mobile_facility_service.get_facility(facility_location_id) unless facility_location_id.nil?
         return nil if facility_info.nil?
 
         facility_info[:timezone]&.[](:time_zone_id)
@@ -144,7 +144,7 @@ module VAOS
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
       def get_facility_timezone_memoized(facility_location_id)
-        facility_info = mobile_facility_service.get_facility_memoized(facility_location_id) unless facility_location_id.nil?
+        facility_info = mobile_facility_service.get_facility(facility_location_id) unless facility_location_id.nil?
         return nil if facility_info.nil?
 
         facility_info[:timezone]&.[](:time_zone_id)
@@ -203,7 +203,7 @@ module VAOS
       def merge_facilities(appointments)
         appointments.each do |appt|
           unless appt[:location_id].nil?
-            appt[:location] = mobile_facility_service.get_facility_memoized(appt[:location_id])
+            appt[:location] = mobile_facility_service.get_facility(appt[:location_id])
           end
           if cerner?(appt) && VAOS::AppointmentsHelper.contains_substring(VAOS::AppointmentsHelper.extract_all_values(appt[:location]), 'COL OR 1')
             log_appt_id_location_name(appt)
