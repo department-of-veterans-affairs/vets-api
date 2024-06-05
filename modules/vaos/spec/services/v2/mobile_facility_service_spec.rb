@@ -257,11 +257,11 @@ describe VAOS::V2::MobileFacilityService do
     end
   end
 
-  describe '#get_clinic' do
+  describe '#get_clinic!' do
     context 'with a valid request and station is a parent VHA facility' do
       it 'returns the clinic information' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200', cassette_options) do
-          clinic = subject.get_clinic(station_id: '983', clinic_id: '455')
+          clinic = subject.get_clinic!(station_id: '983', clinic_id: '455')
           expect(clinic[:station_id]).to eq('983')
           expect(clinic[:id]).to eq('455')
         end
@@ -271,7 +271,7 @@ describe VAOS::V2::MobileFacilityService do
     context 'with a valid request and station is not a parent VHA facility' do
       it 'returns the clinic information' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200', cassette_options) do
-          clinic = subject.get_clinic(station_id: '983GB', clinic_id: '1053')
+          clinic = subject.get_clinic!(station_id: '983GB', clinic_id: '1053')
           expect(clinic[:station_id]).to eq('983GB')
           expect(clinic[:id]).to eq('1053')
         end
@@ -281,7 +281,7 @@ describe VAOS::V2::MobileFacilityService do
     context 'with a non existing clinic' do
       it 'raises a BackendServiceException' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_500', cassette_options) do
-          expect { subject.get_clinic(station_id: '983', clinic_id: 'does_not_exist') }.to raise_error(
+          expect { subject.get_clinic!(station_id: '983', clinic_id: 'does_not_exist') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
@@ -301,9 +301,9 @@ describe VAOS::V2::MobileFacilityService do
         end
       end
 
-      it "calls '#get_clinic' retrieving information from VAOS Service" do
+      it "calls '#get_clinic!' retrieving information from VAOS Service" do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200', cassette_options) do
-          expect_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic).once.and_call_original
+          expect_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic!).once.and_call_original
           subject.get_clinic_with_cache(station_id: '983', clinic_id: '455')
           expect(Rails.cache.exist?('vaos_clinic_983_455')).to eq(true)
         end
@@ -314,11 +314,11 @@ describe VAOS::V2::MobileFacilityService do
       it 'returns the clinic information from the cache' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200', cassette_options) do
           # prime the cache
-          response = subject.get_clinic(station_id: '983', clinic_id: '455')
+          response = subject.get_clinic!(station_id: '983', clinic_id: '455')
           Rails.cache.write('vaos_clinic_983_455', response)
 
           # rubocop:disable RSpec/SubjectStub
-          expect(subject).not_to receive(:get_clinic)
+          expect(subject).not_to receive(:get_clinic!)
           # rubocop:enable RSpec/SubjectStub
           cached_response = subject.get_clinic_with_cache(station_id: '983', clinic_id: '455')
           expect(response).to eq(cached_response)
@@ -388,18 +388,18 @@ describe VAOS::V2::MobileFacilityService do
     end
   end
 
-  describe '#get_clinic_memoized' do
+  describe '#get_clinic' do
     context 'when clinic service throws an error' do
       it 'returns nil' do
         allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic_with_cache)
           .and_raise(Common::Exceptions::BackendServiceException.new('VAOS_502', {}))
 
-        expect(subject.get_clinic_memoized('123', '3456')).to be_nil
+        expect(subject.get_clinic('123', '3456')).to be_nil
       end
     end
   end
 
-  describe '#get_facility' do
+  describe '#get_facility!' do
     context 'with a valid request' do
       it 'returns a facility' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200', cassette_options) do

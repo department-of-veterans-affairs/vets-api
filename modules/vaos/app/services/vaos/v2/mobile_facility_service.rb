@@ -15,7 +15,7 @@ module VAOS
       #
       # @return [OpenStruct] An OpenStruct object containing information about the clinic.
       #
-      def get_clinic(station_id:, clinic_id:)
+      def get_clinic!(station_id:, clinic_id:)
         params = { clinicIds: clinic_id }
         parent_site_id = station_id[0, 3]
         with_monitoring do
@@ -34,7 +34,7 @@ module VAOS
       #
       def get_clinic_with_cache(station_id:, clinic_id:)
         Rails.cache.fetch("vaos_clinic_#{station_id}_#{clinic_id}", expires_in: 12.hours) do
-          get_clinic(station_id:, clinic_id:)
+          get_clinic!(station_id:, clinic_id:)
         end
       end
 
@@ -133,7 +133,7 @@ module VAOS
       end
       memoize :get_facility
 
-      def get_clinic_memoized(location_id, clinic_id)
+      def get_clinic(location_id, clinic_id)
         get_clinic_with_cache(station_id: location_id, clinic_id:)
       rescue Common::Exceptions::BackendServiceException => e
         Rails.logger.error(
@@ -144,7 +144,7 @@ module VAOS
         )
         nil
       end
-      memoize :get_clinic_memoized
+      memoize :get_clinic
 
       # Retrieves information about a VA facility from the Mobile Facility Service given its ID.
       #

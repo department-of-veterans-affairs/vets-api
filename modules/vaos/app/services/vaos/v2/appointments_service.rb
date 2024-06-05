@@ -186,7 +186,7 @@ module VAOS
       def merge_clinics(appointments)
         appointments.each do |appt|
           unless appt[:clinic].nil? || appt[:location_id].nil?
-            clinic = mobile_facility_service.get_clinic_memoized(appt[:location_id], appt[:clinic])
+            clinic = mobile_facility_service.get_clinic(appt[:location_id], appt[:clinic])
             if clinic&.[](:service_name)
               appt[:service_name] = clinic[:service_name]
               # In VAOS Service there is no dedicated clinic friendlyName field.
@@ -235,8 +235,7 @@ module VAOS
       end
 
       def mobile_facility_service
-        @mobile_facility_service ||=
-          VAOS::V2::MobileFacilityService.new(user)
+        @mobile_facility_service ||= VAOS::V2::MobileFacilityService.new(user)
       end
 
       def avs_service

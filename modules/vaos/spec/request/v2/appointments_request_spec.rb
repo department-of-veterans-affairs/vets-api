@@ -104,7 +104,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
   end
 
   let(:stub_clinics) do
-    allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic_memoized).and_return(mock_clinic)
+    allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic).and_return(mock_clinic)
   end
 
   context 'with jacqueline morgan' do
@@ -422,7 +422,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
 
           it 'has access and returns va appointments and honors includes with no physical_location field' do
             stub_facilities
-            allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic_memoized)
+            allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
               .and_return(mock_clinic_without_physical_location)
             VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
                              match_requests_on: %i[method path query], allow_playback_repeats: true) do
@@ -705,7 +705,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
         it 'updates the service name, physical location, friendly name, and location' do
           appointment = { clinic: 'Test Clinic', location_id: 1 }
 
-          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic_memoized)
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
             .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return('Location')
           allow_any_instance_of(described_class).to receive(:appointment).and_return(appointment)
@@ -765,7 +765,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
           let(:updated_appointment) { { clinic: 'Test Clinic', location_id: 1 } }
 
           it 'updates the service name, physical location, friendly name, and location' do
-            allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic_memoized)
+            allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
               .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
             allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility)
               .and_return('Location')
