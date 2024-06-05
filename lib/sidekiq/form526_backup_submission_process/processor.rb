@@ -120,8 +120,6 @@ module Sidekiq
         generate_zip_and_upload(params_docs, zipname, metadata, return_url, url_life_length)
       end
 
-      private
-
       def instantiate_upload_info_from_lighthouse
         initial_upload = @lighthouse_service.get_location_and_uuid
         @initial_upload_uuid = initial_upload[:uuid]
@@ -435,14 +433,9 @@ module Sidekiq
           options: { auth_headers: headers, breakered: },
           current_user: OpenStruct.new({ flipper_id: submission.user_uuid }),
           feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF,
-          icn: user_account.icn
+          icn: Account.lookup_by_user_uuid(submission.user_uuid)&.icn
         )
       end
-    end
-
-    def user_account
-      @user_account ||= UserAccount.find_by(id: submission.user_account_id) ||
-                          Account.find_by(idme_uuid: submission.user_uuid)
     end
 
     class NonBreakeredProcessor < Processor
