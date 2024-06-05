@@ -97,7 +97,7 @@ module Mobile
 
       def categories
         resource = client.get_categories
-
+        binding.pry
         render json: resource,
                serializer: Mobile::V0::CategorySerializer
       end
