@@ -14,7 +14,6 @@ module IvcChampva
       @form_id = 'vha_10_7959a'
     end
 
-    # rubocop:disable Lint/Syntax
     def metadata
       {
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
@@ -28,7 +27,6 @@ module IvcChampva
         'primaryContactInfo' => @data['primary_contact_info']
       }
     end
-    # rubocop:enable Lint/Syntax
 
     def submission_date_config
       {
