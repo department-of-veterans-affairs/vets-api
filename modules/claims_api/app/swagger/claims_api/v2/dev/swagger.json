@@ -376,6 +376,7 @@
                           "phaseChangeDate": "2017-10-18"
                         },
                         "claimType": "Compensation",
+                        "claimTypeCode": "400PREDSCHRG",
                         "closeDate": "2017-10-18",
                         "decisionLetterSent": false,
                         "developmentLetterSent": false,
@@ -4302,7 +4303,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bcb8a44d-5620-4dbd-99d9-260b73a0c771",
+                    "id": "68322ca8-7a2f-47d6-a5fa-68d3dffb0b70",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -9185,7 +9186,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "98d7520a-b29d-40fa-87ba-a5605a9a0326",
+                    "id": "eab39daa-e6c0-4859-a4aa-70cdc7ed62f3",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12944,7 +12945,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2ae1082f-23f5-43cb-81b2-059273b84e3d",
+                    "id": "c6f24102-8dec-4e4b-b181-08c2079c2de4",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13637,7 +13638,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "24d177a7-a596-43c1-b4d4-bd88e8868c9a",
+                    "id": "8ce4c02f-0590-428d-aa47-d84d4378d83c",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15588,7 +15589,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "417291ae-10ed-45a6-92b8-852272f25d47",
+                    "id": "27120a22-2277-4f40-acfc-f4c3a999c0eb",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",

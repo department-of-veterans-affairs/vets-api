@@ -61,7 +61,7 @@ module TermsOfUse
     end
 
     def attr_package_key
-      @attr_package_key ||= Sidekiq::AttrPackage.create(icn:, signature_name:, version:, expires_in: 2.days)
+      @attr_package_key ||= Sidekiq::AttrPackage.create(icn:, signature_name:, version:, expires_in: 72.hours)
     end
   end
 end
