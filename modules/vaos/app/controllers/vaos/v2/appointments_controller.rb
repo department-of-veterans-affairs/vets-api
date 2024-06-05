@@ -19,7 +19,9 @@ module VAOS
         appointments
 
         appointments[:data].each do |appt|
-          appt[:location] = FACILITY_ERROR_MSG if appt[:location_id] && appt[:location].nil?
+          if include_params[:facilities] && appt[:location_id] && appt[:location].nil?
+            appt[:location] = FACILITY_ERROR_MSG
+          end
           scrape_appt_comments_and_log_details(appt, APPT_INDEX, PAP_COMPLIANCE_TELE)
         end
 
@@ -318,8 +320,8 @@ module VAOS
       def include_params
         included = appointment_params[:_include]&.split(',')
         {
-          clinics: included&.include?('clinics'),
-          facilities: included&.include?('facilities')
+          clinics: !!included&.include?('clinics'),
+          facilities: !!included&.include?('facilities')
         }
       end
 
