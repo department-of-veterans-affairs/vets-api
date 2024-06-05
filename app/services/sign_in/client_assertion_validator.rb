@@ -20,7 +20,7 @@ module SignIn
     private
 
     def validate_client_assertion_type
-      if client_assertion_type != Constants::Auth::CLIENT_ASSERTION_TYPE
+      if client_assertion_type != Constants::Urn::JWT_BEARER_CLIENT_AUTHENTICATION
         raise Errors::ClientAssertionTypeInvalidError.new message: 'Client assertion type is not valid'
       end
     end

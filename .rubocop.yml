@@ -26,6 +26,7 @@ AllCops:
     - db/migrate/*.rb
     - 'vendor/**/*'
     - modules/**/db/migrate/*.rb
+    - 'tmp/**/*'
 
 Style/Documentation:
   Enabled: false
