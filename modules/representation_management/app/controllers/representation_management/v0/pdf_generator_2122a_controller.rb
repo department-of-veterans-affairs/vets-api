@@ -2,7 +2,7 @@
 
 module RepresentationManagement
   module V0
-    class PdfGenerator2122Controller < ApplicationController
+    class PdfGenerator2122aController < ApplicationController
       service_tag 'lighthouse-veteran' # Is this the correct service tag?
       before_action :feature_enabled
       skip_before_action :authenticate
@@ -38,7 +38,6 @@ module RepresentationManagement
       def claimant_params
         %i[
           claimant_id
-
           claimant_address_line1
           claimant_address_line2
           claimant_city
@@ -78,8 +77,9 @@ module RepresentationManagement
           veteran_phone_number
           veteran_phone_number_ext
           veteran_email
+          veteran_service_branch
+          veteran_service_branch_other
           veteran_service_number
-          veteran_insurance_number
         ]
       end
 
