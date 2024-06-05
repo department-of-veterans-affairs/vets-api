@@ -159,7 +159,7 @@ module VAOS
       #
       # @return [OpenStruct] An OpenStruct object containing information about the facility.
       #
-      def get_facility(facility_id)
+      def get_facility!(facility_id)
         params = {}
         with_monitoring do
           response = perform(:get, facilities_url_with_id(facility_id), params, headers)
@@ -176,7 +176,7 @@ module VAOS
       #
       def get_facility_with_cache(facility_id)
         Rails.cache.fetch("vaos_facility_#{facility_id}", expires_in: 12.hours) do
-          get_facility(facility_id)
+          get_facility!(facility_id)
         end
       end
 

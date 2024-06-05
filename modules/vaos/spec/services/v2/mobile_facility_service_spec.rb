@@ -403,7 +403,7 @@ describe VAOS::V2::MobileFacilityService do
     context 'with a valid request' do
       it 'returns a facility' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200', cassette_options) do
-          response = subject.get_facility('983')
+          response = subject.get_facility!('983')
           expect(response[:id]).to eq('983')
           expect(response[:type]).to eq('va_facilities')
           expect(response[:name]).to eq('Cheyenne VA Medical Center')
@@ -414,7 +414,7 @@ describe VAOS::V2::MobileFacilityService do
     context 'when the upstream server returns a 400' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_400', cassette_options) do
-          expect { subject.get_facility('983') }.to raise_error(
+          expect { subject.get_facility!('983') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
@@ -424,7 +424,7 @@ describe VAOS::V2::MobileFacilityService do
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_500', cassette_options) do
-          expect { subject.get_facility('983') }.to raise_error(
+          expect { subject.get_facility!('983') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
@@ -448,10 +448,10 @@ describe VAOS::V2::MobileFacilityService do
       end
     end
 
-    it 'calls #get_facility' do
+    it 'calls #get_facility!' do
       VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200', cassette_options) do
         # rubocop:disable RSpec/SubjectStub
-        expect(subject).to receive(:get_facility).once.and_call_original
+        expect(subject).to receive(:get_facility!).once.and_call_original
         # rubocop:enable RSpec/SubjectStub
         subject.get_facility_with_cache('983')
       end
@@ -461,11 +461,11 @@ describe VAOS::V2::MobileFacilityService do
       it 'returns the facility from the cache' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200', cassette_options) do
           # prime the cache
-          response = subject.get_facility('983')
+          response = subject.get_facility!('983')
           Rails.cache.write('vaos_facility_983', response)
 
           # rubocop:disable RSpec/SubjectStub
-          expect(subject).not_to receive(:get_facility)
+          expect(subject).not_to receive(:get_facility!)
           # rubocop:enable RSpec/SubjectStub
           cached_response = subject.get_facility_with_cache('983')
           expect(response).to eq(cached_response)

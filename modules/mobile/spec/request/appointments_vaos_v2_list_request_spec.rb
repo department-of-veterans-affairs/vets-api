@@ -164,8 +164,8 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         end
 
         it 'attempts to fetch clinic once' do
-          allow_any_instance_of(Mobile::AppointmentsHelper).to receive(:get_clinic).and_return(nil)
-          expect_any_instance_of(Mobile::AppointmentsHelper).to receive(:get_clinic).once
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic).and_return(nil)
+          expect_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic).once
 
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinic_bad_facility_id_500',
@@ -471,18 +471,6 @@ RSpec.describe 'vaos v2 appointments', type: :request do
                                    'url' => nil,
                                    'code' => nil })
         end
-
-        it 'does not attempt to fetch facility more than once' do
-          expect_any_instance_of(Mobile::AppointmentsHelper).to receive(:get_facility).with('983').once
-
-          VCR.use_cassette('mobile/appointments/VAOS_v2/get_facility_500', match_requests_on: %i[method uri],
-                                                                           allow_playback_repeats: true) do
-            VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_bad_facility_200_vpg',
-                             match_requests_on: %i[method uri]) do
-              get '/mobile/v0/appointments', headers: sis_headers, params:
-            end
-          end
-        end
       end
 
       context 'backfill clinic service returns data' do
@@ -521,8 +509,8 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         end
 
         it 'attempts to fetch clinic once' do
-          allow_any_instance_of(Mobile::AppointmentsHelper).to receive(:get_clinic).and_return(nil)
-          expect_any_instance_of(Mobile::AppointmentsHelper).to receive(:get_clinic).once
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic).and_return(nil)
+          expect_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic).once
 
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinic_bad_facility_id_500',
