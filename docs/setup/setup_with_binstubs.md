@@ -2,7 +2,7 @@
 
 Binstubs allows you to almost completely setup your computer to run `vets-api`
 
-_Caveat:_ Only MacOSX is supported as of 5/16/24. More OS support is not yet planned. 
+_Caveat:_ Only macOS is supported as of 5/16/24. More OS support is not yet planned. 
 
 ## How to Choose
 
