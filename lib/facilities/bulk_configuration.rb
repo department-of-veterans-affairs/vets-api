@@ -11,7 +11,7 @@ module Facilities
         conn.use :breakers
         conn.request :json
 
-        conn.response :raise_error, error_prefix: service_name
+        conn.response :raise_custom_va_error, error_prefix: service_name
         conn.response :json_parser
 
         conn.adapter Faraday.default_adapter

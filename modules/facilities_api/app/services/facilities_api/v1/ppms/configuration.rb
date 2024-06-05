@@ -31,7 +31,7 @@ module FacilitiesApi
             # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
             # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
-            conn.response :raise_error, error_prefix: service_name
+            conn.response :raise_custom_va_error, error_prefix: service_name
             conn.use FacilitiesApi::V1::PPMS::Middleware::PPMSParser
 
             conn.adapter Faraday.default_adapter

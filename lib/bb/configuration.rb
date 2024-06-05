@@ -62,7 +62,7 @@ module BB
         conn.response :betamocks if Settings.mhv.bb.mock
         conn.response :bb_parser
         conn.response :snakecase
-        conn.response :raise_error, error_prefix: service_name
+        conn.response :raise_custom_va_error, error_prefix: service_name
         conn.response :mhv_errors
         conn.response :mhv_xml_html_errors
         conn.response :json_parser
