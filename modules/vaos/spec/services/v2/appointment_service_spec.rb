@@ -758,7 +758,7 @@ describe VAOS::V2::AppointmentsService do
     context 'when appt location id is 358' do
       it 'logs the appt location id, timezone info, utc/local times of appt' do
         allow_any_instance_of(VAOS::V2::AppointmentsService)
-          .to receive(:get_facility_timezone)
+          .to receive(:get_facility_timezone_memoized)
           .and_return('Asia/Manila')
         allow(Rails.logger).to receive(:info)
 
@@ -778,7 +778,7 @@ describe VAOS::V2::AppointmentsService do
 
       it 'logs the appt location id, timezone info, utc/local times of appt request' do
         allow_any_instance_of(VAOS::V2::AppointmentsService)
-          .to receive(:get_facility_timezone)
+          .to receive(:get_facility_timezone_memoized)
           .and_return('Asia/Manila')
         allow(Rails.logger).to receive(:info)
 

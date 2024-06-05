@@ -112,8 +112,6 @@ RSpec.describe 'vaos v2 appointments', type: :request do
             end
           end
           expect(response).to have_http_status(:ok)
-          expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error',
-                                                            errors: [{ missing_facilities: ['983'] }])
           expect(response.body).to match_json_schema('VAOS_v2_appointments')
           location = response.parsed_body.dig('data', 0, 'attributes', 'location')
           expect(location).to eq({ 'id' => nil,
@@ -131,18 +129,6 @@ RSpec.describe 'vaos v2 appointments', type: :request do
                                        'extension' => nil },
                                    'url' => nil,
                                    'code' => nil })
-        end
-
-        it 'does not attempt to fetch facility more than once' do
-          expect_any_instance_of(Mobile::AppointmentsHelper).to receive(:get_facility).with('983').once
-
-          VCR.use_cassette('mobile/appointments/VAOS_v2/get_facility_500', match_requests_on: %i[method uri],
-                                                                           allow_playback_repeats: true) do
-            VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_bad_facility_200',
-                             match_requests_on: %i[method uri]) do
-              get '/mobile/v0/appointments', headers: sis_headers, params:
-            end
-          end
         end
       end
 
@@ -162,7 +148,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
 
       context 'backfill clinic service uses facility id that does not exist' do
         it 'healthcareService is nil' do
-          allow_any_instance_of(Mobile::AppointmentsHelper).to receive(:get_clinic).and_return(nil)
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic).and_return(nil)
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_facility_404', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinic_bad_facility_id_500',
                              match_requests_on: %i[method uri]) do
@@ -173,9 +159,6 @@ RSpec.describe 'vaos v2 appointments', type: :request do
             end
           end
           expect(response).to have_http_status(:ok)
-          expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error',
-                                                            errors: [{ missing_facilities: ['999AA'] },
-                                                                     { missing_clinics: ['999'] }])
           expect(response.body).to match_json_schema('VAOS_v2_appointments')
           expect(response.parsed_body.dig('data', 0, 'attributes', 'healthcareService')).to be_nil
         end
