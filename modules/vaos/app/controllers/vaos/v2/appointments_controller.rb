@@ -9,7 +9,6 @@ module VAOS
       extend Memoist
 
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
-      NPI_NOT_FOUND_MSG = "We're sorry, we can't display your provider's information right now."
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       APPT_INDEX = "GET '/vaos/v1/patients/<icn>/appointments'"
@@ -21,10 +20,6 @@ module VAOS
 
       def index
         appointments
-
-        appointments[:data].each do |appt|
-          find_and_merge_provider_name(appt) if appt[:kind] == 'cc' && appt[:status] == 'proposed'
-        end
 
         _include&.include?('clinics') && merge_clinics(appointments[:data])
         _include&.include?('facilities') && merge_facilities(appointments[:data])
@@ -48,8 +43,6 @@ module VAOS
       def show
         appointment
 
-        find_and_merge_provider_name(appointment) if appointment[:kind] == 'cc' && appointment[:status] == 'proposed'
-
         unless appointment[:clinic].nil? || appointment[:location_id].nil?
           clinic = get_clinic_memoized(appointment[:location_id], appointment[:clinic])
           appointment[:service_name] = clinic&.[](:service_name)
@@ -71,8 +64,6 @@ module VAOS
 
       def create
         new_appointment
-
-        find_and_merge_provider_name(new_appointment) if new_appointment[:kind] == 'cc'
 
         unless new_appointment[:clinic].nil? || new_appointment[:location_id].nil?
           clinic = get_clinic_memoized(new_appointment[:location_id], new_appointment[:clinic])
@@ -122,11 +113,6 @@ module VAOS
           VAOS::V2::MobileFacilityService.new(current_user)
       end
 
-      def mobile_ppms_service
-        @mobile_ppms_service ||=
-          VAOS::V2::MobilePPMSService.new(current_user)
-      end
-
       def appointments
         @appointments ||=
           appointments_service.get_appointments(start_date, end_date, statuses, pagination_params)
@@ -145,38 +131,6 @@ module VAOS
         @updated_appointment ||=
           appointments_service.update_appointment(update_appt_id, status_update)
       end
-
-      # uses find_npi helper method to extract npi from appointment response,
-      # then uses the npi to look up the provider name via mobile_ppms_service
-      #
-      # will memoize provider name to avoid duplicate get_provider_with_cache calls
-      def find_and_merge_provider_name(appt)
-        found_npi = find_npi(appt)
-
-        appt[:preferred_provider_name] = get_provider_name_memoized(found_npi) if found_npi
-      end
-
-      def find_npi(appt)
-        appt[:practitioners]&.each do |a|
-          a[:identifier]&.each do |i|
-            return i[:value] if i[:system].include? 'us-npi'
-          end
-        end
-        nil
-      end
-
-      def get_provider_name_memoized(npi)
-        provider_response = mobile_ppms_service.get_provider_with_cache(npi)
-        provider_response[:name]
-      rescue Common::Exceptions::BackendServiceException => e
-        Rails.logger.warn(
-          "VAOS Error fetching provider name for npi #{npi}",
-          npi:,
-          vamf_msg: e.original_body
-        )
-        NPI_NOT_FOUND_MSG
-      end
-      memoize :get_provider_name_memoized
 
       # Makes a call to the VAOS service to create a new appointment.
       def get_new_appointment

@@ -1558,6 +1558,7 @@ virtual_regional_office:
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
   evidence_pdf_path: evidence-pdf
   ctn_classification_path: classifier
+  vagov_classification_path: va-gov-claim-classifier
   max_cfi_path: employee-experience/max-ratings
   ep_merge_path: employee-experience-ep-merge-app/merge
 
