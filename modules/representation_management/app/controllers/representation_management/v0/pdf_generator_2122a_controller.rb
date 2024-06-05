@@ -31,13 +31,13 @@ module RepresentationManagement
           veteran_params,
           :record_consent,
           :consent_address_change,
-          { consent_limits: [] }
+          { consent_limits: [],
+            conditions_of_appointment: [] }
         ].flatten
       end
 
       def claimant_params
         %i[
-          claimant_id
           claimant_address_line1
           claimant_address_line2
           claimant_city
@@ -50,6 +50,21 @@ module RepresentationManagement
           claimant_phone_number_ext
           claimant_email
           claimant_relationship
+        ]
+      end
+
+      def representative_params
+        %i[
+          poa_code
+          registration_number
+          type
+          representative_address_line1
+          representative_address_line2
+          representative_city
+          representative_country
+          representative_state_code
+          representative_zip_code
+          representative_zip_code_suffix
         ]
       end
 

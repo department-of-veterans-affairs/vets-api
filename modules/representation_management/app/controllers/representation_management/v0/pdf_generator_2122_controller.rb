@@ -37,8 +37,6 @@ module RepresentationManagement
 
       def claimant_params
         %i[
-          claimant_id
-
           claimant_address_line1
           claimant_address_line2
           claimant_city
