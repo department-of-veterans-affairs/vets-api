@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module VAOS
   module AppointmentsHelper
     # This method extracts all values from a given object, which can be either an `OpenStruct`, `Hash`, or `Array`.

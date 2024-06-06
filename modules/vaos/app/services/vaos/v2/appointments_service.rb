@@ -202,10 +202,10 @@ module VAOS
 
       def merge_facilities(appointments)
         appointments.each do |appt|
-          unless appt[:location_id].nil?
-            appt[:location] = mobile_facility_service.get_facility(appt[:location_id])
-          end
-          if cerner?(appt) && VAOS::AppointmentsHelper.contains_substring(VAOS::AppointmentsHelper.extract_all_values(appt[:location]), 'COL OR 1')
+          appt[:location] = mobile_facility_service.get_facility(appt[:location_id]) unless appt[:location_id].nil?
+          if cerner?(appt) && VAOS::AppointmentsHelper.contains_substring(
+            VAOS::AppointmentsHelper.extract_all_values(appt[:location]), 'COL OR 1'
+          )
             log_appt_id_location_name(appt)
           end
         end
