@@ -101,7 +101,6 @@ Rails.application.routes.draw do
       get 'icn', to: 'users#icn'
     end
     resource :veteran_onboarding, only: %i[show update]
-    resource :post911_gi_bill_status, only: [:show]
 
     resource :education_benefits_claims, only: %i[create show] do
       collection do
@@ -140,6 +139,9 @@ Rails.application.routes.draw do
       resources :pension_claims, only: %i[create show]
       resources :burial_claims, only: %i[create show]
     end
+
+    post 'form0969', to: 'income_and_assets_claims#create'
+    get 'form0969', to: 'income_and_assets_claims#show'
 
     resources :benefits_claims, only: %i[index show] do
       post :submit5103, on: :member

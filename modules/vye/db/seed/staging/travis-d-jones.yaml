@@ -1,0 +1,56 @@
+---
+:profile:
+  :ssn: '796123018'
+  :file_number: '796123018'
+  :icn: 1012845638V677813
+:info:
+  :file_number: '796123018'
+  :dob: 1967-06-04
+  :stub_nm: TDJONES
+  :mr_status: A
+  :rem_ent: '2264402'
+  :cert_issue_date: 2015-12-16
+  :del_date: 2024-09-29
+  :date_last_certified: 2024-03-28
+  :rpo_code: 6609
+  :fac_code: ullam
+  :payment_amt: 1793.19
+  :indicator: A
+  :bdn_clone_active: true
+:address:
+  :veteran_name: Travis D Jones
+  :address1: 133 Theda Highway
+  :city: Langworthville
+  :state: NM
+  :zip_code: '86821'
+  :origin: backend
+:awards:
+- :cur_award_ind: P
+  :award_begin_date: 2023-10-01
+  :award_end_date: 2023-12-08
+  :training_time: 4
+  :payment_date:
+  :monthly_rate: 1488.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: C
+  :award_begin_date: 2024-01-16
+  :award_end_date: 2024-05-03
+  :training_time: 4
+  :payment_date:
+  :monthly_rate: 1488.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+:pending_documents:
+- :doc_type: quam
+  :queue_date: 2024-05-06
+  :rpo: autem
+- :doc_type: sunt
+  :queue_date: 2024-05-14
+  :rpo: illo

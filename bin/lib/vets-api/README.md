@@ -19,7 +19,8 @@ All other binstubs can be used by Mac, Linux, or Windows.
 - bin/lint
 - bin/setup
 - bin/test
-- bin/deps
+- bin/dev
+- bin/docker
 
 ### bin/setup
 
@@ -38,16 +39,34 @@ Run `bin/test --help` for usage info and example
 
 ### bin/lint
 
-- Replaces `make lint` 
+- Replaces `make lint` for docker setup
 - Runs rubocop, brakeman, and bundle-audit
 - Autocorrecting in rubocop is on by default, but `--dry` will override autocorrect option
 
 Run `bin/lint --help` for usage info and example 
 
+### bin/docker
+
+- Replaces Makefile commands
+- Commands include:
+    - clean = Prunes unused Docker objects and rebuilds the images"
+    - rebuild = Stops running containers and builds the images without cache"
+    - build = Stops running containers and builds the images with cache"
+    - stop = Stops all running Docker containers"
+    - startd = Start Docker containers in the background"
+    - console = Starts the Rails console"
+    - bundle = Bundles ruby gems"
+    - db = Prepares the database for development and test environments" 
+    - ci = Prepare docker environment to run bin/test --ci"
+    - help = Display this help message"
+
+Run `bin/docker --help` for usage info and example 
+
 ### others
 
 - `bin/help`: Display `vets-api` related binstubs
 - `bin/info`: Display version related information
+- `bin/dev`:  Start the server
 
 ## Reporting a Bug or Feature Suggest 
 
@@ -66,7 +85,7 @@ After checking out the `sjc-binstubs` branch, run `bin/setup` with your desired 
 ```bash
 # Example
 
-bin/setup --native
+bin/setup native
 ```
 
 This will create a new file `.developer-setup` to store your setup preference. You can switch this at any time by rerun the setup binstub. Some setup steps will be skipped if already completed. 
