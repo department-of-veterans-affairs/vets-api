@@ -8,12 +8,18 @@ module ClaimsApi
     class DisabilityCompensationPdfGenerator < ClaimsApi::ServiceBase
       EVSS_DOCUMENT_TYPE = 'L023'
       LOG_TAG = '526_v2_PDF_Generator_job'
+      sidekiq_options expires_in: 48.hours, retry: true
 
       def perform(claim_id, middle_initial, perform_async = true) # rubocop:disable Metrics/MethodLength,Style/OptionalBooleanParameter
         log_job_progress(claim_id,
                          "526EZ PDF generator started for claim #{claim_id}")
 
         auto_claim = get_claim(claim_id)
+
+        if Settings.claims_api.benefits_documents.use_mocks
+          start_docker_container_job(auto_claim&.id, perform_async)
+          return
+        end
 
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value

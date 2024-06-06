@@ -78,6 +78,43 @@ RSpec.describe BenefitsClaims::Service do
       end
 
       describe 'when posting a form526' do
+        it 'has formatted request body data correctly' do
+          body = @service.send(:prepare_submission_body,
+                               {
+                                 'serviceInformation' => {
+                                   'confinements' => []
+                                 },
+                                 'toxicExposure' => {
+                                   'multipleExposures' => [],
+                                   'herbicideHazardService' => {
+                                     'serviceDates' => {
+                                       'beginDate' => '1991-03-01',
+                                       'endDate' => '1992-01-01'
+                                     }
+                                   }
+                                 }
+                               })
+
+          expect(body).to eq({
+                               'data' => {
+                                 'type' => 'form/526',
+                                 'attributes' => {
+                                   'serviceInformation' => {
+                                     'confinements' => []
+                                   },
+                                   'toxicExposure' => {
+                                     'herbicideHazardService' => {
+                                       'serviceDates' => {
+                                         'beginDate' => '1991-03-01',
+                                         'endDate' => '1992-01-01'
+                                       }
+                                     }
+                                   }
+                                 }
+                               }
+                             })
+        end
+
         it 'when given a full request body, posts to the Lighthouse API' do
           VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
             response = @service.submit526({ data: { attributes: {} } }, '', '', { body_only: true })

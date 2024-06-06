@@ -12,6 +12,9 @@ on:
       auto_deploy_envs:
         required: true
         type: string
+      commit_sha:  # #${{ github.sha }}
+        required: true
+        type: string
     secrets:
       aws_access_key_id: #${{ secrets.AWS_ACCESS_KEY_ID }}
         required: true
@@ -37,10 +40,10 @@ jobs:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           aws-access-key-id: ${{ secrets.aws_access_key_id }}
           aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
@@ -48,7 +51,7 @@ jobs:
 
       - name: Log into ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Get bot token from Parameter Store
         uses: marvinpinto/action-inject-ssm-secrets@latest
@@ -64,7 +67,7 @@ jobs:
           sudo apt install yq -y
 
       - name: Check out Manifest Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: department-of-veterans-affairs/vsp-infra-application-manifests
           token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
@@ -81,10 +84,10 @@ jobs:
           envs=( ${{ needs.prepare-values.outputs.environments }} )
           for env in ${envs[*]};
           do
-            yq e -i '(."vets-api".image.tag) |= "${{ github.sha }}"' $env/values.yaml
-            yq e -i '(."vets-api".web.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ github.sha }}"' $env/values.yaml
-            yq e -i '(."vets-api".web.dbMigrate.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ github.sha }}"' $env/values.yaml
-            yq e -i '(."vets-api".worker.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ github.sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".image.tag) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".web.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".web.dbMigrate.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".worker.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
           done
           git diff
 
@@ -96,4 +99,4 @@ jobs:
           cwd: vsp-infra-application-manifests/apps
           author_name: va-vsp-bot
           author_email: devops@va.gov
-          message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}}."
+          message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}} : ${{ inputs.commit_sha }}."

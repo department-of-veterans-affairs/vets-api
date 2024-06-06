@@ -52,6 +52,8 @@ module ClaimsApi
       end
 
       def user_represents_veteran?
+        return false if @current_user.first_name.nil? || @current_user.last_name.nil?
+
         reps = ::Veteran::Service::Representative.all_for_user(
           first_name: @current_user.first_name,
           last_name: @current_user.last_name

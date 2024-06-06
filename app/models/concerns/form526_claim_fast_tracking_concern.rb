@@ -122,12 +122,12 @@ module Form526ClaimFastTrackingConcern
 
   def prepare_for_evss!
     begin
-      classification_updated = update_classification!
+      is_claim_fully_classified = update_classification!
     rescue => e
       Rails.logger.error "Contention Classification failed #{e.message}.", backtrace: e.backtrace
     end
 
-    prepare_for_ep_merge! if disabilities.count == 1 && increase_only? && classification_updated
+    prepare_for_ep_merge! if disabilities.count == 1 && increase_only? && is_claim_fully_classified
 
     return if pending_eps? || disabilities_not_service_connected?
 
@@ -165,7 +165,79 @@ module Form526ClaimFastTrackingConcern
     end
   end
 
+  # Contact the VRO classifier service to classify the contentions on this form
+  # update the form with the classification codes
+  # returns true if all of form's contentions were classified
   def update_classification!
+    if Flipper.enabled?(:disability_526_classifier_multi_contention)
+      update_contention_classification_all!
+    else
+      update_contention_classification_single_contention!
+    end
+  end
+
+  def update_form_with_classification_codes(classified_contentions)
+    classified_contentions.each_with_index do |classified_contention, index|
+      if classified_contention['classification_code'].present?
+        classification_code = classified_contention['classification_code']
+        disabilities[index]['classificationCode'] = classification_code
+      end
+    end
+
+    update!(form_json: form.to_json)
+    invalidate_form_hash
+  end
+
+  def classify_vagov_contentions(params)
+    vro_client = VirtualRegionalOffice::Client.new
+    response = vro_client.classify_vagov_contentions(params)
+    response.body
+  end
+
+  def format_contention_for_vro(disability)
+    contention = {
+      contention_text: disability['name'],
+      contention_type: disability['disabilityActionType']
+    }
+    contention['diagnostic_code'] = disability['diagnosticCode'] if disability['diagnosticCode']
+    contention
+  end
+
+  # Submits contention information to the VRO contention classification service
+  # adds classification to the form for each contention provided a classification
+  def update_contention_classification_all! # rubocop:disable Metrics/MethodLength
+    contentions_array = disabilities.map { |disability| format_contention_for_vro(disability) }
+    params = {
+      claim_id: saved_claim_id,
+      form526_submission_id: id,
+      contentions: contentions_array
+    }
+    classifier_response = classify_vagov_contentions(params)
+    classifier_response['contentions'].each do |contention|
+      classification = nil
+      if contention.key?('classification_code') && contention.key?('classification_name')
+        classification = {
+          classification_code: contention['classification_code'],
+          classification_name: contention['classification_name']
+        }
+      end
+      # NOTE: claim_type is actually type of contention, but formatting
+      # preserved in order to match existing datadog dashboard
+      Rails.logger.info('Classified 526Submission',
+                        id:, saved_claim_id:, classification:,
+                        claim_type: contention['contention_type'])
+    end
+    update_form_with_classification_codes(classifier_response['contentions'])
+    classifier_response['is_fully_classified']
+  end
+
+  # Submits contention information to the VRO contention classification
+  # service for single-contention claims.
+  #
+  # note: this method is only used for single-contention claims and is
+  # deprecated in favor of update_contention_classification_all, which handles
+  # both single and multi-contention claims
+  def update_contention_classification_single_contention!
     return unless increase_or_new?
     return unless disabilities.count == 1
 
@@ -217,6 +289,7 @@ module Form526ClaimFastTrackingConcern
       end
       Rails.logger.info('Max CFI form526 submission',
                         id:, max_cfi_enabled:, disability_claimed:, diagnostic_code:,
+                        cfi_checkbox_was_selected: cfi_checkbox_was_selected?,
                         total_increase_conditions: increase_disabilities.count)
     end
   rescue => e
@@ -239,6 +312,13 @@ module Form526ClaimFastTrackingConcern
     end
   end
 
+  # return whether the associated InProgressForm ever logged that the CFI checkbox was selected
+  def cfi_checkbox_was_selected?
+    return false if in_progress_form.nil?
+
+    ClaimFastTracking::MaxCfiMetrics.new(in_progress_form, {}).create_or_load_metadata['cfiLogged']
+  end
+
   def add_ep_merge_special_issue!
     disabilities.each do |disability|
       disability['specialIssues'] ||= []
@@ -249,8 +329,11 @@ module Form526ClaimFastTrackingConcern
 
   private
 
+  def in_progress_form
+    @in_progress_form ||= InProgressForm.find_by(form_id: '21-526EZ', user_uuid:)
+  end
+
   def max_rated_disabilities_from_ipf
-    in_progress_form = InProgressForm.find_by(form_id: '21-526EZ', user_uuid:)
     return [] if in_progress_form.nil?
 
     fd = in_progress_form.form_data

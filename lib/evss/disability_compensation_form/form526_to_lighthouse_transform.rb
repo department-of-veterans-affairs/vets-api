@@ -4,13 +4,63 @@ require 'disability_compensation/requests/form526_request_body'
 
 module EVSS
   module DisabilityCompensationForm
-    class Form526ToLighthouseTransform
+    class Form526ToLighthouseTransform # rubocop:disable Metrics/ClassLength
       TOXIC_EXPOSURE_CAUSE_MAP = {
         NEW: 'My condition was caused by an injury or exposure during my military service.',
         WORSENED: 'My condition existed before I served in the military, but it got worse because of my military ' \
                   'service.',
         VA: 'My condition was caused by an injury or event that happened when I was receiving VA care.',
         SECONDARY: 'My condition was caused by another service-connected disability I already have.'
+      }.freeze
+
+      GULF_WAR_LOCATIONS = {
+        afghanistan: 'Afghanistan',
+        bahrain: 'Bahrain',
+        egypt: 'Egypt',
+        iraq: 'Iraq',
+        israel: 'Israel',
+        jordan: 'Jordan',
+        kuwait: 'Kuwait',
+        neutralzone: 'Neutral zone between Iraq and Saudi Arabia',
+        oman: 'Oman',
+        qatar: 'Qatar',
+        saudiarabia: 'Saudi Arabia',
+        somalia: 'Somalia',
+        syria: 'Syria',
+        uae: 'The United Arab Emirates (UAE)',
+        turkey: 'Turkey',
+        djibouti: 'Djibouti',
+        lebanon: 'Lebanon',
+        uzbekistan: 'Uzbekistan',
+        yemen: 'Yemen',
+        waters:
+        'The waters of the Arabian Sea, Gulf of Aden, Gulf of Oman, Persian Gulf, and Red Sea',
+        airspace: 'The airspace above any of these locations',
+        none: 'None of these locations'
+      }.freeze
+
+      HERBICIDE_LOCATIONS = {
+        cambodia: 'Cambodia at Mimot or Krek, Kampong Cham Province',
+        guam: 'Guam, American Samoa, or their territorial waters',
+        koreandemilitarizedzone: 'In or near the Korean demilitarized zone',
+        johnston: 'Johnston Atoll or on a ship that called at Johnston Atoll',
+        laos: 'Laos',
+        c123: 'Somewhere you had contact with C-123 airplanes while serving in the Air Force or the Air Force Reserves',
+        thailand: 'A U.S. or Royal Thai military base in Thailand',
+        vietnam: 'Vietnam or the waters in or off of Vietnam ',
+        none: 'None of these locations '
+      }.freeze
+
+      HAZARDS = {
+        asbestos: 'Asbestos',
+        radiation: 'Radiation',
+        mustardgas: 'Mustard Gas'
+      }.freeze
+
+      MULTIPLE_EXPOSURES_TYPE = {
+        gulf_war: 'gulf_war',
+        herbicide: 'herbicide',
+        hazard: 'hazard'
       }.freeze
 
       # takes known EVSS Form526Submission format and converts it to a Lighthouse request body
@@ -42,6 +92,8 @@ module EVSS
 
         lh_request_body
       end
+
+      private
 
       # returns "STANDARD_CLAIM_PROCESS", "BDD_PROGRAM", or "FDC_PROGRAM"
       # based off of a few attributes in the evss data
@@ -164,20 +216,81 @@ module EVSS
         service_pay_target
       end
 
-      def transform_toxic_exposure(toxic_exposure_source)
+      def transform_toxic_exposure(toxic_exposure_source) # rubocop:disable Metrics/MethodLength
         toxic_exposure_target = Requests::ToxicExposure.new
 
         gulf_war1990 = toxic_exposure_source['gulfWar1990']
         gulf_war2001 = toxic_exposure_source['gulfWar2001']
+        herbicide = toxic_exposure_source['herbicide']
+        other_herbicide_locations = toxic_exposure_source['otherHerbicideLocations']
+
         if gulf_war1990.present? || gulf_war2001.present?
           toxic_exposure_target.gulf_war_hazard_service =
             transform_gulf_war(gulf_war1990, gulf_war2001)
         end
 
+        if herbicide.present? || other_herbicide_locations.present?
+          toxic_exposure_target.herbicide_hazard_service = transform_herbicide(herbicide,
+                                                                               other_herbicide_locations)
+        end
+
+        # create an Array[Requests::MultipleExposures]
+        multiple_exposures = []
+        if toxic_exposure_source['gulfWar1990Details'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar1990Details'])
+        end
+        if toxic_exposure_source['gulfWar2001Details'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar2001Details'])
+        end
+        if toxic_exposure_source['herbicideDetails'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['herbicideDetails'],
+                                                             MULTIPLE_EXPOSURES_TYPE[:herbicide])
+        end
+        if values_present(toxic_exposure_source['otherHerbicideLocations'])
+          multiple_exposures +=
+            transform_multiple_exposures_other_herbicide(toxic_exposure_source['otherHerbicideLocations'])
+        end
+        toxic_exposure_target.multiple_exposures = multiple_exposures
+
         toxic_exposure_target
       end
 
-      private
+      # @param details [Hash] the object with the exposure information of {location/hazard: {startDate, endDate}}
+      # @param multiple_exposures_type [String] vets-website sends the key to be used as
+      #   both a location and a hazard in different objects
+      # @return Array[Requests::MultipleExposures] array of MultipleExposures or nil
+      def transform_multiple_exposures(details, multiple_exposures_type = MULTIPLE_EXPOSURES_TYPE[:gulf_war])
+        details&.map do |k, v|
+          obj = Requests::MultipleExposures.new(
+            exposure_dates: Requests::Dates.new
+          )
+
+          obj.exposure_dates.begin_date = convert_date_no_day(v['startDate']) if v['startDate'].present?
+          obj.exposure_dates.end_date = convert_date_no_day(v['endDate']) if v['endDate'].present?
+
+          if multiple_exposures_type == MULTIPLE_EXPOSURES_TYPE[:hazard]
+            obj.hazard_exposed_to = HAZARDS[k.to_sym]
+          elsif multiple_exposures_type == MULTIPLE_EXPOSURES_TYPE[:herbicide]
+            obj.exposure_location = HERBICIDE_LOCATIONS[k.to_sym]
+          else
+            obj.exposure_location = GULF_WAR_LOCATIONS[k.to_sym]
+          end
+
+          obj
+        end
+      end
+
+      def transform_multiple_exposures_other_herbicide(details)
+        obj = Requests::MultipleExposures.new(
+          exposure_dates: Requests::Dates.new
+        )
+
+        obj.exposure_dates.begin_date = convert_date_no_day(details['startDate']) if details['startDate'].present?
+        obj.exposure_dates.end_date = convert_date_no_day(details['endDate']) if details['endDate'].present?
+        obj.exposure_location = details['description'] if details['description'].present?
+
+        [obj]
+      end
 
       def transform_gulf_war(gulf_war1990, gulf_war2001)
         filtered_results1990 = gulf_war1990&.filter { |k| k != 'notsure' }
@@ -192,7 +305,25 @@ module EVSS
         gulf_war_hazard_service
       end
 
+      def transform_herbicide(herbicide, other_herbicide_locations)
+        filtered_results_herbicide = herbicide&.filter { |k| k != 'notsure' }
+        herbicide_value = (values_present(filtered_results_herbicide) ||
+                          values_present(other_herbicide_locations)) &&
+                          !none_of_these(filtered_results_herbicide)
+
+        herbicide_service = Requests::HerbicideHazardService.new
+        herbicide_service.served_in_herbicide_hazard_locations = herbicide_value ? 'YES' : 'NO'
+
+        herbicide_service
+      end
+
+      def values_present(obj)
+        obj.present? && obj.values&.any?(&:present?)
+      end
+
       def none_of_these(options)
+        return false if options.blank?
+
         none_of_these = options['none']
         none_of_these.present?
       end
@@ -474,6 +605,10 @@ module EVSS
 
       def convert_date(date)
         Date.parse(date).strftime('%Y-%m-%d')
+      end
+
+      def convert_date_no_day(date)
+        Date.parse(date).strftime('%Y-%m')
       end
     end
   end

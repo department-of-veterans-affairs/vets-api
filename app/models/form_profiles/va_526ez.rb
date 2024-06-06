@@ -66,6 +66,12 @@ module VA526ez
 
     attribute :veteran, FormContactInformation
   end
+
+  class FormToxicExposure
+    include Virtus.model
+
+    attribute :include_toxic_exposure, Boolean
+  end
 end
 
 class FormProfiles::VA526ez < FormProfile
@@ -73,11 +79,13 @@ class FormProfiles::VA526ez < FormProfile
   attribute :rated_disabilities_information, VA526ez::FormRatedDisabilities
   attribute :veteran_contact_information, VA526ez::FormContactInformation
   attribute :payment_information, VA526ez::FormPaymentAccountInformation
+  attribute :toxic_exposure, VA526ez::FormToxicExposure
 
   def prefill
     @rated_disabilities_information = initialize_rated_disabilities_information
     @veteran_contact_information = initialize_veteran_contact_information
     @payment_information = initialize_payment_information
+    @toxic_exposure = initialize_toxic_exposure
     super
   end
 
@@ -113,6 +121,12 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   private
+
+  def initialize_toxic_exposure
+    VA526ez::FormToxicExposure.new(
+      include_toxic_exposure: Flipper.enabled?(:disability_526_toxic_exposure, user)
+    )
+  end
 
   def initialize_vets360_contact_info
     return {} unless vet360_contact_info

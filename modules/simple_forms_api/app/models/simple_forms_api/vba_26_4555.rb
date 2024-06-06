@@ -103,8 +103,8 @@ module SimpleFormsApi
             city: data.dig('previous_sah_application', 'previous_sah_application_address', 'city')
           },
           hasPreviousSahApplication: data.dig('previous_sah_application', 'has_previous_sah_application'),
-          previousSahApplicationLocation: data.dig('previous_sah_application', 'previous_sah_application_address',
-                                                   'city')
+          previousApplicationLocation: data.dig('previous_sah_application', 'previous_sah_application_address',
+                                                'city')
         }
       else
         {}

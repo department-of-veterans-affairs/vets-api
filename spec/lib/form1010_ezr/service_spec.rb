@@ -11,7 +11,20 @@ RSpec.describe Form1010Ezr::Service do
   end
 
   let(:form) { get_fixture('form1010_ezr/valid_form') }
-  let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534', birth_date: '1986-01-02') }
+  let(:current_user) do
+    build(
+      :evss_user,
+      :loa3,
+      icn: '1013032368V065534',
+      birth_date: '1986-01-02',
+      first_name: 'FirstName',
+      middle_name: 'MiddleName',
+      last_name: 'ZZTEST',
+      suffix: 'Jr.',
+      ssn: '111111234',
+      gender: 'F'
+    )
+  end
   let(:service) { described_class.new(current_user) }
 
   def allow_logger_to_receive_error
@@ -22,8 +35,10 @@ RSpec.describe Form1010Ezr::Service do
     allow(Rails.logger).to receive(:info)
   end
 
-  def expect_logger_error(error_message)
-    expect(Rails.logger).to have_received(:error).with(error_message)
+  def expect_logger_errors(error_messages = [])
+    error_messages.each do |e|
+      expect(Rails.logger).to have_received(:error).with(include(e))
+    end
   end
 
   def submit_form(form)
@@ -52,26 +67,57 @@ RSpec.describe Form1010Ezr::Service do
     end
   end
 
-  describe '#post_fill_veteran_date_of_birth' do
-    context "when 'veteranDateOfBirth' is present" do
+  describe '#post_fill_required_user_fields' do
+    let(:required_user_fields) do
+      {
+        'veteranDateOfBirth' => current_user.birth_date,
+        'veteranFullName' => current_user.full_name_normalized&.compact&.stringify_keys,
+        'veteranSocialSecurityNumber' => current_user.ssn_normalized,
+        'gender' => current_user.gender
+      }
+    end
+
+    context 'when the fields are already present in the form' do
       let(:parsed_form) do
         {
-          'veteranDateOfBirth' => '1985-04-03'
+          'veteranFullName' => {
+            'first' => 'John',
+            'middle' => 'Matthew',
+            'last' => 'Smith',
+            'suffix' => 'Sr.'
+          },
+          'veteranDateOfBirth' => '1991-01-06',
+          'veteranSocialSecurityNumber' => '123456789',
+          'gender' => 'M'
         }
       end
 
-      it 'returns nil' do
-        expect(service.send(:post_fill_veteran_date_of_birth, parsed_form)).to eq(nil)
+      it 'does not update the form fields' do
+        service.send(:post_fill_required_user_fields, parsed_form)
+
+        required_user_fields.each do |key, value|
+          expect(parsed_form[key]).not_to eq(value)
+        end
       end
     end
 
-    context "when 'veteranDateOfBirth' is not present, but the current_user's DOB is present in the session" do
+    context 'when one or more fields are not present, but the field(s) are present in the user session' do
       let(:parsed_form) { {} }
 
-      it "adds/updates 'veteranDateOfBirth' to be equal to the current_user's DOB and then returns the parsed form" do
-        expect(service.send(:post_fill_veteran_date_of_birth, parsed_form)).to eq(
-          { 'veteranDateOfBirth' => current_user.birth_date }
-        )
+      before do
+        allow(StatsD).to receive(:increment)
+      end
+
+      it "increments StatsD and adds/updates the form field(s) to be equal to the current_user's data" do
+        required_user_fields.each_key do |key|
+          expect(StatsD).to receive(:increment).with("api.1010ezr.missing_#{key.underscore}")
+        end
+
+        service.send(:post_fill_required_user_fields, parsed_form)
+
+        required_user_fields.each do |key, value|
+          expect(parsed_form[key]).to eq(value)
+        end
       end
     end
   end
@@ -113,9 +159,10 @@ RSpec.describe Form1010Ezr::Service do
           # and then added via the 'post_fill_required_fields' method
           expect(form['isEssentialAcaCoverage']).to eq(nil)
           expect(form['vaMedicalFacility']).to eq(nil)
-          # If the 'veteranDateOfBirth' key is missing from the parsed_form, it should get added in via the
-          # 'post_fill_veteran_date_of_birth' method and pass validation
-          form.delete('veteranDateOfBirth')
+          # If the 'veteranDateOfBirth', 'veteranFullName', 'veteranSocialSecurityNumber', and/or 'gender' fields are
+          # missing from the parsed_form, they should get added in via the 'post_fill_user_fields' method and
+          # pass validation
+          %w[veteranDateOfBirth veteranFullName veteranSocialSecurityNumber gender].each { |key| form.delete(key) }
 
           submission_response = submit_form(form)
 
@@ -130,7 +177,7 @@ RSpec.describe Form1010Ezr::Service do
         end
       end
 
-      it 'logs the submission id', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+      it 'logs the submission id and payload size', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
         VCR.use_cassette(
           'form1010_ezr/authorized_submit',
           { match_requests_on: %i[method uri body], erb: true }
@@ -138,6 +185,8 @@ RSpec.describe Form1010Ezr::Service do
           submission_response = submit_form(form)
 
           expect(Rails.logger).to have_received(:info).with("SubmissionID=#{submission_response[:formSubmissionId]}")
+          expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZR: ' \
+                                                            'Body size of 12.1 KB with 0 attachment(s)')
         end
       end
 
@@ -226,7 +275,12 @@ RSpec.describe Form1010Ezr::Service do
             )
             expect(e.errors[0].status).to eq('422')
           end
-          expect_logger_error('10-10EZR form validation failed. Form does not match schema.')
+          expect_logger_errors(
+            [
+              '10-10EZR form validation failed. Form does not match schema.',
+              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+            ]
+          )
         end
 
         it 'increments statsd' do
@@ -276,7 +330,9 @@ RSpec.describe Form1010Ezr::Service do
           end.to raise_error(
             StandardError, 'Uh oh. Some bad error occurred.'
           )
-          expect_logger_error('10-10EZR form submission failed: Uh oh. Some bad error occurred.')
+          expect_logger_errors(
+            ['10-10EZR form submission failed: Uh oh. Some bad error occurred.']
+          )
         end
       end
     end

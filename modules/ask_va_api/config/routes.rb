@@ -25,6 +25,7 @@ AskVAApi::Engine.routes.draw do
     get '/states', to: 'static_data#states'
     get '/optionset', to: 'static_data#optionset'
     get '/announcements', to: 'static_data#announcements'
+    get '/branch_of_service', to: 'static_data#branch_of_service'
 
     # address_validation
     post '/address_validation', to: 'address_validation#create'
@@ -32,5 +33,11 @@ AskVAApi::Engine.routes.draw do
     # health_facilities
     get '/health_facilities', to: 'health_facilities#index'
     get '/health_facilities/:id', to: 'health_facilities#show'
+
+    # education_facilities
+    get '/education_facilities/autocomplete', to: 'education_facilities#autocomplete'
+    get '/education_facilities/search', to: 'education_facilities#search'
+    get '/education_facilities/:id', to: 'education_facilities#show'
+    get '/education_facilities/:id/children', to: 'education_facilities#children'
   end
 end

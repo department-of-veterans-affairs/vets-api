@@ -37,7 +37,7 @@ module Form1010Ezr
 
     def submit_sync(parsed_form)
       res = with_monitoring do
-        es_submit(parsed_form, FORM_ID)
+        es_submit(parsed_form, @user, FORM_ID)
       end
 
       # Log the 'formSubmissionId' for successful submissions
@@ -105,11 +105,14 @@ module Form1010Ezr
 
         log_validation_errors(parsed_form)
 
-        Rails.logger.error('10-10EZR form validation failed. Form does not match schema.')
+        Rails.logger.error(
+          "10-10EZR form validation failed. Form does not match schema. Error list: #{validation_errors}"
+        )
         raise Common::Exceptions::SchemaValidationErrors, validation_errors
       end
     end
 
+    # <---- Post-fill methods ---->
     # Add required fields not included in the JSON schema, but are
     # required in the Enrollment System API
     def post_fill_required_fields(parsed_form)
@@ -118,18 +121,31 @@ module Form1010Ezr
       parsed_form.merge!(required_fields)
     end
 
-    # Due to issues with receiving submissions that do not include the Veteran's DOB, we'll
-    # try to add it in before we validate the form
-    def post_fill_veteran_date_of_birth(parsed_form)
-      return if parsed_form['veteranDateOfBirth'].present?
+    # Due to issues with receiving submissions that do not include the Veteran's DOB, full name, SSN, and/or
+    # gender, we'll try to add them in before we validate the form
+    def post_fill_required_user_fields(parsed_form)
+      # User fields that are required in the 10-10EZR schema, but not editable on the frontend
+      required_user_form_fields = {
+        'veteranDateOfBirth' => @user.birth_date,
+        'veteranFullName' => @user.full_name_normalized&.compact&.stringify_keys,
+        'veteranSocialSecurityNumber' => @user.ssn_normalized,
+        'gender' => @user.gender
+      }
 
-      parsed_form['veteranDateOfBirth'] = @user.birth_date
-      parsed_form
+      required_user_form_fields.each do |key, value|
+        next if parsed_form[key].present?
+
+        StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.missing_#{key.underscore}")
+
+        parsed_form[key] = value
+      end
     end
 
     def post_fill_fields(parsed_form)
       post_fill_required_fields(parsed_form)
-      post_fill_veteran_date_of_birth(parsed_form)
+      post_fill_required_user_fields(parsed_form)
+
+      parsed_form.compact
     end
 
     def configure_and_validate_form(parsed_form)

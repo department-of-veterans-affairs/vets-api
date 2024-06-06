@@ -53,19 +53,6 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
     end
   end
 
-  describe '#get_provider_name_memoized' do
-    npi_not_found_msg = "We're sorry, we can't display your provider's information right now."
-
-    context 'when provider service throws an error' do
-      it 'returns npi_not_found_msg' do
-        allow_any_instance_of(VAOS::V2::MobilePPMSService).to receive(:get_provider_with_cache)
-          .and_raise(Common::Exceptions::BackendServiceException.new('VAOS_502', {}))
-
-        expect(subject.send(:get_provider_name_memoized, '123')).to eq(npi_not_found_msg)
-      end
-    end
-  end
-
   describe '#start_date' do
     context 'with an invalid date' do
       it 'throws an InvalidFieldValue exception' do
@@ -93,7 +80,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
   describe '#merge_facilities' do
     context 'with a cerner facility and location with no values' do
       it 'does not log and does not throw an error' do
-        allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_facility_memoized).and_return(nil)
+        allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility_memoized).and_return(nil)
         appointments = [{ identifier: [{ system: 'https://cerner/system' }], location_id: '123' }]
         expect(Rails.logger).not_to receive(:info)
         subject.send(:merge_facilities, appointments)

@@ -118,6 +118,64 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
         expect(evss_data[:disabilities][0][:specialIssues][0]).to eq('PACT')
       end
 
+      context 'When there are special issues' do
+        let(:disability) do
+          {
+            disabilityActionType: 'NEW',
+            name: 'hypertension',
+            approximateDate: nil,
+            classificationCode: '',
+            serviceRelevance: '',
+            isRelatedToToxicExposure: false,
+            exposureOrEventOrInjury: '',
+            ratedDisabilityId: '',
+            diagnosticCode: 0,
+            secondaryDisabilities: nil,
+            specialIssues: %w[POW EMP]
+          }
+        end
+
+        it 'maps the special issues attributes correctly' do
+          form_data['data']['attributes']['disabilities'][0] = disability
+          auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
+          evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, file_number).map_claim[:form526]
+          special_issue_first = evss_data[:disabilities][0][:specialIssues][0]
+          special_issue_second = evss_data[:disabilities][0][:specialIssues][1]
+          expect(special_issue_first).to eq('POW')
+          expect(special_issue_second).to eq('EMP')
+        end
+      end
+
+      context 'When there are special issues and a PACT disability' do
+        let(:disability) do
+          {
+            disabilityActionType: 'NEW',
+            name: 'hypertension',
+            approximateDate: nil,
+            classificationCode: '',
+            serviceRelevance: '',
+            isRelatedToToxicExposure: true,
+            exposureOrEventOrInjury: '',
+            ratedDisabilityId: '',
+            diagnosticCode: 0,
+            secondaryDisabilities: nil,
+            specialIssues: %w[POW EMP]
+          }
+        end
+
+        it 'maps the special issues attributes correctly and appends PACT' do
+          form_data['data']['attributes']['disabilities'][0] = disability
+          auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
+          evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, file_number).map_claim[:form526]
+          includes_pow = evss_data[:disabilities][0][:specialIssues].include? 'POW'
+          includes_emp = evss_data[:disabilities][0][:specialIssues].include? 'EMP'
+          includes_pact = evss_data[:disabilities][0][:specialIssues].include? 'PACT'
+          expect(includes_pow).to eq(true)
+          expect(includes_emp).to eq(true)
+          expect(includes_pact).to eq(true)
+        end
+      end
+
       context 'When serviceRelevance is blank' do
         let(:disability) do
           {
@@ -142,6 +200,31 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
           expect(disability[:serviceRelevance]).to eq(nil)
         end
       end
+
+      context 'When classificationcode is null' do
+        let(:disability) do
+          {
+            disabilityActionType: 'INCREASE',
+            name: 'hypertension',
+            approximateDate: nil,
+            classificationCode: nil,
+            serviceRelevance: '',
+            isRelatedToToxicExposure: false,
+            exposureOrEventOrInjury: '',
+            ratedDisabilityId: '',
+            diagnosticCode: 0,
+            secondaryDisabilities: nil
+          }
+        end
+
+        it 'mapping logic correctly removes attribute' do
+          form_data['data']['attributes']['disabilities'][1] = disability
+          auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
+          evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, file_number).map_claim[:form526]
+          disability = evss_data[:disabilities][1]
+          expect(disability[:classificationCode]).to eq(nil)
+        end
+      end
     end
 
     context '526 section 6, service information: service periods' do
@@ -153,6 +236,16 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
         expect(service_periods[:activeDutyEndDate]).to eq('2023-10-30')
         expect(service_periods[:serviceComponent]).to eq('Active')
         expect(service_periods[:separationLocationCode]).to eq('98282')
+      end
+
+      it 'maps the confinements attribute correctly' do
+        first_confinement = evss_data[:serviceInformation][:confinements][0]
+        second_confinement = evss_data[:serviceInformation][:confinements][1]
+
+        expect(first_confinement[:confinementBeginDate]).to eq('2018-06-04')
+        expect(first_confinement[:confinementEndDate]).to eq('2018-07-04')
+        expect(second_confinement[:confinementBeginDate]).to eq('2020-06')
+        expect(second_confinement[:confinementEndDate]).to eq('2020-07')
       end
     end
 
