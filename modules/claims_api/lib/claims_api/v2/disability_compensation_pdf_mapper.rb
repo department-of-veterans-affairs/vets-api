@@ -63,7 +63,8 @@ module ClaimsApi
 
       def claim_notes
         if @auto_claim&.dig('claimNotes').present?
-          @pdf_data[:data][:attributes][:claimNotes] = @auto_claim&.dig('claimNotes')
+          @pdf_data[:data][:attributes][:overflowText] = @auto_claim&.dig('claimNotes')
+          @auto_claim.delete('claimNotes')
         end
       end
 
