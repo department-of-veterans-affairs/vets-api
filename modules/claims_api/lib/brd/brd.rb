@@ -49,7 +49,7 @@ module ClaimsApi
                   ssl: { verify: Settings.brd&.ssl != false },
                   headers: { 'apiKey' => api_key }) do |f|
         f.request :json
-        f.response :raise_error
+        f.response :raise_custom_va_error
         f.response :json, parser_options: { symbolize_names: true }
         f.adapter Faraday.default_adapter
       end
