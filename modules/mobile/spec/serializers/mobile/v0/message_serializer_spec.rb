@@ -13,5 +13,4 @@ describe Mobile::V0::MessageSerializer do
   it 'includes :message_id' do
     expect(rendered_relationships[:attachments][:data].size).to eq message.attachments.size
   end
-
 end

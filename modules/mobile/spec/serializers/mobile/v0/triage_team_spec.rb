@@ -29,5 +29,4 @@ describe Mobile::V0::TriageTeamSerializer do
   it 'includes :preferred_team' do
     expect(rendered_attributes[:preferred_team]).to eq triage_team.preferred_team
   end
-
 end

@@ -36,6 +36,5 @@ FactoryBot.define do
       to_date { Time.current.iso8601 }
       has_attachments { false }
     end
-
   end
 end
