@@ -532,6 +532,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
 
       none_option_with_other = data.merge({
                                             'otherExposures' => {
+                                              'asbestos' => true,
+                                              'radiation' => true,
                                               'none' => true
                                             },
                                             'specifyOtherExposures' => {
@@ -547,6 +549,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
 
       none_option_with_no_other = data.merge({
                                                'otherExposures' => {
+                                                 'asbestos' => true,
+                                                 'radiation' => true,
                                                  'none' => true
                                                },
                                                'specifyOtherExposures' => {}

@@ -341,10 +341,12 @@ module EVSS
       def transform_other_exposures(other_exposures, specify_other_exposures)
         return nil if none_of_these(other_exposures) && !values_present(specify_other_exposures)
 
-        filtered_results_other_exposures = other_exposures&.filter { |k, v| k != 'notsure' && k != 'none' && v }
+        filtered_results_other_exposures = other_exposures&.filter { |k, v| k != 'notsure' && v }
         additional_hazard_exposures_service = Requests::AdditionalHazardExposures.new
-        additional_hazard_exposures_service.additional_exposures = filtered_results_other_exposures&.map do |k, _v|
-          HAZARDS_LH_ENUM[k.to_sym]
+        unless none_of_these(filtered_results_other_exposures)
+          additional_hazard_exposures_service.additional_exposures = filtered_results_other_exposures&.map do |k, _v|
+            HAZARDS_LH_ENUM[k.to_sym]
+          end
         end
         other = HAZARDS_LH_ENUM[:other] if values_present(specify_other_exposures)
         additional_hazard_exposures_service.additional_exposures << other if other.present?
