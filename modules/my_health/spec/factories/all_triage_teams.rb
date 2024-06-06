@@ -13,6 +13,5 @@ FactoryBot.define do
     sequence :name do |n|
       "Triage Group for patient #{n}"
     end
-
   end
 end
