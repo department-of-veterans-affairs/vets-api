@@ -29,7 +29,6 @@ module Mobile
 
         resource = client.post_create_folder(folder.name)
 
-        binding.pry
         render json: resource,
                serializer: Mobile::V0::FolderSerializer,
                meta: resource.metadata,
