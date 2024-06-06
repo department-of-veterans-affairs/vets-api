@@ -168,7 +168,6 @@ module SimpleFormsApi
       end
     end
 
-    # rubocop:disable Metrics/MethodLength
     def form21_0966_personalization
       benefits = @form_data['benefit_selection']
       intent_to_file_benefits = if benefits['compensation'] && benefits['pension']
@@ -183,6 +182,5 @@ module SimpleFormsApi
                                 end
       { 'intent_to_file_benefits' => intent_to_file_benefits }
     end
-    # rubocop:enable Metrics/MethodLength
   end
 end
