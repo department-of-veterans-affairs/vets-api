@@ -454,5 +454,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
                                 other_herbicide_locations_has_blank_fields['otherHerbicideLocations'])
       expect(result.served_in_herbicide_hazard_locations).to eq('NO')
     end
+
+    it 'set additional_hazard_exposures correctly' do
+      result = transformer.send(:transform_other_exposures, data['otherExposures'], data['specifyOtherExposures'])
+      expect(result.additional_exposures.length).to eq(3)
+      expect(result.additional_exposures[0]).to eq('ASBESTOS')
+      expect(result.additional_exposures[1]).to eq('RADIATION')
+      expect(result.additional_exposures[2]).to eq('OTHER')
+    end
   end
 end

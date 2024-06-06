@@ -210,6 +210,31 @@
         "description": "other location 1, other location 2 etc",
         "startDate": "1991-03-01",
         "endDate": "1992-01-01"
+      },
+      "otherExposures": {
+        "asbestos": true,
+        "chemical": true,
+        "mos": true,
+        "mustardgas": true,
+        "radiation": true,
+        "water": true,
+        "none": false,
+        "notsure": false
+      },
+      "otherExposureDetails": {
+        "asbestos": {
+          "startDate": "1991-03-01",
+          "endDate": "1992-01-01"
+        },
+        "radiation": {
+          "startDate": "1991-03-01",
+          "endDate": "1992-01-01"
+        }
+      },
+      "specifyOtherExposures": {
+        "description": "Lead, burn pits",
+        "startDate": "1991-03-01",
+        "endDate": "1992-01-01"
       }
     },
     "waiveRetirementPay": false,
