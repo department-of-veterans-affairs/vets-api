@@ -474,3 +474,6 @@ module Sidekiq
     end
   end
 end
+
+thing = Sidekiq::Form526BackupSubmissionProcess::Processor.new(sub.id);
+lhp = thing.choose_provider(sub.auth_headers)
