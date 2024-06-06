@@ -307,7 +307,8 @@ module V1
       when :success
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags:)
-        Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
+        log_tags = tags.dup << "icn:#{@current_user.icn}"
+        Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{log_tags}")
         Rails.logger.info("SessionsController version:v1 login complete, user_uuid=#{@current_user&.uuid}")
         StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags:)
       when :failure
@@ -389,8 +390,7 @@ module V1
     end
 
     def set_user_client_id
-      client_id = url_service.tracker.payload_attr(:application)
-      @current_user.identity.sign_in[:client_id] = client_id
+      @current_user.identity.sign_in[:client_id] = url_service.tracker.payload_attr(:application)
       @current_user.identity.save
     end
 
