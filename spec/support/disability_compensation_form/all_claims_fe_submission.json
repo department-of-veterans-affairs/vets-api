@@ -217,9 +217,7 @@
         "mos": true,
         "mustardgas": true,
         "radiation": true,
-        "water": true,
-        "none": false,
-        "notsure": false
+        "water": true
       },
       "otherExposureDetails": {
         "asbestos": {
