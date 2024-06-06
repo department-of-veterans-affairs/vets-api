@@ -373,6 +373,24 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
+        context 'when the city is invalid' do
+          let(:city) { '#Base 6' }
+
+          it 'responds with 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['changeOfAddress']['city'] = city
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['detail']).to include(
+                'The property /changeOfAddress/city did not match the following requirements:'
+              )
+            end
+          end
+        end
+
         context 'when the begin date is after the end date' do
           let(:begin_date) { '2023-01-01' }
           let(:end_date) { '2022-01-01' }

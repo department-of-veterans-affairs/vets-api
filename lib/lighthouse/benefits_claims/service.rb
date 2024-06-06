@@ -129,6 +129,42 @@ module BenefitsClaims
       handle_error(e, lighthouse_client_id, endpoint)
     end
 
+    # submit form526 to Lighthouse API endpoint:
+    # /services/claims/v2/veterans/{veteranId}/526/validate
+    # @param [hash || Requests::Form526] body: a hash representing the form526
+    # attributes in the Lighthouse request schema
+    # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
+    # @param [string] lighthouse_rsa_key_path: absolute path to the rsa key file
+    # @param [hash] options: options to override aud_claim_url, params, and auth_params
+    # @option options [hash] :body_only only return the body from the request
+    #
+    # NOTE: this method is similar to submit526.  The
+    # only difference is the path and endpoint values
+    #
+    def validate526(body,
+                    lighthouse_client_id = nil,
+                    lighthouse_rsa_key_path = nil,
+                    options = {})
+
+      endpoint  = '{icn}/526/validate'
+      path      = "#{@icn}/526/validate"
+      body      = prepare_submission_body(body)
+
+      response = config.post(
+        path,
+        body,
+        lighthouse_client_id,
+        lighthouse_rsa_key_path,
+        options
+      )
+
+      submit_response(response, options[:body_only])
+    rescue  Faraday::ClientError,
+            Faraday::ServerError => e
+      handle_error(e, lighthouse_client_id, endpoint)
+    end
+
+    ######################################
     private
 
     def build_request_body(body)

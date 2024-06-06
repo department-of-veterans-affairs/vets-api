@@ -4,7 +4,7 @@ module IvcChampva
   module V1
     class PegaController < SignIn::ServiceAccountApplicationController
       service_tag 'identity'
-      VALID_KEYS = %w[form_uuid file_names status].freeze
+      VALID_KEYS = %w[form_uuid file_names status case_id].freeze
 
       def update_status
         Datadog::Tracing.trace('Start PEGA Status Update') do
@@ -16,7 +16,7 @@ module IvcChampva
 
           response =
             if valid_keys?(data)
-              update_data(data['form_uuid'], data['file_names'], data['status'])
+              update_data(data['form_uuid'], data['file_names'], data['status'], data['case_id'])
             else
               { status: 500, error: 'Invalid JSON keys' }
             end
@@ -31,13 +31,14 @@ module IvcChampva
 
       private
 
-      def update_data(form_uuid, file_names, status)
+      def update_data(form_uuid, file_names, status, case_id)
         ivc_forms = forms_query(form_uuid, file_names)
 
         if ivc_forms.any?
           ivc_forms.each do |form|
             form.update!(
-              pega_status: status
+              pega_status: status,
+              case_id:
             )
           end
 
