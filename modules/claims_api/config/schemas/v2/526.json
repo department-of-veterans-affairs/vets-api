@@ -1048,7 +1048,7 @@
       "default": false
     },
     "claimNotes": {
-      "type": "string",
+      "type": ["string", "null"],
       "description": "An optional notes section.",
       "maxLength": 4000
     }
