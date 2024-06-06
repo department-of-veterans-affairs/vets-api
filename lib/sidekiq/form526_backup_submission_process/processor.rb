@@ -328,6 +328,11 @@ module Sidekiq
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
         resp = get_form_from_external_api(headers, form_json.to_json)
+
+        # [wipn8923] START HERE - this is working, it's the janky way we used to save it below that's the problem
+        File.binwrite("tmp/wipn8923-form526-#{Time.zone.now}.pdf", resp.env.response_body)
+
+        # [wipn8923] maybe just use a flipper?
         b64_enc_body = resp.body['pdf']
         content = Base64.decode64(b64_enc_body)
         file = write_to_tmp_file(content)
@@ -443,10 +448,11 @@ module Sidekiq
     end
 
     class NonBreakeredProcessor < Processor
+      # [wipn8923] do this as well
       def get_form526_pdf
         headers = submission.auth_headers
         submission_create_date = submission.created_at.iso8601
-        form_json = JSON.parse(submission.form_json)[FORM_526]
+        form_json = submission.form[FORM_526]
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
         resp = get_from_non_breakered_service(headers, form_json.to_json)
