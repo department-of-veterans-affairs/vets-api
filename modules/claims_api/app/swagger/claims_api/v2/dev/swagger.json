@@ -9156,7 +9156,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a639e137-c80e-4284-ad9a-8e0710d17667",
+                    "id": "76cf98a8-5373-4d52-9d9b-c6427be79ade",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
