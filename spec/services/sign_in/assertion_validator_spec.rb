@@ -96,9 +96,9 @@ RSpec.describe SignIn::AssertionValidator do
           let(:iss) { service_account_audience }
 
           context 'and audience is not present' do
-            before { assertion_payload.delete(:aud) }
-
             let(:expected_error_message) { 'Assertion audience is not valid' }
+
+            before { assertion_payload.delete(:aud) }
 
             it 'raises service account assertion attributes error' do
               expect { subject }.to raise_error(expected_error, expected_error_message)
@@ -120,8 +120,6 @@ RSpec.describe SignIn::AssertionValidator do
             context 'and scopes are not present' do
               before { assertion_payload.delete(:scopes) }
 
-              let(:expected_error_message) { 'Assertion scopes are not valid' }
-
               context 'and service account config scopes are not present' do
                 let(:service_account_config) do
                   create(:service_account_config, certificates: [assertion_certificate], scopes: [])
@@ -133,6 +131,8 @@ RSpec.describe SignIn::AssertionValidator do
               end
 
               context 'and service account config scopes are present' do
+                let(:expected_error_message) { 'Assertion scopes are not valid' }
+
                 it 'raises service account assertion attributes error' do
                   expect { subject }.to raise_error(expected_error, expected_error_message)
                 end
@@ -152,9 +152,9 @@ RSpec.describe SignIn::AssertionValidator do
               let(:scopes) { [service_account_config.scopes.first] }
 
               context 'and subject is not present' do
-                before { assertion_payload.delete(:sub) }
-
                 let(:expected_error_message) { 'Assertion subject is not valid' }
+
+                before { assertion_payload.delete(:sub) }
 
                 it 'raises service account assertion attributes error' do
                   expect { subject }.to raise_error(expected_error, expected_error_message)
@@ -163,9 +163,9 @@ RSpec.describe SignIn::AssertionValidator do
 
               context 'and subject is present' do
                 context 'and iat is missing' do
-                  before { assertion_payload.delete(:iat) }
-
                   let(:expected_error_message) { 'Assertion issuance timestamp is not valid' }
+
+                  before { assertion_payload.delete(:iat) }
 
                   it 'raises service account assertion attributes error' do
                     expect { subject }.to raise_error(expected_error, expected_error_message)
@@ -182,9 +182,9 @@ RSpec.describe SignIn::AssertionValidator do
                 end
 
                 context 'and exp is missing' do
-                  before { assertion_payload.delete(:exp) }
-
                   let(:expected_error_message) { 'Assertion expiration timestamp is not valid' }
+
+                  before { assertion_payload.delete(:exp) }
 
                   it 'raises service account assertion attributes error' do
                     expect { subject }.to raise_error(expected_error, expected_error_message)
