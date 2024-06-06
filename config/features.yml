@@ -332,6 +332,10 @@ features:
     actor_type: user
     description: Enables saving a copy of encrypted decision review evidence attachment files for manual validation
     enable_in_development: true
+  decision_review_use_hexapdf_for_encrypted_attachments:
+    actor_type: user
+    description: Enables using Hexapdf instead of PDFTK for decrypting password protected decision review evidence attachment files
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -738,6 +742,10 @@ features:
   mhv_secure_messaging_remove_lefthand_nav:
     actor_type: user
     description: Disables/Enables Secure Messaging lefthand navigation for new navigation solution
+    enable_in_development: true
+  mhv_secure_messaging_unique_user_logging_enabled:
+    actor_type: user
+    description: Disables/Enables Secure Messaging tracking unique users in Datadog
     enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
