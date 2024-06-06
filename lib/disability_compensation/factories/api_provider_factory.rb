@@ -75,7 +75,7 @@ class ApiProviderFactory
     new(**).call
   end
 
-  def initialize(type:, current_user:, feature_toggle:, provider: nil, options: {}, icn: nil)
+  def initialize(type:, current_user:, feature_toggle:, provider: nil, options: {})
     @type = type
     @api_provider = provider
     @options = options
@@ -184,7 +184,7 @@ class ApiProviderFactory
                       else
                         API_PROVIDER[:evss]
                       end
-    # [wipn8923] remove after testing
+    # [wipn8923] flipper - remove after testing
     API_PROVIDER[:lighthouse]
   end
 end

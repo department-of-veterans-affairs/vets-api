@@ -3,16 +3,18 @@
 require 'disability_compensation/providers/generate_pdf/generate_pdf_provider'
 
 class LighthouseGeneratePdfProvider
-  # [wipn8923] this doesn't actually do anything...?
-  # include ClaimsServiceProvider
-
   def initialize(icn)
     @icn = icn
   end
 
-  # [wipn8923] START HERE - get more granular with test, not returning a response
+  # [wipn8923] LH provider
   def generate_526_pdf(form_content)
-    service.submit526(form_content, nil, nil, { generate_pdf: true })
+    transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
+    body = transform_service.transform(JSON.parse(form_content))
+
+    puts("\n\n wipn8923 :: #{File.basename(__FILE__)}-#{self.class.name}##{__method__.to_s} - \n\t body: #{body} \n\n")
+
+    service.submit526(body, nil, nil, { generate_pdf: true })
   end
 
   def service

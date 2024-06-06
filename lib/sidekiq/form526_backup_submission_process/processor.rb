@@ -430,11 +430,15 @@ module Sidekiq
           # let Flipper - the feature toggle - choose which provider
           provider: nil,
           # this sends the auth headers and if we want the "breakered" or "non-breakered" version
-          options: { auth_headers: headers, breakered: },
+          options: { auth_headers: headers, breakered:, icn: user_account.icn },
           current_user: OpenStruct.new({ flipper_id: submission.user_uuid }),
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF,
-          icn: Account.lookup_by_user_uuid(submission.user_uuid)&.icn
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
         )
+      end
+
+      def user_account
+        user_account ||= UserAccount.find_by(id: submission.user_uuid) ||
+         Account.lookup_by_user_uuid(submission.user_uuid)
       end
     end
 
@@ -475,5 +479,4 @@ module Sidekiq
   end
 end
 
-thing = Sidekiq::Form526BackupSubmissionProcess::Processor.new(sub.id);
-lhp = thing.choose_provider(sub.auth_headers)
+
