@@ -7,8 +7,10 @@ module ClaimsApi
         before_action :validate_json!, only: :create
 
         def create
-          service = PowerOfAttorneyRequestService::Decide
-          service.perform(params[:id], deserialize(@body))
+          PowerOfAttorneyRequestService::Decide.perform(
+            params[:power_of_attorney_request_id],
+            deserialize(@body)
+          )
 
           head :no_content
         end

@@ -17,6 +17,7 @@ module ClaimsApi
               claim_date: claim[:claim_date],
               claim_phase_dates: claim[:claim_phase_dates],
               claim_type: claim[:claim_type],
+              claim_type_code: claim[:claim_type_code],
               close_date: claim[:close_date],
               decision_letter_sent: claim[:decision_letter_sent],
               development_letter_sent: claim[:development_letter_sent],

@@ -103,6 +103,29 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
         end
       end
 
+      context 'prefills formData when user does not have an InProgressForm pending submission' do
+        before do
+          Flipper.disable(:disability_526_toxic_exposure)
+          sign_in_as(user)
+        end
+
+        let(:user) { loa1_user }
+        let!(:form_id) { '21-526EZ' }
+
+        it 'adds includeToxicExposure when corresponding flag is enabled for user' do
+          Flipper.enable(:disability_526_toxic_exposure, user)
+          get v0_disability_compensation_in_progress_form_url(form_id), params: nil
+          json_response = JSON.parse(response.body)
+          expect(json_response['formData']['includeToxicExposure']).to eq(true)
+        end
+
+        it 'omits adding includeToxicExposure when corresponding flag is not enabled for user' do
+          get v0_disability_compensation_in_progress_form_url(form_id), params: nil
+          json_response = JSON.parse(response.body)
+          expect(json_response['formData']['includeToxicExposure']).to eq(nil)
+        end
+      end
+
       context 'using the EVSS Rated Disabilities Provider' do
         before do
           Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
