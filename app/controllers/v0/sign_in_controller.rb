@@ -111,11 +111,8 @@ module V0
       decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
       session_container = SignIn::SessionRefresher.new(refresh_token: decrypted_refresh_token, anti_csrf_token:).perform
       serializer_response = SignIn::TokenSerializer.new(session_container:, cookies: token_cookies).perform
-      context = session_container.access_token.to_s
-                                 .merge({ type: session_container.session.user_verification.credential_type,
-                                          icn: session_container.session.user_account.icn })
 
-      sign_in_logger.info('refresh', context)
+      sign_in_logger.info('refresh', session_container.context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS)
 
       render json: serializer_response, status: :ok
