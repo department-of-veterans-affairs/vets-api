@@ -865,7 +865,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_05_161809) do
     t.string "pega_status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "pega_case_id"
+    t.string "case_id"
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
   end
 
