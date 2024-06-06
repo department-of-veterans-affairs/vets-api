@@ -1913,6 +1913,20 @@
                                     "default": false,
                                     "nullable": true
                                   },
+                                  "specialIssues": {
+                                    "type": "array",
+                                    "nullable": true,
+                                    "uniqueItems": true,
+                                    "items": {
+                                      "maxItems": 2,
+                                      "additionalProperties": false,
+                                      "type": "string",
+                                      "enum": [
+                                        "POW",
+                                        "EMP"
+                                      ]
+                                    }
+                                  },
                                   "secondaryDisabilities": {
                                     "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                     "type": "array",
@@ -3242,6 +3256,20 @@
                                   "example": true,
                                   "default": false,
                                   "nullable": true
+                                },
+                                "specialIssues": {
+                                  "type": "array",
+                                  "nullable": true,
+                                  "uniqueItems": true,
+                                  "items": {
+                                    "maxItems": 2,
+                                    "additionalProperties": false,
+                                    "type": "string",
+                                    "enum": [
+                                      "POW",
+                                      "EMP"
+                                    ]
+                                  }
                                 },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
@@ -5117,6 +5145,20 @@
                                   "example": true,
                                   "default": false,
                                   "nullable": true
+                                },
+                                "specialIssues": {
+                                  "type": "array",
+                                  "nullable": true,
+                                  "uniqueItems": true,
+                                  "items": {
+                                    "maxItems": 2,
+                                    "additionalProperties": false,
+                                    "type": "string",
+                                    "enum": [
+                                      "POW",
+                                      "EMP"
+                                    ]
+                                  }
                                 },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
@@ -7563,6 +7605,20 @@
                                   "example": true,
                                   "default": false,
                                   "nullable": true
+                                },
+                                "specialIssues": {
+                                  "type": "array",
+                                  "nullable": true,
+                                  "uniqueItems": true,
+                                  "items": {
+                                    "maxItems": 2,
+                                    "additionalProperties": false,
+                                    "type": "string",
+                                    "enum": [
+                                      "POW",
+                                      "EMP"
+                                    ]
+                                  }
                                 },
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
