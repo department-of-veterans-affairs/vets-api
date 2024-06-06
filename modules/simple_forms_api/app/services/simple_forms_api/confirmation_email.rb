@@ -172,15 +172,15 @@ module SimpleFormsApi
     def form21_0966_personalization
       benefits = @form_data['benefit_selection']
       intent_to_file_benefits = if benefits['compensation'] && benefits['pension']
-        'Disability Compensation (VA Form 21-526EZ) and Pension (VA Form 21P-527EZ)'
-      elsif benefits['compensation']
-        'Disability Compensation (VA Form 21-526EZ)'
-      elsif benefits['pension']
-        'Pension (VA Form 21P-527EZ)'
-      elsif benefits['survivor']
-        'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
-        ' (VA Form 21P-534 or VA Form 21P-534EZ)'
-      end
+                                  'Disability Compensation (VA Form 21-526EZ) and Pension (VA Form 21P-527EZ)'
+                                elsif benefits['compensation']
+                                  'Disability Compensation (VA Form 21-526EZ)'
+                                elsif benefits['pension']
+                                  'Pension (VA Form 21P-527EZ)'
+                                elsif benefits['survivor']
+                                  'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
+                                    ' (VA Form 21P-534 or VA Form 21P-534EZ)'
+                                end
       { 'intent_to_file_benefits' => intent_to_file_benefits }
     end
     # rubocop:enable Metrics/MethodLength
