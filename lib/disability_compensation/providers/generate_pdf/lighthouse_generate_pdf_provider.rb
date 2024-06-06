@@ -10,6 +10,7 @@ class LighthouseGeneratePdfProvider
     @icn = icn
   end
 
+  # [wipn8923] START HERE - get more granular with test, not returning a response
   def generate_526_pdf(form_content)
     service.submit526(form_content, nil, nil, { generate_pdf: true })
   end
