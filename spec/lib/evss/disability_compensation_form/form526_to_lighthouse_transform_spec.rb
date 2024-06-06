@@ -48,6 +48,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.service_pay.class).to eq(Requests::ServicePay)
       expect(result.toxic_exposure.class).to eq(Requests::ToxicExposure)
       expect(result.toxic_exposure.gulf_war_hazard_service.class).to eq(Requests::GulfWarHazardService)
+      expect(result.toxic_exposure.herbicide_hazard_service.class).to eq(Requests::HerbicideHazardService)
+      expect(result.toxic_exposure.additional_hazard_exposures.class).to eq(Requests::AdditionalHazardExposures)
       expect(result.toxic_exposure.multiple_exposures.class).to eq(Array)
     end
   end
