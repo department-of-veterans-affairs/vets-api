@@ -34,7 +34,7 @@ describe Mobile::V0::FolderSerializer do
     expect(rendered_attributes[:system_folder]).to eq folder.system_folder
   end
 
-  it 'includes :download link' do
+  it 'includes :self link' do
     expected_url = Mobile::UrlHelper.new.v0_folder_url(folder.id)
     expect(rendered_hash[:data][:links][:self]).to eq expected_url
   end
