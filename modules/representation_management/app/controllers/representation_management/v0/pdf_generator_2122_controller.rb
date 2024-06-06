@@ -2,9 +2,12 @@
 
 module RepresentationManagement
   module V0
-    class PdfGenerator2122Controller < ApplicationController
+    class PdfGenerator2122Controller < RepresentationManagement::V0::PdfGeneratorBaseController
       service_tag 'lighthouse-veteran' # Is this the correct service tag?
       before_action :feature_enabled
+      before_action :check_veteran_params
+      before_action :check_claimant_params
+      before_action :check_service_organization_params
       skip_before_action :authenticate
 
       def create
@@ -35,51 +38,7 @@ module RepresentationManagement
         ].flatten
       end
 
-      def claimant_params
-        %i[
-          claimant_address_line1
-          claimant_address_line2
-          claimant_city
-          claimant_country
-          claimant_state_code
-          claimant_zip_code
-          claimant_zip_code_suffix
-          claimant_area_code
-          claimant_phone_number
-          claimant_phone_number_ext
-          claimant_email
-          claimant_relationship
-        ]
-      end
 
-      def service_organization_params
-        %i[
-          service_organization_poa_code
-          service_organization_registration_number
-          service_organization_job_title
-          service_organization_email
-          service_organization_appointment_date
-
-        ]
-      end
-
-      def veteran_params
-        %i[
-          veteran_address_line1
-          veteran_address_line2
-          veteran_city
-          veteran_country
-          veteran_state_code
-          veteran_zip_code
-          veteran_zip_code_suffix
-          veteran_area_code
-          veteran_phone_number
-          veteran_phone_number_ext
-          veteran_email
-          veteran_service_number
-          veteran_insurance_number
-        ]
-      end
 
       def feature_enabled
         routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
