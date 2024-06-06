@@ -70,14 +70,14 @@
             "addressLine1": {
               "description": "Address line 1 for the Veteran's current mailing address.",
               "type": "string",
-              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+              "pattern": "^([-a-zA-Z0-9'.' ])+$",
               "maxLength": 325,
               "example": "1234 Couch Street"
             },
             "addressLine2": {
               "description": "Address line 2 for the Veteran's current mailing address.",
               "type": ["string", "null"],
-              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+              "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
               "maxLength": 325,
               "example": "Unit 4",
               "nullable": true
@@ -85,7 +85,7 @@
             "addressLine3": {
               "description": "Address line 3 for the Veteran's current mailing address.",
               "type": ["string", "null"],
-              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+              "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
               "maxLength": 325,
               "example": "Room 1",
               "nullable": true
@@ -93,7 +93,7 @@
             "city": {
               "description": "City for the Veteran's current mailing address.",
               "type": "string",
-              "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+              "pattern": "^$|^([-a-zA-Z'.' ])+$",
               "example": "Portland",
               "maxLength": 1000
             },
@@ -167,7 +167,7 @@
         "addressLine1": {
           "description": "Address line 1 for the Veteran's new address.",
           "type": "string",
-          "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+          "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
           "maxLength": 325,
           "example": "1234 Couch Street"
         },
@@ -188,7 +188,7 @@
         "city": {
           "description": "City for the Veteran's new address.",
           "type": "string",
-          "pattern": "^$|^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+          "pattern": "^$|^([-a-zA-Z'.' ])+$",
           "example": "Portland",
           "maxLength": 1000
         },
@@ -381,7 +381,7 @@
             "otherLocationsServed": {
               "type": ["string", "null"],
               "nullable": true,
-              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+              "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
               "description": "Other location(s) where Veteran served.",
               "maxLength": 5000
             },
@@ -436,7 +436,7 @@
             "specifyOtherExposures": {
               "type": ["string", "null"],
               "nullable": true,
-              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+              "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
               "description": "Exposure to asbestos.",
               "maxLength": 5000
             },
@@ -475,14 +475,14 @@
               "hazardExposedTo": {
                 "type": ["string", "null"],
                 "nullable": true,
-                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                 "description": "Hazard the Veteran was exposed to.",
                 "maxLength": 1000
               },
               "exposureLocation": {
                 "type": ["string", "null"],
                 "nullable": true,
-                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                 "description": "Location where the exposure happened.",
                 "maxLength": 1000
               },
@@ -691,7 +691,7 @@
               "city": {
                 "description": "City of treatment facility.",
                 "type": ["string", "null"],
-                "pattern": "^$|^([-a-zA-Z'.#]([-a-zA-Z'.# ])?)+$",
+                "pattern": "^$|^([-a-zA-Z'.' ])+$",
                 "example": "Portland",
                 "nullable": true
               },
@@ -811,7 +811,7 @@
             "unitAddress": {
               "type": ["string", "null"],
               "maxLength": 1000,
-              "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+              "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
               "nullable": true
             },
             "unitPhone": {

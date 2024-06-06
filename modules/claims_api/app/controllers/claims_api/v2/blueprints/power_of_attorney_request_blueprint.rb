@@ -10,8 +10,7 @@ module ClaimsApi
           fields(
             :first_name,
             :middle_name,
-            :last_name,
-            :participant_id
+            :last_name
           )
         end
 
@@ -47,7 +46,6 @@ module ClaimsApi
           fields(
             :first_name,
             :last_name,
-            :participant_id,
             :relationship_to_veteran
           )
         end

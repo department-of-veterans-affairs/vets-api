@@ -73,7 +73,7 @@ module VetsApi
 
       def docker_build
         puts 'Building Docker Image(s) for This may take a while...'
-        ShellCommand.run_quiet('docker-compose -f docker-compose-deps.yml build')
+        ShellCommand.run_quiet('docker compose -f docker-compose-deps.yml build')
         puts 'Building Docker Image(s)...Done'
       end
 
