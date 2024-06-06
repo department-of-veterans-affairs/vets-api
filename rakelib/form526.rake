@@ -743,7 +743,7 @@ namespace :form526 do
 
         local_file(String) when 'local' the CSV file is saved to
         the local file system.  Otherwise it is uploaded to S3.
-        
+
           The filename will be in the form of
           "form526_YYYY-MM-DD_YYYY-MM-DD_validation.csv" using the
           start and end dates.  If the end date is not
@@ -753,8 +753,8 @@ namespace :form526 do
         These two parameters control which records from the
         form526_submissions table are selected based upon
         the record's created_at value.
-        
-        start_date(YYYYMMDD) 
+
+        start_date(YYYYMMDD)
         end_date(YYYYMMDD) **Optional**
 
           When the end date is not provided the selections
@@ -775,7 +775,7 @@ namespace :form526 do
       abort_with_message "ERROR:  start_date (#{start_date}) is after end_date (#{end_date})"
     end
 
-    csv_filename  = "form526_#{start_date}_#{end_date || '9999-99-99' }_validation.csv"
+    csv_filename  = "form526_#{start_date}_#{end_date || '9999-99-99'}_validation.csv"
     csv_header    = %w[RecID Original Valid? Error]
 
     # SMELL:  created_at is not indexed
@@ -825,12 +825,12 @@ namespace :form526 do
     print "Saving #{csv_filename} " if form526_verbose?
 
     if local_file?
-      print "... " if form526_verbose?
+      print '... ' if form526_verbose?
       csv_file = File.new(csv_filename, 'w')
       csv_file.write csv_content
       csv_file.close
     else
-      print "to S3 ... " if form526_verbose?
+      print 'to S3 ... ' if form526_verbose?
 
       s3_resource   = Reports::Uploader.new_s3_resource
       target_bucket = Reports::Uploader.s3_bucket
@@ -847,7 +847,6 @@ namespace :form526 do
 
   def validate_local_file(a_string) = a_string.downcase == 'local'
   def local_file?                   = @local_file
-
 
   # Ensure that a date string is correctly formatted
   # Returns a Date object

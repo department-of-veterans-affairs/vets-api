@@ -486,7 +486,7 @@ class Form526Submission < ApplicationRecord
 
       @lighthouse_validation_response = lighthouse_service.validate526(body)
     rescue => e
-      error_msg = e.to_s + ' -- ' + e.backtrace[0]
+      error_msg = "#{e} -- #{e.backtrace[0]}"
       fake_lighthouse_response(error: error_msg)
       return false
     end
