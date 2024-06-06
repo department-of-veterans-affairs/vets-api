@@ -480,13 +480,14 @@ class Form526Submission < ApplicationRecord
   #       workflow.
   #
   def form_content_valid?
-    transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
-    body = transform_service.transform(form['form526'])
-
     begin
+      transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
+      body = transform_service.transform(form['form526'])
+
       @lighthouse_validation_response = lighthouse_service.validate526(body)
     rescue => e
-      fake_lighthouse_response(error: e)
+      error_msg = "#{e} -- #{e.backtrace[0]}"
+      fake_lighthouse_response(error: error_msg)
       return false
     end
 
