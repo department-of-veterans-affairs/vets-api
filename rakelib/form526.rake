@@ -741,7 +741,7 @@ namespace :form526 do
 
         Usage: bundle exec rake #{task_name}[local_file,YYYYMMDD,YYYYNNDD]
 
-        local_file(String) when 'true' the CSV file is saved to
+        local_file(String) when 'local' the CSV file is saved to
         the local file system.  Otherwise it is uploaded to S3.
         
           The filename will be in the form of
@@ -845,7 +845,7 @@ namespace :form526 do
   ############################################
   ## Utility Methods
 
-  def validate_local_file(a_string) = a_string.downcase == 'true'
+  def validate_local_file(a_string) = a_string.downcase == 'local'
   def local_file?                   = @local_file
 
 
