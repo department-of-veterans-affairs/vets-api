@@ -24,5 +24,4 @@ describe RepresentationManagement::PowerOfAttorney::OrganizationSerializer do
   it 'includes :phone' do
     expect(rendered_attributes[:phone]).to eq object.phone
   end
-
 end

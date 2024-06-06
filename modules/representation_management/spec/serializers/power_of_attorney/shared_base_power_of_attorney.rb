@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 RSpec.shared_examples 'power_of_attorney' do
-
   it 'includes :address_line1' do
     expect(rendered_attributes[:address_line1]).to eq object.address_line1
   end
