@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/rest'
-require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/raise_custom_va_error'
 require 'common/client/middleware/response/facility_validator'
 require 'common/client/middleware/response/facility_parser'
 

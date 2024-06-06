@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/raise_custom_va_error'
 
 module Rx
   module Middleware

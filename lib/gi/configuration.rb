@@ -3,7 +3,7 @@
 require 'common/client/configuration/rest'
 require 'common/client/middleware/response/gids_errors'
 require 'common/client/middleware/response/json_parser'
-require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/raise_custom_va_error'
 require 'common/client/middleware/response/snakecase'
 
 module GI
