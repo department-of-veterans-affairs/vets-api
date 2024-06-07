@@ -93,7 +93,7 @@ module TravelPay
       end
 
       symbolized_body = response.body.deep_symbolize_keys
-      parse_claim_date = ->(c) { Date.parse(c[:modifiedOn]) }
+      parse_claim_date = ->(c) { Date.parse(c[:appointmentDateTime]) }
 
       sorted_claims = symbolized_body[:data].sort_by(&parse_claim_date).reverse
 
