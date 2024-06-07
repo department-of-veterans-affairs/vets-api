@@ -269,8 +269,17 @@ module EVSS
         end
         if values_present(toxic_exposure_source['otherHerbicideLocations'])
           multiple_exposures +=
-            transform_multiple_exposures_other_herbicide(toxic_exposure_source['otherHerbicideLocations'])
+            transform_multiple_exposures_other_details(toxic_exposure_source['otherHerbicideLocations'])
         end
+        if toxic_exposure_source['otherExposureDetails'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['otherExposureDetails'],
+                                                             MULTIPLE_EXPOSURES_TYPE[:hazard])
+        end
+        if values_present(toxic_exposure_source['specifyOtherExposures'])
+          multiple_exposures +=
+            transform_multiple_exposures_other_details(toxic_exposure_source['specifyOtherExposures'])
+        end
+
         toxic_exposure_target.multiple_exposures = multiple_exposures
 
         toxic_exposure_target
@@ -301,7 +310,7 @@ module EVSS
         end
       end
 
-      def transform_multiple_exposures_other_herbicide(details)
+      def transform_multiple_exposures_other_details(details)
         obj = Requests::MultipleExposures.new(
           exposure_dates: Requests::Dates.new
         )
