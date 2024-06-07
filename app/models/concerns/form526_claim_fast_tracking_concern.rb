@@ -388,6 +388,7 @@ module Form526ClaimFastTrackingConcern
     end
   rescue => e
     Rails.logger.error('EP Merge failed open claim review check', backtrace: e.backtrace)
+    Rails.logger.error(e.backtrace.join('\n'))
     true
   end
 
