@@ -18,10 +18,8 @@ describe MyHealth::V1::AttachmentSerializer do
     expect(rendered_attributes[:name]).to eq attachment.name
   end
 
-  context 'when object attachment_size is greater than 0' do
-    it 'includes :attachment_size' do
-      expect(rendered_attributes[:attachment_size]).to eq attachment.attachment_size
-    end
+  it 'includes :attachment_size' do
+    expect(rendered_attributes[:attachment_size]).to eq attachment.attachment_size
   end
 
   it 'includes :download link' do
