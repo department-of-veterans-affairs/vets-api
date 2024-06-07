@@ -309,7 +309,7 @@ module V1
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags:)
         log_tags = tags.dup << "icn:#{@current_user.icn}"
         Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{log_tags}")
-        Rails.logger.info("SessionsController version:v1 login complete, user_uuid=#{@current_user&.uuid}")
+        Rails.logger.info("SessionsController version:v1 login complete, user_uuid=#{@current_user.uuid}")
         StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags:)
       when :failure
         tags_and_error_code = tags << "error:#{error.try(:code) || SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE}"

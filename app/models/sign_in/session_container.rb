@@ -43,16 +43,10 @@ module SignIn
     end
 
     def context
-      access_token.to_s.merge(context_details)
-    end
-
-    private
-
-    def context_details
-      {
-        type: session.user_verification.credential_type,
-        icn: session.user_account.icn
-      }
+      access_token.to_s.merge({
+                                type: session.user_verification.credential_type,
+                                icn: session.user_account.icn
+                              })
     end
   end
 end
