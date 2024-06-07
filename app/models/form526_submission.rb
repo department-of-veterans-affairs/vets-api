@@ -480,27 +480,28 @@ class Form526Submission < ApplicationRecord
   #       workflow.
   #
   def form_content_valid?
-    transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
-    body = transform_service.transform(form['form526'])
-
     begin
+      transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
+      body = transform_service.transform(form['form526'])
+
       @lighthouse_validation_response = lighthouse_service.validate526(body)
     rescue => e
-      fake_lighthouse_response(code: '609', error: e)
+      error_msg = "#{e} -- #{e.backtrace[0]}"
+      fake_lighthouse_response(error: error_msg)
       return false
     end
 
-    if lighthouse_validation_response&.code == '200'
+    if lighthouse_validation_response&.status == 200
       return true
-    elsif lighthouse_validation_response&.code == '422'
+    elsif lighthouse_validation_response&.status == 422
       return false
     end
 
-    fake_lighthouse_response(code: lighthouse_validation_response&.code)
+    fake_lighthouse_response(status: lighthouse_validation_response&.status)
     false
   end
 
-  # Returns an Array of Hashes when response.code is 422
+  # Returns an Array of Hashes when response.status is 422
   # otherwise its an empty Array.
   #
   # The Array#empty? is true when there are not errors
@@ -515,7 +516,7 @@ class Form526Submission < ApplicationRecord
   # }
   #
   def lighthouse_validation_errors
-    if lighthouse_validation_response&.code == '200'
+    if lighthouse_validation_response&.status == 200
       []
     else
       lighthouse_validation_response.body['errors']
@@ -535,12 +536,12 @@ class Form526Submission < ApplicationRecord
     BenefitsClaims::Service.new(user_account.icn)
   end
 
-  def fake_lighthouse_response(code: '609', error: 'Unknown')
-    fake_response       = Struct.new(:code, :body).new
-    fake_response.code  = code || '609'
-    fake_response.body  = { 'errors' => [
+  def fake_lighthouse_response(status: 609, error: 'Unknown')
+    fake_response        = Struct.new(:status, :body).new
+    fake_response.status = status || 609
+    fake_response.body   = { 'errors' => [
       {
-        'title' => "Code '#{code}' - #{error}"
+        'title' => "Response Status Code '#{status}' - #{error}"
       }
     ] }
 
