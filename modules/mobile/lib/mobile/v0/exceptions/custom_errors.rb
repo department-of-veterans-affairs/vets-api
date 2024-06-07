@@ -6,6 +6,8 @@ module Mobile
   module V0
     module Exceptions
       class CustomErrors < Common::Exceptions::BaseError
+        STATUS_CODE = 418
+
         attr_reader :title, :body, :source, :telephone, :refreshable
 
         def initialize(title:, body:, source:, telephone:, refreshable:)
@@ -22,7 +24,7 @@ module Mobile
             {
               title: @title,
               body: @body,
-              status: 418,
+              status: STATUS_CODE,
               source: @source,
               telephone: @telephone,
               refreshable: @refreshable
