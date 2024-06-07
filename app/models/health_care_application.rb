@@ -235,9 +235,7 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_async
-    submission_job = 'SubmissionJob'
-    submission_job = "Anon#{submission_job}" unless email?
-
+    submission_job = email? ? 'SubmissionJob' : 'AnonSubmissionJob'
     @parsed_form = override_parsed_form(parsed_form)
 
     "HCA::#{submission_job}".constantize.perform_async(

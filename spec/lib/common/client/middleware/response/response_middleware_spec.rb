@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/mhv_errors'
-require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/raise_custom_error'
 require 'common/client/middleware/response/snakecase'
 require 'common/client/middleware/response/mhv_xml_html_errors'
 require 'common/client/errors'
@@ -12,7 +12,7 @@ describe Common::Client::Middleware::Response do
   subject(:faraday_client) do
     Faraday.new do |conn|
       conn.response :snakecase
-      conn.response :raise_error, error_prefix: 'RX'
+      conn.response :raise_custom_error, error_prefix: 'RX'
       conn.response :mhv_errors
       conn.response :mhv_xml_html_errors
       conn.response :json_parser

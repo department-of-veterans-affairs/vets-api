@@ -332,6 +332,10 @@ features:
     actor_type: user
     description: Enables saving a copy of encrypted decision review evidence attachment files for manual validation
     enable_in_development: true
+  decision_review_use_hexapdf_for_encrypted_attachments:
+    actor_type: user
+    description: Enables using Hexapdf instead of PDFTK for decrypting password protected decision review evidence attachment files
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -505,6 +509,10 @@ features:
     actor_type: cookie_id
     description: Enables Appoint a Representative frontend
     enable_in_development: true
+  appoint_a_representative_enable_pdf:
+    actor_type: user
+    description: Enables Appoint a Representative PDF generation endpoint
+    enable_in_development: true
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
@@ -512,6 +520,10 @@ features:
   form526_send_document_upload_failure_notification:
     actor_type: user
     description: Enables enqueuing a Form526DocumentUploadFailureEmail if a EVSS::DisabilityCompensationForm::SubmitUploads job exhausts its retries
+    enable_in_development: true
+  form526_send_4142_failure_notification:
+    actor_type: user
+    description: Enables enqueuing a Form4142DocumentUploadFailureEmail if a SubmitForm4142Job job exhausts its retries
     enable_in_development: true
   form0994_confirmation_email:
     actor_type: user
@@ -730,6 +742,10 @@ features:
   mhv_secure_messaging_remove_lefthand_nav:
     actor_type: user
     description: Disables/Enables Secure Messaging lefthand navigation for new navigation solution
+    enable_in_development: true
+  mhv_secure_messaging_unique_user_logging_enabled:
+    actor_type: user
+    description: Disables/Enables Secure Messaging tracking unique users in Datadog
     enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
@@ -1182,10 +1198,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for querying Drupal Source of Truth for Acheron flag
-  va_online_scheduling_request_flow_update:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for content update to VA and Community Care request flow
   va_online_scheduling_poc_type_of_care:
     actor_type: user
     enable_in_development: true
@@ -1201,10 +1213,6 @@ features:
   va_dependents_v2:
     actor_type: user
     description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
-  va_online_scheduling_physical_location:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to display the physical location of an appointment.
   va_online_scheduling_enable_OH_reads:
     actor_type: user
     enable_in_development: true
@@ -1496,7 +1504,7 @@ features:
     actor_type: user
     description: Enable the Accredited Representative Portal for the pilot
     enable_in_development: true
-  toggle_vye_adress_direct_deposit_forms:
+  toggle_vye_address_direct_deposit_forms:
     actor_type: user
     description: Enable mailing address and direct deposit for VYE
   veteran_readiness_employment_to_res:
@@ -1506,6 +1514,6 @@ features:
   vye_login_widget:
      actor_type: user
      description: Enable Vye authentication widget
-  toggle_vye_adress_direct_deposit_forms_in_profile: 
+  toggle_vye_address_direct_deposit_forms_in_profile: 
      actor_type: user
      description: Enable mailing address and direct deposit for VYE in profile page

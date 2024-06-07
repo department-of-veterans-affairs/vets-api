@@ -3439,8 +3439,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       subject.untested_mappings.delete('/v0/sign_in/callback')
       subject.untested_mappings.delete('/v0/sign_in/logout')
 
-      subject.untested_mappings.delete('/v0/post911_gi_bill_status')
-
       expect(subject).to validate_all_paths
     end
   end

@@ -482,8 +482,6 @@ RSpec.describe HealthCareApplication, type: :model do
       health_care_application
     end
 
-    let(:notification_client) { double('Notifications::Client') }
-
     before do
       allow(VANotify::EmailJob).to receive(:perform_async)
     end
