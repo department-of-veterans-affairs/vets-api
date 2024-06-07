@@ -89,13 +89,13 @@ describe VAForms::FormDetailSerializer, type: :serializer do
     expect(attributes['va_form_administration']).to eq va_form.va_form_administration
   end
 
-  content 'when change_history exists' do
+  context 'when change_history exists' do
     it 'includes :versions' do
       expect(attributes['versions']).to eq va_form.change_history['versions']
     end
   end
 
-  content 'when change_history is nil' do
+  context 'when change_history is nil' do
     let(:va_form_no_history) { build_stubbed(:va_form, change_history: nil) }
     let(:response_no_history) { serialize(va_form_no_history, serializer_class: described_class) }
     let(:data_not_history) { JSON.parse(response_no_history)['data'] }

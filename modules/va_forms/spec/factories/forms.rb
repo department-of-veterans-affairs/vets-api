@@ -20,7 +20,7 @@ FactoryBot.define do
     language { 'English' }
     related_forms { %w[related_form_1 related_form_2] }
     benefit_categories { %w[benefit_category_1 benefit_category_2] }
-    va_form_administration { 'VA Administration' }
+    va_form_administration { ['VA Administration'] }
     change_history { { 'versions' => %w[v1 v2] } }
 
     trait :has_been_deleted do
