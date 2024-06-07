@@ -15,7 +15,7 @@ describe VAOS::V2::MobileFacilityService do
     Rails.cache.clear
   end
 
-  describe '#configuration' do
+  describe '#get_scheduling_configurations' do
     context 'with a single facility id arg' do
       let(:facility_id) { '489' }
 
@@ -70,7 +70,7 @@ describe VAOS::V2::MobileFacilityService do
     end
   end
 
-  describe '#facilities' do
+  describe '#get_facilities' do
     let(:facility_id) { '688' }
     let(:facility_ids) { '983, 983GB, 983GC, 983GD' }
 
@@ -303,7 +303,7 @@ describe VAOS::V2::MobileFacilityService do
 
       it "calls '#get_clinic!' retrieving information from VAOS Service" do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200', cassette_options) do
-          expect_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic!).once.and_call_original
+          expect_any_instance_of(described_class).to receive(:get_clinic!).once.and_call_original
           subject.get_clinic_with_cache(station_id: '983', clinic_id: '455')
           expect(Rails.cache.exist?('vaos_clinic_983_455')).to eq(true)
         end
@@ -336,6 +336,26 @@ describe VAOS::V2::MobileFacilityService do
           expect(Rails.cache.exist?('vaos_clinic_983_does_not_exist')).to eq(false)
         end
       end
+    end
+  end
+
+  describe 'get_clinic' do
+    it 'returns facility' do
+      VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200', cassette_options) do
+        response = subject.get_clinic('983', '455')
+        expect(response[:id]).to eq('455')
+      end
+    end
+
+    it 'memoizes and returns nil on error' do
+      VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_500', cassette_options) do
+        expect_any_instance_of(described_class).to receive(:get_clinic_with_cache).and_call_original
+        response = subject.get_clinic('983', 'does_not_exist')
+        expect(response).to eq(nil)
+      end
+      expect_any_instance_of(described_class).not_to receive(:get_clinic_with_cache)
+      response = subject.get_clinic('983', 'does_not_exist')
+      expect(response).to eq(nil)
     end
   end
 
@@ -391,7 +411,7 @@ describe VAOS::V2::MobileFacilityService do
   describe '#get_clinic' do
     context 'when clinic service throws an error' do
       it 'returns nil' do
-        allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic_with_cache)
+        allow_any_instance_of(described_class).to receive(:get_clinic_with_cache)
           .and_raise(Common::Exceptions::BackendServiceException.new('VAOS_502', {}))
 
         expect(subject.get_clinic('123', '3456')).to be_nil
@@ -483,6 +503,26 @@ describe VAOS::V2::MobileFacilityService do
           expect(Rails.cache.exist?('vaos_facility_983')).to eq(false)
         end
       end
+    end
+  end
+
+  describe 'get_facility' do
+    it 'returns facility' do
+      VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200', cassette_options) do
+        response = subject.get_facility('983')
+        expect(response[:id]).to eq('983')
+      end
+    end
+
+    it 'memoizes and returns nil on error' do
+      VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_500', cassette_options) do
+        expect_any_instance_of(described_class).to receive(:get_facility_with_cache).and_call_original
+        response = subject.get_facility('983')
+        expect(response).to eq(nil)
+      end
+      expect_any_instance_of(described_class).not_to receive(:get_facility_with_cache)
+      response = subject.get_facility('983')
+      expect(response).to eq(nil)
     end
   end
 
