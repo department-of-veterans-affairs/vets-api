@@ -4,7 +4,7 @@ require 'common/client/configuration/rest'
 require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/request/multipart_request'
 require 'common/client/middleware/response/json_parser'
-require 'common/client/middleware/response/raise_custom_va_error'
+require 'common/client/middleware/response/raise_custom_error'
 require 'common/client/middleware/response/mhv_errors'
 require 'common/client/middleware/response/snakecase'
 require 'faraday/multipart'
@@ -52,7 +52,7 @@ module PHRMgr
         # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
         # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
-        conn.response :raise_custom_va_error, error_prefix: service_name
+        conn.response :raise_custom_error, error_prefix: service_name
         conn.response :mhv_errors
         conn.response :mhv_xml_html_errors
         conn.response :json_parser

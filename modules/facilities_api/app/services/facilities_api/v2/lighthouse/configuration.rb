@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/rest'
-require 'common/client/middleware/response/raise_custom_va_error'
+require 'common/client/middleware/response/raise_custom_error'
 require_relative 'middleware/errors'
 
 module FacilitiesApi
@@ -29,7 +29,7 @@ module FacilitiesApi
             # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
             # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
-            conn.response :raise_custom_va_error, error_prefix: service_name
+            conn.response :raise_custom_error, error_prefix: service_name
             conn.response :lighthouse_facilities_errors
 
             conn.adapter Faraday.default_adapter

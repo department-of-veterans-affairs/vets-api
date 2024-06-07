@@ -121,7 +121,7 @@ module ClaimsApi
                   headers: { 'Authorization' => "Bearer #{@token}" }) do |f|
         f.request @multipart ? :multipart : :json
         f.response :betamocks if @use_mock
-        f.response :raise_custom_va_error
+        f.response :raise_custom_error
         f.response :json, parser_options: { symbolize_names: true }
         f.adapter Faraday.default_adapter
       end
