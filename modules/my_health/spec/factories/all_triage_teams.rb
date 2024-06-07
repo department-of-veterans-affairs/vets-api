@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :all_triage_team do
+  factory :all_triage_team, class: 'AllTriageTeams' do
     station_number { '989' }
     blocked_status { false }
     relationship_type { 'PATIENT' }

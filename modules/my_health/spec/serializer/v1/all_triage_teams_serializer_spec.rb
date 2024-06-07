@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../factories/all_triage_teams'
 
 describe MyHealth::V1::AllTriageTeamsSerializer do
   let(:triage_team) { build_stubbed(:all_triage_team) }
@@ -11,7 +12,7 @@ describe MyHealth::V1::AllTriageTeamsSerializer do
   let(:rendered_attributes) { rendered_hash[:data][:attributes] }
 
   it 'includes :id' do
-    expect(rendered_hash[:data][:id]).to eq triage_team.triage_team_id
+    expect(rendered_hash[:data][:id]).to eq triage_team.triage_team_id.to_s
   end
 
   it 'includes :triage_team_id' do
