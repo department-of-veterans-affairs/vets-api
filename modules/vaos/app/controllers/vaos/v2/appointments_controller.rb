@@ -320,8 +320,8 @@ module VAOS
       def include_params
         included = appointment_params[:_include]&.split(',')
         {
-          clinics: !!included&.include?('clinics'),
-          facilities: !!included&.include?('facilities')
+          clinics: ActiveModel::Type::Boolean.new.deserialize(included&.include?('clinics')),
+          facilities: ActiveModel::Type::Boolean.new.deserialize(included&.include?('facilities'))
         }
       end
 
