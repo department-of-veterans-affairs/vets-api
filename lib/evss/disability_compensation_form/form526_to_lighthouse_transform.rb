@@ -53,8 +53,22 @@ module EVSS
 
       HAZARDS = {
         asbestos: 'Asbestos',
+        chemical: 'SHAD (Shipboard Hazard and Defense)',
+        mos: 'Military Occupational Specialty (MOS)-related toxin',
+        mustardgas: 'Mustard Gas',
         radiation: 'Radiation',
-        mustardgas: 'Mustard Gas'
+        water: 'Contaminated Water At Camp Lejeune',
+        none: 'None of these'
+      }.freeze
+
+      HAZARDS_LH_ENUM = {
+        asbestos: 'ASBESTOS',
+        chemical: 'SHIPBOARD_HAZARD_AND_DEFENSE',
+        mos: 'MILITARY_OCCUPATIONAL_SPECIALTY_RELATED_TOXIN',
+        mustardgas: 'MUSTARD_GAS',
+        radiation: 'RADIATION',
+        water: 'CONTAMINATED_WATER_AT_CAMP_LEJEUNE',
+        other: 'OTHER'
       }.freeze
 
       MULTIPLE_EXPOSURES_TYPE = {
@@ -223,6 +237,8 @@ module EVSS
         gulf_war2001 = toxic_exposure_source['gulfWar2001']
         herbicide = toxic_exposure_source['herbicide']
         other_herbicide_locations = toxic_exposure_source['otherHerbicideLocations']
+        other_exposures = toxic_exposure_source['otherExposures']
+        specify_other_exposures = toxic_exposure_source['specifyOtherExposures']
 
         if gulf_war1990.present? || gulf_war2001.present?
           toxic_exposure_target.gulf_war_hazard_service =
@@ -232,6 +248,11 @@ module EVSS
         if herbicide.present? || other_herbicide_locations.present?
           toxic_exposure_target.herbicide_hazard_service = transform_herbicide(herbicide,
                                                                                other_herbicide_locations)
+        end
+
+        if other_exposures.present? || specify_other_exposures.present?
+          toxic_exposure_target.additional_hazard_exposures = transform_other_exposures(other_exposures,
+                                                                                        specify_other_exposures)
         end
 
         # create an Array[Requests::MultipleExposures]
@@ -315,6 +336,23 @@ module EVSS
         herbicide_service.served_in_herbicide_hazard_locations = herbicide_value ? 'YES' : 'NO'
 
         herbicide_service
+      end
+
+      def transform_other_exposures(other_exposures, specify_other_exposures)
+        return nil if none_of_these(other_exposures) && !values_present(specify_other_exposures)
+
+        filtered_results_other_exposures = other_exposures&.filter { |k, v| k != 'notsure' && v }
+        additional_hazard_exposures_service = Requests::AdditionalHazardExposures.new
+        unless none_of_these(filtered_results_other_exposures)
+          additional_hazard_exposures_service.additional_exposures = filtered_results_other_exposures&.map do |k, _v|
+            HAZARDS_LH_ENUM[k.to_sym]
+          end
+        end
+        other = HAZARDS_LH_ENUM[:other] if values_present(specify_other_exposures)
+        additional_hazard_exposures_service.additional_exposures << other if other.present?
+        return nil if additional_hazard_exposures_service.additional_exposures == []
+
+        additional_hazard_exposures_service
       end
 
       def values_present(obj)
