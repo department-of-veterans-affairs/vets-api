@@ -11,7 +11,7 @@ module Mobile
       after_action :clear_appointments_cache, only: %i[cancel create]
 
       def index
-        if Settings.vsp_environment != 'production' && @current_user.email == 'abraham.lincoln@vets.gov'
+        if Settings.vsp_environment != 'production' && @current_user.email == 'vets.gov.user+141@gmail.com'
           raise Mobile::V0::Exceptions::CustomErrors.new(
             title: 'Custom error title',
             body: 'Custom error body. \n This explains to the user the details of the ongoing issue.',
