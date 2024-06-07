@@ -360,7 +360,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
       end
 
       context 'when custom error response is injected' do
-        let!(:user) { sis_user( email: 'vets.gov.user+141@gmail.com') }
+        let!(:user) { sis_user(email: 'vets.gov.user+141@gmail.com') }
 
         it 'raises 418 custom error' do
           get '/mobile/v0/appointments', headers: sis_headers
