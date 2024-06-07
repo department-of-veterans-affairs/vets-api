@@ -358,6 +358,22 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(7)
         end
       end
+
+      context 'when custom error response is injected' do
+        let!(:user) { sis_user( email: 'vets.gov.user+141@gmail.com') }
+
+        it 'raises 418 custom error' do
+          get '/mobile/v0/appointments', headers: sis_headers
+          expect(response).to have_http_status(418)
+          expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Custom error title',
+                                                              'body' => 'Custom error body. \\n This explains to ' \
+                                                                        'the user the details of the ongoing issue.',
+                                                              'status' => 418,
+                                                              'source' => 'VAOS',
+                                                              'telephone' => '999-999-9999',
+                                                              'refreshable' => true }] })
+        end
+      end
     end
   end
 
