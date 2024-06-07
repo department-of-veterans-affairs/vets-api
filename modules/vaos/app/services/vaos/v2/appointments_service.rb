@@ -43,11 +43,10 @@ module VAOS
           appointments = response.body[:data]
           appointments.each do |appt|
             prepare_appointment(appt)
+            merge_clinics(appt) if include[:clinics]
+            merge_facilities(appt) if include[:facilities]
             cnp_count += 1 if cnp?(appt)
           end
-          # move these into loop
-          merge_clinics(appointments) if include[:clinics]
-          merge_facilities(appointments) if include[:facilities]
           # log count of C&P appointments in the appointments list, per GH#78141
           log_cnp_appt_count(cnp_count) if cnp_count.positive?
           {
@@ -167,7 +166,7 @@ module VAOS
         end
 
         # set requestedPeriods to nil if the appointment is a booked cerner appointment per GH#62912
-        appointment[:requested_periods] = nil if booked?(appointment) && cerner?(appointment)
+        appointment[:requested_periods] = nil if booked?(appointment) && VAOS::AppointmentsHelper.cerner?(appointment)
 
         convert_appointment_time(appointment)
         if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
@@ -183,47 +182,24 @@ module VAOS
         appointment[:preferred_provider_name] = names
       end
 
-      def merge_clinics(appointments)
-        appointments.each do |appt|
-          unless appt[:clinic].nil? || appt[:location_id].nil?
-            clinic = mobile_facility_service.get_clinic(appt[:location_id], appt[:clinic])
-            if clinic&.[](:service_name)
-              appt[:service_name] = clinic[:service_name]
-              # In VAOS Service there is no dedicated clinic friendlyName field.
-              # If the clinic is configured with a patient-friendly name then that will be the value
-              # in the clinic service name; otherwise it will be the internal clinic name.
-              appt[:friendly_name] = clinic[:service_name]
-            end
-
-            appt[:physical_location] = clinic[:physical_location] if clinic&.[](:physical_location)
+      def merge_clinics(appt)
+        unless appt[:clinic].nil? || appt[:location_id].nil?
+          clinic = mobile_facility_service.get_clinic(appt[:location_id], appt[:clinic])
+          if clinic&.[](:service_name)
+            appt[:service_name] = clinic[:service_name]
+            # In VAOS Service there is no dedicated clinic friendlyName field.
+            # If the clinic is configured with a patient-friendly name then that will be the value
+            # in the clinic service name; otherwise it will be the internal clinic name.
+            appt[:friendly_name] = clinic[:service_name]
           end
+
+          appt[:physical_location] = clinic[:physical_location] if clinic&.[](:physical_location)
         end
       end
 
-      def merge_facilities(appointments)
-        appointments.each do |appt|
-          appt[:location] = mobile_facility_service.get_facility(appt[:location_id]) unless appt[:location_id].nil?
-          if cerner?(appt) && VAOS::AppointmentsHelper.contains_substring(
-            VAOS::AppointmentsHelper.extract_all_values(appt[:location]), 'COL OR 1'
-          )
-            log_appt_id_location_name(appt)
-          end
-        end
-      end
-
-      def appt_cerner_location_data(appt_id, facility_location_id, facility_name)
-        {
-          appt_id:,
-          facility_location_id:,
-          facility_name:
-        }
-      end
-
-      def log_appt_id_location_name(appt)
-        Rails.logger.info("Details for Cerner 'COL OR 1' Appointment",
-                          appt_cerner_location_data(appt[:id],
-                                                    appt[:location]&.[]('id'),
-                                                    appt[:location]&.[]('name')).to_json)
+      def merge_facilities(appt)
+        appt[:location] = mobile_facility_service.get_facility(appt[:location_id]) unless appt[:location_id].nil?
+        VAOS::AppointmentsHelper.log_appt_id_location_name(appt)
       end
 
       def appointment_provider_name_service
@@ -388,28 +364,6 @@ module VAOS
         return [] if input.nil?
 
         input.flat_map { |codeable_concept| codeable_concept[:coding]&.pluck(:code) }.compact
-      end
-
-      # Checks if the appointment is associated with cerner. It looks through each identifier and checks if the system
-      # contains cerner. If it does, it returns true. Otherwise, it returns false.
-      #
-      # @param appt [Hash] the appointment to check
-      # @return [Boolean] true if the appointment is associated with cerner, false otherwise
-      #
-      # @raise [ArgumentError] if the appointment is nil
-      def cerner?(appt)
-        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
-
-        identifiers = appt[:identifier]
-
-        return false if identifiers.nil?
-
-        identifiers.each do |identifier|
-          system = identifier[:system]
-          return true if system.include?('cerner')
-        end
-
-        false
       end
 
       # Determines if the appointment is for compensation and pension.

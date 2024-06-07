@@ -3,6 +3,61 @@
 require 'rails_helper'
 
 RSpec.describe VAOS::AppointmentsHelper do
+  describe '#cerner?' do
+    it 'raises an ArgumentError if appt is nil' do
+      expect { subject.cerner?(nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
+    end
+
+    it 'returns true when the appointment is cerner' do
+      appt = {
+        identifier: [
+          {
+            system: 'urn:va.gov:masv2:cerner:appointment',
+            value: 'Appointment/52499028'
+          }
+        ]
+      }
+
+      expect(subject.cerner?(appt)).to eq(true)
+    end
+
+    it 'returns false when the appointment is not cerner' do
+      appt = {
+        identifier: [
+          {
+            system: 'someother system',
+            value: 'appointment/1'
+          }
+        ]
+      }
+
+      expect(subject.cerner?(appt)).to eq(false)
+    end
+
+    it 'returns true when at least one identifier is cerner' do
+      appt = {
+        identifier: [
+          {
+            system: 'someother system',
+            value: 'appointment/1'
+          },
+          {
+            system: 'urn:va.gov:masv2:cerner:appointment',
+            value: 'Appointment/52499028'
+          }
+        ]
+      }
+
+      expect(subject.cerner?(appt)).to eq(true)
+    end
+
+    it 'returns false when the appointment does not contain identifier(s)' do
+      appt = {}
+
+      expect(subject.cerner?(appt)).to eq(false)
+    end
+  end
+
   describe 'extract_all_values' do
     context 'when processing an array, hash, or openstruct' do
       let(:array1) { ['a', 'b', 'c', %w[100 200 300]] }
@@ -53,47 +108,47 @@ RSpec.describe VAOS::AppointmentsHelper do
     end
   end
 
-  describe 'contains_substring' do
+  describe 'contains_substring?' do
     context 'when checking an input array that contains a given substring' do
       it 'returns true' do
-        expect(subject.contains_substring(['given string', 'another string', 100], 'given string')).to be(true)
+        expect(subject.contains_substring?(['given string', 'another string', 100], 'given string')).to be(true)
       end
     end
 
     context 'when checking an input array that does not contain a given substring' do
       it 'returns false' do
-        expect(subject.contains_substring(['given string', 'another string', 100],
+        expect(subject.contains_substring?(['given string', 'another string', 100],
                                           'different string')).to be(false)
       end
     end
 
     context 'when checking a non-array and a string' do
       it 'returns false' do
-        expect(subject.contains_substring('given string', 'given string')).to be(false)
+        expect(subject.contains_substring?('given string', 'given string')).to be(false)
       end
     end
 
     context 'when checking nil and a string' do
       it 'returns false' do
-        expect(subject.contains_substring(nil, 'some string')).to be(false)
+        expect(subject.contains_substring?(nil, 'some string')).to be(false)
       end
     end
 
     context 'when checking an array and a non-string' do
       it 'returns false' do
-        expect(subject.contains_substring(['given string', 'another string', 100], 100)).to be(false)
+        expect(subject.contains_substring?(['given string', 'another string', 100], 100)).to be(false)
       end
     end
 
     context 'when the input array contains nil' do
       it 'returns false' do
-        expect(subject.contains_substring([nil], 'some string')).to be(false)
+        expect(subject.contains_substring?([nil], 'some string')).to be(false)
       end
     end
 
     context 'when the input array is empty' do
       it 'returns false' do
-        expect(subject.contains_substring([], 'some string')).to be(false)
+        expect(subject.contains_substring?([], 'some string')).to be(false)
       end
     end
   end

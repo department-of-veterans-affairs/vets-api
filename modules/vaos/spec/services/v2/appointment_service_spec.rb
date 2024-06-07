@@ -924,61 +924,6 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
-  describe '#cerner?' do
-    it 'raises an ArgumentError if appt is nil' do
-      expect { subject.send(:cerner?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
-    end
-
-    it 'returns true when the appointment is cerner' do
-      appt = {
-        identifier: [
-          {
-            system: 'urn:va.gov:masv2:cerner:appointment',
-            value: 'Appointment/52499028'
-          }
-        ]
-      }
-
-      expect(subject.send(:cerner?, appt)).to eq(true)
-    end
-
-    it 'returns false when the appointment is not cerner' do
-      appt = {
-        identifier: [
-          {
-            system: 'someother system',
-            value: 'appointment/1'
-          }
-        ]
-      }
-
-      expect(subject.send(:cerner?, appt)).to eq(false)
-    end
-
-    it 'returns true when at least one identifier is cerner' do
-      appt = {
-        identifier: [
-          {
-            system: 'someother system',
-            value: 'appointment/1'
-          },
-          {
-            system: 'urn:va.gov:masv2:cerner:appointment',
-            value: 'Appointment/52499028'
-          }
-        ]
-      }
-
-      expect(subject.send(:cerner?, appt)).to eq(true)
-    end
-
-    it 'returns false when the appointment does not contain identifier(s)' do
-      appt = {}
-
-      expect(subject.send(:cerner?, appt)).to eq(false)
-    end
-  end
-
   describe '#booked?' do
     it 'returns true when the appointment status is booked' do
       appt = {

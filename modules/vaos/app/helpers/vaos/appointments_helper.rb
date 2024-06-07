@@ -2,6 +2,28 @@
 
 module VAOS
   module AppointmentsHelper
+    # Checks if the appointment is associated with cerner. It looks through each identifier and checks if the system
+    # contains cerner. If it does, it returns true. Otherwise, it returns false.
+    #
+    # @param appt [Hash] the appointment to check
+    # @return [Boolean] true if the appointment is associated with cerner, false otherwise
+    #
+    # @raise [ArgumentError] if the appointment is nil
+    def self.cerner?(appt)
+      raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+      identifiers = appt[:identifier]
+
+      return false if identifiers.nil?
+
+      identifiers.each do |identifier|
+        system = identifier[:system]
+        return true if system.include?('cerner')
+      end
+
+      false
+    end
+
     # This method extracts all values from a given object, which can be either an `OpenStruct`, `Hash`, or `Array`.
     # It recursively traverses the object and collects all values into an array.
     # In case of an `Array`, it looks inside each element of the array for values.
@@ -51,15 +73,28 @@ module VAOS
     # If the input parameters are not of the correct type the method will return false.
     #
     # @example
-    #   contains_substring(['Hello', 'World'], 'ell')  # => true
-    #   contains_substring(['Hello', 'World'], 'xyz')  # => false
-    #   contains_substring('Hello', 'ell')  # => false
-    #   contains_substring(['Hello', 'World'], 123)  # => false
+    #   contains_substring?(['Hello', 'World'], 'ell')  # => true
+    #   contains_substring?(['Hello', 'World'], 'xyz')  # => false
+    #   contains_substring?('Hello', 'ell')  # => false
+    #   contains_substring?(['Hello', 'World'], 123)  # => false
     #
-    def self.contains_substring(arr, substring)
+    def self.contains_substring?(arr, substring)
       return false unless arr.is_a?(Array) && substring.is_a?(String)
 
       arr.any? { |element| element.is_a?(String) && element.include?(substring) }
+    end
+
+    def self.log_appt_id_location_name(appt)
+      return unless cerner?(appt)
+
+      location_values = extract_all_values(appt[:location])
+      return unless contains_substring?(location_values, 'COL OR 1')
+
+      Rails.logger.info("Details for Cerner 'COL OR 1' Appointment", {
+        appt_id: appt[:id],
+        facility_location_id: appt[:location]&.[]('id'),
+        facility_name: appt[:location]&.[]('name')
+      }.to_json)
     end
   end
 end
