@@ -15,7 +15,8 @@ module SignIn
       validate_scopes
       validate_user_attributes
       validate_subject
-      validate_timestamps
+      validate_issued_at
+      validate_expiration
       create_new_access_token
     end
 
@@ -34,9 +35,7 @@ module SignIn
     end
 
     def validate_audience
-      audience = decoded_assertion.aud&.class == Array ? decoded_assertion.aud.first : decoded_assertion.aud
-
-      unless audience&.match(token_route)
+      unless Array(decoded_assertion.aud).include?(token_route)
         raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion audience is not valid'
       end
     end
@@ -59,10 +58,13 @@ module SignIn
       end
     end
 
-    def validate_timestamps
+    def validate_issued_at
       if iat.blank? || iat > Time.now.to_i
         raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion issuance timestamp is not valid'
       end
+    end
+
+    def validate_expiration
       if exp.blank?
         raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion expiration timestamp is not valid'
       end
@@ -104,7 +106,7 @@ module SignIn
     end
 
     def scopes
-      @scopes ||= decoded_assertion.scopes
+      @scopes ||= Array(decoded_assertion.scopes)
     end
 
     def user_attributes
