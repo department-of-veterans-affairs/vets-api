@@ -8,7 +8,7 @@ module RepresentationManagement
       before_action :check_veteran_params
       before_action :check_claimant_params
       before_action :check_representative_params
-      skip_before_action :authenticate
+      # skip_before_action :authenticate
 
       def create
         # We'll need a process here to check the params to make sure all the

@@ -5,7 +5,7 @@ module RepresentationManagement
     class PdfGeneratorBaseController < ApplicationController
       service_tag 'lighthouse-veteran' # Is this the correct service tag?
       before_action :feature_enabled
-      skip_before_action :authenticate
+      # skip_before_action :authenticate
 
       def create
         # We'll need a process here to check the params to make sure all the
@@ -67,8 +67,77 @@ module RepresentationManagement
         ]
       end
 
+      def verify_veteran_params
+        # invoke all verify operations
+        verify_veteran_address
+        verify_veteran_name
+      end
+
+      def verify_veteran_address
+        address_line1 = form_params[:veteran_address_line1]
+        address_line2 = form_params[:veteran_address_line2]
+        city = form_params[:veteran_city]
+        state = form_params[:veteran_state_code]
+        zip_code = form_params[:veteran_zip_code]
+        zip_code_suffix = form_params[:veteran_zip_code_suffix]
+        unless address_line1.present? && address_line1.is_a?(String) && address_line1.size > 30
+          raise Common::Exceptions::InvalidFieldValue.new('veteran_address_line1', form_params[:veteran_address_line1])
+        end
+
+        if address_line2.present? && address_line2.is_a?(String) && address_line2.size > 50
+          raise Common::Exceptions::InvalidFieldValue.new('veteran_address_line2', form_params[:veteran_address_line2])
+        end
+        unless city.present? && city.is_a?(String) && city.size > 18
+          raise Common::Exceptions::InvalidFieldValue.new('veteran_city', form_params[:veteran_city])
+        end
+        unless state.present? && state.is_a?(String) && state.size == 2
+          raise Common::Exceptions::InvalidFieldValue.new('veteran_state_code', form_params[:veteran_state_code])
+        end
+        unless zip_code.present? && zip_code.is_a?(String) && zip_code.size == 5
+          raise Common::Exceptions::InvalidFieldValue.new('veteran_zip_code', form_params[:veteran_zip_code])
+        end
+
+        unless zip_code_suffix.present? && zip_code_suffix.is_a?(String) && zip_code_suffix.size == 4
+          raise Common::Exceptions::InvalidFieldValue.new('veteran_zip_code_suffix',
+                                                          form_params[:veteran_zip_code_suffix])
+        end
+      end
+
+      def verify_veteran_name
+        first_name = form_params[:veteran_first_name]
+        middle_initial = form_params[:veteran_middle_initial]
+        last_name = form_params[:veteran_last_name]
+        unless first_name.present? && first_name.is_a?(String) && first_name.size > 12
+          raise Common::Exceptions::InvalidFieldValue.new('veteran_first_name', form_params[:veteran_first_name])
+        end
+
+        if middle_initial.present? && middle_initial.is_a?(String) && middle_initial.size > 1
+          raise Common::Exceptions::InvalidFieldValue.new('veteran_middle_initial',
+                                                          form_params[:veteran_middle_initial])
+        end
+        unless last_name.present? && last_name.is_a?(String) && last_name.size > 18
+          raise Common::Exceptions::InvalidFieldValue.new('veteran_last_name', form_params[:veteran_last_name])
+        end
+      end
+
+      def verify_veteran_identity
+        ssn = form_params[:veteran_social_security_number]
+        file_number = form_params[:veteran_file_number]
+
+        unless ssn.present? && ssn.is_a?(String) && ssn.size == 9
+          raise Common::Exceptions::InvalidFieldValue.new('veteran_social_security_number',
+                                                          form_params[:veteran_social_security_number])
+        end
+        if file_number.present? && file_number.is_a?(String) && file_number.size == 9
+          raise Common::Exceptions::InvalidFieldValue.new('veteran_file_number', form_params[:veteran_file_number])
+        end
+      end
+
       def veteran_params
         %i[
+          veteran_first_name veteran_middle_initial veteran_last_name
+          veteran_social_security_number
+          veteran_file_number
           veteran_address_line1
           veteran_address_line2
           veteran_city
