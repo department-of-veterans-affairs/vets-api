@@ -78,10 +78,10 @@ describe MyHealth::V1::TrackingSerializer do
     let(:rendered_hash_dhl) do
       ActiveModelSerializers::SerializableResource.new(tracking_dhl, { serializer: described_class }).as_json
     end
+
     it 'includes :tracking_url link' do
       expected_url = ''
       expect(rendered_hash_dhl[:data][:links][:tracking_url]).to eq expected_url
     end
   end
-
 end

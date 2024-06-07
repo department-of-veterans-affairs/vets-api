@@ -82,8 +82,8 @@ describe MyHealth::V1::ThreadsSerializer do
     expect(rendered_attributes[:unsent_drafts]).to eq thread.unsent_drafts
   end
 
-  it 'includes :unsent_drafts' do
-    expect(rendered_attributes[:unsent_drafts]).to eq thread.unsent_drafts
+  it 'includes :unread_messages' do
+    expect(rendered_attributes[:unread_messages]).to eq thread.unread_messages
   end
 
   it 'includes :self link' do
