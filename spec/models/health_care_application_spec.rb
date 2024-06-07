@@ -495,7 +495,6 @@ RSpec.describe HealthCareApplication, type: :model do
           let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
           let(:template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email }
 
-          # TODO: Add google_analytics_client_id to params
           let(:template_params) do
             [
               email_address,
