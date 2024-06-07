@@ -455,8 +455,12 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
       end
 
       context 'with hca_use_facilities_API enabled' do
+        let(:current_user) { create(:user) }
+
         before do
-          Flipper.enable(:hca_use_facilities_API)
+          sign_in_as(current_user)
+          Flipper.disable(:hca_use_facilities_API)
+          Flipper.enable(:hca_use_facilities_API, current_user)
         end
 
         let(:params) do
@@ -476,6 +480,8 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
 
         it 'does not error on vaMedicalFacility validation' do
           subject
+
+          expect(JSON.parse(response.body)['errors']).to be_blank
           expect(JSON.parse(response.body)['data']['attributes']).to eq(body)
         end
       end
