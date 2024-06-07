@@ -26,7 +26,7 @@ RSpec.describe VAOS::AppointmentsHelper do
       end
 
       it 'returns an array of values from a nested openstruct' do
-        mock_appt_location_openstruct = OpenStruct.new(
+        struct = OpenStruct.new(
           {
             single_value: '1',
             nested_values: [
@@ -37,9 +37,8 @@ RSpec.describe VAOS::AppointmentsHelper do
             ]
           }
         )
-
-        mock_appt_location_extracted_values = %w[1 2 3 4 5 6 7 8]
-        expect(subject.extract_all_values(mock_appt_location_openstruct)).to eq(mock_appt_location_extracted_values)
+        result = %w[1 2 3 4 5 6 7 8]
+        expect(subject.extract_all_values(struct)).to eq(result)
       end
     end
 
