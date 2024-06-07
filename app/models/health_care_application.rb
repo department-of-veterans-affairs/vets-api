@@ -26,7 +26,7 @@ class HealthCareApplication < ApplicationRecord
   validates(:form, presence: true, on: :create)
   validate(:form_matches_schema, on: :create)
 
-  after_save :send_failure_mail, if: %i[submission_failed? email?]
+  after_save :send_failure_email, if: %i[submission_failed? email?]
   after_save :log_submission_failure, if: :submission_failed?
 
   # @param [Account] user
@@ -273,18 +273,19 @@ class HealthCareApplication < ApplicationRecord
     end
   end
 
-  def send_failure_mail
-    notify_client = VaNotify::Service.new(Settings.vanotify.services.health_apps_1010.api_key)
+  def send_failure_email
+    email = parsed_form['email']
+    template_id = Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email
+    api_key = Settings.vanotify.services.health_apps_1010.api_key
 
-    # TODO: Pass google_analytics_client_id to the template
-    notify_client.send_email(
-      {
-        email_address: parsed_form['email'],
-        template_id: Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email
-      }
+    VANotify::EmailJob.perform_async(
+      email,
+      template_id,
+      nil,
+      api_key
     )
   rescue => e
-    log_exception_to_sentry(e)
+    Rails.logger.error "Failure sending EZ Submission Failure Email. Error: #{e.message}"
   end
 
   # If the hca_use_facilities_API flag is on then vaMedicalFacility will only

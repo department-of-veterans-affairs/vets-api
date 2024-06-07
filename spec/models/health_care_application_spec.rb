@@ -485,43 +485,39 @@ RSpec.describe HealthCareApplication, type: :model do
     let(:notification_client) { double('Notifications::Client') }
 
     before do
-      allow(Notifications::Client).to receive(:new).and_return(notification_client)
-      allow(notification_client).to receive(:send_email)
+      allow(VANotify::EmailJob).to receive(:perform_async)
     end
 
     describe '#send_failure_email' do
       context 'has form' do
         context 'with email address' do
           let(:email_address) { health_care_application.parsed_form['email'] }
+          let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
+          let(:template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email }
+
           # TODO: Add google_analytics_client_id to params
           let(:template_params) do
-            {
-              email_address:,
-              template_id: Settings.vanotify
-                                   .services
-                                   .health_apps_1010
-                                   .template_id
-                                   .form1010_ez_failure_email
-
-            }
+            [
+              email_address,
+              template_id,
+              nil,
+              api_key
+            ]
           end
 
           it 'sends a failure email to the email address provided on the form' do
-            expect(notification_client).to receive(:send_email).with(template_params)
             subject
+            expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params)
           end
 
-          it 'logs error exception to sentry if sending email fails' do
-            error = Common::Exceptions::BackendServiceException.new(
-              'VANOTIFY_400',
-              { source: VaNotify::Service.to_s },
-              400,
-              'Error'
-            )
+          it 'logs error if email job throws error' do
+            allow(Rails.logger).to receive(:error)
+            allow(VANotify::EmailJob).to receive(:perform_async).and_raise(StandardError.new('Test error'))
 
-            allow(notification_client).to receive(:send_email).and_raise(error)
-            expect(health_care_application).to receive(:log_exception_to_sentry).with(error)
-            subject
+            expect { subject }.not_to raise_error
+            expect(Rails.logger).to have_received(:error).with(
+              'Failure sending EZ Submission Failure Email. Error: Test error'
+            )
           end
         end
 
@@ -532,7 +528,7 @@ RSpec.describe HealthCareApplication, type: :model do
           end
 
           it 'does not send email' do
-            expect(health_care_application).not_to receive(:send_failure_mail)
+            expect(health_care_application).not_to receive(:send_failure_email)
             subject
           end
         end
@@ -546,7 +542,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
         context 'with email address' do
           it 'does not send email' do
-            expect(health_care_application).not_to receive(:send_failure_mail)
+            expect(health_care_application).not_to receive(:send_failure_email)
             subject
           end
         end
@@ -558,7 +554,7 @@ RSpec.describe HealthCareApplication, type: :model do
           end
 
           it 'does not send email' do
-            expect(health_care_application).not_to receive(:send_failure_mail)
+            expect(health_care_application).not_to receive(:send_failure_email)
             subject
           end
         end
