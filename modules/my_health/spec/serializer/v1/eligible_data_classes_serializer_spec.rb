@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bb/generate_report_request_form.rb'
+require 'bb/generate_report_request_form'
 
 describe MyHealth::V1::EligibleDataClassesSerializer do
   let(:eligible_data_classes) { build_list(:eligible_data_class, 3) }

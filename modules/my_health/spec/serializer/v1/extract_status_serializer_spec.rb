@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bb/generate_report_request_form.rb'
+require 'bb/generate_report_request_form'
 
 describe MyHealth::V1::ExtractStatusSerializer do
   let(:extract_status) { build(:extract_status) }
