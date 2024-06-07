@@ -25,14 +25,8 @@ module Mobile
           appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
 
           appointments = vaos_v2_to_v0_appointment_adapter.parse(appointments)
-          # this is no longer necessary
-          failures = [
-            { appointment_errors: Array.wrap(response[:meta][:failures]) }
-          ]
-          failures.reject! { |failure| failure.values.first&.empty? }
-          Rails.logger.info('Mobile Appointment Partial Error', errors: failures) if failures.any?
 
-          [appointments.sort_by(&:start_date_utc), failures]
+          [appointments.sort_by(&:start_date_utc), response[:meta][:failures]]
         end
 
         private

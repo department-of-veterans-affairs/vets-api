@@ -191,14 +191,6 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           end
 
           expect(response).to have_http_status(:multi_status)
-          appointment_error = { errors: [{ appointment_errors: [{ system: 'the system',
-                                                                  id: 'id-string',
-                                                                  status: 'status-string',
-                                                                  code: 0,
-                                                                  trace_id: 'traceId-string',
-                                                                  message: 'msg-string',
-                                                                  detail: 'detail-string' }] }] }
-          expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error', appointment_error)
           expect(response.parsed_body['data'].count).to eq(1)
           expect(response.parsed_body['meta']).to include(
             {
@@ -531,14 +523,6 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           end
 
           expect(response).to have_http_status(:multi_status)
-          appointment_error = { errors: [{ appointment_errors: [{ system: 'the system',
-                                                                  id: 'id-string',
-                                                                  status: 'status-string',
-                                                                  code: 0,
-                                                                  trace_id: 'traceId-string',
-                                                                  message: 'msg-string',
-                                                                  detail: 'detail-string' }] }] }
-          expect(Rails.logger).to have_received(:info).with('Mobile Appointment Partial Error', appointment_error)
           expect(response.parsed_body['data'].count).to eq(1)
           expect(response.parsed_body['meta']).to include(
             {
