@@ -4,74 +4,79 @@ require 'rails_helper'
 
 RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true do
   include SchemaMatchers
-  mock_clinic = {
-    'service_name': 'service_name',
-    'physical_location': 'physical_location'
-  }
-
-  mock_clinic_without_physical_location = {
-    'service_name': 'service_name'
-  }
-
-  mock_facility = {
-    'test': 'test',
-    'id': '668',
-    'name': 'COL OR 1',
-    'timezone': {
-      'time_zone_id': 'America/New_York'
-    }
-  }
-
-  expected_facility = {
-    'test' => 'test',
-    'id' => '668',
-    'name' => 'COL OR 1',
-    'timezone' => {
-      'timeZoneId' => 'America/New_York'
-    }
-  }
-
-  mock_appt_location_openstruct = OpenStruct.new(
-    {
-      'id': '983',
-      'vistaSite': '983',
-      'vastParent': '983',
-      'type': 'va_facilities',
-      'name': 'COL OR 1',
-      'classification': 'VA Medical Center (VAMC)',
-      'lat': 39.744507,
-      'long': -104.830956,
-      'website': 'https://www.denver.va.gov/locations/directions.asp',
-      'phone': {
-        'main': '307-778-7550',
-        'fax': '307-778-7381',
-        'pharmacy': '866-420-6337',
-        'afterHours': '307-778-7550',
-        'patientAdvocate': '307-778-7550 x7517',
-        'mentalHealthClinic': '307-778-7349',
-        'enrollmentCoordinator': '307-778-7550 x7579'
-      },
-      'physicalAddress': {
-        'type': 'physical',
-        'line': ['2360 East Pershing Boulevard'],
-        'city': 'Cheyenne',
-        'state': 'WY',
-        'postalCode': '82001-5356'
-      },
-      'mobile': false,
-      'healthService': %w[Audiology Cardiology DentalServices EmergencyCare Gastroenterology
-                          Gynecology MentalHealthCare Nutrition Ophthalmology Optometry Orthopedics
-                          Podiatry PrimaryCare SpecialtyCare UrgentCare Urology WomensHealth],
-      'operatingStatus': {
-        'code': 'NORMAL'
-      }
-    }
-  )
 
   before do
     Flipper.enable('va_online_scheduling')
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+  end
+
+  let(:mock_clinic) do
+    {
+      'service_name': 'service_name',
+      'physical_location': 'physical_location'
+    }
+  end
+
+  let(:mock_clinic_without_physical_location) { { 'service_name': 'service_name' } }
+
+  let(:mock_facility) do
+    {
+      'test': 'test',
+      'id': '668',
+      'name': 'COL OR 1',
+      'timezone': {
+        'time_zone_id': 'America/New_York'
+      }
+    }
+  end
+
+  let(:expected_facility) do
+    {
+      'test' => 'test',
+      'id' => '668',
+      'name' => 'COL OR 1',
+      'timezone' => {
+        'timeZoneId' => 'America/New_York'
+      }
+    }
+  end
+
+  let(:mock_appt_location_openstruct) do
+    OpenStruct.new({
+                     'id': '983',
+                     'vistaSite': '983',
+                     'vastParent': '983',
+                     'type': 'va_facilities',
+                     'name': 'COL OR 1',
+                     'classification': 'VA Medical Center (VAMC)',
+                     'lat': 39.744507,
+                     'long': -104.830956,
+                     'website': 'https://www.denver.va.gov/locations/directions.asp',
+                     'phone': {
+                       'main': '307-778-7550',
+                       'fax': '307-778-7381',
+                       'pharmacy': '866-420-6337',
+                       'afterHours': '307-778-7550',
+                       'patientAdvocate': '307-778-7550 x7517',
+                       'mentalHealthClinic': '307-778-7349',
+                       'enrollmentCoordinator': '307-778-7550 x7579'
+                     },
+                     'physicalAddress': {
+                       'type': 'physical',
+                       'line': ['2360 East Pershing Boulevard'],
+                       'city': 'Cheyenne',
+                       'state': 'WY',
+                       'postalCode': '82001-5356'
+                     },
+                     'mobile': false,
+                     'healthService': %w[Audiology Cardiology DentalServices EmergencyCare Gastroenterology
+                                         Gynecology MentalHealthCare Nutrition Ophthalmology Optometry Orthopedics
+                                         Podiatry PrimaryCare SpecialtyCare UrgentCare Urology WomensHealth],
+                     'operatingStatus': {
+                       'code': 'NORMAL'
+                     }
+                   })
   end
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
@@ -88,11 +93,11 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
     OpenStruct.new({ 'providerIdentifier' => '1174506877', 'name' => 'BRIANT G MOYLES' })
   end
 
-  let(:stub_facilities) do
+  def stub_facilities
     allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)
   end
 
-  let(:stub_clinics) do
+  def stub_clinics
     allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic).and_return(mock_clinic)
   end
 

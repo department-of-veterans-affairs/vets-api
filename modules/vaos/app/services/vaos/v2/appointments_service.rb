@@ -43,8 +43,8 @@ module VAOS
           appointments = response.body[:data]
           appointments.each do |appt|
             prepare_appointment(appt)
-            merge_clinics(appt) if include[:clinics]
-            merge_facilities(appt) if include[:facilities]
+            merge_clinic(appt) if include[:clinics]
+            merge_facility(appt) if include[:facilities]
             cnp_count += 1 if cnp?(appt)
           end
           # log count of C&P appointments in the appointments list, per GH#78141
@@ -182,22 +182,22 @@ module VAOS
         appointment[:preferred_provider_name] = names
       end
 
-      def merge_clinics(appt)
-        unless appt[:clinic].nil? || appt[:location_id].nil?
-          clinic = mobile_facility_service.get_clinic(appt[:location_id], appt[:clinic])
-          if clinic&.[](:service_name)
-            appt[:service_name] = clinic[:service_name]
-            # In VAOS Service there is no dedicated clinic friendlyName field.
-            # If the clinic is configured with a patient-friendly name then that will be the value
-            # in the clinic service name; otherwise it will be the internal clinic name.
-            appt[:friendly_name] = clinic[:service_name]
-          end
+      def merge_clinic(appt)
+        return if appt[:clinic].nil? || appt[:location_id].nil?
 
-          appt[:physical_location] = clinic[:physical_location] if clinic&.[](:physical_location)
+        clinic = mobile_facility_service.get_clinic(appt[:location_id], appt[:clinic])
+        if clinic&.[](:service_name)
+          appt[:service_name] = clinic[:service_name]
+          # In VAOS Service there is no dedicated clinic friendlyName field.
+          # If the clinic is configured with a patient-friendly name then that will be the value
+          # in the clinic service name; otherwise it will be the internal clinic name.
+          appt[:friendly_name] = clinic[:service_name]
         end
+
+        appt[:physical_location] = clinic[:physical_location] if clinic&.[](:physical_location)
       end
 
-      def merge_facilities(appt)
+      def merge_facility(appt)
         appt[:location] = mobile_facility_service.get_facility(appt[:location_id]) unless appt[:location_id].nil?
         VAOS::AppointmentsHelper.log_appt_id_location_name(appt)
       end

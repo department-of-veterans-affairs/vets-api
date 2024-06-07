@@ -118,7 +118,7 @@ RSpec.describe VAOS::AppointmentsHelper do
     context 'when checking an input array that does not contain a given substring' do
       it 'returns false' do
         expect(subject.contains_substring?(['given string', 'another string', 100],
-                                          'different string')).to be(false)
+                                           'different string')).to be(false)
       end
     end
 
