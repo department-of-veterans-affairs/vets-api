@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'mobile/v0/exceptions/custom_errors'
+
 module Mobile
   module V0
     class AppointmentsController < ApplicationController
@@ -9,6 +11,15 @@ module Mobile
       after_action :clear_appointments_cache, only: %i[cancel create]
 
       def index
+        if Settings.vsp_environment != 'production' && @current_user.email == 'abraham.lincoln@vets.gov'
+          raise Mobile::V0::Exceptions::CustomErrors.new(
+            title: 'Custom error title',
+            body: 'Custom error body. \n This explains to the user the details of the ongoing issue.',
+            source: 'VAOS',
+            telephone: '999-999-9999',
+            refreshable: true
+          )
+        end
         appointments, failures = fetch_appointments
         appointments = filter_by_date_range(appointments)
         partial_errors = partial_errors(failures)
