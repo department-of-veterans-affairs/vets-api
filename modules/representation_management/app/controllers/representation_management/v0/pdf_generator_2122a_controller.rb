@@ -39,8 +39,6 @@ module RepresentationManagement
         ].flatten
       end
 
-
-
       def feature_enabled
         routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
       end

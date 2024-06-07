@@ -24,7 +24,6 @@ module RepresentationManagement
         params.permit(all_params)
       end
 
-
       def claimant_params
         %i[
           claimant_address_line1
