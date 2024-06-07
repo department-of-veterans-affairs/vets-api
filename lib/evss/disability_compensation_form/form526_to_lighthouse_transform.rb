@@ -53,8 +53,8 @@ module EVSS
 
       HAZARDS = {
         asbestos: 'Asbestos',
-        chemical: 'SHAD (Shipboard Hazard and Defense)',
-        mos: 'Military Occupational Specialty (MOS)-related toxin',
+        chemical: 'SHAD - Shipboard Hazard and Defense',
+        mos: 'Military Occupational Specialty-related toxin',
         mustardgas: 'Mustard Gas',
         radiation: 'Radiation',
         water: 'Contaminated Water At Camp Lejeune',
