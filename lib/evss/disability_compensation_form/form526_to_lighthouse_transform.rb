@@ -197,16 +197,19 @@ module EVSS
       def transform_treatments(treatments_source)
         treatments_source.map do |treatment|
           center = treatment['center']
-          Requests::Treatment.new(
+          request_treatment = Requests::Treatment.new(
             treated_disability_names: treatment['treatedDisabilityNames'],
             center: Requests::Center.new(
               name: center['name'],
               state: center['state'],
               city: center['city']
-            ),
-            # LH spec says YYYY-DD or YYYY date format
-            begin_date: convert_approximate_date(treatment['startDate'], short: true)
+            )
           )
+          if treatment['startDate'].present?
+            # LH spec says YYYY-DD or YYYY date format
+            request_treatment.begin_date = convert_approximate_date(treatment['startDate'], short: true)
+          end
+          request_treatment
         end
       end
 
