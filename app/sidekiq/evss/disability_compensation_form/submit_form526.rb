@@ -109,7 +109,6 @@ module EVSS
             # send submission data to either EVSS or Lighthouse (LH)
             response = if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration, user) ||
                           submit_to_claims_api # right operand evaluation not needed once fully migrated to LH
-                         debugger
                          # submit 526 through LH API
                          # 1. get user's ICN
                          icn = user_account.icn
