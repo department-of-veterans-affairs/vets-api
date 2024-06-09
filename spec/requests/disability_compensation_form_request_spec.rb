@@ -238,16 +238,38 @@ RSpec.describe 'Disability compensation form' do
       context 'with an `all claims` claim' do
         let(:all_claims_form) { File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json' }
 
-        it 'matches the rated disabilites schema' do
+        it 'matches the rated disabilities schema' do
           post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('submit_disability_form')
-          expect(Form526Submission.count).to eq(1)
-          form = Form526Submission.last.form
-          expect(form.dig('form526', 'form526', 'toxicExposure')).not_to eq(nil)
         end
 
-        it 'matches the rated disabilites schema with camel-inflection' do
+        context 'where the includeToxicExposure indicator is true' do
+          it 'creates a submission that includes a toxic exposure component' do
+            post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('submit_disability_form')
+            expect(Form526Submission.count).to eq(1)
+            form = Form526Submission.last.form
+            expect(form.dig('form526', 'form526', 'toxicExposure')).not_to eq(nil)
+          end
+        end
+
+        context 'where the includeToxicExposure indicator is false' do
+          it 'does not create a submission that includes a toxic exposure component' do
+            json_object = JSON.parse(all_claims_form)
+            json_object['form526']['includeToxicExposure'] = false
+            updated_form = JSON.generate(json_object)
+            post('/v0/disability_compensation_form/submit_all_claim', params: updated_form, headers:)
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('submit_disability_form')
+            expect(Form526Submission.count).to eq(1)
+            form = Form526Submission.last.form
+            expect(form.dig('form526', 'form526', 'toxicExposure')).to eq(nil)
+          end
+        end
+
+        it 'matches the rated disabilities schema with camel-inflection' do
           post '/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers: headers_with_camel
           expect(response).to have_http_status(:ok)
           expect(response).to match_camelized_response_schema('submit_disability_form')
@@ -257,55 +279,18 @@ RSpec.describe 'Disability compensation form' do
           expect(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to receive(:perform_async).once
           post '/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:
         end
-
-        context 'when the includes_toxic_exposure query param value is true' do
-          let(:query_param) { '?includes_toxic_exposure=true' }
-
-          it 'sets claims_api as the submit_endpoint' do
-            post("/v0/disability_compensation_form/submit_all_claim#{query_param}", params: all_claims_form, headers:)
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('submit_disability_form')
-            expect(Form526Submission.count).to eq(1)
-            submission = Form526Submission.last
-            expect(submission.submit_endpoint).to eq('claims_api')
-          end
-        end
-
-        context 'when the includes_toxic_exposure query param value is false' do
-          let(:query_param) { '?includes_toxic_exposure=false' }
-
-          it 'sets evss as the submit_endpoint' do
-            post("/v0/disability_compensation_form/submit_all_claim#{query_param}", params: all_claims_form, headers:)
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('submit_disability_form')
-            expect(Form526Submission.count).to eq(1)
-            submission = Form526Submission.last
-            expect(submission.submit_endpoint).to eq('evss')
-          end
-        end
-
-        context 'when the includes_toxic_exposure query param is not passed' do
-          it 'sets evss as the submit_endpoint' do
-            post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('submit_disability_form')
-            expect(Form526Submission.count).to eq(1)
-            submission = Form526Submission.last
-            expect(submission.submit_endpoint).to eq('evss')
-          end
-        end
       end
 
       context 'with an `bdd` claim' do
         let(:bdd_form) { File.read 'spec/support/disability_compensation_form/bdd_fe_submission.json' }
 
-        it 'matches the rated disabilites schema' do
+        it 'matches the rated disabilities schema' do
           post('/v0/disability_compensation_form/submit_all_claim', params: bdd_form, headers:)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('submit_disability_form')
         end
 
-        it 'matches the rated disabilites schema with camel-inflection' do
+        it 'matches the rated disabilities schema with camel-inflection' do
           post '/v0/disability_compensation_form/submit_all_claim', params: bdd_form, headers: headers_with_camel
           expect(response).to have_http_status(:ok)
           expect(response).to match_camelized_response_schema('submit_disability_form')

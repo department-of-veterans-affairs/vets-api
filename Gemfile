@@ -86,6 +86,7 @@ gem 'googleauth'
 gem 'google-protobuf' # For Datadog Profiling
 gem 'govdelivery-tms', git: 'https://github.com/department-of-veterans-affairs/govdelivery-tms-ruby.git', tag: 'v4.0.0', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
+gem 'hexapdf'
 gem 'holidays'
 gem 'httpclient' # for lib/evss/base_service.rb
 gem 'ice_nine'

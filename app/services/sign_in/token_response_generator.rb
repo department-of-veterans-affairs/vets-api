@@ -26,6 +26,8 @@ module SignIn
         generate_client_tokens
       when Constants::Auth::JWT_BEARER_GRANT
         generate_service_account_token
+      when Constants::Auth::TOKEN_EXCHANGE_GRANT
+        generate_token_exchange_response
       else
         raise Errors::MalformedParamsError.new(message: 'Grant type is not valid')
       end
@@ -50,6 +52,15 @@ module SignIn
       encoded_access_token = ServiceAccountAccessTokenJwtEncoder.new(service_account_access_token:).perform
 
       serialized_service_account_token(access_token: encoded_access_token)
+    end
+
+    def generate_token_exchange_response
+      exchanged_container = TokenExchanger.new(subject_token:, subject_token_type:, actor_token:,
+                                               actor_token_type:, client_id:).perform
+
+      sign_in_logger.info('token exchanged', exchanged_container.access_token.to_s)
+
+      TokenSerializer.new(session_container: exchanged_container, cookies:).perform
     end
 
     def sign_in_logger
