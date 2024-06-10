@@ -214,7 +214,7 @@
         "financialInstitutionName": "Chase",
         "routingNumber": "123123123"
       },
-      "claimantCertification": true,
+      "claimantCertification": true
     }
   }
 }
