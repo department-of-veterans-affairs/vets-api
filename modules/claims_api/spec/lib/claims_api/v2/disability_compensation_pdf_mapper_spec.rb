@@ -702,6 +702,16 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       end
     end
 
+    context '526 Overflow Text' do
+      it 'maps the attributes correctly' do
+        mapper.map_claim
+
+        notes_on_pdf = pdf_data[:data][:attributes][:overflowText]
+
+        expect(notes_on_pdf).to eq('Some things that are important to know, and are not included in any other place.')
+      end
+    end
+
     context '526 #deep_compact' do
       it 'eliminates nil string values' do
         form_attributes['veteranIdentification']['mailingAddress']['addressLine2'] = nil

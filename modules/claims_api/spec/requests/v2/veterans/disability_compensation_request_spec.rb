@@ -3941,6 +3941,29 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
       end
+
+      describe 'Overflow Text' do
+        context 'when overflow text is provided' do
+          it 'responds with accepted' do
+            mock_ccg(scopes) do |auth_header|
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when overflow text is not provided' do
+          it 'responds with accepted' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['claimNotes'] = nil
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+      end
     end
 
     context 'validate endpoint' do

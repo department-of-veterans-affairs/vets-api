@@ -213,7 +213,8 @@
         "financialInstitutionName": "Chase",
         "routingNumber": "123123123"
       },
-      "claimantCertification": true
+      "claimantCertification": true,
+      "claimNotes": "Some things that are important to know, and are not included in any other place."
     }
   }
 }
