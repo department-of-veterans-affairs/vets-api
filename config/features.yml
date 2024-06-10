@@ -1504,7 +1504,7 @@ features:
     actor_type: user
     description: Enable the Accredited Representative Portal for the pilot
     enable_in_development: true
-  toggle_vye_adress_direct_deposit_forms:
+  toggle_vye_address_direct_deposit_forms:
     actor_type: user
     description: Enable mailing address and direct deposit for VYE
   veteran_readiness_employment_to_res:
@@ -1514,6 +1514,6 @@ features:
   vye_login_widget:
      actor_type: user
      description: Enable Vye authentication widget
-  toggle_vye_adress_direct_deposit_forms_in_profile: 
+  toggle_vye_address_direct_deposit_forms_in_profile: 
      actor_type: user
      description: Enable mailing address and direct deposit for VYE in profile page

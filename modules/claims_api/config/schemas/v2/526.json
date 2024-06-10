@@ -19,10 +19,7 @@
     "veteranIdentification": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "mailingAddress",
-        "currentVaEmployee"
-      ],
+      "required": ["mailingAddress", "currentVaEmployee"],
       "properties": {
         "serviceNumber": {
           "type": ["null", "string"],
@@ -559,7 +556,7 @@
           },
           "ratedDisabilityId": {
             "description": "When submitting a contention with action type 'INCREASE', the previously rated disability id may be included.",
-            "type": ["string","null"],
+            "type": ["string", "null"],
             "example": "1100583",
             "nullable": true
           },
@@ -724,7 +721,12 @@
           "uniqueItems": true,
           "items": {
             "type": "object",
-            "required": ["serviceBranch", "serviceComponent", "activeDutyBeginDate", "activeDutyEndDate"],
+            "required": [
+              "serviceBranch",
+              "serviceComponent",
+              "activeDutyBeginDate",
+              "activeDutyEndDate"
+            ],
             "properties": {
               "serviceBranch": {
                 "description": "Branch of service during period. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
@@ -1040,6 +1042,11 @@
       "type": "boolean",
       "description": "Claimant certifies and authorizes release of information.",
       "default": false
+    },
+    "claimNotes": {
+      "type": ["string", "null"],
+      "description": "An optional notes section.",
+      "maxLength": 4000
     }
   }
 }

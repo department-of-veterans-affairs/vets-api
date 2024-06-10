@@ -13,6 +13,7 @@ RSpec.describe 'Pega callback', type: :request do
         form_uuid: '12345678-1234-5678-1234-567812345678',
         file_names: ['12345678-1234-5678-1234-567812345678_vha_10_10d-tmp.pdf',
                      '12345678-1234-5678-1234-567812345678_vha_10_10d-tmp-1.pdf'],
+        case_id: 'ABC-1234',
         status: 'Processed'
       }
     end
@@ -28,7 +29,8 @@ RSpec.describe 'Pega callback', type: :request do
           form_number: '10-10D',
           file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d-tmp.pdf',
           s3_status: 'Submitted',
-          pega_status: nil
+          pega_status: nil,
+          case_id: nil
         )
 
         IvcChampvaForm.create!(
@@ -39,7 +41,8 @@ RSpec.describe 'Pega callback', type: :request do
           form_number: '10-10D',
           file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d-tmp-1.pdf',
           s3_status: 'Submitted',
-          pega_status: nil
+          pega_status: nil,
+          case_id: nil
         )
 
         IvcChampvaForm.create!(
@@ -50,16 +53,19 @@ RSpec.describe 'Pega callback', type: :request do
           form_number: '10-10D',
           file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d-tmp-2.pdf',
           s3_status: 'Submitted',
-          pega_status: nil
+          pega_status: nil,
+          case_id: nil
         )
 
         post '/ivc_champva/v1/forms/status_updates', params: valid_payload
 
         ivc_forms = [IvcChampvaForm.all]
         status_array = ivc_forms.map { |form| form.pluck(:pega_status) }
+        case_id_array = ivc_forms.map { |form| form.pluck(:case_id) }
 
         # only 2/3 should be updated
         expect(status_array.flatten).not_to eq(%w[Processed Processed])
+        expect(case_id_array.flatten).not_to eq(%w[ABC-1234 ABC-1234])
         expect(response).to have_http_status(:ok)
       end
 
@@ -73,7 +79,8 @@ RSpec.describe 'Pega callback', type: :request do
           form_number: '10-10D',
           file_name: 'd8f2902b-0b6e-4b8e-88d4-5f7a4a5b7f6d_vha_10_10d-tmp.pdf',
           s3_status: 'Submitted',
-          pega_status: nil
+          pega_status: nil,
+          case_id: nil
         )
 
         IvcChampvaForm.create!(
@@ -84,15 +91,18 @@ RSpec.describe 'Pega callback', type: :request do
           form_number: '10-10D',
           file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d-tmp.pdf',
           s3_status: 'Submitted',
-          pega_status: nil
+          pega_status: nil,
+          case_id: nil
         )
 
         post '/ivc_champva/v1/forms/status_updates', params: valid_payload
 
         ivc_forms = [IvcChampvaForm.all]
         status_array = ivc_forms.map { |form| form.pluck(:pega_status) }
+        case_id_array = ivc_forms.map { |form| form.pluck(:case_id) }
 
         expect(status_array.flatten).not_to eq(['Processed'])
+        expect(case_id_array.flatten).not_to eq(['ABC-1234'])
         expect(response).to have_http_status(:ok)
       end
     end
