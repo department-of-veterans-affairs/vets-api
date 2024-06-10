@@ -11,10 +11,10 @@ shared_examples 'travel claims worker #perform' do |facility_type|
       @timeout_template_id = Settings.vanotify.services.oracle_health.template_id.claim_submission_timeout_text
       @error_template_id = Settings.vanotify.services.oracle_health.template_id.claim_submission_error_text
 
-      @statsd_success = CheckIn::TravelClaimSubmissionWorker::OH_STATSD_BTSSS_SUCCESS
-      @statsd_duplicate = CheckIn::TravelClaimSubmissionWorker::OH_STATSD_BTSSS_DUPLICATE
-      @statsd_timeout = CheckIn::TravelClaimSubmissionWorker::OH_STATSD_BTSSS_TIMEOUT
-      @statsd_error = CheckIn::TravelClaimSubmissionWorker::OH_STATSD_BTSSS_ERROR
+      @statsd_success = CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS
+      @statsd_duplicate = CheckIn::Constants::OH_STATSD_BTSSS_DUPLICATE
+      @statsd_timeout = CheckIn::Constants::OH_STATSD_BTSSS_TIMEOUT
+      @statsd_error = CheckIn::Constants::OH_STATSD_BTSSS_ERROR
 
       allow(redis_client).to receive(:facility_type).and_return('oh')
     else
@@ -24,10 +24,10 @@ shared_examples 'travel claims worker #perform' do |facility_type|
       @timeout_template_id = Settings.vanotify.services.check_in.template_id.claim_submission_timeout_text
       @error_template_id = Settings.vanotify.services.check_in.template_id.claim_submission_error_text
 
-      @statsd_success = CheckIn::TravelClaimSubmissionWorker::CIE_STATSD_BTSSS_SUCCESS
-      @statsd_duplicate = CheckIn::TravelClaimSubmissionWorker::CIE_STATSD_BTSSS_DUPLICATE
-      @statsd_timeout = CheckIn::TravelClaimSubmissionWorker::CIE_STATSD_BTSSS_TIMEOUT
-      @statsd_error = CheckIn::TravelClaimSubmissionWorker::CIE_STATSD_BTSSS_ERROR
+      @statsd_success = CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS
+      @statsd_duplicate = CheckIn::Constants::CIE_STATSD_BTSSS_DUPLICATE
+      @statsd_timeout = CheckIn::Constants::CIE_STATSD_BTSSS_TIMEOUT
+      @statsd_error = CheckIn::Constants::CIE_STATSD_BTSSS_ERROR
 
       allow(redis_client).to receive(:facility_type).and_return(nil)
     end
@@ -56,7 +56,7 @@ shared_examples 'travel claims worker #perform' do |facility_type|
 
       expect(StatsD).to have_received(:increment).with(@statsd_success).exactly(1).time
       expect(StatsD).to have_received(:increment)
-        .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
+        .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
     end
   end
 
@@ -82,7 +82,7 @@ shared_examples 'travel claims worker #perform' do |facility_type|
 
       expect(StatsD).to have_received(:increment).with(@statsd_duplicate).exactly(1).time
       expect(StatsD).to have_received(:increment)
-        .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
+        .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
     end
   end
 
@@ -108,7 +108,7 @@ shared_examples 'travel claims worker #perform' do |facility_type|
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
       expect(StatsD).to have_received(:increment)
-        .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
+        .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
     end
   end
 
@@ -138,7 +138,7 @@ shared_examples 'travel claims worker #perform' do |facility_type|
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
       expect(StatsD).to have_received(:increment)
-        .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
+        .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
     end
   end
 
@@ -152,9 +152,9 @@ shared_examples 'travel claims worker #perform' do |facility_type|
       )
 
       expect(StatsD).not_to receive(:increment)
-        .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS)
+        .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
       expect(StatsD).to receive(:increment)
-        .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_ERROR).exactly(1).time
+        .with(CheckIn::Constants::STATSD_NOTIFY_ERROR).exactly(1).time
 
       Sidekiq::Testing.inline! do
         VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host]) do
@@ -225,9 +225,9 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         worker.perform(uuid, appt_date)
       end
 
-      expect(StatsD).to have_received(:increment).with(CheckIn::TravelClaimSubmissionWorker::CIE_STATSD_BTSSS_TIMEOUT)
+      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_TIMEOUT)
                                                  .exactly(1).time
-      expect(StatsD).to have_received(:increment).with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS)
+      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
                                                  .exactly(1).time
     end
 
@@ -251,9 +251,9 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         worker.perform(uuid, appt_date)
       end
 
-      expect(StatsD).to have_received(:increment).with(CheckIn::TravelClaimSubmissionWorker::OH_STATSD_BTSSS_TIMEOUT)
+      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_TIMEOUT)
                                                  .exactly(1).time
-      expect(StatsD).to have_received(:increment).with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS)
+      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
                                                  .exactly(1).time
     end
   end
