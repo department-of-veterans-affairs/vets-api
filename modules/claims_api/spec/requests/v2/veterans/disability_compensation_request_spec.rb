@@ -52,7 +52,7 @@ RSpec.describe 'Disability Claims', type: :request do
             it 'calls shared validation' do
               mock_ccg(scopes) do |auth_header|
                 expect_any_instance_of(ClaimsApi::V2::DisabilityCompensationValidation)
-                  .to receive(:validate_form_526_submission_values!)
+                  .to receive(:validate_form_526_submission_values)
                 post validate_path, params: data, headers: auth_header
               end
             end

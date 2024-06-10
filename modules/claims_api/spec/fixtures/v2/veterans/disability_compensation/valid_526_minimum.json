@@ -3,6 +3,7 @@
     "type":"form/526",
       "attributes":{
         "claimProcessType":"STANDARD_CLAIM_PROCESS",
+        "claimNotes": "Some things that are important to know, and are not included in any other place.",
         "veteranIdentification": {
           "mailingAddress": {
             "addressLine1":"1234 Couch Street",
