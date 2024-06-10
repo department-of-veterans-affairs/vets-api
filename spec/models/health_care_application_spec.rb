@@ -502,19 +502,17 @@ RSpec.describe HealthCareApplication, type: :model do
             ]
           end
 
+          let(:standard_error) { StandardError.new('Test error') }
+
           it 'sends a failure email to the email address provided on the form' do
             subject
             expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params)
           end
 
-          it 'logs error if email job throws error' do
-            allow(Rails.logger).to receive(:error)
-            allow(VANotify::EmailJob).to receive(:perform_async).and_raise(StandardError.new('Test error'))
-
+          it 'logs error to sentry if email job throws error' do
+            allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
+            expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
             expect { subject }.not_to raise_error
-            expect(Rails.logger).to have_received(:error).with(
-              'Failure sending EZ Submission Failure Email. Error: Test error'
-            )
           end
         end
 

@@ -283,7 +283,7 @@ class HealthCareApplication < ApplicationRecord
       api_key
     )
   rescue => e
-    Rails.logger.error "Failure sending EZ Submission Failure Email. Error: #{e.message}"
+    log_exception_to_sentry(e)
   end
 
   # If the hca_use_facilities_API flag is on then vaMedicalFacility will only
