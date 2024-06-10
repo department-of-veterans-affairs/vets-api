@@ -4193,6 +4193,27 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
       end
+
+      context 'when overflow text is provided' do
+        it 'responds with a 200' do
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+
+      context 'when overflow text is not provided' do
+        it 'responds with a 200' do
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            json = JSON.parse(data)
+            json['data']['attributes']['claimNotes'] = nil
+            data = json.to_json
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
     end
   end
 
