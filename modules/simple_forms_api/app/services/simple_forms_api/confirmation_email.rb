@@ -140,12 +140,12 @@ module SimpleFormsApi
       email_and_first_name = [@user.va_profile_email]
       # veteran
       email_and_first_name << if @form_data['preparer_type'] == 'veteran'
-        @form_data['veteran_full_name']['first']
+                                @form_data['veteran_full_name']['first']
 
-      # non-veteran
-      else
-        @form_data['non_veteran_full_name']['first']
-      end
+                              # non-veteran
+                              else
+                                @form_data['non_veteran_full_name']['first']
+                              end
 
       email_and_first_name
     end
