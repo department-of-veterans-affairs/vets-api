@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'discovery', skip_json_api_validation: true, type: :request do
+RSpec.describe 'discovery', type: :request do
   describe 'GET /mobile' do
     before { get '/mobile' }
 

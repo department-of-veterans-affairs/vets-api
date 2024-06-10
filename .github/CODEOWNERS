@@ -832,10 +832,10 @@ lib/common/client/concerns/mhv_fhir_session_client.rb @department-of-veterans-af
 lib/common/client/concerns/mhv_jwt_session_client.rb @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/common/client/concerns/mhv_locked_session_client.rb @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/common/client/concerns/mhv_session_based_client.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-lib/common/client/configuration/base.rb @department-of-veterans-affairs/backend-review-group
+lib/common/client/configuration @department-of-veterans-affairs/backend-review-group
 lib/common/client/middleware/request/multipart_request.rb @department-of-veterans-affairs/backend-review-group
 lib/common/client/middleware/request/remove_cookies.rb @department-of-veterans-affairs/backend-review-group
-lib/common/client/middleware/response/soap_parser.rb @department-of-veterans-affairs/backend-review-group
+lib/common/client/middleware/response @department-of-veterans-affairs/backend-review-group
 lib/common/exceptions/open_id_service_error.rb @department-of-veterans-affairs/lighthouse-pivot
 lib/common/file_helpers.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/common/pdf_helpers.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
@@ -1110,6 +1110,7 @@ spec/factories/appeal_submissions.rb @department-of-veterans-affairs/vfs-authent
 spec/factories/appeal_submission_uploads.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/ask.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/async_transactions.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/factories/attachments.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/bank_name.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/burial_claim.rb @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/caregivers_assistance_claim.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1130,6 +1131,8 @@ spec/factories/education_benefits_submissions.rb @department-of-veterans-affairs
 spec/factories/education_career_counseling_claim_no_vet_information.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/education_career_counseling_claim.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/education_stem_automated_decisions.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/factories/eligible_data_classes.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/factories/extract_statuses.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/evss_claims.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/facility_access.rb @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/folders.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1156,6 +1159,7 @@ spec/factories/lighthouse @department-of-veterans-affairs/vfs-facilities-fronten
 spec/factories/maintenance_windows.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/message_drafts.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/messages.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/factories/messaging_preferences.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/military_service_episodes.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/mpi @department-of-veterans-affairs/octo-identity
 spec/factories/mvi_profile_relationships.rb @department-of-veterans-affairs/octo-identity
@@ -1171,6 +1175,7 @@ spec/factories/ppms @department-of-veterans-affairs/vfs-facilities-frontend @dep
 spec/factories/preneeds @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/prescriptions.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/prescription_details.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/factories/representatives.rb @department-of-veterans-affairs/accredited-representation-management @department-of-veterans-affairs/backend-review-group
 spec/factories/rubysaml_settings.rb @department-of-veterans-affairs/octo-identity
 spec/factories/saml_attributes.rb @department-of-veterans-affairs/octo-identity
 spec/factories/sequences.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group

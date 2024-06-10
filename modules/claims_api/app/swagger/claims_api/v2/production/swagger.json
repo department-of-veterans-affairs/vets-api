@@ -1347,7 +1347,7 @@
                                   "nullable": true
                                 },
                                 "veteranNumber": {
-                                  "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
+                                  "description": "If there isn't a ten digit phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
                                   "type": "object",
                                   "nullable": true,
                                   "properties": {
@@ -1356,8 +1356,6 @@
                                       "type": "string",
                                       "pattern": "^\\d{10}?$",
                                       "example": "5555555555",
-                                      "minLength": 10,
-                                      "maxLength": 10,
                                       "nullable": true
                                     },
                                     "internationalTelephone": {
@@ -1625,12 +1623,10 @@
                                   "additionalProperties": false,
                                   "properties": {
                                     "telephone": {
-                                      "description": "Primary phone of point of contact.",
+                                      "description": "Ten digit primary phone of point of contact.",
                                       "type": "string",
                                       "pattern": "^\\d{10}?$",
                                       "example": "5555555",
-                                      "minLength": 10,
-                                      "maxLength": 10,
                                       "nullable": true
                                     },
                                     "internationalTelephone": {
@@ -2691,7 +2687,7 @@
                                 "nullable": true
                               },
                               "veteranNumber": {
-                                "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
+                                "description": "If there isn't a ten digit phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
                                 "type": "object",
                                 "nullable": true,
                                 "properties": {
@@ -2700,8 +2696,6 @@
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
                                     "example": "5555555555",
-                                    "minLength": 10,
-                                    "maxLength": 10,
                                     "nullable": true
                                   },
                                   "internationalTelephone": {
@@ -2969,12 +2963,10 @@
                                 "additionalProperties": false,
                                 "properties": {
                                   "telephone": {
-                                    "description": "Primary phone of point of contact.",
+                                    "description": "Ten digit primary phone of point of contact.",
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
                                     "example": "5555555",
-                                    "minLength": 10,
-                                    "maxLength": 10,
                                     "nullable": true
                                   },
                                   "internationalTelephone": {
@@ -4580,7 +4572,7 @@
                                 "nullable": true
                               },
                               "veteranNumber": {
-                                "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
+                                "description": "If there isn't a ten digit phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
                                 "type": "object",
                                 "nullable": true,
                                 "properties": {
@@ -4589,8 +4581,6 @@
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
                                     "example": "5555555555",
-                                    "minLength": 10,
-                                    "maxLength": 10,
                                     "nullable": true
                                   },
                                   "internationalTelephone": {
@@ -4858,12 +4848,10 @@
                                 "additionalProperties": false,
                                 "properties": {
                                   "telephone": {
-                                    "description": "Primary phone of point of contact.",
+                                    "description": "Ten digit primary phone of point of contact.",
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
                                     "example": "5555555",
-                                    "minLength": 10,
-                                    "maxLength": 10,
                                     "nullable": true
                                   },
                                   "internationalTelephone": {
@@ -5926,7 +5914,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b372e0a4-6cf9-4c0e-990d-ae3b2db0ee48",
+                    "id": "267efb9b-ca7a-4147-8b20-53bc553b8721",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -7043,7 +7031,7 @@
                                 "maxLength": 1000
                               },
                               "veteranNumber": {
-                                "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
+                                "description": "If there isn't a ten digit phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
                                 "type": "object",
                                 "nullable": true,
                                 "properties": {
@@ -7320,7 +7308,7 @@
                                 "additionalProperties": false,
                                 "properties": {
                                   "telephone": {
-                                    "description": "Primary phone of point of contact.",
+                                    "description": "Ten digit primary phone of point of contact.",
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
                                     "example": "5555555555",
@@ -8797,8 +8785,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-06-05",
-                      "expirationDate": "2025-06-05",
+                      "creationDate": "2024-06-10",
+                      "expirationDate": "2025-06-10",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -9674,7 +9662,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "42d61da4-9283-4edb-8749-40e759daf614",
+                    "id": "aad26db5-4511-4714-b15c-011a2d705c29",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -10367,7 +10355,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ed39ac7b-5725-4f01-9ee0-9e1006e441c4",
+                    "id": "8bf79e1e-2b4d-48ea-a802-715282fba90a",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12318,11 +12306,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8edf51b4-1070-4a94-9aa7-1acdc2108fb6",
+                    "id": "e9c6439e-55c8-47a6-89ee-84c481c48517",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-06-05",
+                      "dateRequestAccepted": "2024-06-10",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
