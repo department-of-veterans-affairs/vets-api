@@ -11,7 +11,6 @@ module Mobile
 
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
         resource = resource.sort(params[:sort])
-        log_bad_sort(resource)
         resource = resource.paginate(**pagination_params)
         resource.metadata.merge!(message_counts(resource))
 
@@ -115,30 +114,6 @@ module Mobile
       end
 
       private
-
-      def log_bad_sort(resource)
-        last_sent_date = Time.now.utc
-        bad_sort_flag = false
-        nil_sent_dates_count = 0
-        sent_dates = resource.attributes.map do |message|
-          unless message&.sent_date
-            nil_sent_dates_count += 1
-            next
-          end
-
-          bad_sort_flag ||= message.sent_date > last_sent_date
-
-          last_sent_date = message.sent_date
-
-          message.sent_date
-        end
-
-        if bad_sort_flag || nil_sent_dates_count.positive?
-          Rails.logger.info('Mobile Message Bad Sort', sent_dates:, bad_sort_flag:, nil_sent_dates_count:)
-        end
-      rescue => e
-        Rails.logger.info('Mobile Message Log Bad Sort Failed', error: e)
-      end
 
       # When we get message parameters as part of a multipart payload (i.e. with attachments),
       # ActionController::Parameters leaves the message part as a string so we have to turn it into

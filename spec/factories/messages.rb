@@ -25,7 +25,16 @@ FactoryBot.define do
 
     trait :with_attachments do
       attachment { true }
-      attachments { build_list(:attachment, 3) }
+      attachments { build_list(:attachment, 4) }
+
+      after(:build) do |message, _evaluator|
+        message.attachments.each_with_index do |attachment, index|
+          idx = index + 1
+          message.send("attachment#{idx}_id=", attachment.id)
+          message.send("attachment#{idx}_name=", attachment.name)
+          message.send("attachment#{idx}_size=", attachment.attachment_size)
+        end
+      end
     end
 
     factory :message_thread_details, class: 'MessageThreadDetails' do
