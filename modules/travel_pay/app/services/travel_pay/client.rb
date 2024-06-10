@@ -93,7 +93,7 @@ module TravelPay
       end
 
       symbolized_body = response.body.deep_symbolize_keys
-      parse_claim_date = ->(c) { Date.parse(c[:modifiedOn]) }
+      parse_claim_date = ->(c) { Date.parse(c[:appointmentDateTime]) }
 
       sorted_claims = symbolized_body[:data].sort_by(&parse_claim_date).reverse
 
@@ -182,7 +182,7 @@ module TravelPay
 
       Faraday.new(url: server_url) do |conn|
         conn.use :breakers
-        conn.response :raise_error, error_prefix: service_name, include_request: true
+        conn.response :raise_custom_error, error_prefix: service_name, include_request: true
         conn.response :betamocks if mock_enabled?
         conn.response :json
         conn.request :json

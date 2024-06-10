@@ -99,8 +99,6 @@ module SimpleFormsApi
           email: @form_data['applicant_email'],
           personalization: default_personalization(@form_data.dig('applicant_full_name', 'first'))
         }
-      else
-        {}
       end
     end
     # rubocop:enable Metrics/MethodLength

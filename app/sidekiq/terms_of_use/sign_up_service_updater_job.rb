@@ -13,8 +13,24 @@ module TermsOfUse
       attr_package_key = job['args'].first
       attrs = Sidekiq::AttrPackage.find(attr_package_key)
 
-      Rails.logger.warn('[TermsOfUse][SignUpServiceUpdaterJob] retries exhausted',
-                        { icn: attrs&.dig(:icn), exception_message: exception.message, attr_package_key: })
+      icn = attrs&.dig(:icn)
+      version = attrs&.dig(:version)
+
+      agreement = TermsOfUseAgreement.joins(:user_account)
+                                     .where(user_account: { icn: })
+                                     .where(agreement_version: version)
+                                     .last
+
+      payload = {
+        icn:,
+        version:,
+        attr_package_key:,
+        response: agreement&.response,
+        response_time: agreement&.created_at&.iso8601,
+        exception_message: exception.message
+      }
+
+      Rails.logger.warn('[TermsOfUse][SignUpServiceUpdaterJob] retries exhausted', payload)
     end
 
     attr_reader :icn, :signature_name, :version

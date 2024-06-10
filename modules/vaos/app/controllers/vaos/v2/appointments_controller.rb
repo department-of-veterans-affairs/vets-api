@@ -11,9 +11,12 @@ module VAOS
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
-      APPT_INDEX = "GET '/vaos/v1/patients/<icn>/appointments'"
-      APPT_SHOW = "GET '/vaos/v1/patients/<icn>/appointments/<id>'"
-      APPT_CREATE = "POST '/vaos/v1/patients/<icn>/appointments'"
+      APPT_INDEX_VAOS = "GET '/vaos/v1/patients/<icn>/appointments'"
+      APPT_INDEX_VPG = "GET '/vpg/v1/patients/<icn>/appointments'"
+      APPT_SHOW_VAOS = "GET '/vaos/v1/patients/<icn>/appointments/<id>'"
+      APPT_SHOW_VPG = "GET '/vpg/v1/patients/<icn>/appointments/<id>'"
+      APPT_CREATE_VAOS = "POST '/vaos/v1/patients/<icn>/appointments'"
+      APPT_CREATE_VPG = "POST '/vpg/v1/patients/<icn>/appointments'"
       REASON = 'reason'
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
@@ -25,7 +28,7 @@ module VAOS
         _include&.include?('facilities') && merge_facilities(appointments[:data])
 
         appointments[:data].each do |appt|
-          scrape_appt_comments_and_log_details(appt, APPT_INDEX, PAP_COMPLIANCE_TELE)
+          scrape_appt_comments_and_log_details(appt, index_method_logging_name, PAP_COMPLIANCE_TELE)
         end
 
         serializer = VAOS::V2::VAOSSerializer.new
@@ -55,7 +58,7 @@ module VAOS
             appointments_service.get_facility_memoized(appointment[:location_id])
         end
 
-        scrape_appt_comments_and_log_details(appointment, APPT_SHOW, PAP_COMPLIANCE_TELE)
+        scrape_appt_comments_and_log_details(appointment, show_method_logging_name, PAP_COMPLIANCE_TELE)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointment, 'appointments')
@@ -76,7 +79,7 @@ module VAOS
           new_appointment[:location] = appointments_service.get_facility_memoized(new_appointment[:location_id])
         end
 
-        scrape_appt_comments_and_log_details(new_appointment, APPT_CREATE, PAP_COMPLIANCE_TELE)
+        scrape_appt_comments_and_log_details(new_appointment, create_method_logging_name, PAP_COMPLIANCE_TELE)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(new_appointment, 'appointments')
@@ -448,6 +451,30 @@ module VAOS
 
       def appointment_id
         params[:appointment_id]
+      end
+
+      def index_method_logging_name
+        if Flipper.enabled?(:va_online_scheduling_use_vpg) && Flipper.enabled?(:va_online_scheduling_enable_OH_reads)
+          APPT_INDEX_VPG
+        else
+          APPT_INDEX_VAOS
+        end
+      end
+
+      def show_method_logging_name
+        if Flipper.enabled?(:va_online_scheduling_use_vpg) && Flipper.enabled?(:va_online_scheduling_enable_OH_reads)
+          APPT_SHOW_VPG
+        else
+          APPT_SHOW_VAOS
+        end
+      end
+
+      def create_method_logging_name
+        if Flipper.enabled?(:va_online_scheduling_use_vpg) && Flipper.enabled?(:va_online_scheduling_enable_OH_requests)
+          APPT_CREATE_VPG
+        else
+          APPT_CREATE_VAOS
+        end
       end
     end
   end
