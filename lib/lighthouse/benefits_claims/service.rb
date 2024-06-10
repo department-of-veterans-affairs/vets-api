@@ -199,7 +199,6 @@ module BenefitsClaims
     end
 
     def fix_current_va_employee(body)
-      puts("\n\n wipn8923 :: #{File.basename(__FILE__)}-#{self.class.name}##{__method__.to_s} - \n\t body: #{body} \n\n")
       if body.dig('data', 'attributes', 'veteranIdentification')&.select do |field|
            field['currentVAEmployee']
          end&.key?('currentVAEmployee')

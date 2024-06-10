@@ -28,7 +28,6 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
   end
 
   describe '#choose_provider' do
-    # [wipn8923] spec
     let(:account) { create(:account) }
     let(:submission) { create(:form526_submission, user_uuid: account.idme_uuid) }
 

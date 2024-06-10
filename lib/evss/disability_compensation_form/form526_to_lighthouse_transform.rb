@@ -112,7 +112,6 @@ module EVSS
       # returns "STANDARD_CLAIM_PROCESS", "BDD_PROGRAM", or "FDC_PROGRAM"
       # based off of a few attributes in the evss data
       def evss_claims_process_type(form526)
-        puts("\n\n wipn8923 :: #{File.basename(__FILE__)}-#{self.class.name}##{__method__.to_s} - \n\t form526: #{form526} \n\n")
         if form526['bddQualified']
           return 'BDD_PROGRAM'
         elsif form526['standardClaim']

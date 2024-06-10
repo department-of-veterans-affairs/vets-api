@@ -329,10 +329,11 @@ module Sidekiq
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
         resp = get_form_from_external_api(headers, form_json.to_json)
 
-        # [wipn8923] START HERE - this is working, it's the janky way we used to save it below that's the problem
-        File.binwrite("tmp/wipn8923-form526-#{Time.zone.now}.pdf", resp.env.response_body)
+        # [wipn8923] START HERE - this is just a test but it works, proving we are getting
+        # good data back from the API. The remaining problem is having this job run to completion
+        # File.binwrite("tmp/wipn8923-form526-#{Time.zone.now}.pdf", resp.env.response_body)
 
-        # [wipn8923] maybe just use a flipper?
+        # [wipn8923] this is the old way. This seems to create an unreadable PDF.
         b64_enc_body = resp.body['pdf']
         content = Base64.decode64(b64_enc_body)
         file = write_to_tmp_file(content)
@@ -340,6 +341,14 @@ module Sidekiq
           type: FORM_526_DOC_TYPE,
           file:
         }
+
+        # [wipn8923] this should work, just needs testing. Then we can remove the blob above
+        # and use this
+        # file = write_to_tmp_file(resp.env.response_body)
+        # docs << {
+        #   type: FORM_526_DOC_TYPE,
+        #   file:
+        # }
       end
 
       def get_form_from_external_api(headers, form_json)
@@ -448,7 +457,9 @@ module Sidekiq
     end
 
     class NonBreakeredProcessor < Processor
-      # [wipn8923] do this as well
+      # [wipn8923] the changes made above should be applied here as well
+      # This is just the version that is used for batch processing, but no
+      # reason not to get the new LH code in here now in case we need it later
       def get_form526_pdf
         headers = submission.auth_headers
         submission_create_date = submission.created_at.iso8601

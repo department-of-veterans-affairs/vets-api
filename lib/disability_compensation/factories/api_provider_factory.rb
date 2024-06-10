@@ -179,12 +179,11 @@ class ApiProviderFactory
   end
 
   def api_provider
+    # [wipn8923] flipper must be set to run end to end test
     @api_provider ||= if Flipper.enabled?(@feature_toggle, @current_user)
                         API_PROVIDER[:lighthouse]
                       else
                         API_PROVIDER[:evss]
                       end
-    # [wipn8923] flipper - remove after testing
-    API_PROVIDER[:lighthouse]
   end
 end
