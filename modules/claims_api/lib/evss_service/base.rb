@@ -61,7 +61,7 @@ module ClaimsApi
                     headers:) do |f|
           f.request :json
           f.response :betamocks if @use_mock
-          f.response :raise_error
+          f.response :raise_custom_error
           f.response :json, parser_options: { symbolize_names: true }
           f.adapter Faraday.default_adapter
         end
