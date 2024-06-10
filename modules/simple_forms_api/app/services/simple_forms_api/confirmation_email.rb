@@ -137,14 +137,17 @@ module SimpleFormsApi
 
     # email and first name for form 20-10207
     def form20_10207_contact_info
+      email_and_first_name = [@user.va_profile_email]
       # veteran
-      if @form_data['preparer_type'] == 'veteran'
-        [@form_data['veteran_email_address'], @form_data['veteran_full_name']['first']]
+      email_and_first_name << if @form_data['preparer_type'] == 'veteran'
+        @form_data['veteran_full_name']['first']
 
       # non-veteran
       else
-        [@form_data['non_veteran_email_address'], @form_data['non_veteran_full_name']['first']]
+        @form_data['non_veteran_full_name']['first']
       end
+
+      email_and_first_name
     end
 
     # email and first name for form 21-0845

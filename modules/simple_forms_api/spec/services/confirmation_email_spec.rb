@@ -402,6 +402,7 @@ describe SimpleFormsApi::ConfirmationEmail do
         )
         JSON.parse(fixture_path.read)
       end
+      let(:user) { create(:user, :loa3) }
 
       it 'sends the confirmation email' do
         allow(VANotify::EmailJob).to receive(:perform_async)
@@ -409,13 +410,14 @@ describe SimpleFormsApi::ConfirmationEmail do
         subject = described_class.new(
           form_data: data,
           form_number: 'vba_20_10207',
-          confirmation_number: 'confirmation_number'
+          confirmation_number: 'confirmation_number',
+          user:
         )
 
         subject.send
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          'email@vet.com',
+          user.va_profile_email,
           'form20_10207_confirmation_email_template_id',
           {
             'first_name' => 'JOHN',
@@ -433,6 +435,7 @@ describe SimpleFormsApi::ConfirmationEmail do
         )
         JSON.parse(fixture_path.read)
       end
+      let(:user) { create(:user, :loa3) }
 
       it 'sends the confirmation email' do
         allow(VANotify::EmailJob).to receive(:perform_async)
@@ -440,13 +443,14 @@ describe SimpleFormsApi::ConfirmationEmail do
         subject = described_class.new(
           form_data: data,
           form_number: 'vba_20_10207',
-          confirmation_number: 'confirmation_number'
+          confirmation_number: 'confirmation_number',
+          user:
         )
 
         subject.send
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          'john.non-veteran@example.com',
+          user.va_profile_email,
           'form20_10207_confirmation_email_template_id',
           {
             'first_name' => 'JOHN',
