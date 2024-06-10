@@ -4,6 +4,7 @@
     "attributes": {
       "claimDate": "2018-06-25",
       "claimProcessType": "STANDARD_CLAIM_PROCESS",
+      "claimNotes": "Some things that are important to know, and are not included in any other place.",
       "veteranIdentification": {
         "serviceNumber": "123456789",
         "veteranNumber": {
@@ -214,7 +215,6 @@
         "routingNumber": "123123123"
       },
       "claimantCertification": true,
-      "claimNotes": "Some things that are important to know, and are not included in any other place."
     }
   }
 }
