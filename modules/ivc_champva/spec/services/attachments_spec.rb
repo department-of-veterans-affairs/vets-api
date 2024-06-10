@@ -17,13 +17,12 @@ RSpec.describe IvcChampva::Attachments do
   # Mocking a class to include the Attachments module
   let(:form_id) { '123' }
   let(:uuid) { 'abc123' }
+  let(:file_path) { 'tmp/123-tmp.pdf' }
   let(:data) { { 'supporting_docs' => [{ 'confirmation_codes' => 'doc1' }, { 'confirmation_codes' => 'doc2' }] } }
   let(:test_instance) { TestClass.new(form_id, uuid, data) }
 
   describe '#handle_attachments' do
     context 'when there are supporting documents' do
-      let(:file_path) { 'tmp/123-tmp.pdf' }
-
       it 'renames and processes attachments' do
         expect(File).to receive(:rename).with(file_path, "tmp/#{uuid}_#{form_id}-tmp.pdf")
         expect(test_instance).to receive(:get_attachments).and_return(['attachment1.pdf', 'attachment2.pdf'])
@@ -37,9 +36,25 @@ RSpec.describe IvcChampva::Attachments do
       end
     end
 
-    context 'when there are no supporting documents' do
-      let(:file_path) { 'tmp/123-tmp.pdf' }
+    context 'when there are multiple PDFs needed' do
+      it 'generates an additional pdf for 10-10D' do
+        stub_const('IvcChampva::VHA1010d::ADDITIONAL_PDF_KEY', 'applicants')
+        stub_const('IvcChampva::VHA1010d::ADDITIONAL_PDF_COUNT', 3)
 
+        fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json')
+        data = JSON.parse(fixture_path.read)
+        form = IvcChampva::VHA1010d.new(data)
+
+        file_paths = form.handle_attachments('modules/ivc_champva/templates/vha_10_10d.pdf')
+
+        puts file_paths.inspect
+
+        expect(file_paths.count).to eq(2)
+        expect(file_paths[1]).to include('additional')
+      end
+    end
+
+    context 'when there are no supporting documents' do
       before do
         allow(test_instance).to receive(:get_attachments).and_return([])
       end
