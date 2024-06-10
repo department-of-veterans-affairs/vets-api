@@ -13,7 +13,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
   before do
     Sidekiq::Job.clear_all
     Flipper.disable(:disability_526_classifier_new_claims)
-    Flipper.disable(:disability_compensation_lighthouse_submit_migration)
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
     Flipper.disable(:disability_526_classifier_multi_contention)
     Flipper.disable(:disability_526_toxic_exposure)
@@ -456,12 +455,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         end
 
         before do
-          Flipper.enable(:disability_compensation_lighthouse_submit_migration)
+          Flipper.enable(:disability_526_toxic_exposure)
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
         end
 
         after do
-          Flipper.disable(:disability_compensation_lighthouse_submit_migration)
+          Flipper.disable(:disability_526_toxic_exposure)
         end
 
         it 'performs a successful submission' do
