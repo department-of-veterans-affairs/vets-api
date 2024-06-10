@@ -47,8 +47,6 @@ RSpec.describe IvcChampva::Attachments do
 
         file_paths = form.handle_attachments('modules/ivc_champva/templates/vha_10_10d.pdf')
 
-        puts file_paths.inspect
-
         expect(file_paths.count).to eq(2)
         expect(file_paths[1]).to include('additional')
       end
