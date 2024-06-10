@@ -56,8 +56,16 @@ module ClaimsApi
         @pdf_data[:data][:attributes].delete(:claimantCertification)
         claim_date_and_signature
         claim_process_type
+        claim_notes
 
         @pdf_data
+      end
+
+      def claim_notes
+        if @auto_claim&.dig('claimNotes').present?
+          @pdf_data[:data][:attributes][:overflowText] = @auto_claim&.dig('claimNotes')
+          @pdf_data[:data][:attributes].delete(:claimNotes)
+        end
       end
 
       def claim_process_type

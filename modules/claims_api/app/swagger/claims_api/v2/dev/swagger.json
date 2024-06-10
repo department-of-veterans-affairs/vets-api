@@ -2425,6 +2425,11 @@
                               "description": "Claimant certifies and authorizes release of information.",
                               "default": false
                             },
+                            "claimNotes": {
+                              "type": "string",
+                              "description": "An optional notes section.",
+                              "maxLength": 4000
+                            },
                             "claimId": {
                               "type": "string",
                               "example": "600517517"
@@ -3772,6 +3777,11 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
+                          },
+                          "claimNotes": {
+                            "type": "string",
+                            "description": "An optional notes section.",
+                            "maxLength": 4000
                           }
                         }
                       }
@@ -3987,6 +3997,7 @@
                       "type": "form/526",
                       "attributes": {
                         "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                        "claimNotes": "Some things that are important to know, and are not included in any other place.",
                         "veteranIdentification": {
                           "mailingAddress": {
                             "addressLine1": "1234 Couch Street",
@@ -4026,6 +4037,7 @@
                       "type": "form/526",
                       "attributes": {
                         "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                        "claimNotes": "Some things that are important to know, and are not included in any other place.",
                         "veteranIdentification": {
                           "serviceNumber": "123456789",
                           "veteranNumber": {
@@ -4296,6 +4308,7 @@
                     "attributes": {
                       "claimId": "600442191",
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                      "claimNotes": "Some things that are important to know, and are not included in any other place.",
                       "veteranIdentification": {
                         "serviceNumber": "123456789",
                         "veteranNumber": {
@@ -5651,6 +5664,11 @@
                               "description": "Claimant certifies and authorizes release of information.",
                               "default": false
                             },
+                            "claimNotes": {
+                              "type": "string",
+                              "description": "An optional notes section.",
+                              "maxLength": 4000
+                            },
                             "claimId": {
                               "type": "string",
                               "example": "600517517"
@@ -6998,6 +7016,11 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
+                          },
+                          "claimNotes": {
+                            "type": "string",
+                            "description": "An optional notes section.",
+                            "maxLength": 4000
                           }
                         }
                       }
@@ -7213,6 +7236,7 @@
                       "type": "form/526",
                       "attributes": {
                         "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                        "claimNotes": "Some things that are important to know, and are not included in any other place.",
                         "veteranIdentification": {
                           "mailingAddress": {
                             "addressLine1": "1234 Couch Street",
@@ -7252,6 +7276,7 @@
                       "type": "form/526",
                       "attributes": {
                         "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                        "claimNotes": "Some things that are important to know, and are not included in any other place.",
                         "veteranIdentification": {
                           "serviceNumber": "123456789",
                           "veteranNumber": {
@@ -8887,6 +8912,11 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
+                          },
+                          "claimNotes": {
+                            "type": "string",
+                            "description": "An optional notes section.",
+                            "maxLength": 4000
                           }
                         }
                       }
@@ -9160,6 +9190,7 @@
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                      "claimNotes": "Some things that are important to know, and are not included in any other place.",
                       "veteranIdentification": {
                         "serviceNumber": "123456789",
                         "veteranNumber": {
@@ -9918,6 +9949,11 @@
                             },
                             "claimantCertification": {
                               "type": "boolean"
+                            },
+                            "claimNotes": {
+                              "type": "string",
+                              "description": "An optional notes section.",
+                              "maxLength": 4000
                             }
                           }
                         }
@@ -11342,6 +11378,11 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
+                          },
+                          "claimNotes": {
+                            "type": "string",
+                            "description": "An optional notes section.",
+                            "maxLength": 4000
                           }
                         }
                       }
