@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require './rakelib/support/shell_command'
-
+require 'pry'
 module VetsApi
   module Commands
     class Command
@@ -12,14 +12,14 @@ module VetsApi
         input_values = args.reject { |a| a.start_with?('--', '-') }
         @inputs = input_values.empty? ? default_inputs : input_values.join(' ')
 
-        unless setup_preference_exists?
+        unless setup_preference_exists? || is_a?(Setup)
           puts 'You must run `bin/setup` before running other binstubs'
           exit 1
         end
       end
 
       def execute
-        case File.read('.developer-setup').chomp
+        case setup_preference
         when 'native'
           execute_native
         when 'hybrid'
@@ -35,6 +35,10 @@ module VetsApi
 
       def setup_preference_exists?
         File.exist?('.developer-setup')
+      end
+
+      def setup_preference
+        File.read('.developer-setup').chomp
       end
 
       def default_inputs

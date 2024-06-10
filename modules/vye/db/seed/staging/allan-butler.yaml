@@ -1,0 +1,75 @@
+---
+:profile:
+  :ssn: '796127023'
+  :file_number: '796127023'
+  :icn: 1012829948V217207
+:info:
+  :file_number: '796127023'
+  :dob: 1976-06-22
+  :stub_nm: ABUTLER
+  :mr_status: A
+  :rem_ent: '2462457'
+  :cert_issue_date: 2018-06-25
+  :del_date: 2025-07-31
+  :date_last_certified: 2024-03-01
+  :rpo_code: 1741
+  :fac_code: saepe
+  :payment_amt: 3261.92
+  :indicator: A
+  :bdn_clone_active: true
+:address:
+  :veteran_name: Allan Butler
+  :address1: 47095 Jacobs Trail
+  :city: Kuphalland
+  :state: KS
+  :zip_code: 25362-8697
+  :origin: backend
+:awards:
+- :cur_award_ind: P
+  :award_begin_date: 2023-12-27
+  :award_end_date: 2024-01-20
+  :training_time: 4
+  :payment_date:
+  :monthly_rate: 1488.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: C
+  :award_begin_date: 2024-01-23
+  :award_end_date: 2024-03-25
+  :training_time: 3
+  :payment_date:
+  :monthly_rate: 1176.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: F
+  :award_begin_date: 2024-03-25
+  :award_end_date: 2024-05-16
+  :training_time: 4
+  :payment_date:
+  :monthly_rate: 1488.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: F
+  :award_begin_date: 2024-05-16
+  :award_end_date: 2024-05-18
+  :training_time: 1
+  :payment_date:
+  :monthly_rate: 725.09
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+:pending_documents:
+- :doc_type: OTAT
+  :queue_date: 2024-04-07
+  :rpo: sed

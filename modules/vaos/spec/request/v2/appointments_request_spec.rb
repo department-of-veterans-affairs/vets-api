@@ -184,7 +184,8 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
               json_body = json_body_for(response)
               expect(json_body).to match_camelized_schema('vaos/v2/appointment', { strict: false })
               expect(Rails.logger).to have_received(:info).with('Details for PAP COMPLIANCE/TELE appointment',
-                                                                any_args).at_least(:once)
+                                                                match("POST '/vaos/v1/patients/<icn>/appointments'"))
+                                                          .at_least(:once)
               expect(json_body['attributes']['localStartTime']).to eq('2022-11-30T13:45:00.000-07:00')
             end
           end
@@ -282,7 +283,8 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
               json_body = json_body_for(response)
               expect(json_body).to match_camelized_schema('vaos/v2/appointment', { strict: false })
               expect(Rails.logger).to have_received(:info).with('Details for PAP COMPLIANCE/TELE appointment',
-                                                                any_args).at_least(:once)
+                                                                match("POST '/vpg/v1/patients/<icn>/appointments'"))
+                                                          .at_least(:once)
               expect(json_body['attributes']['localStartTime']).to eq('2022-11-30T13:45:00.000-07:00')
             end
           end
@@ -320,8 +322,6 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
               get '/vaos/v2/appointments?start=2023-10-13T14:25:00Z&end=2023-10-13T17:45:00Z&statuses=booked',
                   params:, headers: inflection_header
               data = JSON.parse(response.body)['data']
-
-              puts response.body
 
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
@@ -392,7 +392,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
 
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
-              expect(data[0]['attributes']['preferredProviderName']).to eq('CARLTON, ROBERT A  ')
+              expect(data[0]['attributes']['preferredProviderName']).to eq('CARLTON, ROBERT A')
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
           end
@@ -435,7 +435,8 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
               expect(Rails.logger).to have_received(:info).with('Details for PAP COMPLIANCE/TELE appointment',
-                                                                any_args).at_least(:once)
+                                                                match("GET '/vaos/v1/patients/<icn>/appointments'"))
+                                                          .at_least(:once)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
           end

@@ -95,6 +95,49 @@ RSpec.describe SignIn::TokenResponseGenerator do
       end
     end
 
+    context 'when grant_type is TOKEN_EXCHANGE_GRANT' do
+      let(:grant_type) { SignIn::Constants::Auth::TOKEN_EXCHANGE_GRANT }
+      let(:params) do
+        {
+          grant_type:,
+          subject_token: 'some-subject-token',
+          actor_token: 'some-actor-token',
+          actor_token_type: 'some-actor-token-type',
+          client_id: 'some-client-id'
+
+        }
+      end
+      let(:exchanged_container) { instance_double(SignIn::SessionContainer, access_token:) }
+      let(:token_exchanger) { instance_double(SignIn::TokenExchanger, perform: exchanged_container) }
+      let(:token_serializer) { instance_double(SignIn::TokenSerializer, perform: expected_token_response) }
+      let(:expected_token_response) do
+        {
+          data:
+          {
+            access_token:,
+            refresh_token: 'some-refresh-token',
+            anti_csrf_token: 'some-anti-csrf-token'
+          }
+        }
+      end
+      let(:access_token) { 'some-access-token' }
+      let(:expected_log_message) { '[SignInService] [SignIn::TokenResponseGenerator] token exchanged' }
+
+      before do
+        allow(SignIn::TokenExchanger).to receive(:new).and_return(token_exchanger)
+        allow(SignIn::TokenSerializer).to receive(:new).and_return(token_serializer)
+      end
+
+      it 'generates the expected response' do
+        expect(subject.perform).to eq(expected_token_response)
+      end
+
+      it 'logs the expected message' do
+        subject.perform
+        expect(Rails.logger).to have_received(:info).with(expected_log_message, access_token)
+      end
+    end
+
     context 'when grant_type is not valid' do
       let(:grant_type) { 'invalid_grant_type' }
       let(:params) { { grant_type: } }

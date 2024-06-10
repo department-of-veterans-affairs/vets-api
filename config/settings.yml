@@ -1327,6 +1327,7 @@ vanotify:
       api_key: fake_secret
       template_id:
         form526_document_upload_failure_notification_template_id: form526_document_upload_failure_notification_template_id
+        form4142_upload_failure_notification_template_id: form4142_upload_failure_notification_template_id
     ivc_champva:
       api_key: fake_secret
       template_id:
@@ -1370,6 +1371,10 @@ vetext_push:
   base_url: https://vetext1.r01.med.va.gov
   user: vets-api-username
   pass: secret
+
+res:
+  base_url: ~
+  api_key: ~
 
 veteran_readiness_and_employment:
   base_url: ~
@@ -1554,6 +1559,7 @@ virtual_regional_office:
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
   evidence_pdf_path: evidence-pdf
   ctn_classification_path: classifier
+  vagov_classification_path: va-gov-claim-classifier
   max_cfi_path: employee-experience/max-ratings
   ep_merge_path: employee-experience-ep-merge-app/merge
 
@@ -1657,6 +1663,10 @@ ivc_forms:
     bucket: "bucket"
     enabled: true
     region: "region"
+  sidekiq:
+    missing_form_status_job:
+      enabled: true
+
 
 coverband:
   github_organization: ~

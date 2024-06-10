@@ -24,7 +24,7 @@ module HCA
       is_short_form = HealthCareApplication.new(form: form.to_json).short_form?
 
       with_monitoring do
-        es_submit(form, '10-10EZ')
+        es_submit(form, @user, '10-10EZ')
       rescue => e
         increment_failure('submit_form_short_form', e) if is_short_form
         raise e

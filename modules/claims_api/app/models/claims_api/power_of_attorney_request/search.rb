@@ -3,69 +3,6 @@
 module ClaimsApi
   class PowerOfAttorneyRequest
     module Search
-      module Query
-        module Page
-          # For the moment, these values duplicate the behavior of BGS.
-          module Size
-            DEFAULT = 25
-            MAX = 100
-            MIN = 1
-          end
-        end
-
-        module Sort
-          module Fields
-            ALL = [
-              CREATED_AT = 'createdAt'
-            ].freeze
-          end
-
-          module Orders
-            ALL = [
-              ASCENDING = 'asc',
-              DESCENDING = 'desc'
-            ].freeze
-          end
-        end
-
-        class << self
-          def dump(query, xml, data_aliaz)
-            filter = query[:filter]
-
-            xml[data_aliaz].SecondaryStatusList do
-              filter[:statuses].each do |status|
-                xml.SecondaryStatus(status)
-              end
-            end
-
-            xml[data_aliaz].POACodeList do
-              filter[:poaCodes].each do |poa_code|
-                xml.POACode(poa_code)
-              end
-            end
-
-            xml[data_aliaz].POARequestParameter do
-              page = query[:page]
-              xml.pageIndex(page[:number])
-              xml.pageSize(page[:size])
-
-              sort = query[:sort]
-              xml.poaSortField(SORT_FIELD_MAP.fetch(sort[:field]))
-              xml.poaSortOrder(SORT_ORDER_MAP.fetch(sort[:order]))
-            end
-          end
-        end
-
-        SORT_ORDER_MAP = {
-          Query::Sort::Orders::ASCENDING => 'ASCENDING',
-          Query::Sort::Orders::DESCENDING => 'DESCENDING'
-        }.freeze
-
-        SORT_FIELD_MAP = {
-          Query::Sort::Fields::CREATED_AT => 'DATE_RECEIVED'
-        }.freeze
-      end
-
       class << self
         def perform(query) # rubocop:disable Metrics/MethodLength
           total_count = 0

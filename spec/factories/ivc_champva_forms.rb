@@ -10,5 +10,6 @@ FactoryBot.define do
     form_uuid { SecureRandom.uuid }
     s3_status { '[200]' }
     pega_status { %w[pending processing completed].sample }
+    case_id { 'ABC-1234' }
   end
 end

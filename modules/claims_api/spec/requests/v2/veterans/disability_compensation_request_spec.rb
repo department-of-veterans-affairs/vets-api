@@ -34,6 +34,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
     context 'submit' do
       let(:submit_path) { "/services/claims/v2/veterans/#{veteran_id}/526" }
+      let(:validate_path) { "/services/claims/v2/veterans/#{veteran_id}/526/validate" }
 
       context 'CCG (Client Credentials Grant) flow' do
         context 'when provided' do
@@ -45,6 +46,14 @@ RSpec.describe 'Disability Claims', type: :request do
                 expected = 'http://www.example.com/services/claims/v2/veterans/1013062086V794840/claims/'
                 expect(response).to have_http_status(:accepted)
                 expect(response.location).to include(expected)
+              end
+            end
+
+            it 'calls shared validation' do
+              mock_ccg(scopes) do |auth_header|
+                expect_any_instance_of(ClaimsApi::V2::DisabilityCompensationValidation)
+                  .to receive(:validate_form_526_submission_values)
+                post validate_path, params: data, headers: auth_header
               end
             end
           end
@@ -360,6 +369,24 @@ RSpec.describe 'Disability Claims', type: :request do
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when the city is invalid' do
+          let(:city) { '#Base 6' }
+
+          it 'responds with 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['changeOfAddress']['city'] = city
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['detail']).to include(
+                'The property /changeOfAddress/city did not match the following requirements:'
+              )
             end
           end
         end

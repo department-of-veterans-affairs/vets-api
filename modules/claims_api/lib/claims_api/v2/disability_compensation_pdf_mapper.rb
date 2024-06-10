@@ -56,8 +56,16 @@ module ClaimsApi
         @pdf_data[:data][:attributes].delete(:claimantCertification)
         claim_date_and_signature
         claim_process_type
+        claim_notes
 
         @pdf_data
+      end
+
+      def claim_notes
+        if @auto_claim&.dig('claimNotes').present?
+          @pdf_data[:data][:attributes][:overflowText] = @auto_claim&.dig('claimNotes')
+          @pdf_data[:data][:attributes].delete(:claimNotes)
+        end
       end
 
       def claim_process_type
@@ -195,10 +203,8 @@ module ClaimsApi
       # rubocop:disable Layout/LineLength
       def gulfwar_hazard
         gulf = @pdf_data&.dig(:data, :attributes, :toxicExposure, :gulfWarHazardService)
-        if gulf.present?
-          served_gulf_loc = @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:servedInGulfWarHazardLocations]
-          served_gulf_loc == 'NO' || served_gulf_loc.blank? ? 'NO' : 'YES'
-        end
+        return if gulf.blank?
+
         if gulf[:serviceDates].present?
           gulfwar_service_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:gulfWarHazardService][:serviceDates][:beginDate]
           if gulfwar_service_dates_begin.present?
@@ -215,7 +221,7 @@ module ClaimsApi
         end
       end
 
-      def herbicide_hazard # rubocop:disable Metrics/MethodLength
+      def herbicide_hazard
         herb = @pdf_data&.dig(:data, :attributes, :toxicExposure, :herbicideHazardService)
         return if herb.blank?
 
@@ -232,12 +238,6 @@ module ClaimsApi
               make_date_object(herbicide_service_dates_end, herbicide_service_dates_end.length)
           end
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates].delete(:endDate)
-        end
-
-        if herb.present?
-          served_in_herbicide_hazard_locations = @pdf_data[:data][:attributes][:toxicExposure][:herbicideHazardService][:servedInHerbicideHazardLocations]
-          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:servedInHerbicideHazardLocations] =
-            served_in_herbicide_hazard_locations ? 'YES' : nil
         end
       end
 
@@ -660,7 +660,8 @@ module ClaimsApi
 
           area_code = reserves&.dig(:unitPhone, :areaCode)
           phone_number = reserves&.dig(:unitPhone, :phoneNumber)
-          reserves[:unitPhoneNumber] = convert_phone(area_code + phone_number) if area_code && phone_number
+          phone_number&.delete! '-'
+          reserves[:unitPhoneNumber] = (area_code + phone_number) if area_code && phone_number
           reserves.delete(:unitPhone)
 
           reserves[:receivingInactiveDutyTrainingPay] = handle_yes_no(reserves[:receivingInactiveDutyTrainingPay])

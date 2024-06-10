@@ -4,6 +4,50 @@ require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe SimpleFormsApi::ConfirmationEmail do
+  describe '#send' do
+    let(:data) do
+      fixture_path = Rails.root.join(
+        'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_10210.json'
+      )
+      JSON.parse(fixture_path.read)
+    end
+
+    context 'flipper is on' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_return true
+      end
+
+      it 'sends the email' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
+        data['claim_ownership'] = 'self'
+        data['claimant_type'] = 'veteran'
+
+        subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
+                                      confirmation_number: 'confirmation_number')
+
+        subject.send
+
+        expect(VANotify::EmailJob).to have_received(:perform_async)
+      end
+    end
+
+    context 'flipper is off' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_return false
+      end
+
+      it 'does not send the email' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
+        subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
+                                      confirmation_number: 'confirmation_number')
+
+        subject.send
+
+        expect(VANotify::EmailJob).not_to have_received(:perform_async)
+      end
+    end
+  end
+
   describe '21_10210' do
     let(:data) do
       fixture_path = Rails.root.join(

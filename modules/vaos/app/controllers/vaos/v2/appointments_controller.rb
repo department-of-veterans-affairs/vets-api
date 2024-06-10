@@ -9,12 +9,14 @@ module VAOS
       extend Memoist
 
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
-      NPI_NOT_FOUND_MSG = "We're sorry, we can't display your provider's information right now."
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
-      APPT_INDEX = "GET '/vaos/v1/patients/<icn>/appointments'"
-      APPT_SHOW = "GET '/vaos/v1/patients/<icn>/appointments/<id>'"
-      APPT_CREATE = "POST '/vaos/v1/patients/<icn>/appointments'"
+      APPT_INDEX_VAOS = "GET '/vaos/v1/patients/<icn>/appointments'"
+      APPT_INDEX_VPG = "GET '/vpg/v1/patients/<icn>/appointments'"
+      APPT_SHOW_VAOS = "GET '/vaos/v1/patients/<icn>/appointments/<id>'"
+      APPT_SHOW_VPG = "GET '/vpg/v1/patients/<icn>/appointments/<id>'"
+      APPT_CREATE_VAOS = "POST '/vaos/v1/patients/<icn>/appointments'"
+      APPT_CREATE_VPG = "POST '/vpg/v1/patients/<icn>/appointments'"
       REASON = 'reason'
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
@@ -22,15 +24,11 @@ module VAOS
       def index
         appointments
 
-        appointments[:data].each do |appt|
-          find_and_merge_provider_name(appt) if appt[:kind] == 'cc' && appt[:status] == 'proposed'
-        end
-
         _include&.include?('clinics') && merge_clinics(appointments[:data])
         _include&.include?('facilities') && merge_facilities(appointments[:data])
 
         appointments[:data].each do |appt|
-          scrape_appt_comments_and_log_details(appt, APPT_INDEX, PAP_COMPLIANCE_TELE)
+          scrape_appt_comments_and_log_details(appt, index_method_logging_name, PAP_COMPLIANCE_TELE)
         end
 
         serializer = VAOS::V2::VAOSSerializer.new
@@ -48,8 +46,6 @@ module VAOS
       def show
         appointment
 
-        find_and_merge_provider_name(appointment) if appointment[:kind] == 'cc' && appointment[:status] == 'proposed'
-
         unless appointment[:clinic].nil? || appointment[:location_id].nil?
           clinic = get_clinic_memoized(appointment[:location_id], appointment[:clinic])
           appointment[:service_name] = clinic&.[](:service_name)
@@ -62,7 +58,7 @@ module VAOS
             appointments_service.get_facility_memoized(appointment[:location_id])
         end
 
-        scrape_appt_comments_and_log_details(appointment, APPT_SHOW, PAP_COMPLIANCE_TELE)
+        scrape_appt_comments_and_log_details(appointment, show_method_logging_name, PAP_COMPLIANCE_TELE)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointment, 'appointments')
@@ -71,8 +67,6 @@ module VAOS
 
       def create
         new_appointment
-
-        find_and_merge_provider_name(new_appointment) if new_appointment[:kind] == 'cc'
 
         unless new_appointment[:clinic].nil? || new_appointment[:location_id].nil?
           clinic = get_clinic_memoized(new_appointment[:location_id], new_appointment[:clinic])
@@ -85,7 +79,7 @@ module VAOS
           new_appointment[:location] = appointments_service.get_facility_memoized(new_appointment[:location_id])
         end
 
-        scrape_appt_comments_and_log_details(new_appointment, APPT_CREATE, PAP_COMPLIANCE_TELE)
+        scrape_appt_comments_and_log_details(new_appointment, create_method_logging_name, PAP_COMPLIANCE_TELE)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(new_appointment, 'appointments')
@@ -122,11 +116,6 @@ module VAOS
           VAOS::V2::MobileFacilityService.new(current_user)
       end
 
-      def mobile_ppms_service
-        @mobile_ppms_service ||=
-          VAOS::V2::MobilePPMSService.new(current_user)
-      end
-
       def appointments
         @appointments ||=
           appointments_service.get_appointments(start_date, end_date, statuses, pagination_params)
@@ -145,38 +134,6 @@ module VAOS
         @updated_appointment ||=
           appointments_service.update_appointment(update_appt_id, status_update)
       end
-
-      # uses find_npi helper method to extract npi from appointment response,
-      # then uses the npi to look up the provider name via mobile_ppms_service
-      #
-      # will memoize provider name to avoid duplicate get_provider_with_cache calls
-      def find_and_merge_provider_name(appt)
-        found_npi = find_npi(appt)
-
-        appt[:preferred_provider_name] = get_provider_name_memoized(found_npi) if found_npi
-      end
-
-      def find_npi(appt)
-        appt[:practitioners]&.each do |a|
-          a[:identifier]&.each do |i|
-            return i[:value] if i[:system].include? 'us-npi'
-          end
-        end
-        nil
-      end
-
-      def get_provider_name_memoized(npi)
-        provider_response = mobile_ppms_service.get_provider_with_cache(npi)
-        provider_response[:name]
-      rescue Common::Exceptions::BackendServiceException => e
-        Rails.logger.warn(
-          "VAOS Error fetching provider name for npi #{npi}",
-          npi:,
-          vamf_msg: e.original_body
-        )
-        NPI_NOT_FOUND_MSG
-      end
-      memoize :get_provider_name_memoized
 
       # Makes a call to the VAOS service to create a new appointment.
       def get_new_appointment
@@ -494,6 +451,30 @@ module VAOS
 
       def appointment_id
         params[:appointment_id]
+      end
+
+      def index_method_logging_name
+        if Flipper.enabled?(:va_online_scheduling_use_vpg) && Flipper.enabled?(:va_online_scheduling_enable_OH_reads)
+          APPT_INDEX_VPG
+        else
+          APPT_INDEX_VAOS
+        end
+      end
+
+      def show_method_logging_name
+        if Flipper.enabled?(:va_online_scheduling_use_vpg) && Flipper.enabled?(:va_online_scheduling_enable_OH_reads)
+          APPT_SHOW_VPG
+        else
+          APPT_SHOW_VAOS
+        end
+      end
+
+      def create_method_logging_name
+        if Flipper.enabled?(:va_online_scheduling_use_vpg) && Flipper.enabled?(:va_online_scheduling_enable_OH_requests)
+          APPT_CREATE_VPG
+        else
+          APPT_CREATE_VAOS
+        end
       end
     end
   end
