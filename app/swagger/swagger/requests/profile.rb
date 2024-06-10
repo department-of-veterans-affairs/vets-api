@@ -989,7 +989,8 @@ module Swagger
                       property :end_date, type: :string, format: :date, example: '2016-06-01'
                       property :termination_reason_code, type: :string, example: 'S', description: 'S = Separation From Personnel Category, C = Completion of Active Service Period, D = Death while in personnel category or organization, W = Not Applicable'
                       property :termination_reason_text, type: :string, example: 'Separation from personnel category or organization'
-                      property :personnel_category_type_code, type: :string, example: 'V', description: 'A = Regular Active, N = Guard, V = Reserve, Q = Reserve Retiree'
+                      property :period_of_service_type_code, type: :string, example: 'V', description: 'Service type code'
+                      property :period_of_service_type_text, type: :string, example: 'Reserve member', description: 'Service type text'
                     end
                   end
                 end
