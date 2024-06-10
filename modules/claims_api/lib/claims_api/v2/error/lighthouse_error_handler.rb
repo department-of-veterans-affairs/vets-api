@@ -22,7 +22,8 @@ module ClaimsApi
 
             rescue_from ::Common::Exceptions::ResourceNotFound,
                         ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound,
-                        ::ClaimsApi::Common::Exceptions::Lighthouse::BadRequest do |err|
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::BadRequest,
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException do |err|
                           render_non_source_error(err)
                         end
 
