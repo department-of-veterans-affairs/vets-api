@@ -187,7 +187,7 @@ module ClaimsApi
 
         def shared_validation
           # Custom validations for 526 submission, we must check this first
-          @claims_api_forms_validation_errors = validate_form_526_submission_values!(target_veteran)
+          @claims_api_forms_validation_errors = validate_form_526_submission_values(target_veteran)
           # JSON validations for 526 submission, will combine with previously captured errors and raise
           validate_json_schema
           # if we get here there were only validations file errors
