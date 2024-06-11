@@ -277,7 +277,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             'status' => 'Accepted',
             'declinedReason' => nil,
             'createdAt' => '2024-03-08T14:10:41Z',
-            'representative' => {
+            'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
               'email' => 'Beatrice.Stroud44@va.gov'
