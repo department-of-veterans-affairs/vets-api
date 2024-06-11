@@ -205,6 +205,38 @@ describe TravelClaim::Client do
     end
   end
 
+  describe '#claim_status' do
+    let(:token) { 'test-token' }
+    let(:patient_icn) { 'test-patient-icn' }
+    let(:start_range_date) { '2022-09-01' }
+    let(:end_range_date) { '2022-09-01' }
+
+    context 'when claims status service returns success response' do
+      let(:status_response) do
+        [
+          {
+            aptDateTime: '2022-09-01',
+            aptId: '7d53abcf-a916-ef11-aa8a-001cc83064a6',
+            aptSourceSystem: 'VISTA',
+            aptSourceSystemId: 'A;3240606.093;4204',
+            claimNum: 'TC2024061234567890',
+            claimStatus: 'ClaimSubmitted',
+            claimLastModDateTime: '2022-09-01',
+            facilityStationNum: '679'
+          }
+        ]
+      end
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(status_response)
+      end
+
+      it 'returns claims number' do
+        expect(subject.claim_status(token:, patient_icn:, start_range_date:, end_range_date:)).to eq(status_response)
+      end
+    end
+  end
+
   describe '#submit_claim_v2' do
     let(:token) { 'test-token' }
     let(:patient_identifier) { '123ABC456' }
