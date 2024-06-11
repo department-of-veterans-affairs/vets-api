@@ -3,11 +3,9 @@
 require 'rails_helper'
 
 describe AsyncTransaction::BaseSerializer, type: :serializer do
-
-  let(:async_transaction) { build_stubbed(:async_transaction) }
-
   subject { serialize(async_transaction, serializer_class: described_class) }
 
+  let(:async_transaction) { build_stubbed(:async_transaction) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
@@ -30,5 +28,4 @@ describe AsyncTransaction::BaseSerializer, type: :serializer do
   it 'includes :metadata' do
     expect(attributes['metadata']).to eq async_transaction.parsed_metadata
   end
-
 end

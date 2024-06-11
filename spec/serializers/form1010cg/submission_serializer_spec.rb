@@ -9,7 +9,6 @@ describe Form1010cg::SubmissionSerializer do
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
-
   it 'includes :id' do
     expect(data['id']).to be_blank
   end
