@@ -24,8 +24,7 @@ namespace :user_email_identifier do
 
         csv << (original_columns + [user_credential_email])
       rescue ActiveRecord::RecordNotFound
-        puts "[UserEmailIdentifier] Record not found for #{type}: #{csp_uuid}"
-        row << original_columns
+        csv << original_columns
       end
     end
     puts '[UserEmailIdentifier] CSV creation successful, file location: tmp/user_email_identifiers.csv'
