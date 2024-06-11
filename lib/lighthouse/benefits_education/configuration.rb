@@ -10,8 +10,6 @@ module BenefitsEducation
   #
   class Configuration < Common::Client::Configuration::REST
     SYSTEM_NAME = 'VA.gov'
-    TOKEN_PATH = 'oauth2/benefits-education/system/v1/token'
-    API_PATH = 'services/benefits-education/v1/education/chapter33'
 
     # Scopes can be found here:
     # https://developer.va.gov/explore/api/education-benefits/client-credentials#:~:text=Retrieving%20an%20access%20token
@@ -25,17 +23,17 @@ module BenefitsEducation
     end
 
     ##
-    # @return [String] Base path for benefits_education URLs.
+    # @return [String] API endpoint for benefits_education
     #
     def base_path
-      benefits_education_settings.host.to_s
+      "#{benefits_education_settings.host.to_s}/services/benefits-education/v1/education/chapter33"
     end
 
     ##
-    # @return [String] API endpoint for benefits_education
+    # @return [String] Endpoint to request authentication token
     #
-    def base_api_path
-      "#{base_path}/#{API_PATH}"
+    def token_path
+      "#{benefits_education_settings.host.to_s}/oauth2/benefits-education/system/v1/token"
     end
 
     ##
@@ -58,7 +56,7 @@ module BenefitsEducation
     # @return [Faraday::Connection] a Faraday connection instance.
     #
     def connection
-      @conn ||= Faraday.new(base_api_path, headers: base_request_headers, request: request_options) do |faraday|
+      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use :breakers
         faraday.use Faraday::Response::RaiseError
 
@@ -105,7 +103,7 @@ module BenefitsEducation
       aud_claim_url ||= benefits_education_settings.access_token.aud_claim_url
 
       @token_service ||= Auth::ClientCredentials::Service.new(
-        "#{base_path}/#{TOKEN_PATH}",
+        token_path,
         API_SCOPES,
         lighthouse_client_id,
         aud_claim_url,
