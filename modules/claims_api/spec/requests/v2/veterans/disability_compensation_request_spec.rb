@@ -2242,7 +2242,6 @@ RSpec.describe 'Disability Claims', type: :request do
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
               response_body = JSON.parse(response.body)
-              byebug
               # make sure it is failing for the expected reason, do not need the whole text
               expect(response_body['errors'][0]['detail']).to include(
                 'is not a valid date.'
@@ -2446,7 +2445,7 @@ RSpec.describe 'Disability Claims', type: :request do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               confinement = json['data']['attributes']['serviceInformation']['confinements'][0]
-              confinement['approximateBeginDate'] = approximate_begin_date
+              confinement['approximateBeginDate'] = approximate_begin_date    
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
@@ -2506,15 +2505,19 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
-        context 'when confinement dates ARE NOT within one of the service period date ranges' do
-          let(:approximate_begin_date) { '1970-06-05' }
-          let(:approximate_end_date) { '1970-06-06' }
+        context 'when confinement dates are not within one of the service period date ranges' do
+          let(:active_duty_begin_date) { '2015-08-05' }
+          let(:active_duty_end_date) { '2015-08-09' }
+          let(:approximate_begin_date) { '2016-06-05' }
+          let(:approximate_end_date) { '2016-06-06' }
 
           it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
-              # Clear treatments data to avoid false positive 422
-              json['data']['attributes']['treatments'] = []
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] =
+                active_duty_begin_date
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                active_duty_end_date
               confinement = json['data']['attributes']['serviceInformation']['confinements'][0]
               confinement['approximateEndDate'] = approximate_end_date
               confinement['approximateBeginDate'] = approximate_begin_date
