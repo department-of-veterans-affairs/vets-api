@@ -991,6 +991,7 @@ module Swagger
                       property :termination_reason_text, type: :string, example: 'Separation from personnel category or organization'
                       property :period_of_service_type_code, type: :string, example: 'V', description: 'Service type code'
                       property :period_of_service_type_text, type: :string, example: 'Reserve member', description: 'Service type text'
+                      property :character_of_discharge_code, type: :string, example: 'DVN', description: 'The abbreviated code used to reference the status of a Servicemember upon termination of an episode'
                     end
                   end
                 end
