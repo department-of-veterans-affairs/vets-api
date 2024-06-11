@@ -11,12 +11,34 @@ jobs:
     outputs:
       development_summary: ${{ steps.check-dev-status.outputs.dev_summary }}
       staging_summary: ${{ steps.check-staging-status.outputs.staging_summary }}
+      dev_status: ${{ steps.check-dev-status.outputs.dev_status }}
+      staging_status: ${{ steps.check-staging-status.outputs.staging_status }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
           ref: master # Ensure we are checking out the master branch
+
+      - name: Download previous state
+        uses: actions/download-artifact@v2
+        with:
+          name: deploy-delayed-state
+          path: ./state
+
+      - name: Get previous state
+        id: get-previous-state
+        run: |
+          if [ -f ./state/previous_state.json ]; then
+            cat ./state/previous_state.json
+            prev_dev_status=$(jq -r '.dev_status' ./state/previous_state.json)
+            prev_staging_status=$(jq -r '.staging_status' ./state/previous_state.json)
+          else
+            prev_dev_status=""
+            prev_staging_status=""
+          fi
+          echo "prev_dev_status=${prev_dev_status}" >> $GITHUB_ENV
+          echo "prev_staging_status=${prev_staging_status}" >> $GITHUB_ENV
 
       - name: Get latest commit SHA and time from master branch
         id: git-info
@@ -45,15 +67,22 @@ jobs:
           commit_time=${{ env.commit_time }}
           deployed_sha=${{ env.dev_deployed_sha }}
           info_message="latest commit (${latest_sha:0:8}, ${commit_time}) to development"
+          prev_status=${{ env.prev_dev_status }}
 
           if [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
             echo "${info_message} has been deployed."
             echo "dev_summary=${info_message} has been deployed." >> $GITHUB_OUTPUT
           elif [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '30 minutes ago' +%s)" ]; then
-            echo "${info_message} has been delayed for more than 30 minutes."
-            echo "Current commit on development is ${deployed_sha:0:8}."
-            echo "dev_summary=${info_message} has been delayed for more than 30 minutes. Current commit on development is ${deployed_sha:0:8}." >> $GITHUB_OUTPUT
-            exit 1
+            if [ "$prev_status" != "failing" ]; then
+              echo "${info_message} has been delayed for more than 30 minutes."
+              echo "Current commit on development is ${deployed_sha:0:8}."
+              echo "dev_summary=${info_message} has been delayed for more than 30 minutes. Current commit on development is ${deployed_sha:0:8}." >> $GITHUB_OUTPUT
+              echo "dev_status=failing" >> $GITHUB_OUTPUT
+              exit 1
+            else
+              echo "Development status is already failing. No new notification."
+              echo "dev_summary=Development status is already failing. No new notification." >> $GITHUB_OUTPUT
+            fi
           else
             echo "Awaiting deployment of ${info_message}."
             echo "dev_summary=Awaiting deployment of ${info_message}." >> $GITHUB_OUTPUT
@@ -67,24 +96,44 @@ jobs:
           commit_time=${{ env.commit_time }}
           deployed_sha=${{ env.staging_deployed_sha }}
           info_message="latest commit (${latest_sha:0:8}, ${commit_time}) to staging"
+          prev_status=${{ env.prev_staging_status }}
 
           if [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
             echo "${info_message} has been deployed."
             echo "staging_summary=${info_message} has been deployed." >> $GITHUB_OUTPUT
           elif [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '30 minutes ago' +%s)" ]; then
-            echo "${info_message} has been delayed for more than 30 minutes."
-            echo "Current commit on staging is ${deployed_sha:0:8}."
-            echo "staging_summary=${info_message} has been delayed for more than 30 minutes. Current commit on staging is ${deployed_sha:0:8}." >> $GITHUB_OUTPUT
-            exit 1
+            if [ "$prev_status" != "failing" ]; then
+              echo "${info_message} has been delayed for more than 30 minutes."
+              echo "Current commit on staging is ${deployed_sha:0:8}."
+              echo "staging_summary=${info_message} has been delayed for more than 30 minutes. Current commit on staging is ${deployed_sha:0:8}." >> $GITHUB_OUTPUT
+              echo "staging_status=failing" >> $GITHUB_OUTPUT
+              exit 1
+            else
+              echo "Staging status is already failing. No new notification."
+              echo "staging_summary=Staging status is already failing. No new notification." >> $GITHUB_OUTPUT
+            fi
           else
             echo "Awaiting deployment of ${info_message}."
             echo "staging_summary=Awaiting deployment of ${info_message}." >> $GITHUB_OUTPUT
           fi
 
+      - name: Save current state
+        if: always()
+        run: |
+          echo "{\"dev_status\": \"${{ steps.check-dev-status.outputs.dev_status }}\", \"staging_status\": \"${{ steps.check-staging-status.outputs.staging_status }}\"}" > ./state/current_state.json
+        shell: bash
+
+      - name: Upload current state
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: deploy-delayed-state
+          path: ./state/current_state.json
+
   notify-on-failure:
     runs-on: ubuntu-latest
     needs: [check-deployment]
-    if: ${{ failure() }}
+    if: ${{ failure() && needs.check-deployment.outputs.dev_status != 'failing' && needs.check-deployment.outputs.staging_status != 'failing' }}
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
