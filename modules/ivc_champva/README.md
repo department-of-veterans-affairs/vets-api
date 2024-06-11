@@ -4,10 +4,11 @@ With this in place, you can submit a form payload from the vets-website
 and have this module map that payload to the associated PDF and submit it
 to PEGA via S3.
 
-PEGA has the ability to hit an endpoint to update the database `ivc_champva_forms`
+PEGA has the ability to hit an endpoint to update the database table `ivc_champva_forms`
+with their `case_id` and `status` in the payload.
 
 ## Helpful Links
-[Swagger API Docs](TBD)
+[Swagger API UI](https://department-of-veterans-affairs.github.io/va-digital-services-platform-docs/api-reference/) then search "https://dev-api.va.gov/v1/apidocs" to see the ivc_champva endpoint
 [Project MarkDowns](https://github.com/department-of-veterans-affairs/va.gov-team/tree/master/products/health-care/champva)
 [DataDog Dashboard](https://vagov.ddog-gov.com/dashboard/zsa-453-at7/ivc-champva-forms)
 [Pega Callback API ADR](https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/health-care/champva/ADR-callback-api-to-receive-status-from-pega.md)
