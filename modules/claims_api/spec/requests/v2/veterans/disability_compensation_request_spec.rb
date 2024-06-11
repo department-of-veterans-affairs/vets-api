@@ -2445,7 +2445,7 @@ RSpec.describe 'Disability Claims', type: :request do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               confinement = json['data']['attributes']['serviceInformation']['confinements'][0]
-              confinement['approximateBeginDate'] = approximate_begin_date    
+              confinement['approximateBeginDate'] = approximate_begin_date
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
