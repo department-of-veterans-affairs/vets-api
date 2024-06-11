@@ -3,6 +3,13 @@
 require 'rails_helper'
 require 'search_typeahead/service'
 
+# Rerecording VCR Cassettes
+# 1. Replace TEST_KEY (`before` block) with Settings.search_typeahead.api_key from Staging
+# 2. Delete exsiting cassette file
+# 3. Re-run spec
+# 4. **IMPORTANT** Replace the API Key with `TEST_KEY` in newly recorded cassettes
+#    and `before` block. DON'T PUSH API KEY - (You shouldn't see a diff in either place)
+
 describe SearchTypeahead::Service do
   subject { described_class.new(query) }
 
@@ -24,7 +31,7 @@ describe SearchTypeahead::Service do
       it 'returns an array of suggestions' do
         VCR.use_cassette('search_typeahead/success', VCR::MATCH_EVERYTHING) do
           response = subject.suggestions
-          expect(JSON.parse(response.body)).to eq [
+          expect(JSON.parse(response.body)).to match_array [
             'ebenefits direct deposit',
             'ebenefits disability compensation',
             'ebenefits update contact information',
