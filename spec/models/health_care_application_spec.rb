@@ -4,6 +4,12 @@ require 'rails_helper'
 
 RSpec.describe HealthCareApplication, type: :model do
   let(:health_care_application) { create(:health_care_application) }
+  let(:health_care_application_short_form) do
+    short_form = JSON.parse(health_care_application.form)
+    short_form.delete('lastServiceBranch')
+    short_form['vaCompensationType'] = 'highDisability'
+    short_form
+  end
   let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE }
   let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
 
@@ -449,10 +455,7 @@ RSpec.describe HealthCareApplication, type: :model do
           end
 
           it 'increments short form statsd key if its a short form' do
-            new_form = JSON.parse(health_care_application.form)
-            new_form.delete('lastServiceBranch')
-            new_form['vaCompensationType'] = 'highDisability'
-            health_care_application.form = new_form.to_json
+            health_care_application.form = health_care_application_short_form.to_json
             health_care_application.instance_variable_set(:@parsed_form, nil)
 
             expect do
@@ -540,10 +543,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
       context 'short form' do
         before do
-          new_form = JSON.parse(health_care_application.form)
-          new_form.delete('lastServiceBranch')
-          new_form['vaCompensationType'] = 'highDisability'
-          health_care_application.form = new_form.to_json
+          health_care_application.form = health_care_application_short_form.to_json
           health_care_application.instance_variable_set(:@parsed_form, nil)
         end
 
