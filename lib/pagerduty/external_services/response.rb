@@ -8,7 +8,7 @@ module PagerDuty
   module ExternalServices
     class Response < PagerDuty::Response
       attribute :reported_at, Common::ISO8601Time
-      attribute :statuses, Array[Service]
+      attribute :statuses, Array[PagerDuty::Models::Service]
 
       validates :reported_at, presence: true
 
