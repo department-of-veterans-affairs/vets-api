@@ -978,20 +978,19 @@ module Swagger
               property :data, type: :object do
                 key :required, [:attributes]
                 property :attributes, type: :object do
-                  key :required, [:serviceHistory]
-                  property :serviceHistory do
+                  key :required, [:service_history]
+                  property :service_history do
                     key :type, :array
                     items do
-                      key :required, %i[branchOfService beginDate]
-                      property :serviceType, type: :string, example: 'Military Service'
-                      property :branchOfService, type: :string, example: 'Air Force'
-                      property :beginDate, type: :string, format: :date, example: '2007-04-01'
-                      property :endDate, type: :string, format: :date, example: '2016-06-01'
-                      property :terminationReasonCode, type: :string, example: 'S', description: 'S = Separation From Personnel Category, C = Completion of Active Service Period, D = Death while in personnel category or organization, W = Not Applicable'
-                      property :terminationReasonText, type: :string, example: 'Separation from personnel category or organization'
-                      property :periodOfServiceTypeCode, type: :string, example: 'V', description: 'Service type code'
-                      property :periodOfServiceTypeText, type: :string, example: 'Reserve member', description: 'Service type text'
-                      property :characterOfDischargeCode, type: :string, example: 'A', description: 'The abbreviated code used to reference the status of a Servicemember upon termination of an episode'
+                      key :required, %i[branch_of_service begin_date]
+                      property :service_type, type: :string, example: 'Military Service'
+                      property :branch_of_service, type: :string, example: 'Air Force'
+                      property :begin_date, type: :string, format: :date, example: '2007-04-01'
+                      property :end_date, type: :string, format: :date, example: '2016-06-01'
+                      property :termination_reason_code, type: :string, example: 'S', description: 'S = Separation From Personnel Category, C = Completion of Active Service Period, D = Death while in personnel category or organization, W = Not Applicable'
+                      property :termination_reason_text, type: :string, example: 'Separation from personnel category or organization'
+                      property :period_of_service_type_code, type: :string, example: 'V', description: 'Service type code'
+                      property :period_of_service_type_text, type: :string, example: 'Reserve member', description: 'Service type text'
                     end
                   end
                 end
