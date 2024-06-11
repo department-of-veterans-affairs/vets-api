@@ -4,7 +4,6 @@ require 'rails_helper'
 require Vye::Engine.root / 'spec/rails_helper'
 
 RSpec.describe Vye::AddressChange, type: :model do
-
   it 'is valid with valid attributes' do
     address_change = build_stubbed(:vye_address_change)
     expect(address_change).to be_valid
@@ -51,7 +50,7 @@ RSpec.describe Vye::AddressChange, type: :model do
       expect(report).to include("#{address_change.address1},")
       expect(report).to include("#{address_change.city},")
       expect(report).to include("#{address_change.state},")
-      expect(report).to include("#{address_change.zip_code}")
+      expect(report).to include(address_change.zip_code)
     end
   end
 end
