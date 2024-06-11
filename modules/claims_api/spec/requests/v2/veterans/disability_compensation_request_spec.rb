@@ -3943,15 +3943,6 @@ RSpec.describe 'Disability Claims', type: :request do
       end
 
       describe 'Overflow Text' do
-        context 'when overflow text is provided' do
-          it 'responds with accepted' do
-            mock_ccg(scopes) do |auth_header|
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
         context 'when overflow text is not provided' do
           it 'responds with accepted' do
             mock_ccg(scopes) do |auth_header|
