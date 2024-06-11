@@ -13,18 +13,17 @@ jobs:
       staging_summary: ${{ steps.check-staging-status.outputs.staging_summary }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          ref: master # Ensure we are checking out the master branch
-
       - name: Get latest commit SHA and time from master branch
         id: git-info
         run: |
-          latest_sha=$(git rev-parse master)
-          commit_time=$(git log -1 --format=%cI master)
+          latest_commit_info=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/commits/master")
+          latest_sha=$(echo "${latest_commit_info}" | jq -r '.sha')
+          commit_time=$(echo "${latest_commit_info}" | jq -r '.commit.committer.date')
           echo "latest_sha=${latest_sha}" >> $GITHUB_ENV
           echo "commit_time=${commit_time}" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get deployed SHA for development
         id: dev-deploy-sha
