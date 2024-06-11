@@ -32,20 +32,8 @@ module Vye
     end
 
     included do
-      def gen_digest(value)
-        value&.then { |v| OpenSSL::KDF.scrypt(v, **scrypt_config) }
-      end
-
-      private
-
-      def scrypt_config
-        Vye
-          .settings
-          &.scrypt
-          &.to_h
-          &.slice(:salt, :N, :r, :p, :length)
-          &.freeze
-      end
+      extend Common
+      include Common
     end
   end
 end
