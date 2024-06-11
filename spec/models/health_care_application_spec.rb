@@ -445,7 +445,7 @@ RSpec.describe HealthCareApplication, type: :model do
               expect do
                 health_care_application.process!
               end.to raise_error(VCR::Errors::UnhandledHTTPRequestError)
-            end.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
+            end.to trigger_statsd_increment('api.1010ez.sync_submission_failed')
           end
 
           it 'increments short form statsd key if its a short form' do
@@ -459,7 +459,7 @@ RSpec.describe HealthCareApplication, type: :model do
               expect do
                 health_care_application.process!
               end.to raise_error(VCR::Errors::UnhandledHTTPRequestError)
-            end.to trigger_statsd_increment('api.1010ez.failed_wont_retry_short_form')
+            end.to trigger_statsd_increment('api.1010ez.sync_submission_failed_short_form')
           end
         end
       end
@@ -532,7 +532,7 @@ RSpec.describe HealthCareApplication, type: :model do
       end
     end
 
-    describe '#log_submission_failure' do
+    describe '#log_async_submission_failure' do
       it 'triggers statsd' do
         expect { subject }.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
       end
