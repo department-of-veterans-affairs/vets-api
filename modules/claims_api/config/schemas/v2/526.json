@@ -19,10 +19,7 @@
     "veteranIdentification": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "mailingAddress",
-        "currentVaEmployee"
-      ],
+      "required": ["mailingAddress", "currentVaEmployee"],
       "properties": {
         "serviceNumber": {
           "type": ["null", "string"],
@@ -31,7 +28,7 @@
           "nullable": true
         },
         "veteranNumber": {
-          "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
+          "description": "If there isn't a ten digit phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
           "type": ["object", "null"],
           "nullable": true,
           "properties": {
@@ -40,8 +37,6 @@
               "type": ["string", "null"],
               "pattern": "^\\d{10}?$",
               "example": "5555555555",
-              "minLength": 10,
-              "maxLength": 10,
               "nullable": true
             },
             "internationalTelephone": {
@@ -308,12 +303,10 @@
           "additionalProperties": false,
           "properties": {
             "telephone": {
-              "description": "Primary phone of point of contact.",
+              "description": "Ten digit primary phone of point of contact.",
               "type": ["string", "null"],
               "pattern": "^\\d{10}?$",
               "example": "5555555",
-              "minLength": 10,
-              "maxLength": 10,
               "nullable": true
             },
             "internationalTelephone": {
@@ -563,7 +556,7 @@
           },
           "ratedDisabilityId": {
             "description": "When submitting a contention with action type 'INCREASE', the previously rated disability id may be included.",
-            "type": ["string","null"],
+            "type": ["string", "null"],
             "example": "1100583",
             "nullable": true
           },
@@ -728,7 +721,12 @@
           "uniqueItems": true,
           "items": {
             "type": "object",
-            "required": ["serviceBranch", "serviceComponent", "activeDutyBeginDate", "activeDutyEndDate"],
+            "required": [
+              "serviceBranch",
+              "serviceComponent",
+              "activeDutyBeginDate",
+              "activeDutyEndDate"
+            ],
             "properties": {
               "serviceBranch": {
                 "description": "Branch of service during period. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
@@ -1044,6 +1042,11 @@
       "type": "boolean",
       "description": "Claimant certifies and authorizes release of information.",
       "default": false
+    },
+    "claimNotes": {
+      "type": ["string", "null"],
+      "description": "An optional notes section.",
+      "maxLength": 4000
     }
   }
 }

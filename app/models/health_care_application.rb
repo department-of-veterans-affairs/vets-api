@@ -298,12 +298,13 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def current_schema
-    schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
-    return schema unless Flipper.enabled?(:hca_use_facilities_API)
-
+    feature_enabled_for_user = Flipper.enabled?(:hca_use_facilities_API, user)
     Rails.logger.warn(
-      "HealthCareApplication::hca_use_facilitiesAPI enabled = #{Flipper.enabled?(:hca_use_facilities_API)}"
+      "HealthCareApplication::hca_use_facilitiesAPI enabled = #{feature_enabled_for_user}"
     )
+
+    schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
+    return schema unless feature_enabled_for_user
 
     schema.deep_dup.tap do |c|
       c['properties']['vaMedicalFacility'] = { type: 'string' }.as_json
