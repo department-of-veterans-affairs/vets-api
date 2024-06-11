@@ -10,6 +10,7 @@ module BenefitsEducation
   #
   class Configuration < Common::Client::Configuration::REST
     SYSTEM_NAME = 'VA.gov'
+    BENEFITS_EDUCATION_HOST = benefits_education_settings.host.to_s
 
     # Scopes can be found here:
     # https://developer.va.gov/explore/api/education-benefits/client-credentials#:~:text=Retrieving%20an%20access%20token
@@ -26,14 +27,14 @@ module BenefitsEducation
     # @return [String] API endpoint for benefits_education
     #
     def base_path
-      "#{benefits_education_settings.host.to_s}/services/benefits-education/v1/education/chapter33"
+      "#{BENEFITS_EDUCATION_HOST}/services/benefits-education/v1/education/chapter33"
     end
 
     ##
     # @return [String] Endpoint to request authentication token
     #
     def token_path
-      "#{benefits_education_settings.host.to_s}/oauth2/benefits-education/system/v1/token"
+      "#{BENEFITS_EDUCATION_HOST}/oauth2/benefits-education/system/v1/token"
     end
 
     ##
