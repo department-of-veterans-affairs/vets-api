@@ -14,10 +14,11 @@ module ClaimsApi
           def errors
             errors_array = []
             @errors.each do |err|
+              source = err[:key][1..].split('.').map { |attr| attr.camelize(:lower) }.join('/')
               errors_array << {
-                key: err[:key],
+                source:,
                 title: err[:title] || 'Backend Service Exception',
-                detail: err[:detail] || "#{err[:key]} - #{err[:text]}",
+                detail: err[:detail] || err[:text],
                 status: status_code.to_s # LH standards want this be a string
               }
             end

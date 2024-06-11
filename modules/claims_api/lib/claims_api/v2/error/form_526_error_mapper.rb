@@ -11,7 +11,8 @@ module ClaimsApi
       submit_load_benefitClaim_serviceError: [],
       submit_save_draftForm_serviceError: [],
       disabled: ['this claim/process has been disabled'],
-      submit_save_draftForm_MaxEPCode: ["This user has reached it's maximum number of attempts."],
+      submit_save_draftForm_MaxEPCode: ["This user has reached it's maximum number of attempts.",
+                                        'This claim could not be established. The Maximum number of EP codes have been reached for this benefit type claim code'], # rubocop:disable Layout/LineLength
       submit_save_draftForm_PIFInUse: [],
       submit_noRetryError: ['This job is no longer able to be re-tried']
     }.freeze
@@ -22,7 +23,7 @@ module ClaimsApi
 
     def get_details
       if @error[:key].include?('form526')
-        key = @error[:key][8, 50].gsub('.', '_')
+        key = @error[:key].slice!('form526').gsub('.', '_')
         FORM_526_ERROR_DICTIONARY[key.to_sym]
       else
         @error[:detail] || "#{@error[:key]} - #{@error[:text]}"

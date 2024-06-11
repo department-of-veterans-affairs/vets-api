@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'claims_api/common/exceptions/lighthouse/backend_exception'
+require 'claims_api/common/exceptions/lighthouse/backend_service_exception'
 require 'claims_api/v2/error/form_526_error_mapper'
 module ClaimsApi
   class CustomError
-    def initialize(error, async: true)
+    def initialize(error, async = true) # rubocop:disable Style/OptionalBooleanParameter
       @error = error
       @async = async
       @original_status = @error&.original_status if @error&.methods&.include?(:original_status)
@@ -29,9 +29,18 @@ module ClaimsApi
 
     private
 
-    def raise_backend_exception(_source = @error&.class, _key = 'EVSS')
+    def raise_backend_exception(source = @error&.class, key = 'EVSS')
       error_details = get_error_info
-      raise ::ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException, error_details
+      if @async
+        raise ::Common::Exceptions::BackendServiceException.new(
+          key,
+          { source: },
+          @status,
+          error_details
+        )
+      else
+        raise ::ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException, error_details
+      end
     end
 
     def get_error_info
@@ -60,7 +69,7 @@ module ClaimsApi
 
     def get_details(error)
       if @async
-        "#{error[:key]} - #{error[:text]}"
+        error[:text]
       else
         ClaimsApi::Form526ErrorMapper.new(error).get_details
       end

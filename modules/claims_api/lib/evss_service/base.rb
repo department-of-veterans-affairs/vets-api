@@ -19,7 +19,7 @@ module ClaimsApi
         @use_mock = Settings.evss.mock_claims || false
       end
 
-      def submit(claim, data)
+      def submit(claim, data, async = true) # rubocop:disable Style/OptionalBooleanParameter
         @auth_headers = claim.auth_headers
 
         begin
@@ -27,11 +27,11 @@ module ClaimsApi
           log_outcome_for_claims_api('submit', 'success', resp, claim)
           resp # return is for v1 Sidekiq worker
         rescue => e
-          error_handler(e, false)
+          error_handler(e, async)
         end
       end
 
-      def validate(claim, data)
+      def validate(claim, data, async = true) # rubocop:disable Style/OptionalBooleanParameter
         @auth_headers = claim.auth_headers
 
         begin
@@ -43,7 +43,7 @@ module ClaimsApi
           detail = e.respond_to?(:original_body) ? e.original_body : e
           log_outcome_for_claims_api('validate', 'error', detail, claim)
 
-          error_handler(e, false)
+          error_handler(e, async)
         end
       end
 
@@ -90,11 +90,11 @@ module ClaimsApi
                               detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}", claim: claim&.id)
       end
 
-      def custom_error(error, async: true)
+      def custom_error(error, async = true) # rubocop:disable Style/OptionalBooleanParameter
         ClaimsApi::CustomError.new(error, async)
       end
 
-      def error_handler(error, async: true)
+      def error_handler(error, async = true) # rubocop:disable Style/OptionalBooleanParameter
         custom_error(error, async).build_error
       end
     end
