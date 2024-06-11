@@ -60,6 +60,7 @@ jobs:
           fi
 
       - name: Check deployment status for staging
+        if: always()
         id: check-staging-status
         run: |
           latest_sha=${{ env.latest_sha }}
