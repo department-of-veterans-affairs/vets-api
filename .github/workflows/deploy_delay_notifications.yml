@@ -49,7 +49,7 @@ jobs:
           if [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
             echo "${info_message} has been deployed."
             echo "dev_summary=${info_message} has been deployed." >> $GITHUB_OUTPUT
-          elif [ "$(date -d "${commit_time}" +%s)" -gt "$(date -d '30 minutes ago' +%s)" ]; then
+          elif [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '30 minutes ago' +%s)" ]; then
             echo "${info_message} has been delayed for more than 30 minutes."
             echo "Current commit on development is ${deployed_sha:0:8}."
             echo "dev_summary=${info_message} has been delayed for more than 30 minutes. Current commit on development is ${deployed_sha:0:8}." >> $GITHUB_OUTPUT
@@ -71,7 +71,7 @@ jobs:
           if [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
             echo "${info_message} has been deployed."
             echo "staging_summary=${info_message} has been deployed." >> $GITHUB_OUTPUT
-          elif [ "$(date -d "${commit_time}" +%s)" -gt "$(date -d '30 minutes ago' +%s)" ]; then
+          elif [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '30 minutes ago' +%s)" ]; then
             echo "${info_message} has been delayed for more than 30 minutes."
             echo "Current commit on staging is ${deployed_sha:0:8}."
             echo "staging_summary=${info_message} has been delayed for more than 30 minutes. Current commit on staging is ${deployed_sha:0:8}." >> $GITHUB_OUTPUT
