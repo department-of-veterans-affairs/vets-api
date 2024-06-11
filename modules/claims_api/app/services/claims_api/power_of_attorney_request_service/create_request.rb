@@ -44,9 +44,7 @@ module ClaimsApi
         create_vnp_mailing_address(person[:address], vnp_ptcpnt_id)
         create_vnp_email_address(person[:email], vnp_ptcpnt_id) if person[:email]
 
-        if @form_data[:veteran][:phone]
-          create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id)
-        end
+        create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id) if person[:phone]
       end
 
       def create_vnp_proc
