@@ -10,6 +10,8 @@ module BenefitsEducation
   #
   class Configuration < Common::Client::Configuration::REST
     SYSTEM_NAME = 'VA.gov'
+    TOKEN_PATH = 'oauth2/benefits-education/system/v1/token'
+    API_PATH = 'services/benefits-education/v1/education/chapter33'
 
     # Scopes can be found here:
     # https://developer.va.gov/explore/api/education-benefits/client-credentials#:~:text=Retrieving%20an%20access%20token
@@ -26,14 +28,7 @@ module BenefitsEducation
     # @return [String] API endpoint for benefits_education
     #
     def base_path
-      "#{benefits_education_settings.host}/services/benefits-education/v1/education/chapter33"
-    end
-
-    ##
-    # @return [String] Endpoint to request authentication token
-    #
-    def token_path
-      "#{benefits_education_settings.host}/oauth2/benefits-education/system/v1/token"
+      "#{benefits_education_settings.host}/#{API_PATH}"
     end
 
     ##
@@ -97,13 +92,14 @@ module BenefitsEducation
     def token_service
       lighthouse_client_id = benefits_education_settings.access_token.client_id
       lighthouse_rsa_key_path = benefits_education_settings.access_token.rsa_key
+      token_url = "#{benefits_education_settings.host}/#{TOKEN_PATH}"
 
       # aud_claim_url found here:
       # https://developer.va.gov/explore/api/education-benefits/client-credentials#:~:text=Description-,aud,-True
       aud_claim_url ||= benefits_education_settings.access_token.aud_claim_url
 
       @token_service ||= Auth::ClientCredentials::Service.new(
-        token_path,
+        token_url,
         API_SCOPES,
         lighthouse_client_id,
         aud_claim_url,
