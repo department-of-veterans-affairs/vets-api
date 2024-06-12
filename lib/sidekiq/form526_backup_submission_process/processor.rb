@@ -327,33 +327,25 @@ module Sidekiq
         form_json = JSON.parse(submission.form_json)[FORM_526]
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
-        resp = get_form_from_external_api(headers, form_json.to_json)
 
-        # [wipn8923] START HERE - this is just a test but it works, proving we are getting
-        # good data back from the API. The remaining problem is having this job run to completion
-        # File.binwrite("tmp/wipn8923-form526-#{Time.zone.now}.pdf", resp.env.response_body)
-
-        # [wipn8923] this is the old way. This seems to create an unreadable PDF.
-        b64_enc_body = resp.body['pdf']
-        content = Base64.decode64(b64_enc_body)
+        if form_json[FORM_526]['includeToxicExposure'] == true
+          resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:lighthouse], form_json.to_json)
+          content = resp.env.response_body
+        else
+          resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:evss], form_json.to_json)
+          b64_enc_body = resp.body['pdf']
+          content = Base64.decode64(b64_enc_body)
+        end
         file = write_to_tmp_file(content)
         docs << {
           type: FORM_526_DOC_TYPE,
           file:
         }
-
-        # [wipn8923] this should work, just needs testing. Then we can remove the blob above
-        # and use this
-        # file = write_to_tmp_file(resp.env.response_body)
-        # docs << {
-        #   type: FORM_526_DOC_TYPE,
-        #   file:
-        # }
       end
 
-      def get_form_from_external_api(headers, form_json)
+      def get_form_from_external_api(headers, provider, form_json)
         # get the "breakered" version
-        service = choose_provider(headers, breakered: true)
+        service = choose_provider(headers, provider, breakered: true)
 
         service.generate_526_pdf(form_json)
       end
@@ -418,7 +410,6 @@ module Sidekiq
           'Complete 526 PDF Generating for Backup Submission',
           { submission_id:, initial_upload_uuid: }
         )
-
         result
       end
 
@@ -438,11 +429,11 @@ module Sidekiq
         end
       end
 
-      def choose_provider(headers, breakered: true)
+      # 82245 - Adding provider to method. this should be removed when toxic exposure flipper is removed
+      def choose_provider(headers, provider, breakered: true)
         ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:generate_pdf],
-          # let Flipper - the feature toggle - choose which provider
-          provider: nil,
+          provider:,
           # this sends the auth headers and if we want the "breakered" or "non-breakered" version
           options: { auth_headers: headers, breakered:, icn: user_account.icn },
           current_user: OpenStruct.new({ flipper_id: submission.user_uuid }),
@@ -451,8 +442,9 @@ module Sidekiq
       end
 
       def user_account
-        user_account ||= UserAccount.find_by(id: submission.user_uuid) ||
-         Account.lookup_by_user_uuid(submission.user_uuid)
+        user_account ||
+          UserAccount.find_by(id: submission.user_uuid) ||
+          Account.lookup_by_user_uuid(submission.user_uuid)
       end
     end
 
@@ -466,9 +458,15 @@ module Sidekiq
         form_json = submission.form[FORM_526]
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
-        resp = get_from_non_breakered_service(headers, form_json.to_json)
-        b64_enc_body = resp.body['pdf']
-        content = Base64.decode64(b64_enc_body)
+        if form_json[FORM_526]['includeToxicExposure'] == true
+          resp = get_from_non_breakered_service(headers, ApiProviderFactory::API_PROVIDER[:lighthouse],
+                                                form_json.to_json)
+          content = resp.env.response_body
+        else
+          resp = get_from_non_breakered_service(headers, ApiProviderFactory::API_PROVIDER[:evss], form_json.to_json)
+          b64_enc_body = resp.body['pdf']
+          content = Base64.decode64(b64_enc_body)
+        end
         file = write_to_tmp_file(content)
         docs << {
           type: FORM_526_DOC_TYPE,
@@ -477,9 +475,9 @@ module Sidekiq
       end
     end
 
-    def get_from_non_breakered_service(headers, form_json)
+    def get_from_non_breakered_service(headers, provider, form_json)
       # get the "non-breakered" version
-      service = choose_provider(headers, breakered: false)
+      service = choose_provider(headers, provider, breakered: false)
 
       service.get_form526(form_json)
     end
@@ -495,5 +493,3 @@ module Sidekiq
     end
   end
 end
-
-
