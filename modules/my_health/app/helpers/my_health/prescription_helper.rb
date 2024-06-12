@@ -88,22 +88,15 @@ module MyHealth
 
       def filter_data_by_refill_and_renew(data)
         data.select do |item|
-
           disp_status = item[:disp_status]
           refill_history_expired_date = item[:rx_rf_records]&.[](0)&.[](1)&.[](0)&.[](:expiration_date)&.to_date
           expired_date = refill_history_expired_date || item[:expiration_date]&.to_date
 
           next true if item[:is_refillable]
-
-          if item[:refill_remaining] == 0
-            if disp_status.downcase == "active"
-              next true
-            end
-            if disp_status.downcase == "active: parked" && item[:rx_rf_records].any?
-              next true
-            end
+          if item[:refill_remaining].to_i.zero?
+            next true if disp_status.downcase == 'active'
+            next true if disp_status.downcase == 'active: parked' && item[:rx_rf_records].any?
           end
-
           if disp_status == 'Expired' && expired_date.present? && valid_date_within_cut_off_date?(expired_date)
             next true
           end
