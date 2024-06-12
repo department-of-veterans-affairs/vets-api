@@ -343,6 +343,7 @@ module Sidekiq
         }
       end
 
+      # 82245 - Adding provider to method. this should be removed when toxic exposure flipper is removed
       def get_form_from_external_api(headers, provider, form_json)
         # get the "breakered" version
         service = choose_provider(headers, provider, breakered: true)
@@ -449,9 +450,6 @@ module Sidekiq
     end
 
     class NonBreakeredProcessor < Processor
-      # [wipn8923] the changes made above should be applied here as well
-      # This is just the version that is used for batch processing, but no
-      # reason not to get the new LH code in here now in case we need it later
       def get_form526_pdf
         headers = submission.auth_headers
         submission_create_date = submission.created_at.iso8601
@@ -475,6 +473,7 @@ module Sidekiq
       end
     end
 
+    # 82245 - Adding provider to method. this should be removed when toxic exposure flipper is removed
     def get_from_non_breakered_service(headers, provider, form_json)
       # get the "non-breakered" version
       service = choose_provider(headers, provider, breakered: false)
