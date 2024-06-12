@@ -4,6 +4,12 @@ require 'rails_helper'
 
 RSpec.describe HealthCareApplication, type: :model do
   let(:health_care_application) { create(:health_care_application) }
+  let(:health_care_application_short_form) do
+    short_form = JSON.parse(health_care_application.form)
+    short_form.delete('lastServiceBranch')
+    short_form['vaCompensationType'] = 'highDisability'
+    short_form
+  end
   let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE }
   let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
 
@@ -445,21 +451,19 @@ RSpec.describe HealthCareApplication, type: :model do
               expect do
                 health_care_application.process!
               end.to raise_error(VCR::Errors::UnhandledHTTPRequestError)
-            end.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
+            end.to trigger_statsd_increment('api.1010ez.sync_submission_failed')
           end
 
           it 'increments short form statsd key if its a short form' do
-            new_form = JSON.parse(health_care_application.form)
-            new_form.delete('lastServiceBranch')
-            new_form['vaCompensationType'] = 'highDisability'
-            health_care_application.form = new_form.to_json
+            health_care_application.form = health_care_application_short_form.to_json
             health_care_application.instance_variable_set(:@parsed_form, nil)
 
             expect do
               expect do
                 health_care_application.process!
               end.to raise_error(VCR::Errors::UnhandledHTTPRequestError)
-            end.to trigger_statsd_increment('api.1010ez.failed_wont_retry_short_form')
+            end.to trigger_statsd_increment('api.1010ez.sync_submission_failed')
+              .and trigger_statsd_increment('api.1010ez.sync_submission_failed_short_form')
           end
         end
       end
@@ -622,22 +626,20 @@ RSpec.describe HealthCareApplication, type: :model do
       end
     end
 
-    describe '#log_submission_failure' do
+    describe '#log_async_submission_failure' do
       it 'triggers statsd' do
         expect { subject }.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
       end
 
       context 'short form' do
         before do
-          new_form = JSON.parse(health_care_application.form)
-          new_form.delete('lastServiceBranch')
-          new_form['vaCompensationType'] = 'highDisability'
-          health_care_application.form = new_form.to_json
+          health_care_application.form = health_care_application_short_form.to_json
           health_care_application.instance_variable_set(:@parsed_form, nil)
         end
 
         it 'triggers statsd' do
-          expect { subject }.to trigger_statsd_increment('api.1010ez.failed_wont_retry_short_form')
+          expect { subject }.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
+            .and trigger_statsd_increment('api.1010ez.failed_wont_retry_short_form')
         end
       end
 
