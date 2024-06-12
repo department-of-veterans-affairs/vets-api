@@ -443,7 +443,6 @@ module Sidekiq
       end
 
       def user_account
-        user_account ||=
           UserAccount.find_by(id: submission.user_uuid) ||
           Account.lookup_by_user_uuid(submission.user_uuid)
       end
