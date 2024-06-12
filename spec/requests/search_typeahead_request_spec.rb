@@ -14,9 +14,13 @@ describe 'search_typeahead' do
           get '/v0/search_typeahead', params: { query: 'ebenefits' }
 
           expect(response).to have_http_status(:ok)
-          # rubocop:disable Layout/LineLength
-          expect(response.body).to include '["ebenefits direct deposit","ebenefits disability compensation","ebenefits update contact information","ebenefits your records","ebenefits"]'
-          # rubocop:enable Layout/LineLength
+          expect(JSON.parse(response.body)).to match_array [
+            'ebenefits direct deposit',
+            'ebenefits disability compensation',
+            'ebenefits update contact information',
+            'ebenefits your records',
+            'ebenefits'
+          ]
         end
       end
     end
