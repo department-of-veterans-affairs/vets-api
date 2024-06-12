@@ -16,5 +16,4 @@ describe CentralMailSubmissionSerializer, type: :serializer do
   it 'includes :appointments as an array' do
     expect(attributes['state']).to eq submission.state
   end
-
 end

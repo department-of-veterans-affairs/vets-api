@@ -5,7 +5,7 @@ require 'rails_helper'
 describe CommunicationGroupsSerializer, type: :serializer do
   subject { serialize(communication_groups, serializer_class: described_class) }
 
-  let(:communication_groups) { { communication_groups: [ communication_group ] } }
+  let(:communication_groups) { { communication_groups: [communication_group] } }
   let(:communication_group) { build_stubbed(:communication_item_group) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }

@@ -7,10 +7,10 @@ describe Ch33BankAccountSerializer, type: :serializer do
 
   let(:ch33_bank_account) do
     {
-      dposit_acnt_nbr: "123",
-      dposit_acnt_type_nm: "C",
-      routng_trnsit_nbr: "122400724",
-      financial_institution_name: "BANK OF AMERICA, N.A."
+      dposit_acnt_nbr: '123',
+      dposit_acnt_type_nm: 'C',
+      routng_trnsit_nbr: '122400724',
+      financial_institution_name: 'BANK OF AMERICA, N.A.'
     }
   end
   let(:data) { JSON.parse(subject)['data'] }
@@ -26,10 +26,11 @@ describe Ch33BankAccountSerializer, type: :serializer do
     end
   end
 
-  context 'when :dposit_acnt_type_nm is C' do
+  context 'when :dposit_acnt_type_nm is S' do
     let(:ch33_savings_account) { ch33_bank_account.merge(dposit_acnt_type_nm: 'S') }
     let(:savings_response) { serialize(ch33_savings_account, serializer_class: described_class) }
     let(:account_type) { JSON.parse(savings_response)['data']['attributes']['account_type'] }
+
     it 'includes :account_type is Savings' do
       expect(account_type).to eq 'Savings'
     end
@@ -48,5 +49,4 @@ describe Ch33BankAccountSerializer, type: :serializer do
   it 'includes :financial_institution_name as sensitive' do
     expect(attributes['financial_institution_name']).to eq ch33_bank_account[:financial_institution_name]
   end
-
 end
