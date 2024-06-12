@@ -328,7 +328,7 @@ module Sidekiq
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
 
-        if form_json[FORM_526]['includeToxicExposure'] == true
+        if submission.claims_api?
           resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:lighthouse], form_json.to_json)
           content = resp.env.response_body
         else
@@ -442,7 +442,7 @@ module Sidekiq
       end
 
       def user_account
-        user_account ||
+        user_account ||=
           UserAccount.find_by(id: submission.user_uuid) ||
           Account.lookup_by_user_uuid(submission.user_uuid)
       end
@@ -458,7 +458,7 @@ module Sidekiq
         form_json = submission.form[FORM_526]
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
-        if form_json[FORM_526]['includeToxicExposure'] == true
+        if submission.claims_api?
           resp = get_from_non_breakered_service(headers, ApiProviderFactory::API_PROVIDER[:lighthouse],
                                                 form_json.to_json)
           content = resp.env.response_body
