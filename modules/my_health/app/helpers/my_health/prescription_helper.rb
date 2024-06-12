@@ -95,7 +95,7 @@ module MyHealth
           next true if item[:is_refillable]
           if item[:refill_remaining].to_i.zero?
             next true if disp_status.downcase == 'active'
-            next true if disp_status.downcase == 'active: parked' && item[:rx_rf_records].any?
+            next true if disp_status.downcase == 'active: parked' && !item[:rx_rf_records].all?(&:empty?)
           end
           if disp_status == 'Expired' && expired_date.present? && valid_date_within_cut_off_date?(expired_date)
             next true
