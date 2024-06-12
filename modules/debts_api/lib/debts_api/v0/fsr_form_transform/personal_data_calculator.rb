@@ -4,6 +4,8 @@ module DebtsApi
   module V0
     module FsrFormTransform
       class PersonalDataCalculator
+        include ::FsrFormTransform::Utils
+
         def initialize(form)
           @form = form
           @personal_data = form['personal_data']
@@ -107,16 +109,6 @@ module DebtsApi
           else
             []
           end
-        end
-
-        def sanitize_date_string(date)
-          return '' if date.empty?
-
-          date_string = date.gsub('XX', '01')
-          date_string << '-01' if date_string.split('-').length == 2
-          year, month = date_string.split('-')
-          month = "0#{month}" if month.length == 1
-          "#{month}/#{year}"
         end
 
         def married?
