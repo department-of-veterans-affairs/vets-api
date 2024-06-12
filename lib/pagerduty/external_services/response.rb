@@ -3,12 +3,13 @@
 require 'common/models/attribute_types/iso8601_time'
 require 'pagerduty/response'
 require 'pagerduty/models/service'
+require_relative 'service'
 
 module PagerDuty
   module ExternalServices
     class Response < PagerDuty::Response
       attribute :reported_at, Common::ISO8601Time
-      attribute :statuses, Array[PagerDuty::Models::Service]
+      attribute :statuses, Array[Service]
 
       validates :reported_at, presence: true
 
