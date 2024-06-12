@@ -462,6 +462,30 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           expect { described_class.drain }.not_to change(backup_klass.jobs, :size)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:success]
           submission.reload
+          # TODO: re-visit when using lighthouse synchronous response endpoint
+          expect(submission.submitted_claim_id).to eq(Form526JobStatus.last.submission.submitted_claim_id)
+        end
+      end
+
+      context 'with toxic exposure Flipper enabled for user' do
+        let(:submission) do
+          create(:form526_submission,
+                 :with_everything,
+                 user_uuid: user.uuid,
+                 auth_headers_json: auth_headers.to_json,
+                 saved_claim_id: saved_claim.id,
+                 submit_endpoint: 'claims_api')
+        end
+
+        before do
+          allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+        end
+
+        it 'performs a successful submission' do
+          subject.perform_async(submission.id)
+          expect { described_class.drain }.not_to change(backup_klass.jobs, :size)
+          expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:success]
+          submission.reload
 
           expect(Form526JobStatus.last.submission.submitted_claim_id).to eq(12_345_678)
         end
