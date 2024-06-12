@@ -29,12 +29,12 @@ module ClaimsApi
 
     private
 
-    def raise_backend_exception(source = @error&.class, key = 'EVSS')
+    def raise_backend_exception(key = 'EVSS')
       error_details = get_error_info
       if @async
         raise ::Common::Exceptions::BackendServiceException.new(
           key,
-          { source: },
+          { source: @error&.class },
           @status,
           error_details
         )

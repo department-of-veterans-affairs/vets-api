@@ -24,9 +24,13 @@ module ClaimsApi
 
         begin
           resp = client.post('submit', data)&.body&.deep_symbolize_keys
-          log_outcome_for_claims_api('submit', 'success', resp, claim)
-          resp # return is for v1 Sidekiq worker
+          log_outcome_for_claims_api('submit', 'success', resp, claim) # return is for v1 Sidekiq worker
+
+          resp
         rescue => e
+          detail = e.respond_to?(:original_body) ? e.original_body : e
+          log_outcome_for_claims_api('validate', 'error', detail, claim)
+
           error_handler(e, async)
         end
       end
@@ -90,12 +94,8 @@ module ClaimsApi
                               detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}", claim: claim&.id)
       end
 
-      def custom_error(error, async = true) # rubocop:disable Style/OptionalBooleanParameter
-        ClaimsApi::CustomError.new(error, async)
-      end
-
       def error_handler(error, async = true) # rubocop:disable Style/OptionalBooleanParameter
-        custom_error(error, async).build_error
+        ClaimsApi::CustomError.new(error, async).build_error
       end
     end
   end

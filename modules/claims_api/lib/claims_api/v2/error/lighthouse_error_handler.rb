@@ -24,7 +24,9 @@ module ClaimsApi
 
             rescue_from ::Common::Exceptions::ResourceNotFound,
                         ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound,
-                        ::ClaimsApi::Common::Exceptions::Lighthouse::BadRequest do |err|
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::BadRequest,
+                        ::Common::Exceptions::BackendServiceException,
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException do |err|
                           render_non_source_error(err)
                         end
 
@@ -45,10 +47,6 @@ module ClaimsApi
             rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError do |errs|
               render_validation_errors(errs)
             end
-            rescue_from ::Common::Exceptions::BackendServiceException,
-                        ::ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException do |err|
-              render_evss_error(err)
-            end
           end
         end
 
@@ -57,16 +55,7 @@ module ClaimsApi
         def render_non_source_error(error)
           render json: {
             errors: error.errors.map do |e|
-              error_hash = e.as_json.slice('title', 'status', 'detail')
-              error_hash
-            end
-          }, status: error.status_code
-        end
-
-        def render_evss_error(error)
-          render json: {
-            errors: error.errors.map do |e|
-              error_hash = e.as_json.slice('title', 'status', 'detail', 'source')
+              error_hash = e.as_json.slice('status', 'title', 'detail')
               error_hash
             end
           }, status: error.status_code
