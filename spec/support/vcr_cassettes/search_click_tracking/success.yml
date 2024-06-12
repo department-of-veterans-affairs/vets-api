@@ -1,69 +1,73 @@
 ---
 http_interactions:
-  - request:
-      method: post
-      uri: https://api.gsa.gov/technology/searchgov/v2/clicks/?access_key=TESTKEY&affiliate=va&module_code=I14Y&position=0&query=testQuery&url=https://www.testurl.com&user_agent=testUserAgent
-      body:
-        encoding: UTF-8
-        string: ""
-      headers:
-        User-Agent:
-          - Faraday v2.9.0
-        Content-Type:
-          - application/x-www-form-urlencoded
-        Accept-Encoding:
-          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-        Accept:
-          - "*/*"
-    response:
-      status:
-        code: 200
-        message: OK
-      headers:
-        Date:
-          - Wed, 20 Jan 2021 17:42:13 GMT
-        Content-Type:
-          - application/json
-        Content-Length:
-          - "0"
-        Connection:
-          - keep-alive
-        X-Ratelimit-Limit:
-          - "1000"
-        X-Ratelimit-Remaining:
-          - "994"
-        Cache-Control:
-          - no-cache
-        Referrer-Policy:
-          - strict-origin-when-cross-origin
-        Status:
-          - 200 OK
-        Strict-Transport-Security:
-          - max-age=31536000; includeSubdomains; preload
-          - max-age=31536000; preload
-        Vary:
-          - Origin
-        Via:
-          - 1.1 proxy1.us-east-1.prod.infr.search.usa.gov:8443, https/1.1 api-umbrella
-            (ApacheTrafficServer [cMsSf ])
-        X-Content-Type-Options:
-          - nosniff
-        X-Download-Options:
-          - noopen
-        X-Frame-Options:
-          - SAMEORIGIN
-        X-Permitted-Cross-Domain-Policies:
-          - none
-        X-Request-Id:
-          - a0934f65-a83e-44a6-b2ac-33deeedbd672
-        X-Xss-Protection:
-          - 1; mode=block
-        Age:
-          - "0"
-        X-Cache:
-          - MISS
-      body:
-        encoding: UTF-8
-        string: ""
-    recorded_at: Wed, 20 Jan 2021 17:42:13 GMT
-recorded_with: VCR 6.0.0
+- request:
+    method: post
+    uri: https://api.gsa.gov/technology/searchgov/v2/clicks/?access_key=TEST_KEY&affiliate=va&module_code=I14Y&position=0&query=testQuery&url=https://www.testurl.com&user_agent=testUserAgent
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.9.1
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 12 Jun 2024 15:24:25 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '0'
+      Connection:
+      - keep-alive
+      Age:
+      - '0'
+      Cache-Control:
+      - no-cache
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Status:
+      - 200 OK
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      - max-age=31536000; preload
+      Vary:
+      - Origin
+      Via:
+      - 1.1 proxy4.us-east-1.prod.infr.search.usa.gov:8443, 1.1 26ca01ec7377e425b59b6a08cb1ec342.cloudfront.net
+        (CloudFront), https/1.1 api-umbrella (ApacheTrafficServer [cMsSf ])
+      X-Amz-Cf-Id:
+      - p7FklD3y5uzOXgu-3i4fr5IB3y0kMv7_-559xhEfg7szlR-BTT7sEg==
+      X-Amz-Cf-Pop:
+      - HIO50-C1
+      X-Api-Umbrella-Request-Id:
+      - cg1k6dpso8c7n2s7cm60
+      X-Cache:
+      - Miss from cloudfront
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - fd5797ee-2d87-4b72-836c-919d2d109a4a
+      X-Vcap-Request-Id:
+      - 417e0eb9-cfd1-4e4b-57c5-dd4f90d4c25a
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - SAMEORIGIN
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Wed, 12 Jun 2024 15:24:25 GMT
+recorded_with: VCR 6.2.0
