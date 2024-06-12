@@ -36,6 +36,7 @@ path 'modules' do
   gem 'veteran'
   gem 'veteran_confirmation'
   gem 'vye'
+  gem 'pensions'
 end
 
 gem 'rails', '~> 7.1.3'
