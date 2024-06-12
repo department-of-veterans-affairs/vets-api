@@ -105,10 +105,8 @@ module EVSS
 
           user = OpenStruct.new({ user_account_uuid: user_account.id, flipper_id: user_account.id })
           begin
-            submit_to_claims_api = submission.claims_api?
             # send submission data to either EVSS or Lighthouse (LH)
-            response = if Flipper.enabled?(:disability_526_toxic_exposure, user) ||
-                          submit_to_claims_api # right operand evaluation not needed once fully migrated to LH
+            response = if submission.claims_api? # not needed once fully migrated to LH
                          # submit 526 through LH API
                          # 1. get user's ICN
                          icn = user_account.icn
