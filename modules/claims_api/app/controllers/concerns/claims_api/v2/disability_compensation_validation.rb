@@ -687,10 +687,6 @@ module ClaimsApi
 
           form_object_desc = "/confinement/#{idx}"
 
-          next unless date_is_valid?(approximate_begin_date,
-                                     "#{form_object_desc}/approximateBeginDate") &&
-                      date_is_valid?(approximate_end_date, "#{form_object_desc}/approximateEndDate")
-
           if approximate_begin_date.blank?
             raise_exception_if_value_not_present('approximate begin date',
                                                  "#{form_object_desc}/approximateBeginDate")
@@ -701,6 +697,9 @@ module ClaimsApi
           end
 
           next if approximate_begin_date.blank? || approximate_end_date.blank?
+          next unless date_is_valid?(approximate_begin_date,
+                                     "#{form_object_desc}/approximateBeginDate") &&
+                      date_is_valid?(approximate_end_date, "#{form_object_desc}/approximateEndDate")
 
           if begin_date_is_after_end_date?(approximate_begin_date, approximate_end_date)
             collect_error_messages(
