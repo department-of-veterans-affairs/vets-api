@@ -119,6 +119,7 @@ Rails.application.routes.draw do
     end
 
     resource :hca_attachments, only: :create
+    resource :form1010_ezr_attachments, only: :create
 
     resources :caregivers_assistance_claims, only: :create
     post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
