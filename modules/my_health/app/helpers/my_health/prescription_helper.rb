@@ -93,6 +93,7 @@ module MyHealth
           expired_date = refill_history_expired_date || item[:expiration_date]&.to_date
 
           next true if item[:is_refillable]
+
           if item[:refill_remaining].to_i.zero?
             next true if disp_status.downcase == 'active'
             next true if disp_status.downcase == 'active: parked' && !item[:rx_rf_records].all?(&:empty?)
