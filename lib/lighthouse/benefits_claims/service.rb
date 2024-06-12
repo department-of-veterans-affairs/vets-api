@@ -96,8 +96,10 @@ module BenefitsClaims
       handle_error(e, lighthouse_client_id, endpoint)
     end
 
-    # submit form526 to Lighthouse API endpoint: /services/claims/v2/veterans/{veteranId}/526 or
-    # /services/claims/v2/veterans/{veteranId}/526/generatePdf
+    # submit form526 to Lighthouse API endpoint:
+    # /services/claims/v2/veterans/{veteranId}/526/synchronous,
+    # /services/claims/v2/veterans/{veteranId}/526/generatePdf,
+    # or /services/claims/v2/veterans/{veteranId}/526 (asynchronous)
     # @param [hash || Requests::Form526] body: a hash representing the form526
     # attributes in the Lighthouse request schema
     # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
@@ -107,14 +109,9 @@ module BenefitsClaims
     # @option options [string] :aud_claim_url option to override the aud_claim_url for LH Veteran Verification APIs
     # @option options [hash] :auth_params a hash to send in auth params to create the access token
     # @option options [hash] :generate_pdf call the generatePdf endpoint to receive the 526 pdf
+    # @option options [hash] :asynchronous call the asynchronous endpoint
     def submit526(body, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      endpoint = '{icn}/526'
-      path = "#{@icn}/526"
-
-      if options[:generate_pdf].present?
-        path += '/generatePDF/minimum-validations'
-        endpoint += '/generatePDF/minimum-validations'
-      end
+      endpoint, path = submit_endpoint(options)
 
       body = prepare_submission_body(body)
 
@@ -168,12 +165,16 @@ module BenefitsClaims
     private
 
     def build_request_body(body)
-      {
-        data: {
-          type: 'form/526',
-          attributes: body
+      body = body.as_json
+      if body.dig('data', 'attributes').nil?
+        body = {
+          data: {
+            type: 'form/526',
+            attributes: body
+          }
         }
-      }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
+      end
+      body.as_json.deep_transform_keys { |k| k.camelize(:lower) }
     end
 
     def prepare_submission_body(body)
@@ -188,7 +189,7 @@ module BenefitsClaims
 
       # LH PDF generator service crashes with having an empty array for confinements
       # removes confinements from the request body if confinements attribute empty or nil
-      # remove_empty_array(body, 'serviceInformation', 'confinements')
+      remove_empty_array(body, 'serviceInformation', 'confinements')
 
       # Lighthouse expects at least 1 element in the multipleExposures array if it is not null
       # this removes the multipleExposures array if it is empty
@@ -223,6 +224,27 @@ module BenefitsClaims
         # return the whole response
         response
       end
+    end
+
+    # chooses the path and endpoint for submission
+    # "synchronous" is the default
+    def submit_endpoint(options)
+      # nothing past the "526" in the path means asynchronous endpoint
+      endpoint = '{icn}/526'
+      path = "#{@icn}/526"
+
+      if options[:generate_pdf].present?
+        path = "#{@icn}/526/generatePDF/minimum-validations"
+        endpoint = '{icn}/526/generatePDF/minimum-validations'
+      end
+
+      # "synchronous" should be the default
+      if options[:asynchronous].blank? && options[:generate_pdf].blank?
+        path = "#{@icn}/526/synchronous"
+        endpoint = '{icn}/526/synchronous'
+      end
+
+      [endpoint, path]
     end
 
     def filter_by_status(items)

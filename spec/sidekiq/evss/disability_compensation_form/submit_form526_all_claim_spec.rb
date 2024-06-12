@@ -42,7 +42,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     let(:lh_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload_location' }
     let(:evss_get_pdf) { 'form526_backup/200_evss_get_pdf' }
     let(:lh_intake_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload' }
-    let(:lh_submission) { 'lighthouse/benefits_claims/submit526/200_response' }
+    let(:lh_submission) { 'lighthouse/benefits_claims/submit526/200_synchronous_response' }
     let(:cassettes) do
       [open_claims_cassette, caseflow_cassette, rated_disabilities_cassette,
        submit_form_cassette, lh_upload, evss_get_pdf,
@@ -462,8 +462,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           expect { described_class.drain }.not_to change(backup_klass.jobs, :size)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:success]
           submission.reload
-          # TODO: re-visit when using lighthouse synchronous response endpoint
-          expect(submission.submitted_claim_id).to eq(Form526JobStatus.last.submission.submitted_claim_id)
+
+          expect(Form526JobStatus.last.submission.submitted_claim_id).to eq(12_345_678)
         end
       end
     end
