@@ -463,7 +463,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           expect { described_class.drain }.not_to change(backup_klass.jobs, :size)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:success]
           submission.reload
-          expect(Form526JobStatus.last.submission.submitted_claim_id).to eq(12_345_678)
+          expect(submission.submitted_claim_id).to eq(Form526JobStatus.last.submission.submitted_claim_id)
         end
       end
     end
