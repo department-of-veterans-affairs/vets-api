@@ -8,7 +8,8 @@ describe BackendStatusesSerializer do
 
   let(:backend_status) { build_stubbed(:pagerduty_service) }
   let(:pagerduty_response) do
-    PagerDuty::ExternalServices::Response.new(200, { statuses: [backend_status.to_h], reported_at: Time.current.iso8601 })
+    PagerDuty::ExternalServices::Response.new(200,
+                                              { statuses: [backend_status.to_h], reported_at: Time.current.iso8601 })
   end
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
