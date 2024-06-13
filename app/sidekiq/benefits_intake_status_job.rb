@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'benefits_intake_service/service'
+require 'lighthouse/benefits_intake/service'
 
 class BenefitsIntakeStatusJob
   include Sidekiq::Job
@@ -8,12 +8,13 @@ class BenefitsIntakeStatusJob
   sidekiq_options retry: false
 
   STATS_KEY = 'api.benefits_intake.submission_status'
-  MAX_BATCH_SIZE = 1000
+  STALE_SLA = Settings.lighthouse.benefits_intake.report.stale_sla || 10
+  BATCH_SIZE = Settings.lighthouse.benefits_intake.report.batch_size || 1000
 
-  attr_reader :max_batch_size
+  attr_reader :batch_size
 
-  def initialize(max_batch_size: MAX_BATCH_SIZE)
-    @max_batch_size = max_batch_size
+  def initialize(batch_size: BATCH_SIZE)
+    @batch_size = batch_size
   end
 
   def perform
@@ -27,60 +28,13 @@ class BenefitsIntakeStatusJob
 
   private
 
-  def handle_response(response, pending_form_submissions)
-    total_handled = 0
-
-    response.body['data']&.each do |submission|
-      form_id = pending_form_submissions.find do |submission_from_db|
-        submission_from_db.benefits_intake_uuid == submission['id']
-      end.form_type
-
-      if submission.dig('attributes', 'status') == 'error' || submission.dig('attributes', 'status') == 'expired'
-        form_submission_attempt = handle_failure(submission)
-        time_to_transition = (Time.zone.now - form_submission_attempt.created_at).truncate
-        log_result('failure', form_id, time_to_transition)
-      elsif submission.dig('attributes', 'status') == 'vbms'
-        form_submission_attempt = handle_success(submission)
-        time_to_transition = (Time.zone.now - form_submission_attempt.created_at).truncate
-        log_result('success', form_id, time_to_transition)
-      else
-        log_result('pending', form_id)
-      end
-
-      total_handled += 1
-    end
-
-    total_handled
-  end
-
-  def handle_failure(submission)
-    form_submission = FormSubmission.find_by(benefits_intake_uuid: submission['id'])
-    form_submission_attempt = form_submission
-                              .form_submission_attempts
-                              .where(aasm_state: 'pending')
-                              .order(created_at: :asc)
-                              .last
-    form_submission_attempt.fail!
-    form_submission_attempt
-  end
-
-  def handle_success(submission)
-    form_submission = FormSubmission.find_by(benefits_intake_uuid: submission['id'])
-    form_submission_attempt = form_submission
-                              .form_submission_attempts
-                              .where(aasm_state: 'pending')
-                              .order(created_at: :asc)
-                              .last
-    form_submission_attempt.vbms!
-    form_submission_attempt
-  end
-
   def batch_process(pending_form_submissions)
     total_handled = 0
+    intake_service = BenefitsIntake::Service.new
 
-    pending_form_submissions.each_slice(max_batch_size) do |batch|
-      batch_ids = batch.map(&:benefits_intake_uuid)
-      response = BenefitsIntakeService::Service.new.get_bulk_status_of_uploads(batch_ids)
+    pending_form_submissions.each_slice(batch_size) do |batch|
+      batch_uuids = batch.map(&:benefits_intake_uuid)
+      response = intake_service.bulk_status(batch_uuids)
       total_handled += handle_response(response, batch)
     end
 
@@ -90,9 +44,43 @@ class BenefitsIntakeStatusJob
     [total_handled, false]
   end
 
-  def log_result(result, form_id, time_to_transition = nil)
+  # rubocop:disable Metrics/MethodLength
+  def handle_response(response, pending_form_submissions)
+    total_handled = 0
+
+    response.body['data']&.each do |submission|
+      uuid = submission['id']
+      form_submission = pending_form_submissions.find do |submission_from_db|
+        submission_from_db.benefits_intake_uuid == uuid
+      end
+      form_id = form_submission.form_type
+
+      form_submission_attempt = form_submission.latest_attempt
+      time_to_transition = (Time.zone.now - form_submission_attempt.created_at).truncate
+
+      status = submission.dig('attributes', 'status')
+      if %w[error expired].include?(status)
+        form_submission_attempt.fail!
+        log_result('failure', form_id, uuid, time_to_transition)
+      elsif status == 'vbms'
+        form_submission_attempt.vbms!
+        log_result('success', form_id, uuid, time_to_transition)
+      elsif time_to_transition > STALE_SLA.days
+        log_result('stale', form_id, uuid, time_to_transition)
+      else
+        log_result('pending', form_id, uuid)
+      end
+
+      total_handled += 1
+    end
+
+    total_handled
+  end
+  # rubocop:enable Metrics/MethodLength
+
+  def log_result(result, form_id, uuid, time_to_transition = nil)
     StatsD.increment("#{STATS_KEY}.#{form_id}.#{result}")
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
-    Rails.logger.info('BenefitsIntakeStatusJob', result:, form_id:, time_to_transition:)
+    Rails.logger.info('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:)
   end
 end
