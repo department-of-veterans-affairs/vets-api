@@ -35,6 +35,8 @@ class BenefitsIntakeStatusJob
     pending_form_submissions.each_slice(batch_size) do |batch|
       batch_uuids = batch.map(&:benefits_intake_uuid)
       response = intake_service.bulk_status(uuids: batch_uuids)
+      raise response.body unless response.success?
+
       total_handled += handle_response(response, batch)
     end
 

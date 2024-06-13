@@ -9,8 +9,8 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
         pending_form_submission_ids = create_list(:form_submission, 2, :pending).map(&:benefits_intake_uuid)
         create_list(:form_submission, 2, :success)
         create_list(:form_submission, 2, :failure)
-        response = double
-        allow(response).to receive(:body).and_return({ 'data' => [] })
+        response = double(body: { 'data' => [] }, success?: true)
+
         expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
           .with(uuids: pending_form_submission_ids).and_return(response)
 
@@ -21,8 +21,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
     describe 'when batch size is less than or equal to max batch size' do
       it 'successfully submits batch intake' do
         pending_form_submission_ids = create_list(:form_submission, 2, :pending).map(&:benefits_intake_uuid)
-        response = double
-        allow(response).to receive(:body).and_return({ 'data' => [] })
+        response = double(body: { 'data' => [] }, success?: true)
 
         expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
           .with(uuids: pending_form_submission_ids).and_return(response)
@@ -34,9 +33,9 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
     describe 'when batch size is greater than max batch size' do
       it 'successfully submits batch intake via batch' do
         create_list(:form_submission, 4, :pending)
-        response = double
+        response = double(body: { 'data' => [] }, success?: true)
         service = double(bulk_status: response)
-        allow(response).to receive(:body).and_return({ 'data' => [] })
+
         allow(BenefitsIntake::Service).to receive(:new).and_return(service)
 
         BenefitsIntakeStatusJob.new(batch_size: 2).perform
@@ -48,10 +47,11 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
     describe 'when bulk status update fails' do
       it 'logs the error' do
         create_list(:form_submission, 2, :pending)
-        service = double
         message = 'error'
+        response = double(body: message, success?: false)
+        service = double(bulk_status: response)
+
         allow(BenefitsIntake::Service).to receive(:new).and_return(service)
-        allow(service).to receive(:bulk_status).and_raise(message)
         allow(Rails.logger).to receive(:info)
         allow(Rails.logger).to receive(:error)
 
