@@ -454,7 +454,7 @@ module VAOS
       end
 
       def index_method_logging_name
-        if Flipper.enabled?(:va_online_scheduling_use_vpg) && Flipper.enabled?(:va_online_scheduling_enable_OH_reads)
+        if Flipper.enabled?(:va_online_scheduling_use_vpg)
           APPT_INDEX_VPG
         else
           APPT_INDEX_VAOS
@@ -462,7 +462,7 @@ module VAOS
       end
 
       def show_method_logging_name
-        if Flipper.enabled?(:va_online_scheduling_use_vpg) && Flipper.enabled?(:va_online_scheduling_enable_OH_reads)
+        if Flipper.enabled?(:va_online_scheduling_use_vpg)
           APPT_SHOW_VPG
         else
           APPT_SHOW_VAOS

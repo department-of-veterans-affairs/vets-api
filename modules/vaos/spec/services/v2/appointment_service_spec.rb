@@ -263,7 +263,6 @@ describe VAOS::V2::AppointmentsService do
     context 'using VAOS' do
       before do
         Flipper.disable(:va_online_scheduling_use_vpg)
-        Flipper.disable(:va_online_scheduling_enable_OH_reads)
       end
 
       context 'when requesting a list of appointments given a date range' do
@@ -494,7 +493,6 @@ describe VAOS::V2::AppointmentsService do
   describe '#get_appointment' do
     context 'using VAOS' do
       before do
-        Flipper.disable(:va_online_scheduling_enable_OH_reads)
         Flipper.disable(:va_online_scheduling_use_vpg)
       end
 
@@ -565,7 +563,6 @@ describe VAOS::V2::AppointmentsService do
 
     context 'using VPG' do
       before do
-        Flipper.enable(:va_online_scheduling_enable_OH_reads)
         Flipper.enable(:va_online_scheduling_use_vpg)
       end
 
@@ -642,7 +639,6 @@ describe VAOS::V2::AppointmentsService do
           before do
             Flipper.enable(:va_online_scheduling_enable_OH_cancellations)
             Flipper.enable(:va_online_scheduling_use_vpg)
-            Flipper.enable(:va_online_scheduling_enable_OH_reads)
           end
 
           it 'returns a cancelled status and the cancelled appointment information' do

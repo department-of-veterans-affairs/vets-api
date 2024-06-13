@@ -9,7 +9,6 @@ RSpec.describe 'vaos v2 appointments', type: :request do
 
   context 'with VAOS' do
     before do
-      Flipper.disable(:va_online_scheduling_enable_OH_reads)
       Flipper.disable(:va_online_scheduling_use_vpg)
     end
 
@@ -379,7 +378,6 @@ RSpec.describe 'vaos v2 appointments', type: :request do
 
   context 'with VPG' do
     before do
-      Flipper.enable(:va_online_scheduling_enable_OH_reads)
       Flipper.enable(:va_online_scheduling_use_vpg)
     end
 
