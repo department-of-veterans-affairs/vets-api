@@ -1743,3 +1743,7 @@ vye:
 schema_contract:
   appointments_index: 'modules/vaos/app/schemas/appointments_index.json'
   test_index: 'spec/fixtures/schema_contract/test_schema.json'
+
+ogc:
+  form21a_service_url:
+    url: https://ogccotst1.dva.va.gov:4701/api/v2/applications/Form21as

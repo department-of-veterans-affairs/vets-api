@@ -10,5 +10,7 @@ AccreditedRepresentativePortal::Engine.routes.draw do
     end
 
     get 'user', to: 'representative_users#show'
+
+    post 'form21a', to: 'form21a#post'
   end
 end
