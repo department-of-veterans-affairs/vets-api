@@ -6,13 +6,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <?xml version="1.0" encoding="UTF-8" ?>
+        <?xml version="1.0" encoding="UTF-8"?>
         <env:Envelope
           xmlns:xsd="http://www.w3.org/2001/XMLSchema"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
           xmlns:tns="http://gov.va.vba.benefits.vdc/services"
-          xmlns:data="http://gov.va.vba.benefits.vdc/data"
+        xmlns:data="http://gov.va.vba.benefits.vdc/data"
         >
           <env:Header>
             <wsse:Security
@@ -33,14 +33,12 @@ http_interactions:
             </wsse:Security>
           </env:Header>
           <env:Body>
-            <tns:readPOARequestByPtcpntId>
-              <PtcpntId>1234</PtcpntId>
-            </tns:readPOARequestByPtcpntId>
+            <tns:readPOARequestByPtcpntId><PtcpntId>1234</PtcpntId></tns:readPOARequestByPtcpntId>
           </env:Body>
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - Faraday v2.9.1
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -57,7 +55,7 @@ http_interactions:
       message: Internal Server Error
     headers:
       Date:
-      - Thu, 23 May 2024 18:32:50 GMT
+      - Thu, 13 Jun 2024 20:42:29 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -70,37 +68,10 @@ http_interactions:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: |-
-        <?xml version='1.0' encoding='UTF-8' ?>
-        <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
-          <S:Body>
-            <ns0:Fault
-              xmlns:ns0="http://schemas.xmlsoap.org/soap/envelope/"
-              xmlns:ns1="http://www.w3.org/2003/05/soap-envelope"
-            >
-              <faultcode>ns0:Server</faultcode>
-              <faultstring>No Record Found</faultstring>
-              <detail>
-                <ns0:MessageException
-                  xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
-                >
-                  <code>5999</code>
-                  <faultCode>Client</faultCode>
-                  <fieldName>ptcpntId</fieldName>
-                  <functionName>readPOARequestByPtcpntId</functionName>
-                  <jrnDate>Thu May 23 13:32:50 CDT 2024</jrnDate>
-                  <jrnExtnlKeyTxt>xKey</jrnExtnlKeyTxt>
-                  <jrnExtnlUserId>xUid</jrnExtnlUserId>
-                  <jrnLocationId>281</jrnLocationId>
-                  <jrnObjectId>VAgovAPI</jrnObjectId>
-                  <jrnUserId>VAgovAPI</jrnUserId>
-                  <message>No Record Found</message>
-                  <reason>NO_RECORD_FOUND</reason>
-                  <service>ManageRepresentativeService</service>
-                </ns0:MessageException>
-              </detail>
-            </ns0:Fault>
-          </S:Body>
-        </S:Envelope>
-  recorded_at: Thu, 23 May 2024 18:32:51 GMT
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><ns0:Fault
+        xmlns:ns0="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.w3.org/2003/05/soap-envelope"><faultcode>ns0:Server</faultcode><faultstring>No
+        Record Found</faultstring><detail><ns0:MessageException xmlns:ns0="http://gov.va.vba.benefits.vdc/services"><code>5999</code><faultCode>Client</faultCode><fieldName>ptcpntId</fieldName><functionName>readPOARequestByPtcpntId</functionName><jrnDate>Thu
+        Jun 13 15:42:31 CDT 2024</jrnDate><jrnExtnlKeyTxt>xKey</jrnExtnlKeyTxt><jrnExtnlUserId>xUid</jrnExtnlUserId><jrnLocationId>281</jrnLocationId><jrnObjectId>VAgovAPI</jrnObjectId><jrnUserId>VAgovAPI</jrnUserId><message>No
+        Record Found</message><reason>NO_RECORD_FOUND</reason><service>ManageRepresentativeService</service></ns0:MessageException></detail></ns0:Fault></S:Body></S:Envelope>
+  recorded_at: Thu, 13 Jun 2024 20:42:31 GMT
 recorded_with: VCR 6.2.0
