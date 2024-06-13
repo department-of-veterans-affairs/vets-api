@@ -60,13 +60,12 @@ module ClaimsApi
     end
 
     def set_evss_response(auto_claim, error)
-      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response ||= []
 
       if error&.original_body.present?
-        error.original_body.each { |e| auto_claim.evss_response << e }
+        error&.original_body&.each { |e| auto_claim.evss_response << e }
       elsif error&.errors.present?
-        error.errors.each { |e| auto_claim.evss_response << e }
+        error&.errors&.each { |e| auto_claim.evss_response << e }
       end
 
       auto_claim.save!

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_api/common/exceptions/lighthouse/backend_service_exception'
-require 'claims_api/v2/error/form_526_error_mapper'
+require 'claims_api/v2/error/lighthouse_error_mapper'
 module ClaimsApi
   class CustomError
     def initialize(error, async = true) # rubocop:disable Style/OptionalBooleanParameter
@@ -71,7 +71,7 @@ module ClaimsApi
       if @async
         error[:text]
       else
-        ClaimsApi::Form526ErrorMapper.new(error).get_details
+        ClaimsApi::V2::Error::LighthouseErrorMapper.new(error).get_details
       end
     end
   end
