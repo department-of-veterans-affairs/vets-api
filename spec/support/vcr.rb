@@ -6,6 +6,7 @@ VCR.configure do |c|
   # experiencing VCR-induced frustation? uncomment this:
   # c.debug_logger = File.open('vcr.log', 'w')
 
+  c.filter_sensitive_data('<FARADAY_VERSION>') { Faraday::Connection::USER_AGENT }
   c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
   c.filter_sensitive_data('<AV_KEY>') { VAProfile::Configuration::SETTINGS.address_validation.api_key }
   c.filter_sensitive_data('<DMC_TOKEN>') { Settings.dmc.client_secret }
