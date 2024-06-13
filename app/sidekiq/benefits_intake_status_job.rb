@@ -57,7 +57,7 @@ class BenefitsIntakeStatusJob
       end
       form_id = form_submission.form_type
 
-      form_submission_attempt = form_submission.latest_attempt
+      form_submission_attempt = form_submission.latest_pending_attempt
       time_to_transition = (Time.zone.now - form_submission_attempt.created_at).truncate
 
       status = submission.dig('attributes', 'status')

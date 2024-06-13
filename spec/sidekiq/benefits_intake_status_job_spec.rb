@@ -88,5 +88,9 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
         end
       end
     end
+
+  # #perform
   end
+
+# RSpec.describe
 end

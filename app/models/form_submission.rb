@@ -11,7 +11,7 @@ class FormSubmission < ApplicationRecord
 
   validates :form_type, presence: true
 
-  def latest_attempt
+  def latest_pending_attempt
     form_submission_attempts.where(aasm_state: 'pending').order(created_at: :asc).last
   end
 end
