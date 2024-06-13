@@ -204,6 +204,14 @@ module Form526ClaimFastTrackingConcern
     contention
   end
 
+  def log_claim_level_metrics(response_body)
+    if response_body['num_processed_contentions'] == 1
+      Rails.logger.info('classifier response for single-issue 526Submission', payload: response_body)
+    else
+      Rails.logger.info('classifier response for multi-issue 526Submission', payload: response_body)
+    end
+  end
+
   # Submits contention information to the VRO contention classification service
   # adds classification to the form for each contention provided a classification
   def update_contention_classification_all! # rubocop:disable Metrics/MethodLength
@@ -214,6 +222,7 @@ module Form526ClaimFastTrackingConcern
       contentions: contentions_array
     }
     classifier_response = classify_vagov_contentions(params)
+    log_claim_level_metrics(classifier_response)
     classifier_response['contentions'].each do |contention|
       classification = nil
       if contention.key?('classification_code') && contention.key?('classification_name')
