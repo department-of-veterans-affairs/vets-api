@@ -231,7 +231,7 @@ describe TravelClaim::Client do
         allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(status_response)
       end
 
-      it 'returns claims number' do
+      it 'returns status response' do
         expect(subject.claim_status(token:, patient_icn:, start_range_date:, end_range_date:)).to eq(status_response)
       end
     end
