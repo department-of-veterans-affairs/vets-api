@@ -54,6 +54,8 @@ module VAForms
     end
 
     def perform
+      return unless enabled?
+
       all_forms_data.each { |form| VAForms::FormBuilder.perform_async(form) }
 
       # append new tags for pg_search
@@ -87,6 +89,12 @@ module VAForms
       options = { ssl: { verify: false } }
       options[:proxy] = { uri: URI.parse('socks://localhost:2001') } unless Rails.env.production?
       options
+    end
+
+    private
+
+    def enabled?
+      Settings.va_forms.form_reloader.enabled
     end
   end
 end
