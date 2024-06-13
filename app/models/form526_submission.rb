@@ -467,17 +467,15 @@ class Form526Submission < ApplicationRecord
     created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
   end
 
-  # Synchronous access to lighthouse API validation boolean for 526 submission
-  # Since this method hits an external API, there could be
+  # Synchronous access to Lighthouse API validation boolean for 526 submission
+  # Because this method hits an external API, there could be
   # exceptions generated for non-200 response codes.
   #
-  # If return is false then the errors are expected
-  # to be in the lighthouse_validation_errors Array
-  # of Hash.
+  # If return is false, then the errors are expected to be
+  # in the lighthouse_validation_errors Array of Hashes.
   #
-  # NOTE: This is a synchronous access to an external
-  #       API so should not be used within a request/response
-  #       workflow.
+  # NOTE: This is a synchronous access to an external API
+  #       so should not be used within a request/response workflow.
   #
   def form_content_valid?
     begin
@@ -486,25 +484,30 @@ class Form526Submission < ApplicationRecord
 
       @lighthouse_validation_response = lighthouse_service.validate526(body)
     rescue => e
-      error_msg = "#{e} -- #{e.backtrace[0]}"
-      fake_lighthouse_response(error: error_msg)
+      errors = e.errors if e.respond_to?(:errors)
+      detail = errors&.dig(0, :detail)
+      status = errors&.dig(0, :status)
+
+      if detail
+        match_data = detail.match(/"description"=>"([^"]+)"/)
+        description = match_data ? match_data[1] : nil
+      end
+
+      error_msg = "#{description || e} -- #{e.backtrace[0]}"
+      mock_lighthouse_response(status:, error: error_msg)
       return false
     end
 
-    if lighthouse_validation_response&.status == 200
-      return true
-    elsif lighthouse_validation_response&.status == 422
-      return false
-    end
+    return true if lighthouse_validation_response&.status == 200
 
-    fake_lighthouse_response(status: lighthouse_validation_response&.status)
+    mock_lighthouse_response(status: lighthouse_validation_response&.status)
     false
   end
 
   # Returns an Array of Hashes when response.status is 422
-  # otherwise its an empty Array.
+  # otherwise it's an empty Array.
   #
-  # The Array#empty? is true when there are not errors
+  # The Array#empty? is true when there are no errors
   # A Hash entry looks like this ...
   # {
   #   "title": "Unprocessable entity",
@@ -523,29 +526,27 @@ class Form526Submission < ApplicationRecord
     end
   end
 
-  ###############################################
   private
 
   attr_accessor :lighthouse_validation_response
 
-  # Setup the lighthouse service for this
-  # user account.  The lighthouse calls the
-  # user_account.icn the "ID of Veteran"
+  # Setup the Lighthouse service for this user account.
+  # Lighthouse calls the user_account.icn the "ID of Veteran"
   #
   def lighthouse_service
     BenefitsClaims::Service.new(user_account.icn)
   end
 
-  def fake_lighthouse_response(status: 609, error: 'Unknown')
-    fake_response        = Struct.new(:status, :body).new
-    fake_response.status = status || 609
-    fake_response.body   = { 'errors' => [
+  def mock_lighthouse_response(status:, error: 'Unknown')
+    mock_response = Struct.new(:status, :body).new(609, nil)
+    mock_response.status = status if status
+    mock_response.body = { 'errors' => [
       {
         'title' => "Response Status Code '#{status}' - #{error}"
       }
     ] }
 
-    @lighthouse_validation_response = fake_response
+    @lighthouse_validation_response = mock_response
   end
 
   def queue_central_mail_backup_submission_for_non_retryable_error!(e: nil)
