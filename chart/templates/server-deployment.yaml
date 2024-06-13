@@ -96,7 +96,11 @@ spec:
             successThreshold: {{ $root.Values.web.readinessProbe.successThreshold }}
             failureThreshold: {{ $root.Values.web.readinessProbe.failureThreshold }}
           resources:
+{{- if $service.resources }}
+{{ toYaml $service.resources | indent 12 }}
+{{- else }}
 {{ toYaml $root.Values.web.resources | indent 12 }}
+{{- end }}
           volumeMounts:
 {{ toYaml $root.Values.common.volumeMounts | indent 12 }}
           env:
