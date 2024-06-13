@@ -37,10 +37,6 @@ module ClaimsApi
           render json: poa, serializer: ClaimsApi::PowerOfAttorneySerializer, key_transform: :camel_lower
         end
 
-        def request_representative
-          render json: { data: { attributes: { success: true } } }, status: :created
-        end
-
         private
 
         def shared_form_validation(form_number)
