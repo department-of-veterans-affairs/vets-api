@@ -109,8 +109,10 @@ module V0
       raise SignIn::Errors::MalformedParamsError.new message: 'Refresh token is not defined' unless refresh_token
 
       decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
-      session_container = SignIn::SessionRefresher.new(refresh_token: decrypted_refresh_token, anti_csrf_token:).perform
-      serializer_response = SignIn::TokenSerializer.new(session_container:, cookies: token_cookies).perform
+      session_container = SignIn::SessionRefresher.new(refresh_token: decrypted_refresh_token,
+                                                       anti_csrf_token:).perform
+      serializer_response = SignIn::TokenSerializer.new(session_container:,
+                                                        cookies: token_cookies).perform
 
       sign_in_logger.info('refresh', session_container.context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS)
