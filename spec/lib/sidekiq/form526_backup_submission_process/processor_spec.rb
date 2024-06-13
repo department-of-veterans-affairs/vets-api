@@ -37,10 +37,9 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
         {
           type: ApiProviderFactory::FACTORIES[:generate_pdf],
           provider: nil,
-          options: { auth_headers:, breakered: true },
+          options: { auth_headers:, breakered: true, icn: account.icn },
           current_user: OpenStruct.new({ flipper_id: submission.user_uuid }),
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF,
-          icn: account.icn
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
         }
       )
 

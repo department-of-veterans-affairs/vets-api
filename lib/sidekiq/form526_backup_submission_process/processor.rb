@@ -69,6 +69,8 @@ module Sidekiq
       def initialize(submission_id, docs = [], get_upload_location_on_instantiation: true, ignore_expiration: false)
         @submission_id = submission_id
         @submission = Form526Submission.find(submission_id)
+        @user_account = UserAccount.find_by(id: submission.user_uuid) ||
+                        Account.lookup_by_user_uuid(submission.user_uuid)
         @docs = docs
         @docs_gathered = false
         @initial_upload_fetched = false
@@ -324,7 +326,7 @@ module Sidekiq
       def get_form526_pdf
         headers = submission.auth_headers
         submission_create_date = submission.created_at.iso8601
-        form_json = JSON.parse(submission.form_json)[FORM_526]
+        form_json = submission.form[FORM_526]
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
 
@@ -337,10 +339,7 @@ module Sidekiq
           content = Base64.decode64(b64_enc_body)
         end
         file = write_to_tmp_file(content)
-        docs << {
-          type: FORM_526_DOC_TYPE,
-          file:
-        }
+        docs << { type: FORM_526_DOC_TYPE, file: }
       end
 
       # 82245 - Adding provider to method. this should be removed when toxic exposure flipper is removed
@@ -436,14 +435,10 @@ module Sidekiq
           type: ApiProviderFactory::FACTORIES[:generate_pdf],
           provider:,
           # this sends the auth headers and if we want the "breakered" or "non-breakered" version
-          options: { auth_headers: headers, breakered:, icn: user_account.icn },
-          current_user: OpenStruct.new({ flipper_id: submission.user_uuid }),
+          options: { auth_headers: headers, breakered: },
+          current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: @user_account.icn }),
           feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
         )
-      end
-
-      def user_account
-        UserAccount.find_by(id: submission.user_uuid) || Account.lookup_by_user_uuid(submission.user_uuid)
       end
     end
 
