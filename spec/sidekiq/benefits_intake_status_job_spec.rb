@@ -65,31 +65,116 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
 
     describe 'updating the form submission status' do
       it 'updates the status with vbms from the bulk status report endpoint' do
-        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_bulk_status_report_success') do
-          pending_form_submissions = create_list(:form_submission, 1, :pending)
+        pending_form_submissions = create_list(:form_submission, 1, :pending)
+        batch_uuids = pending_form_submissions.map(&:benefits_intake_uuid)
+        data = batch_uuids.map { |id| {'id' => id, 'attributes' => { 'status' => 'vbms' }}}
+        response = double(success?: true, body: {'data' => data})
 
-          BenefitsIntakeStatusJob.new.perform
+        status_job = BenefitsIntakeStatusJob.new
 
-          pending_form_submissions.each do |form_submission|
-            expect(form_submission.form_submission_attempts.first.reload.aasm_state).to eq 'vbms'
-          end
+        pfs = pending_form_submissions.first
+        expect(status_job).to receive(:log_result).with('success', pfs.form_type, pfs.benefits_intake_uuid, anything)
+        expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status).with(uuids: batch_uuids).and_return(response)
+
+        status_job.perform
+
+        pending_form_submissions.each do |form_submission|
+          expect(form_submission.form_submission_attempts.first.reload.aasm_state).to eq 'vbms'
         end
       end
 
       it 'updates the status with error from the bulk status report endpoint' do
-        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_bulk_status_report_error') do
-          pending_form_submissions = create_list(:form_submission, 1, :pending)
+        pending_form_submissions = create_list(:form_submission, 1, :pending)
+        batch_uuids = pending_form_submissions.map(&:benefits_intake_uuid)
+        data = batch_uuids.map { |id| {'id' => id, 'attributes' => { 'status' => 'error' }}}
+        response = double(success?: true, body: {'data' => data})
 
-          BenefitsIntakeStatusJob.new.perform
+        status_job = BenefitsIntakeStatusJob.new
 
-          pending_form_submissions.each do |form_submission|
-            expect(form_submission.form_submission_attempts.first.reload.aasm_state).to eq 'failure'
-          end
+        pfs = pending_form_submissions.first
+        expect(status_job).to receive(:log_result).with('failure', pfs.form_type, pfs.benefits_intake_uuid, anything)
+        expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status).with(uuids: batch_uuids).and_return(response)
+
+        status_job.perform
+
+        pending_form_submissions.each do |form_submission|
+          expect(form_submission.form_submission_attempts.first.reload.aasm_state).to eq 'failure'
         end
       end
+
+      it 'updates the status with expired from the bulk status report endpoint' do
+        pending_form_submissions = create_list(:form_submission, 1, :pending)
+        batch_uuids = pending_form_submissions.map(&:benefits_intake_uuid)
+        data = batch_uuids.map { |id| {'id' => id, 'attributes' => { 'status' => 'expired' }}}
+        response = double(success?: true, body: {'data' => data})
+
+        status_job = BenefitsIntakeStatusJob.new
+
+        pfs = pending_form_submissions.first
+        expect(status_job).to receive(:log_result).with('failure', pfs.form_type, pfs.benefits_intake_uuid, anything)
+        expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status).with(uuids: batch_uuids).and_return(response)
+
+        status_job.perform
+
+        pending_form_submissions.each do |form_submission|
+          expect(form_submission.form_submission_attempts.first.reload.aasm_state).to eq 'failure'
+        end
+      end
+
+      it 'logs a stale submission if over the number of SLA days' do
+        pending_form_submissions = create_list(:form_submission, 1, :stale)
+        batch_uuids = pending_form_submissions.map(&:benefits_intake_uuid)
+        data = batch_uuids.map { |id| {'id' => id, 'attributes' => { 'status' => 'ANYTHING-ELSE' }}}
+        response = double(success?: true, body: {'data' => data})
+
+        status_job = BenefitsIntakeStatusJob.new
+
+        pfs = pending_form_submissions.first
+        expect(status_job).to receive(:log_result).with('stale', pfs.form_type, pfs.benefits_intake_uuid, anything)
+        expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status).with(uuids: batch_uuids).and_return(response)
+
+        status_job.perform
+
+        pending_form_submissions.each do |form_submission|
+          expect(form_submission.form_submission_attempts.first.reload.aasm_state).to eq 'pending'
+        end
+      end
+
+      it 'logs a pending submission' do
+        pending_form_submissions = create_list(:form_submission, 1, :pending)
+        batch_uuids = pending_form_submissions.map(&:benefits_intake_uuid)
+        data = batch_uuids.map { |id| {'id' => id, 'attributes' => { 'status' => 'ANYTHING-ELSE' }}}
+        response = double(success?: true, body: {'data' => data})
+
+        status_job = BenefitsIntakeStatusJob.new
+
+        pfs = pending_form_submissions.first
+        expect(status_job).to receive(:log_result).with('pending', pfs.form_type, pfs.benefits_intake_uuid)
+        expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status).with(uuids: batch_uuids).and_return(response)
+
+        status_job.perform
+
+        pending_form_submissions.each do |form_submission|
+          expect(form_submission.form_submission_attempts.first.reload.aasm_state).to eq 'pending'
+        end
+      end
+
+    # 'updating the form submission status'
     end
 
   # #perform
+  end
+
+  describe '#log_result' do
+    it 'increments StatsD and logs result' do
+      expect(StatsD).to receive(:increment).with("#{described_class::STATS_KEY}.FORM_ID.RESULT")
+      expect(StatsD).to receive(:increment).with("#{described_class::STATS_KEY}.all_forms.RESULT")
+      expect(Rails.logger).to receive(:info).with('BenefitsIntakeStatusJob',
+        hash_including(result: 'RESULT', form_id: 'FORM_ID', uuid: 'UUID', time_to_transition: nil)
+      )
+
+      BenefitsIntakeStatusJob.new.send(:log_result, 'RESULT', 'FORM_ID', 'UUID')
+    end
   end
 
 # RSpec.describe
