@@ -10,7 +10,7 @@ module SignIn
 
     def perform
       validate_service_account_config
-      validate_iss
+      validate_issuer
       validate_audience
       validate_scopes
       validate_user_attributes
@@ -28,14 +28,14 @@ module SignIn
       end
     end
 
-    def validate_iss
-      if decoded_assertion.iss != audience
+    def validate_issuer
+      if issuer != audience
         raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion issuer is not valid'
       end
     end
 
     def validate_audience
-      unless Array(decoded_assertion.aud).include?(token_route)
+      unless Array(assertion_audience).include?(token_route)
         raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion audience is not valid'
       end
     end
@@ -115,6 +115,14 @@ module SignIn
 
     def user_identifier
       @user_identifier ||= decoded_assertion.sub
+    end
+
+    def issuer
+      @issuer ||= decoded_assertion.iss
+    end
+
+    def assertion_audience
+      @assertion_audience ||= decoded_assertion.aud
     end
 
     def audience
