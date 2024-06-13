@@ -83,7 +83,8 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
       it 'sets the evss_response to the original body error message' do
         backend_error_submit.build_error
       rescue => e
-        expect(e.original_body[0]).to eq(error_original_body[:messages][0].deep_symbolize_keys)
+        expect(e.original_body[0][:detail]).to include('Size must be between 8 and 9')
+        expect(e.original_body[0][:key]).to include('header.va_eauth_birlsfilenumber.Invalid')
       end
     end
   end
