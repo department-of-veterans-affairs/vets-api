@@ -89,7 +89,7 @@ type: application
 # 0.12.24 - datadog metric delete/prune false
 # 0.12.25 - datadog metric remove presync
 # 0.12.26 - testing datadog metric change - DO NOT USE
-# 0.12.27 - Bumping/testing CPU resources for appeals pods
+# 0.12.27 - Bumping/testing CPU resources for appeals pods and reverted 0.12.26
 version: 0.12.27
 
 # This is the version number of the application being deployed. This version number should be
