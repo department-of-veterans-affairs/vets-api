@@ -10,7 +10,7 @@ module DecisionReview
 
     STATSD_KEY_PREFIX = 'worker.decision_review.submit_upload'
 
-    sidekiq_options retry: 5
+    sidekiq_options retry: 13
 
     sidekiq_retries_exhausted do |_msg, _ex|
       StatsD.increment("#{STATSD_KEY_PREFIX}.permanent_error")
