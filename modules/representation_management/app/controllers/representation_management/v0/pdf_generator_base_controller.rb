@@ -7,6 +7,11 @@ module RepresentationManagement
       before_action :feature_enabled
       # skip_before_action :authenticate
 
+      # TODO:
+      # Make a common validator for all addresses that we can pass the veteran, claimant, and representative addresses to.
+      # Make a common validator for all names that we can pass the veteran and claimant names to.
+      # Both of those will make this easier to read and reason about.
+
       def create
         # We'll need a process here to check the params to make sure all the
         # required fields are present. If not, we'll need to return an error
@@ -71,35 +76,40 @@ module RepresentationManagement
         # invoke all verify operations
         verify_veteran_address
         verify_veteran_name
+        verify_veteran_identity
+      end
+
+      def string_present_and_less_than_max_length?(string, max_length)
+        string.present? && string.is_a?(String) && string.size <= max_length
+      end
+
+      def string_present_and_equal_to_length?(string, length)
+        string.present? && string.is_a?(String) && string.size == length
+      end
+
+      def raise_invalid_field_value(field_name, field_value)
+        raise Common::Exceptions::InvalidFieldValue.new(field_name, field_value)
       end
 
       def verify_veteran_address
-        address_line1 = form_params[:veteran_address_line1]
-        address_line2 = form_params[:veteran_address_line2]
-        city = form_params[:veteran_city]
-        state = form_params[:veteran_state_code]
-        zip_code = form_params[:veteran_zip_code]
-        zip_code_suffix = form_params[:veteran_zip_code_suffix]
-        unless address_line1.present? && address_line1.is_a?(String) && address_line1.size > 30
-          raise Common::Exceptions::InvalidFieldValue.new('veteran_address_line1', form_params[:veteran_address_line1])
+        unless string_present_and_greater_than_max_length?(form_params[:veteran_address_line1], 30)
+          raise_invalid_field_value('veteran_address_line1', form_params[:veteran_address_line1])
         end
 
-        if address_line2.present? && address_line2.is_a?(String) && address_line2.size > 50
-          raise Common::Exceptions::InvalidFieldValue.new('veteran_address_line2', form_params[:veteran_address_line2])
+        if string_present_and_greater_than_max_length?(form_params[:veteran_address_line2], 50)
+          raise_invalid_field_value('veteran_address_line2', form_params[:veteran_address_line2])
         end
-        unless city.present? && city.is_a?(String) && city.size > 18
-          raise Common::Exceptions::InvalidFieldValue.new('veteran_city', form_params[:veteran_city])
+        unless string_present_and_greater_than_max_length?(form_params[:veteran_city], 18)
+          raise_invalid_field_value('veteran_city', form_params[:veteran_city])
         end
-        unless state.present? && state.is_a?(String) && state.size == 2
-          raise Common::Exceptions::InvalidFieldValue.new('veteran_state_code', form_params[:veteran_state_code])
+        unless string_present_and_equal_to_length?(form_params[:veteran_state_code], 2)
+          raise_invalid_field_value('veteran_state_code', form_params[:veteran_state_code])
         end
-        unless zip_code.present? && zip_code.is_a?(String) && zip_code.size == 5
-          raise Common::Exceptions::InvalidFieldValue.new('veteran_zip_code', form_params[:veteran_zip_code])
+        unless string_present_and_equal_to_length?(form_params[:veteran_zip_code], 5)
+          raise_invalid_field_value('veteran_zip_code', form_params[:veteran_zip_code])
         end
-
-        unless zip_code_suffix.present? && zip_code_suffix.is_a?(String) && zip_code_suffix.size == 4
-          raise Common::Exceptions::InvalidFieldValue.new('veteran_zip_code_suffix',
-                                                          form_params[:veteran_zip_code_suffix])
+        unless string_present_and_equal_to_length?(form_params[:veteran_zip_code_suffix], 4)
+          raise_invalid_field_value('veteran_zip_code_suffix', form_params[:veteran_zip_code_suffix])
         end
       end
 
@@ -121,15 +131,11 @@ module RepresentationManagement
       end
 
       def verify_veteran_identity
-        ssn = form_params[:veteran_social_security_number]
-        file_number = form_params[:veteran_file_number]
-
-        unless ssn.present? && ssn.is_a?(String) && ssn.size == 9
-          raise Common::Exceptions::InvalidFieldValue.new('veteran_social_security_number',
-                                                          form_params[:veteran_social_security_number])
+        unless string_present_and_equal_to_length?(form_params[:veteran_social_security_number], 9)
+          raise_invalid_field_value('veteran_social_security_number', form_params[:veteran_social_security_number])
         end
-        if file_number.present? && file_number.is_a?(String) && file_number.size == 9
-          raise Common::Exceptions::InvalidFieldValue.new('veteran_file_number', form_params[:veteran_file_number])
+        if string_present_and_equal_to_length?(form_params[:veteran_file_number], 9)
+          raise_invalid_field_value('veteran_file_number', form_params[:veteran_file_number])
         end
       end
 
