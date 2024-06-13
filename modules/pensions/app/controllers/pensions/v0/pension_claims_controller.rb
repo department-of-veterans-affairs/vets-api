@@ -12,7 +12,7 @@ module Pensions
       end
 
       def claim_class
-        SavedClaim::Pension
+        Pensions::SavedClaim::Pension
       end
 
       def show

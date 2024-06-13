@@ -2,7 +2,7 @@
 
 module Pensions
   module SavedClaim
-    class SavedClaim::Pension < SavedClaim
+    class Pension < SavedClaim
       FORM = '21P-527EZ'
 
       def regional_office
