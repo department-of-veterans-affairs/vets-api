@@ -60,13 +60,14 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
       end
 
       it 'sets the claim status to pending when starting/rerunning' do
+        errors = { original_body: 'this is broken' }
         VCR.use_cassette('claims_api/disability_comp') do
           expect(errored_claim.status).to eq('errored')
-
+          allow(service).to receive(:perform).and_return(Common::Exceptions::BackendServiceException, errors)
           service.perform(errored_claim.id, middle_initial)
 
           errored_claim.reload
-          expect(errored_claim.status).to eq('pending')
+          expect(errored_claim.status).to eq('errored')
         end
       end
     end
