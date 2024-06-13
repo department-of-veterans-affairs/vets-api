@@ -1041,7 +1041,8 @@
     "claimantCertification": {
       "type": "boolean",
       "description": "Claimant certifies and authorizes release of information.",
-      "default": false
+      "default": true,
+      "nullable": false
     },
     "claimNotes": {
       "type": ["string", "null"],

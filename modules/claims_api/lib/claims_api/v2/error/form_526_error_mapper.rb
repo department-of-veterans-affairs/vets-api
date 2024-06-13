@@ -8,14 +8,14 @@ module ClaimsApi
       startBatchJobError: %w['There was an internal error'],
       submit_establishClaim_serviceError: %w['The claim failed to establish'],
       submit_load_vaOffice_serviceError: %w['VA Office service error'],
-      submit_load_benefitClaim_serviceError: %w[A service error occurre while loading the claim],
-      submit_save_draftForm_serviceError: %w[A service error occurred during the claim submission],
-      submit_save_draftForm_PIFInUse: %w[There was a problem with the draft form which was already in use],
+      submit_load_benefitClaim_serviceError: %w['A service error occurre while loading the claim'],
+      submit_save_draftForm_serviceError: %w['A service error occurred during the claim submission'],
+      submit_save_draftForm_PIFInUse: %w['There was a problem with the draft form which was already in use'],
       submit: %w['The claim could not be established'],
       disabled: %w['this claim has been disabled'],
       submit_save_draftForm_MaxEPCode: %w['This claim could not be established. The Maximum number of EP codes have been reached for this benefit type claim code'], # rubocop:disable Layout/LineLength
       submit_noRetryError: %w['This job is no longer able to be re-tried'],
-      header_va_eauth_birlsfilenumber_Invalid: %w[There is a problem with your birls file number please contact...]
+      header_va_eauth_birlsfilenumber_Invalid: %w['There is a problem with your birls file number please contact...']
     }.freeze
 
     def initialize(error)

@@ -108,12 +108,13 @@ module ClaimsApi
       end
 
       def validate_form_526_claimant_certification
-        return unless form_attributes['claimantCertification'] == false
+        if form_attributes['claimantCertification'] != true
 
-        collect_error_messages(
-          source: '/claimantCertification',
-          detail: 'claimantCertification must not be false.'
-        )
+          collect_error_messages(
+            source: '/claimantCertification',
+            detail: 'claimantCertification must be true.'
+          )
+        end
       end
 
       def validate_form_526_identification
