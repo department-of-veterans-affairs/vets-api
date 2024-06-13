@@ -143,6 +143,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                   claim_type_code: '020NEW',
                   num_contentions: 1,
                   ep_code: '020',
+                  current_phaseback: false,
+                  latest_phase_type: 'GATHERING_OF_EVIDENCE',
+                  decision_letter_sent: false,
+                  development_letter_sent: true,
                   claim_id: '600383363' })
       end
 
