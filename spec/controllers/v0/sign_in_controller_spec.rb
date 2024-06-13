@@ -2445,15 +2445,15 @@ RSpec.describe V0::SignInController, type: :controller do
           it 'logs the successful refresh request' do
             access_token = JWT.decode(JSON.parse(subject.body)['data']['access_token'], nil, false).first
             logger_context = {
-              uuid: access_token['jti'],
+              access_token_uuid: access_token['jti'],
               user_uuid: access_token['sub'],
               session_handle: access_token['session_handle'],
               client_id: access_token['client_id'],
-              audience: access_token['aud'],
+              access_token_audience: access_token['aud'],
               version: access_token['version'],
               last_regeneration_time: access_token['last_regeneration_time'],
-              created_time: access_token['iat'],
-              expiration_time: access_token['exp'],
+              access_token_created_time: access_token['iat'],
+              access_token_expiration_time: access_token['exp'],
               type: user_verification.credential_type,
               icn: user_account.icn
             }
@@ -2495,15 +2495,15 @@ RSpec.describe V0::SignInController, type: :controller do
             access_token_cookie = subject.cookies[access_token_cookie_name]
             access_token = JWT.decode(access_token_cookie, nil, false).first
             logger_context = {
-              uuid: access_token['jti'],
+              access_token_uuid: access_token['jti'],
               user_uuid: access_token['sub'],
               session_handle: access_token['session_handle'],
               client_id: access_token['client_id'],
-              audience: access_token['aud'],
+              access_token_audience: access_token['aud'],
               version: access_token['version'],
               last_regeneration_time: access_token['last_regeneration_time'],
-              created_time: access_token['iat'],
-              expiration_time: access_token['exp'],
+              access_token_created_time: access_token['iat'],
+              access_token_expiration_time: access_token['exp'],
               type: user_verification.credential_type,
               icn: user_account.icn
             }
