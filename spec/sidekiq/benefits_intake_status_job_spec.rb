@@ -11,8 +11,8 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
         create_list(:form_submission, 2, :failure)
         response = double
         allow(response).to receive(:body).and_return({ 'data' => [] })
-        expect_any_instance_of(BenefitsIntakeService::Service).to receive(:get_bulk_status_of_uploads)
-          .with(pending_form_submission_ids).and_return(response)
+        expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
+          .with(uuids: pending_form_submission_ids).and_return(response)
 
         BenefitsIntakeStatusJob.new.perform
       end
@@ -24,8 +24,8 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
         response = double
         allow(response).to receive(:body).and_return({ 'data' => [] })
 
-        expect_any_instance_of(BenefitsIntakeService::Service).to receive(:get_bulk_status_of_uploads)
-          .with(pending_form_submission_ids).and_return(response)
+        expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
+          .with(uuids: pending_form_submission_ids).and_return(response)
 
         BenefitsIntakeStatusJob.new.perform
       end
@@ -35,13 +35,13 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
       it 'successfully submits batch intake via batch' do
         create_list(:form_submission, 4, :pending)
         response = double
-        service = double(get_bulk_status_of_uploads: response)
+        service = double(bulk_status: response)
         allow(response).to receive(:body).and_return({ 'data' => [] })
-        allow(BenefitsIntakeService::Service).to receive(:new).and_return(service)
+        allow(BenefitsIntake::Service).to receive(:new).and_return(service)
 
-        BenefitsIntakeStatusJob.new(max_batch_size: 2).perform
+        BenefitsIntakeStatusJob.new(batch_size: 2).perform
 
-        expect(service).to have_received(:get_bulk_status_of_uploads).twice
+        expect(service).to have_received(:bulk_status).twice
       end
     end
 
@@ -50,8 +50,8 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
         create_list(:form_submission, 2, :pending)
         service = double
         message = 'error'
-        allow(BenefitsIntakeService::Service).to receive(:new).and_return(service)
-        allow(service).to receive(:get_bulk_status_of_uploads).and_raise(message)
+        allow(BenefitsIntake::Service).to receive(:new).and_return(service)
+        allow(service).to receive(:bulk_status).and_raise(message)
         allow(Rails.logger).to receive(:info)
         allow(Rails.logger).to receive(:error)
 
