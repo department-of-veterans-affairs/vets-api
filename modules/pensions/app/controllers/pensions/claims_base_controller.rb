@@ -7,9 +7,7 @@ module Pensions
     private
 
     def check_flipper_flag
-      unless Flipper.enabled?(:pension_module_enabled, current_user)
-        raise Common::Exceptions::Forbidden
-      end
+      raise Common::Exceptions::Forbidden unless Flipper.enabled?(:pension_module_enabled, current_user)
     end
   end
 end
