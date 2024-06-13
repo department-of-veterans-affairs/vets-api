@@ -2,6 +2,26 @@
 
 module Vye
   module NeedsEnrollmentVerification
+    def enrollments
+      return [] if queued_verifications?
+      return @enrollments if defined?(@enrollments)
+
+      setup
+      awards.each do |award|
+        @award = award
+
+        eval_case_eom
+        flag_open_cert || eval_case1a || eval_case1b || eval_case2 || eval_case3
+        eval_case4 || eval_case5
+        eval_case6 || eval_case7 || eval_case8
+        eval_case9
+      end
+
+      @enrollments
+    end
+
+    alias pending_verifications enrollments
+
     private
 
     attr_accessor :award
@@ -297,27 +317,5 @@ module Vye
 
       true
     end
-
-    public
-
-    def enrollments
-      return [] if queued_verifications?
-      return @enrollments if defined?(@enrollments)
-
-      setup
-      awards.each do |award|
-        @award = award
-
-        eval_case_eom
-        flag_open_cert || eval_case1a || eval_case1b || eval_case2 || eval_case3
-        eval_case4 || eval_case5
-        eval_case6 || eval_case7 || eval_case8
-        eval_case9
-      end
-
-      @enrollments
-    end
-
-    alias pending_verifications enrollments
   end
 end
