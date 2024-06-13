@@ -103,7 +103,7 @@ RSpec.describe 'VeteranRepresentative versus POARequest comparison', :bgs do # r
       expect(tally).to eq(
         %w[readPOARequest readAllVeteranRepresentatives readPOARequestByPtcpntId] => 52,
         # These are because `readPOARequestByPtcpntId` only returns the latest.
-        %w[readPOARequest readAllVeteranRepresentatives] => 31,
+        %w[readPOARequest readAllVeteranRepresentatives] => 37,
         # This anomaly I don't understand. They seem like they may not be
         # produced in a production setting. The `exceptional_poa_codes`
         # condition targets these when uncommented.
@@ -316,14 +316,16 @@ RSpec.describe 'VeteranRepresentative versus POARequest comparison', :bgs do # r
           {
             'readPOARequest' => [
               '2023-08-23T12:16:37-05:00',
-              '2024-05-10T09:30:23-05:00'
+              '2024-05-10T09:30:23-05:00',
+              '2024-06-07T10:35:34-05:00'
             ],
             'readAllVeteranRepresentatives' => [
               '2023-08-23T12:16:37-05:00',
-              '2024-05-10T09:30:23-05:00'
+              '2024-05-10T09:30:23-05:00',
+              '2024-06-07T10:35:34-05:00'
             ],
             'readPOARequestByPtcpntId' => [
-              '2024-05-10T09:30:23-05:00'
+              '2024-06-07T10:35:34-05:00'
             ]
           },
           {
@@ -365,7 +367,12 @@ RSpec.describe 'VeteranRepresentative versus POARequest comparison', :bgs do # r
               '2024-05-23T07:42:50-05:00',
               '2024-05-23T08:40:27-05:00',
               '2024-05-29T15:20:45-05:00',
-              '2024-05-30T08:51:01-05:00'
+              '2024-05-30T08:51:01-05:00',
+              '2024-06-04T09:42:15-05:00',
+              '2024-06-04T12:56:47-05:00',
+              '2024-06-06T07:48:53-05:00',
+              '2024-06-06T09:43:54-05:00',
+              '2024-06-10T09:27:27-05:00'
             ],
             'readAllVeteranRepresentatives' => [
               '2024-04-04T13:08:05-05:00',
@@ -379,10 +386,15 @@ RSpec.describe 'VeteranRepresentative versus POARequest comparison', :bgs do # r
               '2024-05-23T07:42:50-05:00',
               '2024-05-23T08:40:27-05:00',
               '2024-05-29T15:20:45-05:00',
-              '2024-05-30T08:51:01-05:00'
+              '2024-05-30T08:51:01-05:00',
+              '2024-06-04T09:42:15-05:00',
+              '2024-06-04T12:56:47-05:00',
+              '2024-06-06T07:48:53-05:00',
+              '2024-06-06T09:43:54-05:00',
+              '2024-06-10T09:27:27-05:00'
             ],
             'readPOARequestByPtcpntId' => [
-              '2024-05-30T08:51:01-05:00'
+              '2024-06-10T09:27:27-05:00'
             ]
           }
         ]
