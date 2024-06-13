@@ -55,44 +55,44 @@ module Pensions
       def track_submission_attempted(claim, lighthouse_service, user_uuid, payload)
         StatsD.increment("#{SUBMISSION_STATS_KEY}.attempt")
         Rails.logger.info('Lighthouse::PensionBenefitIntakeJob submission to LH attempted', {
-          claim_id: claim&.id,
-          benefits_intake_uuid: lighthouse_service&.uuid,
-          confirmation_number: claim&.confirmation_number,
-          user_uuid:,
-          file: payload[:file],
-          attachments: payload[:attachments]
-        })
+                            claim_id: claim&.id,
+                            benefits_intake_uuid: lighthouse_service&.uuid,
+                            confirmation_number: claim&.confirmation_number,
+                            user_uuid:,
+                            file: payload[:file],
+                            attachments: payload[:attachments]
+                          })
       end
 
       def track_submission_success(claim, lighthouse_service, user_uuid)
         StatsD.increment("#{SUBMISSION_STATS_KEY}.success")
         Rails.logger.info('Lighthouse::PensionBenefitIntakeJob submission to LH succeeded', {
-          claim_id: claim&.id,
-          benefits_intake_uuid: lighthouse_service&.uuid,
-          confirmation_number: claim&.confirmation_number,
-          user_uuid:
-        })
+                            claim_id: claim&.id,
+                            benefits_intake_uuid: lighthouse_service&.uuid,
+                            confirmation_number: claim&.confirmation_number,
+                            user_uuid:
+                          })
       end
 
       def track_submission_retry(claim, lighthouse_service, user_uuid, e)
         StatsD.increment("#{SUBMISSION_STATS_KEY}.failure")
         Rails.logger.warn('Lighthouse::PensionBenefitIntakeJob submission to LH failed, retrying', {
-          claim_id: claim&.id,
-          benefits_intake_uuid: lighthouse_service&.uuid,
-          confirmation_number: claim&.confirmation_number,
-          user_uuid:,
-          message: e&.message
-        })
+                            claim_id: claim&.id,
+                            benefits_intake_uuid: lighthouse_service&.uuid,
+                            confirmation_number: claim&.confirmation_number,
+                            user_uuid:,
+                            message: e&.message
+                          })
       end
 
       def track_submission_exhaustion(msg, claim = nil)
         StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
         Rails.logger.error('Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!', {
-          claim_id: msg['args'].first,
-          confirmation_number: claim&.confirmation_number,
-          message: msg,
-          user_uuid: msg['args'].length <= 1 ? nil : msg['args'][1]
-        })
+                             claim_id: msg['args'].first,
+                             confirmation_number: claim&.confirmation_number,
+                             message: msg,
+                             user_uuid: msg['args'].length <= 1 ? nil : msg['args'][1]
+                           })
       end
 
       def track_file_cleanup_error(claim, lighthouse_service, user_uuid, e)
