@@ -29,23 +29,23 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
 
   describe '#choose_provider' do
     let(:account) { create(:account) }
-    let(:submission) { create(:form526_submission, user_uuid: account.idme_uuid) }
+    let(:submission) { create(:form526_submission, user_uuid: account.idme_uuid, submit_endpoint: 'claims_api') }
 
     it 'delegates to the ApiProviderFactory with the correct data' do
       auth_headers = {}
       expect(ApiProviderFactory).to receive(:call).with(
         {
           type: ApiProviderFactory::FACTORIES[:generate_pdf],
-          provider: nil,
-          options: { auth_headers:, breakered: true, icn: account.icn },
-          current_user: OpenStruct.new({ flipper_id: submission.user_uuid }),
+          provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
+          options: { auth_headers:, breakered: true },
+          current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: account.icn }),
           feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
         }
       )
 
       subject
         .new(submission.id, get_upload_location_on_instantiation: false)
-        .choose_provider(auth_headers)
+        .choose_provider(auth_headers, ApiProviderFactory::API_PROVIDER[:lighthouse])
     end
   end
 end
