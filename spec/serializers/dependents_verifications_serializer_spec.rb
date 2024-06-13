@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 describe DependentsVerificationsSerializer, type: :serializer do
-
   subject { serialize(dependent_verifications, serializer_class: described_class) }
 
   let(:dependent_verifications) { build_stubbed(:dependent_verifications) }
@@ -13,7 +12,7 @@ describe DependentsVerificationsSerializer, type: :serializer do
   describe 'dependency_verifications' do
     context 'when dependency_decs is a hash' do
       let(:dependency_decs) { build(:dependency_dec) }
-      let(:dependent_verifications) { build(:dependent_verifications, dependency_decs: dependency_decs) }
+      let(:dependent_verifications) { build(:dependent_verifications, dependency_decs:) }
 
       it 'includes :dependency_dec as an array' do
         expect(attributes['dependency_verifications'].size).to eq 1
@@ -22,7 +21,7 @@ describe DependentsVerificationsSerializer, type: :serializer do
 
     context 'when dependency_decs is an array' do
       let(:dependency_decs) { build_list(:dependency_dec, 2) }
-      let(:dependent_verifications) { build(:dependent_verifications, dependency_decs: dependency_decs) }
+      let(:dependent_verifications) { build(:dependent_verifications, dependency_decs:) }
 
       it 'includes :dependency_dec' do
         expect(attributes['dependency_verifications'].size).to eq dependency_decs.size
@@ -95,5 +94,4 @@ describe DependentsVerificationsSerializer, type: :serializer do
       end
     end
   end
-
 end

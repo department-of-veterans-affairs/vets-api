@@ -139,7 +139,7 @@ FactoryBot.define do
     }
 
     trait :with_response do
-      response { "{\"submit686Response\":{\"confirmationNumber\":\"600142587\"}}" }
+      response { '{"submit686Response":{"confirmationNumber":"600142587"}}' }
     end
   end
 end
