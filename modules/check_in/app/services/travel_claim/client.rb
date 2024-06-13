@@ -109,10 +109,10 @@ module TravelClaim
         req.options.timeout = 120
         req.headers = claims_default_header.merge('Authorization' => "Bearer #{token}")
         req.body = submit_claim_data.merge({
-                                       ClaimantID: opts[:patient_identifier],
-                                       ClaimantIDType: patient_identifier_type,
-                                       Appointment: { AppointmentDateTime: opts[:appointment_date] }
-                                     }).to_json
+                                             ClaimantID: opts[:patient_identifier],
+                                             ClaimantIDType: patient_identifier_type,
+                                             Appointment: { AppointmentDateTime: opts[:appointment_date] }
+                                           }).to_json
       end
     rescue Faraday::TimeoutError
       Rails.logger.error(message: 'BTSSS Timeout Error', uuid: check_in.uuid)

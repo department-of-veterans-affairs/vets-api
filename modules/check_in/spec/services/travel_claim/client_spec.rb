@@ -211,7 +211,7 @@ describe TravelClaim::Client do
     let(:start_range_date) { '2022-09-01' }
     let(:end_range_date) { '2022-09-01' }
 
-    context 'when claims status service returns success response' do
+    context 'when claims status returns a success response' do
       let(:status_response) do
         [
           {
@@ -233,6 +233,40 @@ describe TravelClaim::Client do
 
       it 'returns claims number' do
         expect(subject.claim_status(token:, patient_icn:, start_range_date:, end_range_date:)).to eq(status_response)
+      end
+    end
+
+    context 'when claims status returns an error response' do
+      let(:resp) { Faraday::Response.new(body: { error: 'Internal server error' }, status: 500) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
+      end
+
+      it 'logs message and returns original error' do
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+
+        response = subject.claim_status(token:, patient_icn:, start_range_date:, end_range_date:)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
+      end
+    end
+
+    context 'when call to claims status times out' do
+      let(:resp) { Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408) }
+      let(:err_msg) { { message: 'BTSSS Timeout Error', uuid: } }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(Faraday::TimeoutError)
+      end
+
+      it 'logs message and returns an timeout error response' do
+        expect(Rails.logger).to receive(:error).with(err_msg)
+
+        response = subject.claim_status(token:, patient_icn:, start_range_date:, end_range_date:)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
       end
     end
   end
