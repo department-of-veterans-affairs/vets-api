@@ -470,6 +470,10 @@ features:
     actor_type: user
     description: Update expense lists in the Financial Status Report (FSR - 5655) form
     enable_in_development: true
+  financial_status_report_server_side_transform:
+    actor_type: user
+    description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
+    enable_in_development: true
   financial_status_report_streamlined_waiver:
     actor_type: user
     description: Enables streamlined waiver flow for qualifying users completing the Financial Status Report (FSR) form
