@@ -22,7 +22,7 @@ FactoryBot.define do
     end
 
     trait :stale do
-      created_at { Time.zone.now - 99.days }
+      created_at { 99.days.ago }
       aasm_state { 'pending' }
     end
   end
