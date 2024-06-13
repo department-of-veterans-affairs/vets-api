@@ -7,6 +7,8 @@ module DebtsApi
   module V0
     module FsrFormTransform
       class InstallmentContractsOtherDebtsCalculator
+        include ::FsrFormTransform::Utils
+
         def initialize(form)
           @form = form
         end
@@ -81,23 +83,6 @@ module DebtsApi
           else
             number
           end
-        end
-
-        def str_to_num(str)
-          return str if str.is_a? Numeric
-          return 0 unless str.instance_of?(String)
-
-          str.gsub(/[^0-9.-]/, '').to_i || 0
-        end
-
-        def sanitize_date_string(date)
-          return '' if date.empty?
-
-          date_string = date.gsub('XX', '01')
-          date_string << '-01' if date_string.split('-').length == 2
-          year, month = date_string.split('-')
-          month = "0#{month}" if month.length == 1
-          "#{month}/#{year}"
         end
       end
     end
