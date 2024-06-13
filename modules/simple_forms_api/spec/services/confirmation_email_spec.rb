@@ -393,4 +393,72 @@ describe SimpleFormsApi::ConfirmationEmail do
       )
     end
   end
+
+  describe '20_10207' do
+    context 'veteran' do
+      let(:data) do
+        fixture_path = Rails.root.join(
+          'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_20_10207-veteran.json'
+        )
+        JSON.parse(fixture_path.read)
+      end
+      let(:user) { create(:user, :loa3) }
+
+      it 'sends the confirmation email' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
+
+        subject = described_class.new(
+          form_data: data,
+          form_number: 'vba_20_10207',
+          confirmation_number: 'confirmation_number',
+          user:
+        )
+
+        subject.send
+
+        expect(VANotify::EmailJob).to have_received(:perform_async).with(
+          user.va_profile_email,
+          'form20_10207_confirmation_email_template_id',
+          {
+            'first_name' => 'JOHN',
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => 'confirmation_number'
+          }
+        )
+      end
+    end
+
+    context 'non-veteran' do
+      let(:data) do
+        fixture_path = Rails.root.join(
+          'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_20_10207-non-veteran.json'
+        )
+        JSON.parse(fixture_path.read)
+      end
+      let(:user) { create(:user, :loa3) }
+
+      it 'sends the confirmation email' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
+
+        subject = described_class.new(
+          form_data: data,
+          form_number: 'vba_20_10207',
+          confirmation_number: 'confirmation_number',
+          user:
+        )
+
+        subject.send
+
+        expect(VANotify::EmailJob).to have_received(:perform_async).with(
+          user.va_profile_email,
+          'form20_10207_confirmation_email_template_id',
+          {
+            'first_name' => 'JOHN',
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => 'confirmation_number'
+          }
+        )
+      end
+    end
+  end
 end
