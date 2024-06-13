@@ -25,6 +25,7 @@ path 'modules' do
   gem 'mobile'
   gem 'mocked_authentication'
   gem 'my_health'
+  gem 'pensions'
   gem 'representation_management'
   gem 'simple_forms_api'
   gem 'test_user_dashboard'
@@ -36,7 +37,6 @@ path 'modules' do
   gem 'veteran'
   gem 'veteran_confirmation'
   gem 'vye'
-  gem 'pensions'
 end
 
 gem 'rails', '~> 7.1.3'

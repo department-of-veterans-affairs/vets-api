@@ -89,7 +89,7 @@ module Pensions
       end
 
       def pension_monitor
-        PensionMonitor.new
+        Monitor::PensionMonitor.new
       end
     end
   end
