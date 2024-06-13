@@ -38,7 +38,7 @@ module Swagger
           'Payment Canceled',
           'Partial Payment',
           'Fiscal Rescinded',
-          'Unspecified',
+          'Unspecified'
         ], example: 'Claim Paid'
         property :appointmentDateTime, type: :dateTime, example: '2024-06-13T13:57:07.291Z'
         property :facilityName, type: :string, example: 'Cheyenne VA Medical Center'
