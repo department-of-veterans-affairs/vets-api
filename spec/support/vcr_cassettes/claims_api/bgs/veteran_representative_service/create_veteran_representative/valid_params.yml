@@ -8,7 +8,7 @@ http_interactions:
       string: ''
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - Faraday v2.9.1
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -19,7 +19,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 23 Apr 2024 19:07:13 GMT
+      - Thu, 13 Jun 2024 19:50:57 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -45,11 +45,11 @@ http_interactions:
         <xsd:import namespace="http://gov.va.vba.benefits.vdc/data" schemaLocation="http://linktestbepbenefits.vba.va.gov:80/VDC/VeteranRepresentativeService?xsd=3"/>
         </xsd:schema>
         </types>
-        <message name="createVeteranRepresentative">
-        <part name="parameters" element="tns:createVeteranRepresentative"/>
+        <message name="readAllVeteranRepresentatives">
+        <part name="parameters" element="tns:readAllVeteranRepresentatives"/>
         </message>
-        <message name="createVeteranRepresentativeResponse">
-        <part name="parameters" element="tns:createVeteranRepresentativeResponse"/>
+        <message name="readAllVeteranRepresentativesResponse">
+        <part name="parameters" element="tns:readAllVeteranRepresentativesResponse"/>
         </message>
         <message name="DataValidationFault">
         <part xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault" name="fault" element="ns1:DataValidationFault"/>
@@ -57,11 +57,11 @@ http_interactions:
         <message name="MessageFault">
         <part xmlns:ns2="http://gov.va.vba.benefits.vdc/webfault" name="fault" element="ns2:MessageFaultBean"/>
         </message>
-        <message name="readAllVeteranRepresentatives">
-        <part name="parameters" element="tns:readAllVeteranRepresentatives"/>
+        <message name="createVeteranRepresentative">
+        <part name="parameters" element="tns:createVeteranRepresentative"/>
         </message>
-        <message name="readAllVeteranRepresentativesResponse">
-        <part name="parameters" element="tns:readAllVeteranRepresentativesResponse"/>
+        <message name="createVeteranRepresentativeResponse">
+        <part name="parameters" element="tns:createVeteranRepresentativeResponse"/>
         </message>
         <message name="updateVeteranRepresentative">
         <part name="parameters" element="tns:updateVeteranRepresentative"/>
@@ -70,17 +70,17 @@ http_interactions:
         <part name="parameters" element="tns:updateVeteranRepresentativeResponse"/>
         </message>
         <portType name="VeteranRepresentative">
-        <operation name="createVeteranRepresentative">
-        <input wsam:Action="http://gov.va.vba.benefits.vdc/services/VeteranRepresentative/createVeteranRepresentativeRequest" message="tns:createVeteranRepresentative"/>
-        <output wsam:Action="http://gov.va.vba.benefits.vdc/services/VeteranRepresentative/createVeteranRepresentativeResponse" message="tns:createVeteranRepresentativeResponse"/>
-        <fault message="tns:DataValidationFault" name="DataValidationFault" wsam:Action="http://gov.va.vba.benefits.vdc/services/VeteranRepresentative/createVeteranRepresentative/Fault/DataValidationFault"/>
-        <fault message="tns:MessageFault" name="MessageFault" wsam:Action="http://gov.va.vba.benefits.vdc/services/VeteranRepresentative/createVeteranRepresentative/Fault/MessageFault"/>
-        </operation>
         <operation name="readAllVeteranRepresentatives">
         <input wsam:Action="http://gov.va.vba.benefits.vdc/services/VeteranRepresentative/readAllVeteranRepresentativesRequest" message="tns:readAllVeteranRepresentatives"/>
         <output wsam:Action="http://gov.va.vba.benefits.vdc/services/VeteranRepresentative/readAllVeteranRepresentativesResponse" message="tns:readAllVeteranRepresentativesResponse"/>
         <fault message="tns:DataValidationFault" name="DataValidationFault" wsam:Action="http://gov.va.vba.benefits.vdc/services/VeteranRepresentative/readAllVeteranRepresentatives/Fault/DataValidationFault"/>
         <fault message="tns:MessageFault" name="MessageFault" wsam:Action="http://gov.va.vba.benefits.vdc/services/VeteranRepresentative/readAllVeteranRepresentatives/Fault/MessageFault"/>
+        </operation>
+        <operation name="createVeteranRepresentative">
+        <input wsam:Action="http://gov.va.vba.benefits.vdc/services/VeteranRepresentative/createVeteranRepresentativeRequest" message="tns:createVeteranRepresentative"/>
+        <output wsam:Action="http://gov.va.vba.benefits.vdc/services/VeteranRepresentative/createVeteranRepresentativeResponse" message="tns:createVeteranRepresentativeResponse"/>
+        <fault message="tns:DataValidationFault" name="DataValidationFault" wsam:Action="http://gov.va.vba.benefits.vdc/services/VeteranRepresentative/createVeteranRepresentative/Fault/DataValidationFault"/>
+        <fault message="tns:MessageFault" name="MessageFault" wsam:Action="http://gov.va.vba.benefits.vdc/services/VeteranRepresentative/createVeteranRepresentative/Fault/MessageFault"/>
         </operation>
         <operation name="updateVeteranRepresentative">
         <input wsam:Action="http://gov.va.vba.benefits.vdc/services/VeteranRepresentative/updateVeteranRepresentativeRequest" message="tns:updateVeteranRepresentative"/>
@@ -91,7 +91,7 @@ http_interactions:
         </portType>
         <binding name="VeteranRepresentativePortBinding" type="tns:VeteranRepresentative">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-        <operation name="createVeteranRepresentative">
+        <operation name="readAllVeteranRepresentatives">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -106,7 +106,7 @@ http_interactions:
         <soap:fault name="MessageFault" use="literal"/>
         </fault>
         </operation>
-        <operation name="readAllVeteranRepresentatives">
+        <operation name="createVeteranRepresentative">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -143,7 +143,7 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Mon, 22 Apr 2024 19:27:37 GMT
+  recorded_at: Thu, 13 Jun 2024 19:50:58 GMT
 - request:
     method: post
     uri: "<BGS_BASE_URL>/VDC/VeteranRepresentativeService"
@@ -152,50 +152,31 @@ http_interactions:
       string: |
         <?xml version="1.0" encoding="UTF-8"?>
           <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://gov.va.vba.benefits.vdc/services" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:data="http://gov.va.vba.benefits.vdc/data">
-            <env:Header>
-              <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
-                <wsse:UsernameToken>
-                  <wsse:Username>VAgovAPI</wsse:Username>
-                </wsse:UsernameToken>
-                <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-                  <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
-                  <vaws:STN_ID>281</vaws:STN_ID>
-                  <vaws:applicationName>VAgovAPI</vaws:applicationName>
-                  <vaws:ExternalUid>keyHere</vaws:ExternalUid>
-                  <vaws:ExternalKey>keyHere</vaws:ExternalKey>
-                </vaws:VaServiceHeaders>
-              </wsse:Security>
-            </env:Header>
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>keyHere</vaws:ExternalUid>
+              <vaws:ExternalKey>keyHere</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
 
-            <env:Body>
-              <tns:createVeteranRepresentative>
-                <data:VeteranRepresentative>
-                  <formTypeCode>21-22</formTypeCode>
-                  <procId>3854909</procId>
-                  <veteranPtcpntId>182359</veteranPtcpntId>
-                  <poaCode>074</poaCode>
-                  <section7332Auth>false</section7332Auth>
-                  <limitationDrugAbuse>false</limitationDrugAbuse>
-                  <limitationAlcohol>false</limitationAlcohol>
-                  <limitationHiv>false</limitationHiv>
-                  <limitationSCA>false</limitationSCA>
-                  <limitationHIV>false</limitationHIV>
-                  <changeAddressAuth>true</changeAddressAuth>
-                  <vdcStatus>Submitted</vdcStatus>
-                  <representativeType>Recognized Veterans Service Organization</representativeType>
-                  <claimantPtcpntId>182358</claimantPtcpntId>
-                  <addressLine1>76 Crowther Ave</addressLine1>
-                  <city>Bridgeport</city>
-                  <postalCode>06605</postalCode>
-                  <state>CT</state>
-                  <submittedDate>2024-04-22T19:27:37Z</submittedDate>
-                </data:VeteranRepresentative>
-              </tns:createVeteranRepresentative>
-            </env:Body>
+          <env:Body>
+            <tns:createVeteranRepresentative><data:VeteranRepresentative>
+          <formTypeCode>21-22</formTypeCode><procId>3854909</procId><veteranPtcpntId>182359</veteranPtcpntId><poaCode>074</poaCode><section7332Auth>false</section7332Auth><limitationDrugAbuse>false</limitationDrugAbuse><limitationAlcohol>false</limitationAlcohol><limitationHiv>false</limitationHiv><limitationSCA>false</limitationSCA><limitationHIV>false</limitationHIV><changeAddressAuth>true</changeAddressAuth><vdcStatus>Submitted</vdcStatus><representativeType>Recognized Veterans Service Organization</representativeType><claimantPtcpntId>182358</claimantPtcpntId><addressLine1>76 Crowther Ave</addressLine1><city>Bridgeport</city><postalCode>06605</postalCode><state>CT</state><submittedDate>2024-04-22T19:27:37Z</submittedDate>
+        </data:VeteranRepresentative>
+        </tns:createVeteranRepresentative>
+          </env:Body>
           </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - Faraday v2.9.1
       Content-Type:
       - text/xml;charset=UTF-8
       Host:
@@ -212,7 +193,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 23 Apr 2024 19:07:14 GMT
+      - Thu, 13 Jun 2024 19:50:58 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -228,53 +209,9 @@ http_interactions:
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header/><S:Body><ns0:createVeteranRepresentativeResponse
         xmlns:ns0="http://gov.va.vba.benefits.vdc/services" xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
-        xmlns:ns2="http://gov.va.vba.benefits.vdc/data">
-          <ns2:VeteranRepresentativeReturn>
-            <addressLine1>76 Crowther Ave</addressLine1>
-            <addressLine2></addressLine2>
-            <addressLine3></addressLine3>
-            <changeAddressAuth>true</changeAddressAuth>
-            <city>Bridgeport</city>
-            <claimantPtcpntId>182358</claimantPtcpntId>
-            <claimantRelationship></claimantRelationship>
-            <formTypeCode>21-22</formTypeCode>
-            <insuranceNumbers></insuranceNumbers>
-            <limitationAlcohol>false</limitationAlcohol>
-            <limitationDrugAbuse>false</limitationDrugAbuse>
-            <limitationHIV>false</limitationHIV>
-            <limitationSCA>false</limitationSCA>
-            <organizationName></organizationName>
-            <otherServiceBranch></otherServiceBranch>
-            <phoneNumber></phoneNumber>
-            <poaCode>074</poaCode>
-            <postalCode>06605</postalCode>
-            <procId>3854909</procId>
-            <representativeFirstName></representativeFirstName>
-            <representativeLastName></representativeLastName>
-            <representativeLawFirmOrAgencyName></representativeLawFirmOrAgencyName>
-            <representativeTitle></representativeTitle>
-            <representativeType>Recognized Veterans Service Organization</representativeType>
-            <section7332Auth>false</section7332Auth>
-            <serviceBranch></serviceBranch>
-            <serviceNumber></serviceNumber>
-            <state>CT</state>
-            <vdcStatus>Submitted</vdcStatus>
-            <veteranPtcpntId>182359</veteranPtcpntId>
-            <acceptedBy></acceptedBy>
-            <claimantFirstName>VERNON</claimantFirstName>
-            <claimantLastName>WAGNER</claimantLastName>
-            <claimantMiddleName></claimantMiddleName>
-            <declinedBy></declinedBy>
-            <declinedReason></declinedReason>
-            <secondaryStatus></secondaryStatus>
-            <veteranFirstName>VERNON</veteranFirstName>
-            <veteranLastName>WAGNER</veteranLastName>
-            <veteranMiddleName></veteranMiddleName>
-            <veteranSSN></veteranSSN>
-            <veteranVAFileNumber></veteranVAFileNumber>
-          </ns2:VeteranRepresentativeReturn>
-        </ns0:createVeteranRepresentativeResponse>
-        </S:Body>
-        </S:Envelope>
-  recorded_at: Mon, 22 Apr 2024 19:27:37 GMT
+        xmlns:ns2="http://gov.va.vba.benefits.vdc/data"><ns2:VeteranRepresentativeReturn><addressLine1>76
+        Crowther Ave</addressLine1><addressLine2></addressLine2><addressLine3></addressLine3><changeAddressAuth>true</changeAddressAuth><city>Bridgeport</city><claimantPtcpntId>182358</claimantPtcpntId><claimantRelationship></claimantRelationship><formTypeCode>21-22
+        </formTypeCode><insuranceNumbers></insuranceNumbers><limitationAlcohol>false</limitationAlcohol><limitationDrugAbuse>false</limitationDrugAbuse><limitationHIV>false</limitationHIV><limitationSCA>false</limitationSCA><organizationName></organizationName><otherServiceBranch></otherServiceBranch><phoneNumber></phoneNumber><poaCode>074</poaCode><postalCode>06605</postalCode><procId>3854909</procId><representativeFirstName></representativeFirstName><representativeLastName></representativeLastName><representativeLawFirmOrAgencyName></representativeLawFirmOrAgencyName><representativeTitle></representativeTitle><representativeType>Recognized
+        Veterans Service Organization</representativeType><section7332Auth>false</section7332Auth><serviceBranch></serviceBranch><serviceNumber></serviceNumber><state>CT</state><vdcStatus>Submitted</vdcStatus><veteranPtcpntId>182359</veteranPtcpntId><acceptedBy></acceptedBy><claimantFirstName>VERNON</claimantFirstName><claimantLastName>WAGNER</claimantLastName><claimantMiddleName></claimantMiddleName><declinedBy></declinedBy><declinedReason></declinedReason><secondaryStatus>Obsolete</secondaryStatus><veteranFirstName>VERNON</veteranFirstName><veteranLastName>WAGNER</veteranLastName><veteranMiddleName></veteranMiddleName><veteranSSN></veteranSSN><veteranVAFileNumber></veteranVAFileNumber></ns2:VeteranRepresentativeReturn></ns0:createVeteranRepresentativeResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 13 Jun 2024 19:50:59 GMT
 recorded_with: VCR 6.2.0
