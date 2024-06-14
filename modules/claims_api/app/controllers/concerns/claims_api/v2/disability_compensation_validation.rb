@@ -1023,8 +1023,8 @@ module ClaimsApi
         @ranges.count > 1 ? date_range_overlap?(@ranges[idx - 1], @ranges[idx]) : return
       end
 
-      def date_range_overlap?(range_1, range_2)
-        range_1.last > range_2.first || range_2.last < range_1.first
+      def date_range_overlap?(range_one, range_two)
+        range_one.last > range_two.first || range_two.last < range_one.first
       end
 
       # Will check for a real date including leap year
