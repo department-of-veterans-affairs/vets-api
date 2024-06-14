@@ -720,6 +720,15 @@ module ClaimsApi
               detail: 'Confinement approximate begin date must be after earliest active duty begin date.'
             )
           end
+          
+          @ranges ||= []
+          @ranges << (date_regex_groups(approximate_begin_date)..date_regex_groups(approximate_end_date))
+          if overlapping_confinement_periods?(idx)
+            collect_error_messages(
+              source: "/confinements/#{idx}/approximateBeginDate",
+              detail: 'Confinement periods may not overlap each other.'
+            )
+          end
         end
       end
 
@@ -1008,6 +1017,14 @@ module ClaimsApi
         return unless date_is_valid?(begin_date, 'serviceInformation/servicePeriods/activeDutyEndDate')
 
         date_regex_groups(begin_date) > date_regex_groups(approximate_begin_date)
+      end
+
+      def overlapping_confinement_periods?(idx)
+        @ranges.count > 1 ? date_range_overlap?(@ranges[idx-1], @ranges[idx]) : return
+      end
+      
+      def date_range_overlap?(range_1, range_2)
+        range_1.last > range_2.first || range_2.last < range_1.first
       end
 
       # Will check for a real date including leap year
