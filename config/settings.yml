@@ -1007,6 +1007,9 @@ lighthouse:
     version: v1
     use_mocks: false
     api_key: ~
+    report:
+      stale_sla: 10 # days
+      batch_size: 1000
   letters_generator:
     url: https://sandbox-api.va.gov
     path: /services/va-letter-generator/v1/
@@ -1280,6 +1283,7 @@ vanotify:
         form21_10203_confirmation_email: form21_10203_confirmation_email_template_id
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
         form20_10206_confirmation_email: form20_10206_confirmation_email_template_id
+        form20_10207_confirmation_email: form20_10207_confirmation_email_template_id
         form21_0845_confirmation_email: form21_0845_confirmation_email_template_id
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
@@ -1558,7 +1562,7 @@ virtual_regional_office:
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
   evidence_pdf_path: evidence-pdf
   ctn_classification_path: classifier
-  vagov_classification_path: va-gov-claim-classifier
+  vagov_classification_path: contention-classification/va-gov-claim-classifier
   max_cfi_path: employee-experience/max-ratings
   ep_merge_path: employee-experience-ep-merge-app/merge
 

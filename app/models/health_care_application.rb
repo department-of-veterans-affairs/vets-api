@@ -26,8 +26,8 @@ class HealthCareApplication < ApplicationRecord
   validates(:form, presence: true, on: :create)
   validate(:form_matches_schema, on: :create)
 
-  after_save :send_failure_mail, if: %i[submission_failed? email?]
-  after_save :log_submission_failure, if: :submission_failed?
+  after_save :send_failure_mail, if: %i[async_submission_failed? email?]
+  after_save :log_async_submission_failure, if: :async_submission_failed?
 
   # @param [Account] user
   # @return [Hash]
@@ -56,7 +56,7 @@ class HealthCareApplication < ApplicationRecord
     form.present? && parsed_form['lastServiceBranch'].blank?
   end
 
-  def submission_failed?
+  def async_submission_failed?
     saved_change_to_attribute?(:state) && failed?
   end
 
@@ -81,7 +81,7 @@ class HealthCareApplication < ApplicationRecord
 
     result
   rescue
-    log_submission_failure
+    log_sync_submission_failure
 
     raise
   end
@@ -248,27 +248,36 @@ class HealthCareApplication < ApplicationRecord
     self
   end
 
-  def log_submission_failure
+  def log_sync_submission_failure
+    StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.sync_submission_failed")
+    StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.sync_submission_failed_short_form") if short_form?
+    log_submission_failure_details
+  end
+
+  def log_async_submission_failure
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry_short_form") if short_form?
+    log_submission_failure_details
+  end
 
-    if form.present?
-      PersonalInformationLog.create!(
-        data: parsed_form,
-        error_class: 'HealthCareApplication FailedWontRetry'
-      )
+  def log_submission_failure_details
+    return if form.blank?
 
-      log_message_to_sentry(
-        'HCA total failure',
-        :error,
-        {
-          first_initial: parsed_form['veteranFullName']['first'][0],
-          middle_initial: parsed_form['veteranFullName']['middle'].try(:[], 0),
-          last_initial: parsed_form['veteranFullName']['last'][0]
-        },
-        hca: :total_failure
-      )
-    end
+    PersonalInformationLog.create!(
+      data: parsed_form,
+      error_class: 'HealthCareApplication FailedWontRetry'
+    )
+
+    log_message_to_sentry(
+      'HCA total failure',
+      :error,
+      {
+        first_initial: parsed_form['veteranFullName']['first'][0],
+        middle_initial: parsed_form['veteranFullName']['middle'].try(:[], 0),
+        last_initial: parsed_form['veteranFullName']['last'][0]
+      },
+      hca: :total_failure
+    )
   end
 
   def send_failure_mail
@@ -287,12 +296,13 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def current_schema
-    schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
-    return schema unless Flipper.enabled?(:hca_use_facilities_API)
-
+    feature_enabled_for_user = Flipper.enabled?(:hca_use_facilities_API, user)
     Rails.logger.warn(
-      "HealthCareApplication::hca_use_facilitiesAPI enabled = #{Flipper.enabled?(:hca_use_facilities_API)}"
+      "HealthCareApplication::hca_use_facilitiesAPI enabled = #{feature_enabled_for_user}"
     )
+
+    schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
+    return schema unless feature_enabled_for_user
 
     schema.deep_dup.tap do |c|
       c['properties']['vaMedicalFacility'] = { type: 'string' }.as_json
