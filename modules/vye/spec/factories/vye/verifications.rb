@@ -6,6 +6,6 @@ FactoryBot.define do
     association :award, factory: :vye_award
 
     transact_date { Time.zone.now }
-    source_ind { Vye::Verification.source_inds.values.sample }
+    source_ind { 'web' }
   end
 end
