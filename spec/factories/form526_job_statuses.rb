@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :form526_job_status do
-    association :form526_submission, factory: [:form526_submission, :with_one_succesful_job]
+    association :form526_submission, factory: %i[form526_submission with_one_succesful_job]
     job_id { SecureRandom.hex(12) }
     job_class { 'SubmitForm526AllClaim' }
     status { 'success' }

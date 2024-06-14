@@ -28,5 +28,4 @@ describe FullNameSerializer, type: :serializer do
   it 'includes :suffix' do
     expect(attributes['suffix']).to eq full_name[:suffix]
   end
-
 end

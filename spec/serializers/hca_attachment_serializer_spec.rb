@@ -16,5 +16,4 @@ describe HCAAttachmentSerializer, type: :serializer do
   it 'includes :guid' do
     expect(attributes['guid']).to eq attachment.guid
   end
-
 end

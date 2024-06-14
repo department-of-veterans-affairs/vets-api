@@ -16,5 +16,4 @@ describe HCARatingInfoSerializer, type: :serializer do
   it 'includes :user_percent_of_disability' do
     expect(attributes['user_percent_of_disability']).to eq rating_info[:user_percent_of_disability]
   end
-
 end

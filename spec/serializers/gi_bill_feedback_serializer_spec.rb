@@ -24,5 +24,4 @@ describe GIBillFeedbackSerializer, type: :serializer do
   it 'includes :parsed_response' do
     expect(attributes['parsed_response']).to eq feedback.parsed_response
   end
-
 end

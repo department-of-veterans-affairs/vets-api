@@ -17,12 +17,11 @@ describe Form526JobStatusSerializer, type: :serializer do
     expect(attributes['claim_id']).to eq form526_job_status.submission.submitted_claim_id
   end
 
-  it "includes :submission_id" do
+  it 'includes :submission_id' do
     expect(attributes['submission_id']).to eq form526_job_status.submission.id
   end
 
-  it "includes :ancillary_item_statuses" do
-
+  it 'includes :ancillary_item_statuses' do
     expected_statuses = form526_job_status.submission.form526_job_statuses.map do |status|
       status.attributes.except('form526_submission_id') unless status.id == form526_job_status.id
     end.compact
@@ -30,5 +29,4 @@ describe Form526JobStatusSerializer, type: :serializer do
     expect(attributes['ancillary_item_statuses'].first['id']).to eq expected_statuses.first['id']
     expect(attributes['ancillary_item_statuses'].first.keys).not_to include('form526_submission_id')
   end
-
 end
