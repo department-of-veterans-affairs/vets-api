@@ -2417,6 +2417,31 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
+        context 'when there are confinements with mixed date formatting and confinement spans one month' do
+          let(:confinements) do
+            [
+              {
+                approximateBeginDate: '2016-11-01',
+                approximateEndDate: '2016-11'
+              },
+              {
+                approximateBeginDate: '2017-02',
+                approximateEndDate: '2017-02'
+              }
+            ]
+          end
+
+          it 'responds with a 202' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['confinements'] = confinements
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
         context 'when there are confinements with mixed date formatting where begin date is after the end date' do
           let(:confinements) do
             [
