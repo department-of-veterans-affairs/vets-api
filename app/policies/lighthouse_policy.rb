@@ -12,7 +12,7 @@ LighthousePolicy = Struct.new(:user, :lighthouse) do
   end
 
   def itf_access?
-    # Need to check for first name as Lighthouse will check for it 
+    # Need to check for first name as Lighthouse will check for it
     # and throw an error if it's not present
     user.participant_id.present? && user.ssn.present? && user.first_name && user.last_name
   end

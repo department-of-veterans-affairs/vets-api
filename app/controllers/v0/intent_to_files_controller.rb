@@ -65,7 +65,7 @@ module V0
     private
 
     def authorize_service
-      # Is this necessary if we've fully migrated to Lighthouse? EVSS tests still exist in the request spec, 
+      # Is this necessary if we've fully migrated to Lighthouse? EVSS tests still exist in the request spec,
       # so it might be necessary until those are removed
       if Flipper.enabled?(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE, @current_user)
         authorize :lighthouse, :itf_access?
