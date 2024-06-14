@@ -404,7 +404,7 @@ module VAOS
       #
       def cc?(appt)
         raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
-        appt.kind == 'cc'
+        appt[:kind] == 'cc'
       end
 
       # Determines if the appointment is for telehealth.
@@ -416,7 +416,7 @@ module VAOS
       #
       def telehealth?(appt)
         raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
-        appt.kind == 'telehealth'
+        appt[:kind] == 'telehealth'
       end
 
       # Determines if the appointment is for compensation and pension.

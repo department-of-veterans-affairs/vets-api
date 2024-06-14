@@ -30,6 +30,14 @@ describe VAOS::V2::AppointmentsService do
     { kind: 'clinic', service_category: [{ coding:
                  [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'COMPENSATION & PENSION' }] }] }
   end
+  let(:appt_cc) do
+    { kind: 'cc', service_category: [{ coding:
+                 [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' }] }] }
+  end
+  let(:appt_telehealth) do
+    { kind: 'telehealth', service_category: [{ coding:
+                 [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' }] }] }
+  end
   let(:appt_no_service_cat) { { kind: 'clinic' } }
 
   mock_facility = {
@@ -337,8 +345,12 @@ describe VAOS::V2::AppointmentsService do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_cnp_covid',
                            allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
             response = subject.get_appointments(start_date2, end_date2, 'proposed')
-            # non CnP or covid appointment, cancellable left as is
-            expect(response[:data][0][:cancellable]).to eq(true)
+            # telehealth appointments, cancellable changed to false
+            expect(response[:data][0][:cancellable]).to eq(false)
+            # non CC, telehealth, CnP, covid appointment, cancellable left as is
+            expect(response[:data][1][:cancellable]).to eq(true)
+            expect(response[:data][2][:cancellable]).to eq(true)
+            expect(response[:data][3][:cancellable]).to eq(true)
             # CnP appointments, cancellable changed to false
             expect(response[:data][4][:cancellable]).to eq(false)
             # covid appointments, cancellable changed to false
@@ -539,6 +551,30 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
+      context 'when requesting a CC appointment' do
+        let(:user) { build(:user, :vaos) }
+
+        it 'sets the cancellable attribute to false' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_cc',
+                           match_requests_on: %i[method path query]) do
+            response = subject.get_appointment('159472')
+            expect(response[:cancellable]).to eq(false)
+          end
+        end
+      end
+
+      context 'when requesting a Telehealth appointment' do
+        let(:user) { build(:user, :vaos) }
+
+        it 'sets the cancellable attribute to false' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_telehealth',
+                           match_requests_on: %i[method path query]) do
+            response = subject.get_appointment('159472')
+            expect(response[:cancellable]).to eq(false)
+          end
+        end
+      end
+
       context 'when requesting a non-Med non-CnP appointment' do
         let(:user) { build(:user, :vaos) }
 
@@ -603,6 +639,30 @@ describe VAOS::V2::AppointmentsService do
 
         it 'sets the cancellable attribute to false' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_CnP_vpg',
+                           match_requests_on: %i[method path query]) do
+            response = subject.get_appointment('159472')
+            expect(response[:cancellable]).to eq(false)
+          end
+        end
+      end
+
+      context 'when requesting a Telehealth appointment' do
+        let(:user) { build(:user, :vaos) }
+
+        it 'sets the cancellable attribute to false' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_telehealth_vpg',
+                           match_requests_on: %i[method path query]) do
+            response = subject.get_appointment('159472')
+            expect(response[:cancellable]).to eq(false)
+          end
+        end
+      end
+
+      context 'when requesting a CC appointment' do
+        let(:user) { build(:user, :vaos) }
+
+        it 'sets the cancellable attribute to false' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_cc_vpg',
                            match_requests_on: %i[method path query]) do
             response = subject.get_appointment('159472')
             expect(response[:cancellable]).to eq(false)
@@ -908,6 +968,34 @@ describe VAOS::V2::AppointmentsService do
 
     it 'returns false for non compensation and pension appointments' do
       expect(subject.send(:cnp?, appt_non)).to eq(false)
+    end
+  end
+
+  describe '#cc?' do
+    it 'raises an ArgumentError if appt is nil' do
+      expect { subject.send(:cc?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
+    end
+
+    it 'returns true for community care appointments' do
+      expect(subject.send(:cc?, appt_cc)).to eq(true)
+    end
+
+    it 'returns false for non community care appointments' do
+      expect(subject.send(:cc?, appt_non)).to eq(false)
+    end
+  end
+
+  describe '#telehealth?' do
+    it 'raises an ArgumentError if appt is nil' do
+      expect { subject.send(:telehealth?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
+    end
+
+    it 'returns true for telehealth appointments' do
+      expect(subject.send(:telehealth?, appt_telehealth)).to eq(true)
+    end
+
+    it 'returns false for telehealth appointments' do
+      expect(subject.send(:telehealth?, appt_non)).to eq(false)
     end
   end
 
