@@ -11,6 +11,6 @@ RSpec.describe EVSSClaimListSerializer, type: :serializer do
 
   it 'includes :phase' do
     phase = evss_claim.list_data['status']&.downcase
-    expect(attributes['phase']).to eq PHASE_MAPPING[phase]
+    expect(attributes['phase']).to eq EVSSClaimBaseSerializer::PHASE_MAPPING[phase]
   end
 end
