@@ -40,7 +40,7 @@
   "applicant_primary_through_employer": false,
   "applicant_primary_has_prescription": true,
   "applicant_primary_eob": "noEob",
-  "applicant_primary_insurance_type": { "hmo": true, "medigap": true },
+  "applicant_primary_insurance_type": "medigap",
   "primary_medigap_plan": "A",
   "primary_additional_comments": "Additional primary comment",
   "applicant_has_secondary": true,
@@ -50,7 +50,7 @@
   "applicant_secondary_through_employer": true,
   "applicant_secondary_has_prescription": true,
   "applicant_secondary_eob": "hasEob",
-  "applicant_secondary_insurance_type": { "ppo": true, "medigap": true },
+  "applicant_secondary_insurance_type": "medigap",
   "secondary_medigap_plan": "M",
   "secondary_additional_comments": "Additional secondary comment",
   "certifier_relationship": {
