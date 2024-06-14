@@ -40,7 +40,7 @@ RSpec.describe AccreditationService do
         response = described_class.submit_form21a(parsed_body)
 
         expect(response.status).to eq(:request_timeout)
-        expect(JSON.parse(response.body)['errors']).to eq('Accreditation Request timeout')
+        expect(JSON.parse(response.body)['errors']).to eq('Accreditation Service request timed out')
       end
     end
   end

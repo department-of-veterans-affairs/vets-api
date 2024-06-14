@@ -3,17 +3,12 @@
 # AccreditationService is responsible for handling the submission of Form 21a to the accreditation service.
 # It provides a single class method `submit_form21a` to send the form data and handle the response.
 # The service URL is determined based on the current environment (development, test, production).
-#
-# Methods:
-# - self.submit_form21a(parsed_body): Submits the given parsed body as JSON to the accreditation service.
-#   - Parameters:
-#     - parsed_body: A Hash representing the parsed form data.
-#   - Returns: A Faraday::Response object containing the service response.
-#
-# - self.connection: Creates and returns a Faraday connection configured with JSON request and response handling.
-# - self.service_url: Determines and returns the service URL based on the current environment.
 
 class AccreditationService
+  # self.submit_form21a(parsed_body): Submits the given parsed body as JSON to the accreditation service.
+  #   - Parameters:
+  #     - parsed_body: A Hash representing the parsed form data.
+  #   - Returns: A Faraday::Response object containing the service response.
   def self.submit_form21a(parsed_body)
     connection.post do |req|
       req.body = parsed_body.to_json
@@ -23,9 +18,10 @@ class AccreditationService
     Faraday::Response.new(status: :service_unavailable, body: { errors: 'Accreditation Service unavailable' }.to_json)
   rescue Faraday::TimeoutError => e
     Rails.logger.error("Accreditation Service request timed out: #{e.message}")
-    Faraday::Response.new(status: :request_timeout, body: { errors: 'Accreditation Request timeout' }.to_json)
+    Faraday::Response.new(status: :request_timeout, body: { errors: 'Accreditation Service request timed out' }.to_json)
   end
 
+  # self.connection: Creates and returns a Faraday connection configured with JSON request and response handling.
   def self.connection
     Faraday.new(url: service_url) do |conn|
       conn.request :json
@@ -34,6 +30,7 @@ class AccreditationService
     end
   end
 
+  # self.service_url: Determines and returns the service URL based on the current environment.
   def self.service_url
     # TODO: Update the service URL based on the actual production and QA URLs once available.
     # See ZH 85933: https://app.zenhub.com/workspaces/accredited-representative-facing-team-65453a97a9cc36069a2ad1d6/issues/gh/department-of-veterans-affairs/va.gov-team/85933
