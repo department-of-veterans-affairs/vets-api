@@ -1524,3 +1524,7 @@ features:
   toggle_vye_address_direct_deposit_forms_in_profile:
     actor_type: user
     description: Enable mailing address and direct deposit for VYE in profile page
+  use_facilities_api_v2_for_cerner_cta:
+    actor_type: user
+    description: Use the new facilities API v2 for the Cerner CTA. Estimated time of removal June 18, 2024 after testing of deployment on staging of authenticated user.
+    enable_in_development: true
