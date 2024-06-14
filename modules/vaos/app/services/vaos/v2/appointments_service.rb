@@ -12,11 +12,9 @@ module VAOS
 
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
       VAOS_SERVICE_DATA_KEY = 'VAOSServiceTypesAndCategory'
-      FACILITY_ERROR_MSG = 'Error fetching facility details'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
       AVS_APPT_TEST_ID = '192308'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
-      FACILITY_ERROR_MSG = 'Error fetching facility details'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
@@ -25,7 +23,7 @@ module VAOS
       APPOINTMENTS_ENABLE_OH_READS = :va_online_scheduling_enable_OH_reads
 
       # rubocop:disable Metrics/MethodLength
-      def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
+      def get_appointments(start_date, end_date, statuses = nil, pagination_params = {}, include = {})
         params = date_params(start_date, end_date)
                  .merge(page_params(pagination_params))
                  .merge(status_params(statuses))
@@ -42,14 +40,17 @@ module VAOS
                      end
 
           validate_response_schema(response, 'appointments_index')
-          response.body[:data].each do |appt|
+          appointments = response.body[:data]
+          appointments.each do |appt|
             prepare_appointment(appt)
+            merge_clinic(appt) if include[:clinics]
+            merge_facility(appt) if include[:facilities]
             cnp_count += 1 if cnp?(appt)
           end
           # log count of C&P appointments in the appointments list, per GH#78141
           log_cnp_appt_count(cnp_count) if cnp_count.positive?
           {
-            data: deserialized_appointments(response.body[:data]),
+            data: deserialized_appointments(appointments),
             meta: pagination(pagination_params).merge(partial_errors(response))
           }
         end
@@ -132,45 +133,20 @@ module VAOS
         nil
       end
 
-      def get_facility(location_id)
-        mobile_facility_service.get_facility_with_cache(location_id)
-      rescue Common::Exceptions::BackendServiceException
-        Rails.logger.error(
-          "Error fetching facility details for location_id #{location_id}",
-          location_id:
-        )
-        FACILITY_ERROR_MSG
-      end
-
-      def get_facility_memoized(location_id)
-        mobile_facility_service.get_facility_with_cache(location_id)
-      rescue Common::Exceptions::BackendServiceException
-        Rails.logger.error(
-          "VAOS Error fetching facility details for location_id #{location_id}",
-          location_id:
-        )
-        FACILITY_ERROR_MSG
-      end
-      memoize :get_facility_memoized
-
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
       def get_facility_timezone(facility_location_id)
-        facility_info = get_facility_memoized(facility_location_id)
-        if facility_info == FACILITY_ERROR_MSG
-          nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
-        else
-          facility_info[:timezone]&.[](:time_zone_id)
-        end
+        facility_info = mobile_facility_service.get_facility(facility_location_id) unless facility_location_id.nil?
+        return nil if facility_info.nil?
+
+        facility_info[:timezone]&.[](:time_zone_id)
       end
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
       def get_facility_timezone_memoized(facility_location_id)
-        facility_info = get_facility(facility_location_id) unless facility_location_id.nil?
-        if facility_info == FACILITY_ERROR_MSG || facility_info.nil?
-          nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
-        else
-          facility_info[:timezone]&.[](:time_zone_id)
-        end
+        facility_info = mobile_facility_service.get_facility(facility_location_id) unless facility_location_id.nil?
+        return nil if facility_info.nil?
+
+        facility_info[:timezone]&.[](:time_zone_id)
       end
       memoize :get_facility_timezone_memoized
 
@@ -190,7 +166,7 @@ module VAOS
         end
 
         # set requestedPeriods to nil if the appointment is a booked cerner appointment per GH#62912
-        appointment[:requested_periods] = nil if booked?(appointment) && cerner?(appointment)
+        appointment[:requested_periods] = nil if booked?(appointment) && VAOS::AppointmentsHelper.cerner?(appointment)
 
         convert_appointment_time(appointment)
         if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
@@ -206,6 +182,26 @@ module VAOS
         appointment[:preferred_provider_name] = names
       end
 
+      def merge_clinic(appt)
+        return if appt[:clinic].nil? || appt[:location_id].nil?
+
+        clinic = mobile_facility_service.get_clinic(appt[:location_id], appt[:clinic])
+        if clinic&.[](:service_name)
+          appt[:service_name] = clinic[:service_name]
+          # In VAOS Service there is no dedicated clinic friendlyName field.
+          # If the clinic is configured with a patient-friendly name then that will be the value
+          # in the clinic service name; otherwise it will be the internal clinic name.
+          appt[:friendly_name] = clinic[:service_name]
+        end
+
+        appt[:physical_location] = clinic[:physical_location] if clinic&.[](:physical_location)
+      end
+
+      def merge_facility(appt)
+        appt[:location] = mobile_facility_service.get_facility(appt[:location_id]) unless appt[:location_id].nil?
+        VAOS::AppointmentsHelper.log_appt_id_location_name(appt)
+      end
+
       def appointment_provider_name_service
         @appointment_provider_name_service ||= AppointmentProviderName.new(user)
       end
@@ -215,8 +211,7 @@ module VAOS
       end
 
       def mobile_facility_service
-        @mobile_facility_service ||=
-          VAOS::V2::MobileFacilityService.new(user)
+        @mobile_facility_service ||= VAOS::V2::MobileFacilityService.new(user)
       end
 
       def avs_service
@@ -369,28 +364,6 @@ module VAOS
         return [] if input.nil?
 
         input.flat_map { |codeable_concept| codeable_concept[:coding]&.pluck(:code) }.compact
-      end
-
-      # Checks if the appointment is associated with cerner. It looks through each identifier and checks if the system
-      # contains cerner. If it does, it returns true. Otherwise, it returns false.
-      #
-      # @param appt [Hash] the appointment to check
-      # @return [Boolean] true if the appointment is associated with cerner, false otherwise
-      #
-      # @raise [ArgumentError] if the appointment is nil
-      def cerner?(appt)
-        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
-
-        identifiers = appt[:identifier]
-
-        return false if identifiers.nil?
-
-        identifiers.each do |identifier|
-          system = identifier[:system]
-          return true if system.include?('cerner')
-        end
-
-        false
       end
 
       # Determines if the appointment is for compensation and pension.
