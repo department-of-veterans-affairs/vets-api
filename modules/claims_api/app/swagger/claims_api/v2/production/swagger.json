@@ -2425,10 +2425,6 @@
                               "type": "string",
                               "description": "An optional notes section.",
                               "maxLength": 4000
-                            },
-                            "claimId": {
-                              "type": "string",
-                              "example": "600517517"
                             }
                           }
                         }
