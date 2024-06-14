@@ -76,6 +76,56 @@ describe LighthousePolicy do
       end
     end
 
+    permissions :itf_access? do
+      context 'user has Participant ID and SSN and First/Last Name ' do
+        let(:user) { build(:user, :loa3) }
+  
+        it 'grants access' do
+          expect(subject).to permit(user, :lighthouse)
+        end
+      end
+  
+      context 'user without Participant ID' do
+        let(:user) { build(:user, :loa3) }
+  
+        before { allow(user).to receive(:participant_id).and_return(nil) }
+  
+        it 'denies access' do
+          expect(subject).not_to permit(user, :lighthouse)
+        end
+      end
+
+      context 'user without SSN' do
+        let(:user) { build(:user, :loa3) }
+  
+        before { allow(user).to receive(:ssn).and_return(nil) }
+  
+        it 'denies access' do
+          expect(subject).not_to permit(user, :lighthouse)
+        end
+      end
+
+      context 'user without first name' do
+        let(:user) { build(:user, :loa3) }
+  
+        before { allow(user).to receive(:first_name).and_return(nil) }
+  
+        it 'denies access' do
+          expect(subject).not_to permit(user, :lighthouse)
+        end
+      end
+
+      context 'user without last name' do
+        let(:user) { build(:user, :loa3) }
+  
+        before { allow(user).to receive(:last_name).and_return(nil) }
+  
+        it 'denies access' do
+          expect(subject).not_to permit(user, :lighthouse)
+        end
+      end
+    end
+
     context 'with a login.gov user' do
       before do
         allow_any_instance_of(UserIdentity).to receive(:sign_in)
