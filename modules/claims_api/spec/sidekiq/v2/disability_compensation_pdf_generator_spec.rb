@@ -60,17 +60,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
       end
 
       it 'sets the claim status to pending when starting/rerunning' do
-        body = [{
-          key: 'form526.submit.noRetryError',
-          severity: 'FATAL',
-          text: 'Claim could not be established. Retries will fail.'
-        }]
-
-        Common::Exceptions::BackendServiceException.new(
-          'form526.submit.noRetryError', {}, nil, body
-        )
         VCR.use_cassette('claims_api/disability_comp') do
-          # allow(ClaimsApi::ServiceBase).to receive(:set_evss_response).with(claim, error).and_return(true)
           expect(errored_claim.status).to eq('errored')
 
           service.perform(errored_claim.id, middle_initial)
