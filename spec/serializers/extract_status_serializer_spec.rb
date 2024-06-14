@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 describe ExtractStatusSerializer, type: :serializer do
-
   subject { serialize(extract_status, serializer_class: described_class) }
 
   let(:extract_status) { build_stubbed(:extract_status) }
@@ -12,10 +11,6 @@ describe ExtractStatusSerializer, type: :serializer do
 
   it 'includes :id' do
     expect(data['id']).to eq extract_status.id
-  end
-
-  it 'includes :extract_type' do
-    expect(attributes['extract_type']).to eq extract_status.extract_type
   end
 
   it 'includes :extract_type' do

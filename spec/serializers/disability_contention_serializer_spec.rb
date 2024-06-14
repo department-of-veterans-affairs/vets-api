@@ -24,5 +24,4 @@ describe DisabilityContentionSerializer, type: :serializer do
   it 'includes :lay_term' do
     expect(attributes['lay_term']).to eq contention.lay_term
   end
-
 end

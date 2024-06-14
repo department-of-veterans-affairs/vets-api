@@ -13,7 +13,7 @@ describe DisabilityCompensationsSerializer, type: :serializer do
     expect(data['id']).to be_blank
   end
 
-  it "includes :type" do
+  it 'includes :type' do
     expect(data['type']).to eq('direct_deposit/disability_compensations')
   end
 

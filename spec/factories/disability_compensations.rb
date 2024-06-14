@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-
   factory :disability_compensation, class: Hash do
     control_information
     payment_account
 
-    initialize_with { { control_information: control_information, payment_account: payment_account } }
+    initialize_with { { control_information:, payment_account: } }
   end
 
   factory :control_information, class: Hash do
@@ -34,5 +33,4 @@ FactoryBot.define do
 
     initialize_with { attributes }
   end
-
 end
