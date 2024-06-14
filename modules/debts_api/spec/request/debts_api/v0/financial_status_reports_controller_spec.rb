@@ -5,7 +5,8 @@ require_relative '../../../support/stub_financial_status_report'
 require_relative '../../../support/financial_status_report_helpers'
 
 RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request do
-  let(:service_class) { DebtsApi::V0::FinancialStatusReportService }
+  let(:fsr_service) { DebtsApi::V0::FinancialStatusReportService }
+  let(:full_transform_service) { DebtsApi::V0::FsrFormTransform::FullTransformService }
   let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
   let(:user) { build(:user, :loa3) }
   let(:filenet_id) { '93631483-E9F9-44AA-BB55-3552376400D8' }
@@ -24,10 +25,10 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
   describe '#create' do
     context 'when service raises FSRNotFoundInRedis' do
       before do
-        expect_any_instance_of(service_class).to receive(
+        expect_any_instance_of(fsr_service).to receive(
           :submit_financial_status_report
         ).and_raise(
-          service_class::FSRNotFoundInRedis
+          fsr_service::FSRNotFoundInRedis
         )
       end
 
@@ -45,6 +46,34 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
           post('/debts_api/v0/financial_status_reports', params: valid_form_data.to_h, as: :json)
           expect(response.code).to eq('200')
         end
+      end
+    end
+  end
+
+  describe '#transform_and_submit' do
+    context 'when service raises FSRNotFoundInRedis' do
+      let(:pre_transform_fsr_form_data) do
+        get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/pre_transform')
+      end
+      let(:post_transform_fsr_form_data) do
+        get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/post_transform')
+      end
+
+      before do
+        # allow(full_transform_service).to receive(:new).with(pre_transform_fsr_form_data).and_return(double(transform: )
+        expect_any_instance_of(fsr_service).to receive(
+          :submit_financial_status_report
+        ).and_raise(
+          fsr_service::FSRNotFoundInRedis
+        )
+      end
+
+      it 'renders 404' do
+        # expect(fsr_service).to receive(:full_transform_service) { double(transform: pre_transform_fsr_form_data)}
+        post('/debts_api/v0/financial_status_reports/transform_and_submit', params: pre_transform_fsr_form_data )
+        expect(response).to have_http_status(:not_found)
+        expect(response.header['Content-Type']).to include('application/json')
+        expect(JSON.parse(response.body)).to eq(nil)
       end
     end
   end
