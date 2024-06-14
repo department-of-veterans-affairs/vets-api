@@ -10,7 +10,7 @@ module V0
     extend Logging::ThirdPartyTransaction::MethodWrapper
     service_tag 'intent-to-file'
 
-    before_action { authorize :evss, :access_form526? }
+    before_action :authorize_service
     before_action :validate_type_param, only: %i[active submit]
 
     wrap_with_logging(
@@ -63,6 +63,16 @@ module V0
     end
 
     private
+
+    def authorize_service
+      # Is this necessary if we've fully migrated to Lighthouse? EVSS tests still exist in the request spec, 
+      # so it might be necessary until those are removed
+      if Flipper.enabled?(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE, @current_user)
+        authorize :lighthouse, :itf_access?
+      else
+        authorize :evss, :access_form526?
+      end
+    end
 
     def validate_type_param
       raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
