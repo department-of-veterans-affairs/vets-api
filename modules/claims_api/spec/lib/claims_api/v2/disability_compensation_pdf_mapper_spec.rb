@@ -105,13 +105,31 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         end
       end
 
-      context 'with empty confinements' do
+      context 'with empty confinements values' do
         it "doesn't send confinements" do
           form_attributes['serviceInformation']['confinements'] = []
           mapper.map_claim
 
           service_information = pdf_data[:data][:attributes][:serviceInformation]
           expect(service_information.keys).not_to include :confinements
+        end
+
+        it 'does not send start date if start date is null' do
+          form_attributes['serviceInformation']['confinements'][0]['approximateBeginDate'] = nil
+          mapper.map_claim
+
+          confinements =
+            pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement][:confinementDates][0]
+          expect(confinements.keys).not_to include :start
+        end
+
+        it 'does not send end date if end date is null' do
+          form_attributes['serviceInformation']['confinements'][0]['approximateEndDate'] = nil
+          mapper.map_claim
+
+          confinements =
+            pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement][:confinementDates][0]
+          expect(confinements.keys).not_to include :end
         end
       end
     end
@@ -422,6 +440,19 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
           expect(exposure_info[:multipleExposures]).to eq(nil)
         end
+
+        it 'maps the attributes correctly when ony both dates are null' do
+          toxic_exp_data = form_attributes['toxicExposure']
+          toxic_exp_data['multipleExposures'][0]['exposureDates']['beginDate'] = nil
+          toxic_exp_data['multipleExposures'][0]['exposureDates']['endDate'] = nil
+
+          mapper.map_claim
+
+          exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
+          expect(exposure_info[:multipleExposures][0][:exposureLocation]).to eq('Guam')
+          expect(exposure_info[:multipleExposures][0][:hazardExposedTo]).to eq('RADIATION')
+          expect(exposure_info[:multipleExposures][0][:exposureDates]).to eq(nil)
+        end
       end
 
       context '526 section 4, multiple exposures null endDate' do
@@ -436,6 +467,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           expect(exposure_info[:multipleExposures][0][:hazardExposedTo]).to eq('RADIATION')
           expect(exposure_info[:multipleExposures][0][:exposureDates][:start][:month]).to eq('12')
           expect(exposure_info[:multipleExposures][0][:exposureDates][:start][:year]).to eq('2012')
+          expect(exposure_info[:multipleExposures][0][:exposureDates][:end]).to eq(nil)
         end
       end
 
