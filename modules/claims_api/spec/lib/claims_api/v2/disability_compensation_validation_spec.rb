@@ -54,14 +54,23 @@ describe TestDisabilityCompensationValidationClass do
   end
 
   describe '#date_range_overlap?' do
-    let(:date_begin_1) { "2018-06-04" }
-    let(:date_begin_2) { "2020-06-05" }
-    let(:date_end_1) { "2020-05-01" }
-    let(:date_end_2) { "2020-07-01" }
+    let(:date_begin_1) { '2018-06-04' }
+    let(:date_end_1) { '2020-07-01' }
+    let(:date_begin_2) { '2020-06-05' }
+    let(:date_end_2) { '2020-07-01' }
 
-    it 'returns false when the date ranges overlap' do
+    it 'returns true when the date ranges overlap' do
       begin_1 = test_526_validation_instance.send(:date_regex_groups, date_begin_1)
       end_1 = test_526_validation_instance.send(:date_regex_groups, date_end_1)
+      begin_2 = test_526_validation_instance.send(:date_regex_groups, date_begin_2)
+      end_2 = test_526_validation_instance.send(:date_regex_groups, date_end_2)
+      result = test_526_validation_instance.send(:date_range_overlap?, begin_1..end_1, begin_2..end_2)
+      expect(result).to eq(true)
+    end
+
+    it 'returns false when the date ranges do not overlap' do
+      begin_1 = test_526_validation_instance.send(:date_regex_groups, date_begin_1)
+      end_1 = test_526_validation_instance.send(:date_regex_groups, '2020-04-28')
       begin_2 = test_526_validation_instance.send(:date_regex_groups, date_begin_2)
       end_2 = test_526_validation_instance.send(:date_regex_groups, date_end_2)
       result = test_526_validation_instance.send(:date_range_overlap?, begin_1..end_1, begin_2..end_2)
