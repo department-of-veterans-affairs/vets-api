@@ -205,11 +205,8 @@ module Form526ClaimFastTrackingConcern
   end
 
   def log_claim_level_metrics(response_body)
-    if response_body['num_processed_contentions'] == 1
-      Rails.logger.info('classifier response for single-issue 526Submission', payload: response_body)
-    else
-      Rails.logger.info('classifier response for multi-issue 526Submission', payload: response_body)
-    end
+    response_body['is_multi_contention_claim'] = disabilities.count > 1
+    Rails.logger.info('classifier response for 526Submission', payload: response_body)
   end
 
   # Submits contention information to the VRO contention classification service
