@@ -2,6 +2,8 @@
 
 require 'lighthouse/benefits_intake/service'
 
+# Datadog Dashboard:
+# https://vagov.ddog-gov.com/dashboard/4d8-3fn-dbp/benefits-intake-form-submission-tracking?fromUser=false&refresh_mode=sliding&view=spans&from_ts=1717772535566&to_ts=1718377335566&live=true
 class BenefitsIntakeStatusJob
   include Sidekiq::Job
 
@@ -60,16 +62,22 @@ class BenefitsIntakeStatusJob
       form_submission_attempt = form_submission.latest_pending_attempt
       time_to_transition = (Time.zone.now - form_submission_attempt.created_at).truncate
 
+      # https://developer.va.gov/explore/api/benefits-intake/docs
       status = submission.dig('attributes', 'status')
       if %w[error expired].include?(status)
+        # Error - Indicates that there was an error. Refer to the error code and detail for further information.
+        # Expired - Indicate that documents were not successfully uploaded within the 15-minute window.
         form_submission_attempt.fail!
         log_result('failure', form_id, uuid, time_to_transition)
       elsif status == 'vbms'
+        # submission was successfully uploaded into a Veteran's eFolder within VBMS
         form_submission_attempt.vbms!
         log_result('success', form_id, uuid, time_to_transition)
       elsif time_to_transition > STALE_SLA.days
+        # exceeds SLA (service level agreement) days for submission completion
         log_result('stale', form_id, uuid, time_to_transition)
       else
+        # no change being tracked
         log_result('pending', form_id, uuid)
       end
 

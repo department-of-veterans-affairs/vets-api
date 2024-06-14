@@ -164,10 +164,10 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
         end
       end
 
-      # 'updating the form submission status'
+      # end 'updating the form submission status'
     end
 
-    # #perform
+    # end #perform
   end
 
   describe '#log_result' do
@@ -182,5 +182,5 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
     end
   end
 
-  # RSpec.describe
+  # end RSpec.describe
 end
