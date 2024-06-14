@@ -751,13 +751,15 @@ module ClaimsApi
           begin_date = if begin_date_has_day
                          Date.strptime(approximate_begin_date, '%Y-%m-%d')
                        else
+                         # Note approimate date conversion sets begin date to first of month
                          Date.strptime(approximate_begin_date, '%Y-%m')
                        end
 
           end_date = if end_date_has_day
                        Date.strptime(approximate_end_date, '%Y-%m-%d')
                      else
-                       Date.strptime(approximate_end_date, '%Y-%m')
+                       # Set approximate end date to end of month
+                       Date.strptime(approximate_end_date, '%Y-%m').end_of_month
                      end
 
           if date_is_within_range?(begin_date, end_date, active_duty_begin_date, active_duty_end_date)
