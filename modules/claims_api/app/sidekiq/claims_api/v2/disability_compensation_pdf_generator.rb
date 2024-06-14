@@ -58,6 +58,7 @@ module ClaimsApi
                          '526EZ PDF generator job finished')
         start_docker_container_job(auto_claim&.id) if auto_claim.status != errored_state_value
       rescue Faraday::ParsingError, Faraday::TimeoutError => e
+        set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
         error_status = get_error_status_code(e)
 
@@ -67,6 +68,7 @@ module ClaimsApi
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
+        set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
         error_status = get_error_status_code(e)
 
