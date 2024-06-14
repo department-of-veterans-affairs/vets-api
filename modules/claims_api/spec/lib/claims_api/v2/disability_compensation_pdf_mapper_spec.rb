@@ -114,6 +114,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           expect(service_information.keys).not_to include :confinements
         end
 
+        # These two tests are relevant to the generatePDF minimum validations endpoint
+        # For 526 sync and sync we validate they are present, but for generatePDf we do not
         it 'does not send start date if start date is null' do
           form_attributes['serviceInformation']['confinements'][0]['approximateBeginDate'] = nil
           mapper.map_claim
