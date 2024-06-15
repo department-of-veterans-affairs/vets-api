@@ -68,11 +68,6 @@ module VAOS
       end
 
       def post_appointment(request_object_body)
-
-        if request_object_body[:kind] == 'clinic' && request_object_body[:status] == 'booked' # a direct scheduled appointment
-          modify_desired_date(request_object_body, get_facility_timezone(request_object_body[:location_id]))
-        end
-
         filtered_reason_code_text = filter_reason_code_text(request_object_body)
         request_object_body[:reason_code][:text] = filtered_reason_code_text if filtered_reason_code_text.present?
 
@@ -85,6 +80,11 @@ module VAOS
                      else
                        perform(:post, appointments_base_path_vaos, params, headers)
                      end
+
+          if request_object_body[:kind] == 'clinic' &&
+            request_object_body[:status] == 'booked' # a direct scheduled appointment
+            modify_desired_date(request_object_body, get_facility_timezone(request_object_body[:location_id]))
+          end
 
           new_appointment = response.body
           convert_appointment_time(new_appointment)
