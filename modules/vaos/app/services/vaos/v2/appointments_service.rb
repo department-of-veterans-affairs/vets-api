@@ -67,6 +67,7 @@ module VAOS
         end
       end
 
+      # rubocop:disable Metrics/MethodLength
       def post_appointment(request_object_body)
         filtered_reason_code_text = filter_reason_code_text(request_object_body)
         request_object_body[:reason_code][:text] = filtered_reason_code_text if filtered_reason_code_text.present?
@@ -82,7 +83,7 @@ module VAOS
                      end
 
           if request_object_body[:kind] == 'clinic' &&
-            request_object_body[:status] == 'booked' # a direct scheduled appointment
+             request_object_body[:status] == 'booked' # a direct scheduled appointment
             modify_desired_date(request_object_body, get_facility_timezone(request_object_body[:location_id]))
           end
 
@@ -95,6 +96,7 @@ module VAOS
           raise e
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def update_appointment(appt_id, status)
         with_monitoring do

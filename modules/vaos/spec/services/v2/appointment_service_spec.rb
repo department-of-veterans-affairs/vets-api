@@ -1231,6 +1231,7 @@ describe VAOS::V2::AppointmentsService do
     let(:va_booked_request_body) do
       FactoryBot.build(:appointment_form_v2, :va_booked).attributes
     end
+
     context 'with a request body and facility timezone' do
       it 'updates the direct scheduled appt desired date with facilities time zone offset' do
         subject.send(:modify_desired_date, va_booked_request_body, 'America/Denver')
