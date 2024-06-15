@@ -33,7 +33,6 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
 
     it 'sends a new mcp notification email job frome edipi' do
       job = described_class.new
-
       # pausing until further notice
       expect { job.perform(statement) }
         .not_to change { DebtManagementCenter::VANotifyEmailJob.jobs.size }
@@ -95,6 +94,37 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
 
       it 'sends job to retry queue' do
         expect(config.sidekiq_retry_in_block.call(0, exception, nil)).to eq(10)
+      end
+    end
+
+    context 'with retries exhausted' do
+      subject(:config) { described_class }
+
+      let(:error) { OpenStruct.new(message: 'oh shoot') }
+      let(:exception) do
+        e = DebtManagementCenter::StatementIdentifierService::RetryableError.new(error)
+        allow(e).to receive(:backtrace).and_return(['line 1', 'line 2', 'line 3'])
+        e
+      end
+      let(:msg) do
+        {
+          'class' => 'YourJobClassName',
+          'args' => [statement],
+          'jid' => '12345abcde',
+          'retry_count' => 5
+        }
+      end
+
+      it 'logs the error' do
+        expected_log_message = <<~LOG
+          NewStatementNotificationJob retries exhausted:
+          Vet ID: 492031291
+          Exception: #{exception.class} - #{exception.message}
+          Backtrace: #{exception.backtrace.join("\n")}
+        LOG
+
+        expect(Rails.logger).to receive(:error).with(expected_log_message)
+        config.sidekiq_retries_exhausted_block.call(msg, exception)
       end
     end
 

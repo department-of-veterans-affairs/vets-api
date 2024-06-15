@@ -26,6 +26,16 @@ module CopayNotifications
       end
     end
 
+    sidekiq_retries_exhausted do |msg, ex|
+      statement = msg['args'].first # is this veteransIdentifier PII?
+      Rails.logger.error <<~LOG
+        NewStatementNotificationJob retries exhausted:
+        Vet ID: #{statement['veteranIdentifier']}
+        Exception: #{ex.class} - #{ex.message}
+        Backtrace: #{ex.backtrace.join("\n")}
+      LOG
+    end
+
     MCP_NOTIFICATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.vha_new_copay_statement_email
     STATSD_KEY_PREFIX = 'api.copay_notifications.new_statement'
 
