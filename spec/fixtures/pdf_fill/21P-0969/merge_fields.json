@@ -1,0 +1,10 @@
+{
+  "veteranFullName": {
+    "first": "John",
+    "middle": "Edmund",
+    "last": "Doe"
+  },
+  "veteranSocialSecurityNumber": "333224444",
+  "statementOfTruthCertified": true,
+  "statementOfTruthSignature": "John Edmund Doe"
+}
