@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'monitor/pension_monitor'
+require 'pensions/pension_monitor'
 
 module Pensions
   module V0
@@ -12,7 +12,7 @@ module Pensions
       end
 
       def claim_class
-        Pensions::SavedClaim::Pension
+        Pensions::Pension
       end
 
       def show
@@ -36,8 +36,6 @@ module Pensions
       # Creates and validates an instance of the class, removing any copies of
       # the form that had been previously saved by the user.
       def create
-        TagSentry.tag_sentry
-
         claim = claim_class.new(form: filtered_params[:form])
         pension_monitor.track_create_attempt(claim, current_user)
 
