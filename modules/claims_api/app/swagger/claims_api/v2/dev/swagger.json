@@ -3785,6 +3785,7 @@
                     "type": "form/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                      "claimNotes": "Some things that are important to know, and are not included in any other place.",
                       "veteranIdentification": {
                         "serviceNumber": "123456789",
                         "veteranNumber": {
@@ -3989,7 +3990,6 @@
                       "type": "form/526",
                       "attributes": {
                         "claimProcessType": "STANDARD_CLAIM_PROCESS",
-                        "claimNotes": "Some things that are important to know, and are not included in any other place.",
                         "veteranIdentification": {
                           "mailingAddress": {
                             "addressLine1": "1234 Couch Street",
@@ -4295,7 +4295,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "60a64e67-887b-4705-b984-adb877cffd0e",
+                    "id": "14779394-d9fb-48c3-8745-0e22b2baab09",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -7016,6 +7016,7 @@
                     "type": "form/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                      "claimNotes": "Some things that are important to know, and are not included in any other place.",
                       "veteranIdentification": {
                         "serviceNumber": "123456789",
                         "veteranNumber": {
@@ -7220,7 +7221,6 @@
                       "type": "form/526",
                       "attributes": {
                         "claimProcessType": "STANDARD_CLAIM_PROCESS",
-                        "claimNotes": "Some things that are important to know, and are not included in any other place.",
                         "veteranIdentification": {
                           "mailingAddress": {
                             "addressLine1": "1234 Couch Street",
@@ -8908,6 +8908,7 @@
                     "type": "form/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                      "claimNotes": "Some things that are important to know, and are not included in any other place.",
                       "veteranIdentification": {
                         "serviceNumber": "123456789",
                         "veteranNumber": {
@@ -9166,7 +9167,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b875112b-fe03-45c1-ade3-7c18aa67b51b",
+                    "id": "b4a5ea02-b0be-48cd-b049-ccbb575b0c34",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -11375,6 +11376,7 @@
                     "attributes": {
                       "claimDate": "2018-06-25",
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                      "claimNotes": "Some things that are important to know, and are not included in any other place.",
                       "veteranIdentification": {
                         "serviceNumber": "123456789",
                         "veteranNumber": {
@@ -12925,7 +12927,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d8cd2d8d-7dea-4e9d-8026-337137d85ea6",
+                    "id": "03069b5c-c2bf-4c08-8c12-77073c3e1d67",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13618,7 +13620,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d7bdda70-514f-4fa6-8c72-1931bae09629",
+                    "id": "ee8c46c2-412d-4b90-9ef9-41a94d28dc39",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15569,7 +15571,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5ebd2a8f-bae1-4fe4-81ba-47be78233950",
+                    "id": "d28c87cb-e68d-4def-af98-d62c494eea92",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
