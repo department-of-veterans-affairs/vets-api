@@ -23,6 +23,6 @@ describe IntentToFileSerializer, type: :serializer do
 
   it 'includes :intent_to_file with attributes' do
     expected_attributes = intent_to_file.first.attributes.keys.map(&:to_s)
-    expect(attributes['intent_to_file'].attributes.keys).to eq expected_attributes
+    expect(attributes['intent_to_file'].first.keys).to eq expected_attributes
   end
 end
