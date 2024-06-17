@@ -97,15 +97,9 @@ RSpec.describe SignIn::SessionContainer, type: :model do
 
     let(:expected_context) do
       {
-        access_token_uuid: session_container.access_token.uuid,
         user_uuid: session_container.access_token.user_uuid,
         session_handle: session_container.session.handle,
         client_id: session_container.session.client_id,
-        access_token_audience: session_container.access_token.audience,
-        version: session_container.access_token.version,
-        last_regeneration_time: session.refresh_creation.to_i,
-        access_token_created_time: session.created_at.to_i,
-        access_token_expiration_time: session_container.access_token.expiration_time.to_i,
         type: session.user_verification.credential_type,
         icn: session.user_account.icn
       }
