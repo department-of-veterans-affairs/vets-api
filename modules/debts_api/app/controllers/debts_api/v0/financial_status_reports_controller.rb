@@ -18,7 +18,6 @@ module DebtsApi
 
       def transform_and_submit
         output = full_transform_service.transform
-        binding.pry
         render json: service.submit_financial_status_report(output.to_h)
       end
 
@@ -272,9 +271,9 @@ module DebtsApi
             :additional_comments,
             bankruptcy: [:date_discharged, :court_location, :docket_number]
           ],
-          view: [
-            :enhanced_financial_status_report, :streamlined_waiver,
-            :streamlined_waiver_asset_update, :review_page_navigation_toggle
+          'view:components': [
+            :'view:enhanced_financial_status_report', :'view:streamlined_waiver',
+            :'view:streamlined_waiver_asset_update', :'view:review_page_navigation_toggle'
           ],
           income: [:veteran_or_spouse],
           gmt_data: [

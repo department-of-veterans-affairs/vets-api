@@ -60,7 +60,6 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
       end
 
       before do
-        # allow(full_transform_service).to receive(:new).with(pre_transform_fsr_form_data).and_return(double(transform: )
         expect_any_instance_of(fsr_service).to receive(
           :submit_financial_status_report
         ).and_raise(
@@ -68,8 +67,10 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
         )
       end
 
+      it 'uses the old expense calculator'
+
       it 'renders 404' do
-        # expect(fsr_service).to receive(:full_transform_service) { double(transform: pre_transform_fsr_form_data)}
+        pre_transform_fsr_form_data['view:components']['view:enhanced_financial_status_report'] = true
         post('/debts_api/v0/financial_status_reports/transform_and_submit', params: pre_transform_fsr_form_data )
         expect(response).to have_http_status(:not_found)
         expect(response.header['Content-Type']).to include('application/json')
