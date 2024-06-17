@@ -751,7 +751,7 @@ module ClaimsApi
           begin_date = if begin_date_has_day
                          Date.strptime(approximate_begin_date, '%Y-%m-%d')
                        else
-                         # Note approimate date conversion sets begin date to first of month
+                         # Note approximate date conversion sets begin date to first of month
                          Date.strptime(approximate_begin_date, '%Y-%m')
                        end
 
