@@ -7,7 +7,6 @@ module ClaimsApi
         class BackendServiceException < StandardError
           def initialize(errors)
             @errors = [errors].flatten
-
             super
           end
 

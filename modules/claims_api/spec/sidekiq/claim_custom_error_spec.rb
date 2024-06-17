@@ -53,8 +53,8 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
       it 'correctly sets the key as the string value from the error message' do
         backend_error_submit.build_error
       rescue => e
-        expect(e.key).to be_a(String)
-        expect(e.key).not_to be_an_instance_of(Integer)
+        expect(e.original_body[0][:key]).to be_a(String)
+        expect(e.original_body[0][:key]).not_to be_an_instance_of(Integer)
       end
     end
 

@@ -29,18 +29,9 @@ module ClaimsApi
 
     private
 
-    def raise_backend_exception(key = 'EVSS')
+    def raise_backend_exception(_key = 'EVSS')
       error_details = get_error_info
-      if @async
-        raise ::Common::Exceptions::BackendServiceException.new(
-          key,
-          { source: @error&.class },
-          @status,
-          error_details
-        )
-      else
-        raise ::ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException, error_details
-      end
+      raise ::ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException, error_details
     end
 
     def get_error_info
