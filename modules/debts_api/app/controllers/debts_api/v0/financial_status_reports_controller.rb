@@ -111,11 +111,11 @@ module DebtsApi
             :net_take_home_pay,
             :total_monthly_net_income,
             { deductions: [
-              :taxes,
-              :retirement,
-              :social_security,
-              { other_deductions: name_amount }
-            ],
+                :taxes,
+                :retirement,
+                :social_security,
+                { other_deductions: name_amount }
+              ],
               other_income: name_amount }
           ],
           expenses: [
@@ -291,7 +291,6 @@ module DebtsApi
       end
 
       def full_transform_service
-        binding.pry
         DebtsApi::V0::FsrFormTransform::FullTransformService.new(full_transform_form)
       end
     end
