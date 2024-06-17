@@ -246,6 +246,31 @@ RSpec.describe 'Power of Attorney ', type: :request do
             end
           end
         end
+
+        context 'when the birth date in the headers is an empty string' do
+          let(:invalid_headers) do
+            { 'X-VA-SSN': '796111863',
+              'X-VA-First-Name': 'Abraham',
+              'X-VA-Last-Name': 'Lincoln',
+              'X-VA-Birth-Date': '',
+              'X-VA-Gender': 'M' }
+          end
+
+          it 'responds with invalid birth_date' do
+            mock_acg(scopes) do |auth_header|
+              allow(::Veteran::Service::Representative).to receive(:all_for_user).and_return([])
+              allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+                .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+
+              post path, params: data, headers: invalid_headers.merge(auth_header)
+
+              expect(response.status).to eq(422)
+              error_detail = JSON.parse(response.body)['errors'][0]['detail']
+              substring = 'The following values are invalid: birth date'
+              expect(error_detail.include?(substring)).to be(true)
+            end
+          end
+        end
       end
 
       context 'request schema validations' do
