@@ -10,6 +10,7 @@ module Swagger
           extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::ValidationError
           extend Swagger::Responses::BackendServiceError
+          extend Swagger::Responses::InternalServerError
 
           key :description, 'Submit a 10-10EZR form'
           key :operationId, 'postForm1010Ezr'

@@ -1016,21 +1016,43 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
             end
           end
 
-        #   it 'returns a 503 if a backend service error occurs', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
-        #     VCR.use_cassette('form1010_ezr/authorized_submit', match_requests_on: [:body]) do
-        #
-        #       expect(subject).to validate(
-        #         :post,
-        #         '/v0/form1010_ezrs',
-        #         400,
-        #         headers.merge(
-        #           '_data' => {
-        #             'form' => form
-        #           }
-        #         )
-        #       )
-        #     end
-        #   end
+          it 'returns a 400 if a backend service error occurs', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+            VCR.use_cassette('form1010_ezr/authorized_submit', match_requests_on: [:body]) do
+              allow_any_instance_of(Form1010Ezr::Service).to receive(:submit_form) do
+                raise Common::Exceptions::BackendServiceException, 'error message'
+              end
+
+              expect(subject).to validate(
+                :post,
+                '/v0/form1010_ezrs',
+                400,
+                headers.merge(
+                  '_data' => {
+                    'form' => form
+                  }
+                )
+              )
+            end
+          end
+
+          it 'returns a 500 if a server error occurs', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+            VCR.use_cassette('form1010_ezr/authorized_submit', match_requests_on: [:body]) do
+              allow_any_instance_of(Form1010Ezr::Service).to receive(:submit_form) do
+                raise Common::Exceptions::InternalServerError, 'error message'
+              end
+
+              expect(subject).to validate(
+                :post,
+                '/v0/form1010_ezrs',
+                500,
+                headers.merge(
+                  '_data' => {
+                    'form' => form
+                  }
+                )
+              )
+            end
+          end
         end
       end
     end

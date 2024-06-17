@@ -250,6 +250,25 @@ RSpec.describe Form1010Ezr::Service do
           end
         end
       end
+
+      context 'submitting with attachment' do
+        let(:form) { get_fixture('form1010_ezr/valid_form') }
+
+        it 'returns a success object', run_at: 'Wed, 13 Mar 2024 18:14:49 GMT' do
+          form_with_attachment = form.merge(
+            'attachments' => [
+              {
+                'confirmationCode' => create(:form1010_ezr_attachment).guid
+              }
+            ]
+          )
+          VCR.use_cassette('example', :record => :once) do
+            result = submit_form(form)
+
+            expect(result).to be_a(Object)
+          end
+        end
+      end
     end
 
     context 'when an error occurs' do
