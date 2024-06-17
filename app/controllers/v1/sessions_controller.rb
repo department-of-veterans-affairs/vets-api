@@ -147,7 +147,6 @@ module V1
       mhv_unverified_validation(user_session_form)
 
       @current_user, @session_object = user_session_form.persist
-      set_user_client_id
       set_cookies
       after_login_actions
 
@@ -387,11 +386,6 @@ module V1
 
     def invalid_message_timestamp_error?(message)
       message.match(FIM_INVALID_MESSAGE_TIMESTAMP)
-    end
-
-    def set_user_client_id
-      @current_user.identity.sign_in[:client_id] = url_service.tracker.payload_attr(:application)
-      @current_user.identity.save
     end
 
     def set_cookies
