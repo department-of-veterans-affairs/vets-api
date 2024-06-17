@@ -276,218 +276,219 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
       end
 
       it { expect(response).to be_successful }
+
       it do
         expect(subject).to match(
-         {
-           data: {
-             id: 'vha_648A4',
-             type: 'facility',
-             attributes: {
-               address: {
-                 physical: {
-                   zip: '98661-3753',
-                   city: 'Vancouver',
-                   state: 'WA',
-                   address1: '1601 East 4th Plain Boulevard'
-                 }
-               },
-               classification: 'VA Medical Center (VAMC)',
-               distance: nil,
-               facilityType: 'va_health_facility',
-               feedback: {
-                 health: {
-                   primaryCareUrgent: 0.699999988079071,
-                   primaryCareRoutine: 0.7799999713897705
-                 },
-                 effectiveDate: '2024-02-08'
-               },
-               hours: {
-                 monday: '730AM-430PM',
-                 tuesday: '730AM-430PM',
-                 wednesday: '730AM-430PM',
-                 thursday: '730AM-430PM',
-                 friday: '730AM-430PM',
-                 saturday: 'Closed',
-                 sunday: 'Closed'
-               },
-               id: 'vha_648A4',
-               lat: 45.63938186,
-               long: -122.65538544,
-               mobile: false,
-               name: 'Vancouver VA Medical Center',
-               operatingStatus: {
-                 code: 'NORMAL'
-               },
-               operationalHoursSpecialInstructions: ['More hours are available for some services. To learn more, call ' \
-                                                       'our main phone number.'],
-               phone: {
-                 fax: '360-690-0864',
-                 main: '360-759-1901',
-                 pharmacy: '503-273-5183',
-                 afterHours: '360-696-4061',
-                 patientAdvocate: '503-273-5308',
-                 mentalHealthClinic: '503-273-5187',
-                 enrollmentCoordinator: '503-273-5069'
-               },
-               services: {
-                 health: [
-                   {
-                     name: 'Addiction and substance use care',
-                     serviceId: 'addiction',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/addiction'
-                   },
-                   {
-                     name: 'Audiology and speech',
-                     serviceId: 'audiology',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/audiology'
-                   },
-                   {
-                     name: 'Dental/oral surgery',
-                     serviceId: 'dental',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/dental'
-                   },
-                   {
-                     name: 'Dermatology',
-                     serviceId: 'dermatology',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/dermatology'
-                   },
-                   {
-                     name: 'Veteran readiness and employment programs',
-                     serviceId: 'employmentPrograms',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/employmentPrograms'
-                   },
-                   {
-                     name: 'Gastroenterology',
-                     serviceId: 'gastroenterology',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/gastroenterology'
-                   },
-                   {
-                     name: 'Geriatrics',
-                     serviceId: 'geriatrics',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/geriatrics'
-                   },
-                   {
-                     name: 'Gynecology',
-                     serviceId: 'gynecology',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/gynecology'
-                   },
-                   {
-                     name: 'HIV/hepatitis care',
-                     serviceId: 'hiv',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/hiv'
-                   },
-                   {
-                     name: 'Laboratory and pathology',
-                     serviceId: 'laboratory',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/laboratory'
-                   },
-                   {
-                     name: 'MentalHealth',
-                     serviceId: 'mentalHealth',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/mentalHealth'
-                   },
-                   {
-                     name: 'Nutrition, food, and dietary care',
-                     serviceId: 'nutrition',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/nutrition'
-                   },
-                   {
-                     name: 'Ophthalmology',
-                     serviceId: 'ophthalmology',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/ophthalmology'
-                   },
-                   {
-                     name: 'Optometry',
-                     serviceId: 'optometry',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/optometry'
-                   },
-                   {
-                     name: 'Orthopedics',
-                     serviceId: 'orthopedics',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/orthopedics'
-                   },
-                   {
-                     name: 'Physical therapy, occupational therapy and kinesiotherapy',
-                     serviceId: 'physicalTherapy',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/physicalTherapy'
-                   },
-                   {
-                     name: 'Plastic and reconstructive surgery',
-                     serviceId: 'plasticSurgery',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/plasticSurgery'
-                   },
-                   {
-                     name: 'Podiatry',
-                     serviceId: 'podiatry',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/podiatry'
-                   },
-                   {
-                     name: 'Primary care',
-                     serviceId: 'primaryCare',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/primaryCare'
-                   },
-                   {
-                     name: 'Prosthetics and rehabilitation',
-                     serviceId: 'prosthetics',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/prosthetics'
-                   },
-                   {
-                     name: 'PTSD care',
-                     serviceId: 'ptsd',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/ptsd'
-                   },
-                   {
-                     name: 'Radiology',
-                     serviceId: 'radiology',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/radiology'
-                   },
-                   {
-                     name: 'Rehabilitation and extended care',
-                     serviceId: 'rehabilitation',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/rehabilitation'
-                   },
-                   {
-                     name: 'Spinal cord injuries and disorders',
-                     serviceId: 'spinalInjury',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/spinalInjury'
-                   },
-                   {
-                     name: 'Returning service member care',
-                     serviceId: 'transitionCounseling',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/transitionCounseling'
-                   },
-                   {
-                     name: 'Travel reimbursement',
-                     serviceId: 'travelReimbursement',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/travelReimbursement'
-                   },
-                   {
-                     name: 'Blind and low vision rehabilitation',
-                     serviceId: 'vision',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/vision'
-                   },
-                   {
-                     name: 'Whole health',
-                     serviceId: 'wholeHealth',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/wholeHealth'
-                   },
-                   {
-                     name: 'Women Veteran care',
-                     serviceId: 'womensHealth',
-                     link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/womensHealth'
-                   }
-                 ],
-                 link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services',
-                 lastUpdated: '2024-04-23'
-               },
-               uniqueId: '648A4',
-               visn: '20',
-               website: 'https://www.va.gov/portland-health-care/locations/vancouver-va-medical-center/',
-               tmpCovidOnlineScheduling: nil
-             }
-           }
-         }
-       )
+          {
+            data: {
+              id: 'vha_648A4',
+              type: 'facility',
+              attributes: {
+                address: {
+                  physical: {
+                    zip: '98661-3753',
+                    city: 'Vancouver',
+                    state: 'WA',
+                    address1: '1601 East 4th Plain Boulevard'
+                  }
+                },
+                classification: 'VA Medical Center (VAMC)',
+                distance: nil,
+                facilityType: 'va_health_facility',
+                feedback: {
+                  health: {
+                    primaryCareUrgent: 0.699999988079071,
+                    primaryCareRoutine: 0.7799999713897705
+                  },
+                  effectiveDate: '2024-02-08'
+                },
+                hours: {
+                  monday: '730AM-430PM',
+                  tuesday: '730AM-430PM',
+                  wednesday: '730AM-430PM',
+                  thursday: '730AM-430PM',
+                  friday: '730AM-430PM',
+                  saturday: 'Closed',
+                  sunday: 'Closed'
+                },
+                id: 'vha_648A4',
+                lat: 45.63938186,
+                long: -122.65538544,
+                mobile: false,
+                name: 'Vancouver VA Medical Center',
+                operatingStatus: {
+                  code: 'NORMAL'
+                },
+                operationalHoursSpecialInstructions: ['More hours are available for some services. To learn more, ' \
+                                                      'call our main phone number.'],
+                phone: {
+                  fax: '360-690-0864',
+                  main: '360-759-1901',
+                  pharmacy: '503-273-5183',
+                  afterHours: '360-696-4061',
+                  patientAdvocate: '503-273-5308',
+                  mentalHealthClinic: '503-273-5187',
+                  enrollmentCoordinator: '503-273-5069'
+                },
+                services: {
+                  health: [
+                    {
+                      name: 'Addiction and substance use care',
+                      serviceId: 'addiction',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/addiction'
+                    },
+                    {
+                      name: 'Audiology and speech',
+                      serviceId: 'audiology',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/audiology'
+                    },
+                    {
+                      name: 'Dental/oral surgery',
+                      serviceId: 'dental',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/dental'
+                    },
+                    {
+                      name: 'Dermatology',
+                      serviceId: 'dermatology',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/dermatology'
+                    },
+                    {
+                      name: 'Veteran readiness and employment programs',
+                      serviceId: 'employmentPrograms',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/employmentPrograms'
+                    },
+                    {
+                      name: 'Gastroenterology',
+                      serviceId: 'gastroenterology',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/gastroenterology'
+                    },
+                    {
+                      name: 'Geriatrics',
+                      serviceId: 'geriatrics',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/geriatrics'
+                    },
+                    {
+                      name: 'Gynecology',
+                      serviceId: 'gynecology',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/gynecology'
+                    },
+                    {
+                      name: 'HIV/hepatitis care',
+                      serviceId: 'hiv',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/hiv'
+                    },
+                    {
+                      name: 'Laboratory and pathology',
+                      serviceId: 'laboratory',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/laboratory'
+                    },
+                    {
+                      name: 'MentalHealth',
+                      serviceId: 'mentalHealth',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/mentalHealth'
+                    },
+                    {
+                      name: 'Nutrition, food, and dietary care',
+                      serviceId: 'nutrition',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/nutrition'
+                    },
+                    {
+                      name: 'Ophthalmology',
+                      serviceId: 'ophthalmology',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/ophthalmology'
+                    },
+                    {
+                      name: 'Optometry',
+                      serviceId: 'optometry',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/optometry'
+                    },
+                    {
+                      name: 'Orthopedics',
+                      serviceId: 'orthopedics',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/orthopedics'
+                    },
+                    {
+                      name: 'Physical therapy, occupational therapy and kinesiotherapy',
+                      serviceId: 'physicalTherapy',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/physicalTherapy'
+                    },
+                    {
+                      name: 'Plastic and reconstructive surgery',
+                      serviceId: 'plasticSurgery',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/plasticSurgery'
+                    },
+                    {
+                      name: 'Podiatry',
+                      serviceId: 'podiatry',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/podiatry'
+                    },
+                    {
+                      name: 'Primary care',
+                      serviceId: 'primaryCare',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/primaryCare'
+                    },
+                    {
+                      name: 'Prosthetics and rehabilitation',
+                      serviceId: 'prosthetics',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/prosthetics'
+                    },
+                    {
+                      name: 'PTSD care',
+                      serviceId: 'ptsd',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/ptsd'
+                    },
+                    {
+                      name: 'Radiology',
+                      serviceId: 'radiology',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/radiology'
+                    },
+                    {
+                      name: 'Rehabilitation and extended care',
+                      serviceId: 'rehabilitation',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/rehabilitation'
+                    },
+                    {
+                      name: 'Spinal cord injuries and disorders',
+                      serviceId: 'spinalInjury',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/spinalInjury'
+                    },
+                    {
+                      name: 'Returning service member care',
+                      serviceId: 'transitionCounseling',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/transitionCounseling'
+                    },
+                    {
+                      name: 'Travel reimbursement',
+                      serviceId: 'travelReimbursement',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/travelReimbursement'
+                    },
+                    {
+                      name: 'Blind and low vision rehabilitation',
+                      serviceId: 'vision',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/vision'
+                    },
+                    {
+                      name: 'Whole health',
+                      serviceId: 'wholeHealth',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/wholeHealth'
+                    },
+                    {
+                      name: 'Women Veteran care',
+                      serviceId: 'womensHealth',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/womensHealth'
+                    }
+                  ],
+                  link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services',
+                  lastUpdated: '2024-04-23'
+                },
+                uniqueId: '648A4',
+                visn: '20',
+                website: 'https://www.va.gov/portland-health-care/locations/vancouver-va-medical-center/',
+                tmpCovidOnlineScheduling: nil
+              }
+            }
+          }
+        )
       end
     end
 
@@ -501,31 +502,31 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
       it do
         expect(subject).to match(
           {
-           data: {
-             id: 'vha_506GG',
-             type: 'facility',
-             attributes: {
-               address: [],
-               classification: 'Primary Care CBOC',
-               distance: nil,
-               facilityType: 'va_health_facility',
-               feedback: [],
-               hours: [],
-               id: 'vha_506GG',
-               lat: 41.066235,
-               long: -83.619621,
-               mobile: false,
-               name: 'Findlay VA Clinic',
-               operatingStatus: [],
-               operationalHoursSpecialInstructions: nil,
-               phone: [],
-               services: [],
-               uniqueId: '506GG',
-               visn: '10',
-               website: nil,
-               tmpCovidOnlineScheduling: nil
-             }
-           }
+            data: {
+              id: 'vha_506GG',
+              type: 'facility',
+              attributes: {
+                address: [],
+                classification: 'Primary Care CBOC',
+                distance: nil,
+                facilityType: 'va_health_facility',
+                feedback: [],
+                hours: [],
+                id: 'vha_506GG',
+                lat: 41.066235,
+                long: -83.619621,
+                mobile: false,
+                name: 'Findlay VA Clinic',
+                operatingStatus: [],
+                operationalHoursSpecialInstructions: nil,
+                phone: [],
+                services: [],
+                uniqueId: '506GG',
+                visn: '10',
+                website: nil,
+                tmpCovidOnlineScheduling: nil
+              }
+            }
           }
         )
       end
