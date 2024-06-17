@@ -5,39 +5,169 @@ module RepresentationManagement
     class PdfGeneratorBaseController < ApplicationController
       service_tag 'lighthouse-veteran' # Is this the correct service tag?
       before_action :feature_enabled
+      before_action :verify_veteran_first_name
+      before_action :verify_veteran_middle_initial
+      before_action :verify_veteran_last_name
+      before_action :verify_veteran_social_security_number
+      before_action :verify_veteran_file_number
+      before_action :verify_veteran_address_line1
+      before_action :verify_veteran_address_line2
+      before_action :verify_veteran_city
+      before_action :verify_veteran_country
+      before_action :verify_veteran_state_code
+      before_action :verify_veteran_zip_code
+      before_action :verify_veteran_zip_code_suffix
+      before_action :verify_veteran_area_code
+      before_action :verify_veteran_phone_number
+      before_action :verify_veteran_phone_number_ext
+      before_action :verify_veteran_email
+      before_action :verify_veteran_service_number
+      before_action :verify_veteran_insurance_number
+      before_action :verify_claimant_first_name
+      before_action :verify_claimant_middle_initial
+      before_action :verify_claimant_last_name
+      before_action :verify_claimant_address_line1
+      before_action :verify_claimant_address_line2
+      before_action :verify_claimant_city
+      before_action :verify_claimant_country
+      before_action :verify_claimant_state_code
+      before_action :verify_claimant_zip_code
+      before_action :verify_claimant_zip_code_suffix
+      before_action :verify_claimant_area_code
+      before_action :verify_claimant_phone_number
+      before_action :verify_claimant_phone_number_ext
+      before_action :verify_claimant_email
+      before_action :verify_claimant_relationship
+
       # skip_before_action :authenticate
 
-      # TODO:
-      # Make a common validator for all addresses that we can pass the veteran, claimant, and representative addresses to.
-      # Make a common validator for all names that we can pass the veteran and claimant names to.
-      # Both of those will make this easier to read and reason about.
-
       def create
-        # We'll need a process here to check the params to make sure all the
-        # required fields are present. If not, we'll need to return an error
-        # with status: :unprocessable_entity.  If all fields are accounted for
-        # we need to fill out the 2122 PDF with the data and return the file
-        # to the front end.
-
-        # This work probably belongs in the PDF Generation ticket.
         render json: {}, status: :unprocessable_entity
       end
 
       private
 
-      def address_validator(address_line1, _address_line2, _city, _state_code, _zip_code, _zip_code_suffix, _country)
-        unless string_present_and_less_than_max_length?(address_line1, 30)
-          raise_invalid_field_value('address_line1', address_line1)
+      def verify_veteran_first_name
+        unless string_present_and_less_than_max_length?(form_params[:veteran_first_name], 12)
+          raise_invalid_field_value('veteran_first_name', form_params[:veteran_first_name])
         end
+      end
 
-        raise_invalid_field_value('address_line2', address_line2) if string_present_and_greater_than_max_length?(
-          address_line2, 50
-        )
-        raise_invalid_field_value('city', city) unless string_present_and_less_than_max_length?(city, 18)
-        raise_invalid_field_value('state_code', state_code) unless string_present_and_equal_to_length?(state_code, 2)
-        raise_invalid_field_value('zip_code', zip_code) unless string_present_and_equal_to_length?(zip_code, 5)
-        unless string_present_and_equal_to_length?(zip_code_suffix, 4)
-          raise_invalid_field_value('zip_code_suffix', zip_code_suffix)
+      def verify_veteran_middle_initial
+        middle_initial = form_params[:veteran_middle_initial]
+        if middle_initial.present? && middle_initial.is_a?(String) && middle_initial.size > 1
+          raise_invalid_field_value('veteran_middle_initial', form_params[:veteran_middle_initial])
+        end
+      end
+
+      def verify_veteran_last_name
+        unless string_present_and_less_than_max_length?(form_params[:veteran_last_name], 18)
+          raise_invalid_field_value('veteran_last_name', form_params[:veteran_last_name])
+        end
+      end
+
+      def verify_veteran_social_security_number
+        unless string_present_and_equal_to_length?(form_params[:veteran_social_security_number], 9)
+          raise_invalid_field_value('veteran_social_security_number', form_params[:veteran_social_security_number])
+        end
+      end
+
+      def verify_veteran_file_number
+        if form_params[:veteran_file_number].present? &&
+           !(form_params[:veteran_file_number].is_a?(String) ||
+           form_params[:veteran_file_number].size != 9)
+          raise_invalid_field_value('veteran_file_number', form_params[:veteran_file_number])
+        end
+      end
+
+      def verify_veteran_address_line1
+        unless string_present_and_less_than_max_length?(form_params[:veteran_address_line1], 30)
+          raise_invalid_field_value('veteran_address_line1', form_params[:veteran_address_line1])
+        end
+      end
+
+      def verify_veteran_address_line2
+        if form_params[:veteran_address_line2].present? &&
+           !(form_params[:veteran_address_line2].is_a?(String) ||
+           form_params[:veteran_address_line2].size > 5)
+          raise_invalid_field_value('veteran_address_line2', form_params[:veteran_address_line2])
+        end
+      end
+
+      def verify_veteran_city
+        unless string_present_and_less_than_max_length?(form_params[:veteran_city], 18)
+          raise_invalid_field_value('veteran_city', form_params[:veteran_city])
+        end
+      end
+
+      def verify_veteran_country
+        unless string_present_and_less_than_max_length?(form_params[:veteran_country], 2)
+          raise_invalid_field_value('veteran_country', form_params[:veteran_country])
+        end
+      end
+
+      def verify_veteran_state_code
+        unless string_present_and_equal_to_length?(form_params[:veteran_state_code], 2)
+          raise_invalid_field_value('veteran_state_code', form_params[:veteran_state_code])
+        end
+      end
+
+      def verify_veteran_zip_code
+        unless string_present_and_equal_to_length?(form_params[:veteran_zip_code], 5)
+          raise_invalid_field_value('veteran_zip_code', form_params[:veteran_zip_code])
+        end
+      end
+
+      def verify_veteran_zip_code_suffix
+        if form_params[:veteran_zip_code_suffix].present? &&
+           !(form_params[:veteran_zip_code_suffix].is_a?(String) ||
+           form_params[:veteran_zip_code_suffix].size != 4)
+          raise_invalid_field_value('veteran_zip_code_suffix', form_params[:veteran_zip_code_suffix])
+        end
+      end
+
+      def verify_veteran_area_code
+        if form_params[:veteran_area_code].present? &&
+           !(form_params[:veteran_area_code].is_a?(String) ||
+           form_params[:veteran_area_code].size != 3)
+          raise_invalid_field_value('veteran_area_code', form_params[:veteran_area_code])
+        end
+      end
+
+      def verify_veteran_phone_number
+        if form_params[:veteran_phone_number].present? &&
+            !(form_params[:veteran_phone_number].is_a?(String) ||
+            form_params[:veteran_phone_number].size != 7)
+          raise_invalid_field_value('veteran_phone_number', form_params[:veteran_phone_number])
+        end
+      end
+
+      def verify_veteran_phone_number_ext
+        if form_params[:veteran_phone_number_ext].present? &&
+            !(form_params[:veteran_phone_number_ext].is_a?(String)
+            raise_invalid_field_value('veteran_phone_number_ext', form_params[:veteran_phone_number_ext])
+        end
+      end
+
+      def verify_veteran_email
+        if form_params[:veteran_email].present? &&
+            !(form_params[:veteran_email].is_a?(String)
+            raise_invalid_field_value('veteran_email', form_params[:veteran_email])
+        end
+      end
+
+      def verify_veteran_service_number
+        if form_params[:veteran_service_number].present? &&
+            !(form_params[:veteran_service_number].is_a?(String) ||
+            form_params[:veteran_service_number].size != 9)
+          raise_invalid_field_value('veteran_service_number', form_params[:veteran_service_number])
+        end
+      end
+
+      def verify_veteran_insurance_number
+        if form_params[:veteran_insurance_number].present? &&
+          !(form_params[:veteran_insurance_number].is_a?(String) ||
+          raise_invalid_field_value('veteran_insurance_number', form_params[:veteran_insurance_number])
         end
       end
 
@@ -88,12 +218,7 @@ module RepresentationManagement
         ]
       end
 
-      def verify_veteran_params
-        # invoke all verify operations
-        verify_veteran_address
-        verify_veteran_name
-        verify_veteran_identity
-      end
+
 
       def string_present_and_less_than_max_length?(string, max_length)
         string.present? && string.is_a?(String) && string.size <= max_length
@@ -111,47 +236,11 @@ module RepresentationManagement
         raise Common::Exceptions::InvalidFieldValue.new(field_name, field_value)
       end
 
-      def verify_veteran_address
-        address_validator(form_params[:veteran_address_line1],
-                          form_params[:veteran_address_line2],
-                          form_params[:veteran_city],
-                          form_params[:veteran_state_code],
-                          form_params[:veteran_zip_code],
-                          form_params[:veteran_zip_code_suffix],
-                          form_params[:veteran_country])
-      end
 
-      def verify_veteran_name
-        first_name = form_params[:veteran_first_name]
-        middle_initial = form_params[:veteran_middle_initial]
-        last_name = form_params[:veteran_last_name]
-        unless first_name.present? && first_name.is_a?(String) && first_name.size > 12
-          raise Common::Exceptions::InvalidFieldValue.new('veteran_first_name', form_params[:veteran_first_name])
-        end
 
-        if middle_initial.present? && middle_initial.is_a?(String) && middle_initial.size > 1
-          raise Common::Exceptions::InvalidFieldValue.new('veteran_middle_initial',
-                                                          form_params[:veteran_middle_initial])
-        end
-        unless last_name.present? && last_name.is_a?(String) && last_name.size > 18
-          raise Common::Exceptions::InvalidFieldValue.new('veteran_last_name', form_params[:veteran_last_name])
-        end
-      end
 
-      def verify_veteran_identity
-        unless string_present_and_equal_to_length?(form_params[:veteran_social_security_number], 9)
-          raise_invalid_field_value('veteran_social_security_number', form_params[:veteran_social_security_number])
-        end
-        if string_present_and_equal_to_length?(form_params[:veteran_file_number], 9)
-          raise_invalid_field_value('veteran_file_number', form_params[:veteran_file_number])
-        end
-        if string_present_and_equal_to_length?(form_params[:veteran_service_number], 9)
-          raise_invalid_field_value('veteran_service_number', form_params[:veteran_service_number])
-        end
-        if string_present_and_equal_to_length?(form_params[:veteran_insurance_number], 9)
-          raise_invalid_field_value('veteran_insurance_number', form_params[:veteran_insurance_number])
-        end
-      end
+
+
 
       def veteran_params
         %i[
