@@ -1684,7 +1684,7 @@ spec/serializers/form1010cg @department-of-veterans-affairs/vfs-10-10 @departmen
 spec/serializers/health_care_application_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/serializers/in_progress_form_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/serializers/intent_to_file_serializer_spec.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/serializers/letter_beneficiary_serializer_spec.rb @department-of-veterans-affairs/mobile-api-team
+spec/serializers/letter_beneficiary_serializer_spec.rb @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/backend-review-group
 spec/serializers/letters_serializer_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/serializers/lighthouse @department-of-veterans-affairs/vfs-facilities
 spec/serializers/message_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
