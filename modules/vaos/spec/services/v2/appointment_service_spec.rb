@@ -1145,6 +1145,14 @@ describe VAOS::V2::AppointmentsService do
         end
       end
     end
+
+    context 'with non-hash body' do
+      it 'returns nil' do
+        VCR.use_cassette('vaos/v2/appointments/avs-search-error', match_requests_on: %i[method path query]) do
+          expect(subject.send(:get_avs_link, appt)).to eq(nil)
+        end
+      end
+    end
   end
 
   describe '#fetch_avs_and_update_appt_body' do
