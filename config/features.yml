@@ -224,10 +224,6 @@ features:
     actor_type: user
     description: Enables users to submit FSR forms for VHA and VBA debts
     enable_in_development: true
-  combined_financial_status_report_enhancements:
-    actor_type: user
-    description: Enables users to interact with the new cFSR enhancements and avoid list loops
-    enable_in_development: true
   communication_preferences:
     actor_type: user
     description: Allow user to access backend communication_preferences API
@@ -483,14 +479,6 @@ features:
   financial_status_report_expenses_update:
     actor_type: user
     description: Update expense lists in the Financial Status Report (FSR - 5655) form
-    enable_in_development: true
-  financial_status_report_streamlined_waiver:
-    actor_type: user
-    description: Enables streamlined waiver flow for qualifying users completing the Financial Status Report (FSR) form
-    enable_in_development: true
-  financial_status_report_streamlined_waiver_assets:
-    actor_type: user
-    description: Enables a simplified asset calculation flow, including Cash in Bank, for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
   financial_status_report_review_page_navigation:
     actor_type: user
