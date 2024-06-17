@@ -332,6 +332,9 @@ features:
     actor_type: user
     description: Enables saving a copy of encrypted decision review evidence attachment files for manual validation
     enable_in_development: true
+  decision_review_hlr_form_v4_enabled:
+    actor_type: user
+    description: Enable using MAR 2024 revision of 200996 Higher Level Review form when submitting to EMMS for intake
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
