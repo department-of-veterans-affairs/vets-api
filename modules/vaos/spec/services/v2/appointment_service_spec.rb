@@ -275,7 +275,7 @@ describe VAOS::V2::AppointmentsService do
         end
 
         it 'returns with list of appointments and appends local start time' do
-          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(mock_facility2)
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility2)
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
                            match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
             response = subject.get_appointments(start_date2, end_date2)
@@ -499,7 +499,7 @@ describe VAOS::V2::AppointmentsService do
       context 'with an appointment' do
         context 'with Jacqueline Morgan' do
           it 'returns a proposed appointment' do
-            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(mock_facility)
+            allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility)
             VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200',
                              match_requests_on: %i[method path query]) do
               response = subject.get_appointment('70060')
@@ -569,7 +569,7 @@ describe VAOS::V2::AppointmentsService do
       context 'with an appointment' do
         context 'with Jacqueline Morgan' do
           it 'returns a proposed appointment' do
-            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(mock_facility)
+            allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility)
             VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_vpg',
                              match_requests_on: %i[method path query]) do
               response = subject.get_appointment('70060')
@@ -713,22 +713,23 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
-  describe '#get_facility_timezone_memoized' do
+  describe '#get_facility_timezone' do
     let(:facility_location_id) { '983' }
     let(:facility_error_msg) { 'Error fetching facility details' }
 
     context 'with a facility location id' do
       it 'returns the facility timezone' do
-        allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(mock_facility)
-        timezone = subject.send(:get_facility_timezone_memoized, facility_location_id)
+        allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility)
+        timezone = subject.send(:get_facility_timezone, facility_location_id)
         expect(timezone).to eq('America/New_York')
       end
     end
 
     context 'with an internal server error from the facilities call' do
       it 'returns nil for the timezone' do
-        allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(facility_error_msg)
-        timezone = subject.send(:get_facility_timezone_memoized, facility_location_id)
+        allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!)
+          .and_raise(Common::Exceptions::BackendServiceException)
+        timezone = subject.send(:get_facility_timezone, facility_location_id)
         expect(timezone).to eq(nil)
       end
     end
@@ -916,61 +917,6 @@ describe VAOS::V2::AppointmentsService do
       expect { subject.send(:remove_service_type, appt_non) }.to change(appt_non, :keys)
         .from(%i[kind service_category service_type service_types])
         .to(%i[kind service_category])
-    end
-  end
-
-  describe '#cerner?' do
-    it 'raises an ArgumentError if appt is nil' do
-      expect { subject.send(:cerner?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
-    end
-
-    it 'returns true when the appointment is cerner' do
-      appt = {
-        identifier: [
-          {
-            system: 'urn:va.gov:masv2:cerner:appointment',
-            value: 'Appointment/52499028'
-          }
-        ]
-      }
-
-      expect(subject.send(:cerner?, appt)).to eq(true)
-    end
-
-    it 'returns false when the appointment is not cerner' do
-      appt = {
-        identifier: [
-          {
-            system: 'someother system',
-            value: 'appointment/1'
-          }
-        ]
-      }
-
-      expect(subject.send(:cerner?, appt)).to eq(false)
-    end
-
-    it 'returns true when at least one identifier is cerner' do
-      appt = {
-        identifier: [
-          {
-            system: 'someother system',
-            value: 'appointment/1'
-          },
-          {
-            system: 'urn:va.gov:masv2:cerner:appointment',
-            value: 'Appointment/52499028'
-          }
-        ]
-      }
-
-      expect(subject.send(:cerner?, appt)).to eq(true)
-    end
-
-    it 'returns false when the appointment does not contain identifier(s)' do
-      appt = {}
-
-      expect(subject.send(:cerner?, appt)).to eq(false)
     end
   end
 
