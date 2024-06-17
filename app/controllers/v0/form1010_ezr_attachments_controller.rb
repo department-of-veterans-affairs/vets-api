@@ -5,6 +5,6 @@ module V0
     include FormAttachmentCreate
     service_tag 'health-information-update'
 
-    FORM_ATTACHMENT_MODEL = HCAAttachment
+    FORM_ATTACHMENT_MODEL = Form1010EzrAttachment
   end
 end

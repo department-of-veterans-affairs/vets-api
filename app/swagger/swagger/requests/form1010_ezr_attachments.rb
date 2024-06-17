@@ -9,6 +9,7 @@ module Swagger
         operation :post do
           extend Swagger::Responses::BadRequestError
           extend Swagger::Responses::UnprocessableEntityError
+          extend Swagger::Responses::AuthenticationError
 
           key :description, 'Submit a 10-10EZR form attachment'
           key :operationId, 'postForm1010EzrAttachment'
