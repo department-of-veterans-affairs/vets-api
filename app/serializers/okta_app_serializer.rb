@@ -12,4 +12,8 @@ class OktaAppSerializer < ActiveModel::Serializer
       }
     end
   end
+
+  def read_attribute_for_serialization(attr)
+    object[attr.to_s] || object['attributes'][attr.to_s]
+  end
 end
