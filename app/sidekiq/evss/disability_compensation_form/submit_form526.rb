@@ -104,9 +104,8 @@ module EVSS
                          Account.find_by(idme_uuid: submission.user_uuid)
 
           begin
-            submit_to_claims_api = submission.claims_api?
             # send submission data to either EVSS or Lighthouse (LH)
-            response = if submit_to_claims_api # not needed once fully migrated to LH
+            response = if submit_to_claims_api? # not needed once fully migrated to LH
                          # submit 526 through LH API
                          # 1. get user's ICN
                          icn = user_account.icn
