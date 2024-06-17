@@ -23,7 +23,7 @@ module VAOS
 
       def facility
         @facility ||=
-          mobile_facility_service.get_facility!(facility_id)
+          mobile_facility_service.get_facility(facility_id)
       end
 
       def facility_id

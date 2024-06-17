@@ -17,9 +17,9 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
   before do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-    allow_any_instance_of(VAOS::V2::MobileFacilityService).to \
+    allow_any_instance_of(Mobile::AppointmentsHelper).to \
       receive(:get_clinic).and_return(mock_clinic)
-    allow_any_instance_of(VAOS::V2::MobileFacilityService).to \
+    allow_any_instance_of(Mobile::AppointmentsHelper).to \
       receive(:get_facility).and_return(mock_facility)
   end
 

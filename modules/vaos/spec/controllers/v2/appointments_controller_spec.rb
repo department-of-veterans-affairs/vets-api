@@ -42,6 +42,17 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
     end
   end
 
+  describe '#get_clinic_memoized' do
+    context 'when clinic service throws an error' do
+      it 'returns nil' do
+        allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic_with_cache)
+          .and_raise(Common::Exceptions::BackendServiceException.new('VAOS_502', {}))
+
+        expect(subject.send(:get_clinic_memoized, '123', '3456')).to be_nil
+      end
+    end
+  end
+
   describe '#start_date' do
     context 'with an invalid date' do
       it 'throws an InvalidFieldValue exception' do
@@ -62,6 +73,17 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         expect do
           subject.send(:end_date)
         end.to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
+
+  describe '#merge_facilities' do
+    context 'with a cerner facility and location with no values' do
+      it 'does not log and does not throw an error' do
+        allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility_memoized).and_return(nil)
+        appointments = [{ identifier: [{ system: 'https://cerner/system' }], location_id: '123' }]
+        expect(Rails.logger).not_to receive(:info)
+        subject.send(:merge_facilities, appointments)
       end
     end
   end
