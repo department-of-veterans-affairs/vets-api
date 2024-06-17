@@ -469,6 +469,10 @@ features:
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
+  fsr_5655_server_side_transform:
+    actor_type: user
+    description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
+    enable_in_development: true
   financial_status_report_debts_api_module:
     actor_type: user
     description: Points to debts-api module routes
