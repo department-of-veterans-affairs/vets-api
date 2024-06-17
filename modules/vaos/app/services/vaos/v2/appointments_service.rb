@@ -157,8 +157,10 @@ module VAOS
       end
 
       def prepare_appointment(appointment)
-        # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
-        set_cancellable_false(appointment) if cnp?(appointment) || covid?(appointment)
+        # for CnP, covid, CC and telehealth appointments set cancellable to false per GH#57824, GH#58690, ZH#326
+        if cnp?(appointment) || covid?(appointment) || cc?(appointment) || telehealth?(appointment)
+          set_cancellable_false(appointment)
+        end
 
         # remove service type(s) for non-medical non-CnP appointments per GH#56197
         unless medical?(appointment) || cnp?(appointment) || no_service_cat?(appointment)
@@ -364,6 +366,32 @@ module VAOS
         return [] if input.nil?
 
         input.flat_map { |codeable_concept| codeable_concept[:coding]&.pluck(:code) }.compact
+      end
+
+      # Determines if the appointment is for community care.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is for community care, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def cc?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt[:kind] == 'cc'
+      end
+
+      # Determines if the appointment is for telehealth.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is for telehealth, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def telehealth?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt[:kind] == 'telehealth'
       end
 
       # Determines if the appointment is for compensation and pension.
