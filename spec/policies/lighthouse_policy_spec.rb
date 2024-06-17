@@ -85,6 +85,16 @@ describe LighthousePolicy do
         end
       end
 
+      context 'user with blank first name (single name user)' do
+        let(:user) { build(:user, :loa3) }
+
+        before { allow(user).to receive(:first_name).and_return('') }
+
+        it 'grants access' do
+          expect(subject).to permit(user, :lighthouse)
+        end
+      end
+
       context 'user without Participant ID' do
         let(:user) { build(:user, :loa3) }
 
