@@ -74,6 +74,10 @@ features:
     actor_type: user
     description: Enables Toxic Exposure questions for 10-10EZR applicants.
     enable_in_development: true
+  ezr_upload_enabled:
+    actor_type: user
+    description: Enables Toxic Exposure File Upload for 10-10EZR applicants.
+    enable_in_development: true
   ezr_auth_only_enabled:
     actor_type: user
     description: Enables the auth-only experience, allowing only authenticated users to view any part of the form.
@@ -379,6 +383,9 @@ features:
   disability_526_ep_merge_api:
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.
+  disability_526_ep_merge_new_claims:
+    actor_type: user
+    description: enables EP Merge for single-contention 526 claims for a new condition
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
@@ -462,6 +469,10 @@ features:
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
+  fsr_5655_server_side_transform:
+    actor_type: user
+    description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
+    enable_in_development: true
   financial_status_report_debts_api_module:
     actor_type: user
     description: Points to debts-api module routes
@@ -559,6 +570,10 @@ features:
   form20_10206_confirmation_email:
     actor_type: user
     description: Enables form 20-10206 email submission confirmation (VaNotify)
+    enable_in_development: true
+  form20_10207_confirmation_email:
+    actor_type: user
+    description: Enables form 20-10207 email submission confirmation (VaNotify)
     enable_in_development: true
   form21_0845_confirmation_email:
     actor_type: user
@@ -1150,10 +1165,6 @@ features:
     actor_type: user
     description: Allows toggling of MAP STS OAuth token for VAOS
     enable_in_development: true
-  va_online_scheduling_GA4_migration:
-    actor_type: user
-    description: Toggle for the GA4 events migration work.
-    enable_in_development: true
   va_online_scheduling_vaos_service_cc_appointments:
     actor_type: user
     description: Toggle for new vaos service cc appointments.
@@ -1375,9 +1386,6 @@ features:
   disability_compensation_lighthouse_claims_service_provider:
     actor_type: user
     description: If enabled uses the lighthouse claims service
-  disability_compensation_lighthouse_submit_migration:
-    actor_type: user
-    description: If enabled uses the lighthouse submit endpoint
   disability_compensation_lighthouse_intent_to_file_provider:
     actor_type: user
     description: If enabled uses the lighthouse intent to file endpoint
@@ -1515,8 +1523,12 @@ features:
     description: Enable RES platform for Veteran Readiness & Employment form submissions, disabled will use VRE email
     enable_in_development: true
   vye_login_widget:
-     actor_type: user
-     description: Enable Vye authentication widget
-  toggle_vye_address_direct_deposit_forms_in_profile: 
-     actor_type: user
-     description: Enable mailing address and direct deposit for VYE in profile page
+    actor_type: user
+    description: Enable Vye authentication widget
+  toggle_vye_address_direct_deposit_forms_in_profile:
+    actor_type: user
+    description: Enable mailing address and direct deposit for VYE in profile page
+  use_facilities_api_v2_for_cerner_cta:
+    actor_type: user
+    description: Use the new facilities API v2 for the Cerner CTA. Estimated time of removal June 18, 2024 after testing of deployment on staging of authenticated user.
+    enable_in_development: true

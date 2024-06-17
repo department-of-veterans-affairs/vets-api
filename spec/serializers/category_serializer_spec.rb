@@ -10,11 +10,11 @@ RSpec.describe CategorySerializer do
   let(:attributes) { data['attributes'] }
   let(:links) { data['links'] }
 
-  it 'includes id' do
+  it 'includes :id' do
     expect(data['id'].to_i).to eq(category.category_id)
   end
 
-  it 'has a list of category types' do
-    expect(attributes['message_category_type'].length).to be_positive
+  it 'includes :message_category_type' do
+    expect(attributes['message_category_type']).to eq(category.message_category_type)
   end
 end
