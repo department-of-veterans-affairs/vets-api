@@ -30,7 +30,12 @@
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
             },
-            "aptUnitNumber":   { "type": "integer" },
+            "aptUnitNumber": {
+              "oneOf": [
+                { "type": "integer" },
+                { "type":"string" }
+              ]
+            },
             "city": {
               "description": "City for the address.",
               "type": "string",
