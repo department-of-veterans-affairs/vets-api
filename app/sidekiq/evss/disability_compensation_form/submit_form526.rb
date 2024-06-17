@@ -103,7 +103,6 @@ module EVSS
           user_account = UserAccount.find_by(id: submission.user_account_id) ||
                          Account.find_by(idme_uuid: submission.user_uuid)
 
-          user = OpenStruct.new({ user_account_uuid: user_account.id, flipper_id: user_account.id })
           begin
             submit_to_claims_api = submission.claims_api?
             # send submission data to either EVSS or Lighthouse (LH)
