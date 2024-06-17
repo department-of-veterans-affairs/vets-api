@@ -21,7 +21,7 @@ class EVSSClaimBaseSerializer < ActiveModel::Serializer
       when 'yes' then true
       when 'no' then false
       else
-        Rails.logger.error "Expected key EVSS '#{keys}' to be Yes/No. Got '#{s}'."
+        Rails.logger.error "Expected key EVSS '#{names.join('/')}' to be Yes/No. Got '#{s}'."
         nil
       end
     end
