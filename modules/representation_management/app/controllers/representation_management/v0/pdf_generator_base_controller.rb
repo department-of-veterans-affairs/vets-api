@@ -25,6 +25,22 @@ module RepresentationManagement
 
       private
 
+      def address_validator(address_line1, _address_line2, _city, _state_code, _zip_code, _zip_code_suffix, _country)
+        unless string_present_and_less_than_max_length?(address_line1, 30)
+          raise_invalid_field_value('address_line1', address_line1)
+        end
+
+        raise_invalid_field_value('address_line2', address_line2) if string_present_and_greater_than_max_length?(
+          address_line2, 50
+        )
+        raise_invalid_field_value('city', city) unless string_present_and_less_than_max_length?(city, 18)
+        raise_invalid_field_value('state_code', state_code) unless string_present_and_equal_to_length?(state_code, 2)
+        raise_invalid_field_value('zip_code', zip_code) unless string_present_and_equal_to_length?(zip_code, 5)
+        unless string_present_and_equal_to_length?(zip_code_suffix, 4)
+          raise_invalid_field_value('zip_code_suffix', zip_code_suffix)
+        end
+      end
+
       def form_params
         params.permit(all_params)
       end
@@ -83,6 +99,10 @@ module RepresentationManagement
         string.present? && string.is_a?(String) && string.size <= max_length
       end
 
+      def string_present_and_greater_than_max_length?(string, max_length)
+        string.present? && string.is_a?(String) && string.size > max_length
+      end
+
       def string_present_and_equal_to_length?(string, length)
         string.present? && string.is_a?(String) && string.size == length
       end
@@ -92,25 +112,13 @@ module RepresentationManagement
       end
 
       def verify_veteran_address
-        unless string_present_and_greater_than_max_length?(form_params[:veteran_address_line1], 30)
-          raise_invalid_field_value('veteran_address_line1', form_params[:veteran_address_line1])
-        end
-
-        if string_present_and_greater_than_max_length?(form_params[:veteran_address_line2], 50)
-          raise_invalid_field_value('veteran_address_line2', form_params[:veteran_address_line2])
-        end
-        unless string_present_and_greater_than_max_length?(form_params[:veteran_city], 18)
-          raise_invalid_field_value('veteran_city', form_params[:veteran_city])
-        end
-        unless string_present_and_equal_to_length?(form_params[:veteran_state_code], 2)
-          raise_invalid_field_value('veteran_state_code', form_params[:veteran_state_code])
-        end
-        unless string_present_and_equal_to_length?(form_params[:veteran_zip_code], 5)
-          raise_invalid_field_value('veteran_zip_code', form_params[:veteran_zip_code])
-        end
-        unless string_present_and_equal_to_length?(form_params[:veteran_zip_code_suffix], 4)
-          raise_invalid_field_value('veteran_zip_code_suffix', form_params[:veteran_zip_code_suffix])
-        end
+        address_validator(form_params[:veteran_address_line1],
+                          form_params[:veteran_address_line2],
+                          form_params[:veteran_city],
+                          form_params[:veteran_state_code],
+                          form_params[:veteran_zip_code],
+                          form_params[:veteran_zip_code_suffix],
+                          form_params[:veteran_country])
       end
 
       def verify_veteran_name
@@ -136,6 +144,12 @@ module RepresentationManagement
         end
         if string_present_and_equal_to_length?(form_params[:veteran_file_number], 9)
           raise_invalid_field_value('veteran_file_number', form_params[:veteran_file_number])
+        end
+        if string_present_and_equal_to_length?(form_params[:veteran_service_number], 9)
+          raise_invalid_field_value('veteran_service_number', form_params[:veteran_service_number])
+        end
+        if string_present_and_equal_to_length?(form_params[:veteran_insurance_number], 9)
+          raise_invalid_field_value('veteran_insurance_number', form_params[:veteran_insurance_number])
         end
       end
 
