@@ -105,7 +105,7 @@ module EVSS
 
           begin
             # send submission data to either EVSS or Lighthouse (LH)
-            response = if submission.submit_to_claims_api? # not needed once fully migrated to LH
+            response = if submission.claims_api? # not needed once fully migrated to LH
                          # submit 526 through LH API
                          # 1. get user's ICN
                          icn = user_account.icn
