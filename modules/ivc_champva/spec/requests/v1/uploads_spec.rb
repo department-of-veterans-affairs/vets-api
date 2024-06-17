@@ -3,6 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe 'Forms uploader', type: :request do
+  # forms_numbers_and_classes is a hash that maps form numbers if they have attachments
+  form_numbers_and_classes = {
+    '10-10D' => IvcChampva::VHA1010d,
+    '10-7959C' => IvcChampva::VHA107959c,
+    '10-7959F-2' => IvcChampva::VHA107959f2
+  }
+
   forms = [
     'vha_10_10d.json',
     'vha_10_7959f_1.json',
@@ -25,6 +32,8 @@ RSpec.describe 'Forms uploader', type: :request do
       data = JSON.parse(fixture_path.read)
 
       it 'uploads a PDF file to S3' do
+        mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
+        allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
         allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
 
         post '/ivc_champva/v1/forms', params: data
@@ -59,6 +68,110 @@ RSpec.describe 'Forms uploader', type: :request do
         resp = JSON.parse(response.body)
         expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
         expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+      end
+    end
+  end
+
+  describe '#get_form_id' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+
+    it 'returns the correct form ID for a valid form number' do
+      allow(controller).to receive(:params).and_return({ form_number: '10-10D' })
+      form_id = controller.send(:get_form_id)
+
+      expect(form_id).to eq('vha_10_10d')
+    end
+
+    it 'raises an error for a missing form number' do
+      allow(controller).to receive(:params).and_return({})
+      expect { controller.send(:get_form_id) }.to raise_error('missing form_number in params')
+    end
+  end
+
+  describe '#get_attachment_ids_and_form' do
+    it 'returns the correct attachment ids and form' do
+      attachments = [double('Attachment', id: 1), double('Attachment', id: 2)]
+      form = double('Form', id: 1)
+
+      allow(controller).to receive(:get_attachment_ids_and_form).and_return([attachments.map(&:id), form])
+
+      result = controller.get_attachment_ids_and_form
+      expect(result).to eq([[1, 2], form])
+    end
+  end
+
+  describe '#generate_attachment_ids' do
+    it 'generates the correct attachment ids' do
+      attachments = [double('Attachment', id: 1), double('Attachment', id: 2)]
+
+      allow(controller).to receive(:generate_attachment_ids).and_return(attachments.map(&:id))
+
+      result = controller.generate_attachment_ids
+      expect(result).to eq([1, 2])
+    end
+  end
+
+  describe '#supporting_document_ids' do
+    it 'returns the correct supporting document ids' do
+      documents = [double('Document', id: 1), double('Document', id: 2)]
+
+      allow(controller).to receive(:supporting_document_ids).and_return(documents.map(&:id))
+
+      result = controller.supporting_document_ids
+      expect(result).to eq([1, 2])
+    end
+  end
+
+  describe '#get_file_paths_and_metadata' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+
+    form_numbers_and_classes.each do |form_number, form_class|
+      context "when form_number is #{form_number}" do
+        let(:parsed_form_data) do
+          {
+            'form_number' => form_number,
+            'supporting_docs' => [
+              { 'attachment_id' => 'doc1' },
+              { 'attachment_id' => 'doc2' }
+            ]
+          }
+        end
+
+        it 'returns the correct file paths, metadata, and attachment IDs' do
+          allow(controller).to receive(:get_attachment_ids_and_form).and_return([%w[doc1 doc2], form_class.new({})])
+          allow_any_instance_of(IvcChampva::PdfFiller).to receive(:generate).and_return('file_path')
+          allow(IvcChampva::MetadataValidator).to receive(:validate).and_return('metadata')
+          allow_any_instance_of(form_class).to receive(:handle_attachments).and_return(['file_path'])
+
+          file_paths, metadata, attachment_ids = controller.send(:get_file_paths_and_metadata, parsed_form_data)
+
+          expect(file_paths).to eq(['file_path'])
+          expect(metadata).to eq('metadata')
+          expect(attachment_ids).to eq(%w[doc1 doc2])
+        end
+      end
+    end
+  end
+
+  describe '#build_json' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+
+    context 'when all status codes are 200' do
+      it 'returns a status of 200' do
+        expect(controller.send(:build_json, [200, 200], 'Error')).to eq({ status: 200 })
+      end
+    end
+
+    context 'when all status codes are 400' do
+      it 'returns a status of 400 and an error message' do
+        expect(controller.send(:build_json, [400, 400], 'Error')).to eq({ error_message: 'Error', status: 400 })
+      end
+    end
+
+    context 'when status codes are mixed' do
+      it 'returns a status of 206 and a partial failure message' do
+        expect(controller.send(:build_json, [200, 400], 'Error')).to eq({ error_message:
+        'Partial upload failure', status: 206 })
       end
     end
   end

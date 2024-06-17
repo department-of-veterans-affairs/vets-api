@@ -14,12 +14,16 @@ module BenefitsClaims
 
     def initialize(icn)
       @icn = icn
-      raise ArgumentError, 'no ICN passed in for LH API request.' if icn.blank?
-
-      super()
+      if icn.blank?
+        raise ArgumentError, 'no ICN passed in for LH API request.'
+      else
+        super()
+      end
     end
 
     def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+      Rails.logger.info("Get claims - icn: #{@icn.present?}, client_id: #{lighthouse_client_id.present?},
+                        lighthouse_rsa: #{lighthouse_rsa_key_path.present?}")
       claims = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
       claims['data'] = filter_by_status(claims['data'])
       claims
@@ -30,6 +34,9 @@ module BenefitsClaims
     end
 
     def get_claim(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+      Rails.logger.info("Get claim - icn: #{@icn.present?}, get_claim: #{id.present?},
+                        client_id: #{lighthouse_client_id.present?},
+                        lighthouse_rsa: #{lighthouse_rsa_key_path.present?}")
       config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
@@ -89,8 +96,10 @@ module BenefitsClaims
       handle_error(e, lighthouse_client_id, endpoint)
     end
 
-    # submit form526 to Lighthouse API endpoint: /services/claims/v2/veterans/{veteranId}/526 or
-    # /services/claims/v2/veterans/{veteranId}/526/generatePdf
+    # submit form526 to Lighthouse API endpoint:
+    # /services/claims/v2/veterans/{veteranId}/526/synchronous,
+    # /services/claims/v2/veterans/{veteranId}/526/generatePdf,
+    # or /services/claims/v2/veterans/{veteranId}/526 (asynchronous)
     # @param [hash || Requests::Form526] body: a hash representing the form526
     # attributes in the Lighthouse request schema
     # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
@@ -100,14 +109,9 @@ module BenefitsClaims
     # @option options [string] :aud_claim_url option to override the aud_claim_url for LH Veteran Verification APIs
     # @option options [hash] :auth_params a hash to send in auth params to create the access token
     # @option options [hash] :generate_pdf call the generatePdf endpoint to receive the 526 pdf
+    # @option options [hash] :asynchronous call the asynchronous endpoint
     def submit526(body, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      endpoint = '{icn}/526'
-      path = "#{@icn}/526"
-
-      if options[:generate_pdf].present?
-        path += '/generatePDF/minimum-validations'
-        endpoint += '/generatePDF/minimum-validations'
-      end
+      endpoint, path = submit_endpoint(options)
 
       body = prepare_submission_body(body)
 
@@ -122,15 +126,55 @@ module BenefitsClaims
       handle_error(e, lighthouse_client_id, endpoint)
     end
 
+    # submit form526 to Lighthouse API endpoint:
+    # /services/claims/v2/veterans/{veteranId}/526/validate
+    # @param [hash || Requests::Form526] body: a hash representing the form526
+    # attributes in the Lighthouse request schema
+    # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
+    # @param [string] lighthouse_rsa_key_path: absolute path to the rsa key file
+    # @param [hash] options: options to override aud_claim_url, params, and auth_params
+    # @option options [hash] :body_only only return the body from the request
+    #
+    # NOTE: this method is similar to submit526.  The
+    # only difference is the path and endpoint values
+    #
+    def validate526(body,
+                    lighthouse_client_id = nil,
+                    lighthouse_rsa_key_path = nil,
+                    options = {})
+
+      endpoint  = '{icn}/526/validate'
+      path      = "#{@icn}/526/validate"
+      body      = prepare_submission_body(body)
+
+      response = config.post(
+        path,
+        body,
+        lighthouse_client_id,
+        lighthouse_rsa_key_path,
+        options
+      )
+
+      submit_response(response, options[:body_only])
+    rescue  Faraday::ClientError,
+            Faraday::ServerError => e
+      handle_error(e, lighthouse_client_id, endpoint)
+    end
+
+    ######################################
     private
 
     def build_request_body(body)
-      {
-        data: {
-          type: 'form/526',
-          attributes: body
+      body = body.as_json
+      if body.dig('data', 'attributes').nil?
+        body = {
+          data: {
+            type: 'form/526',
+            attributes: body
+          }
         }
-      }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
+      end
+      body.as_json.deep_transform_keys { |k| k.camelize(:lower) }
     end
 
     def prepare_submission_body(body)
@@ -180,6 +224,27 @@ module BenefitsClaims
         # return the whole response
         response
       end
+    end
+
+    # chooses the path and endpoint for submission
+    # "synchronous" is the default
+    def submit_endpoint(options)
+      # nothing past the "526" in the path means asynchronous endpoint
+      endpoint = '{icn}/526'
+      path = "#{@icn}/526"
+
+      if options[:generate_pdf].present?
+        path = "#{@icn}/526/generatePDF/minimum-validations"
+        endpoint = '{icn}/526/generatePDF/minimum-validations'
+      end
+
+      # "synchronous" should be the default
+      if options[:asynchronous].blank? && options[:generate_pdf].blank?
+        path = "#{@icn}/526/synchronous"
+        endpoint = '{icn}/526/synchronous'
+      end
+
+      [endpoint, path]
     end
 
     def filter_by_status(items)

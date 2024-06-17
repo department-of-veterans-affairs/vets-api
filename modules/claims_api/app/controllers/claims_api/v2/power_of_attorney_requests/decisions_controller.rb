@@ -7,16 +7,21 @@ module ClaimsApi
         before_action :validate_json!, only: :create
 
         def create
-          attrs =
-            @body.dig('data', 'attributes').deep_transform_keys do |key|
-              key.underscore.to_sym
-            end
-
           PowerOfAttorneyRequestService::Decide.perform(
-            params[:id], attrs
+            params[:power_of_attorney_request_id],
+            deserialize(@body)
           )
 
           head :no_content
+        end
+
+        private
+
+        def deserialize(body)
+          body = body.dig('data', 'attributes')
+          body.deep_transform_keys do |key|
+            key.underscore.to_sym
+          end
         end
       end
     end

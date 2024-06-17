@@ -12,6 +12,7 @@ RSpec.describe FormProfile, type: :model do
   before do
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
+    Flipper.disable(:disability_526_toxic_exposure)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
   end
 
@@ -749,7 +750,8 @@ RSpec.describe FormProfile, type: :model do
       'bankAccountNumber' => '*********1234',
       'bankAccountType' => 'Checking',
       'bankName' => 'Comerica',
-      'bankRoutingNumber' => '*****2115'
+      'bankRoutingNumber' => '*****2115',
+      'includeToxicExposure' => true
     }
   end
 
@@ -902,7 +904,8 @@ RSpec.describe FormProfile, type: :model do
         character_of_discharge_code: nil,
         deployments: [],
         end_date: '2018-10-31',
-        personnel_category_type_code: 'N',
+        period_of_service_type_code: 'N',
+        period_of_service_type_text: 'National Guard member',
         service_type: 'Military Service',
         termination_reason_code: 'C',
         termination_reason_text: 'Completion of Active Service period'
@@ -914,7 +917,8 @@ RSpec.describe FormProfile, type: :model do
         character_of_discharge_code: nil,
         deployments: [],
         end_date: '2012-12-31',
-        personnel_category_type_code: 'N',
+        period_of_service_type_code: 'N',
+        period_of_service_type_text: 'National Guard member',
         service_type: 'Military Service',
         termination_reason_code: 'C',
         termination_reason_text: 'Completion of Active Service period'
@@ -926,7 +930,8 @@ RSpec.describe FormProfile, type: :model do
         character_of_discharge_code: nil,
         deployments: [],
         end_date: '2008-12-01',
-        personnel_category_type_code: 'N',
+        period_of_service_type_code: 'N',
+        period_of_service_type_text: 'National Guard member',
         service_type: 'Military Service',
         termination_reason_code: 'C',
         termination_reason_text: 'Completion of Active Service period'
@@ -1587,6 +1592,7 @@ RSpec.describe FormProfile, type: :model do
             it 'returns prefilled 21-526EZ' do
               Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
               Flipper.disable(:disability_compensation_remove_pciu)
+              Flipper.enable(:disability_526_toxic_exposure, user)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                   VCR.use_cassette('evss/ppiu/payment_information') do
@@ -1619,6 +1625,7 @@ RSpec.describe FormProfile, type: :model do
 
             it 'returns prefilled 21-526EZ' do
               Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
+              Flipper.enable(:disability_526_toxic_exposure, user)
               expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
               expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
               VCR.use_cassette('evss/pciu_address/address_domestic') do

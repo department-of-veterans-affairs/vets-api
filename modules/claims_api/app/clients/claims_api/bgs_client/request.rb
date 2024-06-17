@@ -17,15 +17,10 @@ module ClaimsApi
         @external_id = external_id
       end
 
-      def perform(body, &)
-        unless [body, block_given?].one? # blank string is counted
-          error_message = 'One and only one of `body` or `block` is required'
-          raise ArgumentError, error_message
-        end
-
+      def perform(&)
         body =
           log_duration('built_request') do
-            body ||= Envelope::Body.build(&)
+            body = Envelope::Body.build(&)
             build_request(body)
           end
 
@@ -83,7 +78,12 @@ module ClaimsApi
       end
 
       def parse_response!(body)
-        body = Hash.from_xml(body)
+        body =
+          # `Nokogiri` is 6 times as fast as our default backend `REXML` here.
+          ActiveSupport::XmlMini.with_backend('Nokogiri') do
+            Hash.from_xml(body)
+          end
+
         body = body.dig('Envelope', 'Body').to_h
         fault = body['Fault'].to_h
 
@@ -98,7 +98,7 @@ module ClaimsApi
         body.dig(
           "#{@action.name}Response",
           @action.key
-        ).to_h
+        )
       end
 
       # The underlying Faraday exceptions will be the `#cause` of our wrapped

@@ -48,8 +48,10 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         claim_process_type = pdf_data[:data][:attributes][:claimProcessType]
+        claim_notes = pdf_data[:data][:attributes][:overflowText]
 
         expect(claim_process_type).to eq('STANDARD_CLAIM_PROCESS')
+        expect(claim_notes).to eq('Some things that are important to know, and are not included in any other place.')
       end
 
       describe 'when the claimProcessType is BDD_PROGRAM' do
@@ -348,6 +350,35 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(additional_exposure_dates).to eq(nil)
       end
 
+      context "526 section 4, herbicideHazardService.servedInHerbicideHazardLocations exposures can answer 'NO'" do
+        it 'maps the attributes correctly' do
+          toxic_exp_data = form_attributes['toxicExposure']
+          toxic_exp_data['herbicideHazardService']['serviceDates']['beginDate'] = nil
+          toxic_exp_data['herbicideHazardService']['serviceDates']['endDate'] = nil
+          toxic_exp_data['herbicideHazardService']['servedInHerbicideHazardLocations'] = 'NO'
+          toxic_exp_data['herbicideHazardService']['otherLocationsServed'] = nil
+
+          mapper.map_claim
+
+          exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
+          expect(exposure_info[:herbicideHazardService][:servedInHerbicideHazardLocations]).to eq('NO')
+        end
+      end
+
+      context '526 section 4, gulfWarHazardService exposures null data' do
+        it 'maps the attributes correctly' do
+          toxic_exp_data = form_attributes['toxicExposure']
+          toxic_exp_data['gulfWarHazardService']['serviceDates']['beginDate'] = nil
+          toxic_exp_data['gulfWarHazardService']['serviceDates']['endDate'] = nil
+          toxic_exp_data['gulfWarHazardService']['servedInGulfWarHazardLocations'] = nil
+
+          mapper.map_claim
+
+          exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
+          expect(exposure_info[:gulfWarHazardService]).to eq(nil)
+        end
+      end
+
       context '526 section 4, herbicideHazardService exposures null data' do
         it 'maps the attributes correctly' do
           toxic_exp_data = form_attributes['toxicExposure']
@@ -584,7 +615,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(obl_end).to eq({ month: '06', day: '04', year: '2020' })
         expect(unit_name).to eq('National Guard Unit Name')
         expect(unit_address).to eq('1243 pine court')
-        expect(unit_phone).to eq('555-555-5555')
+        expect(unit_phone).to eq('5555555555')
         expect(act_duty_pay).to eq('YES')
         expect(other_name).to eq('YES')
         expect(alt_names).to eq(['john jacob', 'johnny smith'])
@@ -601,6 +632,17 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
         actual = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:unitPhoneNumber]
         expect(actual).to eq(nil)
+      end
+
+      it 'maps service info correctly when a phone number has a dash' do
+        form_attributes['serviceInformation']['reservesNationalGuardService']['unitPhone']['areaCode'] = '303'
+        arr = form_attributes['serviceInformation']['reservesNationalGuardService']['unitPhone']['phoneNumber'].chars
+        arr.insert(3, '-')
+        form_attributes['serviceInformation']['reservesNationalGuardService']['unitPhone']['phoneNumber'] = arr.join
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:unitPhoneNumber]
+        expect(actual).to eq('3035555555')
       end
 
       it 'maps servedInReservesOrNationalGuard info correctly with a nil' do

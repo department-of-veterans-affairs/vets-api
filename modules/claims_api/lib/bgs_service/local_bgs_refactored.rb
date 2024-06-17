@@ -27,13 +27,14 @@ module ClaimsApi
     #   this, rather than being centralized here.
     include Miscellaneous
 
-    ##
-    # @deprecated Not all (or perhaps any?) of these correspond to genuine bad
-    #   gateway `502` errors.
-    #
     BAD_GATEWAY_EXCEPTIONS = [
       BGSClient::Error::ConnectionFailed,
       BGSClient::Error::SSLError,
+      ##
+      # @deprecated According to VA API Standards, a timeout should correspond
+      #   to the HTTP error code for a gateway timeout, 504:
+      #     https://department-of-veterans-affairs.github.io/va-api-standards/errors/#choosing-an-error-code
+      #
       BGSClient::Error::TimeoutError
     ].freeze
 
@@ -76,10 +77,14 @@ module ClaimsApi
 
       ##
       # @deprecated Every service action result always lives within a particular
-      #   key, so we can always extract the result rather than have expose
-      #   another option to the caller.
+      #   key, so we can always extract the result rather than expose another
+      #   option to the caller.
       #
-      result = request.perform(body)
+      # @deprecated Prefer composing XML documents with an XML builder. Other
+      #   approaches like templating into strings or immediately parsing and
+      #   injecting with open-ended xpath are inconvenient or error-prone.
+      #
+      result = request.perform { |xml| xml << body.to_s }
       result = { action.key => result }
       result = result[key].to_h if key.present?
 

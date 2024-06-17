@@ -4,6 +4,12 @@ require 'rails_helper'
 
 RSpec.describe HealthCareApplication, type: :model do
   let(:health_care_application) { create(:health_care_application) }
+  let(:health_care_application_short_form) do
+    short_form = JSON.parse(health_care_application.form)
+    short_form.delete('lastServiceBranch')
+    short_form['vaCompensationType'] = 'highDisability'
+    short_form
+  end
   let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE }
   let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
 
@@ -445,21 +451,19 @@ RSpec.describe HealthCareApplication, type: :model do
               expect do
                 health_care_application.process!
               end.to raise_error(VCR::Errors::UnhandledHTTPRequestError)
-            end.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
+            end.to trigger_statsd_increment('api.1010ez.sync_submission_failed')
           end
 
           it 'increments short form statsd key if its a short form' do
-            new_form = JSON.parse(health_care_application.form)
-            new_form.delete('lastServiceBranch')
-            new_form['vaCompensationType'] = 'highDisability'
-            health_care_application.form = new_form.to_json
+            health_care_application.form = health_care_application_short_form.to_json
             health_care_application.instance_variable_set(:@parsed_form, nil)
 
             expect do
               expect do
                 health_care_application.process!
               end.to raise_error(VCR::Errors::UnhandledHTTPRequestError)
-            end.to trigger_statsd_increment('api.1010ez.failed_wont_retry_short_form')
+            end.to trigger_statsd_increment('api.1010ez.sync_submission_failed')
+              .and trigger_statsd_increment('api.1010ez.sync_submission_failed_short_form')
           end
         end
       end
@@ -476,50 +480,117 @@ RSpec.describe HealthCareApplication, type: :model do
     end
   end
 
-  context 'when state changes to "failed"' do
-    it 'sends a failure email to the email address provided on the form' do
-      expect(health_care_application).to receive(:send_failure_mail).and_call_original
-      expect(HCASubmissionFailureMailer).to receive(:build).and_call_original
+  describe 'when state changes to "failed"' do
+    subject do
       health_care_application.update!(state: 'failed')
+      health_care_application
     end
 
-    it 'triggers statsd' do
-      expect do
-        health_care_application.update!(state: 'failed')
-      end.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
+    describe '#send_failure_mail' do
+      context 'has form' do
+        context 'with email address' do
+          it 'sends a failure email to the email address provided on the form' do
+            expect(health_care_application).to receive(:send_failure_mail).and_call_original
+            expect(HCASubmissionFailureMailer).to receive(:build).and_call_original
+            subject
+          end
+        end
+
+        context 'without email address' do
+          subject do
+            health_care_application.parsed_form['email'] = nil
+            super()
+          end
+
+          it 'does not send email' do
+            expect(health_care_application).not_to receive(:send_failure_mail)
+            subject
+          end
+        end
+      end
+
+      context 'does not have form' do
+        subject do
+          health_care_application.form = nil
+          super()
+        end
+
+        context 'with email address' do
+          it 'does not send email' do
+            expect(health_care_application).not_to receive(:send_failure_mail)
+            subject
+          end
+        end
+
+        context 'without email address' do
+          subject do
+            health_care_application.parsed_form['email'] = nil
+            super()
+          end
+
+          it 'does not send email' do
+            expect(health_care_application).not_to receive(:send_failure_mail)
+            subject
+          end
+        end
+      end
     end
 
-    it 'logs form to pii logs' do
-      health_care_application.update!(state: 'failed')
-      pii_log = PersonalInformationLog.last
-      expect(pii_log.error_class).to eq('HealthCareApplication FailedWontRetry')
-      expect(pii_log.data).to eq(health_care_application.parsed_form)
-    end
+    describe '#log_async_submission_failure' do
+      it 'triggers statsd' do
+        expect { subject }.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
+      end
 
-    it 'logs message to sentry' do
-      expect(health_care_application).to receive(:log_message_to_sentry).with(
-        'HCA total failure',
-        :error,
-        {
-          first_initial: 'F',
-          middle_initial: 'M',
-          last_initial: 'Z'
-        },
-        hca: :total_failure
-      )
-      health_care_application.update!(state: 'failed')
-    end
+      context 'short form' do
+        before do
+          health_care_application.form = health_care_application_short_form.to_json
+          health_care_application.instance_variable_set(:@parsed_form, nil)
+        end
 
-    it 'triggers short form statsd' do
-      new_form = JSON.parse(health_care_application.form)
-      new_form.delete('lastServiceBranch')
-      new_form['vaCompensationType'] = 'highDisability'
-      health_care_application.form = new_form.to_json
-      health_care_application.instance_variable_set(:@parsed_form, nil)
+        it 'triggers statsd' do
+          expect { subject }.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
+            .and trigger_statsd_increment('api.1010ez.failed_wont_retry_short_form')
+        end
+      end
 
-      expect do
-        health_care_application.update!(state: 'failed')
-      end.to trigger_statsd_increment('api.1010ez.failed_wont_retry_short_form')
+      context 'form is present' do
+        it 'logs form to PersonalInformationLog' do
+          subject
+          pii_log = PersonalInformationLog.last
+          expect(pii_log.error_class).to eq('HealthCareApplication FailedWontRetry')
+          expect(pii_log.data).to eq(health_care_application.parsed_form)
+        end
+
+        it 'logs message to sentry' do
+          expect(health_care_application).to receive(:log_message_to_sentry).with(
+            'HCA total failure',
+            :error,
+            {
+              first_initial: 'F',
+              middle_initial: 'M',
+              last_initial: 'Z'
+            },
+            hca: :total_failure
+          )
+          subject
+        end
+      end
+
+      context 'form is not present' do
+        before do
+          health_care_application.form = nil
+        end
+
+        it 'does not log form to PersonalInformationLog' do
+          subject
+          expect(PersonalInformationLog.count).to eq 0
+        end
+
+        it 'does not log message to sentry' do
+          expect(health_care_application).not_to receive(:log_message_to_sentry)
+          subject
+        end
+      end
     end
   end
 
