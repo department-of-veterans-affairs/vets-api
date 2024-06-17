@@ -7,22 +7,22 @@ describe LetterBeneficiarySerializer, type: :serializer do
 
   let(:benefit_information) do
     {
-        'monthly_award_amount' => 123.0,
-        'service_connected_percentage' => 2,
-        'award_effective_date' => Time.parse('Thu, 06 Jun 2013 04:00:00 +0000'),
-        'has_chapter35_eligibility' => true,
-        'has_non_service_connected_pension' => false,
-        'has_service_connected_disabilities' => true,
-        'has_adapted_housing' => false,
-        'has_individual_unemployability_granted' => false,
-        'has_special_monthly_compensation' => false
-      }
+      'monthly_award_amount' => 123.0,
+      'service_connected_percentage' => 2,
+      'award_effective_date' => Time.parse('Thu, 06 Jun 2013 04:00:00 +0000'),
+      'has_chapter35_eligibility' => true,
+      'has_non_service_connected_pension' => false,
+      'has_service_connected_disabilities' => true,
+      'has_adapted_housing' => false,
+      'has_individual_unemployability_granted' => false,
+      'has_special_monthly_compensation' => false
+    }
   end
 
   let(:military_service) do
     {
-      'branch' => "Army",
-      'character_of_service' => "HONORABLE",
+      'branch' => 'Army',
+      'character_of_service' => 'HONORABLE',
       'entered_date' => Time.parse('Fri, 01 Jan 1965 05:00:00 +0000'),
       'released_date' => Time.parse('Sun, 01 Oct 1972 04:00:00 +0000')
     }
@@ -30,7 +30,7 @@ describe LetterBeneficiarySerializer, type: :serializer do
 
   let(:beneficiary_response) do
     body = { 'benefit_information' => benefit_information, 'military_service' => [military_service] }
-    response = double('response', body: body)
+    response = double('response', body:)
     EVSS::Letters::BeneficiaryResponse.new(200, response)
   end
 

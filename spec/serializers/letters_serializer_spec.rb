@@ -5,17 +5,17 @@ require 'rails_helper'
 describe LettersSerializer, type: :serializer do
   subject { serialize(letters_response, serializer_class: described_class) }
 
-  let(:full_name) { "MARK WEBB" }
+  let(:full_name) { 'MARK WEBB' }
   let(:letter) do
     {
-      'name' => "Proof of Creditable Prescription Drug Coverage Letter",
-      'letter_type' => "medicare_partd"
+      'name' => 'Proof of Creditable Prescription Drug Coverage Letter',
+      'letter_type' => 'medicare_partd'
     }
   end
 
   let(:letters_response) do
     body = { 'letter_destination' => { 'full_name' => full_name }, 'letters' => [letter] }
-    response = double('response', body: body)
+    response = double('response', body:)
     EVSS::Letters::LettersResponse.new(200, response)
   end
 
