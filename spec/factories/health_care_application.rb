@@ -2,11 +2,18 @@
 
 FactoryBot.define do
   factory :health_care_application do
+
     form {
       File.read(
         Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
       )
     }
+
+    trait :with_success do
+      state { 'success' }
+      form_submission_id_string { '123' }
+      timestamp { '2017-08-03 22:02:18 -0400' }
+    end
 
     factory(:hca_app_with_attachment) do
       after(:build) do |health_care_application|
