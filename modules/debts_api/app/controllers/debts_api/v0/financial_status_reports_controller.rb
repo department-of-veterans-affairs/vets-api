@@ -183,7 +183,6 @@ module DebtsApi
           ]
         ).to_hash
       end
-
       # rubocop:enable Metrics/MethodLength
 
       def full_transform_form
