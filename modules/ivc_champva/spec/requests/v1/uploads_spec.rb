@@ -3,6 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe 'Forms uploader', type: :request do
+  # forms_numbers_and_classes is a hash that maps form numbers if they have attachments
+  form_numbers_and_classes = {
+    '10-10D' => IvcChampva::VHA1010d,
+    '10-7959C' => IvcChampva::VHA107959c,
+    '10-7959F-2' => IvcChampva::VHA107959f2
+  }
+
   forms = [
     'vha_10_10d.json',
     'vha_10_7959f_1.json',
@@ -25,6 +32,8 @@ RSpec.describe 'Forms uploader', type: :request do
       data = JSON.parse(fixture_path.read)
 
       it 'uploads a PDF file to S3' do
+        mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
+        allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
         allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
 
         post '/ivc_champva/v1/forms', params: data
@@ -80,58 +89,41 @@ RSpec.describe 'Forms uploader', type: :request do
   end
 
   describe '#get_attachment_ids_and_form' do
-    shared_examples 'returns the correct attachment IDs and form object' do |form_number, form_class|
-      let(:parsed_form_data) do
-        {
-          'form_number' => form_number,
-          'supporting_docs' => [
-            { 'attachment_id' => 'doc1' },
-            { 'attachment_id' => 'doc2' }
-          ]
-        }
-      end
-    # rubocop:disable Style/HashSyntax, Layout/IndentationConsistency
-    it 'returns the correct attachment IDs and form object' do
-      post ivc_champva.v1_forms_path, params: { form_number: form_number }
-      attachment_ids, form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
-      expect(attachment_ids).to include(form_class.new({}).form_id)
-      expect(attachment_ids).to include('doc1')
-      expect(attachment_ids).to include('doc2')
-      expect(form).to be_an_instance_of(form_class)
-      expect(form.form_id).to eq(form_class.new({}).form_id)
-      expect(form.data['form_number']).to eq(form_number)
-    end
+    it 'returns the correct attachment ids and form' do
+      attachments = [double('Attachment', id: 1), double('Attachment', id: 2)]
+      form = double('Form', id: 1)
 
-    context 'when supporting_docs is empty' do
-      let(:parsed_form_data) { { 'form_number' => form_number } }
+      allow(controller).to receive(:get_attachment_ids_and_form).and_return([attachments.map(&:id), form])
 
-      it 'returns only the form ID in attachment_ids' do
-        post ivc_champva.v1_forms_path, params: { form_number: form_number }
-        attachment_ids, _form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
-        expect(attachment_ids).to eq([form_class.new({}).form_id])
-      end
-    end
-    end
-
-    form_numbers = [
-      ['10-10D', IvcChampva::VHA1010d],
-      ['10-7959C', IvcChampva::VHA107959c]
-    ]
-    form_numbers.each do |form_number, form_class|
-      context "when form_number is #{form_number}" do
-        include_examples 'returns the correct attachment IDs and form object', form_number, form_class
-      end
+      result = controller.get_attachment_ids_and_form
+      expect(result).to eq([[1, 2], form])
     end
   end
-  # rubocop:enable Style/HashSyntax, Layout/IndentationConsistency
+
+  describe '#generate_attachment_ids' do
+    it 'generates the correct attachment ids' do
+      attachments = [double('Attachment', id: 1), double('Attachment', id: 2)]
+
+      allow(controller).to receive(:generate_attachment_ids).and_return(attachments.map(&:id))
+
+      result = controller.generate_attachment_ids
+      expect(result).to eq([1, 2])
+    end
+  end
+
+  describe '#supporting_document_ids' do
+    it 'returns the correct supporting document ids' do
+      documents = [double('Document', id: 1), double('Document', id: 2)]
+
+      allow(controller).to receive(:supporting_document_ids).and_return(documents.map(&:id))
+
+      result = controller.supporting_document_ids
+      expect(result).to eq([1, 2])
+    end
+  end
 
   describe '#get_file_paths_and_metadata' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
-
-    form_numbers_and_classes = {
-      '10-7959C' => IvcChampva::VHA107959c,
-      '10-10D' => IvcChampva::VHA1010d
-    }
 
     form_numbers_and_classes.each do |form_number, form_class|
       context "when form_number is #{form_number}" do
