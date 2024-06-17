@@ -200,6 +200,31 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
           expect(disability[:serviceRelevance]).to eq(nil)
         end
       end
+
+      context 'When classificationcode is null' do
+        let(:disability) do
+          {
+            disabilityActionType: 'INCREASE',
+            name: 'hypertension',
+            approximateDate: nil,
+            classificationCode: nil,
+            serviceRelevance: '',
+            isRelatedToToxicExposure: false,
+            exposureOrEventOrInjury: '',
+            ratedDisabilityId: '',
+            diagnosticCode: 0,
+            secondaryDisabilities: nil
+          }
+        end
+
+        it 'mapping logic correctly removes attribute' do
+          form_data['data']['attributes']['disabilities'][1] = disability
+          auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
+          evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, file_number).map_claim[:form526]
+          disability = evss_data[:disabilities][1]
+          expect(disability[:classificationCode]).to eq(nil)
+        end
+      end
     end
 
     context '526 section 6, service information: service periods' do
@@ -230,6 +255,10 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
 
     context '526 section 8, direct deposit information' do
       it_behaves_like 'does not map any values', :directDeposit
+    end
+
+    context '526 Overflow Text' do
+      it_behaves_like 'does not map any values', :claimNotes
     end
   end
 end

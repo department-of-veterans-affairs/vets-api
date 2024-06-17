@@ -53,8 +53,22 @@ module EVSS
 
       HAZARDS = {
         asbestos: 'Asbestos',
+        chemical: 'SHAD - Shipboard Hazard and Defense',
+        mos: 'Military Occupational Specialty-Related Toxin',
+        mustardgas: 'Mustard Gas',
         radiation: 'Radiation',
-        mustardgas: 'Mustard Gas'
+        water: 'Contaminated Water At Camp Lejeune',
+        none: 'None of these'
+      }.freeze
+
+      HAZARDS_LH_ENUM = {
+        asbestos: 'ASBESTOS',
+        chemical: 'SHIPBOARD_HAZARD_AND_DEFENSE',
+        mos: 'MILITARY_OCCUPATIONAL_SPECIALTY_RELATED_TOXIN',
+        mustardgas: 'MUSTARD_GAS',
+        radiation: 'RADIATION',
+        water: 'CONTAMINATED_WATER_AT_CAMP_LEJEUNE',
+        other: 'OTHER'
       }.freeze
 
       MULTIPLE_EXPOSURES_TYPE = {
@@ -183,16 +197,19 @@ module EVSS
       def transform_treatments(treatments_source)
         treatments_source.map do |treatment|
           center = treatment['center']
-          Requests::Treatment.new(
+          request_treatment = Requests::Treatment.new(
             treated_disability_names: treatment['treatedDisabilityNames'],
             center: Requests::Center.new(
               name: center['name'],
               state: center['state'],
               city: center['city']
-            ),
-            # LH spec says YYYY-DD or YYYY date format
-            begin_date: convert_approximate_date(treatment['startDate'], short: true)
+            )
           )
+          if treatment['startDate'].present?
+            # LH spec says YYYY-DD or YYYY date format
+            request_treatment.begin_date = convert_approximate_date(treatment['startDate'], short: true)
+          end
+          request_treatment
         end
       end
 
@@ -223,6 +240,8 @@ module EVSS
         gulf_war2001 = toxic_exposure_source['gulfWar2001']
         herbicide = toxic_exposure_source['herbicide']
         other_herbicide_locations = toxic_exposure_source['otherHerbicideLocations']
+        other_exposures = toxic_exposure_source['otherExposures']
+        specify_other_exposures = toxic_exposure_source['specifyOtherExposures']
 
         if gulf_war1990.present? || gulf_war2001.present?
           toxic_exposure_target.gulf_war_hazard_service =
@@ -232,6 +251,11 @@ module EVSS
         if herbicide.present? || other_herbicide_locations.present?
           toxic_exposure_target.herbicide_hazard_service = transform_herbicide(herbicide,
                                                                                other_herbicide_locations)
+        end
+
+        if other_exposures.present? || specify_other_exposures.present?
+          toxic_exposure_target.additional_hazard_exposures = transform_other_exposures(other_exposures,
+                                                                                        specify_other_exposures)
         end
 
         # create an Array[Requests::MultipleExposures]
@@ -248,8 +272,17 @@ module EVSS
         end
         if values_present(toxic_exposure_source['otherHerbicideLocations'])
           multiple_exposures +=
-            transform_multiple_exposures_other_herbicide(toxic_exposure_source['otherHerbicideLocations'])
+            transform_multiple_exposures_other_details(toxic_exposure_source['otherHerbicideLocations'])
         end
+        if toxic_exposure_source['otherExposureDetails'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['otherExposureDetails'],
+                                                             MULTIPLE_EXPOSURES_TYPE[:hazard])
+        end
+        if values_present(toxic_exposure_source['specifyOtherExposures'])
+          multiple_exposures +=
+            transform_multiple_exposures_other_details(toxic_exposure_source['specifyOtherExposures'])
+        end
+
         toxic_exposure_target.multiple_exposures = multiple_exposures
 
         toxic_exposure_target
@@ -280,7 +313,7 @@ module EVSS
         end
       end
 
-      def transform_multiple_exposures_other_herbicide(details)
+      def transform_multiple_exposures_other_details(details)
         obj = Requests::MultipleExposures.new(
           exposure_dates: Requests::Dates.new
         )
@@ -315,6 +348,23 @@ module EVSS
         herbicide_service.served_in_herbicide_hazard_locations = herbicide_value ? 'YES' : 'NO'
 
         herbicide_service
+      end
+
+      def transform_other_exposures(other_exposures, specify_other_exposures)
+        return nil if none_of_these(other_exposures) && !values_present(specify_other_exposures)
+
+        filtered_results_other_exposures = other_exposures&.filter { |k, v| k != 'notsure' && v }
+        additional_hazard_exposures_service = Requests::AdditionalHazardExposures.new
+        unless none_of_these(filtered_results_other_exposures)
+          additional_hazard_exposures_service.additional_exposures = filtered_results_other_exposures&.map do |k, _v|
+            HAZARDS_LH_ENUM[k.to_sym]
+          end
+        end
+        other = HAZARDS_LH_ENUM[:other] if values_present(specify_other_exposures)
+        additional_hazard_exposures_service.additional_exposures << other if other.present?
+        return nil if additional_hazard_exposures_service.additional_exposures == []
+
+        additional_hazard_exposures_service
       end
 
       def values_present(obj)

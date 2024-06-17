@@ -1347,7 +1347,7 @@
                                   "nullable": true
                                 },
                                 "veteranNumber": {
-                                  "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
+                                  "description": "If there isn't a ten digit phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
                                   "type": "object",
                                   "nullable": true,
                                   "properties": {
@@ -1356,8 +1356,6 @@
                                       "type": "string",
                                       "pattern": "^\\d{10}?$",
                                       "example": "5555555555",
-                                      "minLength": 10,
-                                      "maxLength": 10,
                                       "nullable": true
                                     },
                                     "internationalTelephone": {
@@ -1383,7 +1381,7 @@
                                     "addressLine1": {
                                       "description": "Address line 1 for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                       "maxLength": 20,
                                       "example": "1234 Couch Street"
                                     },
@@ -1406,7 +1404,7 @@
                                     "city": {
                                       "description": "City for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                       "maxLength": 1000,
                                       "example": "Portland"
                                     },
@@ -1483,7 +1481,7 @@
                                 "addressLine1": {
                                   "description": "Address line 1 for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                  "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                   "maxLength": 20,
                                   "example": "1234 Couch Street"
                                 },
@@ -1504,7 +1502,7 @@
                                 "city": {
                                   "description": "City for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                  "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                   "maxLength": 1000,
                                   "example": "Portland"
                                 },
@@ -1625,12 +1623,10 @@
                                   "additionalProperties": false,
                                   "properties": {
                                     "telephone": {
-                                      "description": "Primary phone of point of contact.",
+                                      "description": "Ten digit primary phone of point of contact.",
                                       "type": "string",
                                       "pattern": "^\\d{10}?$",
                                       "example": "5555555",
-                                      "minLength": 10,
-                                      "maxLength": 10,
                                       "nullable": true
                                     },
                                     "internationalTelephone": {
@@ -1704,7 +1700,7 @@
                                     "otherLocationsServed": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                       "maxLength": 5000,
                                       "description": "Other location(s) where Veteran served."
                                     },
@@ -1758,7 +1754,7 @@
                                     "specifyOtherExposures": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                       "maxLength": 5000,
                                       "description": "Exposure to asbestos."
                                     },
@@ -1797,14 +1793,14 @@
                                       "hazardExposedTo": {
                                         "type": "string",
                                         "nullable": true,
-                                        "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                        "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                         "maxLength": 1000,
                                         "description": "Hazard the Veteran was exposed to."
                                       },
                                       "exposureLocation": {
                                         "type": "string",
                                         "nullable": true,
-                                        "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                        "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                         "maxLength": 1000,
                                         "description": "Location where the exposure happened."
                                       },
@@ -2033,7 +2029,7 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z'.#]([-a-zA-Z'.# ])?)+$",
+                                        "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
@@ -2175,7 +2171,7 @@
                                     "unitAddress": {
                                       "type": "string",
                                       "maxLength": 1000,
-                                      "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
                                       "nullable": true
                                     },
                                     "unitPhone": {
@@ -2424,6 +2420,11 @@
                               "type": "boolean",
                               "description": "Claimant certifies and authorizes release of information.",
                               "default": false
+                            },
+                            "claimNotes": {
+                              "type": "string",
+                              "description": "An optional notes section.",
+                              "maxLength": 4000
                             },
                             "claimId": {
                               "type": "string",
@@ -2695,7 +2696,7 @@
                                 "nullable": true
                               },
                               "veteranNumber": {
-                                "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
+                                "description": "If there isn't a ten digit phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
                                 "type": "object",
                                 "nullable": true,
                                 "properties": {
@@ -2704,8 +2705,6 @@
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
                                     "example": "5555555555",
-                                    "minLength": 10,
-                                    "maxLength": 10,
                                     "nullable": true
                                   },
                                   "internationalTelephone": {
@@ -2731,7 +2730,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -2754,7 +2753,7 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                     "maxLength": 1000,
                                     "example": "Portland"
                                   },
@@ -2831,7 +2830,7 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
@@ -2852,7 +2851,7 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                 "maxLength": 1000,
                                 "example": "Portland"
                               },
@@ -2973,12 +2972,10 @@
                                 "additionalProperties": false,
                                 "properties": {
                                   "telephone": {
-                                    "description": "Primary phone of point of contact.",
+                                    "description": "Ten digit primary phone of point of contact.",
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
                                     "example": "5555555",
-                                    "minLength": 10,
-                                    "maxLength": 10,
                                     "nullable": true
                                   },
                                   "internationalTelephone": {
@@ -3052,7 +3049,7 @@
                                   "otherLocationsServed": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                     "maxLength": 5000,
                                     "description": "Other location(s) where Veteran served."
                                   },
@@ -3106,7 +3103,7 @@
                                   "specifyOtherExposures": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                     "maxLength": 5000,
                                     "description": "Exposure to asbestos."
                                   },
@@ -3145,14 +3142,14 @@
                                     "hazardExposedTo": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                       "maxLength": 1000,
                                       "description": "Hazard the Veteran was exposed to."
                                     },
                                     "exposureLocation": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                       "maxLength": 1000,
                                       "description": "Location where the exposure happened."
                                     },
@@ -3381,7 +3378,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.#]([-a-zA-Z'.# ])?)+$",
+                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -3523,7 +3520,7 @@
                                   "unitAddress": {
                                     "type": "string",
                                     "maxLength": 1000,
-                                    "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
                                     "nullable": true
                                   },
                                   "unitPhone": {
@@ -3772,6 +3769,11 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
+                          },
+                          "claimNotes": {
+                            "type": "string",
+                            "description": "An optional notes section.",
+                            "maxLength": 4000
                           }
                         }
                       }
@@ -3987,6 +3989,7 @@
                       "type": "form/526",
                       "attributes": {
                         "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                        "claimNotes": "Some things that are important to know, and are not included in any other place.",
                         "veteranIdentification": {
                           "mailingAddress": {
                             "addressLine1": "1234 Couch Street",
@@ -4026,6 +4029,7 @@
                       "type": "form/526",
                       "attributes": {
                         "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                        "claimNotes": "Some things that are important to know, and are not included in any other place.",
                         "veteranIdentification": {
                           "serviceNumber": "123456789",
                           "veteranNumber": {
@@ -4291,11 +4295,12 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "68322ca8-7a2f-47d6-a5fa-68d3dffb0b70",
+                    "id": "0a339987-b04d-4bea-8061-fa19df6f8e4d",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                      "claimNotes": "Some things that are important to know, and are not included in any other place.",
                       "veteranIdentification": {
                         "serviceNumber": "123456789",
                         "veteranNumber": {
@@ -4473,7 +4478,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-06-05"
+                          "anticipatedSeparationDate": "2024-06-12"
                         },
                         "confinements": [
                           {
@@ -4573,7 +4578,7 @@
                                   "nullable": true
                                 },
                                 "veteranNumber": {
-                                  "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
+                                  "description": "If there isn't a ten digit phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
                                   "type": "object",
                                   "nullable": true,
                                   "properties": {
@@ -4582,8 +4587,6 @@
                                       "type": "string",
                                       "pattern": "^\\d{10}?$",
                                       "example": "5555555555",
-                                      "minLength": 10,
-                                      "maxLength": 10,
                                       "nullable": true
                                     },
                                     "internationalTelephone": {
@@ -4609,7 +4612,7 @@
                                     "addressLine1": {
                                       "description": "Address line 1 for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                       "maxLength": 20,
                                       "example": "1234 Couch Street"
                                     },
@@ -4632,7 +4635,7 @@
                                     "city": {
                                       "description": "City for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                       "maxLength": 1000,
                                       "example": "Portland"
                                     },
@@ -4709,7 +4712,7 @@
                                 "addressLine1": {
                                   "description": "Address line 1 for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                  "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                   "maxLength": 20,
                                   "example": "1234 Couch Street"
                                 },
@@ -4730,7 +4733,7 @@
                                 "city": {
                                   "description": "City for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                  "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                   "maxLength": 1000,
                                   "example": "Portland"
                                 },
@@ -4851,12 +4854,10 @@
                                   "additionalProperties": false,
                                   "properties": {
                                     "telephone": {
-                                      "description": "Primary phone of point of contact.",
+                                      "description": "Ten digit primary phone of point of contact.",
                                       "type": "string",
                                       "pattern": "^\\d{10}?$",
                                       "example": "5555555",
-                                      "minLength": 10,
-                                      "maxLength": 10,
                                       "nullable": true
                                     },
                                     "internationalTelephone": {
@@ -4930,7 +4931,7 @@
                                     "otherLocationsServed": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                       "maxLength": 5000,
                                       "description": "Other location(s) where Veteran served."
                                     },
@@ -4984,7 +4985,7 @@
                                     "specifyOtherExposures": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                       "maxLength": 5000,
                                       "description": "Exposure to asbestos."
                                     },
@@ -5023,14 +5024,14 @@
                                       "hazardExposedTo": {
                                         "type": "string",
                                         "nullable": true,
-                                        "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                        "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                         "maxLength": 1000,
                                         "description": "Hazard the Veteran was exposed to."
                                       },
                                       "exposureLocation": {
                                         "type": "string",
                                         "nullable": true,
-                                        "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                        "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                         "maxLength": 1000,
                                         "description": "Location where the exposure happened."
                                       },
@@ -5259,7 +5260,7 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z'.#]([-a-zA-Z'.# ])?)+$",
+                                        "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
@@ -5401,7 +5402,7 @@
                                     "unitAddress": {
                                       "type": "string",
                                       "maxLength": 1000,
-                                      "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
                                       "nullable": true
                                     },
                                     "unitPhone": {
@@ -5650,6 +5651,11 @@
                               "type": "boolean",
                               "description": "Claimant certifies and authorizes release of information.",
                               "default": false
+                            },
+                            "claimNotes": {
+                              "type": "string",
+                              "description": "An optional notes section.",
+                              "maxLength": 4000
                             },
                             "claimId": {
                               "type": "string",
@@ -5921,7 +5927,7 @@
                                 "nullable": true
                               },
                               "veteranNumber": {
-                                "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
+                                "description": "If there isn't a ten digit phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
                                 "type": "object",
                                 "nullable": true,
                                 "properties": {
@@ -5930,8 +5936,6 @@
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
                                     "example": "5555555555",
-                                    "minLength": 10,
-                                    "maxLength": 10,
                                     "nullable": true
                                   },
                                   "internationalTelephone": {
@@ -5957,7 +5961,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -5980,7 +5984,7 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                     "maxLength": 1000,
                                     "example": "Portland"
                                   },
@@ -6057,7 +6061,7 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
@@ -6078,7 +6082,7 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                 "maxLength": 1000,
                                 "example": "Portland"
                               },
@@ -6199,12 +6203,10 @@
                                 "additionalProperties": false,
                                 "properties": {
                                   "telephone": {
-                                    "description": "Primary phone of point of contact.",
+                                    "description": "Ten digit primary phone of point of contact.",
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
                                     "example": "5555555",
-                                    "minLength": 10,
-                                    "maxLength": 10,
                                     "nullable": true
                                   },
                                   "internationalTelephone": {
@@ -6278,7 +6280,7 @@
                                   "otherLocationsServed": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                     "maxLength": 5000,
                                     "description": "Other location(s) where Veteran served."
                                   },
@@ -6332,7 +6334,7 @@
                                   "specifyOtherExposures": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                     "maxLength": 5000,
                                     "description": "Exposure to asbestos."
                                   },
@@ -6371,14 +6373,14 @@
                                     "hazardExposedTo": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                       "maxLength": 1000,
                                       "description": "Hazard the Veteran was exposed to."
                                     },
                                     "exposureLocation": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                       "maxLength": 1000,
                                       "description": "Location where the exposure happened."
                                     },
@@ -6607,7 +6609,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.#]([-a-zA-Z'.# ])?)+$",
+                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -6749,7 +6751,7 @@
                                   "unitAddress": {
                                     "type": "string",
                                     "maxLength": 1000,
-                                    "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
                                     "nullable": true
                                   },
                                   "unitPhone": {
@@ -6998,6 +7000,11 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
+                          },
+                          "claimNotes": {
+                            "type": "string",
+                            "description": "An optional notes section.",
+                            "maxLength": 4000
                           }
                         }
                       }
@@ -7213,6 +7220,7 @@
                       "type": "form/526",
                       "attributes": {
                         "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                        "claimNotes": "Some things that are important to know, and are not included in any other place.",
                         "veteranIdentification": {
                           "mailingAddress": {
                             "addressLine1": "1234 Couch Street",
@@ -7252,6 +7260,7 @@
                       "type": "form/526",
                       "attributes": {
                         "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                        "claimNotes": "Some things that are important to know, and are not included in any other place.",
                         "veteranIdentification": {
                           "serviceNumber": "123456789",
                           "veteranNumber": {
@@ -7810,7 +7819,7 @@
                                 "nullable": true
                               },
                               "veteranNumber": {
-                                "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
+                                "description": "If there isn't a ten digit phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
                                 "type": "object",
                                 "nullable": true,
                                 "properties": {
@@ -7819,8 +7828,6 @@
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
                                     "example": "5555555555",
-                                    "minLength": 10,
-                                    "maxLength": 10,
                                     "nullable": true
                                   },
                                   "internationalTelephone": {
@@ -7846,7 +7853,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -7869,7 +7876,7 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                     "maxLength": 1000,
                                     "example": "Portland"
                                   },
@@ -7946,7 +7953,7 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
@@ -7967,7 +7974,7 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                 "maxLength": 1000,
                                 "example": "Portland"
                               },
@@ -8088,12 +8095,10 @@
                                 "additionalProperties": false,
                                 "properties": {
                                   "telephone": {
-                                    "description": "Primary phone of point of contact.",
+                                    "description": "Ten digit primary phone of point of contact.",
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
                                     "example": "5555555",
-                                    "minLength": 10,
-                                    "maxLength": 10,
                                     "nullable": true
                                   },
                                   "internationalTelephone": {
@@ -8167,7 +8172,7 @@
                                   "otherLocationsServed": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                     "maxLength": 5000,
                                     "description": "Other location(s) where Veteran served."
                                   },
@@ -8221,7 +8226,7 @@
                                   "specifyOtherExposures": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                     "maxLength": 5000,
                                     "description": "Exposure to asbestos."
                                   },
@@ -8260,14 +8265,14 @@
                                     "hazardExposedTo": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                       "maxLength": 1000,
                                       "description": "Hazard the Veteran was exposed to."
                                     },
                                     "exposureLocation": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                       "maxLength": 1000,
                                       "description": "Location where the exposure happened."
                                     },
@@ -8496,7 +8501,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.#]([-a-zA-Z'.# ])?)+$",
+                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -8638,7 +8643,7 @@
                                   "unitAddress": {
                                     "type": "string",
                                     "maxLength": 1000,
-                                    "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
                                     "nullable": true
                                   },
                                   "unitPhone": {
@@ -8887,6 +8892,11 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
+                          },
+                          "claimNotes": {
+                            "type": "string",
+                            "description": "An optional notes section.",
+                            "maxLength": 4000
                           }
                         }
                       }
@@ -9156,10 +9166,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "eab39daa-e6c0-4859-a4aa-70cdc7ed62f3",
+                    "id": "e6dd0de4-3dc4-43e1-a48f-dcfffbb6a814",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                      "claimNotes": "Some things that are important to know, and are not included in any other place.",
                       "veteranIdentification": {
                         "serviceNumber": "123456789",
                         "veteranNumber": {
@@ -9918,6 +9929,11 @@
                             },
                             "claimantCertification": {
                               "type": "boolean"
+                            },
+                            "claimNotes": {
+                              "type": "string",
+                              "description": "An optional notes section.",
+                              "maxLength": 4000
                             }
                           }
                         }
@@ -10273,7 +10289,7 @@
                                 "maxLength": 1000
                               },
                               "veteranNumber": {
-                                "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
+                                "description": "If there isn't a ten digit phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
                                 "type": "object",
                                 "nullable": true,
                                 "properties": {
@@ -10307,14 +10323,14 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.' ])+$",
                                     "maxLength": 325,
                                     "example": "1234 Couch Street"
                                   },
                                   "addressLine2": {
                                     "description": "Address line 2 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                     "maxLength": 325,
                                     "example": "Unit 4",
                                     "nullable": true
@@ -10322,7 +10338,7 @@
                                   "addressLine3": {
                                     "description": "Address line 3 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                     "maxLength": 325,
                                     "example": "Room 1",
                                     "nullable": true
@@ -10330,7 +10346,7 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                     "example": "Portland",
                                     "maxLength": 1000
                                   },
@@ -10407,7 +10423,7 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                 "maxLength": 325,
                                 "example": "1234 Couch Street"
                               },
@@ -10428,7 +10444,7 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                 "example": "Portland",
                                 "maxLength": 1000
                               },
@@ -10550,7 +10566,7 @@
                                 "additionalProperties": false,
                                 "properties": {
                                   "telephone": {
-                                    "description": "Primary phone of point of contact.",
+                                    "description": "Ten digit primary phone of point of contact.",
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
                                     "example": "5555555555",
@@ -10625,7 +10641,7 @@
                                   "otherLocationsServed": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                     "description": "Other location(s) where Veteran served.",
                                     "maxLength": 5000
                                   },
@@ -10679,7 +10695,7 @@
                                   "specifyOtherExposures": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                     "description": "Exposure to asbestos.",
                                     "maxLength": 5000
                                   },
@@ -10718,14 +10734,14 @@
                                     "hazardExposedTo": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                       "description": "Hazard the Veteran was exposed to.",
                                       "maxLength": 1000
                                     },
                                     "exposureLocation": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                       "description": "Location where the exposure happened.",
                                       "maxLength": 1000
                                     },
@@ -10957,7 +10973,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.#]([-a-zA-Z'.# ])?)+$",
+                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -11098,7 +11114,7 @@
                                   "unitAddress": {
                                     "type": "string",
                                     "maxLength": 1000,
-                                    "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
                                     "nullable": true
                                   },
                                   "unitPhone": {
@@ -11342,6 +11358,11 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
+                          },
+                          "claimNotes": {
+                            "type": "string",
+                            "description": "An optional notes section.",
+                            "maxLength": 4000
                           }
                         }
                       }
@@ -12027,8 +12048,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-06-03",
-                      "expirationDate": "2025-06-03",
+                      "creationDate": "2024-06-10",
+                      "expirationDate": "2025-06-10",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -12904,7 +12925,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c6f24102-8dec-4e4b-b181-08c2079c2de4",
+                    "id": "4925ba32-a6d4-4f68-be3e-7ed7f033d70c",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13597,7 +13618,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8ce4c02f-0590-428d-aa47-d84d4378d83c",
+                    "id": "b713fe9d-2c2b-4a18-ad89-595203ecd98f",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15548,11 +15569,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "27120a22-2277-4f40-acfc-f4c3a999c0eb",
+                    "id": "692afdbd-bf32-4e56-9c29-b44f3589cfbc",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-06-03",
+                      "dateRequestAccepted": "2024-06-10",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"

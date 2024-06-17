@@ -52,7 +52,7 @@ RSpec.describe 'Disability Claims', type: :request do
             it 'calls shared validation' do
               mock_ccg(scopes) do |auth_header|
                 expect_any_instance_of(ClaimsApi::V2::DisabilityCompensationValidation)
-                  .to receive(:validate_form_526_submission_values!)
+                  .to receive(:validate_form_526_submission_values)
                 post validate_path, params: data, headers: auth_header
               end
             end
@@ -369,6 +369,24 @@ RSpec.describe 'Disability Claims', type: :request do
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when the city is invalid' do
+          let(:city) { '#Base 6' }
+
+          it 'responds with 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['changeOfAddress']['city'] = city
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['detail']).to include(
+                'The property /changeOfAddress/city did not match the following requirements:'
+              )
             end
           end
         end
@@ -3923,6 +3941,20 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
       end
+
+      describe 'Overflow Text' do
+        context 'when overflow text is not provided' do
+          it 'responds with accepted' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['claimNotes'] = nil
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+      end
     end
 
     context 'validate endpoint' do
@@ -4149,6 +4181,27 @@ RSpec.describe 'Disability Claims', type: :request do
           mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
             post generate_pdf_path, params: data, headers: auth_header
             expect(response).to have_http_status(:unprocessable_entity)
+          end
+        end
+      end
+
+      context 'when overflow text is provided' do
+        it 'responds with a 200' do
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+
+      context 'when overflow text is not provided' do
+        it 'responds with a 200' do
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            json = JSON.parse(data)
+            json['data']['attributes']['claimNotes'] = nil
+            data = json.to_json
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:ok)
           end
         end
       end

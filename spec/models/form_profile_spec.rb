@@ -904,7 +904,8 @@ RSpec.describe FormProfile, type: :model do
         character_of_discharge_code: nil,
         deployments: [],
         end_date: '2018-10-31',
-        personnel_category_type_code: 'N',
+        period_of_service_type_code: 'N',
+        period_of_service_type_text: 'National Guard member',
         service_type: 'Military Service',
         termination_reason_code: 'C',
         termination_reason_text: 'Completion of Active Service period'
@@ -916,7 +917,8 @@ RSpec.describe FormProfile, type: :model do
         character_of_discharge_code: nil,
         deployments: [],
         end_date: '2012-12-31',
-        personnel_category_type_code: 'N',
+        period_of_service_type_code: 'N',
+        period_of_service_type_text: 'National Guard member',
         service_type: 'Military Service',
         termination_reason_code: 'C',
         termination_reason_text: 'Completion of Active Service period'
@@ -928,7 +930,8 @@ RSpec.describe FormProfile, type: :model do
         character_of_discharge_code: nil,
         deployments: [],
         end_date: '2008-12-01',
-        personnel_category_type_code: 'N',
+        period_of_service_type_code: 'N',
+        period_of_service_type_text: 'National Guard member',
         service_type: 'Military Service',
         termination_reason_code: 'C',
         termination_reason_text: 'Completion of Active Service period'

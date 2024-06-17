@@ -26,13 +26,8 @@ class HealthCareApplication < ApplicationRecord
   validates(:form, presence: true, on: :create)
   validate(:form_matches_schema, on: :create)
 
-  after_save(:send_failure_mail, if: proc do |hca|
-    hca.saved_change_to_attribute?(:state) && hca.failed? && hca.form.present? && hca.parsed_form['email']
-  end)
-
-  after_save(:log_submission_failure, if: proc do |hca|
-    hca.saved_change_to_attribute?(:state) && hca.failed?
-  end)
+  after_save :send_failure_email, if: %i[async_submission_failed? email?]
+  after_save :log_async_submission_failure, if: :async_submission_failed?
 
   # @param [Account] user
   # @return [Hash]
@@ -61,6 +56,14 @@ class HealthCareApplication < ApplicationRecord
     form.present? && parsed_form['lastServiceBranch'].blank?
   end
 
+  def async_submission_failed?
+    saved_change_to_attribute?(:state) && failed?
+  end
+
+  def email?
+    form.present? && parsed_form['email']
+  end
+
   def submit_sync
     @parsed_form = override_parsed_form(parsed_form)
 
@@ -78,7 +81,7 @@ class HealthCareApplication < ApplicationRecord
 
     result
   rescue
-    log_submission_failure
+    log_sync_submission_failure
 
     raise
   end
@@ -103,11 +106,9 @@ class HealthCareApplication < ApplicationRecord
       raise(Common::Exceptions::ValidationErrors, self)
     end
 
-    has_email = parsed_form['email'].present?
-
-    if has_email || async_compatible
+    if email? || async_compatible
       save!
-      submit_async(has_email)
+      submit_async
     else
       submit_sync
     end
@@ -233,10 +234,8 @@ class HealthCareApplication < ApplicationRecord
     }.compact)
   end
 
-  def submit_async(has_email)
-    submission_job = 'SubmissionJob'
-    submission_job = "Anon#{submission_job}" unless has_email
-
+  def submit_async
+    submission_job = email? ? 'SubmissionJob' : 'AnonSubmissionJob'
     @parsed_form = override_parsed_form(parsed_form)
 
     "HCA::#{submission_job}".constantize.perform_async(
@@ -249,31 +248,57 @@ class HealthCareApplication < ApplicationRecord
     self
   end
 
-  def log_submission_failure
-    StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
-    StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry_short_form") if short_form?
-
-    if form.present?
-      PersonalInformationLog.create!(
-        data: parsed_form,
-        error_class: 'HealthCareApplication FailedWontRetry'
-      )
-
-      log_message_to_sentry(
-        'HCA total failure',
-        :error,
-        {
-          first_initial: parsed_form['veteranFullName']['first'][0],
-          middle_initial: parsed_form['veteranFullName']['middle'].try(:[], 0),
-          last_initial: parsed_form['veteranFullName']['last'][0]
-        },
-        hca: :total_failure
-      )
-    end
+  def log_sync_submission_failure
+    StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.sync_submission_failed")
+    StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.sync_submission_failed_short_form") if short_form?
+    log_submission_failure_details
   end
 
-  def send_failure_mail
-    HCASubmissionFailureMailer.build(parsed_form['email'], google_analytics_client_id).deliver_now
+  def log_async_submission_failure
+    StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
+    StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry_short_form") if short_form?
+    log_submission_failure_details
+  end
+
+  def log_submission_failure_details
+    return if form.blank?
+
+    PersonalInformationLog.create!(
+      data: parsed_form,
+      error_class: 'HealthCareApplication FailedWontRetry'
+    )
+
+    log_message_to_sentry(
+      'HCA total failure',
+      :error,
+      {
+        first_initial: parsed_form['veteranFullName']['first'][0],
+        middle_initial: parsed_form['veteranFullName']['middle'].try(:[], 0),
+        last_initial: parsed_form['veteranFullName']['last'][0]
+      },
+      hca: :total_failure
+    )
+  end
+
+  def send_failure_email
+    if Flipper.enabled?(:hca_submission_failure_email_va_notify)
+      begin
+        email = parsed_form['email']
+        template_id = Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email
+        api_key = Settings.vanotify.services.health_apps_1010.api_key
+
+        VANotify::EmailJob.perform_async(
+          email,
+          template_id,
+          nil,
+          api_key
+        )
+      rescue => e
+        log_exception_to_sentry(e)
+      end
+    else
+      HCASubmissionFailureMailer.build(parsed_form['email'], google_analytics_client_id).deliver_now
+    end
   end
 
   # If the hca_use_facilities_API flag is on then vaMedicalFacility will only
@@ -288,12 +313,13 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def current_schema
-    schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
-    return schema unless Flipper.enabled?(:hca_use_facilities_API)
-
+    feature_enabled_for_user = Flipper.enabled?(:hca_use_facilities_API, user)
     Rails.logger.warn(
-      "HealthCareApplication::hca_use_facilitiesAPI enabled = #{Flipper.enabled?(:hca_use_facilities_API)}"
+      "HealthCareApplication::hca_use_facilitiesAPI enabled = #{feature_enabled_for_user}"
     )
+
+    schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
+    return schema unless feature_enabled_for_user
 
     schema.deep_dup.tap do |c|
       c['properties']['vaMedicalFacility'] = { type: 'string' }.as_json

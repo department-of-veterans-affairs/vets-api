@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe FolderSerializer do
   subject { serialize(folder, serializer_class: described_class) }
 
-  let(:folder) { build :folder }
+  let(:folder) { build_stubbed(:folder) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:links) { data['links'] }

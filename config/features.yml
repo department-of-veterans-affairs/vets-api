@@ -66,6 +66,9 @@ features:
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
+  hca_submission_failure_email_va_notify:
+    actor_type: user
+    description: Send HCA Submission Failure email using VANotify. 
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
@@ -73,6 +76,10 @@ features:
   ezr_tera_enabled:
     actor_type: user
     description: Enables Toxic Exposure questions for 10-10EZR applicants.
+    enable_in_development: true
+  ezr_upload_enabled:
+    actor_type: user
+    description: Enables Toxic Exposure File Upload for 10-10EZR applicants.
     enable_in_development: true
   ezr_auth_only_enabled:
     actor_type: user
@@ -335,6 +342,10 @@ features:
   decision_review_hlr_form_v4_enabled:
     actor_type: user
     description: Enable using MAR 2024 revision of 200996 Higher Level Review form when submitting to EMMS for intake
+  decision_review_use_hexapdf_for_encrypted_attachments:
+    actor_type: user
+    description: Enables using Hexapdf instead of PDFTK for decrypting password protected decision review evidence attachment files
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -378,6 +389,9 @@ features:
   disability_526_ep_merge_api:
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.
+  disability_526_ep_merge_new_claims:
+    actor_type: user
+    description: enables EP Merge for single-contention 526 claims for a new condition
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
@@ -461,6 +475,10 @@ features:
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
+  fsr_5655_server_side_transform:
+    actor_type: user
+    description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
+    enable_in_development: true
   financial_status_report_debts_api_module:
     actor_type: user
     description: Points to debts-api module routes
@@ -508,6 +526,10 @@ features:
     actor_type: cookie_id
     description: Enables Appoint a Representative frontend
     enable_in_development: true
+  appoint_a_representative_enable_pdf:
+    actor_type: user
+    description: Enables Appoint a Representative PDF generation endpoint
+    enable_in_development: true
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
@@ -554,6 +576,10 @@ features:
   form20_10206_confirmation_email:
     actor_type: user
     description: Enables form 20-10206 email submission confirmation (VaNotify)
+    enable_in_development: true
+  form20_10207_confirmation_email:
+    actor_type: user
+    description: Enables form 20-10207 email submission confirmation (VaNotify)
     enable_in_development: true
   form21_0845_confirmation_email:
     actor_type: user
@@ -737,6 +763,10 @@ features:
   mhv_secure_messaging_remove_lefthand_nav:
     actor_type: user
     description: Disables/Enables Secure Messaging lefthand navigation for new navigation solution
+    enable_in_development: true
+  mhv_secure_messaging_unique_user_logging_enabled:
+    actor_type: user
+    description: Disables/Enables Secure Messaging tracking unique users in Datadog
     enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
@@ -1141,10 +1171,6 @@ features:
     actor_type: user
     description: Allows toggling of MAP STS OAuth token for VAOS
     enable_in_development: true
-  va_online_scheduling_GA4_migration:
-    actor_type: user
-    description: Toggle for the GA4 events migration work.
-    enable_in_development: true
   va_online_scheduling_vaos_service_cc_appointments:
     actor_type: user
     description: Toggle for new vaos service cc appointments.
@@ -1189,10 +1215,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for querying Drupal Source of Truth for Acheron flag
-  va_online_scheduling_request_flow_update:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for content update to VA and Community Care request flow
   va_online_scheduling_poc_type_of_care:
     actor_type: user
     enable_in_development: true
@@ -1370,9 +1392,6 @@ features:
   disability_compensation_lighthouse_claims_service_provider:
     actor_type: user
     description: If enabled uses the lighthouse claims service
-  disability_compensation_lighthouse_submit_migration:
-    actor_type: user
-    description: If enabled uses the lighthouse submit endpoint
   disability_compensation_lighthouse_intent_to_file_provider:
     actor_type: user
     description: If enabled uses the lighthouse intent to file endpoint
@@ -1499,7 +1518,7 @@ features:
     actor_type: user
     description: Enable the Accredited Representative Portal for the pilot
     enable_in_development: true
-  toggle_vye_adress_direct_deposit_forms:
+  toggle_vye_address_direct_deposit_forms:
     actor_type: user
     description: Enable mailing address and direct deposit for VYE
   veteran_readiness_employment_to_res:
@@ -1507,8 +1526,12 @@ features:
     description: Enable RES platform for Veteran Readiness & Employment form submissions, disabled will use VRE email
     enable_in_development: true
   vye_login_widget:
-     actor_type: user
-     description: Enable Vye authentication widget
-  toggle_vye_adress_direct_deposit_forms_in_profile: 
-     actor_type: user
-     description: Enable mailing address and direct deposit for VYE in profile page
+    actor_type: user
+    description: Enable Vye authentication widget
+  toggle_vye_address_direct_deposit_forms_in_profile:
+    actor_type: user
+    description: Enable mailing address and direct deposit for VYE in profile page
+  use_facilities_api_v2_for_cerner_cta:
+    actor_type: user
+    description: Use the new facilities API v2 for the Cerner CTA. Estimated time of removal June 18, 2024 after testing of deployment on staging of authenticated user.
+    enable_in_development: true

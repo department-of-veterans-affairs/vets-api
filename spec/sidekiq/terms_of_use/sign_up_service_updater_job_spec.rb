@@ -21,9 +21,10 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
     let(:icn) { user_account.icn }
     let(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:, response:) }
     let(:response) { 'accepted' }
+    let(:response_time) { terms_of_use_agreement.created_at.iso8601 }
     let(:common_name) { 'some-common-name' }
     let(:service_instance) { instance_double(MAP::SignUp::Service) }
-    let(:version) { terms_of_use_agreement.agreement_version }
+    let(:version) { terms_of_use_agreement&.agreement_version }
     let(:attr_package_key) { 'some-key' }
     let(:expires_in) { 72.hours }
     let!(:attr_package) do
@@ -46,7 +47,9 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       end
 
       context 'when the attr_package is found' do
-        let(:expected_log_payload) { { icn:, exception_message:, attr_package_key: } }
+        let(:expected_log_payload) do
+          { icn:, response:, response_time:, version:, exception_message:, attr_package_key: }
+        end
 
         it 'logs a warning message with the expected payload' do
           described_class.sidekiq_retries_exhausted_block.call(job, exception)
@@ -57,7 +60,22 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
 
       context 'when the attr_package is expired' do
         let(:expires_in) { 45.hours }
-        let(:expected_log_payload) { { icn: nil, exception_message:, attr_package_key: } }
+        let(:expected_log_payload) do
+          { icn: nil, response: nil, response_time: nil, version: nil, exception_message:, attr_package_key: }
+        end
+
+        it 'logs a warning message with the expected payload' do
+          described_class.sidekiq_retries_exhausted_block.call(job, exception)
+
+          expect(Rails.logger).to have_received(:warn).with(expected_log_message, expected_log_payload)
+        end
+      end
+
+      context 'when the agreement is not found' do
+        let(:terms_of_use_agreement) { nil }
+        let(:expected_log_payload) do
+          { icn:, response: nil, response_time: nil, version: nil, exception_message:, attr_package_key: }
+        end
 
         it 'logs a warning message with the expected payload' do
           described_class.sidekiq_retries_exhausted_block.call(job, exception)

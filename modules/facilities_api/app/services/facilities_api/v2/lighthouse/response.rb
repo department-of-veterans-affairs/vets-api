@@ -20,7 +20,7 @@ module FacilitiesApi
           self.body = body
           self.status = status
           parsed_body = JSON.parse(body)
-          self.data = parsed_body['data']
+          self.data = parsed_body.key?('data') ? parsed_body['data'] : []
           self.meta = parsed_body['meta']
           self.links = parsed_body['links']
           set_metadata(meta) if meta
