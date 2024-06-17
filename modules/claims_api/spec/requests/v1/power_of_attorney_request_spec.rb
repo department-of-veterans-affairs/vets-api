@@ -307,7 +307,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       context 'request schema validation of aptUnitNumber' do
         before do
           Veteran::Service::Representative.new(representative_id: '56789', poa_codes: ['074'],
-                                                 first_name: 'Abraham', last_name: 'Lincoln').save!
+                                               first_name: 'Abraham', last_name: 'Lincoln').save!
         end
 
         let(:path) { '/services/claims/v1/forms/2122/validate' }
