@@ -12,5 +12,4 @@ RSpec.describe MessageSerializer, type: :serializer do
   it 'includes :attachments' do
     expect(relationships['attachments']['data'].size).to eq message.attachments.size
   end
-
 end

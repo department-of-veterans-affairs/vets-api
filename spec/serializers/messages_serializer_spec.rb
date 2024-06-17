@@ -61,5 +61,4 @@ describe MessagesSerializer, type: :serializer do
   it 'includes a link to itself' do
     expect(links['self']).to eq(v0_message_url(message.id))
   end
-
 end

@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 describe MessagingPreferenceSerializer do
-
   subject { serialize(messaging_preference, serializer_class: described_class) }
 
   let(:messaging_preference) { build_stubbed(:messaging_preference) }
