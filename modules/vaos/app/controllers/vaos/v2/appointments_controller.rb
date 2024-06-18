@@ -19,8 +19,6 @@ module VAOS
       COMMENT = 'comment'
 
       def index
-        appointments
-
         appointments[:data].each do |appt|
           if include_params[:facilities] && appt[:location_id].present? && appt[:location].nil?
             appt[:location] = FACILITY_ERROR_MSG
@@ -50,10 +48,7 @@ module VAOS
           appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
-        unless appointment[:location_id].nil?
-          appointment[:location] =
-            mobile_facility_service.get_facility(appointment[:location_id])
-        end
+        add_location(appointment)
 
         scrape_appt_comments_and_log_details(appointment, show_method_logging_name, PAP_COMPLIANCE_TELE)
 
@@ -72,9 +67,7 @@ module VAOS
           new_appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
-        unless new_appointment[:location_id].nil?
-          new_appointment[:location] = mobile_facility_service.get_facility(new_appointment[:location_id])
-        end
+        add_location(new_appointment)
 
         scrape_appt_comments_and_log_details(new_appointment, create_method_logging_name, PAP_COMPLIANCE_TELE)
 
@@ -92,9 +85,7 @@ module VAOS
           updated_appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
-        unless updated_appointment[:location_id].nil?
-          updated_appointment[:location] = mobile_facility_service.get_facility(updated_appointment[:location_id])
-        end
+        add_location(updated_appointment)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(updated_appointment, 'appointments')
@@ -111,6 +102,12 @@ module VAOS
       def mobile_facility_service
         @mobile_facility_service ||=
           VAOS::V2::MobileFacilityService.new(current_user)
+      end
+
+      def add_location(appointment)
+        return if appointment[:location_id].nil?
+
+        appointment[:location] = mobile_facility_service.get_facility(appointment[:location_id]) || FACILITY_ERROR_MSG
       end
 
       def appointments
