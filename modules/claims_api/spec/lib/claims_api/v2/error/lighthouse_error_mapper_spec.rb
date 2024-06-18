@@ -13,8 +13,7 @@ describe ClaimsApi::V2::Error::LighthouseErrorMapper do
 
     mapper = ClaimsApi::V2::Error::LighthouseErrorMapper.new(error).get_details
 
-    expect(mapper).to eq('This claim could not be established. The Maximum number of EP codes have been ' \
-                         'reached for this benefit type claim code')
+    expect(mapper).to eq('The Maximum number of EP codes have been reached for this benefit type claim code')
   end
 
   it '# get_details for a rated disability error' do
