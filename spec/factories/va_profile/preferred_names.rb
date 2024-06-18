@@ -12,6 +12,6 @@ FactoryBot.define do
   end
 
   factory :preferred_name_response, class: 'VAProfile::Demographics::PreferredNameResponse' do
-    initialize_with { new(200, preferred_name: build(:preferred_name) ) }
+    initialize_with { new(200, preferred_name: build(:preferred_name)) }
   end
 end
