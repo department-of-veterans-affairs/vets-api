@@ -290,7 +290,7 @@ module VAOS
 
         avs_resp = avs_service.get_avs_by_appointment(station_no, appt_ien)
 
-        return nil if avs_resp.body.empty? || !avs_resp.body.first.is_a?(Hash)
+        return nil if avs_resp.body.empty? || !(avs_resp.body.is_a?(Array) && avs_resp.body.first.is_a?(Hash))
 
         data = avs_resp.body.first.with_indifferent_access
 
