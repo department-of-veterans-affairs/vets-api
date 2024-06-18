@@ -66,6 +66,9 @@ features:
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
+  hca_submission_failure_email_va_notify:
+    actor_type: user
+    description: Send HCA Submission Failure email using VANotify.
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
@@ -469,6 +472,10 @@ features:
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
+  fsr_5655_server_side_transform:
+    actor_type: user
+    description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
+    enable_in_development: true
   financial_status_report_debts_api_module:
     actor_type: user
     description: Points to debts-api module routes
@@ -910,6 +917,9 @@ features:
   profile_show_payments_notification_setting:
     actor_type: user
     description: Show/Hide the payments section of notifications in profile
+  profile_show_privacy_policy:
+    actor_type: user
+    description: Show/Hide the privacy policy section on profile pages
   profile_show_pronouns_and_sexual_orientation:
     actor_type: user
     description: Show/hide Pronouns and Sexual Orientation fields on profile page
@@ -1382,9 +1392,6 @@ features:
   disability_compensation_lighthouse_claims_service_provider:
     actor_type: user
     description: If enabled uses the lighthouse claims service
-  disability_compensation_lighthouse_submit_migration:
-    actor_type: user
-    description: If enabled uses the lighthouse submit endpoint
   disability_compensation_lighthouse_intent_to_file_provider:
     actor_type: user
     description: If enabled uses the lighthouse intent to file endpoint
