@@ -241,12 +241,21 @@ module PdfFill
               'is_paid_yes' => { key: 'form1[0].#subform[0].YES1[0]' },
               'is_paid_no' => { key: 'form1[0].#subform[0].NO1[0]' }
             },
+          }, # end student_address_marriage_tuition
+          'agency_or_program' => {
             'agency_name' => {
               key: 'form1[0].#subform[0].FederalAssistanceProgram[0]',
               limit: 200,
               question_num: 9,
               question_suffix: 'A',
               question_text: 'Federally funded school or program'
+            },
+            'type_of_program_or_benefit' => {
+              key: 'form1[0].#subform[0].TypeOfProgramOrBenefit[0]',
+              limit: 50,
+              question_num: 9,
+              question_suffix: 'B',
+              question_text: 'Type of Program or Benefit'
             },
             'date_payments_began' => {
               'month' => {
@@ -271,7 +280,7 @@ module PdfFill
                 question_text: 'School Attendance Information > DATE PAYMENTS BEGAN (MM-DD-YYYY)'
               }
             }
-          }, # end student_address_marriage_tuition
+          }, #end agency_or_program
           'school_information' => {
             'training_program' => {
               key: 'form1[0].#subform[0].FederalAssistanceType[0]',
@@ -535,6 +544,7 @@ module PdfFill
         child_stopped_attending_school = dependents_application['child_stopped_attending_school']
         last_term_school_information = dependents_application['last_term_school_information']
         student_address_marriage_tuition = dependents_application['student_address_marriage_tuition']
+        agency_or_program = dependents_application['agency_or_program']
 
         dependents_application['student_name_and_ssn']['birth_date'] =
           split_date(dependents_application['student_name_and_ssn']['birth_date'])
@@ -559,10 +569,13 @@ module PdfFill
         end
 
         if student_address_marriage_tuition.present?
-          student_address_marriage_tuition['date_payments_began'] =
-            split_date(student_address_marriage_tuition['date_payments_began'])
           student_address_marriage_tuition['marriage_date'] =
             split_date(student_address_marriage_tuition['marriage_date'])
+        end
+
+        if agency_or_program.present?
+          agency_or_program['date_payments_began'] =
+            split_date(agency_or_program['date_payments_began'])
         end
       end
       # rubocop:enable Metrics/MethodLength

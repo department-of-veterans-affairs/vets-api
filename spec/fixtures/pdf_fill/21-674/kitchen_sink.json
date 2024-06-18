@@ -91,9 +91,14 @@
        "zip_code": "04102"},
      "was_married": true,
      "marriage_date": "2023-07-04",
-     "tuition_is_paid_by_gov_agency": true,
+     "tuition_is_paid_by_gov_agency": true
+    },
+   "agency_or_program":
+    {
      "agency_name": "name of agency",
-     "date_payments_began": "2023-09-01"},
+     "type_of_program_or_benefit": "program type 123",
+     "date_payments_began": "2023-09-01"
+    },
    "student_name_and_ssn": 
     {"full_name": {"first": "test", "middle": "middle", "last": "studentlastname"},
      "ssn": "987654321",

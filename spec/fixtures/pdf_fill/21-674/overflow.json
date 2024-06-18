@@ -85,9 +85,13 @@
        "zip_code": "03304"},
      "was_married": true,
      "marriage_date": "2024-05-09",
-     "tuition_is_paid_by_gov_agency": true,
-     "agency_name": "agency name too long agency name too long agency n",
-     "date_payments_began": "2023-02-03"},
+     "tuition_is_paid_by_gov_agency": true},
+   "agency_or_program":
+    {
+      "agency_name": "agency name too long agency name too long agency n",
+      "type_of_program_or_benefit": "type of program name that is too long for field type of program name that is too long for field",
+      "date_payments_began": "2023-02-03"
+    },
    "student_name_and_ssn": 
     {"full_name": {"first": "studentfirstnametoolongstudent", "middle": "studentmiddlenametoo", "last": "studentlastnametoolongstudentl"},
      "ssn": "987654321",
