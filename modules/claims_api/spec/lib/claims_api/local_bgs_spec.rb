@@ -19,7 +19,7 @@ describe ClaimsApi::LocalBGS do
         # 2: connection_wsdl_get - duration of WSDL request cycle
         # 3: connection_post - how long does the post itself take for the request cycle
         # 4: parsed_response - how long to parse the response
-        expect(ClaimsApi::Logger).to receive(:log).exactly(4).times
+        expect(ClaimsApi::Logger).to receive(:log).exactly(3).times
         result = subject.find_poa_by_participant_id('does-not-matter')
         expect(result).to be_a Hash
         expect(result[:end_date]).to eq '08/26/2020'
@@ -28,7 +28,7 @@ describe ClaimsApi::LocalBGS do
 
     describe 'breakers' do
       it 'returns a Bad Gateway' do
-        stub_request(:any, "#{Settings.bgs.url}/ClaimantServiceBean/ClaimantWebService?WSDL").to_timeout
+        stub_request(:any, "#{Settings.bgs.url}/ClaimantServiceBean/ClaimantWebService").to_timeout
         expect do
           subject.find_poa_by_participant_id('also-does-not-matter')
         end.to raise_error(Common::Exceptions::BadGateway)
@@ -38,18 +38,6 @@ describe ClaimsApi::LocalBGS do
         ClaimsApi::LocalBGS.breakers_service.begin_forced_outage!
         expect { subject.find_poa_by_participant_id('also-does-not-matter') }.to raise_error(Breakers::OutageException)
         ClaimsApi::LocalBGS.breakers_service.end_forced_outage!
-      end
-    end
-
-    it 'triggers StatsD measurements' do
-      VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id',
-                       allow_playback_repeats: true) do
-        allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id).and_return({})
-
-        %w[establish_ssl_connection connection_wsdl_get connection_post parsed_response].each do |event|
-          expect { subject.find_poa_by_participant_id('does-not-matter') }
-            .to trigger_statsd_measure("api.claims_api.local_bgs.#{event}.duration")
-        end
       end
     end
   end

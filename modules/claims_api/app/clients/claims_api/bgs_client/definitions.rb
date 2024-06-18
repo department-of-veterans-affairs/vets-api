@@ -158,6 +158,36 @@ module ClaimsApi
         end
       end
 
+      ##
+      # PersonWebServiceBean
+      #
+      module PersonWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'PersonWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://person.services.vetsnet.vba.va.gov/',
+              data: 'http://person.services.vetsnet.vba.va.gov/'
+            )
+          )
+      end
+
+      module PersonWebService
+        DEFINITION =
+          Service.new(
+            bean: PersonWebServiceBean::DEFINITION,
+            path: 'PersonWebService'
+          )
+        module FindPersonBySSN
+          DEFINITION =
+            Action.new(
+              service: PersonWebService::DEFINITION,
+              name: 'findPersonBySSN',
+              key: 'PersonDTO'
+            )
+        end
+      end
+
       module VeteranRepresentativeService
         DEFINITION =
           Service.new(

@@ -10,6 +10,8 @@ require 'claims_api/claim_logger'
 require 'claims_api/error/soap_error_handler'
 require 'claims_api/evss_bgs_mapper'
 
+require 'bgs_service/local_bgs_refactored'
+
 module ClaimsApi
   class LocalBGS
     # rubocop:disable Metrics/MethodLength
@@ -287,12 +289,18 @@ module ClaimsApi
       connection.options.timeout = @timeout
 
       begin
-        wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
-          connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
+        begin
+          namespace = ClaimsApi::LocalBGSRefactored::FindDefinition
+                      .for_action(endpoint, action)
+                      .service.bean.namespaces.target
+        rescue
+          wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
+            connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
+          end
+          namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace').to_s
         end
 
         url = "#{Settings.bgs.url}/#{endpoint}"
-        namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace').to_s
         body = full_body(action:, body:, namespace:, namespaces:)
         headers = {
           'Content-Type' => 'text/xml;charset=UTF-8',
