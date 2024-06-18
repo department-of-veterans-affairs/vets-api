@@ -303,7 +303,7 @@ RSpec.describe Form1010Ezr::Service do
               form_with_non_pdf_attachment = form.merge(
                 'attachments' => [
                   {
-                    'confirmationCode' => ezr_attachment.guid,
+                    'confirmationCode' => ezr_attachment.guid
                   }
                 ]
               )
