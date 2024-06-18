@@ -48,7 +48,7 @@ module VAOS
           appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
-        add_facility(appointment)
+        add_location(appointment)
 
         scrape_appt_comments_and_log_details(appointment, show_method_logging_name, PAP_COMPLIANCE_TELE)
 
@@ -67,7 +67,7 @@ module VAOS
           new_appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
-        add_facility(new_appointment)
+        add_location(new_appointment)
 
         scrape_appt_comments_and_log_details(new_appointment, create_method_logging_name, PAP_COMPLIANCE_TELE)
 
@@ -85,7 +85,7 @@ module VAOS
           updated_appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
-        add_facility(updated_appointment)
+        add_location(updated_appointment)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(updated_appointment, 'appointments')
@@ -104,7 +104,7 @@ module VAOS
           VAOS::V2::MobileFacilityService.new(current_user)
       end
 
-      def add_facility(appointment)
+      def add_location(appointment)
         return if appointment[:location_id].nil?
 
         appointment[:location] = mobile_facility_service.get_facility(appointment[:location_id]) || FACILITY_ERROR_MSG
