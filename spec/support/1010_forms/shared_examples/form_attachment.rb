@@ -21,7 +21,7 @@ shared_examples 'create 1010 form attachment' do
 
   it 'requires params.`param_namespace`' do
     empty_req_params = [nil, {}]
-    empty_req_params << { param_namespace => {},  }
+    empty_req_params << { param_namespace => {} }
     empty_req_params.each do |params|
       post(:create, params:)
 

@@ -880,7 +880,7 @@ module HCA
 
       veteran['attachments']&.each do |attachment|
         guid = attachment['confirmationCode']
-        form_attachment = HCAAttachment.find_by(guid: guid) || Form1010EzrAttachment.find_by(guid: guid)
+        form_attachment = HCAAttachment.find_by(guid:) || Form1010EzrAttachment.find_by(guid:)
         request['va:form']['va:attachments'] ||= []
         request['va:form']['va:attachments'] << add_attachment(form_attachment.get_file, attachment['dd214'])
       end

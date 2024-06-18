@@ -254,18 +254,71 @@ RSpec.describe Form1010Ezr::Service do
       context 'submitting with attachment' do
         let(:form) { get_fixture('form1010_ezr/valid_form') }
 
-        it 'returns a success object' do
-          form_with_attachment = form.merge(
-            'attachments' => [
-              {
-                'confirmationCode' => create(:form1010_ezr_attachment).guid
-              }
-            ]
-          )
-          VCR.use_cassette('example', :record => :once) do
-            result = submit_form(form)
+        context 'with a pdf attachment' do
+          it 'returns a success object', run_at: 'Tue, 18 Jun 2024 18:17:40 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_with_attachments',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
+              form_with_attachments = form.merge(
+                'attachments' => [
+                  {
+                    'confirmationCode' => create(:form1010_ezr_attachment).guid
+                  },
+                  {
+                    'confirmationCode' => create(:form1010_ezr_attachment).guid
+                  }
+                ]
+              )
 
-            expect(result).to be_a(Object)
+              expect(submit_form(form_with_attachments)).to eq(
+                {
+                  success: true,
+                  formSubmissionId: 435_240_209,
+                  timestamp: '2024-06-18T13:17:40.593-05:00'
+                }
+              )
+              expect(Rails.logger).to have_received(:info).with(
+                'Payload for submitted 1010EZR: Body size of 15.6 KB with 2 attachment(s)'
+              )
+            end
+          end
+        end
+
+        context 'with a non-pdf attachment' do
+          it 'returns a success object', run_at: 'Tue, 18 Jun 2024 18:42:09 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_with_non_pdf_attachment',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
+              ezr_attachment = build(:form1010_ezr_attachment)
+              ezr_attachment.set_file_data!(
+                Rack::Test::UploadedFile.new(
+                  'spec/fixtures/files/sm_file1.jpg',
+                  'image/jpeg'
+                )
+              )
+              ezr_attachment.save!
+
+              form_with_non_pdf_attachment = form.merge(
+                'attachments' => [
+                  {
+                    'confirmationCode' => ezr_attachment.guid,
+                  }
+                ]
+              )
+
+              expect(submit_form(form_with_non_pdf_attachment)).to eq(
+                {
+                  success: true,
+                  formSubmissionId: 435_240_322,
+                  timestamp: '2024-06-18T13:42:09.475-05:00'
+                }
+              )
+              expect(Rails.logger).to have_received(:info).with(
+                'Payload for submitted 1010EZR: Body size of 12.8 KB with 1 attachment(s)'
+              )
+            end
           end
         end
       end
