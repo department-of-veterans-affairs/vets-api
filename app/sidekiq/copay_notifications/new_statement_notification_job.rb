@@ -26,11 +26,10 @@ module CopayNotifications
       end
     end
 
-    sidekiq_retries_exhausted do |msg, ex|
-      statement = msg['args'].first # is this veteransIdentifier PII?
+    sidekiq_retries_exhausted do |_msg, ex|
+      StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
       Rails.logger.error <<~LOG
         NewStatementNotificationJob retries exhausted:
-        Vet ID: #{statement['veteranIdentifier']}
         Exception: #{ex.class} - #{ex.message}
         Backtrace: #{ex.backtrace.join("\n")}
       LOG
@@ -41,7 +40,6 @@ module CopayNotifications
 
     def perform(statement)
       # rubocop:disable Lint/UselessAssignment
-      StatsD.increment("#{STATSD_KEY_PREFIX}.total")
       statement_service = DebtManagementCenter::StatementIdentifierService.new(statement)
       user_data = statement_service.get_mpi_data
       icn = user_data[:icn]
@@ -51,6 +49,7 @@ module CopayNotifications
       }
       statement_date = statement['statementDate']
       account_balance = statement['accountBalance']
+      StatsD.increment("#{STATSD_KEY_PREFIX}.total")
       Rails.logger.info("Notification Data: date-#{statement_date}, balance-#{account_balance}")
       # rubocop:enable Lint/UselessAssignment
       # pausing until further notice
