@@ -23,21 +23,22 @@ module RepresentationManagement
       before_action :verify_veteran_email
       before_action :verify_veteran_service_number
       before_action :verify_veteran_insurance_number
-      before_action :verify_claimant_first_name
-      before_action :verify_claimant_middle_initial
-      before_action :verify_claimant_last_name
-      before_action :verify_claimant_address_line1
-      before_action :verify_claimant_address_line2
-      before_action :verify_claimant_city
-      before_action :verify_claimant_country
-      before_action :verify_claimant_state_code
-      before_action :verify_claimant_zip_code
-      before_action :verify_claimant_zip_code_suffix
-      before_action :verify_claimant_area_code
-      before_action :verify_claimant_phone_number
-      before_action :verify_claimant_phone_number_ext
-      before_action :verify_claimant_email
-      before_action :verify_claimant_relationship
+
+      before_action :verify_claimant_first_name_optional
+      before_action :verify_claimant_middle_initial_optional
+      before_action :verify_claimant_last_name_optional
+      before_action :verify_claimant_address_line1_optional
+      before_action :verify_claimant_address_line2_optional
+      before_action :verify_claimant_city_optional
+      before_action :verify_claimant_country_optional
+      before_action :verify_claimant_state_code_optional
+      before_action :verify_claimant_zip_code_optional
+      before_action :verify_claimant_zip_code_suffix_optional
+      before_action :verify_claimant_area_code_optional
+      before_action :verify_claimant_phone_number_optional
+      before_action :verify_claimant_phone_number_ext_optional
+      before_action :verify_claimant_email_optional
+      before_action :verify_claimant_relationship_optional
 
       # skip_before_action :authenticate
 
@@ -55,7 +56,7 @@ module RepresentationManagement
 
       def verify_veteran_middle_initial
         middle_initial = form_params[:veteran_middle_initial]
-        if middle_initial.present? && middle_initial.is_a?(String) && middle_initial.size > 1
+        if middle_initial.present? && !middle_initial.is_a?(String) && middle_initial.size != 1
           raise_invalid_field_value('veteran_middle_initial', form_params[:veteran_middle_initial])
         end
       end
@@ -88,7 +89,7 @@ module RepresentationManagement
 
       def verify_veteran_address_line2
         if form_params[:veteran_address_line2].present? &&
-           !(form_params[:veteran_address_line2].is_a?(String) ||
+           (!form_params[:veteran_address_line2].is_a?(String) ||
            form_params[:veteran_address_line2].size > 5)
           raise_invalid_field_value('veteran_address_line2', form_params[:veteran_address_line2])
         end
@@ -136,38 +137,152 @@ module RepresentationManagement
 
       def verify_veteran_phone_number
         if form_params[:veteran_phone_number].present? &&
-            !(form_params[:veteran_phone_number].is_a?(String) ||
-            form_params[:veteran_phone_number].size != 7)
+           !(form_params[:veteran_phone_number].is_a?(String) ||
+           form_params[:veteran_phone_number].size != 7)
           raise_invalid_field_value('veteran_phone_number', form_params[:veteran_phone_number])
         end
       end
 
       def verify_veteran_phone_number_ext
         if form_params[:veteran_phone_number_ext].present? &&
-            !(form_params[:veteran_phone_number_ext].is_a?(String)
-            raise_invalid_field_value('veteran_phone_number_ext', form_params[:veteran_phone_number_ext])
+           !form_params[:veteran_phone_number_ext].is_a?(String)
+          raise_invalid_field_value('veteran_phone_number_ext', form_params[:veteran_phone_number_ext])
         end
       end
 
       def verify_veteran_email
         if form_params[:veteran_email].present? &&
-            !(form_params[:veteran_email].is_a?(String)
-            raise_invalid_field_value('veteran_email', form_params[:veteran_email])
+           !form_params[:veteran_email].is_a?(String)
+          raise_invalid_field_value('veteran_email', form_params[:veteran_email])
         end
       end
 
       def verify_veteran_service_number
         if form_params[:veteran_service_number].present? &&
-            !(form_params[:veteran_service_number].is_a?(String) ||
-            form_params[:veteran_service_number].size != 9)
+           !(form_params[:veteran_service_number].is_a?(String) ||
+           form_params[:veteran_service_number].size != 9)
           raise_invalid_field_value('veteran_service_number', form_params[:veteran_service_number])
         end
       end
 
       def verify_veteran_insurance_number
         if form_params[:veteran_insurance_number].present? &&
-          !(form_params[:veteran_insurance_number].is_a?(String) ||
+           !form_params[:veteran_insurance_number].is_a?(String)
           raise_invalid_field_value('veteran_insurance_number', form_params[:veteran_insurance_number])
+        end
+      end
+
+      def verify_claimant_first_name_optional
+        if form_params[:claimant_first_name].present? &&
+           (!form_params[:claimant_first_name].is_a?(String) ||
+           form_params[:claimant_first_name].size > 12)
+          raise_invalid_field_value('claimant_first_name', form_params[:claimant_first_name])
+        end
+      end
+
+      def verify_claimant_middle_initial_optional
+        if form_params[:claimant_middle_initial].present? &&
+           form_params[:claimant_first_name].present? &&
+           (!form_params[:claimant_middle_initial].is_a?(String) ||
+           form_params[:claimant_middle_initial].size != 1)
+          raise_invalid_field_value('claimant_middle_initial', form_params[:claimant_middle_initial])
+        end
+      end
+
+      def verify_claimant_last_name_optional
+        if form_params[:claimant_last_name].present? &&
+           form_params[:claimant_first_name].present? &&
+           (!form_params[:claimant_last_name].is_a?(String) ||
+           form_params[:claimant_last_name].size > 18)
+          raise_invalid_field_value('claimant_last_name', form_params[:claimant_last_name])
+        end
+      end
+
+      def verify_claimant_address_line1_optional
+        if form_params[:claimant_address_line1].present? &&
+           form_params[:claimant_first_name].present? &&
+           string_present_and_less_than_max_length?(form_params[:claimant_address_line1], 30)
+          raise_invalid_field_value('claimant_address_line1', form_params[:claimant_address_line1])
+        end
+      end
+
+      def verify_claimant_address_line2_optional
+        if form_params[:claimant_address_line2].present? &&
+           form_params[:claimant_first_name].present? &&
+           (!form_params[:claimant_address_line2].is_a?(String) ||
+           form_params[:claimant_address_line2].size > 5)
+          raise_invalid_field_value('claimant_address_line2', form_params[:claimant_address_line2])
+        end
+      end
+
+      def verify_claimant_city_optional
+        if form_params[:claimant_first_name].present? &&
+           !string_present_and_less_than_max_length?(form_params[:claimant_city], 18)
+          raise_invalid_field_value('claimant_city', form_params[:claimant_city])
+        end
+      end
+
+      def verify_claimant_country_optional
+        if form_params[:claimant_first_name].present? &&
+           !string_present_and_less_than_max_length?(form_params[:claimant_country], 2)
+          raise_invalid_field_value('claimant_country', form_params[:claimant_country])
+        end
+      end
+
+      def verify_claimant_state_code_optional
+        if form_params[:claimant_first_name].present? &&
+           !string_present_and_equal_to_length?(form_params[:claimant_state_code], 2)
+          raise_invalid_field_value('claimant_state_code', form_params[:claimant_state_code])
+        end
+      end
+
+      def verify_claimant_zip_code_optional
+        if form_params[:claimant_first_name].present? &&
+           !string_present_and_equal_to_length?(form_params[:claimant_zip_code], 5)
+          raise_invalid_field_value('claimant_zip_code', form_params[:claimant_zip_code])
+        end
+      end
+
+      def verify_claimant_zip_code_suffix_optional
+        if form_params[:claimant_first_name].present? &&
+           form_params[:claimant_zip_code_suffix].present? &&
+           (!form_params[:claimant_zip_code_suffix].is_a?(String) ||
+           form_params[:claimant_zip_code_suffix].size != 4)
+          raise_invalid_field_value('claimant_zip_code_suffix', form_params[:claimant_zip_code_suffix])
+        end
+      end
+
+      def verify_claimant_area_code_optional
+        if form_params[:claimant_first_name].present? &&
+           form_params[:claimant_area_code].present? &&
+           (!form_params[:claimant_area_code].is_a?(String) ||
+           form_params[:claimant_area_code].size != 3)
+          raise_invalid_field_value('claimant_area_code', form_params[:claimant_area_code])
+        end
+      end
+
+      def verify_claimant_phone_number_optional
+        if form_params[:claimant_first_name].present? &&
+           form_params[:claimant_phone_number].present? &&
+           (!form_params[:claimant_phone_number].is_a?(String) ||
+           form_params[:claimant_phone_number].size != 7)
+          raise_invalid_field_value('claimant_phone_number', form_params[:claimant_phone_number])
+        end
+      end
+
+      def verify_claimant_phone_number_ext_optional
+        if form_params[:claimant_first_name].present? &&
+           form_params[:claimant_phone_number_ext].present? &&
+           !form_params[:claimant_phone_number_ext].is_a?(String)
+          raise_invalid_field_value('claimant_phone_number_ext', form_params[:claimant_phone_number_ext])
+        end
+      end
+
+      def verify_claimant_email_optional
+        if form_params[:claimant_first_name].present? &&
+           form_params[:claimant_email].present? &&
+           !form_params[:claimant_email].is_a?(String)
+          raise_invalid_field_value('claimant_email', form_params[:claimant_email])
         end
       end
 
@@ -218,8 +333,6 @@ module RepresentationManagement
         ]
       end
 
-
-
       def string_present_and_less_than_max_length?(string, max_length)
         string.present? && string.is_a?(String) && string.size <= max_length
       end
@@ -235,12 +348,6 @@ module RepresentationManagement
       def raise_invalid_field_value(field_name, field_value)
         raise Common::Exceptions::InvalidFieldValue.new(field_name, field_value)
       end
-
-
-
-
-
-
 
       def veteran_params
         %i[
