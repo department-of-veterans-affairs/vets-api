@@ -27,7 +27,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
 
   let(:scopes) do
     %w[
-      system/system/claim.write
+      system/claim.write
       system/claim.read
     ]
   end

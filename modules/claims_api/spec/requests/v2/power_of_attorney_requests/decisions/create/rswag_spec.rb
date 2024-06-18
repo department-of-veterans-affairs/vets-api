@@ -19,8 +19,8 @@ describe 'PowerOfAttorney', metadata do
       tags 'Power of Attorney'
       operationId 'createPowerOfAttorneyRequestDecisions'
       security [
-        { productionOauth: ['system/claim.read', 'system/system/claim.write'] },
-        { sandboxOauth: ['system/claim.read', 'system/system/claim.write'] },
+        { productionOauth: ['system/claim.read', 'system/claim.write'] },
+        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
         { bearer_token: [] }
       ]
       produces 'application/json'
@@ -28,7 +28,7 @@ describe 'PowerOfAttorney', metadata do
       description 'Create the decision for Power of Attorney requests'
 
       let(:Authorization) { 'Bearer token' }
-      let(:scopes) { %w[system/claim.read system/system/claim.write] }
+      let(:scopes) { %w[system/claim.read system/claim.write] }
 
       body_schema =
         JSON.load_file(

@@ -9368,13 +9368,13 @@
           {
             "productionOauth": [
               "system/claim.read",
-              "system/system/claim.write"
+              "system/claim.write"
             ]
           },
           {
             "sandboxOauth": [
               "system/claim.read",
-              "system/system/claim.write"
+              "system/claim.write"
             ]
           },
           {
