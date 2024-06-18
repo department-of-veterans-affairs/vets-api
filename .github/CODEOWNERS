@@ -399,6 +399,7 @@ app/serializers/intent_to_file_serializer.rb @department-of-veterans-affairs/Dis
 app/serializers/letter_beneficiary_serializer.rb @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/backend-review-group
 app/serializers/letters_serializer.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/serializers/lighthouse @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+app/serializers/lighthouse_rating_info_serializer.rb @department-of-veterans-affairs/vfs-facilities @department-of-veterans-affairs/backend-review-group
 app/serializers/maintenance_window_serializer.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/serializers/message_serializer.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/serializers/messages_serializer.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1703,7 +1704,11 @@ spec/serializers/intent_to_file_serializer_spec.rb @department-of-veterans-affai
 spec/serializers/letter_beneficiary_serializer_spec.rb @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/backend-review-group
 spec/serializers/letters_serializer_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/serializers/lighthouse @department-of-veterans-affairs/vfs-facilities @department-of-veterans-affairs/backend-review-group
+spec/serializers/lighthouse_rating_info_serializer_spec.rb @department-of-veterans-affairs/vfs-facilities @department-of-veterans-affairs/backend-review-group
+spec/serializers/maintenance_window_serializer_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/serializers/message_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/serializers/messages_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/serializers/messaging_preference_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/serializers/okta_app_serializer_spec.rb @department-of-veterans-affairs/lighthouse-pivot
 spec/serializers/onsite_notification_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/serializers/payment_history_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
