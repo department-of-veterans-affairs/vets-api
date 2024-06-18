@@ -730,7 +730,8 @@ module ClaimsApi
             collect_error_messages(
               source: "/confinements/#{idx}/approximateBeginDate",
               detail: 'Confinement periods may not overlap each other.'
-)
+            )
+          end
           unless confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date,
                                                               service_periods)
             collect_error_messages(
