@@ -36,6 +36,49 @@ module FsrFormTransform
       result
     end
 
+    def re_dollar_cent(x)
+      return re_dollar_cent_array(x) if x.instance_of?(Array)
+      re_dollar_cent_hash(x) if x.instance_of?(Hash)
+    end
+
+    def re_dollar_cent_hash(x)
+      result = {}
+      x.each do |key, val|
+        case val
+        when Integer
+          result[key] = dollars_cents(val.to_f)
+        when Float
+          result[key] = dollars_cents(val)
+        when Array
+          result[key] = re_dollar_cent_array(val)
+        when Hash
+          result[key] = re_dollar_cent_hash(val)
+        else
+          result[key] = val
+        end
+      end
+      result
+    end
+
+    def re_dollar_cent_array(x)
+      result = []
+      x.each{ |el|
+        case el
+        when Integer
+          result << dollars_cents(el.to_f)
+        when Float
+          result << dollars_cents(el)
+        when Array
+          result << re_dollar_cent_array(el)
+        when Hash
+          result << re_dollar_cent_hash(el)
+        else
+          result << el
+        end
+      }
+      result
+    end
+
     def sanitize_date_string(date)
       return '' if date.empty?
 

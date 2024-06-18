@@ -12,7 +12,7 @@ module DebtsApi
         RENT = 'Rent'
         MORTGAGE_PAYMENT = 'Mortgage payment'
         FOOD = 'Food'
-
+        attr_reader :filtered_expenses
         def initialize(form)
           @form = form
           @enhanced = form['view:enhancedFinancialStatusReport'] || false

@@ -13,7 +13,7 @@ module DebtsApi
 
         def initialize(form)
           @form = form
-          @gmt_data = get_gmt_data
+          @gmt_data = @form['gmt_data'] #get_gmt_data
           @income_data = DebtsApi::V0::FsrFormTransform::IncomeCalculator.new(form).get_monthly_income
           @asset_data = DebtsApi::V0::FsrFormTransform::AssetCalculator.new(form).transform_assets
           @enhanced_expense_calculator =
@@ -65,15 +65,15 @@ module DebtsApi
 
         def are_liquid_assets_below_gmt_threshold?
           liquid_assets = @asset_data['cashOnHand'] + @asset_data['cashInBank']
-          liquid_assets < @gmt_data.gmt_threshold
+          liquid_assets < @gmt_data['gmt_threshold']
         end
 
         def income_below_gmt_threshold?
-          total_annual_income < @gmt_data.gmt_threshold
+          total_annual_income < @gmt_data['gmt_threshold']
         end
 
         def cash_below_gmt_threshold?
-          @asset_data['cashOnHand'] < @gmt_data.gmt_threshold
+          @asset_data['cashOnHand'] < @gmt_data['gmt_threshold']
         end
 
         def streamlined_waiver_asset_update?
@@ -81,11 +81,11 @@ module DebtsApi
         end
 
         def income_below_upper_threshold?
-          total_annual_income < @gmt_data.income_limits['income_upper_threshold']
+          total_annual_income < @gmt_data['income_upper_threshold']
         end
 
         def income_below_discretionary_threshold?
-          total_discretionary_income < @gmt_data.income_limits['discretionary_income_threshold']
+          total_discretionary_income < @gmt_data['discretionary_income_threshold']
         end
 
         def debt_below_vha_limit?

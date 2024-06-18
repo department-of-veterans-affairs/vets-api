@@ -8,6 +8,7 @@ module DebtsApi
     module FsrFormTransform
       class ExpenseCalculator
         def self.build(form)
+          form = form.deep_dup
           form.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
           enhanced = form['view:enhancedFinancialStatusReport'] || false
           enhanced ? EnhancedExpenseCalculator.new(form) : OldExpenseCalculator.new(form)

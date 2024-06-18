@@ -12,9 +12,48 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::FullTransformService, type: :serv
   end
 
   describe '#transform' do
-    it 'generates an acceptable FSR' do
-      transformer = described_class.new(pre_transform_fsr_form_data)
-      expect(transformer.transform).to eq(post_transform_fsr_form_data)
+
+    context 'standard FSR' do 
+      let(:transformed) do 
+        described_class.new(pre_transform_fsr_form_data).transform
+      end
+      it 'generates personalIdentification' do
+        expect(transformed['personalIdentification']).to eq(post_transform_fsr_form_data['personalIdentification'])
+      end
+      it 'generates personalData' do
+        expect(transformed['personalData']).to eq(post_transform_fsr_form_data['personalData'])
+      end
+      it 'generates income' do
+        expect(transformed['income']).to eq(post_transform_fsr_form_data['income'])
+      end
+      it 'generates expenses' do
+        expect(transformed['expenses']).to eq(post_transform_fsr_form_data['expenses'])
+      end
+      it 'generates discretionaryIncome' do
+        expect(transformed['discretionaryIncome']).to eq(post_transform_fsr_form_data['discretionaryIncome'])
+      end
+      it 'generates assets' do
+        expect(transformed['assets']).to eq(post_transform_fsr_form_data['assets'])
+      end
+      it 'generates installmentContractsAndOtherDebts' do
+        expect(transformed['installmentContractsAndOtherDebts']).to eq(post_transform_fsr_form_data['installmentContractsAndOtherDebts'])
+      end
+      it 'generates totalOfInstallmentContractsAndOtherDebts' do
+        expect(transformed['totalOfInstallmentContractsAndOtherDebts']).to eq(post_transform_fsr_form_data['totalOfInstallmentContractsAndOtherDebts'])
+      end
+      it 'generates additionalData' do
+        expect(transformed['additionalData']).to eq(post_transform_fsr_form_data['additionalData'])
+      end
+      it 'generates applicantCertifications' do
+        expect(transformed['applicantCertifications']['veteranSignature']).to eq(post_transform_fsr_form_data['applicantCertifications']['veteranSignature'])
+        expect(transformed['applicantCertifications']['veteranDateSigned']).to eq(Date.today.strftime('%m/%d/%Y'))
+      end
+      it 'generates selectedDebtsAndCopays' do
+        expect(transformed['selectedDebtsAndCopays']).to eq(post_transform_fsr_form_data['selectedDebtsAndCopays'])
+      end
+      it 'generates streamlined' do
+        expect(transformed['streamlined']).to eq(post_transform_fsr_form_data['streamlined'])
+      end
     end
   end
 end
