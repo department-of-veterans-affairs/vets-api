@@ -112,7 +112,7 @@ module Lighthouse
       log_exception_to_sentry(error, extra_context, tags_context)
     end
 
-    def log_to_rails_logger(service_name, options)
+    def self.log_to_rails_logger(service_name, options)
       Rails.logger.error(
         service_name,
         options
