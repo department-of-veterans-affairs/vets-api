@@ -1249,6 +1249,7 @@ RSpec.describe User, type: :model do
     context 'when feature toggle is disabled, never show onboarding flow' do
       it 'show_onboarding_flow_on_login returns false when flag is disabled, even if display_onboarding_flow is true' do
         Flipper.disable(:veteran_onboarding_beta_flow)
+        Flipper.disable(:veteran_onboarding_show_to_newly_onboarded)
         expect(user.show_onboarding_flow_on_login).to be_falsey
       end
     end
