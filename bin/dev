@@ -43,7 +43,7 @@ processes=""
 case $setup_type in
   native)
     echo "Starting Native...\n"
-    exec foreman start -f Procfile.dev -m web=1 job=1
+    exec foreman start -f Procfile.dev -m web=1,job=1
     ;;
   docker)
     echo "Starting Docker...\n"
@@ -51,7 +51,7 @@ case $setup_type in
     ;;
   hybrid)
     echo "Starting Hybrid...\n"
-    exec foreman start -f Procfile.dev -m web=1 job=1 deps=1
+    exec foreman start -f Procfile.dev -m web=1,job=1,deps=1
     ;;
   *)
     echo "Invalid setup type in .developer-setup! Exiting."
