@@ -73,10 +73,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 23bf453428474f73d1b519fe588b0b707ec9ebd7
+  revision: 274f291bce3c00a798637b5411765194223676ec
   branch: master
   specs:
-    vets_json_schema (22.3.1)
+    vets_json_schema (22.3.3)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -245,7 +245,7 @@ GEM
     attr_extras (7.1.0)
     awesome_print (1.9.2)
     aws-eventstream (1.3.0)
-    aws-partitions (1.940.0)
+    aws-partitions (1.944.0)
     aws-sdk-core (3.197.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.651.0)
@@ -254,8 +254,8 @@ GEM
     aws-sdk-kms (1.83.0)
       aws-sdk-core (~> 3, >= 3.197.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.151.0)
-      aws-sdk-core (~> 3, >= 3.194.0)
+    aws-sdk-s3 (1.152.3)
+      aws-sdk-core (~> 3, >= 3.197.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.8)
     aws-sdk-sns (1.76.0)
@@ -313,7 +313,7 @@ GEM
     combine_pdf (1.0.26)
       matrix
       ruby-rc4 (>= 0.1.5)
-    concurrent-ruby (1.3.1)
+    concurrent-ruby (1.3.3)
     config (5.5.1)
       deep_merge (~> 1.2, >= 1.2.1)
     connection_pool (2.4.1)
@@ -464,19 +464,20 @@ GEM
       nokogiri (>= 1.11.4)
     fitbit_api (1.0.0)
       oauth2 (~> 2.0)
-    flipper (1.2.2)
+    flipper (1.3.0)
       concurrent-ruby (< 2)
-    flipper-active_record (1.2.2)
+    flipper-active_record (1.3.0)
       activerecord (>= 4.2, < 8)
-      flipper (~> 1.2.2)
-    flipper-active_support_cache_store (1.2.2)
+      flipper (~> 1.3.0)
+    flipper-active_support_cache_store (1.3.0)
       activesupport (>= 4.2, < 8)
-      flipper (~> 1.2.2)
-    flipper-ui (1.2.2)
+      flipper (~> 1.3.0)
+    flipper-ui (1.3.0)
       erubi (>= 1.0.0, < 2.0.0)
-      flipper (~> 1.2.2)
+      flipper (~> 1.3.0)
       rack (>= 1.4, < 4)
-      rack-protection (>= 1.5.3, <= 4.0.0)
+      rack-protection (>= 1.5.3, < 5.0.0)
+      rack-session (>= 1.0.2, < 3.0.0)
       sanitize (< 7)
     foreman (0.88.1)
     formatador (1.1.0)
@@ -697,8 +698,7 @@ GEM
       rack (>= 1.2, < 4)
       snaky_hash (~> 2.0)
       version_gem (~> 1.1)
-    octokit (8.1.0)
-      base64
+    octokit (9.1.0)
       faraday (>= 1, < 3)
       sawyer (~> 0.9)
     oj (3.16.3)
@@ -766,7 +766,7 @@ GEM
       stringio
     psych (5.1.2-java)
       jar-dependencies (>= 0.1.7)
-    public_suffix (5.0.5)
+    public_suffix (5.1.1)
     puma (6.4.2)
       nio4r (~> 2.0)
     puma (6.4.2-java)
