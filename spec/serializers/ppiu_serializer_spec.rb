@@ -31,7 +31,7 @@ describe PPIUSerializer, type: :serializer do
   it 'masks the routing number' do
     routing_number = payment_information_response.responses.first.payment_account.financial_institution_routing_number
     masked_routing_number = StringHelpers.mask_sensitive(routing_number)
-    expect(attributes['responses'].first['payment_account']['financial_institution_routing_number']).to eq(masked_routing_number)
+    given_routing_number = attributes['responses'].first['payment_account']['financial_institution_routing_number']
+    expect(given_routing_number).to eq(masked_routing_number)
   end
-
 end

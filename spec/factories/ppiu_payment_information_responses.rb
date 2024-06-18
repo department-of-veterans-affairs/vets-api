@@ -2,14 +2,16 @@
 
 FactoryBot.define do
   factory :ppiu_payment_information_response, class: 'EVSS::PPIU::PaymentInformationResponse' do
-    initialize_with { new(200, OpenStruct.new(body: { responses: build_list(:payment_information, 1).map(&:attributes) })) }
+    initialize_with {
+      new(200, OpenStruct.new(body: { responses: build_list(:payment_information, 1).map(&:attributes) }))
+    }
   end
 
   factory :payment_information, class: 'EVSS::PPIU::PaymentInformation' do
     control_information { build(:ppiu_control_information) }
     payment_account { build(:ppiu_payment_account) }
     payment_address { build(:ppiu_payment_address) }
-    payment_type { "CNP" }
+    payment_type { 'CNP' }
 
     initialize_with { new(attributes) }
   end
@@ -29,8 +31,8 @@ FactoryBot.define do
   end
 
   factory :ppiu_payment_address, class: 'EVSS::PPIU::PaymentAddress' do
-    address_effective_date { "2018-06-07T22:47:21.000Z" }
-    address_one { "string" }
+    address_effective_date { '2018-06-07T22:47:21.000Z' }
+    address_one { 'string' }
     address_two { nil }
     address_three { nil }
     city { nil }
@@ -38,7 +40,7 @@ FactoryBot.define do
     military_post_office_type_code { nil }
     military_state_code { nil }
     state_code { nil }
-    type { "Domestic" }
+    type { 'Domestic' }
     zip_code { nil }
     zip_suffix { nil }
 
