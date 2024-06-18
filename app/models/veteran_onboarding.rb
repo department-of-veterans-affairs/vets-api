@@ -48,12 +48,12 @@ class VeteranOnboarding < ApplicationRecord
     end
   end
 
-
   def find_or_create_for_user
-    if @user.user_account&.verified?
-      if Flipper.enabled?(:veteran_onboarding_beta_flow, @user) || Flipper.enabled?(:veteran_onboarding_show_to_newly_onboarded, @user)
-        self.class.find_or_create_by(user_account: @user.user_account)
-      end
+    if @user.user_account&.verified? && (Flipper.enabled?(:veteran_onboarding_beta_flow,
+                                                          @user) || Flipper.enabled?(
+                                                            :veteran_onboarding_show_to_newly_onboarded, @user
+                                                          ))
+      self.class.find_or_create_by(user_account: @user.user_account)
     end
   end
 end
