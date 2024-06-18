@@ -32,14 +32,123 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
     ]
   end
 
-  describe 'when a malformed body is posted' do
-    let(:params) { '{{{{' }
+  describe 'with no ccg' do
+    it 'returns unauthorized' do
+      body = perform_request({})
 
-    it 'something' do
+      expect(body).to eq(
+        'errors' => [
+          {
+            'title' => 'Not authorized',
+            'detail' => 'Not authorized'
+          }
+        ]
+      )
+
+      expect(response).to(
+        have_http_status(:unauthorized)
+      )
+    end
+  end
+
+  describe 'from underlying faraday connection issues' do
+    let(:params) do
+      {
+        'data' => {
+          'type' => 'powerOfAttorneyRequestDecision',
+          'attributes' => {
+            'status' => 'Declined',
+            'declinedReason' => 'Some reason',
+            'createdBy' => {
+              'firstName' => 'BEATRICE',
+              'lastName' => 'STROUD',
+              'email' => 'Beatrice.Stroud44@va.gov'
+            }
+          }
+        }
+      }
+    end
+
+    before do
+      pattern = %r{/VDC/ManageRepresentativeService}
+      stub_request(:post, pattern).to_raise(
+        described_class
+      )
+    end
+
+    describe Faraday::ConnectionFailed do
+      it 'returns a bad gateway error' do
+        body =
+          mock_ccg(scopes) do
+            perform_request(params)
+          end
+
+        expect(body).to eq(
+          'errors' => [
+            {
+              'title' => 'Bad Gateway',
+              'detail' => 'Bad Gateway'
+            }
+          ]
+        )
+
+        expect(response).to(
+          have_http_status(:bad_gateway)
+        )
+      end
+    end
+
+    describe Faraday::SSLError do
+      it 'returns a bad gateway error' do
+        body =
+          mock_ccg(scopes) do
+            perform_request(params)
+          end
+
+        expect(body).to eq(
+          'errors' => [
+            {
+              'title' => 'Bad Gateway',
+              'detail' => 'Bad Gateway'
+            }
+          ]
+        )
+
+        expect(response).to(
+          have_http_status(:bad_gateway)
+        )
+      end
+    end
+
+    describe Faraday::TimeoutError do
+      it 'returns a bad gateway error' do
+        body =
+          mock_ccg(scopes) do
+            perform_request(params)
+          end
+
+        expect(body).to eq(
+          'errors' => [
+            {
+              'title' => 'Gateway timeout',
+              'detail' => 'Did not receive a timely response from an upstream server'
+            }
+          ]
+        )
+
+        expect(response).to(
+          have_http_status(:gateway_timeout)
+        )
+      end
+    end
+  end
+
+  describe 'when a malformed body is posted' do
+    it 'responds 400' do
       mock_ccg(scopes) do
         post(
           "/services/claims/v2/power-of-attorney-requests/#{id}/decision",
-          params:,
+          params: '{{{{',
           headers:
         )
       end

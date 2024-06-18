@@ -69,6 +69,479 @@
     }
   },
   "paths": {
+    "/power-of-attorney-requests/{id}/decision": {
+      "post": {
+        "summary": "Create the decision for Power of Attorney requests.",
+        "tags": [
+          "Power of Attorney"
+        ],
+        "operationId": "createPowerOfAttorneyRequestDecisions",
+        "security": [
+          {
+            "productionOauth": [
+              "system/claim.read",
+              "system/system/claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "system/claim.read",
+              "system/system/claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Create the decision for Power of Attorney requests",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Create decision",
+            "content": {
+              "application/json": {
+                "example": {
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Record not found",
+                      "detail": "The record identified by 1234_5678 could not be found",
+                      "code": "404",
+                      "status": "404"
+                    }
+                  ]
+                },
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "enum": [
+                              "Record not found"
+                            ]
+                          },
+                          "detail": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string",
+                            "enum": [
+                              "404"
+                            ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "404"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid recreation",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "must be original",
+                      "detail": "base - must be original",
+                      "code": "100",
+                      "source": {
+                        "pointer": "data/attributes/base"
+                      },
+                      "status": "422"
+                    }
+                  ]
+                },
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "source",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "enum": [
+                              "Validation error"
+                            ]
+                          },
+                          "detail": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string",
+                            "enum": [
+                              "100"
+                            ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "422"
+                            ]
+                          },
+                          "source": {
+                            "type": "object"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request body",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Bad request",
+                      "detail": "Malformed JSON in request body",
+                      "code": "400",
+                      "status": "400"
+                    }
+                  ]
+                },
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "enum": [
+                              "Bad request"
+                            ]
+                          },
+                          "detail": {
+                            "type": "string",
+                            "enum": [
+                              "Malformed JSON in request body"
+                            ]
+                          },
+                          "code": {
+                            "type": "string",
+                            "enum": [
+                              "400"
+                            ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "400"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Bad Gateway",
+                      "detail": "Bad Gateway"
+                    }
+                  ]
+                },
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "enum": [
+                              "Bad Gateway"
+                            ]
+                          },
+                          "detail": {
+                            "type": "string",
+                            "enum": [
+                              "Bad Gateway"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway timeout",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Gateway timeout",
+                      "detail": "Did not receive a timely response from an upstream server"
+                    }
+                  ]
+                },
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "enum": [
+                              "Gateway timeout"
+                            ]
+                          },
+                          "detail": {
+                            "type": "string",
+                            "enum": [
+                              "Did not receive a timely response from an upstream server"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "enum": [
+                              "Not authorized"
+                            ]
+                          },
+                          "detail": {
+                            "type": "string",
+                            "enum": [
+                              "Not authorized"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "description": "Power Of Attorney Request Decision",
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "type",
+                      "attributes"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "powerOfAttorneyRequestDecision"
+                        ]
+                      },
+                      "attributes": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "status",
+                          "declinedReason",
+                          "createdBy"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "description": "TODO",
+                            "enum": [
+                              "Accepted",
+                              "Declined"
+                            ]
+                          },
+                          "declinedReason": {
+                            "type": "string",
+                            "description": "TODO",
+                            "nullable": true
+                          },
+                          "createdBy": {
+                            "type": "object",
+                            "description": "TODO",
+                            "additionalProperties": false,
+                            "required": [
+                              "firstName",
+                              "lastName",
+                              "email"
+                            ],
+                            "properties": {
+                              "firstName": {
+                                "type": "string"
+                              },
+                              "lastName": {
+                                "type": "string"
+                              },
+                              "email": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "type": "powerOfAttorneyRequestDecision",
+                    "attributes": {
+                      "status": "Accepted",
+                      "declinedReason": null,
+                      "createdBy": {
+                        "firstName": "BEATRICE",
+                        "lastName": "STROUD",
+                        "email": "Beatrice.Stroud44@va.gov"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
     "/power-of-attorney-requests": {
       "get": {
         "summary": "Search for Power of Attorney requests.",
@@ -174,6 +647,41 @@
                       ]
                     }
                   }
+                }
+              },
+              "example": {
+                "filter": {
+                  "poaCodes": [
+                    "083",
+                    "002",
+                    "003",
+                    "065",
+                    "074",
+                    "022",
+                    "091",
+                    "070",
+                    "097",
+                    "077",
+                    "1EY",
+                    "6B6",
+                    "862",
+                    "9U7",
+                    "BQX"
+                  ],
+                  "decision": {
+                    "statuses": [
+                      "Accepted",
+                      "Declined"
+                    ]
+                  }
+                },
+                "page": {
+                  "number": 2,
+                  "size": 5
+                },
+                "sort": {
+                  "field": "createdAt",
+                  "order": "asc"
                 }
               }
             }

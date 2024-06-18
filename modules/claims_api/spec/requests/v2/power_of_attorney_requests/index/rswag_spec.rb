@@ -28,57 +28,45 @@ describe 'PowerOfAttorney', metadata do
       let(:Authorization) { 'Bearer token' }
       let(:scopes) { %w[system/claim.read system/system/claim.write] }
 
-      parameter(
-        name: 'query',
-        in: :query,
-        required: true,
-        schema: JSON.parse(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            'request_bodies',
-            'power_of_attorney_requests',
-            'index',
-            'request.json'
-          ).read
-          # No idea why string keys don't work here.
-        ).deep_transform_keys(&:to_sym)
-      )
+      query_schema =
+        JSON.load_file(
+          ClaimsApi::Engine.root.join(
+            Settings.claims_api.schema_dir,
+            'v2/power_of_attorney_requests/get.json'
+          )
+        )
+
+      # No idea why string keys don't work here.
+      query_schema.deep_transform_keys!(&:to_sym)
+      query_schema[:example] = {
+        'filter' => {
+          'poaCodes' => %w[
+            083 002 003 065 074 022 091 070
+            097 077 1EY 6B6 862 9U7 BQX
+          ],
+          'decision' => {
+            'statuses' => %w[
+              Accepted
+              Declined
+            ]
+          }
+        },
+        'page' => {
+          'number' => 2,
+          'size' => 5
+        },
+        'sort' => {
+          'field' => 'createdAt',
+          'order' => 'asc'
+        }
+      }
+
+      parameter name: 'query', in: :query, required: true, schema: query_schema
 
       response '200', 'Search results' do
-        schema JSON.parse(Rails.root.join(
-          'spec', 'support', 'schemas',
-          'claims_api', 'v2', 'power_of_attorney_requests',
-          'index', '200.json'
-        ).read)
+        schema JSON.load_file(File.expand_path('rswag/200.json', __dir__))
 
-        let(:query) do
-          {
-            'filter' => {
-              'poaCodes' => %w[
-                083 002 003 065 074 022 091 070
-                097 077 1EY 6B6 862 9U7 BQX
-              ],
-              'decision' => {
-                'statuses' => %w[
-                  Accepted
-                  Declined
-                ]
-              }
-            },
-            'page' => {
-              'number' => 2,
-              'size' => 5
-            },
-            'sort' => {
-              'field' => 'createdAt',
-              'order' => 'asc'
-            }
-          }
-        end
+        let(:query) { query_schema[:example] }
 
         before do |example|
           mock_ccg(scopes) do
@@ -102,11 +90,7 @@ describe 'PowerOfAttorney', metadata do
       end
 
       response '422', 'Invalid query' do
-        schema JSON.parse(Rails.root.join(
-          'spec', 'support', 'schemas',
-          'claims_api', 'v2', 'power_of_attorney_requests',
-          'index', '422.json'
-        ).read)
+        schema JSON.load_file(File.expand_path('rswag/422.json', __dir__))
 
         let(:query) do
           {
@@ -148,11 +132,7 @@ describe 'PowerOfAttorney', metadata do
       end
 
       response '502', 'Bad gateway' do
-        schema JSON.parse(Rails.root.join(
-          'spec', 'support', 'schemas',
-          'claims_api', 'v2', 'power_of_attorney_requests',
-          'index', '502.json'
-        ).read)
+        schema JSON.load_file(File.expand_path('rswag/502.json', __dir__))
 
         let(:query) do
           { 'filter' => { 'poaCodes' => %w[083] } }
@@ -183,11 +163,7 @@ describe 'PowerOfAttorney', metadata do
       end
 
       response '504', 'Gateway timeout' do
-        schema JSON.parse(Rails.root.join(
-          'spec', 'support', 'schemas',
-          'claims_api', 'v2', 'power_of_attorney_requests',
-          'index', '504.json'
-        ).read)
+        schema JSON.load_file(File.expand_path('rswag/504.json', __dir__))
 
         let(:query) do
           { 'filter' => { 'poaCodes' => %w[083] } }
@@ -218,11 +194,7 @@ describe 'PowerOfAttorney', metadata do
       end
 
       response '401', 'Unauthorized' do
-        schema JSON.parse(Rails.root.join(
-          'spec', 'support', 'schemas',
-          'claims_api', 'v2', 'power_of_attorney_requests',
-          'index', '401.json'
-        ).read)
+        schema JSON.load_file(File.expand_path('rswag/401.json', __dir__))
 
         let(:query) do
           { 'filter' => { 'poaCodes' => %w[083] } }
