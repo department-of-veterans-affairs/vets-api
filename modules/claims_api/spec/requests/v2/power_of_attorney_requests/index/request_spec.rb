@@ -25,7 +25,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
 
   let(:scopes) do
     %w[
-      system/system/claim.write
+      system/claim.write
       system/claim.read
     ]
   end

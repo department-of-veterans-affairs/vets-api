@@ -9338,13 +9338,13 @@
           {
             "productionOauth": [
               "system/claim.read",
-              "system/system/claim.write"
+              "system/claim.write"
             ]
           },
           {
             "sandboxOauth": [
               "system/claim.read",
-              "system/system/claim.write"
+              "system/claim.write"
             ]
           },
           {
@@ -9563,7 +9563,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:134:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:130:in `representative'"
                       }
                     }
                   ]
