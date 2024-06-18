@@ -15,9 +15,9 @@ module ClaimsApi
       case @error
       when Faraday::ParsingError
         raise_backend_exception
-      when ::Common::Exceptions::BackendServiceException || @error&.original_status == 403
+      when ::Common::Exceptions::BackendServiceException && @error&.original_status == 403
         raise ::Common::Exceptions::Forbidden
-      when ::Common::Exceptions::Unauthorized || @error&.original_status == 401
+      when ::Common::Exceptions::Unauthorized && @error&.original_status == 401
         raise ::Common::Exceptions::Unauthorized
       when ::Common::Exceptions::BackendServiceException && ( # rubocop:disable Lint/DuplicateBranch
         @error&.original_status != 403 || @error&.original_status != 401
