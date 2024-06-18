@@ -6,8 +6,8 @@ describe ServiceHistorySerializer, type: :serializer do
   subject { serialize(service_history, serializer_class: described_class) }
 
   let(:service_history) do
-     histories = [build(:service_history, :with_deployments)]
-     JSON.parse(histories.to_json, symbolize_names: true)
+    histories = [build(:service_history, :with_deployments)]
+    JSON.parse(histories.to_json, symbolize_names: true)
   end
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }

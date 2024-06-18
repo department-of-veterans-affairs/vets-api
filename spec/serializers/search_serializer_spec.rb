@@ -6,9 +6,9 @@ require 'search/response'
 describe SearchSerializer, type: :serializer do
   subject { serialize(search_response, serializer_class: described_class) }
 
-  let(:search_attributes) { {body: {query: "benefits" }} }
+  let(:search_attributes) { { body: { query: 'benefits' } } }
   let(:search_response) do
-    pagination = {current_page: 1, per_page: 10, total_pages: 9, total_entries: 85}
+    pagination = { current_page: 1, per_page: 10, total_pages: 9, total_entries: 85 }
     Search::ResultsResponse.new(200, pagination, search_attributes)
   end
   let(:data) { JSON.parse(subject)['data'] }
