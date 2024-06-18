@@ -697,6 +697,9 @@ module ClaimsApi
           end
 
           next if approximate_begin_date.blank? || approximate_end_date.blank?
+          next unless date_is_valid?(approximate_begin_date,
+                                     "#{form_object_desc}/approximateBeginDate") &&
+                      date_is_valid?(approximate_end_date, "#{form_object_desc}/approximateEndDate")
 
           if begin_date_is_after_end_date?(approximate_begin_date, approximate_end_date)
             collect_error_messages(
@@ -710,7 +713,7 @@ module ClaimsApi
 
           next if earliest_active_duty_begin_date['activeDutyBeginDate'].blank? # nothing to check against below
           next unless date_is_valid?(earliest_active_duty_begin_date['activeDutyBeginDate'],
-                                     'serviceInformation/servicePeriods/activeDutyEndDate')
+                                     'serviceInformation/servicePeriods/activeDutyBeginDate')
 
           # if confinementBeginDate is before earliest activeDutyBeginDate, raise error
           if duty_begin_date_is_after_approximate_begin_date?(earliest_active_duty_begin_date['activeDutyBeginDate'],
@@ -727,9 +730,57 @@ module ClaimsApi
             collect_error_messages(
               source: "/confinements/#{idx}/approximateBeginDate",
               detail: 'Confinement periods may not overlap each other.'
+)
+          unless confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date,
+                                                              service_periods)
+            collect_error_messages(
+              source: "/confinements/#{idx}",
+              detail: 'Confinement dates must be within one of the service period dates.'
             )
           end
         end
+      end
+
+      def confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date, service_periods) # rubocop:disable Metrics/MethodLength
+        within_service_period = false
+        service_periods.each do |sp|
+          next unless date_is_valid?(sp['activeDutyBeginDate'],
+                                     'serviceInformation/servicePeriods/activeDutyBeginDate') &&
+                      date_is_valid?(sp['activeDutyEndDate'], 'serviceInformation/servicePeriods/activeDutyEndDate')
+
+          active_duty_begin_date = Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') if sp['activeDutyBeginDate']
+          active_duty_end_date = Date.strptime(sp['activeDutyEndDate'], '%Y-%m-%d') if sp['activeDutyEndDate']
+
+          next if active_duty_begin_date.blank? || active_duty_end_date.blank? # nothing to compare against
+
+          begin_date_has_day = date_has_day?(approximate_begin_date)
+          end_date_has_day = date_has_day?(approximate_end_date)
+          begin_date = if begin_date_has_day
+                         Date.strptime(approximate_begin_date, '%Y-%m-%d')
+                       else
+                         # Note approximate date conversion sets begin date to first of month
+                         Date.strptime(approximate_begin_date, '%Y-%m')
+                       end
+
+          end_date = if end_date_has_day
+                       Date.strptime(approximate_end_date, '%Y-%m-%d')
+                     else
+                       # Set approximate end date to end of month
+                       Date.strptime(approximate_end_date, '%Y-%m').end_of_month
+                     end
+
+          if date_is_within_range?(begin_date, end_date, active_duty_begin_date, active_duty_end_date)
+            within_service_period = true
+          end
+        end
+        within_service_period
+      end
+
+      def date_is_within_range?(conf_begin, conf_end, service_begin, service_end)
+        return if service_begin.blank? || service_end.blank?
+
+        conf_begin.between?(service_begin, service_end) &&
+          conf_end.between?(service_begin, service_end)
       end
 
       def validate_alternate_names(service_information)
