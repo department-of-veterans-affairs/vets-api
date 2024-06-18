@@ -5,24 +5,24 @@ module RepresentationManagement
     class PdfGeneratorBaseController < ApplicationController
       service_tag 'lighthouse-veteran' # Is this the correct service tag?
       before_action :feature_enabled
-      before_action :verify_veteran_first_name
-      before_action :verify_veteran_middle_initial
-      before_action :verify_veteran_last_name
-      before_action :verify_veteran_social_security_number
-      before_action :verify_veteran_file_number
-      before_action :verify_veteran_address_line1
-      before_action :verify_veteran_address_line2
-      before_action :verify_veteran_city
-      before_action :verify_veteran_country
-      before_action :verify_veteran_state_code
-      before_action :verify_veteran_zip_code
-      before_action :verify_veteran_zip_code_suffix
-      before_action :verify_veteran_area_code
-      before_action :verify_veteran_phone_number
-      before_action :verify_veteran_phone_number_ext
-      before_action :verify_veteran_email
-      before_action :verify_veteran_service_number
-      before_action :verify_veteran_insurance_number
+      before_action :verify_veteran_first_name_required
+      before_action :verify_veteran_middle_initial_required
+      before_action :verify_veteran_last_name_required
+      before_action :verify_veteran_social_security_number_required
+      before_action :verify_veteran_file_number_optional
+      before_action :verify_veteran_address_line1_required
+      before_action :verify_veteran_address_line2_optional
+      before_action :verify_veteran_city_required
+      before_action :verify_veteran_country_required
+      before_action :verify_veteran_state_code_required
+      before_action :verify_veteran_zip_code_required
+      before_action :verify_veteran_zip_code_suffix_optional
+      before_action :verify_veteran_area_code_optional
+      before_action :verify_veteran_phone_number_optional
+      before_action :verify_veteran_phone_number_ext_optional
+      before_action :verify_veteran_email_optional
+      before_action :verify_veteran_service_number_optional
+      before_action :verify_veteran_insurance_number_optional
 
       before_action :verify_claimant_first_name_optional
       before_action :verify_claimant_middle_initial_optional
@@ -48,32 +48,32 @@ module RepresentationManagement
 
       private
 
-      def verify_veteran_first_name
+      def verify_veteran_first_name_required
         unless string_present_and_less_than_max_length?(form_params[:veteran_first_name], 12)
           raise_invalid_field_value('veteran_first_name', form_params[:veteran_first_name])
         end
       end
 
-      def verify_veteran_middle_initial
+      def verify_veteran_middle_initial_required
         middle_initial = form_params[:veteran_middle_initial]
         if middle_initial.present? && !middle_initial.is_a?(String) && middle_initial.size != 1
           raise_invalid_field_value('veteran_middle_initial', form_params[:veteran_middle_initial])
         end
       end
 
-      def verify_veteran_last_name
+      def verify_veteran_last_name_required
         unless string_present_and_less_than_max_length?(form_params[:veteran_last_name], 18)
           raise_invalid_field_value('veteran_last_name', form_params[:veteran_last_name])
         end
       end
 
-      def verify_veteran_social_security_number
+      def verify_veteran_social_security_number_required
         unless string_present_and_equal_to_length?(form_params[:veteran_social_security_number], 9)
           raise_invalid_field_value('veteran_social_security_number', form_params[:veteran_social_security_number])
         end
       end
 
-      def verify_veteran_file_number
+      def verify_veteran_file_number_optional
         if form_params[:veteran_file_number].present? &&
            !(form_params[:veteran_file_number].is_a?(String) ||
            form_params[:veteran_file_number].size != 9)
@@ -81,13 +81,13 @@ module RepresentationManagement
         end
       end
 
-      def verify_veteran_address_line1
+      def verify_veteran_address_line1_required
         unless string_present_and_less_than_max_length?(form_params[:veteran_address_line1], 30)
           raise_invalid_field_value('veteran_address_line1', form_params[:veteran_address_line1])
         end
       end
 
-      def verify_veteran_address_line2
+      def verify_veteran_address_line2_optional
         if form_params[:veteran_address_line2].present? &&
            (!form_params[:veteran_address_line2].is_a?(String) ||
            form_params[:veteran_address_line2].size > 5)
@@ -95,31 +95,31 @@ module RepresentationManagement
         end
       end
 
-      def verify_veteran_city
+      def verify_veteran_city_required
         unless string_present_and_less_than_max_length?(form_params[:veteran_city], 18)
           raise_invalid_field_value('veteran_city', form_params[:veteran_city])
         end
       end
 
-      def verify_veteran_country
+      def verify_veteran_country_required
         unless string_present_and_less_than_max_length?(form_params[:veteran_country], 2)
           raise_invalid_field_value('veteran_country', form_params[:veteran_country])
         end
       end
 
-      def verify_veteran_state_code
+      def verify_veteran_state_code_required
         unless string_present_and_equal_to_length?(form_params[:veteran_state_code], 2)
           raise_invalid_field_value('veteran_state_code', form_params[:veteran_state_code])
         end
       end
 
-      def verify_veteran_zip_code
+      def verify_veteran_zip_code_required
         unless string_present_and_equal_to_length?(form_params[:veteran_zip_code], 5)
           raise_invalid_field_value('veteran_zip_code', form_params[:veteran_zip_code])
         end
       end
 
-      def verify_veteran_zip_code_suffix
+      def verify_veteran_zip_code_suffix_optional
         if form_params[:veteran_zip_code_suffix].present? &&
            !(form_params[:veteran_zip_code_suffix].is_a?(String) ||
            form_params[:veteran_zip_code_suffix].size != 4)
@@ -127,7 +127,7 @@ module RepresentationManagement
         end
       end
 
-      def verify_veteran_area_code
+      def verify_veteran_area_code_optional
         if form_params[:veteran_area_code].present? &&
            !(form_params[:veteran_area_code].is_a?(String) ||
            form_params[:veteran_area_code].size != 3)
@@ -135,7 +135,7 @@ module RepresentationManagement
         end
       end
 
-      def verify_veteran_phone_number
+      def verify_veteran_phone_number_optional
         if form_params[:veteran_phone_number].present? &&
            !(form_params[:veteran_phone_number].is_a?(String) ||
            form_params[:veteran_phone_number].size != 7)
@@ -143,21 +143,21 @@ module RepresentationManagement
         end
       end
 
-      def verify_veteran_phone_number_ext
+      def verify_veteran_phone_number_ext_optional
         if form_params[:veteran_phone_number_ext].present? &&
            !form_params[:veteran_phone_number_ext].is_a?(String)
           raise_invalid_field_value('veteran_phone_number_ext', form_params[:veteran_phone_number_ext])
         end
       end
 
-      def verify_veteran_email
+      def verify_veteran_email_optional
         if form_params[:veteran_email].present? &&
            !form_params[:veteran_email].is_a?(String)
           raise_invalid_field_value('veteran_email', form_params[:veteran_email])
         end
       end
 
-      def verify_veteran_service_number
+      def verify_veteran_service_number_optional
         if form_params[:veteran_service_number].present? &&
            !(form_params[:veteran_service_number].is_a?(String) ||
            form_params[:veteran_service_number].size != 9)
@@ -165,7 +165,7 @@ module RepresentationManagement
         end
       end
 
-      def verify_veteran_insurance_number
+      def verify_veteran_insurance_number_optional
         if form_params[:veteran_insurance_number].present? &&
            !form_params[:veteran_insurance_number].is_a?(String)
           raise_invalid_field_value('veteran_insurance_number', form_params[:veteran_insurance_number])
