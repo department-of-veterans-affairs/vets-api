@@ -14,14 +14,15 @@ module ClaimsApi
     def build_error
       case @error
       when Faraday::ParsingError
-        raise_backend_exception(@error.class, @error, 'EVSS502')
-      when ::Common::Exceptions::BackendServiceException
-        raise ::Common::Exceptions::Forbidden if @error&.original_status == 403
-
-        raise_backend_exception('EVSS400') if @error&.original_status == 400
-        raise ::Common::Exceptions::Unauthorized if @error&.original_status == 401
-
-        raise_backend_exception('EVSS500')
+        raise_backend_exception
+      when ::Common::Exceptions::BackendServiceException || @error&.original_status == 403
+        raise ::Common::Exceptions::Forbidden
+      when ::Common::Exceptions::Unauthorized || @error&.original_status == 401
+        raise ::Common::Exceptions::Unauthorized
+      when ::Common::Exceptions::BackendServiceException && ( # rubocop:disable Lint/DuplicateBranch
+        @error&.original_status != 403 || @error&.original_status != 401
+      )
+        raise_backend_exception
       else
         raise @error
       end
