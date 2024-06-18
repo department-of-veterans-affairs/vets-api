@@ -254,7 +254,7 @@ RSpec.describe Form1010Ezr::Service do
       context 'submitting with attachment' do
         let(:form) { get_fixture('form1010_ezr/valid_form') }
 
-        it 'returns a success object', run_at: 'Wed, 13 Mar 2024 18:14:49 GMT' do
+        it 'returns a success object' do
           form_with_attachment = form.merge(
             'attachments' => [
               {
