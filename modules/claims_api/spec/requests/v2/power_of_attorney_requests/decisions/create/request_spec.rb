@@ -69,7 +69,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
           'type' => 'powerOfAttorneyRequestDecision',
           'attributes' => {
             'declinedReason' => 'Some reason',
-            'representative' => {
+            'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
               'email' => 'Beatrice.Stroud44@va.gov'
@@ -110,7 +110,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
           'attributes' => {
             'status' => 'Declined',
             'declinedReason' => 'Some reason',
-            'representative' => {
+            'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
               'email' => 'Beatrice.Stroud44@va.gov'
@@ -153,7 +153,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
           'attributes' => {
             'status' => 'Declined',
             'declinedReason' => 'Some reason',
-            'representative' => {
+            'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
               'email' => 'Beatrice.Stroud44@va.gov'
@@ -189,14 +189,14 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
   describe 'with a valid decline with reason submitted twice' do
     let(:id) { '600085312_3853983' }
 
-    it 'responds no_content first and then unprocessable_entity second', run_at: '2024-05-09T07:18:04Z' do
+    it 'responds accepted first and then unprocessable_entity second', run_at: '2024-05-09T07:18:04Z' do
       params = {
         'data' => {
           'type' => 'powerOfAttorneyRequestDecision',
           'attributes' => {
             'status' => 'Declined',
             'declinedReason' => 'Some reason',
-            'representative' => {
+            'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
               'email' => 'Beatrice.Stroud44@va.gov'
@@ -210,7 +210,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
           perform_request(params)
 
           expect(response).to(
-            have_http_status(:no_content)
+            have_http_status(:accepted)
           )
 
           body = perform_request(params)
@@ -247,7 +247,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
           'attributes' => {
             'status' => 'Accepted',
             'declinedReason' => 'Some reason',
-            'representative' => {
+            'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
               'email' => 'Beatrice.Stroud44@va.gov'
@@ -302,7 +302,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
           'attributes' => {
             'status' => 'Accepted',
             'declinedReason' => nil,
-            'representative' => {
+            'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
               'email' => 'Beatrice.Stroud44@va.gov'
@@ -329,13 +329,13 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
     describe 'when decision not already made' do
       let(:blank?) { true }
 
-      it 'returns http status 204' do
+      it 'returns http status 202' do
         mock_ccg(scopes) do
           perform_request(params)
         end
 
         expect(response).to(
-          have_http_status(:no_content)
+          have_http_status(:accepted)
         )
       end
     end

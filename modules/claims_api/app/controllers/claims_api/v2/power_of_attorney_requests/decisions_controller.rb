@@ -12,7 +12,7 @@ module ClaimsApi
             deserialize(@body)
           )
 
-          head :no_content
+          head :accepted
         end
 
         private
