@@ -29,7 +29,7 @@ module ClaimsApi
 
     private
 
-    def raise_backend_exception(_key = 'EVSS')
+    def raise_backend_exception
       error_details = get_error_info
       raise ::ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException, error_details
     end
