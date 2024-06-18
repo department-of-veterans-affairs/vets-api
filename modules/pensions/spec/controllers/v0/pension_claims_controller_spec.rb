@@ -8,6 +8,8 @@ def logger_mock(str, x)
 end
 
 RSpec.describe Pensions::V0::PensionClaimsController, type: :controller do
+  routes { Pensions::Engine.routes }
+
   it_behaves_like 'a controller that deletes an InProgressForm', 'pension_claim', 'pension_claim', '21P-527EZ'
   describe '#create' do
     let(:form) { build(:pension_claim) }
