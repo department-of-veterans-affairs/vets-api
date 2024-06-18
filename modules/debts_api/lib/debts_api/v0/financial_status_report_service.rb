@@ -49,6 +49,7 @@ module DebtsApi
     # @return [Hash]
     #
     def submit_financial_status_report(form)
+      binding.pry
       with_monitoring_and_error_handling do
         form_builder = DebtsApi::V0::FsrFormBuilder.new(form, @file_number, @user)
         submit_combined_fsr(form_builder)

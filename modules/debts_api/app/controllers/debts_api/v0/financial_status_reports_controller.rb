@@ -187,100 +187,106 @@ module DebtsApi
 
       def full_transform_form
         params.permit(
-          questions: [
-            :has_repayments, :has_credit_card_bills, :has_recreational_vehicle,
-            :has_vehicle, :has_real_estate, :spouse_has_benefits, :is_married,
-            :has_dependents, :has_been_adjudicated_bankrupt, :vet_is_employed,
-            :spouse_is_employed
+          :'view:enhanced_financial_status_report',
+          :'view:streamlined_waiver',
+          :'view:streamlined_waiver_asset_update',
+          :'view:review_page_navigation_toggle',
+          questions: %i[
+            has_repayments has_credit_card_bills has_recreational_vehicle
+            has_vehicle has_real_estate spouse_has_benefits is_married
+            has_dependents has_been_adjudicated_bankrupt vet_is_employed
+            spouse_is_employed
           ],
+          'view:components': {
+            'view:contracts_additional_info': {}, 'view:rec_vehicle_info': {},
+            'view:real_estate_additional_info': {}, 'view:marital_status': {},
+            'view:veteran_info': {}, 'view:dependents_additional_info': {},
+            'view:va_benefits_on_file': {}
+          },
           assets: [
             :rec_vehicle_amount, :real_estate_value,
-            monetary_assets: [:name, :amount],
-            other_assets: [:name, :amount],
-            automobiles: [:make, :model, :resale_value]
+            monetary_assets: %i[name amount],
+            other_assets: %i[name amount],
+            automobiles: %i[make model resale_value]
           ],
-          benefits: { spouse_benefits: [:compensation_and_pension, :education] },
+          benefits: { spouse_benefits: %i[compensation_and_pension education] },
           personal_data: [
             :date_of_birth, :telephone_number, :email_address,
-            spouse_full_name: [:first, :last],
-            veteran_full_name: [:first, :last, :middle],
+            spouse_full_name: %i[first last],
+            veteran_full_name: %i[first last middle],
             veteran_contact_information: [
               :email,
-              mobile_phone: [
-                :area_code, :country_code, :created_at, :extension,
-                :effective_end_date, :effective_start_date, :id,
-                :is_international, :is_textable, :is_text_permitted,
-                :is_tty, :is_voicemailable, :phone_number, :phone_type,
-                :source_date, :source_system_user, :transaction_id,
-                :updated_at, :vet360_id
+              mobile_phone: %i[
+                area_code country_code created_at extension
+                effective_end_date effective_start_date id
+                is_international is_textable is_text_permitted
+                is_tty is_voicemailable phone_number phone_type
+                source_date source_system_user transaction_id
+                updated_at vet360_id
               ],
-              address: [
-                :address_line1, :address_line2, :address_pou, :address_type,
-                :city, :country_name, :country_code_iso2, :country_code_iso3,
-                :country_code_fips, :county_code, :county_name, :created_at,
-                :effective_end_date, :effective_start_date, :id, :province,
-                :source_date, :source_system_user, :state_code, :transaction_id,
-                :updated_at, :validation_key, :vet360_id, :zip_code, :zip_code_suffix
+              address: %i[
+                address_line1 address_line2 address_pou address_type
+                city country_name country_code_iso2 country_code_iso3
+                country_code_fips county_code county_name created_at
+                effective_end_date effective_start_date id province
+                source_date source_system_user state_code transaction_id
+                updated_at validation_key vet360_id zip_code zip_code_suffix
               ]
             ],
             dependents: [:dependent_age],
-            address: [
-              :street, :city, :state, :country, :postal_code
+            address: %i[
+              street city state country postal_code
             ],
             employment_history: [
               veteran: [
                 employment_records: [
                   :type, :from, :to, :is_current, :employer_name, :gross_monthly_income,
-                  deductions: [:name, :amount]
+                  deductions: %i[name amount]
                 ]
               ],
               spouse: [
                 sp_employment_records: [
                   :type, :from, :to, :is_current, :employer_name, :gross_monthly_income,
-                  deductions: [:name, :amount]
+                  deductions: %i[name amount]
                 ]
               ]
             ]
           ],
-          personal_identification: [:ssn, :file_number],
+          personal_identification: %i[ssn file_number],
           selected_debts_and_copays: [
             :resolution_waiver_check, :resolution_option, :file_number,
             :payee_number, :person_entitled, :deduction_code, :benefit_type,
             :diary_code, :diary_code_description, :amount_overpaid, :amount_withheld,
             :original_ar, :current_ar,
             :id, :debt_type, :resolution_comment,
-            debt_history: [:date, :letter_code, :description],
+            debt_history: %i[date letter_code description],
           ],
           additional_income: [
-            addl_inc_records: [:name, :amount],
+            addl_inc_records: %i[name amount],
             spouse: [
-              sp_addl_income: [:name, :amount]
+              sp_addl_income: %i[name amount]
             ]
           ],
           expenses: [
-            expense_records: [:name, :amount],
-            credit_card_bills: [
-              :purpose, :creditor_name, :original_amount, :unpaid_balance,
-              :amount_due_monthly, :date_started, :amount_past_due
+            expense_records: %i[name amount],
+            credit_card_bills: %i[
+              purpose creditor_name original_amount unpaid_balance
+              amount_due_monthly date_started amount_past_due
             ]
           ],
-          utility_records: [:name, :amount],
-          other_expenses: [:name, :amount],
+          utility_records: %i[name amount],
+          other_expenses: %i[name amount],
           additional_data: [
             :additional_comments,
-            bankruptcy: [:date_discharged, :court_location, :docket_number]
-          ],
-          'view:components': [
-            :'view:enhanced_financial_status_report', :'view:streamlined_waiver',
-            :'view:streamlined_waiver_asset_update', :'view:review_page_navigation_toggle'
+            bankruptcy: %i[date_discharged court_location docket_number]
           ],
           income: [:veteran_or_spouse],
           gmt_data: [
             :is_eligible_for_streamlined, :gmt_threshold, error: [:error]
           ],
-          installment_contracts: [
-            :purpose, :creditor_name, :original_amount, :unpaid_balance,
-            :amount_due_monthly, :date_started, :amount_past_due
+          installment_contracts: %i[
+            purpose creditor_name original_amount unpaid_balance
+            amount_due_monthly date_started amount_past_due
           ]
         ).to_h
       end

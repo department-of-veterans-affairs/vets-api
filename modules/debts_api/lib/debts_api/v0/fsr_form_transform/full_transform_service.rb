@@ -36,6 +36,8 @@ module DebtsApi
           @streamlined = StreamlinedCalculator.new(form).get_streamlined_data
         end
 
+        where is personalIdentification?
+
         def transform
           output = {}
           output['income'] = @income

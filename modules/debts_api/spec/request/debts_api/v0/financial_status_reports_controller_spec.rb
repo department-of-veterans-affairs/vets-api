@@ -51,30 +51,38 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
   end
 
   describe '#transform_and_submit' do
+    let(:pre_transform_fsr_form_data) do
+      get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/pre_transform')
+    end
+
     context 'when service raises FSRNotFoundInRedis' do
-      let(:pre_transform_fsr_form_data) do
-        get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/pre_transform')
-      end
       let(:post_transform_fsr_form_data) do
         get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/post_transform')
       end
 
       before do
         expect_any_instance_of(fsr_service).to receive(
-          :submit_financial_status_report
-        ).and_raise(
+                                                 :submit_financial_status_report
+                                               ).and_raise(
           fsr_service::FSRNotFoundInRedis
         )
       end
 
-      it 'uses the old expense calculator'
-
       it 'renders 404' do
-        pre_transform_fsr_form_data['view:components']['view:enhanced_financial_status_report'] = true
-        post('/debts_api/v0/financial_status_reports/transform_and_submit', params: pre_transform_fsr_form_data )
+        # adjust below to be on the root level of the form data
+        post('/debts_api/v0/financial_status_reports/transform_and_submit', params: pre_transform_fsr_form_data.to_h, as: :json)
         expect(response).to have_http_status(:not_found)
         expect(response.header['Content-Type']).to include('application/json')
         expect(JSON.parse(response.body)).to eq(nil)
+      end
+    end
+
+    it 'submits a financial status report' do
+      VCR.use_cassette('dmc/submit_fsr') do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          post('/debts_api/v0/financial_status_reports/transform_and_submit', params: pre_transform_fsr_form_data.to_h, as: :json)
+          expect(response.code).to eq('200')
+        end
       end
     end
   end
