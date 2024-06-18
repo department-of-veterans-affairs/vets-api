@@ -89,18 +89,17 @@ module Lighthouse
 
     # log errors
     def self.send_error_logs(error, service_name, lighthouse_client_id, url)
-      # Faraday error may contain request data
-      error.response.delete(:request)
-
-      Rails.logger.error(
-        service_name,
-        {
-          url:,
-          lighthouse_client_id:,
-          status: error.response[:status],
-          body: error.response[:body]
-        }
-      )
+      logging_options = { url:, lighthouse_client_id: }
+      if error.response.present?
+        # Faraday error may contain request data
+        error.response.delete(:request)
+        logging_options[:status] = error.response[:status]
+        logging_options[:body] = error.response[:body]
+      else
+        logging_options[:message] = error.message
+        logging_options[:backtrace] = error.backtrace
+      end
+      log_to_rails_logger(service_name, logging_options)
 
       extra_context = Sentry.set_extras(
         message: error.message,
@@ -111,6 +110,13 @@ module Lighthouse
       tags_context = Sentry.set_tags(external_service: service_name)
 
       log_exception_to_sentry(error, extra_context, tags_context)
+    end
+
+    def self.log_to_rails_logger(service_name, options)
+      Rails.logger.error(
+        service_name,
+        options
+      )
     end
 
     def self.get_status_code(response)
