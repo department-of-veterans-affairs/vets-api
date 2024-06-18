@@ -240,7 +240,7 @@ module PdfFill
             'tuition_is_paid_by_gov_agency' => {
               'is_paid_yes' => { key: 'form1[0].#subform[0].YES1[0]' },
               'is_paid_no' => { key: 'form1[0].#subform[0].NO1[0]' }
-            },
+            }
           }, # end student_address_marriage_tuition
           'agency_or_program' => {
             'agency_name' => {
@@ -280,7 +280,7 @@ module PdfFill
                 question_text: 'School Attendance Information > DATE PAYMENTS BEGAN (MM-DD-YYYY)'
               }
             }
-          }, #end agency_or_program
+          }, # end agency_or_program
           'school_information' => {
             'training_program' => {
               key: 'form1[0].#subform[0].FederalAssistanceType[0]',
