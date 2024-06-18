@@ -4,6 +4,11 @@ module RepresentationManagement
   module V0
     class PdfGenerator2122Controller < RepresentationManagement::V0::PdfGeneratorBaseController
       service_tag 'lighthouse-veteran' # Is this the correct service tag?
+      before_action :verify_service_organization_name_required
+      before_action :verify_service_organization_representative_name_optional
+      before_action :verify_service_organization_name_representative_job_title_optional
+      before_action :verify_service_organization_email_address_optional
+      before_action :verify_service_organization_appointment_date_optional
 
       def create
         # We'll need a process here to check the params to make sure all the
@@ -31,6 +36,17 @@ module RepresentationManagement
           :consent_address_change,
           { consent_limits: [] }
         ].flatten
+      end
+
+      def service_organization_params
+        %i[
+          service_organization_poa_code
+          service_organization_registration_number
+          service_organization_job_title
+          service_organization_email
+          service_organization_appointment_date
+
+        ]
       end
 
       def feature_enabled

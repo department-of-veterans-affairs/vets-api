@@ -322,17 +322,6 @@ module RepresentationManagement
         ]
       end
 
-      def service_organization_params
-        %i[
-          service_organization_poa_code
-          service_organization_registration_number
-          service_organization_job_title
-          service_organization_email
-          service_organization_appointment_date
-
-        ]
-      end
-
       def string_present_and_less_than_max_length?(string, max_length)
         string.present? && string.is_a?(String) && string.size <= max_length
       end
