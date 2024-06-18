@@ -40,7 +40,7 @@ module RepresentationManagement
       before_action :verify_claimant_email_optional
       before_action :verify_claimant_relationship_optional
 
-      # skip_before_action :authenticate
+      skip_before_action :authenticate
 
       def create
         render json: {}, status: :unprocessable_entity

@@ -5,10 +5,6 @@ module RepresentationManagement
     class PdfGenerator2122aController < RepresentationManagement::V0::PdfGeneratorBaseController
       service_tag 'lighthouse-veteran' # Is this the correct service tag?
       before_action :feature_enabled
-      before_action :check_veteran_params
-      before_action :check_claimant_params
-      before_action :check_representative_params
-      # skip_before_action :authenticate
 
       def create
         # We'll need a process here to check the params to make sure all the
