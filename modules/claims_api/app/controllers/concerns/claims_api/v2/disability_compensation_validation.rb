@@ -1021,6 +1021,7 @@ module ClaimsApi
         when 'yyyy-mm'
           param_date = Date.strptime(date, '%Y-%m')
           now_date = Date.strptime(Time.zone.today.strftime('%Y-%m'), '%Y-%m')
+          now_date.end_of_month
         when 'yyyy'
           param_date = Date.strptime(date, '%Y')
           now_date = Date.strptime(Time.zone.today.strftime('%Y'), '%Y')
@@ -1055,7 +1056,7 @@ module ClaimsApi
         if date_length == 4
           "#{date_object[:year]}-01-01".to_date
         elsif date_length == 7
-          "#{date_object[:year]}-#{date_object[:month]}-01".to_date
+          "#{date_object[:year]}-#{date_object[:month]}-01".to_date.end_of_month
         else
           "#{date_object[:year]}-#{date_object[:month]}-#{date_object[:day]}".to_date
         end
