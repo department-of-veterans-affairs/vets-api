@@ -172,7 +172,7 @@ http_interactions:
           {
             "id": "claim_id_1",
             "claimNumber": "TC0928098230498",
-            "claimStatus": "InProgress",
+            "claimStatus": "InProcess",
             "appointmentDateTime": "2024-04-22T16:45:34.465Z",
             "facilityName": "Cheyenne VA Medical Center",
             "createdOn": "2024-04-22T21:22:34.465Z",

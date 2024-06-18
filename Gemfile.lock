@@ -73,10 +73,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 23bf453428474f73d1b519fe588b0b707ec9ebd7
+  revision: 274f291bce3c00a798637b5411765194223676ec
   branch: master
   specs:
-    vets_json_schema (22.3.1)
+    vets_json_schema (22.3.3)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -245,7 +245,7 @@ GEM
     attr_extras (7.1.0)
     awesome_print (1.9.2)
     aws-eventstream (1.3.0)
-    aws-partitions (1.940.0)
+    aws-partitions (1.944.0)
     aws-sdk-core (3.197.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.651.0)
@@ -254,8 +254,8 @@ GEM
     aws-sdk-kms (1.83.0)
       aws-sdk-core (~> 3, >= 3.197.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.151.0)
-      aws-sdk-core (~> 3, >= 3.194.0)
+    aws-sdk-s3 (1.152.3)
+      aws-sdk-core (~> 3, >= 3.197.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.8)
     aws-sdk-sns (1.76.0)

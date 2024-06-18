@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe FolderSerializer do
   subject { serialize(folder, serializer_class: described_class) }
 
-  let(:folder) { build :folder }
+  let(:folder) { build_stubbed(:folder) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:links) { data['links'] }
@@ -34,7 +34,7 @@ RSpec.describe FolderSerializer do
     expect(attributes['system_folder']).to eq(folder.system_folder)
   end
 
-  it 'includes a link to itself' do
+  it 'includes :self link' do
     expect(links['self']).to eq(v0_folder_url(folder.id))
   end
 end

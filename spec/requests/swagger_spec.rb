@@ -3584,6 +3584,30 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
   end
 
+  describe 'travel pay' do
+    context 'index' do
+      let(:mhv_user) { build(:user, :loa3) }
+
+      it 'returns unauthorized for unauthed user' do
+        expect(subject).to validate(:get, '/travel_pay/claims', 401)
+      end
+
+      it 'returns 400 for invalid request' do
+        headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
+        VCR.use_cassette('travel_pay/404_claims') do
+          expect(subject).to validate(:get, '/travel_pay/claims', 400, headers)
+        end
+      end
+
+      it 'returns 200 for successful response' do
+        headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
+        VCR.use_cassette('travel_pay/200_claims') do
+          expect(subject).to validate(:get, '/travel_pay/claims', 200, headers)
+        end
+      end
+    end
+  end
+
   context 'and' do
     it 'tests all documented routes' do
       # exclude these route as they return binaries
