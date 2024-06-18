@@ -53,8 +53,9 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
       it 'correctly sets the key as the string value from the error message' do
         backend_error_submit.build_error
       rescue => e
-        expect(e.original_body[0][:key]).to be_a(String)
-        expect(e.original_body[0][:key]).not_to be_an_instance_of(Integer)
+        expect(e.errors[0][:title]).to eq('Backend Service Exception')
+        expect(e.errors[0][:detail]).to eq('Claim not established. System error with BGS. ' \
+                                           'GUID: 00797c5d-89d4-4da6-aab7-24b4ad0e4a4f')
       end
     end
 
@@ -83,8 +84,8 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
       it 'sets the evss_response to the original body error message' do
         backend_error_submit.build_error
       rescue => e
-        expect(e.original_body[0][:detail]).to include('Size must be between 8 and 9')
-        expect(e.original_body[0][:key]).to include('header.va_eauth_birlsfilenumber.Invalid')
+        expect(e.errors[0][:detail]).to eq('Size must be between 8 and 9')
+        expect(e.errors[0][:title]).to eq('Backend Service Exception')
       end
     end
   end
