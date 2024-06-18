@@ -19,24 +19,24 @@ FactoryBot.define do
       deployments do
         [
           {
-            "deployment_sequence_number" => 1,
-            "deployment_begin_date" => "2004-11-15",
-            "deployment_end_date" => "2005-10-25",
-            "deployment_project_text" => "Overseas Contingency Operation (OCO)",
-            "deployment_project_code" => "9GF",
-            "deployment_termination_reason_text" => "Separation from personnel category or organization",
-            "deployment_termination_reason_code" => "S",
-            "deployment_locations" => [
+            'deployment_sequence_number' => 1,
+            'deployment_begin_date' => '2004-11-15',
+            'deployment_end_date' => '2005-10-25',
+            'deployment_project_text' => 'Overseas Contingency Operation (OCO)',
+            'deployment_project_code' => '9GF',
+            'deployment_termination_reason_text' => 'Separation from personnel category or organization',
+            'deployment_termination_reason_code' => 'S',
+            'deployment_locations' => [
               {
-                "deployment_location_sequence_number" => 2,
-                "deployment_country_text" => "Germany -- Added October 1990; formerly Germany, Berlin (BZ), German Democratic Republic (GC), and Germany, Federal Republic of (GE).",
-                "deployment_country_code" => "GM",
-                "deployment_location_body_of_water_text" => "DoD provided a NULL or blank value",
-                "deployment_location_body_of_water_code" => "DVN",
-                "deployment_location_begin_date" => "2005-04-12",
-                "deployment_location_end_date" => "2005-05-04",
-                "deployment_location_termination_reason_text" => "DoD provided a NULL or blank value",
-                "deployment_location_termination_reason_code" => "DVN"
+                'deployment_location_sequence_number' => 2,
+                'deployment_country_text' => 'Germany -- Added October 1990; formerly Germany, Berlin (BZ)',
+                'deployment_country_code' => 'GM',
+                'deployment_location_body_of_water_text' => 'DoD provided a NULL or blank value',
+                'deployment_location_body_of_water_code' => 'DVN',
+                'deployment_location_begin_date' => '2005-04-12',
+                'deployment_location_end_date' => '2005-05-04',
+                'deployment_location_termination_reason_text' => 'DoD provided a NULL or blank value',
+                'deployment_location_termination_reason_code' => 'DVN'
               }
             ]
           }
