@@ -24,7 +24,7 @@ RSpec.describe VeteranOnboarding, type: :model do
 
   it 'creates a VeteranOnboarding object if toggle is enabled' do
     Flipper.enable(:veteran_onboarding_beta_flow, user)
-    expect { VeteranOnboarding.for_user(user) }.to change { VeteranOnboarding.count }.by(1)
+    expect { VeteranOnboarding.for_user(user) }.to change(VeteranOnboarding, :count).by(1)
   end
 
   describe '#show_onboarding_flow_on_login' do
@@ -45,7 +45,7 @@ RSpec.describe VeteranOnboarding, type: :model do
         verified_at_date = Time.zone.today - scenario[:days_ago]
         allow(user.user_verification).to receive(:verified_at).and_return(verified_at_date)
         Flipper.enable(:veteran_onboarding_show_to_newly_onboarded, user)
-        assert user.onboarding&.show_onboarding_flow_on_login == scenario[:expected]
+        expect(user.onboarding&.show_onboarding_flow_on_login).to eq(scenario[:expected])
       end
     end
   end
