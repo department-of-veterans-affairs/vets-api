@@ -2420,6 +2420,11 @@
                               "type": "boolean",
                               "description": "Claimant certifies and authorizes release of information.",
                               "default": false
+                            },
+                            "claimNotes": {
+                              "type": "string",
+                              "description": "An optional notes section.",
+                              "maxLength": 4000
                             }
                           }
                         }
@@ -3760,6 +3765,11 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
+                          },
+                          "claimNotes": {
+                            "type": "string",
+                            "description": "An optional notes section.",
+                            "maxLength": 4000
                           }
                         }
                       }
@@ -3771,6 +3781,7 @@
                     "type": "form/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                      "claimNotes": "Some things that are important to know, and are not included in any other place.",
                       "veteranIdentification": {
                         "serviceNumber": "123456789",
                         "veteranNumber": {
@@ -4014,6 +4025,7 @@
                       "type": "form/526",
                       "attributes": {
                         "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                        "claimNotes": "Some things that are important to know, and are not included in any other place.",
                         "veteranIdentification": {
                           "serviceNumber": "123456789",
                           "veteranNumber": {
@@ -5645,6 +5657,11 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
+                          },
+                          "claimNotes": {
+                            "type": "string",
+                            "description": "An optional notes section.",
+                            "maxLength": 4000
                           }
                         }
                       }
@@ -5656,6 +5673,7 @@
                     "type": "form/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                      "claimNotes": "Some things that are important to know, and are not included in any other place.",
                       "veteranIdentification": {
                         "serviceNumber": "123456789",
                         "veteranNumber": {
@@ -5914,10 +5932,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "267efb9b-ca7a-4147-8b20-53bc553b8721",
+                    "id": "bf1a6d95-541d-43f5-be19-98656eb591de",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                      "claimNotes": "Some things that are important to know, and are not included in any other place.",
                       "veteranIdentification": {
                         "serviceNumber": "123456789",
                         "veteranNumber": {
@@ -6676,6 +6695,11 @@
                             },
                             "claimantCertification": {
                               "type": "boolean"
+                            },
+                            "claimNotes": {
+                              "type": "string",
+                              "description": "An optional notes section.",
+                              "maxLength": 4000
                             }
                           }
                         }
@@ -8100,6 +8124,11 @@
                             "type": "boolean",
                             "description": "Claimant certifies and authorizes release of information.",
                             "default": false
+                          },
+                          "claimNotes": {
+                            "type": "string",
+                            "description": "An optional notes section.",
+                            "maxLength": 4000
                           }
                         }
                       }
@@ -8112,6 +8141,7 @@
                     "attributes": {
                       "claimDate": "2018-06-25",
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                      "claimNotes": "Some things that are important to know, and are not included in any other place.",
                       "veteranIdentification": {
                         "serviceNumber": "123456789",
                         "veteranNumber": {
@@ -8785,8 +8815,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-06-10",
-                      "expirationDate": "2025-06-10",
+                      "creationDate": "2024-06-17",
+                      "expirationDate": "2025-06-17",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -9662,7 +9692,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "aad26db5-4511-4714-b15c-011a2d705c29",
+                    "id": "aeda7480-3645-4ace-9f07-1b1e4e9959a6",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -10355,7 +10385,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8bf79e1e-2b4d-48ea-a802-715282fba90a",
+                    "id": "1c57f567-8473-42a0-be31-1722a441fe21",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12306,11 +12336,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e9c6439e-55c8-47a6-89ee-84c481c48517",
+                    "id": "af69d2b8-bd14-4c0e-92f9-08b21e6e26ab",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-06-10",
+                      "dateRequestAccepted": "2024-06-17",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
