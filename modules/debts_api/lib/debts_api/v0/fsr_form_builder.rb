@@ -49,7 +49,6 @@ module DebtsApi
 
     def add_personal_identification(form)
       form = camelize(form)
-      binding.pry
       raise_client_error unless form.key?('personalIdentification')
       form['personalIdentification']['fileNumber'] = @file_number
       set_certification_date(form)

@@ -79,7 +79,6 @@ module DebtsApi
           tot_assets = if @enhanced_fsr_active
                          sum_values(@assets['monetary_assets'], 'amount')
                        else
-                         binding.pry
                          @assets.values.reject { |item| !item.is_a?(Array) }
                                 .flatten
                                 .map { |value| value.to_s.gsub(/[^0-9.-]/, '').to_f }
