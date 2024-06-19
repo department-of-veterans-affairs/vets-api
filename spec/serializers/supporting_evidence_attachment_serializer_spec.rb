@@ -5,7 +5,7 @@ require 'rails_helper'
 describe SupportingEvidenceAttachmentSerializer, type: :serializer do
   subject { serialize(attachment, serializer_class: described_class) }
 
-  let(:attachment) { build_stubbed(:supporting_evidence_attachment) }
+  let(:attachment) { build_stubbed(:supporting_evidence_attachment, :with_file_data) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
