@@ -19,16 +19,10 @@ module VetsApi
         puts 'Done'
       end
 
+      # rubocop:disable Metrics/MethodLength
       def configuring_clamav_antivirus
         print 'Configuring ClamAV in local settings...'
         settings_path = 'config/settings.local.yml'
-        data = YAML.load_file(settings_path)
-
-        new_clamav_config = {
-          'mock' => true,
-          'host' => '0.0.0.0',
-          'port' => '33100'
-        }
 
         lines = File.readlines(settings_path)
         in_clamav_section = false
@@ -38,11 +32,11 @@ module VetsApi
             line
           elsif in_clamav_section
             if line.strip.start_with?('mock:')
-              "  mock: #{new_clamav_config['mock']}\n"
+              "  mock: #{desired_clamav_config['mock']}\n"
             elsif line.strip.start_with?('host:')
-              "  host: #{new_clamav_config['host']}\n"
+              "  host: #{desired_clamav_config['host']}\n"
             elsif line.strip.start_with?('port:')
-              "  port: '#{new_clamav_config['port']}'\n"
+              "  port: '#{desired_clamav_config['port']}'\n"
             elsif line =~ /^\s*[a-z]/
               in_clamav_section = false
               line
@@ -60,6 +54,7 @@ module VetsApi
 
         puts 'Done'
       end
+      # rubocop:enable Metrics/MethodLength
 
       def install_pdftk
         if pdftk_installed?
@@ -97,6 +92,14 @@ module VetsApi
 
       def pdftk_installed?
         ShellCommand.run_quiet('pdftk --help')
+      end
+
+      def desired_clamav_config
+        {
+          'mock' => true,
+          'host' => '0.0.0.0',
+          'port' => '33100'
+        }
       end
     end
   end
