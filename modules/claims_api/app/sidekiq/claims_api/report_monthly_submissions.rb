@@ -38,13 +38,9 @@ module ClaimsApi
         hash[cid] += 1 if cid
       end
 
-      monthly_claims_by_cid_by_status.each do |cid, status_counts|
-        totals = status_counts.values.sum
-        status_counts[:totals] = totals
-        status_counts[:pact_count] = monthly_pact_claims_by_cid[cid]
-      end
-
       monthly_claims_by_cid_by_status.map do |cid, status_counts|
+        status_counts[:totals] = status_counts.values.sum
+        status_counts[:pact_count] = monthly_pact_claims_by_cid[cid]
         {
           ClaimsApi::CidMapper.new(cid:).name => status_counts.deep_symbolize_keys
         }
