@@ -67,6 +67,7 @@ module VAOS
         end
       end
 
+      # rubocop:disable Metrics/MethodLength
       def post_appointment(request_object_body)
         filtered_reason_code_text = filter_reason_code_text(request_object_body)
         request_object_body[:reason_code][:text] = filtered_reason_code_text if filtered_reason_code_text.present?
@@ -81,6 +82,11 @@ module VAOS
                        perform(:post, appointments_base_path_vaos, params, headers)
                      end
 
+          if request_object_body[:kind] == 'clinic' &&
+             request_object_body[:status] == 'booked' # a direct scheduled appointment
+            modify_desired_date(request_object_body, get_facility_timezone(request_object_body[:location_id]))
+          end
+
           new_appointment = response.body
           convert_appointment_time(new_appointment)
           find_and_merge_provider_name(new_appointment) if new_appointment[:kind] == 'cc'
@@ -90,6 +96,7 @@ module VAOS
           raise e
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def update_appointment(appt_id, status)
         with_monitoring do
@@ -152,13 +159,44 @@ module VAOS
 
       private
 
+      # Modifies params so that the facility timezone offset is included in the desired date.
+      # The desired date is sent in this format: 2019-12-31T00:00:00-00:00
+      # This modifies the params in place. If params does not contain a desired date, it is not modified.
+      #
+      # @param [ActionController::Parameters] create_params - the params to be modified
+      # @param [String] timezone - the facility timezone id
+      def modify_desired_date(create_params, timezone)
+        desired_date = create_params[:extension]&.[](:desired_date)
+
+        return create_params if desired_date.nil?
+
+        create_params[:extension][:desired_date] = add_timezone_offset(desired_date, timezone)
+      end
+
+      # Returns a [DateTime] object with the timezone offset added. Given a desired date of 2019-12-31T00:00:00-00:00
+      # and a timezone of America/New_York, the returned date will be 2019-12-31T00:00:00-05:00.
+      #
+      # @param [DateTime] date - the date to be modified,  required
+      # @param [String] tz - the timezone id, if nil, the offset is not added
+      # @return [DateTime] date with timezone offset
+      #
+      def add_timezone_offset(date, tz)
+        raise Common::Exceptions::ParameterMissing, 'date' if date.nil?
+
+        utc_date = date.to_time.utc
+        timezone_offset = utc_date.in_time_zone(tz).formatted_offset
+        utc_date.change(offset: timezone_offset).to_datetime
+      end
+
       def fetch_clinic_appointments(start_time, end_time, statuses)
         get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
       end
 
       def prepare_appointment(appointment)
-        # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
-        set_cancellable_false(appointment) if cnp?(appointment) || covid?(appointment)
+        # for CnP, covid, CC and telehealth appointments set cancellable to false per GH#57824, GH#58690, ZH#326
+        if cnp?(appointment) || covid?(appointment) || cc?(appointment) || telehealth?(appointment)
+          set_cancellable_false(appointment)
+        end
 
         # remove service type(s) for non-medical non-CnP appointments per GH#56197
         unless medical?(appointment) || cnp?(appointment) || no_service_cat?(appointment)
@@ -285,7 +323,7 @@ module VAOS
 
         avs_resp = avs_service.get_avs_by_appointment(station_no, appt_ien)
 
-        return nil if avs_resp.body.empty?
+        return nil if avs_resp.body.empty? || !(avs_resp.body.is_a?(Array) && avs_resp.body.first.is_a?(Hash))
 
         data = avs_resp.body.first.with_indifferent_access
 
@@ -364,6 +402,32 @@ module VAOS
         return [] if input.nil?
 
         input.flat_map { |codeable_concept| codeable_concept[:coding]&.pluck(:code) }.compact
+      end
+
+      # Determines if the appointment is for community care.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is for community care, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def cc?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt[:kind] == 'cc'
+      end
+
+      # Determines if the appointment is for telehealth.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is for telehealth, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def telehealth?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt[:kind] == 'telehealth'
       end
 
       # Determines if the appointment is for compensation and pension.

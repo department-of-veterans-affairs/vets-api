@@ -11,7 +11,7 @@
   "form1[0].#subform[0].PhoneNumb-1[0]":                                      "<%= form.data.dig('applicant_phone') %>",
   "form1[0].#subform[0].#area[4].applicantSexRadioButtons2[0]":               "<%= form.data.dig('applicant') == 'M' ? 0 : 1 %>", 
   "form1[0].#subform[0].#area[0]":                                            "<%= form.data.dig('') %>",
-  "form1[0].#subform[0].NewAddressBox-1[0]":                                  "<%= form.data.dig('is_new_address') ? 0 : 1 %>", 
+  "form1[0].#subform[0].NewAddressBox-1[0]":                                  "<%= form.data.dig('applicant_new_address') != 'no' ? 1 : 0 %>", 
   "form1[0].#subform[0].PartABDBkgrnd[0].PartARadioButtonList[0]":            "<%= form.data.dig('applicant_medicare_status') ? 0 : 1 %>",
   "form1[0].#subform[0].PartABDBkgrnd[0].PartBRadioButtonList[0]":            "<%= form.data.dig('applicant_medicare_status') ? 0 : 1 %>",
   "form1[0].#subform[0].PartABDBkgrnd[0].PartDRadioButtonList[0]":            "<%= form.data.dig('applicant_medicare_status_d') ? 0 : 1 %>",
