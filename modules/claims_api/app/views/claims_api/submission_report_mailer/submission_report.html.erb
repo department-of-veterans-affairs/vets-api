@@ -49,22 +49,6 @@
   </head>
   <body>
     <h1><%= @date_from %> - <%= @date_to %> (Eastern Time)</h1>
-    <hr>
-    <h2>Monthly PACT Submissions</h2>
-    <% @data[:month].keys.each do |kind| %>
-      <table>
-        <tr>
-          <th>Consumer</th>
-          <th><%= kind %> submissions</th>
-        </tr>
-        <% @data[:month][kind].keys.each do |label| %>
-          <tr>
-            <td><%= label %></td>
-            <td><%= @data[:month][kind][label] %></td>
-          </tr>
-        <% end %>
-      </table>
-    <% end %>
     <hr />
     <h2>526EZ Claim Submissions</h2>
     <h3><span class="title">Per Consumer Status Counts</span></h3>
