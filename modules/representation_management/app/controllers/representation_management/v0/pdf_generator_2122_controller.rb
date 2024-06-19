@@ -38,10 +38,47 @@ module RepresentationManagement
         ].flatten
       end
 
+      def verify_service_organization_name_required
+        unless form_params[:service_organization_name].present? &&
+               form_params[:service_organization_name].is_a?(String)
+          raise_invalid_field_value('service_organization_name', form_params[:service_organization_name])
+        end
+      end
+
+      def verify_service_organization_representative_name_optional
+        if form_params[:service_organization_representative_name].present? &&
+           !form_params[:service_organization_representative_name].is_a?(String)
+          raise_invalid_field_value('service_organization_representative_name',
+                                    form_params[:service_organization_representative_name])
+        end
+      end
+
+      def verify_service_organization_name_representative_job_title_optional
+        if form_params[:service_organization_job_title].present? &&
+           !form_params[:service_organization_job_title].is_a?(String)
+          raise_invalid_field_value('service_organization_job_title', form_params[:service_organization_job_title])
+        end
+      end
+
+      def verify_service_organization_email_address_optional
+        if form_params[:service_organization_email].present? &&
+           !form_params[:service_organization_email].is_a?(String)
+          raise_invalid_field_value('service_organization_email', form_params[:service_organization_email])
+        end
+      end
+
+      def verify_service_organization_appointment_date_optional
+        if form_params[:service_organization_appointment_date].present? &&
+           !form_params[:service_organization_appointment_date].is_a?(String)
+          raise_invalid_field_value('service_organization_appointment_date',
+                                    form_params[:service_organization_appointment_date])
+        end
+      end
+
       def service_organization_params
         %i[
-          service_organization_poa_code
-          service_organization_registration_number
+          service_organization_name
+          service_organization_representative_name
           service_organization_job_title
           service_organization_email
           service_organization_appointment_date

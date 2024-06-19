@@ -292,6 +292,9 @@ module RepresentationManagement
 
       def claimant_params
         %i[
+          claimant_first_name
+          claimant_middle_initial
+          claimant_last_name
           claimant_address_line1
           claimant_address_line2
           claimant_city
@@ -304,21 +307,6 @@ module RepresentationManagement
           claimant_phone_number_ext
           claimant_email
           claimant_relationship
-        ]
-      end
-
-      def representative_params
-        %i[
-          poa_code
-          registration_number
-          type
-          representative_address_line1
-          representative_address_line2
-          representative_city
-          representative_country
-          representative_state_code
-          representative_zip_code
-          representative_zip_code_suffix
         ]
       end
 
