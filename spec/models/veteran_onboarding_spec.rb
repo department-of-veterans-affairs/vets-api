@@ -38,7 +38,7 @@ RSpec.describe VeteranOnboarding, type: :model do
       Flipper.enable(:veteran_onboarding_show_to_newly_onboarded, user)
       Settings.veteran_onboarding = OpenStruct.new(onboarding_threshold_days: 10)
       verified_at_date = Time.zone.today - 11
-      allow(user.user_verification).to receive(:verified_at).and_return(verified_at_date)
+      allow_any_instance_of(UserVerification).to receive(:verified_at).and_return(verified_at_date)
 
       veteran_onboarding = VeteranOnboarding.for_user(user)
       expect(veteran_onboarding.show_onboarding_flow_on_login).to eq(false)
@@ -55,7 +55,7 @@ RSpec.describe VeteranOnboarding, type: :model do
       Settings.veteran_onboarding = OpenStruct.new(onboarding_threshold_days: 10)
       it "returns #{scenario[:expected]} when verified #{scenario[:days_ago]} days ago" do
         verified_at_date = Time.zone.today - scenario[:days_ago]
-        allow(user.user_verification).to receive(:verified_at).and_return(verified_at_date)
+        allow_any_instance_of(UserVerification).to receive(:verified_at).and_return(verified_at_date)
         Flipper.enable(:veteran_onboarding_show_to_newly_onboarded, user)
         expect(user.onboarding&.show_onboarding_flow_on_login).to eq(scenario[:expected])
       end

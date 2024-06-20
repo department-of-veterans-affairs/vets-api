@@ -27,13 +27,15 @@ class VeteranOnboarding < ApplicationRecord
   def show_onboarding_flow_on_login
     if @user.user_account&.verified?
       if Flipper.enabled?(:veteran_onboarding_show_to_newly_onboarded, @user)
-        days_since_verification = (Time.zone.today - @user.user_verification.verified_at.to_date).to_i
+        days_since_verification = UserVerification.where(user_account_id: @user.user_account_uuid).map do |uv|
+          (Time.zone.today - uv.verified_at.to_date).to_i
+        end.max
         verification_within_threshold = days_since_verification <= (Settings.veteran_onboarding&.onboarding_threshold_days || 180)
         if verification_within_threshold
           display_onboarding_flow
         else
-          self.update!(display_onboarding_flow: false)
-          return false
+          update!(display_onboarding_flow: false)
+          false
         end
       elsif Flipper.enabled?(:veteran_onboarding_beta_flow, @user)
         display_onboarding_flow
