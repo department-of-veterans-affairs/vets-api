@@ -40,7 +40,7 @@
 
       <div class="vads-l-row">
         <nav>
-          <ul class="nav nav-underline mb-3 align-items-center">
+          <ul class="nav nav-underline mb-3 align-items-center" style="margin-left: -24px;">
             <% Flipper::UI.configuration.nav_items.each do |item| %>
               <ul class="vads-u-margin--0 vads-u-padding--0 nav-item">
                 <a href="<%= url_for(item[:href]) %>" class="nav-link<%= " active" if request.url.start_with?(url_for(item[:href])) %>">
