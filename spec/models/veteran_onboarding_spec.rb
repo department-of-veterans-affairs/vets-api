@@ -34,13 +34,25 @@ RSpec.describe VeteranOnboarding, type: :model do
       expect(subject.show_onboarding_flow_on_login).to be_truthy
     end
 
-    # default logic to show onboarding is 180 days, can be overridden by setting value in
-    # Settings.veteran_onboarding.onboarding_threshold_days
+    it 'returns false and updates the database when verification is over 180 days ago' do
+      Flipper.enable(:veteran_onboarding_show_to_newly_onboarded, user)
+      Settings.veteran_onboarding = OpenStruct.new(onboarding_threshold_days: 10)
+      verified_at_date = Time.zone.today - 11
+      allow(user.user_verification).to receive(:verified_at).and_return(verified_at_date)
+
+      veteran_onboarding = VeteranOnboarding.for_user(user)
+      expect(veteran_onboarding.show_onboarding_flow_on_login).to eq(false)
+
+      veteran_onboarding.reload
+      expect(veteran_onboarding.display_onboarding_flow).to eq(false)
+    end
+
     [
-      { days_ago: 180, expected: true },
+      { days_ago: 10, expected: true },
       { days_ago: 0, expected: true },
-      { days_ago: 181, expected: false }
+      { days_ago: 11, expected: false }
     ].each do |scenario|
+      Settings.veteran_onboarding = OpenStruct.new(onboarding_threshold_days: 10)
       it "returns #{scenario[:expected]} when verified #{scenario[:days_ago]} days ago" do
         verified_at_date = Time.zone.today - scenario[:days_ago]
         allow(user.user_verification).to receive(:verified_at).and_return(verified_at_date)
