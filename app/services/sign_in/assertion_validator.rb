@@ -15,7 +15,7 @@ module SignIn
       validate_scopes
       validate_user_attributes
       validate_subject
-      validate_issued_at
+      validate_issued_at_time
       validate_expiration
       create_new_access_token
     end
@@ -58,7 +58,7 @@ module SignIn
       end
     end
 
-    def validate_issued_at
+    def validate_issued_at_time
       if issued_at_time.blank? || issued_at_time > Time.now.to_i
         raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion issuance timestamp is not valid'
       end
