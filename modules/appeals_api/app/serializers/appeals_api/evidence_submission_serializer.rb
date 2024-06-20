@@ -8,18 +8,18 @@ module AppealsApi
 
     set_id(&:guid)
     set_key_transform(:camel_lower)
-    set_type(:evidenceSubmission)
+    set_type(:evidence_submission)
 
     attributes :status, :code, :detail, :location
 
-    attribute :appealId, &:supportable_id
+    attribute :appeal_id, &:supportable_id
 
-    attribute :appealType do |object|
+    attribute :appeal_type do |object|
       object.supportable_type.to_s.demodulize
     end
 
-    attribute :createDate, &:created_at
-    attribute :updateDate, &:updated_at
+    attribute :create_date, &:created_at
+    attribute :update_date, &:updated_at
 
     attribute :detail do |object|
       if object.detail
