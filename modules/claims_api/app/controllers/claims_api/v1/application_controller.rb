@@ -169,7 +169,12 @@ module ClaimsApi
           last_signed_in: Time.now.utc,
           loa: @is_valid_ccg_flow ? { current: 3, highest: 3 } : @current_user.loa
         )
-        vet.mpi_record?
+        # Fail fast if mpi_record can't be found
+        unless vet.mpi_record?
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail:
+            "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
+            'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
+        end
         vet.gender = header('X-VA-Gender') || vet.gender_mpi if with_gender
         vet.edipi = vet.edipi_mpi
         vet.participant_id = vet.participant_id_mpi

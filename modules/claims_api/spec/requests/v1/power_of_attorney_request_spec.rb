@@ -238,10 +238,11 @@ RSpec.describe 'Power of Attorney ', type: :request do
           end
 
           it 'returns an unprocessible entity status' do
-            allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
+            allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
               .and_raise(ArgumentError)
             mock_acg(scopes) do |auth_header|
               post path, params: data, headers: headers.merge(auth_header)
+              expect_any_instance_of(MPI::Service).to have_received(:find_profile_by_attributes).at_most(:once).times
               expect(response.status).to eq(422)
             end
           end
