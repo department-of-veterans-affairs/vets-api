@@ -475,7 +475,7 @@ features:
   fsr_5655_server_side_transform:
     actor_type: user
     description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
-    enable_in_development: true
+    enable_in_development: false
   financial_status_report_debts_api_module:
     actor_type: user
     description: Points to debts-api module routes
