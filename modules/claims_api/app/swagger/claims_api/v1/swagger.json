@@ -569,7 +569,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "18d8d452-5542-476a-a6c4-c35ba3a2c122",
+                    "id": "253ff9b7-c0f1-491d-863b-93474895e2df",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -604,11 +604,11 @@
                       "status": "Complete",
                       "supporting_documents": [
                         {
-                          "id": "0ad992fd-fe6d-48ea-866b-5f1bf99a3b95",
+                          "id": "94450987-37eb-4fbf-ac41-7b58c05ba283",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2024-02-06T17:30:39.482Z"
+                          "uploaded_at": "2024-06-18T14:03:55.000Z"
                         }
                       ]
                     }
@@ -2502,7 +2502,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c5dac5c1-2b46-4bcc-b8f1-bf2fda5002dc",
+                    "id": "15727189-a3bf-4fba-8b2b-69552c7f7589",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2520,13 +2520,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2024-02-06T17:30:40.198Z",
+                      "updated_at": "2024-06-18T14:03:56.993Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "c5dac5c1-2b46-4bcc-b8f1-bf2fda5002dc",
+                      "token": "15727189-a3bf-4fba-8b2b-69552c7f7589",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4379,7 +4379,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a8e9eda2-da86-4f12-be4f-22c45bf30782",
+                    "id": "effb561d-806b-4153-988e-0e72c7e0f778",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4397,13 +4397,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2024-02-06T17:30:40.498Z",
+                      "updated_at": "2024-06-18T14:03:57.694Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "a8e9eda2-da86-4f12-be4f-22c45bf30782",
+                      "token": "effb561d-806b-4153-988e-0e72c7e0f778",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -6637,7 +6637,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "76c90735-4c6a-4486-aff2-2d378c22ed6f",
+                    "id": "81ae6b92-0158-4677-9e71-9052d2b0de26",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6651,7 +6651,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2024-02-06T17:30:41.394Z",
+                      "updated_at": "2024-06-18T14:04:00.288Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6660,7 +6660,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "25aba02e-2174-42a8-b551-f3c78d4008d8",
+                          "id": "f3b54df3-2c83-4009-bd06-8f638399ee6a",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8162,7 +8162,14 @@
                                   "maxLength": 30
                                 },
                                 "aptUnitNumber": {
-                                  "type": "integer"
+                                  "oneOf": [
+                                    {
+                                      "type": "integer"
+                                    },
+                                    {
+                                      "type": "string"
+                                    }
+                                  ]
                                 },
                                 "city": {
                                   "description": "City for the address.",
@@ -8295,7 +8302,14 @@
                                   "maxLength": 30
                                 },
                                 "aptUnitNumber": {
-                                  "type": "integer"
+                                  "oneOf": [
+                                    {
+                                      "type": "integer"
+                                    },
+                                    {
+                                      "type": "string"
+                                    }
+                                  ]
                                 },
                                 "city": {
                                   "description": "City for the address.",
@@ -8424,7 +8438,14 @@
                                   "maxLength": 30
                                 },
                                 "aptUnitNumber": {
-                                  "type": "integer"
+                                  "oneOf": [
+                                    {
+                                      "type": "integer"
+                                    },
+                                    {
+                                      "type": "string"
+                                    }
+                                  ]
                                 },
                                 "city": {
                                   "description": "City for the address.",
@@ -8594,11 +8615,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4f88238f-27c3-4ca9-a159-cb18bfdacc96",
+                    "id": "fe3281c1-504f-44c3-944d-a66e9c412909",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2024-02-06",
+                      "date_request_accepted": "2024-06-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8860,7 +8881,14 @@
                                     "maxLength": 30
                                   },
                                   "aptUnitNumber": {
-                                    "type": "integer"
+                                    "oneOf": [
+                                      {
+                                        "type": "integer"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
                                   },
                                   "city": {
                                     "description": "City for the address.",
@@ -8993,7 +9021,14 @@
                                     "maxLength": 30
                                   },
                                   "aptUnitNumber": {
-                                    "type": "integer"
+                                    "oneOf": [
+                                      {
+                                        "type": "integer"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
                                   },
                                   "city": {
                                     "description": "City for the address.",
@@ -9122,7 +9157,14 @@
                                     "maxLength": 30
                                   },
                                   "aptUnitNumber": {
-                                    "type": "integer"
+                                    "oneOf": [
+                                      {
+                                        "type": "integer"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
                                   },
                                   "city": {
                                     "description": "City for the address.",
@@ -9305,11 +9347,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c50e8dab-3425-48f9-8805-be33cff9ead2",
+                    "id": "69c427f2-3dc2-40b5-aaf1-155772e41e3f",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2024-02-06",
+                      "date_request_accepted": "2024-06-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9823,11 +9865,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "468a0302-f64e-42ed-9d74-a7568f2bf9ef",
+                    "id": "ef7059c8-6cf9-432c-b9b8-b20f1a1967ed",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2024-02-06",
+                      "date_request_accepted": "2024-06-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -10669,7 +10711,14 @@
                                     "maxLength": 30
                                   },
                                   "aptUnitNumber": {
-                                    "type": "integer"
+                                    "oneOf": [
+                                      {
+                                        "type": "integer"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
                                   },
                                   "city": {
                                     "description": "City for the address.",
@@ -10802,7 +10851,14 @@
                                     "maxLength": 30
                                   },
                                   "aptUnitNumber": {
-                                    "type": "integer"
+                                    "oneOf": [
+                                      {
+                                        "type": "integer"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
                                   },
                                   "city": {
                                     "description": "City for the address.",
@@ -10931,7 +10987,14 @@
                                     "maxLength": 30
                                   },
                                   "aptUnitNumber": {
-                                    "type": "integer"
+                                    "oneOf": [
+                                      {
+                                        "type": "integer"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
                                   },
                                   "city": {
                                     "description": "City for the address.",
