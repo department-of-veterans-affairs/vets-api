@@ -35,7 +35,7 @@ RSpec.describe HCA::SubmissionJob, type: :job do
     end
 
     it 'passes unencrypted form to health_care_application' do
-      expect_any_instance_of(HealthCareApplication).to receive(:update!).with(
+      expect_any_instance_of(HealthCareApplication).to receive(:update).with(
         state: 'failed',
         form: form.to_json,
         google_analytics_client_id: 'google_analytics_client_id'
