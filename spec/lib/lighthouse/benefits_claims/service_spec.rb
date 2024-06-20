@@ -160,7 +160,7 @@ RSpec.describe BenefitsClaims::Service do
 
         context 'when posting to the /validate endpoint' do
           it 'when given a full request body, posts to the Lighthouse API' do
-            VCR.use_cassette('lighthouse/benefits_claims/validate526/200_synchronous_response') do # change cassette
+            VCR.use_cassette('lighthouse/benefits_claims/validate526/200_synchronous_response') do
               raw_response = @service.validate526({ data: { attributes: {} } }, '', '', { body_only: true })
               response_json = JSON.parse(raw_response)
               expect(response_json.dig('data', 'attributes', 'status')).to eq('valid')
@@ -168,7 +168,7 @@ RSpec.describe BenefitsClaims::Service do
           end
 
           it 'when given only the form data in the request body, posts to the Lighthouse API' do
-            VCR.use_cassette('lighthouse/benefits_claims/validate526/200_synchronous_response') do # change cassette
+            VCR.use_cassette('lighthouse/benefits_claims/validate526/200_synchronous_response') do
               raw_response = @service.validate526({}, '', '', { body_only: true })
               response_json = JSON.parse(raw_response)
               expect(response_json.dig('data', 'attributes', 'status')).to eq('valid')
@@ -176,7 +176,7 @@ RSpec.describe BenefitsClaims::Service do
           end
 
           it 'returns only the response body' do
-            VCR.use_cassette('lighthouse/benefits_claims/validate526/200_synchronous_response') do # change cassette
+            VCR.use_cassette('lighthouse/benefits_claims/validate526/200_synchronous_response') do
               body = @service.validate526({ data: { attributes: {} } }, '', '', { body_only: true })
               response_json = JSON.parse(body)
               expect(response_json.dig('data', 'attributes', 'status')).to eq('valid')
