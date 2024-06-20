@@ -34,7 +34,7 @@ module DebtsApi
           @personal_data_calculator = PersonalDataCalculator.new(@form)
           @personal_data = @personal_data_calculator.get_personal_data
           @personal_identification = PersonalIdentificationCalculator.new(@form).transform_personal_id
-          @selected_debts_and_copays = re_camel(re_dollar_cent(@form['selected_debts_and_copays']))
+          @selected_debts_and_copays = re_camel(re_dollar_cent(@form['selected_debts_and_copays'], ['p_h_account_number', 'pHAccountNumber']))
           @streamlined = StreamlinedCalculator.new(@form).get_streamlined_data
         end
 

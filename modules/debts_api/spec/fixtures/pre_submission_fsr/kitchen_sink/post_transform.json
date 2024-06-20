@@ -129,7 +129,7 @@
   ],
   "expenses": {
     "rentOrMortgage": "9999.00",
-    "food": "103",
+    "food": "103.00",
     "utilities": "579.00",
     "otherLivingExpenses": {
       "name": "Clothing, Entertainment, Family and child care, Homeowner's Association (HOA) fees, Health expenses, Household maintenance, Legal fees, Pet care, Renters insurance, Transportation and car expenses (including insurance), made it up",
@@ -344,7 +344,7 @@
       "pHCernerPatientId": "                ",
       "pHCernerAccountNumber": "                ",
       "pHIcnNumber": "                 ",
-      "pHAccountNumber": "7570000000197750.00",
+      "pHAccountNumber": "7570000000197750",
       "pHLargeFontIndcator": "0.00",
       "details": [
         {
@@ -445,7 +445,7 @@
       "pHCernerPatientId": "1005154223",
       "pHCernerAccountNumber": "5341001005154223",
       "pHIcnNumber": "039219581V969512 ",
-      "pHAccountNumber": "0.00",
+      "pHAccountNumber": "0",
       "pHLargeFontIndcator": "0.00",
       "details": [
         {

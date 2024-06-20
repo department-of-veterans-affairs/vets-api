@@ -3,7 +3,7 @@
 module FsrFormTransform
   module Utils
     def dollars_cents(flt)
-      flt.round(2).to_s.gsub(/^\d+\.\d{1}$/, '\00')
+      flt.round(2).to_s.gsub(/^-?\d+\.\d{1}$/, '\00')
     end
 
     def re_camel(x)
@@ -36,31 +36,35 @@ module FsrFormTransform
       result
     end
 
-    def re_dollar_cent(x)
-      return re_dollar_cent_array(x) if x.instance_of?(Array)
-      re_dollar_cent_hash(x) if x.instance_of?(Hash)
+    def re_dollar_cent(x, ignore=[])
+      return re_dollar_cent_array(x, ignore) if x.instance_of?(Array)
+      re_dollar_cent_hash(x, ignore) if x.instance_of?(Hash)
     end
 
-    def re_dollar_cent_hash(x)
+    def re_dollar_cent_hash(x, ignore)
       result = {}
       x.each do |key, val|
-        case val
-        when Integer
-          result[key] = dollars_cents(val.to_f)
-        when Float
-          result[key] = dollars_cents(val)
-        when Array
-          result[key] = re_dollar_cent_array(val)
-        when Hash
-          result[key] = re_dollar_cent_hash(val)
+        if ignore.include?(key)
+          result[key] = val.to_s
         else
-          result[key] = val
+          case val
+          when Integer
+            result[key] = dollars_cents(val.to_f)
+          when Float
+            result[key] = dollars_cents(val)
+          when Array
+            result[key] = re_dollar_cent_array(val, ignore)
+          when Hash
+            result[key] = re_dollar_cent_hash(val, ignore)
+          else
+            result[key] = val
+          end        
         end
       end
       result
     end
 
-    def re_dollar_cent_array(x)
+    def re_dollar_cent_array(x, ignore)
       result = []
       x.each{ |el|
         case el
@@ -71,7 +75,7 @@ module FsrFormTransform
         when Array
           result << re_dollar_cent_array(el)
         when Hash
-          result << re_dollar_cent_hash(el)
+          result << re_dollar_cent_hash(el, ignore)
         else
           result << el
         end

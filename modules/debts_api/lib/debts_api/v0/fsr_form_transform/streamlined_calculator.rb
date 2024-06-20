@@ -109,7 +109,7 @@ module DebtsApi
         end
 
         def total_debt
-          @form['selected_debts_and_copays'].reduce(0) { |total_debt, debt| total_debt + debt['current_ar'] }
+          @form['selected_debts_and_copays'].reduce(0) { |total_debt, debt| total_debt + (debt['current_ar'] || 0.0) }
           # TODO: check if current_ar is eq to pHAmtDue
         end
 
