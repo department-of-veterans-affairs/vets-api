@@ -50,7 +50,7 @@ module BenefitsEducation
       raw_response = begin
         config.get(@icn)
       rescue => e
-        handle_error(e, config.service_name, config.base_api_path)
+        handle_error(e, config.service_name, config.base_path)
       end
       BenefitsEducation::Response.new(raw_response.status, raw_response)
     end

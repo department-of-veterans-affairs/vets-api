@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_05_161809) do
+ActiveRecord::Schema[7.1].define(version: 2024_06_13_175759) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -847,6 +847,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_05_161809) do
     t.index ["user_account_id"], name: "index_inherited_proof_verified_user_accounts_on_user_account_id", unique: true
   end
 
+  create_table "intent_to_file_queue_exhaustions", force: :cascade do |t|
+    t.string "veteran_icn", null: false
+    t.string "form_type"
+    t.datetime "form_start_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["veteran_icn"], name: "index_intent_to_file_queue_exhaustions_on_veteran_icn"
+  end
+
   create_table "invalid_letter_address_edipis", id: :serial, force: :cascade do |t|
     t.string "edipi", null: false
     t.datetime "created_at", null: false
@@ -1012,6 +1021,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_05_161809) do
     t.text "encrypted_kms_key"
     t.string "uploaded_forms", default: [], array: true
     t.datetime "itf_datetime"
+    t.datetime "form_start_date"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"

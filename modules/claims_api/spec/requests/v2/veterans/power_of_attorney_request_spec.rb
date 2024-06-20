@@ -140,30 +140,5 @@ RSpec.describe 'Power Of Attorney', type: :request do
         end
       end
     end
-
-    describe 'request_representative' do
-      let(:request_body) do
-        Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                        'power_of_attorney', 'request_representative', 'valid.json').read
-      end
-
-      context 'when the request data is a valid json object' do
-        it 'returns a meaningful 201' do
-          mock_ccg_for_fine_grained_scope(scopes) do |auth_header|
-            post request_rep_path, params: request_body, headers: auth_header
-            expect(response).to have_http_status(:created)
-          end
-        end
-      end
-
-      context 'when the request scope is wrong' do
-        it 'returns a 401' do
-          mock_ccg_for_fine_grained_scope(invalid_post_scopes) do |auth_header|
-            post request_rep_path, params: request_body, headers: auth_header
-            expect(response).to have_http_status(:unauthorized)
-          end
-        end
-      end
-    end
   end
 end

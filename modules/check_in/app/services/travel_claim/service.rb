@@ -68,6 +68,18 @@ module TravelClaim
       response.build(response: resp).handle
     end
 
+    # Check claim status for the given patient_icn and start and end date range.
+    #
+    # @see TravelClaim::Client#claim_status
+    #
+    # @return [Faraday::Response] response
+    def claim_status
+      start_range_date = end_range_date = appointment_date
+      return Faraday::Response.new(response_body: { message: 'Unauthorized' }, status: 401) if token.blank?
+
+      client.claim_status(token:, patient_icn:, start_range_date:, end_range_date:)
+    end
+
     private
 
     def patient_icn

@@ -154,19 +154,11 @@ module ClaimsApi
           { data: {} }
         end
 
-        def process_claim(auto_claim, perform_async = true) # rubocop:disable Style/OptionalBooleanParameter
-          if perform_async
-            ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(
-              auto_claim.id,
-              veteran_middle_initial # PDF mapper just needs middle initial
-            )
-          else
-            ClaimsApi::V2::DisabilityCompensationPdfGenerator.new.perform(
-              auto_claim.id,
-              veteran_middle_initial, # PDF mapper just needs middle initial
-              false
-            )
-          end
+        def process_claim(auto_claim)
+          ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(
+            auto_claim.id,
+            veteran_middle_initial # PDF mapper just needs middle initial
+          )
         end
 
         # Only value required by background jobs that is missing in headers is middle name
@@ -187,7 +179,7 @@ module ClaimsApi
 
         def shared_validation
           # Custom validations for 526 submission, we must check this first
-          @claims_api_forms_validation_errors = validate_form_526_submission_values!(target_veteran)
+          @claims_api_forms_validation_errors = validate_form_526_submission_values(target_veteran)
           # JSON validations for 526 submission, will combine with previously captured errors and raise
           validate_json_schema
           # if we get here there were only validations file errors
