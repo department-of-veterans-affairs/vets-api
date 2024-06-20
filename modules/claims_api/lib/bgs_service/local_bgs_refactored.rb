@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'claims_api/bgs_client'
 require 'claims_api/bgs_client/definitions'
 require 'claims_api/bgs_client/error'
 require 'bgs_service/local_bgs_refactored/error_handler'
