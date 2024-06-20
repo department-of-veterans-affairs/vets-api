@@ -325,4 +325,5 @@ class HealthCareApplication < ApplicationRecord
       c['properties']['vaMedicalFacility'] = { type: 'string' }.as_json
     end
   end
+
 end
