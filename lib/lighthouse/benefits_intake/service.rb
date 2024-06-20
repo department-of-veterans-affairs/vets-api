@@ -88,7 +88,7 @@ module BenefitsIntake
     #
     def bulk_status(uuids:)
       headers = { 'Content-Type' => Mime[:json].to_s, 'Accept' => Mime[:json].to_s }
-      data = { uuids: }.to_json
+      data = { ids: uuids }.to_json
       perform :post, 'uploads/report', data, headers
     end
 

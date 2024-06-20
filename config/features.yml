@@ -66,6 +66,9 @@ features:
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
+  hca_submission_failure_email_va_notify:
+    actor_type: user
+    description: Send HCA Submission Failure email using VANotify.
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
@@ -73,6 +76,10 @@ features:
   ezr_tera_enabled:
     actor_type: user
     description: Enables Toxic Exposure questions for 10-10EZR applicants.
+    enable_in_development: true
+  ezr_upload_enabled:
+    actor_type: user
+    description: Enables Toxic Exposure File Upload for 10-10EZR applicants.
     enable_in_development: true
   ezr_auth_only_enabled:
     actor_type: user
@@ -465,6 +472,10 @@ features:
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
+  fsr_5655_server_side_transform:
+    actor_type: user
+    description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
+    enable_in_development: true
   financial_status_report_debts_api_module:
     actor_type: user
     description: Points to debts-api module routes
@@ -750,10 +761,6 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging lefthand navigation for new navigation solution
     enable_in_development: true
-  mhv_secure_messaging_unique_user_logging_enabled:
-    actor_type: user
-    description: Disables/Enables Secure Messaging tracking unique users in Datadog
-    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
@@ -906,6 +913,9 @@ features:
   profile_show_payments_notification_setting:
     actor_type: user
     description: Show/Hide the payments section of notifications in profile
+  profile_show_privacy_policy:
+    actor_type: user
+    description: Show/Hide the privacy policy section on profile pages
   profile_show_pronouns_and_sexual_orientation:
     actor_type: user
     description: Show/hide Pronouns and Sexual Orientation fields on profile page
@@ -1378,9 +1388,6 @@ features:
   disability_compensation_lighthouse_claims_service_provider:
     actor_type: user
     description: If enabled uses the lighthouse claims service
-  disability_compensation_lighthouse_submit_migration:
-    actor_type: user
-    description: If enabled uses the lighthouse submit endpoint
   disability_compensation_lighthouse_intent_to_file_provider:
     actor_type: user
     description: If enabled uses the lighthouse intent to file endpoint
@@ -1515,8 +1522,12 @@ features:
     description: Enable RES platform for Veteran Readiness & Employment form submissions, disabled will use VRE email
     enable_in_development: true
   vye_login_widget:
-     actor_type: user
-     description: Enable Vye authentication widget
-  toggle_vye_address_direct_deposit_forms_in_profile: 
-     actor_type: user
-     description: Enable mailing address and direct deposit for VYE in profile page
+    actor_type: user
+    description: Enable Vye authentication widget
+  toggle_vye_address_direct_deposit_forms_in_profile:
+    actor_type: user
+    description: Enable mailing address and direct deposit for VYE in profile page
+  use_facilities_api_v2_for_cerner_cta:
+    actor_type: user
+    description: Use the new facilities API v2 for the Cerner CTA. Estimated time of removal June 18, 2024 after testing of deployment on staging of authenticated user.
+    enable_in_development: true
