@@ -22,6 +22,6 @@ module SerializerSpecHelper
 
   def serializer_with_jsonapi(serializer_class, obj, opts = {})
     serializer = serializer_class.new(obj, opts)
-    serializer.serializable_hash
+    serializer.serializable_hash.to_json
   end
 end
