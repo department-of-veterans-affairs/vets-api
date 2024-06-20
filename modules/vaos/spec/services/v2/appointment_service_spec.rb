@@ -270,8 +270,13 @@ describe VAOS::V2::AppointmentsService do
   describe '#get_appointments' do
     context 'using VAOS' do
       before do
+        Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
         Flipper.disable(:va_online_scheduling_use_vpg)
         Flipper.disable(:va_online_scheduling_enable_OH_reads)
+      end
+
+      after do
+        Timecop.unfreeze
       end
 
       context 'when requesting a list of appointments given a date range' do
@@ -279,7 +284,7 @@ describe VAOS::V2::AppointmentsService do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
                            match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
             response = subject.get_appointments(start_date2, end_date2)
-            expect(response[:data].size).to eq(16)
+            expect(response[:data].size).to eq(7)
           end
         end
 
@@ -334,7 +339,7 @@ describe VAOS::V2::AppointmentsService do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_single_status_200',
                            allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
             response = subject.get_appointments(start_date2, end_date2, 'proposed')
-            expect(response[:data].size).to eq(5)
+            expect(response[:data].size).to eq(4)
             expect(response[:data][0][:status]).to eq('proposed')
           end
         end

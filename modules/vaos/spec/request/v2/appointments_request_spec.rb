@@ -356,8 +356,13 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
       context 'requests a list of appointments' do
         context 'using VAOS' do
           before do
+            Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
             Flipper.disable(:va_online_scheduling_use_vpg)
             Flipper.disable(:va_online_scheduling_enable_OH_reads)
+          end
+
+          after do
+            Timecop.unfreeze
           end
 
           it 'has access and returns va appointments and honors includes' do
@@ -369,7 +374,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
               data = JSON.parse(response.body)['data']
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
-              expect(data.size).to eq(16)
+              expect(data.size).to eq(7)
               expect(data[0]['attributes']['serviceName']).to eq('service_name')
               expect(data[0]['attributes']['physicalLocation']).to eq('physical_location')
               expect(data[0]['attributes']['friendlyName']).to eq('service_name')
@@ -389,7 +394,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
               data = JSON.parse(response.body)['data']
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
-              expect(data.size).to eq(2)
+              expect(data.size).to eq(1)
               expect(data[0]['attributes']['location']['attributes'].to_json).to eq(
                 mock_appt_location_openstruct.table.to_json
               )
@@ -426,7 +431,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
               data = JSON.parse(response.body)['data']
               expect(response).to have_http_status(:ok)
 
-              expect(data.size).to eq(16)
+              expect(data.size).to eq(7)
               expect(data[0]['attributes']['serviceName']).to eq('service_name')
               expect(data[0]['attributes']['location']).to eq(expected_facility)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
@@ -440,7 +445,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
               data = JSON.parse(response.body)['data']
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
-              expect(data.size).to eq(16)
+              expect(data.size).to eq(7)
               expect(data[0]['attributes']['serviceName']).to eq(nil)
               expect(data[0]['attributes']['location']).to eq(nil)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
@@ -523,9 +528,9 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
               data = JSON.parse(response.body)['data']
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
-              expect(data.size).to eq(18)
+              expect(data.size).to eq(10)
               expect(data[0]['attributes']['location']).to eq(facility_error_msg)
-              expect(data[17]['attributes']['location']).not_to eq(facility_error_msg)
+              expect(data[9]['attributes']['location']).not_to eq(facility_error_msg)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
           end
@@ -539,7 +544,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
               expect(data[0]['attributes']['location']).to eq(facility_error_msg)
-              expect(data[17]['attributes']['location']).not_to eq(facility_error_msg)
+              expect(data[9]['attributes']['location']).not_to eq(facility_error_msg)
               expect(Rails.logger).not_to have_received(:info).with("Details for Cerner 'COL OR 1' Appointment",
                                                                     any_args)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
@@ -553,7 +558,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
                   headers: inflection_header
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
               data = JSON.parse(response.body)['data']
-              expect(data.size).to eq(5)
+              expect(data.size).to eq(4)
               expect(data[0]['attributes']['status']).to eq('proposed')
               expect(data[1]['attributes']['status']).to eq('proposed')
               expect(response).to match_camelized_response_schema('vaos/v2/va_appointments', { strict: false })
@@ -567,7 +572,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
                   headers: inflection_header
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
               data = JSON.parse(response.body)['data']
-              expect(data.size).to eq(5)
+              expect(data.size).to eq(4)
               expect(data[0]['attributes']['status']).to eq('proposed')
               expect(data[1]['attributes']['status']).to eq('proposed')
               expect(response).to match_camelized_response_schema('vaos/v2/va_appointments', { strict: false })

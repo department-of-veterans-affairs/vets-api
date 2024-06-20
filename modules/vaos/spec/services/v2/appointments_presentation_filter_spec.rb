@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 
-describe Mobile::V2::Appointments::PresentationFilter do
-  let(:filterer) { described_class.new(include_pending: true) }
+describe VAOS::V2::AppointmentsPresentationFilter do
+  let(:filterer) { described_class.new }
   let(:upcoming) { mock_appointment(id: 'upcoming', start: 1.day.from_now) }
   let(:past) { mock_appointment(id: 'past', start: 1.day.ago) }
   let(:cancelled) { mock_appointment(id: 'past', status: 'cancelled', start: 30.days.ago) }
@@ -51,32 +51,23 @@ describe Mobile::V2::Appointments::PresentationFilter do
     end
 
     describe 'appointment requests' do
-      context 'when include_pending is true' do
-        it 'returns true for appointment requests created during the requested date range' do
-          expect(filterer.user_facing?(request)).to be true
-        end
-
-        it 'returns false if it was created more than 120 days ago' do
-          request[:created] = 121.days.ago.to_s
-          expect(filterer.user_facing?(request)).to be false
-        end
-
-        it 'returns false if it was created more than a day from now' do
-          request[:created] = 2.days.from_now.to_s
-          expect(filterer.user_facing?(request)).to be false
-        end
-
-        it 'returns false if it does not have requested_periods' do
-          request[:requested_periods] = []
-          expect(filterer.user_facing?(request)).to be false
-        end
+      it 'returns true for appointment requests created during the requested date range' do
+        expect(filterer.user_facing?(request)).to be true
       end
 
-      context 'when include_pending is false' do
-        it 'returns false for appointment requests' do
-          filterer_without_pending = described_class.new(include_pending: false)
-          expect(filterer_without_pending.user_facing?(request)).to be false
-        end
+      it 'returns false if it was created more than 120 days ago' do
+        request[:created] = 121.days.ago.to_s
+        expect(filterer.user_facing?(request)).to be false
+      end
+
+      it 'returns false if it was created more than a day from now' do
+        request[:created] = 2.days.from_now.to_s
+        expect(filterer.user_facing?(request)).to be false
+      end
+
+      it 'returns false if it does not have requested_periods' do
+        request[:requested_periods] = []
+        expect(filterer.user_facing?(request)).to be false
       end
 
       describe 'date validations', aggregate_errors: true do

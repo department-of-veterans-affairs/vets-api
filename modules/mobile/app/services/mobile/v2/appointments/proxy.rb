@@ -18,12 +18,10 @@ module Mobile
           # VAOS V2 appointments service accepts pagination params but either it formats them incorrectly
           # or the upstream service does not use them.
           response = vaos_v2_appointments_service.get_appointments(start_date, end_date, statuses.join(','),
-                                                                   pagination_params, include_params)
+                                                                   pagination_params, include_params,
+                                                                   include_pending:)
 
           appointments = response[:data]
-          filterer = PresentationFilter.new(include_pending:)
-          appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
-
           appointments = vaos_v2_to_v0_appointment_adapter.parse(appointments)
 
           [appointments.sort_by(&:start_date_utc), response[:meta][:failures]]
