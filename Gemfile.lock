@@ -113,6 +113,7 @@ PATH
       rails
     my_health (0.1.0)
       rails
+    pensions (0.1.0)
     representation_management (0.1.0)
     simple_forms_api (0.1.0)
     test_user_dashboard (0.1.0)
@@ -1219,6 +1220,7 @@ DEPENDENCIES
   pdf-forms
   pdf-inspector
   pdf-reader
+  pensions!
   pg
   pg_query
   pg_search
