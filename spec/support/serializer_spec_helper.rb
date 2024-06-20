@@ -3,7 +3,7 @@
 module SerializerSpecHelper
   def serialize(obj, opts = {})
     serializer_class = opts.delete(:serializer_class) || "#{obj.class.name}Serializer".constantize
-    if serializer_class.is_a?(ActiveModel::Serializer)
+    if serializer_class.ancestors.include?(ActiveModel::Serializer)
       serializer_with_ams(serializer_class, obj, opts)
     else
       serializer_with_jsonapi(serializer_class, obj, opts)
@@ -22,6 +22,6 @@ module SerializerSpecHelper
 
   def serializer_with_jsonapi(serializer_class, obj, opts = {})
     serializer = serializer_class.new(obj, opts)
-    serializer.serializable_hash.to_json
+    serializer.serializable_hash
   end
 end
