@@ -482,7 +482,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
   describe 'when state changes to "failed"' do
     subject do
-      health_care_application.update!(state: 'failed')
+      health_care_application.update(state: 'failed')
       health_care_application
     end
 
