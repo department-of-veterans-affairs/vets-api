@@ -3,7 +3,7 @@
 module RepresentationManagement
   module V0
     class PdfGenerator2122aController < RepresentationManagement::V0::PdfGeneratorBaseController
-      service_tag 'lighthouse-veteran' # Is this the correct service tag?
+      # service_tag 'lighthouse-veteran' # Is this the correct service tag?
       before_action :verify_representative_type_required
       before_action :verify_representative_first_name_required
       before_action :verfiy_representative_middle_initial_required
