@@ -26,7 +26,7 @@ module ClaimsApi
 
     def monthly_claims_totals
       monthly_claims_consumers = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to)
-      monthly_pact_claims = ClaimsApi::ClaimSubmission.where(created_at: @from..@to, claim_type: 'PACT',
+      monthly_pact_claims = ClaimsApi::ClaimSubmission.where(created_at: @from..@to,
                                                              claim_id: monthly_claims_consumers.pluck(:id))
 
       monthly_claims_by_cid_by_status = monthly_claims_consumers.group_by(&:cid).transform_values do |claims|
