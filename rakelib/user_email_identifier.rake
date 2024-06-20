@@ -4,7 +4,7 @@ require 'roo'
 
 desc 'Build a CSV of user email identifiers'
 
-namespace :user_email_identifier do
+namespace :user_email_identifier, type: :task do
   task :build_csv, %i[uuid_list] => :environment do |_, args|
     xlsx = Roo::Excelx.new(args[:uuid_list])
     xlsx.sheet(0)
@@ -18,12 +18,15 @@ namespace :user_email_identifier do
 
         original_columns = row[0..3].map { |cell| cell && cell.cell_value.to_s.strip }
         csp_uuid = original_columns[3]
-        type = csp_uuid.scan(/-/).empty? ? 'idme' : 'logingov'
-        verification = UserVerification.find_by_type!(type, csp_uuid)
-        user_credential_email = verification.user_credential_email.credential_email
+        user_verification = UserVerification.find_by(idme_uuid: csp_uuid) ||
+                            UserVerification.find_by(backing_idme_uuid: csp_uuid) ||
+                            UserVerification.find_by(logingov_uuid: csp_uuid)
+        raise ActiveRecord::RecordNotFound, "UserVerification not found for uuid: #{csp_uuid}" if user_verification.nil?
 
+        user_credential_email = user_verification.user_credential_email.credential_email
         csv << (original_columns + [user_credential_email])
-      rescue ActiveRecord::RecordNotFound
+      rescue ActiveRecord::RecordNotFound => e
+        puts "[UserEmailIdentifier] Error: #{e.message}"
         csv << original_columns
       end
     end

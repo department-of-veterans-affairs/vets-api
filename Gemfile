@@ -183,6 +183,7 @@ group :test do
   gem 'rspec-sidekiq'
   gem 'rubocop-junit-formatter'
   gem 'rufus-scheduler'
+  gem 'rubyXL'
   gem 'shoulda-matchers'
   gem 'simplecov', require: false
   gem 'super_diff'
