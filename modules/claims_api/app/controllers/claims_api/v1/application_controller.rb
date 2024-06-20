@@ -20,6 +20,7 @@ module ClaimsApi
       skip_after_action :set_csrf_header
       before_action :authenticate, except: %i[schema] # rubocop:disable Rails/LexicallyScopedActionFilter
       before_action :validate_json_format, if: -> { request.post? }
+      before_action :validate_header_values_format, if: -> { header_request? }
       before_action :validate_veteran_identifiers
 
       # fetch_audience: defines the audience used for oauth
@@ -32,6 +33,7 @@ module ClaimsApi
 
       def validate_veteran_identifiers(require_birls: false) # rubocop:disable Metrics/MethodLength
         ids = target_veteran&.mpi&.participant_ids || []
+
         if ids.size > 1
           claims_v1_logging('multiple_ids', message: "multiple_ids: #{ids.size},
                                             header_request: #{header_request?}")
@@ -193,6 +195,18 @@ module ClaimsApi
             "Unable to locate Veteran's EDIPI in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
+      end
+
+      def validate_header_values_format
+        if header('X-VA-Birth-Date').blank?
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'The following values are invalid: birth date'
+          )
+        end
+      end
+
+      def birth_date_valid_format?(birth_date)
+        false if birth_date.blank?
       end
 
       def claims_v1_logging(tag = 'traceability', level: :info, message: nil, icn: target_veteran&.mpi&.icn)

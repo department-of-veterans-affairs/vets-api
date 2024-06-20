@@ -44,20 +44,33 @@ module IvcChampva
 
       private
 
+      # rubocop:disable Layout/LineLength
       def get_attachment_ids_and_form(parsed_form_data)
         form_id = get_form_id
-        form = "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
-        attachment_ids = []
+        form_class = "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize
+        additional_pdf_count = form_class.const_defined?(:ADDITIONAL_PDF_COUNT) ? form_class::ADDITIONAL_PDF_COUNT : 1
+        applicant_key = form_class.const_defined?(:ADDITIONAL_PDF_KEY) ? form_class::ADDITIONAL_PDF_KEY : 'applicants'
 
-        attachment_ids << form_id
-        supporting_docs = parsed_form_data['supporting_docs']
-        supporting_docs&.each do |doc|
-          attachment_ids << doc['attachment_id']
-        end
+        applicants_count = parsed_form_data[applicant_key]&.count || 1
+        total_applicants_count = applicants_count.to_f / additional_pdf_count
+        applicant_rounded_number = total_applicants_count.positive? ? total_applicants_count.ceil : total_applicants_count.floor
 
-        attachment_ids = [@form_id] if attachment_ids.empty?
+        form = form_class.new(parsed_form_data)
+
+        attachment_ids = generate_attachment_ids(form_id, applicant_rounded_number)
+        attachment_ids.concat(supporting_document_ids(parsed_form_data))
+        attachment_ids = [form_id] if attachment_ids.empty?
 
         [attachment_ids, form]
+      end
+      # rubocop:enable Layout/LineLength
+
+      def generate_attachment_ids(form_id, count)
+        count == 1 ? [form_id] : Array.new(count, form_id)
+      end
+
+      def supporting_document_ids(parsed_form_data)
+        parsed_form_data['supporting_docs']&.pluck('attachment_id') || []
       end
 
       def get_file_paths_and_metadata(parsed_form_data)
