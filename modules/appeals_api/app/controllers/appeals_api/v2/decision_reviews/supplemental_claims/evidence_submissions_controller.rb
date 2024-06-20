@@ -43,8 +43,8 @@ module AppealsApi::V2
           submission = with_status_simulation(submission) if status_requested_and_allowed?
 
           render json: AppealsApi::EvidenceSubmissionSerializer.new(
-                   submission, { params: { render_location: false } }
-                 ).serializable_hash
+            submission, { params: { render_location: false } }
+          ).serializable_hash
         end
 
         private

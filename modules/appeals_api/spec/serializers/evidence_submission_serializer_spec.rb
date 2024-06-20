@@ -4,7 +4,9 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::EvidenceSubmissionSerializer, type: :serializer do
-  subject { serialize(evidence_submission, serializer_class: described_class, params: { render_location: render_location }) }
+  subject do
+    serialize(evidence_submission, serializer_class: described_class, params: { render_location: })
+  end
 
   let(:evidence_submission) { build_stubbed(:evidence_submission_v0) }
   let(:data) { JSON.parse(subject)['data'] }
@@ -57,7 +59,7 @@ describe AppealsApi::EvidenceSubmissionSerializer, type: :serializer do
 
     it 'raises an error when get_location fails' do
       allow(upload_submission).to receive(:get_location).and_raise(StandardError, 'Test error')
-      params = {params: {render_location: true }}
+      params = { params: { render_location: true } }
       expect do
         described_class.new(evidence_submission, params).serializable_hash
       end.to raise_error(Common::Exceptions::InternalServerError)

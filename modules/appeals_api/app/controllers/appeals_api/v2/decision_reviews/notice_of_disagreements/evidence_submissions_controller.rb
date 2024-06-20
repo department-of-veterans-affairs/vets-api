@@ -26,7 +26,6 @@ module AppealsApi::V2
             upload = VBADocuments::UploadSubmission.create! consumer_name: 'appeals_api_nod_evidence_submission'
             submission = AppealsApi::EvidenceSubmission.create! submission_attributes.merge(upload_submission: upload)
 
-
             render status: :accepted,
                    json: AppealsApi::EvidenceSubmissionSerializer.new(
                      submission, { params: { render_location: true } }
@@ -44,8 +43,8 @@ module AppealsApi::V2
           submission = with_status_simulation(submission) if status_requested_and_allowed?
 
           render json: AppealsApi::EvidenceSubmissionSerializer.new(
-                   submission, { params: { render_location: false } }
-                 ).serializable_hash
+            submission, { params: { render_location: false } }
+          ).serializable_hash
         end
 
         private
