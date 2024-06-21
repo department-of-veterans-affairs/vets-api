@@ -8,6 +8,19 @@ metadata:
   name: {{ $name }}
   namespace: {{ $root.Release.Namespace }}
 spec:
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Pods
+        value: 3
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 120
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
