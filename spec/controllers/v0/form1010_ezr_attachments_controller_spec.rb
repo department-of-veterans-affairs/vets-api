@@ -9,23 +9,37 @@ RSpec.describe V0::Form1010EzrAttachmentsController, type: :controller do
   end
 
   describe '#create' do
-    context 'unauthenticated' do
-      it 'returns a 401' do
-        post(:create)
+    context "with the 'form1010_ezr_attachments_controller' flipper enabled" do
+      context 'unauthenticated' do
+        it 'returns a 401' do
+          post(:create)
 
-        expect(response).to have_http_status(:unauthorized)
-        expect(response.body).to include('Not authorized')
+          expect(response).to have_http_status(:unauthorized)
+          expect(response.body).to include('Not authorized')
+        end
+      end
+
+      context 'authenticated' do
+        before do
+          current_user = build(:evss_user, :loa3, icn: '1013032368V065534')
+          sign_in_as(current_user)
+        end
+
+        it_behaves_like 'create 1010 form attachment'
       end
     end
 
-    context 'authenticated' do
-      let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534') }
-
+    context "with the 'form1010_ezr_attachments_controller' flipper enabled" do
       before do
-        sign_in_as(current_user)
+        Flipper.disable(:form1010_ezr_attachments_controller)
       end
 
-      it_behaves_like 'create 1010 form attachment'
+      it 'fails' do
+        expect { post(:create) }.to raise_error(
+          AbstractController::ActionNotFound,
+          "The action 'create' could not be found for V0::Form1010EzrAttachmentsController"
+        )
+      end
     end
   end
 end

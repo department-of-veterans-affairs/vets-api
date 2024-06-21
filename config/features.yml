@@ -516,6 +516,9 @@ features:
     actor_type: cookie_id
     description: Enables flagging feature for Find a Representative frontend
     enable_in_development: true
+  form1010_ezr_attachments_controller:
+    actor_type: user
+    description: Create EZR attachments
   form526_include_document_upload_list_in_overflow_text:
     actor_type: user
     description: Appends a list of SupportingEvidenceAttachment filenames the veteran uploaded for a Form 526 into the overflow text in the form submission
