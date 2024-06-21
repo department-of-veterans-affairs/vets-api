@@ -29,7 +29,7 @@ RSpec.describe V0::Form1010EzrAttachmentsController, type: :controller do
       end
     end
 
-    context "with the 'form1010_ezr_attachments_controller' flipper enabled" do
+    context "with the 'form1010_ezr_attachments_controller' flipper disabled" do
       before do
         Flipper.disable(:form1010_ezr_attachments_controller)
       end
