@@ -840,6 +840,7 @@ lib/common/client/concerns/mhv_jwt_session_client.rb @department-of-veterans-aff
 lib/common/client/concerns/mhv_locked_session_client.rb @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/common/client/concerns/mhv_session_based_client.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/common/client/configuration @department-of-veterans-affairs/backend-review-group
+lib/common/client/middleware/faraday_middleware_patch.rb @department-of-veterans-affairs/backend-review-group
 lib/common/client/middleware/request/multipart_request.rb @department-of-veterans-affairs/backend-review-group
 lib/common/client/middleware/request/remove_cookies.rb @department-of-veterans-affairs/backend-review-group
 lib/common/client/middleware/response @department-of-veterans-affairs/backend-review-group
