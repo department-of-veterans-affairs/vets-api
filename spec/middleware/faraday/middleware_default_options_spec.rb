@@ -19,7 +19,6 @@ describe Faraday::Middleware do
 
       expect { conn.get('/imminent-failure') }
         .to raise_error do |error|
-          require 'pry'; binding.pry;
           expect(error.response[:request]).to be_nil
         end
     end
