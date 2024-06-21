@@ -18,7 +18,7 @@ module ClaimsApi
 
       included do
         attributes :evss_id, :open, :waiver_submitted,
-                  :requested_decision, :claim_type
+                   :requested_decision, :claim_type
 
         attribute :updated_at, if: proc { |record| !record.updated_at.nil? }
 
