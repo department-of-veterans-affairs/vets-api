@@ -82,9 +82,10 @@ module Rx
       # Common::Collection.fetch(::PrescriptionDocumentation, cache_key: cache_key('rx_documentation'), ttl: CACHE_TTL) do
       #   perform(:get, "prescription/getrxdoc/#{ndc}", nil, token_headers).body
       # end
-      file_path = Rails.root.join('modules', 'my_health', 'app', 'helpers', 'my_health', 'mock_documentation.html')
-      html_content = File.read(file_path)
-      PrescriptionDocumentation.new(html_content)
+      contents = File.read('spec/fixtures/prescriptions/documentation.json') # This is temporary
+      data = JSON.parse(contents)
+      body_content = data['body']
+      PrescriptionDocumentation.new(body_content)
     end
 
     ##
