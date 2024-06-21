@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'net/http'
-require 'uri'
-
 module MyHealth
   module V1
     class PrescriptionsController < RxController
