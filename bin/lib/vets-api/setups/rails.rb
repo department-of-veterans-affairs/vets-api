@@ -20,7 +20,7 @@ module VetsApi
       end
 
       def configuring_clamav_antivirus
-        print 'Updating settings.local.yml...'
+        print 'Configuring ClamAV in local settings...'
         settings_path = 'config/settings.local.yml'
         settings_file = File.read(settings_path)
         settings = YAML.safe_load(settings_file, permitted_classes: [Symbol])
