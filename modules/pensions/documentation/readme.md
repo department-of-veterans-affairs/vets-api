@@ -42,7 +42,7 @@ The current folder structure generally follows the default directory structure t
 
 Summary Folder Structure
 
-![Screenshot 2024-06-21 at 11.07.25 AM](/Users/knight/Desktop/Screenshot 2024-06-21 at 11.07.25 AM.png)
+![Folder](./diagrams_images/june_2024_folder_structure.png)
 
 #### Planned Folder Structure
 
@@ -50,7 +50,7 @@ As discussed in this [ADR decision](./adr/0002-use-modules-folder-for-pensions-c
 
 The new folder structure will look like:
 
-![Screenshot 2024-06-21 at 11.16.48 AM](/Users/knight/Desktop/Screenshot 2024-06-21 at 11.16.48 AM.png)
+![Folder](./diagrams_images/future_folder_structure.png)
 
 ## Team
 
