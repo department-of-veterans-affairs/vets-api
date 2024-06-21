@@ -666,19 +666,52 @@ RSpec.describe HealthCareApplication, type: :model do
         end
       end
 
-      context 'form is not present' do
+      context '@parsed_form is nil' do
         before do
-          health_care_application.form = nil
+          health_care_application.instance_variable_set(:@parsed_form, nil)
         end
 
-        it 'does not log form to PersonalInformationLog' do
-          subject
-          expect(PersonalInformationLog.count).to eq 0
+        context 'form is empty' do
+          before do
+            health_care_application.form = {}.to_json
+          end
+
+          it 'does not log form to PersonalInformationLog' do
+            subject
+            expect(PersonalInformationLog.count).to eq 0
+          end
+
+          it 'does not log message to sentry' do
+            expect(health_care_application).not_to receive(:log_message_to_sentry)
+            subject
+          end
         end
 
-        it 'does not log message to sentry' do
-          expect(health_care_application).not_to receive(:log_message_to_sentry)
-          subject
+        context 'form does not have veteranFullName' do
+          before do
+            health_care_application.form = { email: 'my_email@email.com' }.to_json
+          end
+
+          it 'logs form to PersonalInformationLog' do
+            subject
+            pii_log = PersonalInformationLog.last
+            expect(pii_log.error_class).to eq('HealthCareApplication FailedWontRetry')
+            expect(pii_log.data).to eq(health_care_application.parsed_form)
+          end
+
+          it 'logs message to sentry' do
+            expect(health_care_application).to receive(:log_message_to_sentry).with(
+              'HCA total failure',
+              :error,
+              {
+                first_initial: 'no initial provided',
+                middle_initial: 'no initial provided',
+                last_initial: 'no initial provided'
+              },
+              hca: :total_failure
+            )
+            subject
+          end
         end
       end
     end
