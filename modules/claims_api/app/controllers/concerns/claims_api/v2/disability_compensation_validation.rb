@@ -686,20 +686,11 @@ module ClaimsApi
           approximate_end_date = confinement&.dig('approximateEndDate')
 
           form_object_desc = "/confinement/#{idx}"
+          next unless approximate_begin_date.present? && date_is_valid?(approximate_begin_date,
+                                                                        "#{form_object_desc}/approximateBeginDate")
 
-          if approximate_begin_date.blank?
-            raise_exception_if_value_not_present('approximate begin date',
-                                                 "#{form_object_desc}/approximateBeginDate")
-          end
-          if approximate_end_date.blank?
-            raise_exception_if_value_not_present('approximate end date',
-                                                 "#{form_object_desc}/approximateEndDate")
-          end
-
-          next if approximate_begin_date.blank? || approximate_end_date.blank?
-          next unless date_is_valid?(approximate_begin_date,
-                                     "#{form_object_desc}/approximateBeginDate") &&
-                      date_is_valid?(approximate_end_date, "#{form_object_desc}/approximateEndDate")
+          next unless approximate_end_date.present? && date_is_valid?(approximate_end_date,
+                                                                      "#{form_object_desc}/approximateEndDate")
 
           if begin_date_is_after_end_date?(approximate_begin_date, approximate_end_date)
             collect_error_messages(
@@ -1073,11 +1064,15 @@ module ClaimsApi
       end
 
       def overlapping_confinement_periods?(idx)
-        @ranges.count > 1 ? date_range_overlap?(@ranges[idx - 1], @ranges[idx]) : return
+        range_one = @ranges[idx - 1]
+        range_two = @ranges[idx]
+        @ranges.count > 1 ? date_range_overlap?(range_one, range_two) : return
       end
 
       def date_range_overlap?(range_one, range_two)
-        range_one.last > range_two.first || range_two.last < range_one.first
+        return if (range_one&.size&.< 2) || (range_two&.size&.< 2)
+
+        (range_one&.last&.> range_two&.first) || (range_two&.last&.< range_one&.first)
       end
 
       # Will check for a real date including leap year
