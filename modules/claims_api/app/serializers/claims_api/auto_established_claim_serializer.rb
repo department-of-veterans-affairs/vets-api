@@ -9,11 +9,11 @@ require_relative 'concerns/phase'
 module ClaimsApi
   class AutoEstablishedClaimSerializer
     include JSONAPI::Serializer
-    include ClaimBase
-    include ContentionList
-    include EventsTimeline
-    include VARepresentative
-    include Phase
+    include Concerns::ClaimBase
+    include Concerns::ContentionList
+    include Concerns::EventsTimeline
+    include Concerns::VARepresentative
+    include Concerns::Phase
 
     set_type :claims_api_claim
 

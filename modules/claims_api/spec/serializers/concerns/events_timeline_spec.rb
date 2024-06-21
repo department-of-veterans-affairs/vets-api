@@ -5,7 +5,7 @@ require_relative '../../../app/serializers/claims_api/concerns/events_timeline'
 
 class DummyEventsSerializer
   include JSONAPI::Serializer
-  include ClaimsApi::EventsTimeline
+  include Concerns::EventsTimeline
 
   def self.object_data(object)
     object.data

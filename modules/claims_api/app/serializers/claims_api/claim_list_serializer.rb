@@ -5,7 +5,7 @@ require_relative 'concerns/claim_base'
 module ClaimsApi
   class ClaimListSerializer
     include JSONAPI::Serializer
-    include ClaimBase
+    include Concerns::ClaimBase
 
     set_type :evss_claims
 

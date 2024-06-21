@@ -5,7 +5,7 @@ require_relative '../../../app/serializers/claims_api/concerns/va_representative
 
 class DummyRepSerializer
   include JSONAPI::Serializer
-  include ClaimsApi::VARepresentative
+  include Concerns::VARepresentative
 
   def self.object_data(object)
     object.data

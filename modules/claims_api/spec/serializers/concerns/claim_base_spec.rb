@@ -5,7 +5,7 @@ require_relative '../../../app/serializers/claims_api/concerns/claim_base'
 
 class DummyBaseSerializer
   include JSONAPI::Serializer
-  include ClaimsApi::ClaimBase
+  include Concerns::ClaimBase
 
   def self.object_data(object)
     object.data

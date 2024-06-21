@@ -8,10 +8,10 @@ require_relative 'concerns/va_representative'
 module ClaimsApi
   class ClaimDetailSerializer
     include JSONAPI::Serializer
-    include ClaimBase
-    include ContentionList
-    include EventsTimeline
-    include VARepresentative
+    include Concerns::ClaimBase
+    include Concerns::ContentionList
+    include Concerns::EventsTimeline
+    include Concerns::VARepresentative
 
     set_type :claims_api_claim
 

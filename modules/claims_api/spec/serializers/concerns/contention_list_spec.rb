@@ -5,7 +5,7 @@ require_relative '../../../app/serializers/claims_api/concerns/contention_list'
 
 class DummyContentionSerializer
   include JSONAPI::Serializer
-  include ClaimsApi::ContentionList
+  include Concerns::ContentionList
 
   def self.object_data(object)
     object.data
