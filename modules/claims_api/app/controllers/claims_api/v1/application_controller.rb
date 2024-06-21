@@ -198,9 +198,11 @@ module ClaimsApi
         errors << 'first name' if header('X-VA-First-Name').blank?
         errors << 'last name' if header('X-VA-Last-Name').blank?
 
-        raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "The following values are invalid: #{errors.join(', ')}"
-        ) if errors.present?
+        if errors.present?
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: "The following values are invalid: #{errors.join(', ')}"
+          )
+        end
       end
 
       def claims_v1_logging(tag = 'traceability', level: :info, message: nil, icn: target_veteran&.mpi&.icn)
