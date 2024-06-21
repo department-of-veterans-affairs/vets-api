@@ -23,7 +23,7 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
         expect(ClaimsApi::SubmissionReportMailer).to receive(:build).once.with(
           from,
           to,
-          consumer_claims_totals: expected_totals,
+          consumer_claims_totals: match_array(expected_totals),
           poa_totals: [],
           ews_totals: [],
           itf_totals: []
