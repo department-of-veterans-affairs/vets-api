@@ -20,7 +20,6 @@ module VAOS
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
       APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
-      APPOINTMENTS_ENABLE_OH_READS = :va_online_scheduling_enable_OH_reads
 
       # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {}, include = {})
@@ -32,8 +31,7 @@ module VAOS
         cnp_count = 0
 
         with_monitoring do
-          response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_READS)
+          response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
                        perform(:get, appointments_base_path_vpg, params, headers)
                      else
                        perform(:get, appointments_base_path_vaos, params, headers)
@@ -632,8 +630,7 @@ module VAOS
       end
 
       def get_appointment_base_path(appointment_id)
-        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-           Flipper.enabled?(APPOINTMENTS_ENABLE_OH_READS)
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
           "/vpg/v1/patients/#{user.icn}/appointments/#{appointment_id}"
         else
           "/vaos/v1/patients/#{user.icn}/appointments/#{appointment_id}"

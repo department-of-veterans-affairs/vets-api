@@ -123,7 +123,6 @@ RSpec.describe 'appointments', type: :request do
     before do
       Flipper.enable(:va_online_scheduling_enable_OH_cancellations)
       Flipper.enable(:va_online_scheduling_use_vpg)
-      Flipper.enable(:va_online_scheduling_enable_OH_reads)
     end
 
     describe 'PUT /mobile/v0/appointments/cancel', :aggregate_failures do
