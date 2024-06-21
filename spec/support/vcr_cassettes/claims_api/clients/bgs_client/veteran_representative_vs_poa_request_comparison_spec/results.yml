@@ -141,7 +141,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequest"'
       Content-Type:
@@ -427,7 +427,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequest"'
       Content-Type:
@@ -505,7 +505,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -581,7 +581,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -659,7 +659,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -737,7 +737,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -815,7 +815,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -892,7 +892,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -969,7 +969,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -1053,7 +1053,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -1131,7 +1131,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -1212,7 +1212,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -1289,7 +1289,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -1364,7 +1364,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -1441,7 +1441,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -1516,7 +1516,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -1593,7 +1593,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -1670,7 +1670,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -1747,7 +1747,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -1822,7 +1822,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -1899,7 +1899,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -1975,7 +1975,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -2052,7 +2052,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -2127,7 +2127,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -2204,7 +2204,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -2384,7 +2384,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -2461,7 +2461,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -2537,7 +2537,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -2614,7 +2614,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -2691,7 +2691,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -2768,7 +2768,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -2862,7 +2862,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -2939,7 +2939,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -3016,7 +3016,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -3093,7 +3093,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -3169,7 +3169,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -3246,7 +3246,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -3372,7 +3372,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -3449,7 +3449,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -3524,7 +3524,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -3601,7 +3601,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -3710,7 +3710,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -3787,7 +3787,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -3864,7 +3864,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -3941,7 +3941,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -4018,7 +4018,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -4095,7 +4095,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -4175,7 +4175,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -4252,7 +4252,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -4440,7 +4440,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -4517,7 +4517,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -4700,7 +4700,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -4777,7 +4777,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -4878,7 +4878,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -4955,7 +4955,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -5034,7 +5034,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -5111,7 +5111,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -5192,7 +5192,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -5270,7 +5270,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -5347,7 +5347,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -5424,7 +5424,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -5500,7 +5500,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -5577,7 +5577,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -5653,7 +5653,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -5730,7 +5730,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -5824,7 +5824,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -5902,7 +5902,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -6065,7 +6065,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -6142,7 +6142,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -6218,7 +6218,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -6295,7 +6295,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -6387,7 +6387,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -6464,7 +6464,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -6549,7 +6549,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -6626,7 +6626,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -6703,7 +6703,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -6780,7 +6780,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -6855,7 +6855,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -6932,7 +6932,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -7010,7 +7010,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -7087,7 +7087,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -7185,7 +7185,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -7263,7 +7263,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -7355,7 +7355,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -7433,7 +7433,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -7508,7 +7508,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -7585,7 +7585,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -7685,7 +7685,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -7762,7 +7762,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -7844,7 +7844,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -7921,7 +7921,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -8006,7 +8006,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -8083,7 +8083,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -8167,7 +8167,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -8244,7 +8244,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -8324,7 +8324,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -8402,7 +8402,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -8483,7 +8483,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -8560,7 +8560,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -8637,7 +8637,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -8713,7 +8713,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -8827,7 +8827,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -8904,7 +8904,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -9497,7 +9497,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -9574,7 +9574,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -9726,7 +9726,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -9802,7 +9802,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -10044,7 +10044,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -10120,7 +10120,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -10200,7 +10200,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -10278,7 +10278,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -11286,7 +11286,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -11362,7 +11362,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -11829,7 +11829,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
@@ -11905,7 +11905,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -12101,7 +12101,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:
