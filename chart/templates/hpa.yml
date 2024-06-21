@@ -10,14 +10,12 @@ metadata:
 spec:
   behavior:
     scaleUp:
-      selectPolicy: Max
       stabilizationWindowSeconds: 0
       policies:
       - type: Pods
         value: 3
         periodSeconds: 60
     scaleDown:
-      selectPolicy: Min
       stabilizationWindowSeconds: 300
       policies:
       - type: Pods
