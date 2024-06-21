@@ -42,10 +42,16 @@ module MyHealth
       end
 
       def documentation
-        documentation = client.get_rx_documentation # client.get_rx_documentation(params[:ndc])
-        render json: documentation, status: response.code
-      rescue => e
-        render json: { error: "Unable to fetch documentation: #{e}" }, status: :service_unavailable
+        if Flipper.enabled?(:mhv_medications_display_documentation_content, @current_user)
+          begin
+            documentation = client.get_rx_documentation(params[:ndc])
+            render json: documentation, status: response.code
+          rescue => e
+            render json: { error: "Unable to fetch documentation: #{e}" }, status: :service_unavailable
+          end
+        else
+          render json: { error: 'Documentation is not available' }, status: :not_found
+        end
       end
 
       def refill_prescriptions
