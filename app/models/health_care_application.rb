@@ -261,7 +261,7 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def log_submission_failure_details
-    return if form.blank?
+    return if parsed_form.blank?
 
     PersonalInformationLog.create!(
       data: parsed_form,
@@ -272,9 +272,9 @@ class HealthCareApplication < ApplicationRecord
       'HCA total failure',
       :error,
       {
-        first_initial: parsed_form['veteranFullName']['first'][0],
-        middle_initial: parsed_form['veteranFullName']['middle'].try(:[], 0),
-        last_initial: parsed_form['veteranFullName']['last'][0]
+        first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no igit nitial provided',
+        middle_initial: parsed_form.dig('veteranFullName', 'middle')&.[](0) || 'no initial provided',
+        last_initial: parsed_form.dig('veteranFullName', 'last')&.[](0) || 'no initial provided'
       },
       hca: :total_failure
     )
