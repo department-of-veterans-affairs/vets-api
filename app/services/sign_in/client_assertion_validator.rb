@@ -20,7 +20,7 @@ module SignIn
     private
 
     def validate_client_assertion_type
-      if client_assertion_type != Constants::Auth::CLIENT_ASSERTION_TYPE
+      if client_assertion_type != Constants::Urn::JWT_BEARER_CLIENT_AUTHENTICATION
         raise Errors::ClientAssertionTypeInvalidError.new message: 'Client assertion type is not valid'
       end
     end
@@ -59,7 +59,7 @@ module SignIn
     def jwt_decode(with_validation: true)
       decoded_jwt = JWT.decode(
         client_assertion,
-        client_config.client_assertion_public_keys,
+        client_config.assertion_public_keys,
         with_validation,
         {
           verify_expiration: with_validation,

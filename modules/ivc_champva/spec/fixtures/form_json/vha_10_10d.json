@@ -1,5 +1,12 @@
 {
   "form_number": "10-10D",
+  "primary_contact_info": {
+    "name": {
+      "first": "Veteran",
+      "last": "Surname"
+    },
+    "email": false
+  },
   "veteran": {
     "date_of_birth": "1987-02-02",
     "date_of_marriage": "2005-04-06",
@@ -85,6 +92,50 @@
       "email": "mailme@homer.com",
       "phone_number": "2345698777",
       "date_of_birth": "1985-03-10",
+      "is_enrolled_in_medicare": true,
+      "has_other_health_insurance": true,
+      "vet_relationship": "Relative - Other"
+    },
+    {
+      "address": {
+        "country": "USA",
+        "street": "426 Ave C",
+        "city": "Philadelphia",
+        "state": "PA",
+        "postal_code": "65478"
+      },
+      "full_name": {
+        "first": "Logan",
+        "middle": "W",
+        "last": "Wolf"
+      },
+      "ssn_or_tin": "123664444",
+      "gender": "M",
+      "email": "mailme@logan.com",
+      "phone_number": "2345698777",
+      "date_of_birth": "1999-03-10",
+      "is_enrolled_in_medicare": true,
+      "has_other_health_insurance": true,
+      "vet_relationship": "Relative - Other"
+    },
+    {
+      "address": {
+        "country": "USA",
+        "street": "12345 Play Place",
+        "city": "Camden",
+        "state": "NJ",
+        "postal_code": "65478"
+      },
+      "full_name": {
+        "first": "Maria",
+        "middle": "W",
+        "last": "Storm"
+      },
+      "ssn_or_tin": "123664444",
+      "gender": "M",
+      "email": "mailme@Maria.com",
+      "phone_number": "2345698777",
+      "date_of_birth": "1959-03-10",
       "is_enrolled_in_medicare": true,
       "has_other_health_insurance": true,
       "vet_relationship": "Relative - Other"

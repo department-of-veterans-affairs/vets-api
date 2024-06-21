@@ -211,7 +211,8 @@
         "gulfWar1990": {
           "iraq": true,
           "kuwait": true,
-          "qatar": true
+          "qatar": true,
+          "notsure": true
         },
         "gulfWar1990Details": {
           "iraq": {
@@ -224,6 +225,26 @@
           },
           "kuwait": {
             "startDate": "1991-03-15"
+          }
+        },
+        "gulfWar2001": {
+          "djibouti": true,
+          "lebanon": true,
+          "uzbekistan": true,
+          "yemen": true,
+          "airspace": true,
+          "notsure": true
+        },
+        "gulfWar2001Details": {
+          "airspace": {
+            "endDate": "2001-09-01"
+          },
+          "uzbekistan": {
+            "startDate": "2001-06-01"
+          },
+          "djibouti": {
+            "startDate": "2001-01-01",
+            "endDate": "2001-11-01"
           }
         },
         "herbicide": {
@@ -244,7 +265,11 @@
             "startDate": "1991-03-15"
           }
         },
-        "otherHerbicideLocations": "freeform text field.",
+        "otherHerbicideLocations": {
+          "description": "other location 1, other location 2 etc",
+          "startDate": "1991-03-01",
+          "endDate": "1992-01-01"
+        },
         "otherExposures": {
           "asbestos": true,
           "radiation": true,

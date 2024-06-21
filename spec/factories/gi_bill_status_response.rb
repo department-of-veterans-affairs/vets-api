@@ -1,7 +1,20 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :gi_bill_status_response, class: 'EVSS::GiBillStatus::GiBillStatusResponse' do
+  factory :gi_bill_status_response, class: 'BenefitsEducation::Response' do
+    first_name { 'John' }
+    last_name { 'Doe' }
+    name_suffix { 'Jr' }
+    date_of_birth { '1967-06-19T06:00:00Z' }
+    va_file_number { '796130115' }
+    regional_processing_office { 'Northern Office Boston, MA' }
+    eligibility_date { '2005-08-01T04:00:00Z' }
+    delimiting_date { '2016-08-01T04:00:00Z' }
+    percentage_benefit { 100 }
+    original_entitlement { { months: 0, days: 21 } }
+    used_entitlement { { months: 0, days: 11 } }
+    active_duty { true }
+    veteran_is_eligible { true }
     remaining_entitlement { { months: 0, days: 12 } }
     enrollments {
       [{

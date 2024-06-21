@@ -54,6 +54,7 @@ module Users
       scaffold.prefills_available = prefills_available
       scaffold.services = services
       scaffold.session = session_data
+      scaffold.onboarding = onboarding
     end
 
     def account
@@ -173,7 +174,7 @@ module Users
     end
 
     def in_progress_forms
-      InProgressForm.for_user(user).map do |form|
+      InProgressForm.submission_pending.for_user(user).map do |form|
         {
           form: form.form_id,
           metadata: form.metadata,
@@ -213,6 +214,12 @@ module Users
         auth_broker: @user.identity.sign_in[:auth_broker],
         ssoe: @session[:ssoe_transactionid] ? true : false,
         transactionid: @session[:ssoe_transactionid]
+      }
+    end
+
+    def onboarding
+      {
+        show: user.show_onboarding_flow_on_login
       }
     end
   end

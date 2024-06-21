@@ -1,35 +1,27 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative 'shared_base_power_of_attorney'
 
-RSpec.describe 'OrganizationSerializer' do
-  before do
-    create(:organization, poa: 'og1')
+describe RepresentationManagement::PowerOfAttorney::OrganizationSerializer do
+  let(:object) { build_stubbed(:organization) }
+
+  let(:rendered_hash) do
+    ActiveModelSerializers::SerializableResource.new(object, { serializer: described_class }).as_json
+  end
+  let(:rendered_attributes) { rendered_hash[:data][:attributes] }
+
+  it_behaves_like 'power_of_attorney'
+
+  it 'includes :type' do
+    expect(rendered_attributes[:type]).to eq 'organization'
   end
 
-  def organization
-    Veteran::Service::Organization.find('og1')
+  it 'includes :name' do
+    expect(rendered_attributes[:name]).to eq object.name
   end
 
-  it 'can serialize an organization' do
-    result = serialize(organization,
-                       serializer_class: RepresentationManagement::PowerOfAttorney::OrganizationSerializer)
-    attributes = JSON.parse(result)['data']['attributes']
-
-    expect(attributes.keys).to eq(%w[address_line1
-                                     address_line2
-                                     address_line3
-                                     address_type
-                                     city
-                                     country_name
-                                     country_code_iso3
-                                     province
-                                     international_postal_code
-                                     state_code
-                                     zip_code
-                                     zip_suffix
-                                     phone
-                                     type
-                                     name])
+  it 'includes :phone' do
+    expect(rendered_attributes[:phone]).to eq object.phone
   end
 end

@@ -7,18 +7,32 @@ module VirtualRegionalOffice
     include Common::Client::Concerns::Monitoring
     configuration VirtualRegionalOffice::Configuration
 
+    STATSD_KEY_PREFIX = 'api.vro'
+
     def classify_single_contention(params)
-      perform(:post, Settings.virtual_regional_office.ctn_classification_path, params.to_json.to_s, headers_hash)
+      with_monitoring do
+        perform(:post, Settings.virtual_regional_office.ctn_classification_path, params.to_json.to_s, headers_hash)
+      end
+    end
+
+    def classify_vagov_contentions(params)
+      with_monitoring do
+        perform(:post, Settings.virtual_regional_office.vagov_classification_path, params.to_json.to_s, headers_hash)
+      end
     end
 
     def get_max_rating_for_diagnostic_codes(diagnostic_codes_array)
-      params = { diagnostic_codes: diagnostic_codes_array }
-      perform(:post, Settings.virtual_regional_office.max_cfi_path, params.to_json.to_s, headers_hash)
+      with_monitoring do
+        params = { diagnostic_codes: diagnostic_codes_array }
+        perform(:post, Settings.virtual_regional_office.max_cfi_path, params.to_json.to_s, headers_hash)
+      end
     end
 
     def merge_end_products(pending_claim_id:, ep400_id:)
-      params = { pending_claim_id: pending_claim_id.to_i, ep400_claim_id: ep400_id.to_i }
-      perform(:post, Settings.virtual_regional_office.ep_merge_path, params.to_json.to_s, headers_hash)
+      with_monitoring do
+        params = { pending_claim_id: pending_claim_id.to_i, ep400_claim_id: ep400_id.to_i }
+        perform(:post, Settings.virtual_regional_office.ep_merge_path, params.to_json.to_s, headers_hash)
+      end
     end
 
     def generate_summary(claim_submission_id:, diagnostic_code:, veteran_info:, evidence:)

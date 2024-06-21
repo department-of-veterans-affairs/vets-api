@@ -9,31 +9,6 @@ module CheckIn
 
     sidekiq_options retry: false
 
-    # settings for travel claims for vista appts
-    STATSD_NOTIFY_ERROR = 'worker.checkin.travel_claim.notify.error'
-    STATSD_NOTIFY_SUCCESS = 'worker.checkin.travel_claim.notify.success'
-
-    CIE_SUCCESS_TEMPLATE_ID = Settings.vanotify.services.check_in.template_id.claim_submission_success_text
-    CIE_DUPLICATE_TEMPLATE_ID = Settings.vanotify.services.check_in.template_id.claim_submission_duplicate_text
-    CIE_ERROR_TEMPLATE_ID = Settings.vanotify.services.check_in.template_id.claim_submission_error_text
-
-    CIE_SMS_SENDER_ID = Settings.vanotify.services.check_in.sms_sender_id
-
-    CIE_STATSD_BTSSS_SUCCESS = 'worker.checkin.travel_claim.btsss.success'
-    CIE_STATSD_BTSSS_ERROR = 'worker.checkin.travel_claim.btsss.error'
-    CIE_STATSD_BTSSS_DUPLICATE = 'worker.checkin.travel_claim.btsss.duplicate'
-
-    # settings for travel claims for oracle health settings
-    OH_SUCCESS_TEMPLATE_ID = Settings.vanotify.services.oracle_health.template_id.claim_submission_success_text
-    OH_DUPLICATE_TEMPLATE_ID = Settings.vanotify.services.oracle_health.template_id.claim_submission_duplicate_text
-    OH_ERROR_TEMPLATE_ID = Settings.vanotify.services.oracle_health.template_id.claim_submission_error_text
-
-    OH_SMS_SENDER_ID = Settings.vanotify.services.oracle_health.sms_sender_id
-
-    OH_STATSD_BTSSS_SUCCESS = 'worker.oracle_health.travel_claim.btsss.success'
-    OH_STATSD_BTSSS_ERROR = 'worker.oracle_health.travel_claim.btsss.error'
-    OH_STATSD_BTSSS_DUPLICATE = 'worker.oracle_health.travel_claim.btsss.duplicate'
-
     def perform(uuid, appointment_date)
       redis_client = TravelClaim::RedisClient.build
       mobile_phone = redis_client.patient_cell_phone(uuid:)
@@ -52,7 +27,7 @@ module CheckIn
       claim_number, template_id = submit_claim(uuid:, appointment_date:, station_number:, facility_type:)
 
       send_notification(mobile_phone:, appointment_date:, template_id:, claim_number:, facility_type:)
-      StatsD.increment(STATSD_NOTIFY_SUCCESS)
+      StatsD.increment(Constants::STATSD_NOTIFY_SUCCESS)
     end
 
     def submit_claim(opts = {})
@@ -67,11 +42,11 @@ module CheckIn
     rescue => e
       logger.error({ message: "Error calling BTSSS Service: #{e.message}" }.merge(opts))
       if 'oh'.casecmp?(opts[:facility_type])
-        StatsD.increment(OH_STATSD_BTSSS_ERROR)
-        template_id = OH_ERROR_TEMPLATE_ID
+        StatsD.increment(Constants::OH_STATSD_BTSSS_ERROR)
+        template_id = Constants::OH_ERROR_TEMPLATE_ID
       else
-        StatsD.increment(CIE_STATSD_BTSSS_ERROR)
-        template_id = CIE_ERROR_TEMPLATE_ID
+        StatsD.increment(Constants::CIE_STATSD_BTSSS_ERROR)
+        template_id = Constants::CIE_ERROR_TEMPLATE_ID
       end
       [nil, template_id]
     end
@@ -86,20 +61,24 @@ module CheckIn
                                    when 'oh'
                                      case code
                                      when TravelClaim::Response::CODE_SUCCESS
-                                       [OH_STATSD_BTSSS_SUCCESS, OH_SUCCESS_TEMPLATE_ID]
+                                       [Constants::OH_STATSD_BTSSS_SUCCESS, Constants::OH_SUCCESS_TEMPLATE_ID]
                                      when TravelClaim::Response::CODE_CLAIM_EXISTS
-                                       [OH_STATSD_BTSSS_DUPLICATE, OH_DUPLICATE_TEMPLATE_ID]
+                                       [Constants::OH_STATSD_BTSSS_DUPLICATE, Constants::OH_DUPLICATE_TEMPLATE_ID]
+                                     when TravelClaim::Response::CODE_BTSSS_TIMEOUT
+                                       [Constants::OH_STATSD_BTSSS_TIMEOUT, Constants::OH_TIMEOUT_TEMPLATE_ID]
                                      else
-                                       [OH_STATSD_BTSSS_ERROR, OH_ERROR_TEMPLATE_ID]
+                                       [Constants::OH_STATSD_BTSSS_ERROR, Constants::OH_ERROR_TEMPLATE_ID]
                                      end
                                    else
                                      case code
                                      when TravelClaim::Response::CODE_SUCCESS
-                                       [CIE_STATSD_BTSSS_SUCCESS, CIE_SUCCESS_TEMPLATE_ID]
+                                       [Constants::CIE_STATSD_BTSSS_SUCCESS, Constants::CIE_SUCCESS_TEMPLATE_ID]
                                      when TravelClaim::Response::CODE_CLAIM_EXISTS
-                                       [CIE_STATSD_BTSSS_DUPLICATE, CIE_DUPLICATE_TEMPLATE_ID]
+                                       [Constants::CIE_STATSD_BTSSS_DUPLICATE, Constants::CIE_DUPLICATE_TEMPLATE_ID]
+                                     when TravelClaim::Response::CODE_BTSSS_TIMEOUT
+                                       [Constants::CIE_STATSD_BTSSS_TIMEOUT, Constants::CIE_TIMEOUT_TEMPLATE_ID]
                                      else
-                                       [CIE_STATSD_BTSSS_ERROR, CIE_ERROR_TEMPLATE_ID]
+                                       [Constants::CIE_STATSD_BTSSS_ERROR, Constants::CIE_ERROR_TEMPLATE_ID]
                                      end
                                    end
 
@@ -122,7 +101,7 @@ module CheckIn
       notify_client.send_sms(
         phone_number: opts[:mobile_phone],
         template_id: opts[:template_id],
-        sms_sender_id: 'oh'.casecmp?(opts[:facility_type]) ? OH_SMS_SENDER_ID : CIE_SMS_SENDER_ID,
+        sms_sender_id: 'oh'.casecmp?(opts[:facility_type]) ? Constants::OH_SMS_SENDER_ID : Constants::CIE_SMS_SENDER_ID,
         personalisation: {
           claim_number: opts[:claim_number],
           appt_date: appt_date_in_mmm_dd_format
@@ -140,7 +119,7 @@ module CheckIn
           claim_number: opts[:claim_number] },
         { error: :check_in_va_notify_job, team: 'check-in' }
       )
-      StatsD.increment(STATSD_NOTIFY_ERROR)
+      StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
     end
   end
 end

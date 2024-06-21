@@ -1,0 +1,60 @@
+#!/usr/bin/env sh
+
+# Function to display the help message
+display_help() {
+  echo "Usage: bin/dev [option]"
+  echo
+  echo "Options:"
+  echo "  --help          Display this help message"
+  echo
+  echo "Description:"
+  echo "  bin/dev sets up and starts the development environment based on the"
+  echo "  configuration specified in the .developer-setup file. The following"
+  echo "  configurations are supported:"
+  echo "    native - Starts the web and job processes"
+  echo "    docker - Starts the docker process (docker compose up)"
+  echo "    hybrid - Starts the web, job, and deps (clamav postgres redis) processes"
+  echo
+  echo "Examples:"
+  echo "  bin/dev            Starts the development environment based on the setup"
+  echo "  bin/dev --help     Displays this help message"
+  exit 0
+}
+
+if [[ "$1" == "--help" ]]; then
+  display_help
+fi
+
+# Check for invalid arguments
+if [[ $# -gt 0 ]]; then
+  echo "Invalid argument: $1"
+  display_help
+fi
+
+
+if [ ! -f .developer-setup ]; then
+  echo ".developer-setup file not found! Please run bin/setup first."
+  exit 1
+fi
+
+setup_type=$(cat .developer-setup | tr -d '\n')
+processes=""
+
+case $setup_type in
+  native)
+    echo "Starting Native...\n"
+    exec foreman start -f Procfile.dev -m web=1,job=1
+    ;;
+  docker)
+    echo "Starting Docker...\n"
+    docker-compose up
+    ;;
+  hybrid)
+    echo "Starting Hybrid...\n"
+    exec foreman start -f Procfile.dev -m web=1,job=1,deps=1
+    ;;
+  *)
+    echo "Invalid setup type in .developer-setup! Exiting."
+    exit 1
+    ;;
+esac

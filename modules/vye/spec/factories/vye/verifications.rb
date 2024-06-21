@@ -5,6 +5,7 @@ FactoryBot.define do
     association :user_profile, factory: :vye_user_profile
     association :award, factory: :vye_award
 
-    source_ind { Vye::Verification.source_inds.values.sample }
+    transact_date { Time.zone.now }
+    source_ind { 'web' }
   end
 end

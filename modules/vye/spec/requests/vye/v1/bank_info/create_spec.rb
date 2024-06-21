@@ -1,14 +1,19 @@
 # frozen_string_literal: true
 
-require_relative '../../../../rails_helper'
+require 'rails_helper'
+require Vye::Engine.root / 'spec/rails_helper'
 
 RSpec.describe Vye::V1::DirectDepositChangesController, type: :request do
   let!(:current_user) { create(:user) }
+
+  let(:headers) { { 'Content-Type' => 'application/json', 'X-Key-Inflection' => 'camel' } }
 
   let(:params) do
     FactoryBot
       .attributes_for(:vye_direct_deposit_change)
       .deep_transform_keys! { |key| key.to_s.camelize(:lower) }
+      .slice('fullName', 'phone', 'email', 'acctNo', 'acctType', 'routingNo', 'bankName', 'bankPhone')
+      .to_json
   end
 
   before do
@@ -44,7 +49,7 @@ RSpec.describe Vye::V1::DirectDepositChangesController, type: :request do
       let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:) }
 
       it 'creates a new bank info' do
-        post('/vye/v1/bank_info', params:)
+        post('/vye/v1/bank_info', headers:, params:)
         expect(response).to have_http_status(:no_content)
       end
     end

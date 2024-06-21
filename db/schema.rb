@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
+ActiveRecord::Schema[7.1].define(version: 2024_06_13_175759) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -53,6 +53,17 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
     t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
   end
 
+  create_table "accreditations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "accredited_individual_id", null: false
+    t.uuid "accredited_organization_id", null: false
+    t.boolean "can_accept_reject_poa"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["accredited_individual_id", "accredited_organization_id"], name: "index_accreditations_on_indi_and_org_ids", unique: true
+    t.index ["accredited_individual_id"], name: "index_accreditations_on_accredited_individual_id"
+    t.index ["accredited_organization_id"], name: "index_accreditations_on_accredited_organization_id"
+  end
+
   create_table "accredited_individuals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "ogc_id", null: false
     t.string "registration_number", null: false
@@ -88,14 +99,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
     t.index ["location"], name: "index_accredited_individuals_on_location", using: :gist
     t.index ["poa_code"], name: "index_accredited_individuals_on_poa_code"
     t.index ["registration_number", "individual_type"], name: "index_on_reg_num_and_type_for_accredited_individuals", unique: true
-  end
-
-  create_table "accredited_individuals_accredited_organizations", force: :cascade do |t|
-    t.uuid "accredited_individual_id", null: false
-    t.uuid "accredited_organization_id", null: false
-    t.index ["accredited_individual_id", "accredited_organization_id"], name: "index_accredited_on_indi_and_org_ids", unique: true
-    t.index ["accredited_individual_id"], name: "idx_on_accredited_individual_id_94f42eefad"
-    t.index ["accredited_organization_id"], name: "idx_on_accredited_organization_id_a394d1de51"
   end
 
   create_table "accredited_organizations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -695,6 +698,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
     t.uuid "user_account_id"
     t.string "backup_submitted_claim_id", comment: "*After* a SubmitForm526 Job has exhausted all attempts, a paper submission is generated and sent to Central Mail Portal.This column will be nil for all submissions where a backup submission is not generated.It will have the central mail id for submissions where a backup submission is submitted."
     t.string "aasm_state", default: "unprocessed"
+    t.integer "submit_endpoint"
     t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
     t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
     t.index ["user_account_id"], name: "index_form526_submissions_on_user_account_id"
@@ -843,6 +847,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
     t.index ["user_account_id"], name: "index_inherited_proof_verified_user_accounts_on_user_account_id", unique: true
   end
 
+  create_table "intent_to_file_queue_exhaustions", force: :cascade do |t|
+    t.string "veteran_icn", null: false
+    t.string "form_type"
+    t.datetime "form_start_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["veteran_icn"], name: "index_intent_to_file_queue_exhaustions_on_veteran_icn"
+  end
+
   create_table "invalid_letter_address_edipis", id: :serial, force: :cascade do |t|
     t.string "edipi", null: false
     t.datetime "created_at", null: false
@@ -861,7 +874,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
     t.string "pega_status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["email"], name: "index_ivc_champva_forms_on_email", unique: true
+    t.string "case_id"
+    t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
   end
 
   create_table "maintenance_windows", id: :serial, force: :cascade do |t|
@@ -915,7 +929,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
     t.string "client_id", null: false
     t.text "user_attributes_ciphertext"
     t.text "encrypted_kms_key"
+    t.string "hashed_device_secret"
     t.index ["handle"], name: "index_oauth_sessions_on_handle", unique: true
+    t.index ["hashed_device_secret"], name: "index_oauth_sessions_on_hashed_device_secret"
     t.index ["hashed_refresh_token"], name: "index_oauth_sessions_on_hashed_refresh_token", unique: true
     t.index ["refresh_creation"], name: "index_oauth_sessions_on_refresh_creation"
     t.index ["refresh_expiration"], name: "index_oauth_sessions_on_refresh_expiration"
@@ -1005,6 +1021,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
     t.text "encrypted_kms_key"
     t.string "uploaded_forms", default: [], array: true
     t.datetime "itf_datetime"
+    t.datetime "form_start_date"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
@@ -1455,12 +1472,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
-    t.integer "bdn_clone_id"
-    t.integer "bdn_clone_line"
-    t.boolean "bdn_clone_active"
     t.date "cert_issue_date"
     t.date "del_date"
     t.date "date_last_certified"
+    t.integer "bdn_clone_id"
+    t.integer "bdn_clone_line"
+    t.boolean "bdn_clone_active"
     t.index ["bdn_clone_active"], name: "index_vye_user_infos_on_bdn_clone_active"
     t.index ["bdn_clone_id"], name: "index_vye_user_infos_on_bdn_clone_id"
     t.index ["bdn_clone_line"], name: "index_vye_user_infos_on_bdn_clone_line"
@@ -1540,8 +1557,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_214134) do
   end
 
   add_foreign_key "account_login_stats", "accounts"
-  add_foreign_key "accredited_individuals_accredited_organizations", "accredited_individuals"
-  add_foreign_key "accredited_individuals_accredited_organizations", "accredited_organizations"
+  add_foreign_key "accreditations", "accredited_individuals"
+  add_foreign_key "accreditations", "accredited_organizations"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"

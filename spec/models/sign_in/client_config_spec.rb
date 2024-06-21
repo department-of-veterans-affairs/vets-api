@@ -37,6 +37,12 @@ RSpec.describe SignIn::ClientConfig, type: :model do
   let(:service_levels) { %w[loa1 loa3 ial1 ial2 min] }
   let(:credential_service_providers) { %w[idme logingov dslogon mhv] }
 
+  describe 'concerns' do
+    subject { client_config }
+
+    it_behaves_like 'implements certifiable concern'
+  end
+
   describe 'validations' do
     subject { client_config }
 
@@ -352,20 +358,6 @@ RSpec.describe SignIn::ClientConfig, type: :model do
     end
   end
 
-  describe '#client_assertion_public_keys' do
-    subject { client_config.client_assertion_public_keys }
-
-    let(:certificate) do
-      OpenSSL::X509::Certificate.new(File.read('spec/fixtures/sign_in/sample_client.crt'))
-    end
-    let(:certificates) { [certificate.to_s] }
-    let(:client_assertion_public_keys) { [certificate.public_key] }
-
-    it 'expands all certificates in the client config to an array of public keys' do
-      expect(subject.first.to_s).to eq(client_assertion_public_keys.first.to_s)
-    end
-  end
-
   describe '#cookie_auth?' do
     subject { client_config.cookie_auth? }
 
@@ -533,6 +525,46 @@ RSpec.describe SignIn::ClientConfig, type: :model do
 
     context 'when authentication method is set to cookie' do
       let(:authentication) { SignIn::Constants::Auth::COOKIE }
+
+      it 'returns false' do
+        expect(subject).to be(false)
+      end
+    end
+  end
+
+  describe '#device_sso_enabled?' do
+    subject { client_config.device_sso_enabled? }
+
+    context 'when authentication method is set to API' do
+      let(:authentication) { SignIn::Constants::Auth::API }
+
+      context 'and shared_sessions is set to true' do
+        let(:shared_sessions) { true }
+
+        it 'returns true' do
+          expect(subject).to be(true)
+        end
+      end
+
+      context 'and shared_sessions is set to false' do
+        let(:shared_sessions) { false }
+
+        it 'returns false' do
+          expect(subject).to be(false)
+        end
+      end
+    end
+
+    context 'when authentication method is set to COOKIE' do
+      let(:authentication) { SignIn::Constants::Auth::COOKIE }
+
+      it 'returns false' do
+        expect(subject).to be(false)
+      end
+    end
+
+    context 'when authentication method is set to MOCK' do
+      let(:authentication) { SignIn::Constants::Auth::MOCK }
 
       it 'returns false' do
         expect(subject).to be(false)

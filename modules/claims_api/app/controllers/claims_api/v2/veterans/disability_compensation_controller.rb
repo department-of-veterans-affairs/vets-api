@@ -22,8 +22,8 @@ module ClaimsApi
         FORM_NUMBER = '526'
 
         skip_before_action :validate_json_format, only: [:attachments]
-        before_action :shared_validation, :file_number_check, only: %i[submit validate]
-        before_action :edipi_check, only: %i[submit validate]
+        before_action :shared_validation, :file_number_check, only: %i[submit validate synchronous]
+        before_action :edipi_check, only: %i[submit validate synchronous]
 
         before_action only: %i[generate_pdf] do
           permit_scopes(%w[system/526-pdf.override], actions: [:generate_pdf])
@@ -33,21 +33,7 @@ module ClaimsApi
         end
 
         def submit
-          auto_claim = ClaimsApi::AutoEstablishedClaim.create(
-            status: ClaimsApi::AutoEstablishedClaim::PENDING,
-            auth_headers:, form_data: form_attributes,
-            flashes:,
-            cid: token&.payload&.[]('cid'), veteran_icn: target_veteran&.mpi&.icn,
-            validation_method: ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
-          )
-
-          if auto_claim.errors.present?
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
-              detail: auto_claim.errors.messages.to_s
-            )
-          end
-
-          track_pact_counter auto_claim
+          auto_claim = shared_submit_methods
 
           # This kicks off the first of three jobs required to fully establish the claim
           process_claim(auto_claim) unless Flipper.enabled? :claims_load_testing
@@ -113,7 +99,39 @@ module ClaimsApi
         end
 
         def synchronous
-          render json: {}
+          auto_claim = shared_submit_methods
+
+          unless claims_load_testing # || sandbox_request(request)
+            pdf_generation_service.generate(auto_claim&.id, veteran_middle_initial) unless mocking
+            docker_container_service.upload(auto_claim&.id)
+            queue_flash_updater(auto_claim.flashes, auto_claim&.id)
+            start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
+            auto_claim.reload
+          end
+
+          render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
+            auto_claim, root: :data, async: false
+          ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)
+        end
+
+        def shared_submit_methods
+          auto_claim = ClaimsApi::AutoEstablishedClaim.create(
+            status: ClaimsApi::AutoEstablishedClaim::PENDING,
+            auth_headers:, form_data: form_attributes,
+            flashes:,
+            cid: token&.payload&.[]('cid'), veteran_icn: target_veteran&.mpi&.icn,
+            validation_method: ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
+          )
+
+          if auto_claim.errors.present?
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
+              detail: auto_claim.errors.messages.to_s
+            )
+          end
+
+          track_pact_counter auto_claim
+
+          auto_claim
         end
 
         private
@@ -161,7 +179,7 @@ module ClaimsApi
 
         def shared_validation
           # Custom validations for 526 submission, we must check this first
-          @claims_api_forms_validation_errors = validate_form_526_submission_values!(target_veteran)
+          @claims_api_forms_validation_errors = validate_form_526_submission_values(target_veteran)
           # JSON validations for 526 submission, will combine with previously captured errors and raise
           validate_json_schema
           # if we get here there were only validations file errors
@@ -200,7 +218,7 @@ module ClaimsApi
         end
 
         def valid_pact_act_claim?
-          form_attributes['disabilities'].any? do |d|
+          form_attributes&.dig('disabilities')&.any? do |d|
             d['isRelatedToToxicExposure'] && d['disabilityActionType'] == 'NEW'
           end
         end
@@ -208,6 +226,44 @@ module ClaimsApi
         def save_auto_claim!(auto_claim)
           auto_claim.validation_method = ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
           auto_claim.save!
+        end
+
+        def pdf_generation_service
+          ClaimsApi::DisabilityCompensation::PdfGenerationService.new
+        end
+
+        def docker_container_service
+          ClaimsApi::DisabilityCompensation::DockerContainerService.new
+        end
+
+        def queue_flash_updater(flashes, auto_claim_id)
+          return if flashes.blank?
+
+          ClaimsApi::FlashUpdater.perform_async(flashes, auto_claim_id)
+        end
+
+        def start_bd_uploader_job(auto_claim)
+          bd_service.perform_async(auto_claim.id)
+        end
+
+        def errored_state_value
+          ClaimsApi::AutoEstablishedClaim::ERRORED
+        end
+
+        def bd_service
+          ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader
+        end
+
+        def sandbox_request(request)
+          request.base_url == 'https://sandbox-api.va.gov'
+        end
+
+        def claims_load_testing
+          Flipper.enabled? :claims_load_testing
+        end
+
+        def mocking
+          Settings.claims_api.benefits_documents.use_mocks
         end
       end
     end

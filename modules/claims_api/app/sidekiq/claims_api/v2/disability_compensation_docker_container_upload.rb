@@ -8,6 +8,7 @@ module ClaimsApi
   module V2
     class DisabilityCompensationDockerContainerUpload < ClaimsApi::ServiceBase
       LOG_TAG = '526_v2_Docker_Container_job'
+      sidekiq_options expires_in: 48.hours, retry: true
 
       def perform(claim_id) # rubocop:disable Metrics/MethodLength
         log_job_progress(claim_id,
@@ -27,7 +28,7 @@ module ClaimsApi
         log_job_progress(claim_id,
                          "Successfully submitted to Docker container with response: #{evss_res}")
         # update with the evss_id returned
-        auto_claim.update(evss_id: evss_res[:claimId])
+        auto_claim.update!(evss_id: evss_res[:claimId])
         # clear out the evss_response value on successful submssion to docker container
         clear_evss_response_for_claim(auto_claim)
         # queue flashes job
@@ -35,26 +36,27 @@ module ClaimsApi
         # now upload to benefits documents
         start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
       rescue Faraday::ParsingError, Faraday::TimeoutError => e
+        set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
         error_status = get_error_status_code(e)
         log_job_progress(claim_id,
                          "Docker container job errored #{e.class}: #{error_status} #{auto_claim&.evss_response}")
-
         log_exception_to_sentry(e)
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
+        set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
         log_job_progress(claim_id,
                          "Docker container job errored #{e.class}: #{auto_claim&.evss_response}")
         log_exception_to_sentry(e)
-        # if will_retry?
         if will_retry?(auto_claim, e)
           raise e
-        else # form526.submit.noRetryError OR form526.InProcess error retruned
+        else # form526.submit.noRetryError OR form526.InProcess error returned
           {}
         end
       rescue => e
+        set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e) if auto_claim.evss_response.blank?
         log_job_progress(claim_id,
                          "Docker container job errored #{e.class}: #{e&.detailed_message}")

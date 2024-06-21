@@ -34,7 +34,9 @@ namespace :ivc_champva do
         'country' => @data.dig('veteran', 'address', 'country') || 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
-        'businessLine' => 'CMP'
+        'businessLine' => 'CMP',
+        'uuid' => @uuid,
+        'primaryContactInfo' => @data.dig('primary_contact_info')
       }
     end
     METADATA
@@ -74,7 +76,8 @@ namespace :ivc_champva do
 
       f.puts ''
       f.puts '    def initialize(data)'
-      f.puts '      @data = data'
+      f.puts '      @data = data,'
+      f.puts "      @uuid = #{SecureRandom.uuid}"
       f.puts '    end'
 
       f.puts ''

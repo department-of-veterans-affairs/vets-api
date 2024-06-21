@@ -53,15 +53,13 @@ module Lighthouse
       }
 
       response = @lighthouse_service.upload_doc(**payload)
+      raise BenefitsIntakeClaimError, response.body unless response.success?
 
-      if response.success?
-        Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim succeeded', generate_log_details)
-        @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
-      else
-        raise BenefitsIntakeClaimError, response.body
-      end
+      Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim succeeded', generate_log_details)
+      @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim failed, retrying...', generate_log_details(e))
+      @form_submission_attempt&.fail!
       raise
     ensure
       cleanup_file_paths
@@ -89,7 +87,7 @@ module Lighthouse
     # rubocop:disable Metrics/MethodLength
     def process_record(record, timestamp = nil, form_id = nil)
       pdf_path = record.to_pdf
-      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
+      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
       stamped_path2 = CentralMail::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - va.gov Submission',
         x: 400,
@@ -140,7 +138,8 @@ module Lighthouse
         form_type: @claim.form_id,
         form_data: @claim.to_json,
         benefits_intake_uuid: @lighthouse_service.uuid,
-        saved_claim: @claim
+        saved_claim: @claim,
+        saved_claim_id: @claim.id
       )
       @form_submission_attempt = FormSubmissionAttempt.create(form_submission:)
     end

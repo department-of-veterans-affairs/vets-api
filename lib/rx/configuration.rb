@@ -3,7 +3,7 @@
 require 'common/client/configuration/rest'
 require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/response/json_parser'
-require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/raise_custom_error'
 require 'common/client/middleware/response/mhv_errors'
 require 'common/client/middleware/response/snakecase'
 require 'common/client/middleware/response/mhv_xml_html_errors'
@@ -96,6 +96,10 @@ module Rx
 
         conn.adapter :typhoeus
       end
+    end
+
+    def breakers_error_threshold
+      80 # breakers will be tripped if error rate reaches 80% over a two minute period.
     end
   end
 end

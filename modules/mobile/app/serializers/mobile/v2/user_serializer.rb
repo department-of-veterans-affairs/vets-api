@@ -20,11 +20,12 @@ module Mobile
         super(resource)
       end
 
-      # this is a temporary fix
+      # when a facility is transitioning to cerner, we use the has_facility_transitioning_to_cerner
+      # attribute to inform the user that data and functionality relating to one of their facilities
+      # may not be working. Facility 979 is used to support testing lower environments.
       def transitioning_facility?(user)
-        cerner_facility_id = Settings.vsp_environment == 'production' ? '556' : '979'
-        Flipper.enabled?(:mobile_cerner_transition, user) &&
-          user.vha_facility_ids.include?(cerner_facility_id)
+        ids = Settings.vsp_environment == 'production' ? [] : ['979']
+        Flipper.enabled?(:mobile_cerner_transition, user) && user.vha_facility_ids.intersect?(ids)
       end
 
       UserStruct = Struct.new(
