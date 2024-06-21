@@ -2,7 +2,7 @@
 
 ## ADR
 
-The pensions team uses [ADR Tools](https://github.com/npryce/adr-tools/tree/master) to document important engineering related decisions for the vets-api repo.  The goal is to capture the reasons 
+The pensions team uses [ADR Tools](https://github.com/npryce/adr-tools/tree/master) to document important engineering related decisions for the vets-api repo.  The goal is to capture the technical decisions our group makes so that anyone new to our team or following behind will be able to understand the reasons for the decisions.
 
 ## Folder structure
 
