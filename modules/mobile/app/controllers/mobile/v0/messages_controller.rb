@@ -37,6 +37,7 @@ module Mobile
                meta: response.metadata.merge(user_in_triage_team?: user_in_triage_team)
       end
 
+      # rubocop:disable Metrics/MethodLength
       def create
         message = Message.new(message_params.merge(upload_params))
         raise Common::Exceptions::ValidationErrors, message unless message.valid?
@@ -46,7 +47,15 @@ module Mobile
         Rails.logger.info('Mobile SM Category Tracking', category: create_message_params.dig(:message, :category))
 
         client_response = if message.uploads.present?
-                            client.post_create_message_with_attachment(create_message_params)
+                            begin
+                              client.post_create_message_with_attachment(create_message_params)
+                            rescue => e
+                              Rails.logger.info('Mobile SM create with attachment error', status: e.status,
+                                                                                          error_body: e.body,
+                                                                                          message: e.message,
+                                                                                          response: response&.body)
+                              raise e
+                            end
                           else
                             client.post_create_message(message_params.to_h)
                           end
@@ -56,6 +65,7 @@ module Mobile
                include: 'attachments',
                meta: {}
       end
+      # rubocop:enable Metrics/MethodLength
 
       def destroy
         client.delete_message(params[:id])
