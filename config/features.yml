@@ -475,7 +475,7 @@ features:
   fsr_5655_server_side_transform:
     actor_type: user
     description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
-    enable_in_development: true
+    enable_in_development: false
   financial_status_report_debts_api_module:
     actor_type: user
     description: Points to debts-api module routes
@@ -1473,6 +1473,9 @@ features:
   pension_claim_submission_to_lighthouse:
     actor_type: user
     description: Pension claim submission uses Lighthouse API
+  pension_module_enabled:
+    actor_type: user
+    description: Enable the pension module routes
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
