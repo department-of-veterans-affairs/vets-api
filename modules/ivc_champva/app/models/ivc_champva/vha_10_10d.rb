@@ -2,6 +2,9 @@
 
 module IvcChampva
   class VHA1010d
+    ADDITIONAL_PDF_KEY = 'applicants'
+    ADDITIONAL_PDF_COUNT = 3
+
     include Virtus.model(nullify_blank: true)
     include Attachments
 
