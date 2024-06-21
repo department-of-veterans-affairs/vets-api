@@ -275,8 +275,8 @@ module EVSS
             transform_multiple_exposures_other_details(toxic_exposure_source['otherHerbicideLocations'],
                                                        MULTIPLE_EXPOSURES_TYPE[:herbicide])
         end
-        if toxic_exposure_source['otherExposureDetails'].present?
-          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['otherExposureDetails'],
+        if toxic_exposure_source['otherExposuresDetails'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['otherExposuresDetails'],
                                                              MULTIPLE_EXPOSURES_TYPE[:hazard])
         end
         if values_present(toxic_exposure_source['specifyOtherExposures'])
