@@ -20,7 +20,7 @@ spec:
       policies:
       - type: Pods
         value: 1
-        periodSeconds: 60
+        periodSeconds: 120
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
