@@ -12,6 +12,9 @@ module AccreditedRepresentativePortal
       def post
         response = AccreditationService.submit_form21a(parsed_request_body)
         render_ogc_service_response(response)
+      rescue => e
+        Rails.logger.error("Form21aController: Unexpected error occurred - #{e.message}")
+        render json: { errors: 'Unexpected error' }, status: :internal_server_error
       end
 
       private

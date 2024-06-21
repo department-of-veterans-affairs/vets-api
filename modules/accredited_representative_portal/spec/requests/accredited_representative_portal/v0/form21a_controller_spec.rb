@@ -65,5 +65,30 @@ RSpec.describe AccreditedRepresentativePortal::V0::Form21aController, type: :req
         expect(JSON.parse(response.body)).to eq('errors' => 'Failed to parse response')
       end
     end
+
+    context 'when an unexpected error occurs' do
+      it 'returns an internal server error status' do
+        allow_any_instance_of(AccreditedRepresentativePortal::V0::Form21aController)
+          .to receive(:parse_request_body).and_raise(StandardError, 'Unexpected error')
+
+        post '/accredited_representative_portal/v0/form21a'
+
+        expect(response).to have_http_status(:internal_server_error)
+        expect(JSON.parse(response.body)).to match(
+          'errors' => [
+            {
+              'title' => 'Internal server error',
+              'detail' => 'Internal server error',
+              'code' => '500',
+              'status' => '500',
+              'meta' => a_hash_including(
+                'exception' => 'Unexpected error',
+                'backtrace' => be_an(Array)
+              )
+            }
+          ]
+        )
+      end
+    end
   end
 end
