@@ -1547,6 +1547,7 @@ RSpec.describe V0::SignInController, type: :controller do
             aud:,
             sub:,
             jti:,
+            iat:,
             exp:,
             service_account_id:,
             scopes:
@@ -1556,6 +1557,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:aud) { "https://#{Settings.hostname}#{SignIn::Constants::Auth::TOKEN_ROUTE_PATH}" }
         let(:sub) { user_identifier }
         let(:jti) { 'some-jti' }
+        let(:iat) { 1.month.ago.to_i }
         let(:exp) { 1.month.since.to_i }
         let(:user_identifier) { 'some-user-identifier' }
         let(:service_account_id) { service_account_config.service_account_id }

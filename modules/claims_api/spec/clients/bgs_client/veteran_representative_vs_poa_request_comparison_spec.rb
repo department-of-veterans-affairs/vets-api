@@ -5,7 +5,7 @@ require Rails.root / 'modules/claims_api/spec/rails_helper'
 
 RSpec.describe 'VeteranRepresentative versus POARequest comparison', :bgs do # rubocop:disable RSpec/DescribeClass
   it 'concerns the same underlying data' do
-    use_soap_cassette('results', use_spec_name_prefix: true, record: :new_episodes) do
+    use_soap_cassette('results', use_spec_name_prefix: true) do
       participant_ids = Set[]
       comparisons =
         Hash.new do |h_a, k_a|

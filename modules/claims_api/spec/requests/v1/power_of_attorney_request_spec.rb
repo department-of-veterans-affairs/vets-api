@@ -246,6 +246,31 @@ RSpec.describe 'Power of Attorney ', type: :request do
             end
           end
         end
+
+        context 'when the birth date in the headers is an empty string' do
+          let(:invalid_headers) do
+            { 'X-VA-SSN': '796111863',
+              'X-VA-First-Name': 'Abraham',
+              'X-VA-Last-Name': 'Lincoln',
+              'X-VA-Birth-Date': '',
+              'X-VA-Gender': 'M' }
+          end
+
+          it 'responds with invalid birth_date' do
+            mock_acg(scopes) do |auth_header|
+              allow(::Veteran::Service::Representative).to receive(:all_for_user).and_return([])
+              allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+                .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+
+              post path, params: data, headers: invalid_headers.merge(auth_header)
+
+              expect(response.status).to eq(422)
+              error_detail = JSON.parse(response.body)['errors'][0]['detail']
+              substring = 'The following values are invalid: birth date'
+              expect(error_detail.include?(substring)).to be(true)
+            end
+          end
+        end
       end
 
       context 'request schema validations' do
@@ -275,6 +300,40 @@ RSpec.describe 'Power of Attorney ', type: :request do
             expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
               'The property /someBadField is not defined on the schema. Additional properties are not allowed'
             )
+          end
+        end
+      end
+
+      context 'request schema validation of aptUnitNumber' do
+        before do
+          Veteran::Service::Representative.new(representative_id: '56789', poa_codes: ['074'],
+                                               first_name: 'Abraham', last_name: 'Lincoln').save!
+        end
+
+        let(:path) { '/services/claims/v1/forms/2122/validate' }
+        let(:vetdata) do
+          {
+            address: {
+              numberAndStreet: '76 Crowther Ave',
+              aptUnitNumber: '11C',
+              city: 'Bridgeport',
+              country: 'US',
+              state: 'CT',
+              zipFirstFive: '06616'
+            }
+          }
+        end
+
+        it 'allows alphanumeric strings for aptUnitNumber' do
+          mock_acg(scopes) do |auth_header|
+            allow_any_instance_of(pws)
+              .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+            allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+            params = JSON.parse data
+            params['data']['attributes']['veteran'] = vetdata
+            post path, params: params.to_json, headers: headers.merge(auth_header)
+            expect(response.status).to eq(200)
           end
         end
       end
