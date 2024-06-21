@@ -194,9 +194,9 @@ module ClaimsApi
 
       def validate_header_values_format
         errors = []
-        errors << 'birth date' if header('X-VA-Birth-Date').blank?
-        errors << 'first name' if header('X-VA-First-Name').blank?
-        errors << 'last name' if header('X-VA-Last-Name').blank?
+        errors << 'X-VA-Birth-Date' if header('X-VA-Birth-Date').blank?
+        errors << 'X-VA-First-Name' if header('X-VA-First-Name').blank?
+        errors << 'X-VA-Last-Name' if header('X-VA-Last-Name').blank?
 
         if errors.present?
           raise ::Common::Exceptions::UnprocessableEntity.new(

@@ -266,7 +266,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
               expect(response.status).to eq(422)
               error_detail = JSON.parse(response.body)['errors'][0]['detail']
-              substring = 'The following values are invalid: birth date'
+              substring = 'The following values are invalid: X-VA-Birth-Date'
               expect(error_detail).to eq(substring)
             end
           end
@@ -291,7 +291,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
               expect(response.status).to eq(422)
               error_detail = JSON.parse(response.body)['errors'][0]['detail']
-              substring = 'The following values are invalid: first name, last name'
+              substring = 'The following values are invalid: X-VA-First-Name, X-VA-Last-Name'
               expect(error_detail).to eq(substring)
             end
           end
