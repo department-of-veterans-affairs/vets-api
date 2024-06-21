@@ -45,17 +45,10 @@ module MyHealth
       end
 
       def documentation
-        uri_string = "http://localhost:8080/rx_documentation/#{params[:ndc]}"
-        url = URI.parse(uri_string)
-        http = Net::HTTP.new(url.host, url.port)
-        http.use_ssl = url.scheme == 'https'
-        request = Net::HTTP::Get.new(url)
-        response = http.request(request)
-        begin
-          render json: response.body, status: response.code
-        rescue => e
-          render json: { error: "Unable to fetch documentation: #{e}" }, status: :service_unavailable
-        end
+        documentation = client.get_rx_documentation(params[:ndc])
+        render json: documentation, status: response.code
+      rescue => e
+        render json: { error: "Unable to fetch documentation: #{e}" }, status: :service_unavailable
       end
 
       def refill_prescriptions

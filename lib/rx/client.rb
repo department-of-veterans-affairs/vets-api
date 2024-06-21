@@ -72,6 +72,22 @@ module Rx
     end
 
     ##
+    # Get documentation for a single prescription
+    #
+    # @return [Common::Collection[PrescriptionDocumentation]]
+    #
+    def get_rx_documentation
+      # TODO: Fully implement this when the endpoint is available
+      # get_rx_documentation(ndc)
+      # Common::Collection.fetch(::PrescriptionDocumentation, cache_key: cache_key('rx_documentation'), ttl: CACHE_TTL) do
+      #   perform(:get, "prescription/getrxdoc/#{ndc}", nil, token_headers).body
+      # end
+      file_path = Rails.root.join('modules', 'my_health', 'app', 'helpers', 'my_health', 'mock_documentation.html')
+      html_content = File.read(file_path)
+      PrescriptionDocumentation.new(html_content)
+    end
+
+    ##
     # Get a single Prescription
     #
     # @param id [Fixnum] An Rx id
