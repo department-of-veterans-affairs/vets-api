@@ -2,8 +2,12 @@
 
 require 'rails_helper'
 
-describe ClaimsApi::IntentToFileSerializer do
+describe ClaimsApi::IntentToFileSerializer, type: :serializer do
+  include SerializerSpecHelper
+
   # based on ClaimsApi::V1::Forms::IntentToFileController#active bgs_active
+  subject { serialize(bgs_response, serializer_class: described_class) }
+
   let(:bgs_response) do
     {
       create_dt: '2020-06-05T11:24:28-05:00',
@@ -25,26 +29,23 @@ describe ClaimsApi::IntentToFileSerializer do
       submtr_applcn_type_cd: 'VETS.GOV'
     }
   end
-
-  let(:rendered_hash) do
-    ActiveModelSerializers::SerializableResource.new(bgs_response, { serializer: described_class }).as_json
-  end
-  let(:rendered_attributes) { rendered_hash[:data][:attributes] }
+  let(:data) { JSON.parse(subject)['data'] }
+  let(:attributes) { data['attributes'] }
 
   it 'includes :creation_date' do
-    expect(rendered_attributes[:creation_date]).to eq bgs_response[:create_dt]
+    expect(attributes['creation_date']).to eq bgs_response[:create_dt]
   end
 
   it 'includes :expiration_date' do
-    expect(rendered_attributes[:expiration_date]).to eq bgs_response[:exprtn_dt]
+    expect(attributes['expiration_date']).to eq bgs_response[:exprtn_dt]
   end
 
   it 'includes :type' do
     itf_to_bgs_types = ClaimsApi::IntentToFile::ITF_TYPES_TO_BGS_TYPES
-    expect(rendered_attributes[:type]).to eq itf_to_bgs_types.key(bgs_response[:itf_type_cd])
+    expect(attributes['type']).to eq itf_to_bgs_types.key(bgs_response[:itf_type_cd])
   end
 
   it 'includes :status' do
-    expect(rendered_attributes[:status]).to eq bgs_response[:itf_status_type_cd]&.downcase
+    expect(attributes['status']).to eq bgs_response[:itf_status_type_cd]&.downcase
   end
 end
