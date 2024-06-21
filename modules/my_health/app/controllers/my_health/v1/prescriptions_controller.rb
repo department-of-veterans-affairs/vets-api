@@ -44,7 +44,7 @@ module MyHealth
       def documentation
         if Flipper.enabled?(:mhv_medications_display_documentation_content, @current_user)
           begin
-            documentation = client.get_rx_documentation(params[:ndc])
+            documentation = client.get_rx_documentation # TODO: add params[:id] once endpoint is ready
             render json: documentation, status: response.code
           rescue => e
             render json: { error: "Unable to fetch documentation: #{e}" }, status: :service_unavailable
