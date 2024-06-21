@@ -10,6 +10,7 @@ module ClaimsApi
       kayla.watanabe@adhocteam.us
       matthew.christianson@adhocteam.us
       rockwell.rice@oddball.io
+      tyler.coleman@oddball.io
     ].freeze
 
     def build(date_from, date_to, pact_act_data, data)
