@@ -14,6 +14,7 @@ module ClaimsApi
         claims = claims_status_service.all(target_veteran.participant_id)
         claims_v1_logging('claims_v1_index', message: 'Claims not found') if claims == []
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claims not found') if claims == []
+
         render json: ClaimsApi::ClaimListSerializer.new(claims)
       rescue EVSS::ErrorMiddleware::EVSSError => e
         claims_v1_logging('claims_index', message: e.message)
@@ -29,7 +30,7 @@ module ClaimsApi
           render json: ClaimsApi::AutoEstablishedClaimSerializer.new(claim)
         elsif claim && claim.evss_id.present?
           updated_claim = claims_status_service.update_from_remote(claim.evss_id)
-          render json: ClaimsApi::ClaimDetailSerializer.new(updated_claim, {params: { uuid: claim.id}} )
+          render json: ClaimsApi::ClaimDetailSerializer.new(updated_claim, { params: { uuid: claim.id } })
         elsif /^\d{2,20}$/.match?(params[:id])
           claim = claims_status_service.update_from_remote(params[:id])
           # NOTE: source doesn't seem to be accessible within a remote evss_claim

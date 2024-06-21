@@ -131,7 +131,7 @@ module ClaimsApi
             ClaimsApi::ClaimUploader.perform_async(claim_document.id)
           end
 
-          render json: ClaimsApi::ClaimDetailSerializer.new(claim, {params: { uuid: claim.id}} )
+          render json: ClaimsApi::ClaimDetailSerializer.new(claim, { params: { uuid: claim.id } })
         end
 
         # POST to validate 526 submission payload.

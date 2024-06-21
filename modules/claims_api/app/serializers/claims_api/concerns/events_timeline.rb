@@ -17,10 +17,8 @@ module ClaimsApi
       attribute :events_timeline do |object|
         events_timeline(object)
       end
-    end
 
-    class_methods do
-      def events_timeline(object)
+      def self.events_timeline(object)
         events = [
           create_event_from_string_date(object, :filed, 'date'),
           create_event_from_string_date(object, :completed, 'claim_complete_date')
@@ -36,7 +34,9 @@ module ClaimsApi
         events += create_events_for_documents(object)
         events.compact.sort_by { |h| h[:date] || Date.new }.reverse
       end
+    end
 
+    class_methods do
       def create_event_from_string_date(object, type, *keys)
         date = object_data(object).dig(*keys)
         return nil unless date
