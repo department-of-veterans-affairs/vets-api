@@ -272,7 +272,7 @@ class HealthCareApplication < ApplicationRecord
       'HCA total failure',
       :error,
       {
-        first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no igit nitial provided',
+        first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no initial provided',
         middle_initial: parsed_form.dig('veteranFullName', 'middle')&.[](0) || 'no initial provided',
         last_initial: parsed_form.dig('veteranFullName', 'last')&.[](0) || 'no initial provided'
       },
