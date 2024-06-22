@@ -88,7 +88,9 @@ module EVSS
         transform_veteran_section(form526, lh_request_body)
 
         service_information = form526['serviceInformation']
-        lh_request_body.service_information = transform_service_information(service_information)
+        if service_information.present?
+          lh_request_body.service_information = transform_service_information(service_information)
+        end
 
         transform_disabilities_section(form526, lh_request_body)
 
@@ -171,8 +173,6 @@ module EVSS
 
       def transform_service_information(service_information_source)
         service_information = Requests::ServiceInformation.new
-
-        return service_information if service_information_source.blank?
 
         transform_service_periods(service_information_source, service_information)
         if service_information_source['confinements']
@@ -414,7 +414,6 @@ module EVSS
         separation_pay_payment_source = separation_pay_source['payment'] if separation_pay_source.present?
         if separation_pay_payment_source.present?
           service_pay_target.separation_severance_pay = Requests::SeparationSeverancePay.new(
-
             branch_of_service: separation_pay_payment_source['serviceBranch'],
             pre_tax_amount_received: separation_pay_payment_source['amount']
           )
