@@ -171,6 +171,9 @@ module EVSS
 
       def transform_service_information(service_information_source)
         service_information = Requests::ServiceInformation.new
+
+        return service_information if service_information_source.blank?
+
         transform_service_periods(service_information_source, service_information)
         if service_information_source['confinements']
           transform_confinements(service_information_source, service_information)
@@ -182,11 +185,13 @@ module EVSS
           transform_reserves_national_guard_service(service_information_source, service_information)
           reserves_national_guard_service_source =
             service_information_source['reservesNationalGuardService']['title10Activation']
-          # Title10Activation == FederalActivation
-          service_information.federal_activation = Requests::FederalActivation.new(
-            anticipated_separation_date: reserves_national_guard_service_source['anticipatedSeparationDate'],
-            activation_date: reserves_national_guard_service_source['title10ActivationDate']
-          )
+          if reserves_national_guard_service_source.present?
+            # Title10Activation == FederalActivation
+            service_information.federal_activation = Requests::FederalActivation.new(
+              anticipated_separation_date: reserves_national_guard_service_source['anticipatedSeparationDate'],
+              activation_date: reserves_national_guard_service_source['title10ActivationDate']
+            )
+          end
         end
 
         service_information
@@ -409,10 +414,14 @@ module EVSS
         separation_pay_payment_source = separation_pay_source['payment'] if separation_pay_source.present?
         if separation_pay_payment_source.present?
           service_pay_target.separation_severance_pay = Requests::SeparationSeverancePay.new(
-            date_payment_received: convert_approximate_date(separation_pay_source['receivedDate']),
+
             branch_of_service: separation_pay_payment_source['serviceBranch'],
             pre_tax_amount_received: separation_pay_payment_source['amount']
           )
+          if separation_pay_source['receivedDate']
+            service_pay_target.separation_severance_pay.date_payment_received =
+              convert_approximate_date(separation_pay_source['receivedDate'])
+          end
         end
       end
 

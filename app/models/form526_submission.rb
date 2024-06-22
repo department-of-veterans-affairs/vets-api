@@ -525,7 +525,9 @@ class Form526Submission < ApplicationRecord
   # Lighthouse calls the user_account.icn the "ID of Veteran"
   #
   def lighthouse_service
-    BenefitsClaims::Service.new(user_account.icn)
+    account = user_account ||
+              Account.lookup_by_user_uuid(user_uuid)
+    BenefitsClaims::Service.new(account.icn)
   end
 
   def handle_validation_error(e)
