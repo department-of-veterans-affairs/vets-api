@@ -92,7 +92,8 @@ type: application
 # 0.12.27 - Resources added to bulk head web services pod containers reverted 0.12.26
 # 0.12.28 - HPA settings to scale up quickly, and down slowly for web apps
 # 0.12.29 - Parameterize HPA settings for scaling up and scaling down
-version: 0.12.29
+# 0.12.30 - Correct HPA references
+version: 0.12.30
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
