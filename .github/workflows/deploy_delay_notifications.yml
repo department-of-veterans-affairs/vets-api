@@ -95,7 +95,7 @@ jobs:
   notify-on-failure:
     runs-on: ubuntu-latest
     needs: [check-deployment]
-    if: ${{ failure() }}
+    # if: ${{ failure() }}
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
