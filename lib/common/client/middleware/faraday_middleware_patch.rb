@@ -22,4 +22,4 @@ module FaradayMiddlewarePatch
   end
 end
 
-Faraday::Middleware.prepend(FaradayMiddlewarePatch)
+Faraday::Response::RaiseError.prepend(FaradayMiddlewarePatch)
