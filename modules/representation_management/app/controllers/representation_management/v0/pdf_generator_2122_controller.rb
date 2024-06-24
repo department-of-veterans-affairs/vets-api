@@ -6,14 +6,13 @@ module RepresentationManagement
       # service_tag 'lighthouse-veteran' # Is this the correct service tag?
 
       def create
-        # We'll need a process here to check the params to make sure all the
-        # required fields are present. If not, we'll need to return an error
-        # with status: :unprocessable_entity.  If all fields are accounted for
-        # we need to fill out the 2122 PDF with the data and return the file
-        # to the front end.
+        form = RepresentationManagement::Form2122Data.new(flatten_form_params(form_params))
 
-        # This work probably belongs in the PDF Generation ticket.
-        render json: {}, status: :unprocessable_entity
+        if form.valid?
+          render json: { message: 'Form is valid' }, status: :ok
+        else
+          render json: { errors: form.errors.full_messages }, status: :unprocessable_entity
+        end
       end
 
       private
@@ -42,10 +41,6 @@ module RepresentationManagement
           service_organization_appointment_date
 
         ]
-      end
-
-      def feature_enabled
-        routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
       end
     end
   end
