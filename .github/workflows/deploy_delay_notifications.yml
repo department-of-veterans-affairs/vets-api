@@ -1,6 +1,9 @@
 name: Deploy Delay Notifications
 
 on:
+  push:
+    branches:
+      - 'delay_deploy_gha'
   schedule:
     - cron: "*/10 * * * *" # Runs every 10 minutes
 
