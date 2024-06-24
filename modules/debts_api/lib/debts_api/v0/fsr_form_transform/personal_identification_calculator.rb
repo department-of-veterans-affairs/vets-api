@@ -22,7 +22,7 @@ module DebtsApi
         def get_resolution_options
           @selected_debts_and_copays.map do |debt_copay|
             resolution_options_map[debt_copay['resolution_option']]
-          end.join(', ')
+          end.uniq.join(', ')
         end
 
         def resolution_options_map
