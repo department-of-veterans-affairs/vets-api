@@ -5,14 +5,14 @@ require_relative '../../../app/serializers/claims_api/concerns/claim_base'
 
 class DummyBaseSerializer
   include JSONAPI::Serializer
-  include Concerns::ClaimBase
+  include ClaimsApi::Concerns::ClaimBase
 
   def self.object_data(object)
     object.data
   end
 end
 
-describe ClaimsApi::ClaimBase, type: :concern do
+describe ClaimsApi::Concerns::ClaimBase, type: :concern do
   subject { serialize(claim, serializer_class: DummyBaseSerializer) }
 
   let(:claim) { build(:evss_claim) }

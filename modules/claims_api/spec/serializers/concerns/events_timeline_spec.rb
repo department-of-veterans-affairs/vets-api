@@ -5,14 +5,14 @@ require_relative '../../../app/serializers/claims_api/concerns/events_timeline'
 
 class DummyEventsSerializer
   include JSONAPI::Serializer
-  include Concerns::EventsTimeline
+  include ClaimsApi::Concerns::EventsTimeline
 
   def self.object_data(object)
     object.data
   end
 end
 
-describe ClaimsApi::EventsTimeline, type: :concern do
+describe ClaimsApi::Concerns::EventsTimeline, type: :concern do
   subject { serialize(evss_claim, serializer_class: DummyEventsSerializer) }
 
   let(:evss_claim) { build_stubbed(:evss_claim) }

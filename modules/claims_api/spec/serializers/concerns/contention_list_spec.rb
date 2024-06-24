@@ -5,14 +5,14 @@ require_relative '../../../app/serializers/claims_api/concerns/contention_list'
 
 class DummyContentionSerializer
   include JSONAPI::Serializer
-  include Concerns::ContentionList
+  include ClaimsApi::Concerns::ContentionList
 
   def self.object_data(object)
     object.data
   end
 end
 
-describe ClaimsApi::ContentionList, type: :concern do
+describe ClaimsApi::Concerns::ContentionList, type: :concern do
   subject { serialize(claim, serializer_class: DummyContentionSerializer) }
 
   let(:claim) { build_stubbed(:evss_claim) }

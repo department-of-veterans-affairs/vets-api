@@ -5,14 +5,14 @@ require_relative '../../../app/serializers/claims_api/concerns/va_representative
 
 class DummyRepSerializer
   include JSONAPI::Serializer
-  include Concerns::VARepresentative
+  include ClaimsApi::Concerns::VARepresentative
 
   def self.object_data(object)
     object.data
   end
 end
 
-describe ClaimsApi::VARepresentative, type: :concern do
+describe ClaimsApi::Concerns::VARepresentative, type: :concern do
   subject { serialize(evss_claim, serializer_class: DummyRepSerializer) }
 
   let(:evss_claim) { build_stubbed(:evss_claim) }
