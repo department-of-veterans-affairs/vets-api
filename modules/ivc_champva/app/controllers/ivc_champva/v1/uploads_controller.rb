@@ -23,12 +23,12 @@ module IvcChampva
 
           status, error_message = FileUploader.new(form_id, metadata, file_paths, attachment_ids, true).handle_uploads
 
-          render json: build_json(Array(status), error_message), status: status
+          render json: build_json(Array(status), error_message), status:
         rescue => e
           puts 'An unknown error occurred while uploading document(s).'
           Rails.logger.error "Error: #{e.message}"
           Rails.logger.error e.backtrace.join("\n")
-          render json: build_json([500, error_message], error_message), status: 500
+          render json: build_json([500, error_message], error_message), status: :internal_server_error
         end
       end
 
