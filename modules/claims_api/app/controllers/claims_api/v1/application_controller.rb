@@ -151,14 +151,14 @@ module ClaimsApi
       end
 
       def target_veteran(with_gender: false)
-        if header_request?
-          headers_to_validate = %w[X-VA-SSN X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date]
-          validate_headers(headers_to_validate)
-          validate_ccg_token! if @is_valid_ccg_flow
-          veteran_from_headers(with_gender:)
-        else
-          build_target_veteran(veteran_id: @current_user.icn, loa: { current: 3, highest: 3 })
-        end
+        @target ||= if header_request?
+                      headers_to_validate = %w[X-VA-SSN X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date]
+                      validate_headers(headers_to_validate)
+                      validate_ccg_token! if @is_valid_ccg_flow
+                      veteran_from_headers(with_gender:)
+                    else
+                      build_target_veteran(veteran_id: @current_user.icn, loa: { current: 3, highest: 3 })
+                    end
       end
 
       def veteran_from_headers(with_gender: false)
@@ -174,8 +174,8 @@ module ClaimsApi
         # Fail fast if mpi_record can't be found
         unless vet.mpi_record?
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
-            "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
-            'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
+            "Unable to retrieve a record from Master Person Index (MPI). " \
+            'Please try again later.')
         end
         vet.gender = header('X-VA-Gender') || vet.gender_mpi if with_gender
         vet.edipi = vet.edipi_mpi
