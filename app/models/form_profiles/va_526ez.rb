@@ -82,11 +82,32 @@ class FormProfiles::VA526ez < FormProfile
   attribute :toxic_exposure, VA526ez::FormToxicExposure
 
   def prefill
-    @rated_disabilities_information = initialize_rated_disabilities_information
-    @veteran_contact_information = initialize_veteran_contact_information
-    @payment_information = initialize_payment_information
+    begin
+      @rated_disabilities_information = initialize_rated_disabilities_information
+    rescue => e
+      Rails.logger.error("Prefill for rated disabilities failed")
+    end
+
+    begin
+      @veteran_contact_information = initialize_veteran_contact_information
+    rescue => e
+      Rails.logger.error("Prefill for veteran contact information failed")
+    end
+
+    begin
+      @payment_information = initialize_payment_information
+    rescue => e
+      Rails.logger.error("Prefill for payment information failed")
+    end
+
     @toxic_exposure = initialize_toxic_exposure
+
     super
+    # begin
+    #   super
+    # rescue => e
+    #   Rails.logger.error("Prefill for super failed")
+    # end
   end
 
   def metadata
@@ -158,9 +179,9 @@ class FormProfiles::VA526ez < FormProfile
     # from VA Profile alone versus VA Profile + PCIU. This logging will be removed when the Flipper flag is.
     Rails.logger.info("disability_compensation_remove_pciu=#{Flipper.enabled?(:disability_compensation_remove_pciu,
                                                                               user)}," \
-                      "mailing_address=#{contact_info[:mailing_address].present?}," \
-                      "email_address=#{contact_info[:email_address].present?}," \
-                      "primary_phone=#{contact_info[:primary_phone].present?}")
+                        "mailing_address=#{contact_info[:mailing_address].present?}," \
+                        "email_address=#{contact_info[:email_address].present?}," \
+                        "primary_phone=#{contact_info[:primary_phone].present?}")
 
     contact_info = VA526ez::FormContactInformation.new(contact_info)
 

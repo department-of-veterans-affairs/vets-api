@@ -196,9 +196,13 @@ class FormProfile
   # * TODO(AJD): MIS (military history)
   #
   def prefill
-    @identity_information = initialize_identity_information
-    @contact_information = initialize_contact_information
-    @military_information = initialize_military_information
+    begin
+      @identity_information = initialize_identity_information
+      @contact_information = initialize_contact_information
+      @military_information = initialize_military_information
+    rescue => e
+      Rails.logger.error("super prefill failed")
+    end
     form = form_id == '1010EZ' ? '1010ez' : form_id
     if FormProfile.prefill_enabled_forms.include?(form)
       mappings = self.class.mappings_for_form(form_id)
