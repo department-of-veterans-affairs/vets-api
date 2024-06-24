@@ -929,6 +929,8 @@ GEM
       unicode-display_width (>= 2.4.0, < 3.0)
     rubocop-ast (1.31.3)
       parser (>= 3.3.1.0)
+    rubocop-factory_bot (2.26.1)
+      rubocop (~> 1.61)
     rubocop-junit-formatter (0.1.4)
     rubocop-rails (2.25.0)
       activesupport (>= 4.2.0)
@@ -1248,6 +1250,7 @@ DEPENDENCIES
   rswag-specs
   rswag-ui
   rubocop
+  rubocop-factory_bot
   rubocop-junit-formatter
   rubocop-rails
   rubocop-rspec
