@@ -15,7 +15,7 @@ module DebtsApi
           'Retirement accounts (401k, IRAs, 403b, TSP)',
           'Pension',
           'Cryptocurrency'
-        ]
+        ].freeze
 
         def initialize(form)
           @form = form
@@ -26,7 +26,9 @@ module DebtsApi
           @cash_on_hand = sum_values(@monetary_assets.select { |asset| asset['name'] == CASH_ON_HAND }, 'amount')
           @cash_in_bank = sum_values(@monetary_assets.select { |asset| asset['name'] == CASH_IN_BANK }, 'amount')
           @us_savings_bonds = @monetary_assets.select { |asset| asset['name'] == US_BONDS }
-          @stock_bond_etc = sum_values(@monetary_assets.select{|asset| OTHER_STOCK_FILTER.include?(asset['name'])}, 'amount').to_f
+          @stock_bond_etc = sum_values(@monetary_assets.select do |asset|
+                                         OTHER_STOCK_FILTER.include?(asset['name'])
+                                       end, 'amount').to_f
 
           @other_assets = @assets['other_assets']
           @automobiles = @assets['automobiles']

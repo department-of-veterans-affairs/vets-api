@@ -13,6 +13,7 @@ module DebtsApi
         MORTGAGE_PAYMENT = 'Mortgage payment'
         FOOD = 'Food'
         attr_reader :filtered_expenses
+
         def initialize(form)
           @form = form
           @enhanced = form['view:enhancedFinancialStatusReport'] || false
@@ -99,7 +100,7 @@ module DebtsApi
         def get_rent_mortgage_expenses
           if @expense_page_active
             safe_number(@new_rent_mortgage_attr)
-          else 
+          else
             rent_or_mortgage_expenses = @expense_records.filter do |record|
               [RENT, MORTGAGE_PAYMENT].include?(record['name'])
             end

@@ -13,7 +13,7 @@ module DebtsApi
 
         def initialize(form)
           @form = form
-          @gmt_data = @form['gmt_data'] #get_gmt_data
+          @gmt_data = @form['gmt_data'] # get_gmt_data
           @income_data = DebtsApi::V0::FsrFormTransform::IncomeCalculator.new(form).get_monthly_income
           @asset_data = DebtsApi::V0::FsrFormTransform::AssetCalculator.new(form).transform_assets
           @enhanced_expense_calculator =

@@ -21,7 +21,9 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::ExpenseCalculator, type: :service
 
     context 'with old FSR' do
       it 'throws an error' do
-        expect { described_class.build(old_expenses) }.to raise_error(DebtsApi::V0::FsrFormTransform::UnprocessableFsrFormat)
+        expect do
+          described_class.build(old_expenses)
+        end.to raise_error(DebtsApi::V0::FsrFormTransform::UnprocessableFsrFormat)
       end
     end
   end
@@ -44,7 +46,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::ExpenseCalculator, type: :service
       it 'gets food expenses from expenseRecords' do
         calculator = described_class.build(enhanced_expenses)
         calculated_expenses = calculator.get_all_expenses
-        expect(calculated_expenses[:food]).to eq("300.00")
+        expect(calculated_expenses[:food]).to eq('300.00')
       end
 
       it 'gets utilities from utilityRecords' do
@@ -69,7 +71,9 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::ExpenseCalculator, type: :service
 
     context 'with old FSR' do
       it 'throws an error' do
-        expect { described_class.build(old_expenses) }.to raise_error(DebtsApi::V0::FsrFormTransform::UnprocessableFsrFormat)
+        expect do
+          described_class.build(old_expenses)
+        end.to raise_error(DebtsApi::V0::FsrFormTransform::UnprocessableFsrFormat)
       end
     end
   end

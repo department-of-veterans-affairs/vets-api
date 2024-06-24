@@ -24,10 +24,9 @@ module DebtsApi
         end
 
         def name_str
-          name = ['veteran_full_name']
-          first = @personal_data.dig('veteran_full_name','first')
-          middle = @personal_data.dig('veteran_full_name','middle')
-          last = @personal_data.dig('veteran_full_name','last')
+          first = @personal_data.dig('veteran_full_name', 'first')
+          middle = @personal_data.dig('veteran_full_name', 'middle')
+          last = @personal_data.dig('veteran_full_name', 'last')
           "#{first} #{middle} #{last}"
         end
 

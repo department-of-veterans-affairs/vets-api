@@ -40,12 +40,12 @@ module DebtsApi
         end
 
         def joined_filtered_expenses
-          filtered_expenses = @expense_calculator.filtered_expenses        
-          
+          filtered_expenses = @expense_calculator.filtered_expenses
+
           if filtered_expenses.present?
-            joined_expenses = filtered_expenses.map{|expense| 
+            joined_expenses = filtered_expenses.map do |expense|
               "#{expense['name']} ($#{dollars_cents(expense['amount'].to_f)})"
-            }.join(', ')
+            end.join(', ')
             output = "Individual expense amount: #{joined_expenses}"
           else
             output = ''

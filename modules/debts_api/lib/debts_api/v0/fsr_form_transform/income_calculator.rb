@@ -155,7 +155,7 @@ module DebtsApi
           deductions
             .select { |deduction| filters.include?(deduction['name']) }
             .reduce(0.0) do |acc, curr|
-              acc + (curr['amount']&.gsub(/[^0-9.-]/, '')&.to_f || 0.0)
+              acc + curr['amount']&.gsub(/[^0-9.-]/, '').to_f
             end
         end
 

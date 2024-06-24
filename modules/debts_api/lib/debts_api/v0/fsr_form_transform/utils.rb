@@ -36,50 +36,51 @@ module FsrFormTransform
       result
     end
 
-    def re_dollar_cent(x, ignore=[])
+    def re_dollar_cent(x, ignore = [])
       return re_dollar_cent_array(x, ignore) if x.instance_of?(Array)
+
       re_dollar_cent_hash(x, ignore) if x.instance_of?(Hash)
     end
 
     def re_dollar_cent_hash(x, ignore)
       result = {}
       x.each do |key, val|
-        if ignore.include?(key)
-          result[key] = val.to_s
-        else
-          case val
-          when Integer
-            result[key] = dollars_cents(val.to_f)
-          when Float
-            result[key] = dollars_cents(val)
-          when Array
-            result[key] = re_dollar_cent_array(val, ignore)
-          when Hash
-            result[key] = re_dollar_cent_hash(val, ignore)
-          else
-            result[key] = val
-          end        
-        end
+        result[key] = if ignore.include?(key)
+                        val.to_s
+                      else
+                        case val
+                        when Integer
+                          dollars_cents(val.to_f)
+                        when Float
+                          dollars_cents(val)
+                        when Array
+                          re_dollar_cent_array(val, ignore)
+                        when Hash
+                          re_dollar_cent_hash(val, ignore)
+                        else
+                          val
+                        end
+                      end
       end
       result
     end
 
     def re_dollar_cent_array(x, ignore)
       result = []
-      x.each{ |el|
-        case el
-        when Integer
-          result << dollars_cents(el.to_f)
-        when Float
-          result << dollars_cents(el)
-        when Array
-          result << re_dollar_cent_array(el)
-        when Hash
-          result << re_dollar_cent_hash(el, ignore)
-        else
-          result << el
-        end
-      }
+      x.each do |el|
+        result << case el
+                  when Integer
+                    dollars_cents(el.to_f)
+                  when Float
+                    dollars_cents(el)
+                  when Array
+                    re_dollar_cent_array(el)
+                  when Hash
+                    re_dollar_cent_hash(el, ignore)
+                  else
+                    el
+                  end
+      end
       result
     end
 

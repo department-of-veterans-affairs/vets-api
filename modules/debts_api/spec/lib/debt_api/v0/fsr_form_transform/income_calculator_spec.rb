@@ -276,7 +276,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
       end.first
       net_take_home_pay = vets_income['netTakeHomePay']
       expect(net_take_home_pay).not_to be_nil
-      expect(net_take_home_pay).to eq("5608.66")
+      expect(net_take_home_pay).to eq('5608.66')
     end
 
     it 'has vets other income' do
@@ -301,7 +301,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
       end.first
       net_take_home_pay = sp_income['netTakeHomePay']
       expect(net_take_home_pay).not_to be_nil
-      expect(net_take_home_pay).to eq("4065.08")
+      expect(net_take_home_pay).to eq('4065.08')
     end
 
     it 'has spouse other income' do
@@ -333,7 +333,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
         income['veteranOrSpouse'] == 'VETERAN'
       end.first
       gross_salary = vets_income['monthlyGrossSalary']
-      expect(gross_salary).to eq("7001.10")
+      expect(gross_salary).to eq('7001.10')
     end
 
     it 'checks if spouse gross salary is populated' do
@@ -349,7 +349,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
         income['veteranOrSpouse'] == 'SPOUSE'
       end.first
       gross_salary = sp_income['monthlyGrossSalary']
-      expect(gross_salary).to eq("5000.54")
+      expect(gross_salary).to eq('5000.54')
     end
 
     it 'has vets deductions' do
@@ -366,7 +366,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
       end.first
       deductions = vets_income['deductions']
       taxes = deductions['taxes']
-      expect(taxes).to eq("781.03")
+      expect(taxes).to eq('781.03')
     end
 
     it 'checks if spouse deduction taxes are calculated correctly' do
@@ -375,7 +375,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
       end.first
       sp_deductions = sp_income['deductions']
       taxes = sp_deductions['taxes']
-      expect(taxes).to eq("581.01")
+      expect(taxes).to eq('581.01')
     end
 
     it 'checks if vets deduction social security is calculated correctly' do
@@ -384,7 +384,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
       end.first
       deductions = vets_income['deductions']
       social_security = deductions['socialSecurity']
-      expect(social_security).to eq("122.40")
+      expect(social_security).to eq('122.40')
     end
 
     it 'checks if spouse deduction social security is calculated correctly' do
@@ -393,7 +393,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
       end.first
       deductions = sp_income['deductions']
       social_security = deductions['socialSecurity']
-      expect(social_security).to eq("0.00")
+      expect(social_security).to eq('0.00')
     end
 
     it 'checks if vets other deductions are calculated correctly' do
@@ -402,7 +402,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
       end.first
       deductions = vets_income['deductions']
       other_deductions = deductions['otherDeductions']
-      expect(other_deductions['amount']).to eq("389.01")
+      expect(other_deductions['amount']).to eq('389.01')
     end
 
     it 'checks if spouse other deductions are calculated correctly' do
@@ -411,7 +411,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
       end.first
       deductions = sp_income['deductions']
       other_deductions = deductions['otherDeductions']
-      expect(other_deductions['amount']).to eq("254.45")
+      expect(other_deductions['amount']).to eq('254.45')
     end
 
     it 'checks if vets total deductions is calculated correctly' do
@@ -419,7 +419,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
         income['veteranOrSpouse'] == 'VETERAN'
       end.first
       total_deductions = vets_income['totalDeductions']
-      expect(total_deductions).to eq("1392.44")
+      expect(total_deductions).to eq('1392.44')
     end
 
     it 'checks if spouse total deductions is calculated correctly' do
@@ -427,7 +427,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
         income['veteranOrSpouse'] == 'SPOUSE'
       end.first
       total_deductions = sp_income['totalDeductions']
-      expect(total_deductions).to eq("935.46")
+      expect(total_deductions).to eq('935.46')
     end
 
     it 'checks if vets other income is calculated correctly' do
@@ -435,7 +435,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
         income['veteranOrSpouse'] == 'VETERAN'
       end.first
       other_income = vets_income['otherIncome']
-      expect(other_income['amount']).to eq("7012.85")
+      expect(other_income['amount']).to eq('7012.85')
     end
 
     it 'checks if spouse other income is calculated correctly' do
@@ -443,7 +443,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
         income['veteranOrSpouse'] == 'SPOUSE'
       end.first
       other_income = sp_income['otherIncome']
-      expect(other_income['amount']).to eq("4701.77")
+      expect(other_income['amount']).to eq('4701.77')
     end
 
     it 'checks if vets total monthly net income is calculated correctly' do
@@ -451,7 +451,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
         income['veteranOrSpouse'] == 'VETERAN'
       end.first
       total_monthly_net_income = vets_income['totalMonthlyNetIncome']
-      expect(total_monthly_net_income).to eq("12621.51")
+      expect(total_monthly_net_income).to eq('12621.51')
     end
 
     it 'checks if spouse total monthly net income is calculated correctly' do
@@ -459,7 +459,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
         income['veteranOrSpouse'] == 'SPOUSE'
       end.first
       total_monthly_net_income = sp_income['totalMonthlyNetIncome']
-      expect(total_monthly_net_income).to eq("8766.85")
+      expect(total_monthly_net_income).to eq('8766.85')
     end
   end
 end

@@ -34,7 +34,8 @@ module DebtsApi
           @personal_data_calculator = PersonalDataCalculator.new(@form)
           @personal_data = @personal_data_calculator.get_personal_data
           @personal_identification = PersonalIdentificationCalculator.new(@form).transform_personal_id
-          @selected_debts_and_copays = re_camel(re_dollar_cent(@form['selected_debts_and_copays'], ['p_h_account_number', 'pHAccountNumber']))
+          @selected_debts_and_copays = re_camel(re_dollar_cent(@form['selected_debts_and_copays'],
+                                                               %w[p_h_account_number pHAccountNumber]))
           @streamlined = StreamlinedCalculator.new(@form).get_streamlined_data
         end
 
@@ -56,10 +57,11 @@ module DebtsApi
         end
 
         private
+
         def certification
           {
             'veteranSignature' => @personal_data_calculator.name_str,
-            'veteranDateSigned' => Date.today.strftime('%m/%d/%Y')
+            'veteranDateSigned' => Time.zone.today.strftime('%m/%d/%Y')
           }
         end
       end
