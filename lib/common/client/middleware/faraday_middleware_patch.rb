@@ -11,12 +11,12 @@ module FaradayMiddlewarePatch
   def self.prepended(base)
     class << base
       def default_options=(options = {})
-        @default_options ||= {} # rubocop:disable ThreadSafety/InstanceVariableInClassMethod
-        @default_options.merge!(options) # rubocop:disable ThreadSafety/InstanceVariableInClassMethod
+        @@default_options ||= {} # rubocop:disable Style/ClassVars
+        @@default_options.merge!(options)
       end
 
       def default_options
-        @default_options ||= {} # rubocop:disable ThreadSafety/InstanceVariableInClassMethod
+        @@default_options ||= {} # rubocop:disable Style/ClassVars
       end
     end
   end
