@@ -261,7 +261,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
     end
   end
 
-  path '/veterans/{veteranId}/526/synchronous', production: false do
+  path '/veterans/{veteranId}/526/synchronous' do
     post 'Submits disability compensation claim synchronously' do
       tags 'Disability Compensation Claims'
       operationId 'post526ClaimSynchronous'
