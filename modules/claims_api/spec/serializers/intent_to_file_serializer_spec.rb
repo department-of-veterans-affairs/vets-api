@@ -32,6 +32,10 @@ describe ClaimsApi::IntentToFileSerializer, type: :serializer do
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
+  it 'includes :id' do
+    expect(data['id']).to eq bgs_response[:intent_to_file_id]
+  end
+
   it 'includes :creation_date' do
     expect(attributes['creation_date']).to eq bgs_response[:create_dt]
   end

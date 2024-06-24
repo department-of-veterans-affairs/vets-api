@@ -11,6 +11,10 @@ describe ClaimsApi::PowerOfAttorneySerializer, type: :serializer do
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
+  it 'includes :id' do
+    expect(data['id']).to eq poa_submission.id.to_s
+  end
+
   it 'includes :date_request_accepted' do
     expect(attributes['date_request_accepted']).to eq poa_submission.date_request_accepted
   end
@@ -31,14 +35,10 @@ describe ClaimsApi::PowerOfAttorneySerializer, type: :serializer do
   end
 
   context 'when a POA submission does not have a status property of "uploaded"' do
-    subject { serialize(submitted_poa_submission, serializer_class: described_class) }
-
-    let(:submitted_poa_submission) { build(:power_of_attorney) }
-    let(:submitted_data) { JSON.parse(subject)['data'] }
-    let(:submitted_attributes) { submitted_data['attributes'] }
+    let(:poa_submission) { build(:power_of_attorney) }
 
     it 'includes :status from poa_submission' do
-      expect(submitted_attributes['status']).to eq(submitted_poa_submission.status)
+      expect(poa_submission['status']).to eq(poa_submission.status)
     end
   end
 end
