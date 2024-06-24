@@ -24,9 +24,11 @@ module SerializerSpecHelper
   def determine_key_type(data)
     if data.is_a?(Array)
       first_element = data.find { |item| item.is_a?(Hash) }
-      return first_element.keys.first.is_a?(String) ? :string : :symbol if first_element
+      if first_element
+        first_element.keys.first.is_a?(String) ? :string : :symbol
+      end
     elsif data.is_a?(Hash)
-      return data.keys.first.is_a?(String) ? :string : :symbol
+      data.keys.first.is_a?(String) ? :string : :symbol
     end
   end
 
