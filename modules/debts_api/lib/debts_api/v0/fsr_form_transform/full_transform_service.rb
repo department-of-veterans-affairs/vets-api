@@ -18,25 +18,22 @@ module DebtsApi
       class FullTransformService
         include ::FsrFormTransform::Utils
 
-        attr_reader => form
-
         def initialize(form)
-          @form = form
-          @assets = AssetCalculator.new(@form).transform_assets
-          @income = IncomeCalculator.new(@form).get_transformed_income
-          @expenses = ExpenseCalculator.build(@form).transform_expenses
-          @bankruptcy = BankruptcyCalculator.new(@form).get_bankruptcy_data
-          @additional_data = AdditionalDataCalculator.new(@form).get_data
-          @discretionary_income = DiscretionaryIncomeCalculator.new(@form).get_data
-          installment_calculator = InstallmentContractsOtherDebtsCalculator.new(@form)
+          @assets = AssetCalculator.new(form).transform_assets
+          @income = IncomeCalculator.new(form).get_transformed_income
+          @expenses = ExpenseCalculator.build(form).transform_expenses
+          @bankruptcy = BankruptcyCalculator.new(form).get_bankruptcy_data
+          @additional_data = AdditionalDataCalculator.new(form).get_data
+          @discretionary_income = DiscretionaryIncomeCalculator.new(form).get_data
+          installment_calculator = InstallmentContractsOtherDebtsCalculator.new(form)
           @installment_contracts_other_debts = installment_calculator.get_data
           @total_installments = installment_calculator.get_totals_data
-          @personal_data_calculator = PersonalDataCalculator.new(@form)
+          @personal_data_calculator = PersonalDataCalculator.new(form)
           @personal_data = @personal_data_calculator.get_personal_data
-          @personal_identification = PersonalIdentificationCalculator.new(@form).transform_personal_id
-          @selected_debts_and_copays = re_camel(re_dollar_cent(@form['selected_debts_and_copays'],
+          @personal_identification = PersonalIdentificationCalculator.new(form).transform_personal_id
+          @selected_debts_and_copays = re_camel(re_dollar_cent(form['selected_debts_and_copays'],
                                                                %w[p_h_account_number pHAccountNumber]))
-          @streamlined = StreamlinedCalculator.new(@form).get_streamlined_data
+          @streamlined = StreamlinedCalculator.new(form).get_streamlined_data
         end
 
         def transform
