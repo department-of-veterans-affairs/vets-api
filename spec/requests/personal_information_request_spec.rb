@@ -25,7 +25,7 @@ RSpec.describe 'personal_information' do
       end
     end
 
-    context 'when MVI does not return a gender nor birthday', skip_mvi: true do
+    context 'when MVI does not return a gender nor birthday', :skip_mvi do
       let(:mpi_profile) { build(:mpi_profile, { birth_date: nil, gender: nil }) }
       let(:user) { create(:user, :loa3, mpi_profile:) }
 

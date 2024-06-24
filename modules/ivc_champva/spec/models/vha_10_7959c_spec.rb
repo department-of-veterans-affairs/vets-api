@@ -35,8 +35,7 @@ RSpec.describe IvcChampva::VHA107959c do
   let(:instance) { IvcChampva::VHA107959c.new(data) }
 
   before do
-    allow(instance).to receive(:uuid).and_return(uuid)
-    allow(instance).to receive(:get_attachments).and_return([])
+    allow(instance).to receive_messages(uuid:, get_attachments: [])
   end
 
   describe '#metadata' do

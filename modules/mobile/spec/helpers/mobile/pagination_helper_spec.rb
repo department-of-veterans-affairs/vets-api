@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Mobile::PaginationHelper, type: :model, aggregate_failures: true do
+RSpec.describe Mobile::PaginationHelper, :aggregate_failures, type: :model do
   describe '.paginate' do
     let(:list) { (1..11).to_a }
 

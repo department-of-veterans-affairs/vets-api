@@ -53,23 +53,17 @@ module SAML
       end
 
       saml_response = SAML::Responses::Login.new(document_partial(authn_context).to_s)
-      allow(saml_response).to receive(:issuer_text).and_return(issuer)
-      allow(saml_response).to receive(:assertion_encrypted?).and_return(true)
-      allow(saml_response).to receive(:attributes).and_return(attributes)
-      allow(saml_response).to receive(:validate).and_return(true)
-      allow(saml_response).to receive(:decrypted_document).and_return(document_partial(authn_context))
-      allow(saml_response).to receive(:in_response_to).and_return(in_response_to)
+      allow(saml_response).to receive_messages(issuer_text: issuer, assertion_encrypted?: true, attributes:,
+                                               validate: true, decrypted_document: document_partial(authn_context),
+                                               in_response_to:)
       saml_response
     end
     # rubocop:enable Metrics/ParameterLists
 
     def build_invalid_saml_response(in_response_to:, decrypted_document:, errors:, status_message:)
       saml_response = SAML::Responses::Login.new(decrypted_document.to_s)
-      allow(saml_response).to receive(:validate).and_return(false)
-      allow(saml_response).to receive(:errors).and_return(errors)
-      allow(saml_response).to receive(:in_response_to).and_return(in_response_to)
-      allow(saml_response).to receive(:decrypted_document).and_return(decrypted_document)
-      allow(saml_response).to receive(:status_message).and_return(status_message)
+      allow(saml_response).to receive_messages(validate: false, errors:, in_response_to:,
+                                               decrypted_document:, status_message:)
       saml_response
     end
 

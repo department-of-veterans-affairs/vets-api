@@ -31,7 +31,7 @@ describe VAProfileRedis::ContactInformation do
   end
 
   [404, 400].each do |status|
-    context "with a #{status} from get_person", skip_vet360: true do
+    context "with a #{status} from get_person", :skip_vet360 do
       let(:get_person_calls) { 'once' }
 
       before do

@@ -34,8 +34,7 @@ RSpec.describe BGS::DependentService do
 
   describe '#submit_686c_form' do
     before do
-      allow(claim).to receive(:submittable_686?).and_return(true)
-      allow(claim).to receive(:submittable_674?).and_return(true)
+      allow(claim).to receive_messages(submittable_686?: true, submittable_674?: true)
     end
 
     it 'calls find_person_by_participant_id' do
@@ -186,8 +185,7 @@ RSpec.describe BGS::DependentService do
 
   describe '#submit_674_form' do
     before do
-      allow(claim).to receive(:submittable_686?).and_return(false)
-      allow(claim).to receive(:submittable_674?).and_return(true)
+      allow(claim).to receive_messages(submittable_686?: false, submittable_674?: true)
     end
 
     it 'calls find_person_by_participant_id' do

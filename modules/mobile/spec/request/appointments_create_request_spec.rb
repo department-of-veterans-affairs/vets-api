@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
+RSpec.describe 'vaos appointments', :skip_mvi, type: :request do
   include SchemaMatchers
   mock_clinic = {
     'service_name': 'service_name',

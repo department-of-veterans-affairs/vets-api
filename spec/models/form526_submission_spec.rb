@@ -637,10 +637,10 @@ RSpec.describe Form526Submission do
       it 'adds the current BIRLS ID to birls_ids_tried array (turns birls_ids_tried into an array if nil)' do
         expect(JSON.parse(subject.birls_ids_tried)).to eq birls_ids_tried
         subject.mark_birls_id_as_tried
-        expect(subject.birls_ids_tried_hash.keys).to match_array [birls_id, *birls_ids_tried.keys]
+        expect(subject.birls_ids_tried_hash.keys).to contain_exactly(birls_id, *birls_ids_tried.keys)
         subject.save
         subject.reload
-        expect(subject.birls_ids_tried_hash.keys).to match_array [birls_id, *birls_ids_tried.keys]
+        expect(subject.birls_ids_tried_hash.keys).to contain_exactly(birls_id, *birls_ids_tried.keys)
       end
     end
   end

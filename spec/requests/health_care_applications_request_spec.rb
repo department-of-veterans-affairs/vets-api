@@ -353,7 +353,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         end
       end
 
-      context 'while authenticated', skip_mvi: true do
+      context 'while authenticated', :skip_mvi do
         let(:current_user) { build(:user, :mhv) }
 
         before do

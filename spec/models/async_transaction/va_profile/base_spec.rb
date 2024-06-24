@@ -114,8 +114,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
 
   describe '.start' do
     before do
-      allow(user).to receive(:vet360_id).and_return('1')
-      allow(user).to receive(:icn).and_return('1234')
+      allow(user).to receive_messages(vet360_id: '1', icn: '1234')
     end
 
     let(:user) { build(:user, :loa3) }

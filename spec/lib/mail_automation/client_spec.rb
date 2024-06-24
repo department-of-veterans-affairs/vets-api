@@ -34,8 +34,7 @@ RSpec.describe MailAutomation::Client do
       end
 
       before do
-        allow(@client).to receive(:perform).and_return generic_response
-        allow(@client).to receive(:authenticate).and_return bearer_token_object
+        allow(@client).to receive_messages(perform: generic_response, authenticate: bearer_token_object)
       end
 
       it 'sets the headers to include the bearer token' do

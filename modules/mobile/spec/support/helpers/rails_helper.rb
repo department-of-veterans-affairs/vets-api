@@ -13,11 +13,11 @@ RSpec.configure do |config|
   # Many specs have been known to inconsistently fail without this flipper enabled.
   # Not every spec needs it but no specs need it disabled so to ensure we don't get flaky specs
   # this will just be enabled for all specs
-  config.before :each, mobile_spec: true, type: :request do
+  config.before :each, :mobile_spec, type: :request do
     Flipper.enable('va_online_scheduling')
   end
 
-  config.after :each, mobile_spec: true, type: :request do |example|
+  config.after :each, :mobile_spec, type: :request do |example|
     content_type = response.header['Content-Type']
 
     if content_type != 'application/pdf' && response.body.present? &&
