@@ -88,11 +88,11 @@ web:
     targetValue:
     scaleUp:
       stabilizationWindowSeconds:
-      value:
+      pods:
       periodSeconds:
     scaleDown:
       stabilizationWindowSeconds:
-      value:
+      pods:
       periodSeconds:
   service:
     enabled: false
