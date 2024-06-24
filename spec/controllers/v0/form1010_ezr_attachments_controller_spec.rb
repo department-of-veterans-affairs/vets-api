@@ -41,7 +41,7 @@ RSpec.describe V0::Form1010EzrAttachmentsController, type: :controller do
         sign_in(current_user)
 
         post(:create)
-        expect(response).to have_http_status(500)
+        expect(response).to have_http_status(internal_server_error)
 
         response_body = JSON.parse(response.body)
         error = response_body['errors'].first
