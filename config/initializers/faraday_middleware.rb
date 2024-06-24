@@ -12,4 +12,4 @@ Rails.application.reloader.to_prepare do
   Faraday::Response.register_middleware hca_soap_parser: HCA::SOAPParser
 end
 
-Faraday::Middleware.default_options = { include_request: false }
+Faraday::Response::RaiseError.default_options = { include_request: false }
