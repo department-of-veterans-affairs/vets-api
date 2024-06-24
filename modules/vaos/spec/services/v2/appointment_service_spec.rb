@@ -271,7 +271,6 @@ describe VAOS::V2::AppointmentsService do
     context 'using VAOS' do
       before do
         Flipper.disable(:va_online_scheduling_use_vpg)
-        Flipper.disable(:va_online_scheduling_enable_OH_reads)
       end
 
       context 'when requesting a list of appointments given a date range' do
@@ -506,7 +505,6 @@ describe VAOS::V2::AppointmentsService do
   describe '#get_appointment' do
     context 'using VAOS' do
       before do
-        Flipper.disable(:va_online_scheduling_enable_OH_reads)
         Flipper.disable(:va_online_scheduling_use_vpg)
       end
 
@@ -601,7 +599,6 @@ describe VAOS::V2::AppointmentsService do
 
     context 'using VPG' do
       before do
-        Flipper.enable(:va_online_scheduling_enable_OH_reads)
         Flipper.enable(:va_online_scheduling_use_vpg)
       end
 
@@ -702,7 +699,6 @@ describe VAOS::V2::AppointmentsService do
           before do
             Flipper.enable(:va_online_scheduling_enable_OH_cancellations)
             Flipper.enable(:va_online_scheduling_use_vpg)
-            Flipper.enable(:va_online_scheduling_enable_OH_reads)
           end
 
           it 'returns a cancelled status and the cancelled appointment information' do
@@ -1176,6 +1172,14 @@ describe VAOS::V2::AppointmentsService do
 
           expect(subject.send(:get_avs_link, appt)).to be_nil
           expect(Rails.logger).to have_received(:warn).with('VAOS: AVS response ICN does not match user ICN')
+        end
+      end
+    end
+
+    context 'with non-hash body' do
+      it 'returns nil' do
+        VCR.use_cassette('vaos/v2/appointments/avs-search-error', match_requests_on: %i[method path query]) do
+          expect(subject.send(:get_avs_link, appt)).to eq(nil)
         end
       end
     end

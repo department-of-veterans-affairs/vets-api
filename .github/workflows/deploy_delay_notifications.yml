@@ -55,6 +55,10 @@ jobs:
             echo "${info_message} has been delayed for more than 30 minutes."
             echo "Current commit on development is ${deployed_sha:0:8}."
             echo "dev_summary=${info_message} has been delayed for more than 30 minutes. Current commit on development is ${deployed_sha:0:8}." >> $GITHUB_OUTPUT
+            echo ""
+            echo "Check [ArgoCD dev](https://argocd.vfs.va.gov/applications/vets-api-dev) for errors."
+            echo ""
+            echo "Check the [deploy dashboard](https://www.va.gov/atlas/apps/vets-api/deploy_status) and [latest commits](https://github.com/department-of-veterans-affairs/vets-api/commits/master/) for errors."
             exit 1
           else
             echo "Awaiting deployment of ${info_message}."
@@ -80,6 +84,10 @@ jobs:
             echo "${info_message} has been delayed for more than 30 minutes."
             echo "Current commit on staging is ${deployed_sha:0:8}."
             echo "staging_summary=${info_message} has been delayed for more than 30 minutes. Current commit on staging is ${deployed_sha:0:8}." >> $GITHUB_OUTPUT
+            echo ""
+            echo "Check [ArgoCD staging](https://argocd.vfs.va.gov/applications/vets-api-staging) for errors."
+            echo ""
+            echo "Check the [deploy dashboard](https://www.va.gov/atlas/apps/vets-api/deploy_status) and [latest commits](https://github.com/department-of-veterans-affairs/vets-api/commits/master/) for errors."
             exit 1
           else
             echo "Awaiting deployment of ${info_message}."

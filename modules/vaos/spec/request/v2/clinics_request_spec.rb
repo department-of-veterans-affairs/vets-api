@@ -97,7 +97,6 @@ RSpec.describe 'clinics', type: :request do
       context 'using VAOS' do
         before do
           Flipper.disable(:va_online_scheduling_use_vpg)
-          Flipper.disable(:va_online_scheduling_enable_OH_reads)
         end
 
         context 'on successful query for last visited clinic' do
