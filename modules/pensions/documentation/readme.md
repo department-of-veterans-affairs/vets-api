@@ -4,13 +4,11 @@
 
 The pensions team uses [ADR Tools](https://github.com/npryce/adr-tools/tree/master) to document important engineering related decisions for the vets-api repo. The goal is to capture the technical decisions our group makes so that anyone new to our team or following behind will be able to understand the reasons for the decisions.
 
-| Decision                                                     |
-| ------------------------------------------------------------ |
-| [Use ADR to document important engineering decisions](/adr/0001-record-architecture-decisions.md) |
-| [Move the pensions specific code to the modules folder](/adr/0002-use-modules-folder-for-pensions-code.md) |
-|                                                              |
-
-
+| Decision                                                                                                    |
+| ----------------------------------------------------------------------------------------------------------- |
+| [Use ADR to document important engineering decisions](./adr/0001-record-architecture-decisions.md)          |
+| [Move the pensions specific code to the modules folder](./adr/0002-use-modules-folder-for-pensions-code.md) |
+|                                                                                                             |
 
 ## Folder structure
 
