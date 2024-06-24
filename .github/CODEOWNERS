@@ -417,22 +417,18 @@ app/serializers/preferred_name_serializer.rb @department-of-veterans-affairs/vfs
 app/serializers/preneed_attachment_serializer.rb @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/serializers/prescription_preference_serializer.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/serializers/prescription_serializer.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/serializers/profile_photo_attachment_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/serializers/rated_disabilities_serializer.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/serializers/rating_info_serializer.rb @department-of-veterans-affairs/backend-review-group
 app/serializers/receive_application_serializer.rb @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/serializers/saved_claim_serializer.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/serializers/search_serializer.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/serializers/service_history_serializer.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/serializers/submit_disability_form_serializer.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/serializers/supporting_documentation_attachment_serializer.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/serializers/supporting_evidence_attachment_serializer.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/serializers/tracking_serializer.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/serializers/triage_team_serializer.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/serializers/user_serializer.rb @department-of-veterans-affairs/octo-identity
 app/serializers/user_verification_serializer.rb @department-of-veterans-affairs/octo-identity
 app/serializers/valid_va_file_number_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/serializers/zipcodes_serializer.rb @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/services/bgs/awards_service.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/services/bgs/constants.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/services/bgs/dependency_verification_service.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -848,7 +844,6 @@ lib/common/file_helpers.rb @department-of-veterans-affairs/va-api-engineers @dep
 lib/common/pdf_helpers.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
 lib/common/models @department-of-veterans-affairs/backend-review-group
 lib/common/virus_scan.rb @department-of-veterans-affairs/backend-review-group
-lib/data_migrations/form526_submission_submit_endpoint_update.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/backend-review-group
 lib/debt_management_center @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 lib/decision_review @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/decision_review_v1 @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1020,6 +1015,7 @@ public @department-of-veterans-affairs/va-api-engineers @department-of-veterans-
 modules/veteran_confirmation @department-of-veterans-affairs/lighthouse-ninjapigs @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/travel_pay @department-of-veterans-affairs/travel-pay-integration @department-of-veterans-affairs/backend-review-group
 modules/vye @department-of-veterans-affairs/govcio-vye-codereviewers @department-of-veterans-affairs/backend-review-group
+modules/pensions @department-of-veterans-affairs/pensions @department-of-veterans-affairs/backend-review-group
 rakelib/appeals_api_oauth.rake @department-of-veterans-affairs/backend-review-group
 rakelib/breakers_outage.rake @department-of-veterans-affairs/backend-review-group
 rakelib/connectivity.rake @department-of-veterans-affairs/octo-identity
@@ -1194,6 +1190,7 @@ spec/factories/preneeds @department-of-veterans-affairs/mbs-core-team @departmen
 spec/factories/prescriptions.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/prescription_details.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/prescription_preferences.rb  @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/factories/rated_disabilities.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/representatives.rb @department-of-veterans-affairs/accredited-representation-management @department-of-veterans-affairs/backend-review-group
 spec/factories/rubysaml_settings.rb @department-of-veterans-affairs/octo-identity
 spec/factories/saml_attributes.rb @department-of-veterans-affairs/octo-identity
@@ -1724,11 +1721,19 @@ spec/serializers/preferred_name_serializer_spec.rb @department-of-veterans-affai
 spec/serializers/preneed_attachment_serializer_spec.rb @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/serializers/prescription_preference_serializer_spec.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/serializers/prescription_serializer_spec.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/serializers/rated_disabilities_serializer_spec.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/serializers/rating_info_serializer_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/serializers/receive_application_serializer_spec.rb @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/serializers/saved_claim_serializer_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/serializers/search_serializer_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/serializers/service_history_serializer_spec.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/serializers/shared_evss_claim_base_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/serializers/supporting_evidence_attachment_serializer_spec.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/serializers/tracking_serializer_spec.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/serializers/triage_team_serializer_spec.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/serializers/user_serializer_spec.rb @department-of-veterans-affairs/octo-identity
 spec/serializers/user_verification_serializer_spec.rb @department-of-veterans-affairs/octo-identity
+spec/serializers/valid_va_file_number_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/services/bgs @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/services/claim_fast_tracking @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/services/evss_claim_service_async_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
