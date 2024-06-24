@@ -647,10 +647,10 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     it 'sets error status for upstream zip code validation' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }
-      allow(faraday_response).to
-      receive_messages(status: 412,
-                       body: "Metadata Field Error - Missing zipCode [uuid: #{upload.guid}] ",
-                       success?: false)
+      allow(faraday_response)
+        .to receive_messages(status: 412,
+                             body: "Metadata Field Error - Missing zipCode [uuid: #{upload.guid}] ",
+                             success?: false)
       capture_body = nil
       expect(client_stub).to receive(:upload) { |arg|
         capture_body = arg

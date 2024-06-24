@@ -219,10 +219,10 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
   context 'with a duplicate UUID response from Central Mail' do
     before do
       allow(CentralMail::Service).to receive(:new) { client_stub }
-      allow(faraday_response).to
-      receive_messages(status: 400,
-                       body: "Document already uploaded with uuid [uuid: #{higher_level_review.id}]",
-                       success?: false)
+      allow(faraday_response)
+        .to receive_messages(status: 400,
+                             body: "Document already uploaded with uuid [uuid: #{higher_level_review.id}]",
+                             success?: false)
       expect(client_stub).to receive(:upload).and_return(faraday_response)
       allow(StatsD).to receive(:increment)
       allow(Rails.logger).to receive(:warn)

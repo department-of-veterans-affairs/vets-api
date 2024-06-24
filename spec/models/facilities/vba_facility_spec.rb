@@ -38,18 +38,18 @@ RSpec.describe Facilities::VBAFacility do
 
       it 'parses hours correctly' do
         VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
-          expect(facility.hours.values).to
-          contain_exactly('8:00AM-4:30PM', '8:00AM-4:30PM', '8:00AM-4:30PM',
-                          '8:00AM-4:30PM', '8:00AM-7:30PM', 'Closed', 'Please Call for Hours')
+          expect(facility.hours.values)
+            .to contain_exactly('8:00AM-4:30PM', '8:00AM-4:30PM', '8:00AM-4:30PM',
+                                '8:00AM-4:30PM', '8:00AM-7:30PM', 'Closed', 'Please Call for Hours')
         end
       end
 
       it 'parses hours correctly 2' do
         VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
-          expect(facility_2.hours.values).to
-          match_array(
-            %w[Closed Closed Closed Closed Closed Closed Closed]
-          )
+          expect(facility_2.hours.values)
+            .to match_array(
+              %w[Closed Closed Closed Closed Closed Closed Closed]
+            )
         end
       end
 
