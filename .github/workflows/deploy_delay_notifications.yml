@@ -50,7 +50,7 @@ jobs:
           action_items="\n- <https://argocd.vfs.va.gov/applications/vets-api-dev|ArgoCD dev>\n- <https://github.com/department-of-veterans-affairs/vets-api/actions/workflows/build.yml?query=branch%3Amaster|Build, Push, & Deploy> GitHub Action\n- <https://www.va.gov/atlas/apps/vets-api/deploy_status|Deploy dashboard>\n- <https://github.com/department-of-veterans-affairs/vets-api/commits/master/|Latest commits>"
 
 
-          if [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
+          if [ "${latest_sha:0:8}" == "${deployed_sha:0:7}" ]; then
             echo "${info_message} has been deployed."
             echo "dev_summary=${info_message} has been deployed." >> $GITHUB_OUTPUT
           elif true || [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '30 minutes ago' +%s)" ]; then
@@ -76,7 +76,7 @@ jobs:
           info_message="Latest commit (${latest_sha:0:8}, ${commit_time}) to staging"
           action_items="\n- <https://argocd.vfs.va.gov/applications/vets-api-staging|ArgoCD staging>\n- <https://github.com/department-of-veterans-affairs/vets-api/actions/workflows/build.yml?query=branch%3Amaster|Build, Push, & Deploy> GitHub Action\n- <https://www.va.gov/atlas/apps/vets-api/deploy_status|Deploy dashboard>\n- <https://github.com/department-of-veterans-affairs/vets-api/commits/master/|Latest commits>"
 
-          if [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
+          if [ "${latest_sha:0:8}" == "${deployed_sha:0:7}" ]; then
             echo "${info_message} has been deployed."
             echo "staging_summary=${info_message} has been deployed." >> $GITHUB_OUTPUT
           elif true || [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '30 minutes ago' +%s)" ]; then
