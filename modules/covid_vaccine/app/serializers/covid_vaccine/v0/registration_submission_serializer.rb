@@ -5,7 +5,9 @@ module CovidVaccine
     class RegistrationSubmissionSerializer
       include JSONAPI::Serializer
 
-      set_id(&:sid)
+      set_id do |object|
+        object&.sid || ''
+      end
 
       attribute :created_at
 
