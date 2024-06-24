@@ -47,7 +47,7 @@ jobs:
           commit_time=${{ env.commit_time }}
           deployed_sha=${{ env.dev_deployed_sha }}
           info_message="latest commit (${latest_sha:0:8}, ${commit_time}) to development"
-          action_items="\n- [ArgoCD dev](https://argocd.vfs.va.gov/applications/vets-api-dev)\n- [Build, Push, & Deploy](https://github.com/department-of-veterans-affairs/vets-api/actions/workflows/build.yml) action\n- [Deploy dashboard](https://www.va.gov/atlas/apps/vets-api/deploy_status)\n- [Latest commits](https://github.com/department-of-veterans-affairs/vets-api/commits/master/)."
+          action_items="\n- <https://argocd.vfs.va.gov/applications/vets-api-dev|ArgoCD dev>\n- <https://github.com/department-of-veterans-affairs/vets-api/actions/workflows/build.yml|Build, Push, & Deploy> action\n- <https://www.va.gov/atlas/apps/vets-api/deploy_status|Deploy dashboard>\n- <https://github.com/department-of-veterans-affairs/vets-api/commits/master/|Latest commits>."
 
 
           if [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
@@ -74,7 +74,7 @@ jobs:
           commit_time=${{ env.commit_time }}
           deployed_sha=${{ env.staging_deployed_sha }}
           info_message="latest commit (${latest_sha:0:8}, ${commit_time}) to staging"
-          action_items="\n- [ArgoCD staging](https://argocd.vfs.va.gov/applications/vets-api-staging)\n- [Build, Push, & Deploy](https://github.com/department-of-veterans-affairs/vets-api/actions/workflows/build.yml) action\n- [Deploy dashboard](https://www.va.gov/atlas/apps/vets-api/deploy_status)\n- [Latest commits](https://github.com/department-of-veterans-affairs/vets-api/commits/master/)."
+          action_items="\n- [ArgoCD staging](https://argocd.vfs.va.gov/applications/vets-api-staging)\n- <https://github.com/department-of-veterans-affairs/vets-api/actions/workflows/build.yml|Build, Push, & Deploy> action\n- <https://www.va.gov/atlas/apps/vets-api/deploy_status|Deploy dashboard>\n- <https://github.com/department-of-veterans-affairs/vets-api/commits/master/|Latest commits>."
 
           if [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
             echo "${info_message} has been deployed."
