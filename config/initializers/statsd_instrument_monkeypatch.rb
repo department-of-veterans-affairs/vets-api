@@ -25,12 +25,12 @@ module StatsD
         super(substitute_dots_for_underscores(key), value, sample_rate:, tags:, no_prefix:)
       end
 
-      def measure(key, value = nil, sample_rate: nil, tags: nil, no_prefix: false, &block)
-        super(substitute_dots_for_underscores(key), value, sample_rate:, tags:, no_prefix:, &block)
+      def measure(key, value = nil, sample_rate: nil, tags: nil, no_prefix: false, &)
+        super(substitute_dots_for_underscores(key), value, sample_rate:, tags:, no_prefix:, &)
       end
 
-      def distribution(key, value = nil, sample_rate: nil, tags: nil, no_prefix: false, &block)
-        super(substitute_dots_for_underscores(key), value, sample_rate:, tags:, no_prefix:, &block)
+      def distribution(key, value = nil, sample_rate: nil, tags: nil, no_prefix: false, &)
+        super(substitute_dots_for_underscores(key), value, sample_rate:, tags:, no_prefix:, &)
       end
 
       private

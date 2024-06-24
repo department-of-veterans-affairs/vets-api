@@ -89,23 +89,12 @@ module V0
     end
 
     def token
-      code = params[:code].presence
-      code_verifier = params[:code_verifier].presence
-      grant_type = params[:grant_type].presence
-      client_assertion = params[:client_assertion].presence
-      client_assertion_type = params[:client_assertion_type].presence
-      assertion = params[:assertion].presence
+      SignIn::TokenParamsValidator.new(params: token_params).perform
+      response_body = SignIn::TokenResponseGenerator.new(params: token_params, cookies: token_cookies).perform
 
-      validate_token_params(grant_type)
-
-      response_body =
-        if grant_type == SignIn::Constants::Auth::JWT_BEARER
-          generate_service_account_token(assertion)
-        else
-          generate_client_tokens(code, code_verifier, client_assertion, client_assertion_type)
-        end
-
+      sign_in_logger.info('token')
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
+
       render json: response_body, status: :ok
     rescue SignIn::Errors::StandardError => e
       sign_in_logger.info('token error', { errors: e.message })
@@ -142,11 +131,12 @@ module V0
     def revoke
       refresh_token = params[:refresh_token].presence
       anti_csrf_token = params[:anti_csrf_token].presence
+      device_secret = params[:device_secret].presence
 
       raise SignIn::Errors::MalformedParamsError.new message: 'Refresh token is not defined' unless refresh_token
 
       decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
-      SignIn::SessionRevoker.new(refresh_token: decrypted_refresh_token, anti_csrf_token:).perform
+      SignIn::SessionRevoker.new(refresh_token: decrypted_refresh_token, anti_csrf_token:, device_secret:).perform
 
       sign_in_logger.info('revoke', decrypted_refresh_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_SUCCESS)
@@ -256,27 +246,9 @@ module V0
       raise SignIn::Errors::MalformedParamsError.new message: 'State is not defined' unless state
     end
 
-    def validate_token_params(grant_type)
-      unless SignIn::Constants::Auth::GRANT_TYPES.include?(grant_type)
-        raise SignIn::Errors::MalformedParamsError.new message: 'Grant Type is not valid'
-      end
-    end
-
-    def generate_service_account_token(assertion)
-      service_account_access_token = SignIn::AssertionValidator.new(assertion:).perform
-      sign_in_logger.info('token', service_account_access_token.to_s)
-      serialized_access_token = SignIn::ServiceAccountAccessTokenJwtEncoder.new(service_account_access_token:).perform
-      { data: { access_token: serialized_access_token } }
-    end
-
-    def generate_client_tokens(code, code_verifier, client_assertion, client_assertion_type)
-      validated_credential = SignIn::CodeValidator.new(code:,
-                                                       code_verifier:,
-                                                       client_assertion:,
-                                                       client_assertion_type:).perform
-      session_container = SignIn::SessionCreator.new(validated_credential:).perform
-      sign_in_logger.info('token', session_container.access_token.to_s)
-      SignIn::TokenSerializer.new(session_container:, cookies: token_cookies).perform
+    def token_params
+      params.permit(:grant_type, :code, :code_verifier, :client_assertion, :client_assertion_type,
+                    :assertion, :subject_token, :subject_token_type, :actor_token, :actor_token_type, :client_id)
     end
 
     def handle_pre_login_error(error, client_id)

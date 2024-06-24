@@ -12,7 +12,6 @@ RSpec.describe StructuredData::ProcessDataJob, uploader_helpers: true do
     let(:bip_claims) { instance_double(BipClaims::Service) }
 
     before do
-      allow_any_instance_of(CentralMail::SubmitSavedClaimJob).to receive(:perform)
       allow_any_instance_of(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform)
       allow(BipClaims::Service).to receive(:new).and_return(bip_claims)
       allow(bip_claims).to receive(:lookup_veteran_from_mpi).and_return(
@@ -27,15 +26,7 @@ RSpec.describe StructuredData::ProcessDataJob, uploader_helpers: true do
       job.perform(claim.id)
     end
 
-    it 'calls Central Mail processing job' do
-      Flipper.disable(:central_mail_benefits_intake_submission)
-      expect_any_instance_of(CentralMail::SubmitSavedClaimJob).to receive(:perform)
-
-      job.perform(claim.id)
-    end
-
     it 'calls Benefits Intake processing job' do
-      Flipper.enable(:central_mail_benefits_intake_submission)
       expect_any_instance_of(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform)
       job.perform(claim.id)
     end

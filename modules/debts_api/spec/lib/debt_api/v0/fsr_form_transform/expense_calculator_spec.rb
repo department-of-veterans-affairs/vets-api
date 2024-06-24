@@ -20,9 +20,10 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::ExpenseCalculator, type: :service
     end
 
     context 'with old FSR' do
-      it 'sums a bunch of stuff' do
-        calculator = described_class.build(old_expenses)
-        expect(calculator.get_monthly_expenses).to eq(18_464.79)
+      it 'throws an error' do
+        expect do
+          described_class.build(old_expenses)
+        end.to raise_error(DebtsApi::V0::FsrFormTransform::UnprocessableFsrFormat)
       end
     end
   end
@@ -45,7 +46,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::ExpenseCalculator, type: :service
       it 'gets food expenses from expenseRecords' do
         calculator = described_class.build(enhanced_expenses)
         calculated_expenses = calculator.get_all_expenses
-        expect(calculated_expenses[:food]).to eq(300)
+        expect(calculated_expenses[:food]).to eq('300.00')
       end
 
       it 'gets utilities from utilityRecords' do
@@ -69,36 +70,27 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::ExpenseCalculator, type: :service
     end
 
     context 'with old FSR' do
-      it 'gets rent/mortgage expenses from rentOrMortgage field' do
-        calculator = described_class.build(old_expenses)
-        calculated_expenses = calculator.get_all_expenses
-        expect(calculated_expenses[:rentOrMortgage]).to eq(1200.25)
+      it 'throws an error' do
+        expect do
+          described_class.build(old_expenses)
+        end.to raise_error(DebtsApi::V0::FsrFormTransform::UnprocessableFsrFormat)
       end
+    end
+  end
 
-      it 'gets food expenses from expenseRecords' do
-        calculator = described_class.build(old_expenses)
-        calculated_expenses = calculator.get_all_expenses
-        expect(calculated_expenses[:food]).to eq(4000.38)
-      end
+  describe '#transform_expenses' do
+    let(:pre_transform_fsr_form_data) do
+      get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/pre_transform')
+    end
+    let(:post_transform_fsr_form_data) do
+      get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/post_transform')
+    end
 
-      it 'gets utilities from utilityRecords' do
-        calculator = described_class.build(old_expenses)
-        calculated_expenses = calculator.get_all_expenses
-        expect(calculated_expenses[:utilities]).to eq(662.98)
-      end
-
-      it 'gets living expenses from other expenses' do
-        calculator = described_class.build(old_expenses)
-        calculated_expenses = calculator.get_all_expenses
-        expect(calculated_expenses[:otherLivingExpenses][:name]).to eq('Pool service, Lawn service, Food')
-        expect(calculated_expenses[:otherLivingExpenses][:amount]).to eq(600.54)
-      end
-
-      it 'gets expensesInstallmentContractsAndOtherDebts' do
-        calculator = described_class.build(old_expenses)
-        calculated_expenses = calculator.get_all_expenses
-        expect(calculated_expenses[:expensesInstallmentContractsAndOtherDebts]).to eq(12_000.64)
-      end
+    it 'transforms expenses' do
+      expected_expenses = post_transform_fsr_form_data['expenses']
+      transformer = described_class.build(pre_transform_fsr_form_data)
+      actual_expenses = transformer.transform_expenses
+      expect(actual_expenses).to eq(expected_expenses)
     end
   end
 end

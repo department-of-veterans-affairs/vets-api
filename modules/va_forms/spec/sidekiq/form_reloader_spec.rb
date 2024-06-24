@@ -19,17 +19,31 @@ RSpec.describe VAForms::FormReloader, type: :job do
     end
 
     it 'schedules a child FormBuilder job for each form retrieved' do
-      VCR.use_cassette('va_forms/forms') do
-        described_class.new.perform
-        expect(VAForms::FormBuilder.jobs.size).to eq(form_count)
+      with_settings(Settings.va_forms.form_reloader, enabled: true) do
+        VCR.use_cassette('va_forms/forms') do
+          described_class.new.perform
+          expect(VAForms::FormBuilder.jobs.size).to eq(form_count)
+        end
       end
     end
 
     context 'when the forms server returns an error' do
       it 'raises an error and does not schedule any child FormBuilder jobs' do
-        VCR.use_cassette('va_forms/forms_500_error') do
-          expect { described_class.new.perform }.to raise_error(NoMethodError)
-          expect(VAForms::FormBuilder.jobs.size).to eq(0)
+        with_settings(Settings.va_forms.form_reloader, enabled: true) do
+          VCR.use_cassette('va_forms/forms_500_error') do
+            expect { described_class.new.perform }.to raise_error(NoMethodError)
+            expect(VAForms::FormBuilder.jobs.size).to eq(0)
+          end
+        end
+      end
+    end
+
+    context 'when the job is disabled in settings' do
+      it 'does not schedule any child FormBuilder jobs' do
+        with_settings(Settings.va_forms.form_reloader, enabled: false) do
+          VCR.use_cassette('va_forms/forms_500_error') do
+            expect(VAForms::FormBuilder.jobs.size).to eq(0)
+          end
         end
       end
     end

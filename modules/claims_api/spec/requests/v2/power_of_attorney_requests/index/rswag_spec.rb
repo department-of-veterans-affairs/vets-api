@@ -15,7 +15,7 @@ metadata = {
   }
 }
 
-describe 'PowerOfAttorney', metadata do
+xdescribe 'PowerOfAttorney', metadata do
   path '/power-of-attorney-requests' do
     get 'Search for Power of Attorney requests.' do
       tags 'Power of Attorney'

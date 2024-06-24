@@ -1,13 +1,26 @@
 # frozen_string_literal: true
 
-require 'bgs_service/manage_representative_service'
-
 module ClaimsApi
   module V2
-    class PowerOfAttorneyRequestsController < ClaimsApi::V2::ApplicationController
+    class PowerOfAttorneyRequestsController < PowerOfAttorneyRequests::BaseController
       def index
-        poa_requests = ClaimsApi::PowerOfAttorneyRequestService::Search.perform
-        render json: Blueprints::PowerOfAttorneyRequestBlueprint.render(poa_requests, root: :data)
+        service = PowerOfAttorneyRequestService::Search
+        result = service.perform(request.query_parameters)
+
+        render json: serialize(result)
+      end
+
+      private
+
+      def serialize(result)
+        blueprint = Blueprints::PowerOfAttorneyRequestBlueprint
+        result[:data] = blueprint.render_as_hash(result[:data])
+
+        result[:metadata].transform_keys! do |key|
+          key.to_s.camelize(:lower).to_sym
+        end
+
+        result
       end
     end
   end

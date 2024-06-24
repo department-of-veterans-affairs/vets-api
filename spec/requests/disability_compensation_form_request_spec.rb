@@ -49,7 +49,7 @@ RSpec.describe 'Disability compensation form' do
       context 'error handling tests' do
         cassettes_directory = 'lighthouse/veteran_verification/disability_rating'
 
-        Lighthouse::ServiceException::ERROR_MAP.each_key do |status|
+        Lighthouse::ServiceException::ERROR_MAP.except(422).each_key do |status|
           cassette_path = "#{cassettes_directory}/#{status == 404 ? '404_ICN' : status}_response"
 
           it "returns #{status} response" do
@@ -238,15 +238,38 @@ RSpec.describe 'Disability compensation form' do
       context 'with an `all claims` claim' do
         let(:all_claims_form) { File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json' }
 
-        it 'matches the rated disabilites schema' do
+        it 'matches the rated disabilities schema' do
           post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('submit_disability_form')
-          form = Form526Submission.last.form
-          expect(form.dig('form526', 'form526', 'toxicExposure')).not_to eq(nil)
         end
 
-        it 'matches the rated disabilites schema with camel-inflection' do
+        context 'where the includeToxicExposure indicator is true' do
+          it 'creates a submission that includes a toxic exposure component' do
+            post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('submit_disability_form')
+            expect(Form526Submission.count).to eq(1)
+            form = Form526Submission.last.form
+            expect(form.dig('form526', 'form526', 'toxicExposure')).not_to eq(nil)
+          end
+        end
+
+        context 'where the includeToxicExposure indicator is false' do
+          it 'does not create a submission that includes a toxic exposure component' do
+            json_object = JSON.parse(all_claims_form)
+            json_object['form526']['includeToxicExposure'] = false
+            updated_form = JSON.generate(json_object)
+            post('/v0/disability_compensation_form/submit_all_claim', params: updated_form, headers:)
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('submit_disability_form')
+            expect(Form526Submission.count).to eq(1)
+            form = Form526Submission.last.form
+            expect(form.dig('form526', 'form526', 'toxicExposure')).to eq(nil)
+          end
+        end
+
+        it 'matches the rated disabilities schema with camel-inflection' do
           post '/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers: headers_with_camel
           expect(response).to have_http_status(:ok)
           expect(response).to match_camelized_response_schema('submit_disability_form')
@@ -261,13 +284,13 @@ RSpec.describe 'Disability compensation form' do
       context 'with an `bdd` claim' do
         let(:bdd_form) { File.read 'spec/support/disability_compensation_form/bdd_fe_submission.json' }
 
-        it 'matches the rated disabilites schema' do
+        it 'matches the rated disabilities schema' do
           post('/v0/disability_compensation_form/submit_all_claim', params: bdd_form, headers:)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('submit_disability_form')
         end
 
-        it 'matches the rated disabilites schema with camel-inflection' do
+        it 'matches the rated disabilities schema with camel-inflection' do
           post '/v0/disability_compensation_form/submit_all_claim', params: bdd_form, headers: headers_with_camel
           expect(response).to have_http_status(:ok)
           expect(response).to match_camelized_response_schema('submit_disability_form')

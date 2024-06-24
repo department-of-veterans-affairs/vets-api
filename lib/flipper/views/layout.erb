@@ -39,18 +39,19 @@
       <% end %>
 
       <div class="vads-l-row">
-        <nav aria-label="breadcrumb" aria-live="polite" class="vads-l-col va-nav-breadcrumbs">
-          <ul class="va-nav-breadcrumbs-list vads-u-margin--0 vads-u-padding--0">
-            <% @breadcrumbs.each do |breadcrumb| %>
-              <li class="breadcrumb-item <% if breadcrumb.active? %>active<% end %>">
-                <% if breadcrumb.active? %>
-                  <%= breadcrumb.text %>
-                <% else %>
-                  <a href="<%= breadcrumb.href %>"><%= breadcrumb.text %></a>
-                <% end %>
-              </li>
+        <nav>
+          <ul class="nav nav-underline mb-3 align-items-center" style="margin-left: -24px;">
+            <% Flipper::UI.configuration.nav_items.each do |item| %>
+              <ul class="vads-u-margin--0 vads-u-padding--0 nav-item">
+                <a href="<%= url_for(item[:href]) %>" class="nav-link<%= " active" if request.url.start_with?(url_for(item[:href])) %>">
+                  <% if item[:title] != 'Settings' %>
+                  <b><%= item[:title] %></b>
+                </a>
+              </ul>
+              <% end %>
             <% end %>
           </ul>
+            <a href="https://depo-platform-documentation.scrollhelp.site/developer-docs/feature-toggles-guide">Docs</a>
         </nav>
       </div>
 
