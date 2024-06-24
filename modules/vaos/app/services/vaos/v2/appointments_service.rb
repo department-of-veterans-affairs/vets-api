@@ -208,7 +208,7 @@ module VAOS
         if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
           fetch_avs_and_update_appt_body(appointment)
         end
-        if appointment[:kind] == 'cc' && (appointment[:status] == 'proposed' || appointment[:status] == 'cancelled')
+        if appointment[:kind] == 'cc' && %w[proposed cancelled].include?(appointment[:status])
           find_and_merge_provider_name(appointment)
         end
       end
