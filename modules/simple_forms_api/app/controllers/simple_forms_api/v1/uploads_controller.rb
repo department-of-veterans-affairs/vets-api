@@ -9,6 +9,7 @@ module SimpleFormsApi
     class UploadsController < ApplicationController
       skip_before_action :authenticate
       before_action :authenticate, if: :should_authenticate
+      before_action { authorize :mpi, :access_add_person_proxy? }
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
