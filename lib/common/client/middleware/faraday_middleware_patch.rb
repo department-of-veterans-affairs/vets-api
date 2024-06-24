@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# require 'faraday'
-
 module FaradayMiddlewarePatch
   def initialize(app = nil, options = {})
     @app = app
@@ -13,10 +11,6 @@ module FaradayMiddlewarePatch
       def default_options=(options = {})
         @@default_options ||= {} # rubocop:disable Style/ClassVars
         @@default_options.merge!(options)
-      end
-
-      def default_options
-        @@default_options ||= {} # rubocop:disable Style/ClassVars
       end
     end
   end
