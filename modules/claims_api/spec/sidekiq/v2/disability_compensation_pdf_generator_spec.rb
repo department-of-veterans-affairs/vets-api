@@ -64,7 +64,6 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
           expect(errored_claim.status).to eq('errored')
 
           service.perform(errored_claim.id, middle_initial)
-
           errored_claim.reload
           expect(errored_claim.status).to eq('pending')
         end
