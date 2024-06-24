@@ -40,7 +40,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
       - '"readPOARequestByPtcpntId"'
       Content-Type:

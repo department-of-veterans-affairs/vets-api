@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe TriageTeamSerializer do
+RSpec.describe TriageTeamSerializer, type: :serializer do
   subject { serialize(triage_team, serializer_class: described_class) }
 
   let(:triage_team) { build :triage_team }
@@ -23,5 +23,9 @@ RSpec.describe TriageTeamSerializer do
 
   it "includes the team's patient relationship type" do
     expect(attributes['relation_type']).to eq(triage_team.relation_type)
+  end
+
+  it "includes the team's preferred team" do
+    expect(attributes['preferred_team']).to eq(triage_team.preferred_team)
   end
 end
