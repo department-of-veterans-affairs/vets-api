@@ -42,15 +42,13 @@ module DebtsApi
         def joined_filtered_expenses
           filtered_expenses = @expense_calculator.filtered_expenses
 
-          if filtered_expenses.present?
-            joined_expenses = filtered_expenses.map do |expense|
-              "#{expense['name']} ($#{dollars_cents(expense['amount'].to_f)})"
-            end.join(', ')
-            output = "Individual expense amount: #{joined_expenses}"
-          else
-            output = ''
-          end
-          output
+          return '' if filtered_expenses.blank?
+
+          joined_expenses = filtered_expenses.map do |expense|
+            "#{expense['name']} ($#{dollars_cents(expense['amount'].to_f)})"
+          end.join(', ')
+
+          "Individual expense amount: #{joined_expenses}"
         end
 
         def get_discharged_date
