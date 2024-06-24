@@ -10,6 +10,12 @@ module DebtsApi
         CASH_IN_BANK = 'Cash in a bank (savings and checkings)'
         CASH_ON_HAND = 'Cash on hand (not in bank)'
         US_BONDS = 'U.S. Savings Bonds'
+        OTHER_STOCK_FILTER = [
+          'Other stocks and bonds (not in your retirement accounts)',
+          'Retirement accounts (401k, IRAs, 403b, TSP)',
+          'Pension',
+          'Cryptocurrency'
+        ].freeze
 
         def initialize(form)
           @form = form
@@ -20,6 +26,9 @@ module DebtsApi
           @cash_on_hand = sum_values(@monetary_assets.select { |asset| asset['name'] == CASH_ON_HAND }, 'amount')
           @cash_in_bank = sum_values(@monetary_assets.select { |asset| asset['name'] == CASH_IN_BANK }, 'amount')
           @us_savings_bonds = @monetary_assets.select { |asset| asset['name'] == US_BONDS }
+          @stock_bond_etc = sum_values(@monetary_assets.select do |asset|
+                                         OTHER_STOCK_FILTER.include?(asset['name'])
+                                       end, 'amount').to_f
 
           @other_assets = @assets['other_assets']
           @automobiles = @assets['automobiles']
@@ -50,6 +59,7 @@ module DebtsApi
           output['automobiles'] = @automobiles if @automobiles
           output['trailersBoatsCampers'] = @rec_vehicle_amount if @rec_vehicle_amount
           output['usSavingsBonds'] = dollars_cents(sum_values(@us_savings_bonds, 'amount').to_f)
+          output['stocksAndOtherBonds'] = dollars_cents(@stock_bond_etc)
           output['realEstateOwned'] = dollars_cents(@real_estate_value) if @real_estate_value
           output['otherAssets'] = @other_assets if @other_assets
           output['totalAssets'] = dollars_cents(get_total_assets)
