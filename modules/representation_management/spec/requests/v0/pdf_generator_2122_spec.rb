@@ -29,7 +29,7 @@ RSpec.describe 'PdfGenerator2122Controller', type: :request do
       end
 
       it 'responds with an unprocessable entity status' do
-         post base_path, params: incomplete_params
+        post base_path, params: incomplete_params
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
