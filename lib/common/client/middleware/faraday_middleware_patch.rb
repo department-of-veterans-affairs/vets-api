@@ -3,7 +3,7 @@
 module FaradayMiddlewarePatch
   def initialize(app = nil, options = {})
     @app = app
-    @options = self.class.default_options.merge(options)
+    @options = @@default_options.merge(options)
   end
 
   def self.prepended(base)
