@@ -680,10 +680,10 @@ GEM
     nio4r (2.7.3)
     nio4r (2.7.3-java)
     no_proxy_fix (0.1.2)
-    nokogiri (1.16.5)
+    nokogiri (1.16.6)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.16.5-java)
+    nokogiri (1.16.6-java)
       racc (~> 1.4)
     nori (2.7.0)
       bigdecimal
