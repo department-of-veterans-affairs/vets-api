@@ -10,17 +10,17 @@ metadata:
 spec:
   behavior:
     scaleUp:
-      stabilizationWindowSeconds: 0
+      stabilizationWindowSeconds: {{ $service.autoscaling.scaleUp.stabilizationWindowSeconds | default $root.Values.web.autoscaling.scaleUp.stabilizationWindowSeconds }}
       policies:
       - type: Pods
-        value: 3
-        periodSeconds: 60
+        value: {{ $service.autoscaling.scaleUp.pods | default $root.Values.web.autoscaling.scaleUp.pods }}
+        periodSeconds: {{ $service.autoscaling.scaleUp.periodSeconds | default $root.Values.web.autoscaling.scaleUp.periodSeconds }}
     scaleDown:
-      stabilizationWindowSeconds: 300
+      stabilizationWindowSeconds: {{ $service.autoscaling.scaleDown.stabilizationWindowSeconds | default $root.Values.web.autoscaling.scaleDown.stabilizationWindowSeconds }}
       policies:
       - type: Pods
-        value: 1
-        periodSeconds: 120
+        value: {{ $service.autoscaling.scaleDown.pods | default $root.Values.web.autoscaling.scaleDown.pods }}
+        periodSeconds: {{ $service.autoscaling.scaleDown.periodSeconds | default $root.Values.web.autoscaling.scaleDown.periodSeconds }}
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
