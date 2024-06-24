@@ -239,6 +239,10 @@ RSpec/ContextWording:
   Enabled: false
 
 # Determined to be too benign and/or numerous to justify changing
+RSpec/MissingExpectationTargetMethod:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
 RSpec/ExampleLength:
   Enabled: false
 

@@ -17,13 +17,13 @@ RSpec.describe V0::BenefitsReferenceDataController, type: :controller do
       expect(response.status).to eq(200)
       returned_data = JSON.parse(response.body)
       expect(returned_data.keys.sort).to eq(%w[items links totalItems totalPages])
-      expect(returned_data).to be_a(Hash)
+      expect(returned_data).is_a?(Hash)
       expect(returned_data['items'].size).to eq(9)
       returned_data['items'].each do |disability|
         expect(disability.keys).to include('id')
-        expect(disability['id']).to be_a(Integer)
+        expect(disability['id']).is_a?(Integer)
         expect(disability.keys).to include('name')
-        expect(disability['name']).to be_a(String)
+        expect(disability['name']).is_a?(String)
         expect(disability.keys).to include('endDateTime')
       end
     end

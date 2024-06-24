@@ -80,7 +80,7 @@ describe ClaimsApi::LocalBGS do
 
           begin
             ret = subject_instance.send(:transform_bgs_claims_to_evss, claims)
-            expect(ret.class).to be_an Array
+            expect(ret.class).to_be Array
             expect(ret.size).to eq 1
           rescue => e
             expect(e.message).not_to include 'no implicit conversion of Array into Hash'
@@ -110,7 +110,7 @@ describe ClaimsApi::LocalBGS do
           allow(soap_error_handler).to receive(:handle_errors)
             .with(:bgs_unknown_error_message).and_raise(Common::Exceptions::UnprocessableEntity)
           ret = soap_error_handler.send(:handle_errors, :bgs_unknown_error_message)
-          expect(ret.class).to be_an Array
+          expect(ret.class).to_be Array
           expect(ret.size).to eq 1
         rescue => e
           expect(e.message).to include 'Unprocessable Entity'
