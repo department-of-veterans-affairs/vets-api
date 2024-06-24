@@ -26,7 +26,10 @@ RSpec.describe V0::Form1010EzrAttachmentsController, type: :controller do
       end
 
       context 'authenticated' do
-        sign_in(current_user)
+        before do
+          sign_in(current_user)
+        end
+
         it_behaves_like 'create 1010 form attachment'
       end
     end
@@ -40,7 +43,7 @@ RSpec.describe V0::Form1010EzrAttachmentsController, type: :controller do
         sign_in(current_user)
 
         post(:create)
-        expect(response).to have_http_status(internal_server_error)
+        expect(response).to have_http_status(:internal_server_error)
 
         response_body = JSON.parse(response.body)
         error = response_body['errors'].first

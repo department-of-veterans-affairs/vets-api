@@ -987,7 +987,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
         context 'authenticated' do
           it 'supports submitting a 1010EZR application', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
-            VCR.use_cassette('form1010_ezr/authorized_submit', match_requests_on: [:body]) do
+            VCR.use_cassette('form1010_ezr/authorized_submit_with_es_dev_uri', match_requests_on: [:body]) do
               expect(subject).to validate(
                 :post,
                 '/v0/form1010_ezrs',
@@ -1002,7 +1002,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
           end
 
           it 'returns a 422 if form validation fails', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
-            VCR.use_cassette('form1010_ezr/authorized_submit', match_requests_on: [:body]) do
+            VCR.use_cassette('form1010_ezr/authorized_submit_with_es_dev_uri', match_requests_on: [:body]) do
               expect(subject).to validate(
                 :post,
                 '/v0/form1010_ezrs',
