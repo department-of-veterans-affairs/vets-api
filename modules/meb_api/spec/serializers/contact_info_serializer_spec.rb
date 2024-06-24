@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'dgi/contact_info/response'
 
-describe ContactInfoSerializer do
+describe ContactInfoSerializer, type: :serializer do
   subject { serialize(contact_info_response, serializer_class: described_class) }
 
   let(:emails) { [{ address: 'test@test.com', dupe: 'false' }] }
