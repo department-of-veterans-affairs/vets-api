@@ -30,8 +30,10 @@ RSpec.describe 'Forms uploader', type: :request do
       let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
       let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
       let(:random_string) { 'some-unique-simple-forms-file-seed' }
+      let(:user) { build(:user_with_no_ids) }
 
       before do
+        sign_in_as(user)
         VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
         VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
         allow(Common::FileHelpers).to receive(:random_file_path).and_return(file_seed)
@@ -76,7 +78,7 @@ RSpec.describe 'Forms uploader', type: :request do
 
         context 'authenticated user' do
           before do
-            user = create(:user)
+            user = build(:user_with_no_ids)
             sign_in_as(user)
             create(:in_progress_form, user_uuid: user.uuid, form_id: data['form_number'])
           end
@@ -94,7 +96,7 @@ RSpec.describe 'Forms uploader', type: :request do
       context 'request with intent to file' do
         context 'authenticated' do
           before do
-            sign_in
+            sign_in_as(build(:user_with_no_ids))
             allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
             allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
           end
@@ -246,7 +248,7 @@ RSpec.describe 'Forms uploader', type: :request do
 
       context 'authenticated' do
         before do
-          sign_in
+          sign_in_as(build(:user_with_no_ids))
           allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
         end
@@ -698,7 +700,7 @@ RSpec.describe 'Forms uploader', type: :request do
         end
 
         before do
-          user = create(:user)
+          user = build(:user_with_no_ids)
           sign_in_as(user)
           allow_any_instance_of(User).to receive(:va_profile_email).and_return('abraham.lincoln@vets.gov')
           allow(VANotify::EmailJob).to receive(:perform_async)
