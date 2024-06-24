@@ -5,11 +5,21 @@
 module FaradayMiddlewarePatch
   def initialize(app = nil, options = {})
     @app = app
-    @options = @@default_options.merge(options)
+    @options = self.class.default_options.merge(options)
   end
 
-  def self.default_options=(options = {})
-    @@default_options ||= {} # rubocop:disable Style/ClassVars
-    @@default_options.merge!(options)
+  def self.prepended(base)
+    class << base
+      def default_options=(options = {})
+        @default_options ||= {}
+        @default_options.merge!(options)
+      end
+
+      def default_options
+        @default_options ||= {}
+      end
+    end
   end
 end
+
+Faraday::Middleware.prepend(FaradayMiddlewarePatch)
