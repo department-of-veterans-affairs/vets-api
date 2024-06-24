@@ -115,9 +115,14 @@ module EVSS
                          # 3. send transformed submission data to LH endpoint
                          service = BenefitsClaims::Service.new(icn)
                          raw_response = service.submit526(body)
+                         raw_response_body = if raw_response.body.is_a? String
+                                               JSON.parse(raw_response.body)
+                                             else
+                                               raw_response.body
+                                             end
                          # 4. convert LH raw response to a FormSubmitResponse for further processing (claim_id, status)
                          # parse claimId from LH response
-                         submitted_claim_id = JSON.parse(raw_response.body).dig('data', 'attributes', 'claimId').to_i
+                         submitted_claim_id = raw_response_body.dig('data', 'attributes', 'claimId').to_i
                          raw_response_struct = OpenStruct.new({
                                                                 body: { claim_id: submitted_claim_id },
                                                                 status: raw_response.status
