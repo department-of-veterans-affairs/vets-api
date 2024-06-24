@@ -62,18 +62,20 @@ module RepresentationManagement
     validates :veteran_service_number, length: { is: 9 }, numericality: { only_integer: true }
     validates :veteran_insurance_numbers
 
-    validates :claimant_first_name, presence: true, length: { maximum: 12 }
-    validates :claimant_middle_initial, length: { maximum: 1 }
-    validates :claimant_last_name, presence: true, length: { maximum: 18 }
-    validates :claimant_address_line1, presence: true, length: { maximum: 30 }
-    validates :claimant_address_line2, length: { maximum: 5 }
-    validates :claimant_city, presence: true, length: { maximum: 18 }
-    validates :claimant_country, presence: true, length: { is: 2 }
-    validates :claimant_state_code, presence: true, length: { is: 2 }
-    validates :claimant_zip_code, presence: true, length: { is: 5 }, numericality: { only_integer: true }
-    validates :claimant_zip_code_suffix, length: { is: 4 }, numericality: { only_integer: true }
-    validates :claimant_area_code, length: { is: 3 }, numericality: { only_integer: true }
-    validates :claimant_phone_number, length: { is: 7 }, numericality: { only_integer: true }
+    with_options if: claimant_first_name.present? do
+      validates :claimant_first_name, presence: true, length: { maximum: 12 }
+      validates :claimant_middle_initial, length: { maximum: 1 }
+      validates :claimant_last_name, presence: true, length: { maximum: 18 }
+      validates :claimant_address_line1, presence: true, length: { maximum: 30 }
+      validates :claimant_address_line2, length: { maximum: 5 }
+      validates :claimant_city, presence: true, length: { maximum: 18 }
+      validates :claimant_country, presence: true, length: { is: 2 }
+      validates :claimant_state_code, presence: true, length: { is: 2 }
+      validates :claimant_zip_code, presence: true, length: { is: 5 }, numericality: { only_integer: true }
+      validates :claimant_zip_code_suffix, length: { is: 4 }, numericality: { only_integer: true }
+      validates :claimant_area_code, length: { is: 3 }, numericality: { only_integer: true }
+      validates :claimant_phone_number, length: { is: 7 }, numericality: { only_integer: true }
+    end
 
     attr_accessor [veteran_attrs, claimant_attrs, consent_attrs].flatten
   end
