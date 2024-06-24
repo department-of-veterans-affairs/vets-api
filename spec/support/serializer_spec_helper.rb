@@ -14,6 +14,31 @@ module SerializerSpecHelper
     expect(serialized_time).to eq(time.iso8601(3))
   end
 
+  def expect_data_eq(serialized_data, data)
+    expect(serialized_data).to eq(normalize_data(data))
+  end
+
+  private
+
+  def normalize_data(data)
+    case data
+    when Hash
+      normalize_hash_keys(data)
+    when Array
+      data.map { |item| normalize_data(item) }
+    else
+      data
+    end
+  end
+
+  def normalize_hash_keys(hash)
+    if hash.keys.first.is_a?(String)
+      hash.deep_symbolize_keys
+    else
+      hash.deep_stringify_keys
+    end
+  end
+
   def serializer_with_ams(serializer_class, obj, opts = {})
     serializer = serializer_class.send(:new, obj, opts)
     adapter = ActiveModelSerializers::Adapter.create(serializer, opts)
