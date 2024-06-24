@@ -174,7 +174,7 @@ module ClaimsApi
         # Fail fast if mpi_record can't be found
         unless vet.mpi_record?
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
-            "Unable to retrieve a record from Master Person Index (MPI). " \
+            'Unable to retrieve a record from Master Person Index (MPI). ' \
             'Please try again later.')
         end
         vet.gender = header('X-VA-Gender') || vet.gender_mpi if with_gender
