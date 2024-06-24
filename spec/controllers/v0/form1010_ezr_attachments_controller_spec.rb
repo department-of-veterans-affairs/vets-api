@@ -4,6 +4,12 @@ require 'rails_helper'
 require 'support/1010_forms/shared_examples/form_attachment'
 
 RSpec.describe V0::Form1010EzrAttachmentsController, type: :controller do
+  let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534') }
+
+  before(:all) do
+    Flipper.enable(:form1010_ezr_attachments_controller)
+  end
+
   describe '::FORM_ATTACHMENT_MODEL' do
     it_behaves_like 'inherits the FormAttachment model'
   end
@@ -20,12 +26,9 @@ RSpec.describe V0::Form1010EzrAttachmentsController, type: :controller do
       end
 
       context 'authenticated' do
-        before do
-          current_user = build(:evss_user, :loa3, icn: '1013032368V065534')
-          sign_in_as(current_user)
+        it_behaves_like 'create 1010 form attachment' do
+          let(:user) { current_user }
         end
-
-        it_behaves_like 'create 1010 form attachment'
       end
     end
 
@@ -34,10 +37,18 @@ RSpec.describe V0::Form1010EzrAttachmentsController, type: :controller do
         Flipper.disable(:form1010_ezr_attachments_controller)
       end
 
-      it 'fails' do
-        expect { post(:create) }.to raise_error(
-          AbstractController::ActionNotFound,
-          "The action 'create' could not be found for V0::Form1010EzrAttachmentsController"
+      it 'returns an error' do
+        sign_in(current_user)
+
+        post(:create)
+        expect(response.status).to eq(500)
+
+        response_body = JSON.parse(response.body)
+        error = response_body['errors'].first
+        meta_exception = error.dig('meta', 'exception')
+
+        expect(meta_exception).to eq(
+          "The 'create' route for V0::Form1010EzrAttachmentsController is currently unavailable"
         )
       end
     end

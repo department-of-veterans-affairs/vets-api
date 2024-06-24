@@ -9,6 +9,10 @@ shared_examples 'inherits the FormAttachment model' do
 end
 
 shared_examples 'create 1010 form attachment' do
+  before do
+    sign_in(user) if user.present?
+  end
+
   let(:form_attachment_guid) { SecureRandom.uuid }
   let(:pdf_file) do
     fixture_file_upload('doctors-note.pdf', 'application/pdf')
