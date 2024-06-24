@@ -37,7 +37,6 @@ RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_bene
   end
 
   describe '#disclosure_for', run_at: '2017-01-04 03:00:00 EDT' do
-    today = '2017-01-04'
     before do
       subject.instance_variable_set(:@applicant, OpenStruct.new(benefitsRelinquishedDate: Time.zone.today))
     end
