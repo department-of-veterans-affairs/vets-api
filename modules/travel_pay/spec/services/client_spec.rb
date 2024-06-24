@@ -77,7 +77,7 @@ describe TravelPay::Client do
       payload = { ContactID: 'test' }
       fake_btsss_token = JWT.encode(payload, nil, 'none')
 
-      @stubs.get("/api/v1/claims/by-contact/#{payload[:ContactID]}") do
+      @stubs.get('/api/v1/claims') do
         [
           200,
           {},
@@ -87,7 +87,7 @@ describe TravelPay::Client do
                 'id' => 'uuid1',
                 'claimNumber' => 'TC0000000000001',
                 'claimStatus' => 'InProgress',
-                'appointmentDateTime' => '2024-04-22T16:45:34.465Z',
+                'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
                 'facilityName' => 'Cheyenne VA Medical Center',
                 'createdOn' => '2024-03-22T21:22:34.465Z',
                 'modifiedOn' => '2024-01-01T16:44:34.465Z'
@@ -96,7 +96,7 @@ describe TravelPay::Client do
                 'id' => 'uuid2',
                 'claimNumber' => 'TC0000000000002',
                 'claimStatus' => 'InProgress',
-                'appointmentDateTime' => '2024-04-22T16:45:34.465Z',
+                'appointmentDateTime' => '2024-03-01T16:45:34.465Z',
                 'facilityName' => 'Cheyenne VA Medical Center',
                 'createdOn' => '2024-02-22T21:22:34.465Z',
                 'modifiedOn' => '2024-03-01T00:00:00.0Z'
@@ -105,7 +105,7 @@ describe TravelPay::Client do
                 'id' => 'uuid3',
                 'claimNumber' => 'TC0000000000002',
                 'claimStatus' => 'Incomplete',
-                'appointmentDateTime' => '2024-04-22T16:45:34.465Z',
+                'appointmentDateTime' => '2024-02-01T16:45:34.465Z',
                 'facilityName' => 'Cheyenne VA Medical Center',
                 'createdOn' => '2024-01-22T21:22:34.465Z',
                 'modifiedOn' => '2024-02-01T00:00:00.0Z'

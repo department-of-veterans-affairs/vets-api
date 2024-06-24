@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
 require 'sentry_logging'
 require 'sidekiq/form526_backup_submission_process/submit'
 require 'logging/third_party_transaction'
@@ -155,6 +156,7 @@ class Form526Submission < ApplicationRecord
   belongs_to :user_account, dependent: nil, optional: true
 
   validates(:auth_headers_json, presence: true)
+  enum submit_endpoint: { evss: 0, claims_api: 1, benefits_intake_api: 2 }
 
   scope :pending_backup_submissions, lambda {
     where(aasm_state: 'delivered_to_backup')
@@ -465,7 +467,89 @@ class Form526Submission < ApplicationRecord
     created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
   end
 
+  # Synchronous access to Lighthouse API validation boolean for 526 submission
+  # Because this method hits an external API, there could be
+  # exceptions generated for non-200 response codes.
+  #
+  # If return is false, then the errors are expected to be
+  # in the lighthouse_validation_errors Array of Hashes.
+  #
+  # NOTE: This is a synchronous access to an external API
+  #       so should not be used within a request/response workflow.
+  #
+
+  def form_content_valid?
+    transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
+    body = transform_service.transform(form['form526'])
+
+    @lighthouse_validation_response = lighthouse_service.validate526(body)
+
+    if lighthouse_validation_response&.status == 200
+      true
+    else
+      mock_lighthouse_response(status: lighthouse_validation_response&.status)
+      false
+    end
+  rescue => e
+    handle_validation_error(e)
+    false
+  end
+
+  # Returns an Array of Hashes when response.status is 422
+  # otherwise it's an empty Array.
+  #
+  # The Array#empty? is true when there are no errors
+  # A Hash entry looks like this ...
+  # {
+  #   "title": "Unprocessable entity",
+  #   "detail": "The property / did not contain the required key serviceInformation",
+  #   "status": "422",
+  #   "source": {
+  #     "pointer": "data/attributes/"
+  #   }
+  # }
+  #
+  def lighthouse_validation_errors
+    if lighthouse_validation_response&.status == 200
+      []
+    else
+      lighthouse_validation_response.body['errors']
+    end
+  end
+
   private
+
+  attr_accessor :lighthouse_validation_response
+
+  # Setup the Lighthouse service for this user account.
+  # Lighthouse calls the user_account.icn the "ID of Veteran"
+  #
+  def lighthouse_service
+    BenefitsClaims::Service.new(user_account.icn)
+  end
+
+  def handle_validation_error(e)
+    errors = e.errors if e.respond_to?(:errors)
+    detail = errors&.dig(0, :detail)
+    status = errors&.dig(0, :status)
+    error_msg = "#{detail || e} -- #{e.backtrace[0]}"
+    mock_lighthouse_response(status:, error: error_msg)
+  end
+
+  def mock_lighthouse_response(status:, error: 'Unknown')
+    response_struct = Struct.new(:status, :body)
+    mock_response = response_struct.new(status || 609, nil)
+
+    mock_response.body = {
+      'errors' => [
+        {
+          'title' => "Response Status Code '#{mock_response.status}' - #{error}"
+        }
+      ]
+    }
+
+    @lighthouse_validation_response = mock_response
+  end
 
   def queue_central_mail_backup_submission_for_non_retryable_error!(e: nil)
     # Entry-point for backup 526 CMP submission

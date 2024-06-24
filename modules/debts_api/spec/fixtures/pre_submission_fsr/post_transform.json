@@ -1,0 +1,364 @@
+{
+  "personalIdentification": {
+    "ssn": "3018",
+    "fileNumber": "3018",
+    "fsrReason": "Waiver, Extended monthly payments, Compromise"
+  },
+  "personalData": {
+    "veteranFullName": {
+      "first": "Travis",
+      "middle": "D",
+      "last": "Jones"
+    },
+    "address": {
+      "addresslineOne": "1200 Park Ave",
+      "addresslineTwo": "c/o Pixar",
+      "addresslineThree": "",
+      "city": "Emeryville",
+      "stateOrProvince": "CA",
+      "zipOrPostalCode": "94608",
+      "countryName": "US"
+    },
+    "telephoneNumber": "(510) 922-4444",
+    "dateOfBirth": "09/06/1950",
+    "married": true,
+    "spouseFullName": {
+      "first": "Rosemary",
+      "middle": "",
+      "last": "Woodhouse"
+    },
+    "agesOfOtherDependents": [
+      "12",
+      "13"
+    ],
+    "employmentHistory": [
+      {
+        "veteranOrSpouse": "VETERAN",
+        "occupationName": "Full time",
+        "from": "03/2020",
+        "to": "",
+        "present": true,
+        "employerName": "Veteran Current",
+        "employerAddress": {
+          "addresslineOne": "",
+          "addresslineTwo": "",
+          "addresslineThree": "",
+          "city": "",
+          "stateOrProvince": "",
+          "zipOrPostalCode": "",
+          "countryName": ""
+        }
+      },
+      {
+        "veteranOrSpouse": "VETERAN",
+        "occupationName": "Part time",
+        "from": "01/2017",
+        "to": "02/2020",
+        "present": false,
+        "employerName": "Veteran Previous",
+        "employerAddress": {
+          "addresslineOne": "",
+          "addresslineTwo": "",
+          "addresslineThree": "",
+          "city": "",
+          "stateOrProvince": "",
+          "zipOrPostalCode": "",
+          "countryName": ""
+        }
+      },
+      {
+        "veteranOrSpouse": "SPOUSE",
+        "occupationName": "Full time",
+        "from": "06/2018",
+        "to": "",
+        "present": true,
+        "employerName": "Spouse Current",
+        "employerAddress": {
+          "addresslineOne": "",
+          "addresslineTwo": "",
+          "addresslineThree": "",
+          "city": "",
+          "stateOrProvince": "",
+          "zipOrPostalCode": "",
+          "countryName": ""
+        }
+      },
+      {
+        "veteranOrSpouse": "SPOUSE",
+        "occupationName": "Full time",
+        "from": "03/2015",
+        "to": "06/2018",
+        "present": false,
+        "employerName": "Spouse Previous",
+        "employerAddress": {
+          "addresslineOne": "",
+          "addresslineTwo": "",
+          "addresslineThree": "",
+          "city": "",
+          "stateOrProvince": "",
+          "zipOrPostalCode": "",
+          "countryName": ""
+        }
+      }
+    ]
+  },
+  "income": [
+    {
+      "veteranOrSpouse": "VETERAN",
+      "monthlyGrossSalary": "102.55",
+      "deductions": {
+        "taxes": "5.45",
+        "retirement": "6.78",
+        "socialSecurity": "0.00",
+        "otherDeductions": {
+          "name": "",
+          "amount": "0.00"
+        }
+      },
+      "totalDeductions": "12.23",
+      "netTakeHomePay": "90.32",
+      "otherIncome": {
+        "name": "Social Security, Child support",
+        "amount": "34.00"
+      },
+      "totalMonthlyNetIncome": "124.32"
+    },
+    {
+      "veteranOrSpouse": "SPOUSE",
+      "monthlyGrossSalary": "100.00",
+      "deductions": {
+        "taxes": "10.00",
+        "retirement": "0.00",
+        "socialSecurity": "0.00",
+        "otherDeductions": {
+          "name": "",
+          "amount": "0.00"
+        }
+      },
+      "totalDeductions": "10.00",
+      "netTakeHomePay": "90.00",
+      "otherIncome": {
+        "name": "Disability Compensation, Education, Caretaker income, Rental income",
+        "amount": "7477.00"
+      },
+      "totalMonthlyNetIncome": "7567.00"
+    }
+  ],
+  "expenses": {
+    "rentOrMortgage": "33.00",
+    "food": "1000.54",
+    "utilities": "487.51",
+    "otherLivingExpenses": {
+      "name": "Clothing",
+      "amount": "10.00"
+    },
+    "expensesInstallmentContractsAndOtherDebts": "54.00",
+    "totalMonthlyExpenses": "1585.05"
+  },
+  "discretionaryIncome": {
+    "netMonthlyIncomeLessExpenses": "6106.27",
+    "amountCanBePaidTowardDebt": "65.00"
+  },
+  "assets": {
+    "cashInBank": "329.12",
+    "cashOnHand": "125.00",
+    "automobiles": [
+      {
+        "make": "fdsa",
+        "model": "dfa",
+        "resaleValue": "12"
+      }
+    ],
+    "trailersBoatsCampers": "123",
+    "usSavingsBonds": "0.00",
+    "stocksAndOtherBonds": "0.00",
+    "realEstateOwned": "3212.00",
+    "otherAssets": [
+      {
+        "name": "Collectibles, or collection(s)",
+        "amount": "12344"
+      },
+      {
+        "name": "Antiques",
+        "amount": "44"
+      },
+      {
+        "name": "Fine art",
+        "amount": "122"
+      }
+    ],
+    "totalAssets": "16311.12"
+  },
+  "installmentContractsAndOtherDebts": [
+    {
+      "purpose": "fdas",
+      "creditorName": "",
+      "originalAmount": "0.00",
+      "unpaidBalance": "0.00",
+      "amountDueMonthly": "32",
+      "dateStarted": "02/2021",
+      "amountPastDue": "0.00",
+      "creditorAddress": {
+        "addresslineOne": "",
+        "addresslineTwo": "",
+        "addresslineThree": "",
+        "city": "",
+        "stateOrProvince": "",
+        "zipOrPostalCode": "",
+        "countryName": ""
+      }
+    },
+    {
+      "purpose": "Credit card payment",
+      "creditorName": "",
+      "originalAmount": "",
+      "unpaidBalance": "21",
+      "amountDueMonthly": "22",
+      "amountPastDue": "",
+      "creditorAddress": {
+        "addresslineOne": "",
+        "addresslineTwo": "",
+        "addresslineThree": "",
+        "city": "",
+        "stateOrProvince": "",
+        "zipOrPostalCode": "",
+        "countryName": ""
+      }
+    }
+  ],
+  "totalOfInstallmentContractsAndOtherDebts": {
+    "originalAmount": "0.00",
+    "unpaidBalance": "21.00",
+    "amountDueMonthly": "54.00",
+    "amountPastDue": "0.00"
+  },
+  "additionalData": {
+    "bankruptcy": {
+      "hasBeenAdjudicatedBankrupt": true,
+      "dateDischarged": "02/2020",
+      "courtLocation": "fdas",
+      "docketNumber": "dfasa"
+    },
+    "additionalComments": "dfsasfdas\nIndividual expense amount: Clothing ($10.00)"
+  },
+  "applicantCertifications": {
+    "veteranSignature": "Travis D Jones",
+    "veteranDateSigned": "05/14/2024"
+  },
+  "selectedDebtsAndCopays": [
+    {
+      "resolutionWaiverCheck": true,
+      "resolutionOption": "waiver",
+      "fileNumber": "796121200",
+      "payeeNumber": "00",
+      "personEntitled": "AJHONS",
+      "deductionCode": "30",
+      "benefitType": "Comp & Pen",
+      "diaryCode": "080",
+      "diaryCodeDescription": "Referred to the Department of the Treasury",
+      "amountOverpaid": "0.00",
+      "amountWithheld": "0.00",
+      "originalAr": "136.24",
+      "currentAr": "100.00",
+      "debtHistory": [
+        {
+          "date": "02/25/2009",
+          "letterCode": "914",
+          "description": "Paid In Full - Account balance cleared via offset, not including TOP."
+        },
+        {
+          "date": "02/07/2009",
+          "letterCode": "905",
+          "description": "Administrative Write Off"
+        },
+        {
+          "date": "12/03/2008",
+          "letterCode": "487",
+          "description": "Death Case Pending Action"
+        }
+      ],
+      "id": "0.00",
+      "debtType": "DEBT",
+      "resolutionComment": ""
+    },
+    {
+      "resolutionComment": "32",
+      "resolutionOption": "monthly",
+      "fileNumber": "796121200",
+      "payeeNumber": "00",
+      "personEntitled": "STUB_M",
+      "deductionCode": "44",
+      "benefitType": "CH35 EDU",
+      "diaryCode": "100",
+      "diaryCodeDescription": "Pending payment",
+      "amountOverpaid": "26000.00",
+      "amountWithheld": "0.00",
+      "originalAr": "100.00",
+      "currentAr": "80.00",
+      "debtHistory": [
+        {
+          "date": "12/19/2014",
+          "letterCode": "681",
+          "description": "Account returned from Treasury Cross Servicing. Account is at TOP.  TOP offsets will be applied to account as Federal funds become available."
+        },
+        {
+          "date": "04/11/2013",
+          "letterCode": "080",
+          "description": "Debt referred to Treasury for Cross servicing"
+        },
+        {
+          "date": "12/11/2012",
+          "letterCode": "510",
+          "description": "Demand letters returned.  Unable to verify address with third party.  Account forced to TOP and/or CS."
+        },
+        {
+          "date": "10/17/2012",
+          "letterCode": "212",
+          "description": "Bad Address - Locator Request Sent"
+        },
+        {
+          "date": "09/28/2012",
+          "letterCode": "117",
+          "description": "Second Demand Letter"
+        },
+        {
+          "date": "09/18/2012",
+          "letterCode": "100",
+          "description": "First Demand Letter - Inactive Benefits - Due Process"
+        }
+      ],
+      "id": "1.00",
+      "debtType": "DEBT",
+      "resolutionWaiverCheck": false
+    },
+    {
+      "resolutionComment": "33",
+      "resolutionOption": "compromise",
+      "fileNumber": "796121200",
+      "payeeNumber": "00",
+      "personEntitled": "AJOHNS",
+      "deductionCode": "71",
+      "benefitType": "CH33 Books, Supplies/MISC EDU",
+      "diaryCode": "101",
+      "diaryCodeDescription": "Pending automatic benefit offset",
+      "amountOverpaid": "0.00",
+      "amountWithheld": "0.00",
+      "originalAr": "166.67",
+      "currentAr": "120.40",
+      "debtHistory": [
+        {
+          "date": "09/18/2012",
+          "letterCode": "100",
+          "description": "First Demand Letter - Inactive Benefits - Due Process"
+        }
+      ],
+      "id": "2.00",
+      "debtType": "DEBT",
+      "resolutionWaiverCheck": false
+    }
+  ],
+  "streamlined": {
+    "value": false,
+    "type": "none"
+  }
+}

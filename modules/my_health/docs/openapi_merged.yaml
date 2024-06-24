@@ -22,7 +22,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Bundle containing AllergyIntolerance objects. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.allergyIntolerance.html'>Allergies</a>.
+                  FHIR Bundle containing AllergyIntolerance objects. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.allergyIntolerance.html'>Allergies</a>.
           description: OK
         '401':
           content:
@@ -48,7 +48,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR AllergyIntolerance. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.allergyIntolerance.html'>Allergies</a>.
+                  FHIR AllergyIntolerance. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.allergyIntolerance.html'>Allergies</a>.
           description: OK
         '401':
           content:
@@ -74,7 +74,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Bundle containing DocumentReference objects. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.note.html'>Care Summaries and Notes</a>.
+                  FHIR Bundle containing DocumentReference objects. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.note.html'>Care Summaries and Notes</a>.
           description: OK
         '401':
           content:
@@ -100,7 +100,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR DocumentReference. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.note.html'>Care Summaries and Notes</a>.
+                  FHIR DocumentReference. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.note.html'>Care Summaries and Notes</a>.
           description: OK
         '401':
           content:
@@ -126,7 +126,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Bundle containing Condition objects. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.condition.html'>Health Conditions</a>.
+                  FHIR Bundle containing Condition objects. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.condition.html'>Health Conditions</a>.
           description: OK
         '401':
           content:
@@ -152,7 +152,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Condition. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.condition.html'>Health Conditions</a>.
+                  FHIR Condition. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.condition.html'>Health Conditions</a>.
           description: OK
         '401':
           content:
@@ -179,7 +179,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Bundle containing DiagnosticReport and DocumentReference objects. The schemas can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>, <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>, <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a>, <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
+                  FHIR Bundle containing DiagnosticReport and DocumentReference objects. The schemas can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>, <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>, <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a>, <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
           description: OK
         '401':
           content:
@@ -207,7 +207,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR DiagnosticReport. The schemas can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>, <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a>
+                  FHIR DiagnosticReport. The schemas can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>, <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a>
           description: OK
         '401':
           content:
@@ -234,7 +234,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR DocumentReference. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>, <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
+                  FHIR DocumentReference. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>, <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
           description: OK
         '401':
           content:
@@ -260,7 +260,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Bundle containing Immunization objects. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.immunization.html'>Immunization</a>
+                  FHIR Bundle containing Immunization objects. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.immunization.html'>Immunization</a>
           description: OK
         '401':
           content:
@@ -286,7 +286,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Immunization. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.immunization.html'>Immunization</a>
+                  FHIR Immunization. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.immunization.html'>Immunization</a>
           description: OK
         '401':
           content:
@@ -312,7 +312,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Bundle containing Observation objects. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.vitals.html'>Vitals</a>
+                  FHIR Bundle containing Observation objects. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.vitals.html'>Vitals</a>
           description: OK
         '401':
           content:
@@ -338,7 +338,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Observation. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.vitals.html'>Vitals</a>
+                  FHIR Observation. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.vitals.html'>Vitals</a>
           description: OK
         '401':
           content:

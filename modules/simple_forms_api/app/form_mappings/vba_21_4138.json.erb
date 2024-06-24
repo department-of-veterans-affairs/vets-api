@@ -23,13 +23,13 @@
   "form1[0].#subform[0].MailingAddress_City[0]": "<%= form.data.dig('mailing_address', 'city') %>",
   "form1[0].#subform[0].MailingAddress_ApartmentOrUnitNumber[0]": "<%= nil %>",
   "form1[0].#subform[0].MailingAddress_NumberAndStreet[0]": "<%= form.data.dig('mailing_address', 'street') %>",
-  "form1[0].#subform[0].REMARKS[0]": "<%= form.data['statement'] %>",
+  "form1[0].#subform[0].REMARKS[0]": "<%= form.data['statement']&.[](0..1510) %>",
   "form1[0].#subform[1].Digital_Signature[0]": "<%= form.data['statement_of_truth_signature'] %>",
-  "form1[0].#subform[1].Date_Signed_Year[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m') %>",
-  "form1[0].#subform[1].Date_Signed_Month[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%d') %>",
-  "form1[0].#subform[1].Date_Signed_Day[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%Y') %>",
+  "form1[0].#subform[1].Date_Signed_Year[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%Y') %>",
+  "form1[0].#subform[1].Date_Signed_Month[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m') %>",
+  "form1[0].#subform[1].Date_Signed_Day[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%d') %>",
   "form1[0].#subform[1].SocialSecurityNumber_LastFourNumbers[1]": "<%= form.data.dig('id_number', 'ssn')&.[](5..8) %>",
   "form1[0].#subform[1].SocialSecurityNumber_SecondTwoNumbers[1]": "<%= form.data.dig('id_number', 'ssn')&.[](3..4) %>",
   "form1[0].#subform[1].SocialSecurityNumber_FirstThreeNumbers[1]": "<%= form.data.dig('id_number', 'ssn')&.[](0..2) %>",
-  "form1[0].#subform[1].REMARKS[1]": "<%= nil %>"
+  "form1[0].#subform[1].REMARKS[1]": "<%= form.data['statement']&.[](1511..3685) %>"
 }

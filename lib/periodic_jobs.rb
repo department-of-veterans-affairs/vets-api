@@ -89,17 +89,18 @@ PERIODIC_JOBS = lambda { |mgr|
 
   mgr.register('0 6-18/6 * * *', 'EducationForm::Process10203Submissions')
 
-  mgr.register('* 7 * * *', 'SignIn::DeleteExpiredSessionsJob')
+  mgr.register('0 7 * * *', 'SignIn::DeleteExpiredSessionsJob')
   # Delete expired sessions
+
+  mgr.register('0 4 * * *', 'SignIn::CertificateCheckerJob')
+  # Log when a client or service account config contains an expired, expiring, or self-signed certificate
 
   mgr.register('0 12 3 * *', 'CypressViewportUpdater::UpdateCypressViewportsJob')
   # Updates Cypress files in vets-website with data from Google Analytics.
   mgr.register('0 13 * * 1', 'Mobile::V0::WeeklyMaintenanceWindowLogger')
   # Weekly logs of maintenance windows
-  mgr.register('0 20 * * *', 'ClaimsApi::ClaimAuditor')
-  # Hourly slack alert of errored claim submissions
   mgr.register('0 * * * *', 'ClaimsApi::ReportHourlyUnsuccessfulSubmissions')
-  # Daily alert of pending claims longer than acceptable threshold
+  # Hourly slack alert of errored claim submissions
   mgr.register('15 23 * * *', 'ClaimsApi::ReportUnsuccessfulSubmissions')
   # Weekly report of unsuccessful claims submissions
   mgr.register('00 00 1 * *', 'ClaimsApi::ReportMonthlySubmissions')
@@ -149,8 +150,10 @@ PERIODIC_JOBS = lambda { |mgr|
   # Daily/weekly report of unsuccessful benefits intake submissions
   mgr.register('0 2 1 * *', 'VBADocuments::ReportMonthlySubmissions')
   # Monthly report of benefits intake submissions
-  mgr.register('0 2,9,16 * * 1-5', 'VBADocuments::SlackNotifier')
-  # Notifies slack channel if certain benefits states get stuck
+  mgr.register('0 8,12,17 * * 1-5', 'VBADocuments::SlackInflightNotifier')
+  # Notifies slack channel if certain benefits intake uploads get stuck in Central Mail
+  mgr.register('15 * * * *', 'VBADocuments::SlackStatusNotifier')
+  # Notifies slack channel if Benefits Intake Uploads are stuck in the LH BI service before sending to central mail
   mgr.register('0 2,9,16 * * 1-5', 'VBADocuments::FlipperStatusAlert')
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
 
@@ -162,5 +165,11 @@ PERIODIC_JOBS = lambda { |mgr|
 
   # Updates veteran service organization names
   mgr.register('0 5 * * *', 'Organizations::UpdateNames')
+
+  # Clean SchemaContact::Validation records every night at midnight
+  mgr.register('0 0 * * *', 'SchemaContract::DeleteValidationRecordsJob')
+
+  # Daily 2am job that sends missing Pega statuses to DataDog
+  mgr.register('0 2 * * *', 'IvcChampva::MissingFormStatusJob')
 }
 # rubocop:enable Metrics/BlockLength

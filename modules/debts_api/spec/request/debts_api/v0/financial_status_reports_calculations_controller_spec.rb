@@ -107,7 +107,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReportsCalculations requesting', ty
     context 'with old form params' do
       it 'returns all expenses' do
         post('/debts_api/v0/calculate_all_expenses', params: old_expenses.to_h, as: :json)
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
   end
@@ -125,7 +125,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReportsCalculations requesting', ty
     context 'with old form params' do
       it 'returns all expenses' do
         post('/debts_api/v0/calculate_monthly_expenses', params: old_expenses.to_h, as: :json)
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
   end

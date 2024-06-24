@@ -9,6 +9,7 @@ module SimpleFormsApi
     class UploadsController < ApplicationController
       skip_before_action :authenticate
       before_action :authenticate, if: :should_authenticate
+      before_action :mpi_proxy, if: :form_is210966
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
@@ -31,7 +32,7 @@ module SimpleFormsApi
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
-        response = if form_is210966 && icn && first_party?
+        response = if form_is210966 && first_party?
                      handle_210966_authenticated
                    elsif form_is264555_and_should_use_lgy_api
                      handle264555
@@ -79,14 +80,25 @@ module SimpleFormsApi
         )
       end
 
+      def mpi_proxy
+        authorize(:mpi, :access_add_person_proxy?)
+      end
+
       private
 
       def handle_210966_authenticated
         intent_service = SimpleFormsApi::IntentToFile.new(icn, params)
-        form = SimpleFormsApi::VBA210966.new(JSON.parse(params.to_json))
+        parsed_form_data = JSON.parse(params.to_json)
+        form = SimpleFormsApi::VBA210966.new(parsed_form_data)
         existing_intents = intent_service.existing_intents
         confirmation_number, expiration_date = intent_service.submit
         form.track_user_identity(confirmation_number)
+
+        if Flipper.enabled?(:simple_forms_email_confirmations)
+          SimpleFormsApi::ConfirmationEmail.new(
+            form_data: parsed_form_data, form_number: get_form_id, confirmation_number:, user: @current_user
+          ).send
+        end
 
         { json: {
           confirmation_number:,

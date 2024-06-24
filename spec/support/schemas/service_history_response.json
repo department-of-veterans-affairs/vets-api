@@ -7,9 +7,9 @@
         "attributes": {       
           "properties": {                    
             "service_history": {
-              "description": "Array of service history hashes",
+              "description": "Array of service history objects",
               "items": {
-                "type": "hash"
+                "type": "object"
               },
               "properties": {
                 "service_type": {
@@ -30,9 +30,12 @@
                 "termination_reason_text": {
                   "type": "string"
                 },           
-                "personnel_category_type_code": {
+                "period_of_service_type_code": {
                   "type": "string"
-                }
+                },
+                "period_of_service_type_text": {
+                  "type": "string"
+                }                
               },
               "type": "array"
             }

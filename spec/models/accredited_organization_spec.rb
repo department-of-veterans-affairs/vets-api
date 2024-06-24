@@ -6,6 +6,8 @@ RSpec.describe AccreditedOrganization, type: :model do
   describe 'validations' do
     subject { build(:accredited_organization) }
 
+    it { is_expected.to have_many(:accredited_individuals).through(:accreditations) }
+
     it { expect(subject).to validate_presence_of(:ogc_id) }
     it { expect(subject).to validate_presence_of(:poa_code) }
     it { expect(subject).to validate_length_of(:poa_code).is_equal_to(3) }

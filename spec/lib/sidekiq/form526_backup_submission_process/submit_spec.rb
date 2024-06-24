@@ -115,6 +115,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
                 submission = Form526Submission.last
                 expect(submission.backup_submitted_claim_id).not_to be(nil)
                 expect(submission.aasm_state).to eq('delivered_to_backup')
+                expect(submission.submit_endpoint).to eq('benefits_intake_api')
               end
             end
           end

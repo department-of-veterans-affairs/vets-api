@@ -13,7 +13,7 @@ module CovidVaccine
 
       %i[vaccine_interest zip_code].each do |attr|
         define_method attr do
-          object.raw_form_data[attr]
+          object.raw_form_data[attr.to_s]
         end
       end
     end

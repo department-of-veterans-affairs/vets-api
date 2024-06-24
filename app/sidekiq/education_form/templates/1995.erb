@@ -63,10 +63,17 @@ Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 <% end -%>
 <% unless Settings.vsp_environment.eql?('production') -%>
 <% if @applicant.benefitUpdate.eql?('chapter35') || @applicant.benefitAppliedFor.eql?('chapter35') -%>
+<% if Settings.vsp_environment.eql?('production') -%>
 
                          SERVICE MEMBER INFORMATION
                          --------------------------
 
+<% else -%>
+
+                 DEA, CH35 SPONSOR/SERVICE MEMBER INFORMATION
+                 --------------------------------------------
+
+<% end -%>
 Name:   <%= full_name(@applicant.sponsorFullName) %>
 
 SSN:   <%= @applicant.sponsorSocialSecurityNumber %>
@@ -95,19 +102,25 @@ Type of Education or Training: <%= @applicant.educationType&.titleize %>
 Type of Education or Training: <%= @applicant.educationTypeUpdate&.titleize %>
 <% end -%>
 Education or Career Goal: <%= @applicant.educationObjective %>
-<% if Settings.vsp_environment.eql?('production') -%>
+
 New School or Training Establishment:
 <%= school_name_and_addr(@applicant.newSchool) %>
-
+<% if Settings.vsp_environment.eql?('production') -%>
 Current/Prior School or Training Establishment:
 <%= school_name_and_addr(@applicant.oldSchool) %>
 
 Date You Stopped Training: <%= @applicant.trainingEndDate %>
 Reason for Change: <%= @applicant.reasonForChange %>
 <% end -%>
+<% if Settings.vsp_environment.eql?('production') -%>
 
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
+<% else -%>
+
+                  APPLICANT ACTIVE DUTY SERVICE INFORMATION
+                  -----------------------------------------
+<% end -%>
 <% unless Settings.vsp_environment.eql?('production') -%>
 
 Served in the armed forces?: <%= @applicant.applicantServed %>

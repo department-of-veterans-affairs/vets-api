@@ -64,7 +64,6 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
           expect(errored_claim.status).to eq('errored')
 
           service.perform(errored_claim.id, middle_initial)
-
           errored_claim.reload
           expect(errored_claim.status).to eq('pending')
         end
@@ -111,6 +110,14 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
           detail: "Job retries exhausted for #{subject}",
           error: error_msg
         )
+      end
+    end
+  end
+
+  describe 'when an errored job has a time limitation' do
+    it 'logs to the ClaimsApi Logger' do
+      described_class.within_sidekiq_retries_exhausted_block do
+        expect(subject).to be_expired_in 48.hours
       end
     end
   end
