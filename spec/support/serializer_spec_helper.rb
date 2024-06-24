@@ -15,27 +15,38 @@ module SerializerSpecHelper
   end
 
   def expect_data_eq(serialized_data, data)
-    expect(serialized_data).to eq(normalize_data(data))
+    key_type = determine_key_type(serialized_data)
+    expect(serialized_data).to eq(normalize_data(data, key_type))
   end
 
   private
 
-  def normalize_data(data)
+  def determine_key_type(data)
+    if data.is_a?(Array)
+      first_element = data.find { |item| item.is_a?(Hash) }
+      return first_element.keys.first.is_a?(String) ? :string : :symbol if first_element
+    elsif data.is_a?(Hash)
+      return data.keys.first.is_a?(String) ? :string : :symbol
+    end
+  end
+
+  def normalize_data(data, key_type)
     case data
     when Hash
-      normalize_hash_keys(data)
+      normalize_hash_keys(data, key_type)
     when Array
-      data.map { |item| normalize_data(item) }
+      data.map { |item| normalize_data(item, key_type) }
     else
       data
     end
   end
 
-  def normalize_hash_keys(hash)
-    if hash.keys.first.is_a?(String)
-      hash.deep_symbolize_keys
-    else
+  def normalize_hash_keys(hash, key_type)
+    case key_type
+    when :string
       hash.deep_stringify_keys
+    when :symbol
+      hash.deep_symbolize_keys
     end
   end
 
