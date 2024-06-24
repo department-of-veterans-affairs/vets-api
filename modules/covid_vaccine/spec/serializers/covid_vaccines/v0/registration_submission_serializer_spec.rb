@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 describe CovidVaccine::V0::RegistrationSubmissionSerializer, type: :serializer do
-
   subject { serialize(registration, serializer_class: described_class) }
 
   let(:registration) { build_stubbed(:covid_vax_registration) }
