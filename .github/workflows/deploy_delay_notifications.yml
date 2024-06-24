@@ -57,7 +57,7 @@ jobs:
             echo "${info_message} has been delayed for more than 45 minutes. Skipping notification."
             echo "dev_summary=${info_message} has been delayed for more than 45 minutes. Skipping notification." >> $GITHUB_OUTPUT
           elif [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '30 minutes ago' +%s)" ]; then
-            echo "${info_message} has been delayed for more than 30 minutes."
+            echo "${info_message} has been delayed for more than 30 minutesssssssss."
             echo "Current commit on development is ${deployed_sha:0:8}."
             echo "dev_summary=${info_message} has been delayed for more than 30 minutes. Current commit on development is ${deployed_sha:0:8}. Check the following list of items for errors: ${action_items}" >> $GITHUB_OUTPUT
             exit 1
