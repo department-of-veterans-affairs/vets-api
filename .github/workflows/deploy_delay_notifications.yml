@@ -44,6 +44,8 @@ jobs:
           commit_time=${{ env.commit_time }}
           deployed_sha=${{ env.dev_deployed_sha }}
           info_message="latest commit (${latest_sha:0:8}, ${commit_time}) to development"
+          action_items="\n- [ArgoCD dev](https://argocd.vfs.va.gov/applications/vets-api-dev)\n- [Build, Push, & Deploy](https://github.com/department-of-veterans-affairs/vets-api/actions/workflows/build.yml) action\n- [Deploy dashboard](https://www.va.gov/atlas/apps/vets-api/deploy_status)\n- [Latest commits](https://github.com/department-of-veterans-affairs/vets-api/commits/master/)."
+
 
           if [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
             echo "${info_message} has been deployed."
@@ -54,11 +56,7 @@ jobs:
           elif [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '30 minutes ago' +%s)" ]; then
             echo "${info_message} has been delayed for more than 30 minutes."
             echo "Current commit on development is ${deployed_sha:0:8}."
-            echo "dev_summary=${info_message} has been delayed for more than 30 minutes. Current commit on development is ${deployed_sha:0:8}."
-            echo ""
-            echo "- Check [ArgoCD dev](https://argocd.vfs.va.gov/applications/vets-api-dev) for errors."
-            echo "- Check the [Build, Push, & Deploy](https://github.com/department-of-veterans-affairs/vets-api/actions/workflows/build.yml) action for failures."
-            echo "- Check the [deploy dashboard](https://www.va.gov/atlas/apps/vets-api/deploy_status) and [latest commits](https://github.com/department-of-veterans-affairs/vets-api/commits/master/) for errors." >> $GITHUB_OUTPUT
+            echo "dev_summary=${info_message} has been delayed for more than 30 minutes. Current commit on development is ${deployed_sha:0:8}. Check the following list of items for errors: ${action_items}" >> $GITHUB_OUTPUT
             exit 1
           else
             echo "Awaiting deployment of ${info_message}."
@@ -73,6 +71,7 @@ jobs:
           commit_time=${{ env.commit_time }}
           deployed_sha=${{ env.staging_deployed_sha }}
           info_message="latest commit (${latest_sha:0:8}, ${commit_time}) to staging"
+          action_items="\n- [ArgoCD staging](https://argocd.vfs.va.gov/applications/vets-api-staging)\n- [Build, Push, & Deploy](https://github.com/department-of-veterans-affairs/vets-api/actions/workflows/build.yml) action\n- [Deploy dashboard](https://www.va.gov/atlas/apps/vets-api/deploy_status)\n- [Latest commits](https://github.com/department-of-veterans-affairs/vets-api/commits/master/)."
 
           if [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
             echo "${info_message} has been deployed."
@@ -83,11 +82,7 @@ jobs:
           elif [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '30 minutes ago' +%s)" ]; then
             echo "${info_message} has been delayed for more than 30 minutes."
             echo "Current commit on staging is ${deployed_sha:0:8}."
-            echo "staging_summary=${info_message} has been delayed for more than 30 minutes. Current commit on staging is ${deployed_sha:0:8}."
-            echo ""
-            echo "- Check [ArgoCD staging](https://argocd.vfs.va.gov/applications/vets-api-staging) for errors."
-            echo "- Check the [Build, Push, & Deploy](https://github.com/department-of-veterans-affairs/vets-api/actions/workflows/build.yml) action for failures."
-            echo "- Check the [deploy dashboard](https://www.va.gov/atlas/apps/vets-api/deploy_status) and [latest commits](https://github.com/department-of-veterans-affairs/vets-api/commits/master/) for errors." >> $GITHUB_OUTPUT
+            echo "staging_summary=${info_message} has been delayed for more than 30 minutes. Current commit on staging is ${deployed_sha:0:8}. Check the following list of items for errors: ${action_items}" >> $GITHUB_OUTPUT
             exit 1
           else
             echo "Awaiting deployment of ${info_message}."
