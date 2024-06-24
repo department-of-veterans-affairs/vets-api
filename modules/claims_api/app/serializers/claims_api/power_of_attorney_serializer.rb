@@ -11,7 +11,7 @@ module ClaimsApi
     attributes :date_request_accepted, :previous_poa
 
     attribute :representative do |object|
-      object.representative.deep_transform_keys! { |k| k.underscore }
+      object.representative.deep_transform_keys!(&:underscore)
     end
 
     # "Uploaded" is an internal-only status indicating that the POA PDF
