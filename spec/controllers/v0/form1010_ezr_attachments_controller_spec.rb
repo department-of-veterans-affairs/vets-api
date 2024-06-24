@@ -26,9 +26,8 @@ RSpec.describe V0::Form1010EzrAttachmentsController, type: :controller do
       end
 
       context 'authenticated' do
-        it_behaves_like 'create 1010 form attachment' do
-          let(:user) { current_user }
-        end
+        sign_in(current_user)
+        it_behaves_like 'create 1010 form attachment'
       end
     end
 
