@@ -2,7 +2,15 @@
 
 ## ADR
 
-The pensions team uses [ADR Tools](https://github.com/npryce/adr-tools/tree/master) to document important engineering related decisions for the vets-api repo.  The goal is to capture the technical decisions our group makes so that anyone new to our team or following behind will be able to understand the reasons for the decisions.
+The pensions team uses [ADR Tools](https://github.com/npryce/adr-tools/tree/master) to document important engineering related decisions for the vets-api repo. The goal is to capture the technical decisions our group makes so that anyone new to our team or following behind will be able to understand the reasons for the decisions.
+
+| Decision                                                     |
+| ------------------------------------------------------------ |
+| [Use ADR to document important engineering decisions](/adr/0001-record-architecture-decisions.md) |
+| [Move the pensions specific code to the modules folder](/adr/0002-use-modules-folder-for-pensions-code.md) |
+|                                                              |
+
+
 
 ## Folder structure
 
@@ -10,13 +18,12 @@ For more information on the Ruby on Rails directory structure, please refer to h
 
 #### June 2024
 
-The current folder structure generally follows the default directory structure that **Ruby on Rails** comes with.  
+The current folder structure generally follows the default directory structure that **Ruby on Rails** comes with.
 
 ##### App Folder
 
-- At a high level, within the app folder, there are [controllers](https://guides.rubyonrails.org/action_controller_overview.html) and [models](https://guides.rubyonrails.org/active_record_basics.html).  Ruby on Rails uses a MVC (model, view, controller) architecture pattern.  There is little historical context or documentation on the choice of V0 or V1 for the controllers. 
-
-- There are also a [sidekiq](https://github.com/sidekiq/sidekiq) and [swagger](https://swagger.io/) folders.  
+- At a high level, within the app folder, there are [controllers](https://guides.rubyonrails.org/action_controller_overview.html) and [models](https://guides.rubyonrails.org/active_record_basics.html). Ruby on Rails uses a MVC (model, view, controller) architecture pattern. There is little historical context or documentation on the choice of V0 or V1 for the controllers.
+- There are also a [sidekiq](https://github.com/sidekiq/sidekiq) and [swagger](https://swagger.io/) folders.
 
 ##### DB Folder
 
@@ -24,7 +31,7 @@ The current folder structure generally follows the default directory structure t
 
 ##### Lib Folder
 
-- The lib folder is intended for common code or code that can be reused by other teams.  It is also where the code for interfacing with external APIs lives.
+- The lib folder is intended for common code or code that can be reused by other teams. It is also where the code for interfacing with external APIs lives.
 
 ##### Config Folder
 
@@ -32,9 +39,8 @@ The current folder structure generally follows the default directory structure t
 
 ##### Modules Folder
 
-- The modules folder has been a source of confusion for teams within vets-api.  Oddly, the code for the [Lighthouse API's](https://developer.va.gov/explore) exists within the modules folder, making it a part of the overall monorepo of vets-api.  It has been discussed that at some point the Lighthouse code will be moved out of vets-api.
-
-- The original advice we received was that no one should touch the modules folder because the code was owned by the Lighthouse team.  That no longer seems to be the case.
+- The modules folder has been a source of confusion for teams within vets-api. Oddly, the code for the [Lighthouse API's](https://developer.va.gov/explore) exists within the modules folder, making it a part of the overall monorepo of vets-api. It has been discussed that at some point the Lighthouse code will be moved out of vets-api.
+- The original advice we received was that no one should touch the modules folder because the code was owned by the Lighthouse team. That no longer seems to be the case.
 
 ##### Spec Folder
 
@@ -46,7 +52,7 @@ Summary Folder Structure
 
 #### Planned Folder Structure
 
-As discussed in this [ADR decision](./adr/0002-use-modules-folder-for-pensions-code.md), the pensions team has decided to move as much pension specific code out of the `app` folder as possible. 
+As discussed in this [ADR decision](./adr/0002-use-modules-folder-for-pensions-code.md), the pensions team has decided to move as much pension specific code out of the `app` folder as possible.
 
 The new folder structure will look like:
 
@@ -64,8 +70,6 @@ August 2023 - August 2024 Team
 | Todd Rizzolo | todd.rizzolo@adhocteam.us |
 | Scott Gorman | scott.gorman@adhocteam.us |
 | Daniel Lim   | daniel.lim@adhocteam.us   |
-
-
 
 ## Troubleshooting
 
