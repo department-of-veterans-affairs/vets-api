@@ -86,6 +86,14 @@ web:
     minReplicas:
     maxReplicas:
     targetValue:
+    scaleUp:
+      stabilizationWindowSeconds:
+      value:
+      periodSeconds:
+    scaleDown:
+      stabilizationWindowSeconds:
+      value:
+      periodSeconds:
   service:
     enabled: false
     annotations: {}
