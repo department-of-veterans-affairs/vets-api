@@ -5,6 +5,8 @@ require 'common/client/middleware/request/remove_cookies'
 require 'common/client/middleware/request/immutable_headers'
 require 'hca/soap_parser'
 
+# The Faraday module below is a temporary monkeypatch to provide the
+# `#default_options` method until it's implemented by Faraday
 module Faraday
   class Middleware
     def initialize(app = nil, options = {})
@@ -19,7 +21,9 @@ module Faraday
   end
 end
 
-Faraday::Middleware.include FaradayMiddlewarePatch
+# This was an unsuccessful attempt to include the unused methods in
+# lib/common/client/middleware/faraday_middleware_patch.rb
+# Faraday::Middleware.include FaradayMiddlewarePatch
 
 Rails.application.reloader.to_prepare do
   Faraday::Middleware.register_middleware remove_cookies: Common::Client::Middleware::Request::RemoveCookies
