@@ -9,6 +9,7 @@ module SimpleFormsApi
     class UploadsController < ApplicationController
       skip_before_action :authenticate
       before_action :authenticate, if: :should_authenticate
+      before_action :mpi_proxy, if: :form_is210966
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
@@ -31,7 +32,7 @@ module SimpleFormsApi
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
-        response = if form_is210966 && icn && first_party?
+        response = if form_is210966 && first_party?
                      handle_210966_authenticated
                    elsif form_is264555_and_should_use_lgy_api
                      handle264555
@@ -77,6 +78,10 @@ module SimpleFormsApi
           'Simple forms api - unauthenticated user submitting form',
           { form_number: params[:form_number] }
         )
+      end
+
+      def mpi_proxy
+        authorize(:mpi, :access_add_person_proxy?)
       end
 
       private

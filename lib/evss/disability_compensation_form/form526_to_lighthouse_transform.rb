@@ -275,8 +275,8 @@ module EVSS
             transform_multiple_exposures_other_details(toxic_exposure_source['otherHerbicideLocations'],
                                                        MULTIPLE_EXPOSURES_TYPE[:herbicide])
         end
-        if toxic_exposure_source['otherExposureDetails'].present?
-          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['otherExposureDetails'],
+        if toxic_exposure_source['otherExposuresDetails'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['otherExposuresDetails'],
                                                              MULTIPLE_EXPOSURES_TYPE[:hazard])
         end
         if values_present(toxic_exposure_source['specifyOtherExposures'])
@@ -322,10 +322,12 @@ module EVSS
 
         obj.exposure_dates.begin_date = convert_date_no_day(details['startDate']) if details['startDate'].present?
         obj.exposure_dates.end_date = convert_date_no_day(details['endDate']) if details['endDate'].present?
-        if multiple_exposures_type == MULTIPLE_EXPOSURES_TYPE[:hazard]
-          obj.hazard_exposed_to = details['description'] if details['description'].present?
-        elsif details['description'].present?
-          obj.exposure_location = details['description']
+        if details['description'].present?
+          if multiple_exposures_type == MULTIPLE_EXPOSURES_TYPE[:hazard]
+            obj.hazard_exposed_to = details['description']
+          else
+            obj.exposure_location = details['description']
+          end
         end
 
         [obj]
