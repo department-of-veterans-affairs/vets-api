@@ -193,15 +193,16 @@ module ClaimsApi
       end
 
       def validate_header_values_format
-        if header('X-VA-Birth-Date').blank?
+        errors = []
+        errors << 'X-VA-Birth-Date' if header('X-VA-Birth-Date').blank?
+        errors << 'X-VA-First-Name' if header('X-VA-First-Name').blank?
+        errors << 'X-VA-Last-Name' if header('X-VA-Last-Name').blank?
+
+        if errors.present?
           raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'The following values are invalid: birth date'
+            detail: "The following values are invalid: #{errors.join(', ')}"
           )
         end
-      end
-
-      def birth_date_valid_format?(birth_date)
-        false if birth_date.blank?
       end
 
       def claims_v1_logging(tag = 'traceability', level: :info, message: nil, icn: target_veteran&.mpi&.icn)
