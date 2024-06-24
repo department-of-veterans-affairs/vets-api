@@ -72,6 +72,23 @@ module Rx
     end
 
     ##
+    # Get documentation for a single prescription
+    #
+    # @return [Common::Collection[PrescriptionDocumentation]]
+    #
+    def get_rx_documentation
+      # TODO: Fully implement this when the endpoint is available
+      # get_rx_documentation(ndc)
+      # Common::Collection.fetch(::PrescriptionDocumentation, cache_key: cache_key('rx_doc'), ttl: CACHE_TTL) do
+      #   perform(:get, "prescription/getrxdoc/#{ndc}", nil, token_headers).body
+      # end
+      contents = File.read('spec/fixtures/prescriptions/documentation.json') # This is temporary
+      data = JSON.parse(contents)
+      body_content = data['body']
+      PrescriptionDocumentation.new(body_content)
+    end
+
+    ##
     # Get a single Prescription
     #
     # @param id [Fixnum] An Rx id

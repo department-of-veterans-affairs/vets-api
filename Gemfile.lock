@@ -113,6 +113,7 @@ PATH
       rails
     my_health (0.1.0)
       rails
+    pensions (0.1.0)
     representation_management (0.1.0)
     simple_forms_api (0.1.0)
     test_user_dashboard (0.1.0)
@@ -281,7 +282,7 @@ GEM
     breakers (0.7.1)
       faraday (>= 1.2.0, < 3.0)
       multi_json (~> 1.0)
-    builder (3.2.4)
+    builder (3.3.0)
     bundler-audit (0.9.1)
       bundler (>= 1.2.0, < 3)
       thor (~> 1.0)
@@ -410,7 +411,7 @@ GEM
       dry-schema (>= 1.12, < 2)
       zeitwerk (~> 2.6)
     einhorn (1.0.0)
-    erubi (1.12.0)
+    erubi (1.13.0)
     et-orbi (1.2.7)
       tzinfo
     ethon (0.16.0)
@@ -422,7 +423,7 @@ GEM
       railties (>= 5.0.0)
     faker (3.4.1)
       i18n (>= 1.8.11, < 2)
-    faraday (2.9.0)
+    faraday (2.9.2)
       faraday-net_http (>= 2.0, < 3.2)
     faraday-follow_redirects (0.3.0)
       faraday (>= 1, < 3)
@@ -555,7 +556,7 @@ GEM
     hashdiff (1.1.0)
     hashery (2.1.2)
     hashie (5.0.0)
-    hexapdf (0.44.0)
+    hexapdf (0.45.0)
       cmdparse (~> 3.0, >= 3.0.3)
       geom2d (~> 0.4, >= 0.4.1)
       openssl (>= 2.2.1)
@@ -581,13 +582,13 @@ GEM
       ruby-vips (>= 2.0.17, < 3)
     io-console (0.7.2)
     io-console (0.7.2-java)
-    irb (1.13.1)
+    irb (1.13.2)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     iso_country_codes (0.7.8)
     jar-dependencies (0.4.1)
     jmespath (1.6.2)
-    jruby-openssl (0.14.6-java)
+    jruby-openssl (0.15.0-java)
     json (2.7.2)
     json (2.7.2-java)
     json-schema (4.3.0)
@@ -652,7 +653,7 @@ GEM
     mini_magick (4.13.1)
     mini_mime (1.1.5)
     mini_portile2 (2.8.7)
-    minitest (5.23.1)
+    minitest (5.24.0)
     mock_redis (0.44.0)
     msgpack (1.7.2)
     msgpack (1.7.2-java)
@@ -679,10 +680,10 @@ GEM
     nio4r (2.7.3)
     nio4r (2.7.3-java)
     no_proxy_fix (0.1.2)
-    nokogiri (1.16.5)
+    nokogiri (1.16.6)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.16.5-java)
+    nokogiri (1.16.6-java)
       racc (~> 1.4)
     nori (2.7.0)
       bigdecimal
@@ -715,7 +716,7 @@ GEM
     optimist (3.1.0)
     os (1.1.4)
     ox (2.14.18)
-    parallel (1.24.0)
+    parallel (1.25.1)
     parallel_tests (4.7.1)
       parallel
     parser (3.3.2.0)
@@ -724,7 +725,7 @@ GEM
     patience_diff (1.2.0)
       optimist (~> 3.0)
     pdf-core (0.9.0)
-    pdf-forms (1.5.0)
+    pdf-forms (1.5.1)
       cliver (~> 0.3.2)
       rexml (~> 3.2, >= 3.2.6)
       safe_shell (>= 1.0.3, < 2.0)
@@ -844,7 +845,7 @@ GEM
     redis-namespace (1.11.0)
       redis (>= 4)
     regexp_parser (2.9.2)
-    reline (0.5.8)
+    reline (0.5.9)
       io-console (~> 0.5)
     representable (3.2.0)
       declarative (< 0.1.0)
@@ -860,8 +861,8 @@ GEM
       hashie (>= 1.2.0, < 6.0)
       jwt (>= 1.5.6)
     retriable (3.1.2)
-    rexml (3.2.8)
-      strscan (>= 3.0.9)
+    rexml (3.3.0)
+      strscan
     rgeo (3.0.1)
     rgeo-activerecord (7.0.1)
       activerecord (>= 5.0)
@@ -877,7 +878,7 @@ GEM
       rspec-mocks (~> 3.13.0)
     rspec-core (3.13.0)
       rspec-support (~> 3.13.0)
-    rspec-expectations (3.13.0)
+    rspec-expectations (3.13.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-instrumentation-matcher (0.0.9)
@@ -889,7 +890,7 @@ GEM
     rspec-mocks (3.13.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
-    rspec-rails (6.1.2)
+    rspec-rails (6.1.3)
       actionpack (>= 6.1)
       activesupport (>= 6.1)
       railties (>= 6.1)
@@ -1017,8 +1018,8 @@ GEM
       ffi
     ssrf_filter (1.1.2)
     staccato (0.5.3)
-    statsd-instrument (3.7.0)
-    stringio (3.1.0)
+    statsd-instrument (3.8.0)
+    stringio (3.1.1)
     strong_migrations (1.8.0)
       activerecord (>= 5.2)
     strscan (3.1.0)
@@ -1034,7 +1035,7 @@ GEM
     thread_safe (0.3.6)
     thread_safe (0.3.6-java)
     tilt (2.3.0)
-    timecop (0.9.9)
+    timecop (0.9.10)
     timeout (0.4.1)
     trailblazer-option (0.1.2)
     ttfunk (1.7.0)
@@ -1080,7 +1081,7 @@ GEM
     websocket-driver (0.7.6-java)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    will_paginate (4.0.0)
+    will_paginate (4.0.1)
     with_advisory_lock (5.1.0)
       activerecord (>= 6.1)
       zeitwerk (>= 2.6)
@@ -1094,7 +1095,7 @@ GEM
     xmlmapper (0.8.1)
       nokogiri (~> 1.11)
     yard (0.9.36)
-    zeitwerk (2.6.15)
+    zeitwerk (2.6.16)
 
 PLATFORMS
   aarch64-linux
@@ -1219,6 +1220,7 @@ DEPENDENCIES
   pdf-forms
   pdf-inspector
   pdf-reader
+  pensions!
   pg
   pg_query
   pg_search

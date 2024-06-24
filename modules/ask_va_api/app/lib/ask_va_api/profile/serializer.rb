@@ -2,7 +2,7 @@
 
 module AskVAApi
   module Profile
-    class Serializer < ActiveModel::Serializer
+    class Serializer
       include JSONAPI::Serializer
       set_type :profile
 
