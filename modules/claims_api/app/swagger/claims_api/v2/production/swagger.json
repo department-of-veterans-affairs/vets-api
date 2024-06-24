@@ -2237,13 +2237,13 @@
                                       "approximateBeginDate": {
                                         "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
                                         "type": "string",
-                                        "nullable": true,
+                                        "nullable": false,
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                         "example": "2018-06-06 or 2018-06"
                                       },
                                       "approximateEndDate": {
                                         "type": "string",
-                                        "nullable": true,
+                                        "nullable": false,
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                         "example": "2018-06-06 or 2018-06"
                                       }
@@ -2425,6 +2425,10 @@
                               "type": "string",
                               "description": "An optional notes section.",
                               "maxLength": 4000
+                            },
+                            "claimId": {
+                              "type": "string",
+                              "example": "600517517"
                             }
                           }
                         }
@@ -2500,8 +2504,8 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Resource not found",
                       "status": "404",
+                      "title": "Resource not found",
                       "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."
                     }
                   ]
@@ -3582,13 +3586,13 @@
                                     "approximateBeginDate": {
                                       "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
                                       "type": "string",
-                                      "nullable": true,
+                                      "nullable": false,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                       "example": "2018-06-06 or 2018-06"
                                     },
                                     "approximateEndDate": {
                                       "type": "string",
-                                      "nullable": true,
+                                      "nullable": false,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                       "example": "2018-06-06 or 2018-06"
                                     }
@@ -4410,8 +4414,8 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Resource not found",
                       "status": "404",
+                      "title": "Resource not found",
                       "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."
                     }
                   ]
@@ -5474,13 +5478,13 @@
                                     "approximateBeginDate": {
                                       "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
                                       "type": "string",
-                                      "nullable": true,
+                                      "nullable": false,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                       "example": "2018-06-06 or 2018-06"
                                     },
                                     "approximateEndDate": {
                                       "type": "string",
-                                      "nullable": true,
+                                      "nullable": false,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                       "example": "2018-06-06 or 2018-06"
                                     }
@@ -5932,7 +5936,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bf1a6d95-541d-43f5-be19-98656eb591de",
+                    "id": "799ba988-2791-47a3-975d-583cd6ea56b8",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -6775,8 +6779,8 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Resource not found",
                       "status": "404",
+                      "title": "Resource not found",
                       "detail": "Resource not found"
                     }
                   ]
@@ -6954,8 +6958,8 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Resource not found",
                       "status": "404",
+                      "title": "Resource not found",
                       "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."
                     }
                   ]
@@ -8815,8 +8819,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-06-17",
-                      "expirationDate": "2025-06-17",
+                      "creationDate": "2024-06-24",
+                      "expirationDate": "2025-06-24",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -9531,8 +9535,8 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Resource not found",
                       "status": "404",
+                      "title": "Resource not found",
                       "detail": "Could not retrieve Power of Attorney with code: A1Q"
                     }
                   ]
@@ -9593,7 +9597,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:130:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:132:in `representative'"
                       }
                     }
                   ]
@@ -9692,7 +9696,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "aeda7480-3645-4ace-9f07-1b1e4e9959a6",
+                    "id": "64f86482-cdb5-4053-b987-7ed56dc64145",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -9890,8 +9894,8 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Resource not found",
                       "status": "404",
+                      "title": "Resource not found",
                       "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 067"
                     }
                   ]
@@ -10385,7 +10389,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1c57f567-8473-42a0-be31-1722a441fe21",
+                    "id": "ae68dd8b-4a99-4196-ab49-3e83c5daa378",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -10591,8 +10595,8 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Resource not found",
                       "status": "404",
+                      "title": "Resource not found",
                       "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083"
                     }
                   ]
@@ -11207,8 +11211,8 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Resource not found",
                       "status": "404",
+                      "title": "Resource not found",
                       "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 067"
                     }
                   ]
@@ -11899,8 +11903,8 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Resource not found",
                       "status": "404",
+                      "title": "Resource not found",
                       "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083"
                     }
                   ]
@@ -12336,17 +12340,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "af69d2b8-bd14-4c0e-92f9-08b21e6e26ab",
+                    "id": "9a096d8c-b0a6-411b-ade8-d842276cb0e6",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "status": "submitted",
-                      "dateRequestAccepted": "2024-06-17",
+                      "dateRequestAccepted": "2024-06-24",
+                      "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
                         }
                       },
-                      "previousPoa": null
+                      "status": "submitted"
                     }
                   }
                 },
@@ -12498,8 +12502,8 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Resource not found",
                       "status": "404",
+                      "title": "Resource not found",
                       "detail": "Could not find Power of Attorney with id: -1"
                     }
                   ]
