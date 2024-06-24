@@ -2,7 +2,7 @@
 
 module AskVAApi
   module BranchOfService
-    class Serializer < ActiveModel::Serializer
+    class Serializer
       include JSONAPI::Serializer
       set_type :branch_of_service
 
