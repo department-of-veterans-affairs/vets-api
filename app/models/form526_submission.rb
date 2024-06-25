@@ -153,6 +153,7 @@ class Form526Submission < ApplicationRecord
              inverse_of: false
 
   has_many :form526_job_statuses, dependent: :destroy
+  has_many :form526_submission_remediations, dependent: :destroy
   belongs_to :user_account, dependent: nil, optional: true
 
   validates(:auth_headers_json, presence: true)
