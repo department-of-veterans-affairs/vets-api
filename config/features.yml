@@ -1520,4 +1520,4 @@ features:
     enable_in_development: true
   toggle_vye_application:
     actor_type: user
-    description: Enable VYE 
+    description: Enable VYE
