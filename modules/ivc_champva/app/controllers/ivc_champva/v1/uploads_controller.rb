@@ -102,10 +102,10 @@ module IvcChampva
 
         if unique_statuses == [200]
           { json: {}, status: 200 }
-        elsif unique_statuses == [400]
-          { json: { error_message: }, status: 400 }
+        elsif unique_statuses.include? 400
+          { json: { error_message: 'Error' }, status: 400 }
         else
-          { json: { error_message: 'Internal server error' }, status: 500 }
+          { json: { error_message: 'An unknown error occurred while uploading document(s).' }, status: 500 }
         end
       end
 
