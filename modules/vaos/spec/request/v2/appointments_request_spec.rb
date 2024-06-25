@@ -327,8 +327,6 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
         context 'using VAOS' do
           before do
             Flipper.disable(:va_online_scheduling_use_vpg)
-            Flipper.disable(:va_online_scheduling_enable_OH_reads)
-            stub_facilities
           end
 
           it 'fetches appointment list and includes avs on past booked appointments' do
@@ -359,7 +357,6 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
           before do
             Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
             Flipper.disable(:va_online_scheduling_use_vpg)
-            Flipper.disable(:va_online_scheduling_enable_OH_reads)
           end
 
           after do
@@ -638,7 +635,6 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
       context 'when the VAOS service returns a single appointment ' do
         before do
           Flipper.disable(:va_online_scheduling_use_vpg)
-          Flipper.disable(:va_online_scheduling_enable_OH_reads)
         end
 
         it 'has access and returns appointment - va proposed' do
@@ -726,7 +722,6 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
       context 'when the VAOS service errors on retrieving an appointment' do
         before do
           Flipper.disable(:va_online_scheduling_use_vpg)
-          Flipper.disable(:va_online_scheduling_enable_OH_reads)
         end
 
         it 'returns a 502 status code' do

@@ -153,6 +153,7 @@ class Form526Submission < ApplicationRecord
              inverse_of: false
 
   has_many :form526_job_statuses, dependent: :destroy
+  has_many :form526_submission_remediations, dependent: :destroy
   belongs_to :user_account, dependent: nil, optional: true
 
   validates(:auth_headers_json, presence: true)
@@ -525,7 +526,9 @@ class Form526Submission < ApplicationRecord
   # Lighthouse calls the user_account.icn the "ID of Veteran"
   #
   def lighthouse_service
-    BenefitsClaims::Service.new(user_account.icn)
+    account = user_account ||
+              Account.lookup_by_user_uuid(user_uuid)
+    BenefitsClaims::Service.new(account.icn)
   end
 
   def handle_validation_error(e)
