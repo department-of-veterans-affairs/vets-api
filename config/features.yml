@@ -23,6 +23,9 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal
     enable_in_development: true
+  appointments_consolidation:
+    actor_type: user
+    description: For features being tested while merging logic for appointments between web and mobile
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance

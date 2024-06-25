@@ -48,8 +48,10 @@ module VAOS
             cnp_count += 1 if cnp?(appt)
           end
 
-          filterer = AppointmentsPresentationFilter.new
-          appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
+          if Flipper.enabled?(:appointments_consolidation, user)
+            filterer = AppointmentsPresentationFilter.new
+            appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
+          end
 
           # log count of C&P appointments in the appointments list, per GH#78141
           log_cnp_appt_count(cnp_count) if cnp_count.positive?

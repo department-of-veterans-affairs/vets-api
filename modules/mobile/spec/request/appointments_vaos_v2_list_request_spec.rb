@@ -7,6 +7,10 @@ RSpec.describe 'vaos v2 appointments', type: :request do
 
   let!(:user) { sis_user(icn: '1012846043V576341') }
 
+  before do
+    Flipper.enable_actor(:appointments_consolidation, user)
+  end
+
   context 'with VAOS' do
     before do
       Flipper.disable(:va_online_scheduling_enable_OH_reads)

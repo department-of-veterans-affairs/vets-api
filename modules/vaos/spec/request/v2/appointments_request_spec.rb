@@ -7,6 +7,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
 
   before do
     Flipper.enable('va_online_scheduling')
+    Flipper.enable_actor('appointments_consolidation', current_user)
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
