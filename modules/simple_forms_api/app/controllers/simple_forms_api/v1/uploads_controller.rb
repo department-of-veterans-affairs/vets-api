@@ -177,7 +177,7 @@ module SimpleFormsApi
       end
 
       def loa3
-        @current_user&.loa&[:current] == 3
+        @current_user&.loa&.[](:current) == 3
       end
 
       def icn
