@@ -136,10 +136,6 @@ features:
     actor_type: user
     description: Enables telephone appointments for check-in
     enable_in_development: false
-  check_in_experience_pre_check_in_action_link_top_placement:
-    actor_type: cookie_id
-    description: Changes pre-check-in action link placement to the top of the page
-    enable_in_development: true
   check_in_experience_travel_reimbursement:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
@@ -151,10 +147,6 @@ features:
   check_in_experience_cerner_travel_claims_enabled:
     actor_type: user
     description: Enables travel claims filing for Oracle Health (Cerner) sites
-    enable_in_development: true
-  check_in_experience_travel_logic:
-    actor_type: user
-    description: Enables the travel reimbursement logic
     enable_in_development: true
   check_in_experience_45_minute_reminder:
     actor_type: user
@@ -1286,6 +1278,10 @@ features:
   payment_history:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
+    enable_in_development: true
+  cdp_payment_history_vba:
+    actor_type: user
+    description: Enables showing the overpayment and summary pages for the CDP Payment History
     enable_in_development: true
   show_digital_form_1095b:
     actor_type: user
