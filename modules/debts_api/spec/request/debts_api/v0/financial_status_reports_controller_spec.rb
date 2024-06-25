@@ -67,7 +67,6 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
       end
 
       it 'renders 404' do
-        # adjust below to be on the root level of the form data
         post(
           '/debts_api/v0/financial_status_reports/transform_and_submit',
           params: pre_transform_fsr_form_data.to_h,
