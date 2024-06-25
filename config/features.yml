@@ -1518,3 +1518,6 @@ features:
     actor_type: user
     description: Use the new facilities API v2 for the Cerner CTA. Estimated time of removal June 18, 2024 after testing of deployment on staging of authenticated user.
     enable_in_development: true
+  toggle_vye_application:
+    actor_type: user
+    description: Enable VYE 
