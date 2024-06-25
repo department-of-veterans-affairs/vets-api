@@ -6,7 +6,7 @@ module ClaimsApi
   module PoaVerification
     extend ActiveSupport::Concern
 
-    included do
+    included do # rubocop:disable Metrics/BlockLength
       #
       # Validate poa code provided exists in OGC dataset, that provided poa code is a valid/active poa code
       # @param poa_code [String] poa code to validate
