@@ -110,8 +110,8 @@ describe 'PowerOfAttorney', metadata do
         end
       end
 
-      response '422', 'Invalid request body' do
-        schema JSON.load_file(File.expand_path('rswag/422-schema-validation-error.json', __dir__))
+      response '422', 'Invalid request' do
+        schema JSON.load_file(File.expand_path('rswag/422.json', __dir__))
 
         let(:id) { '600043198_12072' }
         let(:data) do
@@ -136,10 +136,11 @@ describe 'PowerOfAttorney', metadata do
         end
 
         after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
+          example.metadata[:response][:content] ||= { 'application/json' => { examples: {} } }
+          examples = example.metadata.dig(:response, :content, 'application/json', :examples)
+          examples[:schema_validation_error] = {
+            summary: 'Schema validation error',
+            value: JSON.parse(response.body, symbolize_names: true)
           }
         end
 
@@ -148,8 +149,8 @@ describe 'PowerOfAttorney', metadata do
         end
       end
 
-      response '422', 'Invalid recreation' do
-        schema JSON.load_file(File.expand_path('rswag/422-not-original-error.json', __dir__))
+      response '422', 'Invalid request' do
+        schema JSON.load_file(File.expand_path('rswag/422.json', __dir__))
 
         let(:id) { '600043198_12072' }
         let(:data) { body_schema[:example] }
@@ -163,10 +164,11 @@ describe 'PowerOfAttorney', metadata do
         end
 
         after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
+          example.metadata[:response][:content] ||= { 'application/json' => { examples: {} } }
+          examples = example.metadata.dig(:response, :content, 'application/json', :examples)
+          examples[:invalid_recreation_error] = {
+            summary: 'Invalid recreation error',
+            value: JSON.parse(response.body, symbolize_names: true)
           }
         end
 
@@ -175,10 +177,10 @@ describe 'PowerOfAttorney', metadata do
         end
       end
 
-      response '422', 'Obsolete POA request' do
-        schema JSON.load_file(File.expand_path('rswag/422-obsolete-error.json', __dir__))
+      response '422', 'Invalid request' do
+        schema JSON.load_file(File.expand_path('rswag/422.json', __dir__))
 
-        let(:id) { '600043216_42665' }
+        let(:id) { '600036513_15839' }
         let(:data) { body_schema[:example] }
 
         before do |example|
@@ -190,10 +192,11 @@ describe 'PowerOfAttorney', metadata do
         end
 
         after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
+          example.metadata[:response][:content] ||= { 'application/json' => { examples: {} } }
+          examples = example.metadata.dig(:response, :content, 'application/json', :examples)
+          examples[:obsolete_error] = {
+            summary: 'Obsolete Power Of Attorney request',
+            value: JSON.parse(response.body, symbolize_names: true)
           }
         end
 

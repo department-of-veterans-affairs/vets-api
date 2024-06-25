@@ -503,7 +503,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
 
       expect(ClaimsApi::PowerOfAttorneyRequest::Metadata).to(
         receive(:find).and_return(
-          OpenStruct.new(obsolete: obsolete)
+          OpenStruct.new(obsolete:)
         )
       )
     end

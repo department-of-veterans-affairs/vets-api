@@ -16,19 +16,16 @@
         ],
         "properties": {
           "title": {
-            "type": "string",
-            "enum": [
-              "Validation error"
-            ]
+            "type": "string"
           },
           "detail": {
             "type": "string"
           },
           "code": {
-            "type": "string",
-            "enum": [
-              "109"
-            ]
+            "type": "string"
+          },
+          "source": {
+            "type": "object"
           },
           "status": {
             "type": "string",

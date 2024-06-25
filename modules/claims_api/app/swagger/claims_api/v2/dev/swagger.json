@@ -177,21 +177,55 @@
             }
           },
           "422": {
-            "description": "Invalid recreation",
+            "description": "Invalid request",
             "content": {
               "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "must be original",
-                      "detail": "base - must be original",
-                      "code": "100",
-                      "source": {
-                        "pointer": "data/attributes/base"
-                      },
-                      "status": "422"
+                "examples": {
+                  "schema_validation_error": {
+                    "summary": "Schema validation error",
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Validation error",
+                          "detail": "object at `/data/attributes` is missing required properties: status, declinedReason",
+                          "code": "109",
+                          "status": "422"
+                        }
+                      ]
                     }
-                  ]
+                  },
+                  "invalid_recreation_error": {
+                    "summary": "Invalid recreation error",
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "must be original",
+                          "detail": "base - must be original",
+                          "code": "100",
+                          "source": {
+                            "pointer": "data/attributes/base"
+                          },
+                          "status": "422"
+                        }
+                      ]
+                    }
+                  },
+                  "obsolete_error": {
+                    "summary": "Obsolete Power Of Attorney request",
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Power of attorney request must not be obsolete",
+                          "detail": "power-of-attorney-request - must not be obsolete",
+                          "code": "100",
+                          "source": {
+                            "pointer": "data/attributes/power-of-attorney-request"
+                          },
+                          "status": "422"
+                        }
+                      ]
+                    }
+                  }
                 },
                 "schema": {
                   "type": "object",
@@ -207,33 +241,26 @@
                           "title",
                           "detail",
                           "code",
-                          "source",
                           "status"
                         ],
                         "properties": {
                           "title": {
-                            "type": "string",
-                            "enum": [
-                              "Validation error"
-                            ]
+                            "type": "string"
                           },
                           "detail": {
                             "type": "string"
                           },
                           "code": {
-                            "type": "string",
-                            "enum": [
-                              "100"
-                            ]
+                            "type": "string"
+                          },
+                          "source": {
+                            "type": "object"
                           },
                           "status": {
                             "type": "string",
                             "enum": [
                               "422"
                             ]
-                          },
-                          "source": {
-                            "type": "object"
                           }
                         }
                       }

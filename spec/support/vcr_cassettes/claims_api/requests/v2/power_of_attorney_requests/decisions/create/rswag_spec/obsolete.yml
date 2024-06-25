@@ -36,14 +36,14 @@ http_interactions:
             <tns:readAllVeteranRepresentatives>
               <data:CorpPtcpntIdFormTypeCode>
                 <formTypeCode>21-22</formTypeCode>
-                <veteranCorpPtcpntId>600043216</veteranCorpPtcpntId>
+                <veteranCorpPtcpntId>600036513</veteranCorpPtcpntId>
               </data:CorpPtcpntIdFormTypeCode>
             </tns:readAllVeteranRepresentatives>
           </env:Body>
         </env:Envelope>
     headers:
       User-Agent:
-      - <FARADAY_VERSION>
+      - "<FARADAY_VERSION>"
       Soapaction:
       - '"readAllVeteranRepresentatives"'
       Content-Type:
@@ -60,7 +60,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 25 Jun 2024 08:43:30 GMT
+      - Tue, 25 Jun 2024 23:30:45 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -87,24 +87,24 @@ http_interactions:
               xmlns:ns2="http://gov.va.vba.benefits.vdc/data"
             >
               <ns2:VeteranRepresentativeReturnList>
-                <addressLine1 />
+                <addressLine1>Delaware Commission of Veterans Aff</addressLine1>
                 <addressLine2 />
                 <addressLine3 />
                 <changeAddressAuth>true</changeAddressAuth>
-                <city>Glen Allen</city>
+                <city>Dover</city>
                 <claimantRelationship />
                 <formTypeCode>21-22</formTypeCode>
-                <insuranceNumbers>12345678</insuranceNumbers>
+                <insuranceNumbers>796127242</insuranceNumbers>
                 <limitationAlcohol>false</limitationAlcohol>
                 <limitationDrugAbuse>false</limitationDrugAbuse>
                 <limitationHIV>false</limitationHIV>
                 <limitationSCA>false</limitationSCA>
-                <organizationName>AMERICAN LEGION</organizationName>
+                <organizationName>DELAWARE COMMISSION OF VETERANS AFFAIRS</organizationName>
                 <otherServiceBranch />
                 <phoneNumber />
-                <poaCode>074</poaCode>
-                <postalCode>23060</postalCode>
-                <procId>42665</procId>
+                <poaCode>060</poaCode>
+                <postalCode>19904</postalCode>
+                <procId>15839</procId>
                 <representativeFirstName />
                 <representativeLastName />
                 <representativeLawFirmOrAgencyName />
@@ -113,23 +113,22 @@ http_interactions:
                 <section7332Auth>true</section7332Auth>
                 <serviceBranch />
                 <serviceNumber />
-                <state>VA</state>
-                <submittedDate>2014-12-03T10:48:09-06:00</submittedDate>
+                <state>DE</state>
+                <submittedDate>2013-07-12T14:09:57-05:00</submittedDate>
                 <vdcStatus>Complete</vdcStatus>
-                <veteranPtcpntId>72360</veteranPtcpntId>
+                <veteranPtcpntId>24679</veteranPtcpntId>
                 <acceptedBy />
                 <claimantFirstName />
                 <claimantLastName />
                 <claimantMiddleName />
-                <declinedBy>STROUD,BEATRICE</declinedBy>
-                <declinedDate>2024-06-25T03:21:30-05:00</declinedDate>
-                <declinedReason>Some reason</declinedReason>
-                <secondaryStatus>Declined</secondaryStatus>
-                <veteranFirstName>FRANK</veteranFirstName>
-                <veteranLastName>ARNOLD</veteranLastName>
-                <veteranMiddleName>LEE</veteranMiddleName>
-                <veteranSSN>796143510</veteranSSN>
-                <veteranVAFileNumber>796143510</veteranVAFileNumber>
+                <declinedBy />
+                <declinedReason />
+                <secondaryStatus>Obsolete</secondaryStatus>
+                <veteranFirstName>BRIAN</veteranFirstName>
+                <veteranLastName>STEPHENS</veteranLastName>
+                <veteranMiddleName>J</veteranMiddleName>
+                <veteranSSN>796127242</veteranSSN>
+                <veteranVAFileNumber>796127242</veteranVAFileNumber>
               </ns2:VeteranRepresentativeReturnList>
             </ns0:readAllVeteranRepresentativesResponse>
           </S:Body>
