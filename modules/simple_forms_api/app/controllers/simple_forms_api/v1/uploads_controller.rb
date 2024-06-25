@@ -9,7 +9,7 @@ module SimpleFormsApi
     class UploadsController < ApplicationController
       skip_before_action :authenticate
       before_action :authenticate, if: :should_authenticate
-      before_action :mpi_proxy, if: :form_is210966_and_should_use_itf_api
+      before_action :mpi_proxy, if: :use_itf_api_for_210966_form?
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
@@ -32,7 +32,7 @@ module SimpleFormsApi
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
-        response = if form_is210966_and_should_use_itf_api
+        response = if use_itf_api_for_210966_form?
                      handle_210966_authenticated
                    elsif form_is264555_and_should_use_lgy_api
                      handle264555
@@ -163,7 +163,7 @@ module SimpleFormsApi
         params[:form_number] == '21-0966'
       end
 
-      def form_is210966_and_should_use_itf_api
+      def use_itf_api_for_210966_form?
         form_is210966 && loa3 && icn && first_party?
       end
 
