@@ -6,7 +6,7 @@ module Mobile
       include JSONAPI::Serializer
 
       set_type :categories
-      set_id &:category_id
+      set_id(&:category_id)
 
       attribute :message_category_type
     end
