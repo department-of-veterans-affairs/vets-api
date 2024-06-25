@@ -38,6 +38,6 @@ module RepresentationManagement
     validates :representative_area_code, presence: true, length: { is: 3 }, numericality: { only_integer: true }
     validates :representative_phone_number, presence: true, length: { is: 7 }, numericality: { only_integer: true }
 
-    attr_accessor [representative_attrs, representative_consent_attrs].flatten
+    attr_reader [representative_attrs, representative_consent_attrs].flatten
   end
 end

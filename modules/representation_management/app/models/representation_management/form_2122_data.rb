@@ -10,8 +10,8 @@ module RepresentationManagement
       service_organization_appointment_date
     ]
 
-    validates :service_organization_name, presence: true
+    attr_reader service_organization_attrs
 
-    attr_accessor service_organization_attrs
+    validates :service_organization_name, presence: true
   end
 end

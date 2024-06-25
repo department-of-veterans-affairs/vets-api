@@ -45,10 +45,12 @@ module RepresentationManagement
       consent_limits
     ]
 
+    attr_reader [veteran_attrs, claimant_attrs, consent_attrs].flatten
+
     validates :veteran_first_name, presence: true, length: { maximum: 12 }
     validates :veteran_middle_initial, length: { maximum: 1 }
     validates :veteran_last_name, presence: true, length: { maximum: 18 }
-    validates :veteran_social_security_number, presence: true, lenghth: { is: 9 }, numericality: { only_integer: true }
+    validates :veteran_social_security_number, presence: true, length: { is: 9 }, numericality: { only_integer: true }
     validates :veteran_file_number, presence: true, length: { is: 9 }, numericality: { only_integer: true }
     validates :veteran_address_line1, presence: true, length: { maximum: 30 }
     validates :veteran_address_line2, length: { maximum: 5 }
@@ -60,9 +62,8 @@ module RepresentationManagement
     validates :veteran_area_code, length: { is: 3 }, numericality: { only_integer: true }
     validates :veteran_phone_number, length: { is: 7 }, numericality: { only_integer: true }
     validates :veteran_service_number, length: { is: 9 }, numericality: { only_integer: true }
-    validates :veteran_insurance_numbers
 
-    with_options if: claimant_first_name.present? do
+    with_options if: claimant_first_name_present? do
       validates :claimant_first_name, presence: true, length: { maximum: 12 }
       validates :claimant_middle_initial, length: { maximum: 1 }
       validates :claimant_last_name, presence: true, length: { maximum: 18 }
@@ -76,7 +77,11 @@ module RepresentationManagement
       validates :claimant_area_code, length: { is: 3 }, numericality: { only_integer: true }
       validates :claimant_phone_number, length: { is: 7 }, numericality: { only_integer: true }
     end
+  end
 
-    attr_accessor [veteran_attrs, claimant_attrs, consent_attrs].flatten
+  private
+
+  def claimant_first_name_present?
+    claimant_first_name.present?
   end
 end
