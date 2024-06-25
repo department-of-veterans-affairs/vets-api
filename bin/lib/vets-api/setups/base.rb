@@ -111,7 +111,7 @@ module VetsApi
 
       def save_settings(settings)
         File.open('config/settings.local.yml', 'a') do |file|
-          file.puts settings.to_yaml.tr('---', '')
+          file.puts settings.to_yaml.sub(/^---\n/, '')
         end
       end
     end
