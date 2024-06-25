@@ -24,7 +24,7 @@ module VAProfile
       # @return [String] Service name to use in breakers and metrics.
       #
       def service_name
-        'VAPROFILE_PROFILE_V3'
+        'VAPROFILE_PROFILE_INFORMAION'
       end
 
       ##

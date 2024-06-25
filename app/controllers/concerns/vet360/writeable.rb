@@ -22,11 +22,7 @@ module Vet360
     def write_to_vet360_and_render_transaction!(type, params, http_verb: 'post')
       record = build_record(type, params)
       validate!(record)
-      if Flipper.enabled?(:va_profile_information_v3_service, @current_user)
-        response = service.send("create_or_update_info", http_verb.to_sym, type, record, "#{type.capitalize}TransactionResponse")
-      else
-        response = write_valid_record!(http_verb, type, record)
-      end
+      response = write_valid_record!(http_verb, type, record)
       render_new_transaction!(type, response)
     end
 
@@ -53,16 +49,20 @@ module Vet360
       raise Common::Exceptions::ValidationErrors, record
     end
 
-    def service
+    def service(type: nil)
       if Flipper.enabled?(:va_profile_information_v3_service, @current_user)
-        VAProfile::Profile::Service.new @current_user
+        VAProfile::ProfileInformation::Service.new @current_user
       else
         VAProfile::ContactInformation::Service.new @current_user
       end
     end
 
     def write_valid_record!(http_verb, type, record)
-      service.send("#{http_verb}_#{type.downcase}", record)
+      if Flipper.enabled?(:va_profile_information_v3_service, @current_user)
+        service.send("create_or_update_info", http_verb.to_sym, type, record)
+      else
+        service.send("#{http_verb}_#{type.downcase}", record)
+      end
     end
 
     def render_new_transaction!(type, response)

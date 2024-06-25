@@ -7,6 +7,19 @@ require_relative 'transaction_response'
 module VAProfile
   module ProfileInformation
     class Service < Common::Client::Base
+      CONTACT_INFO_CHANGE_TEMPLATE = Settings.vanotify.services.va_gov.template_id.contact_info_change
+      EMAIL_PERSONALISATIONS = {
+        address: 'Address',
+        residence_address: 'Home address',
+        correspondence_address: 'Mailing address',
+        email: 'Email address',
+        phone: 'Phone number',
+        home_phone: 'Home phone number',
+        mobile_phone: 'Mobile phone number',
+        work_phone: 'Work phone number'
+      }.freeze
+
+      include Common::Client::Concerns::Monitoring
       configuration VAProfile::ProfileInformation::Configuration
 
       OID = '2.16.840.1.113883.3.42.10001.100001.12'
@@ -19,78 +32,81 @@ module VAProfile
         super()
       end
 
-      def create_or_update_info(http_verb, type, record, response_class)
-        raw_response = perform(http_verb.to_sym, type.pluralize, record.in_json)
-        response = response_class.from(raw_response)
-        if http_verb.to_sym == :put && type == "email"
-          rescue if old_email.nil?
-          transaction = response.transaction
-          return if !transaction.received?
-          OldEmail.create(transaction_id: transaction.id, email: old_email)
-        end
+      def get_response(type)
+        model = model(type)
+        raw_response = perform(:post, path, { bios: [{ bioPath: model.bio_path }] }))
+        response = model.response_class(raw_response)
+        Sentry.set_extras(response.debug_data) unless response.ok?
         response
       rescue => e
         handle_error(e)
       end
 
-      # Adding this for future reference. This is not used for ProfileInformation
-      # This will replace get_military_occupations and get_health_benefit_bio in the future
-      # Need to figure out universal bio_path solution
-      # def get_response(model)
-      #   model.response_class(perform(:post, path, { bios: [{ bioPath: model.bio_path }] }))
-      #   response = model.response_class(service_response)
-      #   Sentry.set_extras(response.debug_data) unless response.ok?
-      #   response
-      # end
-      # def self.get_response(model)
-      #   get_response(model)
-      # end
-      # def submit(params)
-      #   config.submit(path(@user.edipi), params)
-      # end
+      def self.get_person(edipi)
+        stub_user = OpenStruct.new(edipi:)
+        new(stub_user).get_response("person")
+      end
+
+      def submit(params)
+        config.submit(path(@user.edipi), params)
+      end
+
+      # Record is not defined when requesting an #update
+      # Determine if the record needs to be created or updated with reassign_http_verb
+      # Ensure http_verb is a symbol for the response request
+      def create_or_update_info(http_verb, type, record)
+        http_verb = http_verb.to_sym == :update ? reassign_http_verb(type, record) : http_verb.to_sym
+
+        raw_response = perform(http_verb, type.pluralize, record.in_json)
+        response = response_class(type).from(raw_response)
+        return response unless http_verb == :put && type == "email" && old_email.present?
+
+        transaction = response.transaction
+        return response if !transaction.received?
+
+        # Create OldEmail to send notification to user's previous email
+        OldEmail.create(transaction_id: transaction.id, email: old_email)
+        response
+      rescue => e
+        handle_error(e)
+      end
+
+      def get_transaction_status(transaction_id, type)
+        with_monitoring do
+          transaction_status_path = model(type).transaction_status_path(@user, transaction_id)
+          raw_response = perform(:get, transaction_status_path)
+          VAProfile::Stats.increment_transaction_results(raw_response)
+
+          transaction_status = response_class(type).from(raw_response)
+          return transaction_status if !model(type).send_change_notifcations?
+
+          send_change_notifications(transaction_status)
+          transaction_status
+        end
+      rescue => e
+        handle_error(e)
+      end
+
 
       private
 
-      def icn_with_aaid
-        return "#{user.idme_uuid}^PN^200VIDM^USDVA" if user.idme_uuid
-        return "#{user.logingov_uuid}^PN^200VLGN^USDVA" if user.logingov_uuid
-        nil
+      def model(type)
+        return "VAProfile::Models::#{type.capitalize}".constantize
       end
 
-      def path(edipi)
-        "#{OID}/#{ERB::Util.url_encode("#{edipi}#{AAID}")}"
+      def response_class(type)
+        return model(type).response_class
+      end
+
+      def icn_with_aaid
+        return "#{@user.idme_uuid}^PN^200VIDM^USDVA" if @user.idme_uuid
+        return "#{@user.logingov_uuid}^PN^200VLGN^USDVA" if @user.logingov_uuid
+        nil
       end
 
       def path
         oid = MPI::Constants::VA_ROOT_OID
-        path = "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
-      end
-
-      def send_change_notifications(transaction_status)
-        transaction = transaction_status.transaction
-        # is transaction_status.changed_field a string or symbol?
-        personalisaton = transaction_status.changed_field
-        email_transaction = personalisaton == "email"
-        if transaction.completed_success?
-          transaction_id = transaction.id
-          return if TransactionNotification.find(transaction_id).present?
-
-          notify_email = email_transaction ? old_email(transaction_id) : old_email
-          return if notify_email.nil?
-
-          notify_email_job(notify_email, personalisation)
-
-          if email_transaction
-            notify_email_job(transaction_status.new_email, personalisation) if transaction_status.new_email.present?
-            OldEmail.find(transaction_id).destroy
-          else
-            TransactionNotification.create(transaction_id:)
-          end
-        end
-      end
-
-      def notify_email_job(notify_email, personalisation)
-        VANotifyEmailJob.perform_async(notify_email, CONTACT_INFO_CHANGE_TEMPLATE, personalisation)
+        return "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
       end
 
       def old_email(transaction_id: nil)
@@ -98,17 +114,39 @@ module VAProfile
         OldEmail.find(transaction_id).try(:email)
       end
 
-      def get_transaction_status(transaction_id, type, response_class)
-        route = "#{@user.vet360_id}/#{type}/status/#{transaction_id}"
-        raw_response = perform(:get, route)
-        VAProfile::Stats.increment_transaction_results(raw_response)
+      def reassign_http_verb(type, record)
+        contact_info = VAProfileRedis::ProfileInformation.for_user(@user)
+        attr = model(type).contact_info_attr(record)
+        raise "invalid #{type} VAProfile::ProfileInformation" if attr.nil?
+        record.id = contact_info.public_send(attr)&.id
+        return record.id.present? ? :put : :post
+      end
 
-        transaction_status = response_class.from(raw_response)
-        send_change_notifications(transaction_status)
+      def get_email_personalisation(type)
+        { 'contact_info' => EMAIL_PERSONALISATIONS[type] }
+      end
 
-        transaction_status
-      rescue => e
-        handle_error(e)
+      def send_change_notifications(transaction_status)
+        transaction = transaction_status.transaction
+        transaction_id = transaction.id
+        return if transaction.completed_success? || TransactionNotification.find(transaction_id).present?
+
+        email_transaction = transaction_status.new_email.present?
+        notify_email = email_transaction ? old_email(transaction_id) : old_email
+        return if notify_email.nil?
+
+        personalisation = transaction_status.changed_field
+        notify_email_job(notify_email, personalisation)
+        TransactionNotification.create(transaction_id:)
+        return unless email_transaction
+
+        # Send notification to new email
+        notify_email_job(transaction_status.new_email, personalisation)
+        OldEmail.find(transaction_id).destroy
+      end
+
+      def notify_email_job(notify_email, personalisation)
+        VANotifyEmailJob.perform_async(notify_email, CONTACT_INFO_CHANGE_TEMPLATE, get_email_personalisation(personalisation))
       end
     end
   end

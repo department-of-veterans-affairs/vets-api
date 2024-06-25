@@ -136,6 +136,10 @@ module VAProfile
 
         tx_output['email_address_text']
       end
+
+      def changed_field
+        :email
+      end
     end
 
     class TelephoneTransactionResponse < TransactionResponse

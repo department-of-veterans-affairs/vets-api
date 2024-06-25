@@ -64,6 +64,22 @@ module VAProfile
           vet360_id: body['vet360_id']
         )
       end
+
+      def self.response_class
+        VAProfile::ProfileInformation::EmailTransactionResponse
+      end
+
+      def self.transaction_status_path(user, transaction_id)
+        "#{user.vet360_id}/emails/status/#{transaction_id}"
+      end
+
+      def self.send_change_notifcations?
+        true
+      end
+
+      def self.contact_info_attr(record)
+        'email'
+      end
     end
   end
 end

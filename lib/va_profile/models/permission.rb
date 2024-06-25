@@ -75,6 +75,22 @@ module VAProfile
           effective_start_date: body['effective_start_date']
         )
       end
+
+      def self.response_class
+        VAProfile::ProfileInformation::PermissionTransactionResponse
+      end
+
+      def self.transaction_status_path(user, transaction_id)
+        "#{user.vet360_id}/permissions/status/#{transaction_id}"
+      end
+
+      def self.send_change_notifcations?
+        false
+      end
+
+      def self.contact_info_attr(record)
+        'text_permission'
+      end
     end
   end
 end

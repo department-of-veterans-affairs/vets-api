@@ -17,7 +17,6 @@ module V0
         Rails.logger.warn('EmailAddressesController#create request completed', sso_logging_info)
       end
 
-      # Is create_or_update still being used?
       def create_or_update
         write_to_vet360_and_render_transaction!(
           'email',

@@ -57,6 +57,22 @@ module VAProfile
       def self.bio_path
         'person'
       end
+
+      def self.response_class
+        VAProfile::ProfileInformation::PersonTransactionResponse
+      end
+
+      def self.transaction_status_path(user, transaction_id)
+        "status/#{transaction_id}"
+      end
+
+      def self.send_change_notifcations?
+        false
+      end
+
+      def self.contact_info_attr(record)
+        nil
+      end
     end
   end
 end

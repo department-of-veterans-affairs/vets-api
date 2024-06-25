@@ -97,6 +97,23 @@ module VAProfile
       def correspondence?
         @address_pou == VAProfile::Models::Address::CORRESPONDENCE
       end
+
+      def self.response_class
+        VAProfile::ProfileInformation::AddressTransactionResponse
+      end
+
+      def self.transaction_status_path(user, transaction_id)
+        "#{user.vet360_id}/addresses/status/#{transaction_id}"
+      end
+
+      def self.send_change_notifcations?
+        true
+      end
+
+      def self.contact_info_attr(record)
+        return 'residential' if record.address_pou == VAProfile::Models::BaseAddress::RESIDENCE
+        'mailing'
+      end
     end
   end
 end
