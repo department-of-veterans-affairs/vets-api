@@ -116,13 +116,13 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
           Flipper.enable(:disability_526_toxic_exposure, user)
           get v0_disability_compensation_in_progress_form_url(form_id), params: nil
           json_response = JSON.parse(response.body)
-          expect(json_response['formData']['includeToxicExposure']).to eq(true)
+          expect(json_response['formData']['startedFormVersion']).to eq('2022')
         end
 
         it 'omits adding includeToxicExposure when corresponding flag is not enabled for user' do
           get v0_disability_compensation_in_progress_form_url(form_id), params: nil
           json_response = JSON.parse(response.body)
-          expect(json_response['formData']['includeToxicExposure']).to eq(nil)
+          expect(json_response['formData']['startedFormVersion']).to eq(nil)
         end
       end
 

@@ -258,7 +258,7 @@ RSpec.describe 'Disability compensation form' do
         context 'where the includeToxicExposure indicator is false' do
           it 'does not create a submission that includes a toxic exposure component' do
             json_object = JSON.parse(all_claims_form)
-            json_object['form526']['includeToxicExposure'] = false
+            json_object['form526']['startedFormVersion'] = nil
             updated_form = JSON.generate(json_object)
             post('/v0/disability_compensation_form/submit_all_claim', params: updated_form, headers:)
             expect(response).to have_http_status(:ok)
