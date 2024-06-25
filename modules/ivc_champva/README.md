@@ -26,7 +26,7 @@ The supporting_document_ids method retrieves the IDs of any supporting documents
 
 
 ### Generate files for new forms
-rails ivc_champva:generate\['path to PDF file'\]
+`rails ivc_champva:generate\['path to PDF file'\]`
 
 ### Installation
 Ensure the following line is in the root project's Gemfile:
