@@ -17,8 +17,8 @@ describe 'PowerOfAttorney',
       tags 'Power of Attorney'
       operationId 'findPowerOfAttorney'
       security [
-        { productionOauth: ['system/claim.read', 'system/claim.write'] },
-        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
+        { productionOauth: ['system/claim.read', 'system/system/claim.write'] },
+        { sandboxOauth: ['system/claim.read', 'system/system/claim.write'] },
         { bearer_token: [] }
       ]
       produces 'application/json'
@@ -34,7 +34,7 @@ describe 'PowerOfAttorney',
                 description: 'ID of Veteran'
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
-      let(:scopes) { %w[system/claim.read system/claim.write] }
+      let(:scopes) { %w[system/claim.read system/system/claim.write] }
       let(:poa_code) { 'A1Q' }
       let(:bgs_poa) { { person_org_name: "#{poa_code} name-here" } }
 
@@ -198,7 +198,7 @@ describe 'PowerOfAttorney',
       let(:Authorization) { 'Bearer token' }
       parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a]
       description 'Updates current Power of Attorney for Veteran.'
-      let(:scopes) { %w[system/claim.read system/claim.write] }
+      let(:scopes) { %w[system/claim.read system/system/claim.write] }
       let(:poa_code) { '067' }
       let(:bgs_poa) { { person_org_name: "#{poa_code} name-here" } }
 
@@ -512,7 +512,7 @@ describe 'PowerOfAttorney',
       ]
       consumes 'application/json'
       produces 'application/json'
-      let(:scopes) { %w[system/claim.read system/claim.write] }
+      let(:scopes) { %w[system/claim.read system/system/claim.write] }
 
       parameter name: 'veteranId',
                 in: :path,
@@ -692,7 +692,7 @@ describe 'PowerOfAttorney',
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
-      let(:scopes) { %w[system/claim.read system/claim.write] }
+      let(:scopes) { %w[system/claim.read system/system/claim.write] }
 
       pdf_description = <<~VERBIAGE
         Validates a request appointing an organization as Power of Attorney (21-22).
@@ -858,7 +858,7 @@ describe 'PowerOfAttorney',
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
-      let(:scopes) { %w[system/claim.read system/claim.write] }
+      let(:scopes) { %w[system/claim.read system/system/claim.write] }
       let(:poa) { create(:power_of_attorney) }
       let(:id) { poa.id }
 

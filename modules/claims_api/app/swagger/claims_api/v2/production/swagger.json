@@ -12603,13 +12603,13 @@
           {
             "productionOauth": [
               "system/claim.read",
-              "system/claim.write"
+              "system/system/claim.write"
             ]
           },
           {
             "sandboxOauth": [
               "system/claim.read",
-              "system/claim.write"
+              "system/system/claim.write"
             ]
           },
           {
