@@ -4,11 +4,10 @@ require 'va_profile/response'
 require 'va_profile/models/person'
 
 module VAProfile
-  module Profile
-    module V3
-      class PersonResponse < VAProfile::Response
-        attribute :person, VAProfile::Models::Person
-        attribute :messages, Array[VAProfile::Models::Message]
+  module ProfileInformation
+    class PersonResponse < VAProfile::Response
+      attribute :person, VAProfile::Models::Person
+      attribute :messages, Array[VAProfile::Models::Message]
 
       def initialize(response)
         attributes = {

@@ -7,7 +7,7 @@ require_relative 'transaction_response'
 module VAProfile
   module ProfileInformation
     class Service < Common::Client::Base
-      configuration VAProfile::Profile::V3::Configuration
+      configuration VAProfile::ProfileInformation::Configuration
 
       OID = '2.16.840.1.113883.3.42.10001.100001.12'
       AAID = '^NI^200DOD^USDOD'
@@ -19,28 +19,6 @@ module VAProfile
         super()
       end
 
-      # def get_response(model)
-        # Adding this for future reference. This is not used for ProfileInformation
-        # This will replace get_military_occupations and get_health_benefit_bio in the future
-        # Need to figure out universal bio_path solution
-      #   model.response_class(perform(:post, path, { bios: [{ bioPath: model.bio_path }] }))
-      #   response = model.response_class(service_response)
-      #   Sentry.set_extras(response.debug_data) unless response.ok?
-      #   response
-      # end
-
-      # def self.get_response(model)
-      #   get_response(model)
-      # end
-
-      # def submit(params)
-      #   config.submit(path(@user.edipi), params)
-      # end
-
-      # POSTs a new address to the VAProfile API
-      # @param address [VAProfile::Models::Address] the address to create
-      # @return [VAProfile::ContactInformation::AddressTransactionResponse] response wrapper around
-      #   an transaction object
       def create_or_update_info(http_verb, type, record, response_class)
         raw_response = perform(http_verb.to_sym, type.pluralize, record.in_json)
         response = response_class.from(raw_response)
@@ -54,6 +32,22 @@ module VAProfile
       rescue => e
         handle_error(e)
       end
+
+      # Adding this for future reference. This is not used for ProfileInformation
+      # This will replace get_military_occupations and get_health_benefit_bio in the future
+      # Need to figure out universal bio_path solution
+      # def get_response(model)
+      #   model.response_class(perform(:post, path, { bios: [{ bioPath: model.bio_path }] }))
+      #   response = model.response_class(service_response)
+      #   Sentry.set_extras(response.debug_data) unless response.ok?
+      #   response
+      # end
+      # def self.get_response(model)
+      #   get_response(model)
+      # end
+      # def submit(params)
+      #   config.submit(path(@user.edipi), params)
+      # end
 
       private
 
