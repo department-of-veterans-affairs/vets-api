@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_claims/service'
-require 'lighthouse_intent_to_file/tag_sentry'
 require 'lighthouse_intent_to_file/monitor'
 
 module Lighthouse
   class CreateIntentToFileJob
     include Sidekiq::Job
-    include SentryLogging
 
     class CreateIntentToFileError < StandardError; end
 
@@ -57,7 +55,7 @@ module Lighthouse
       init(form_type, form_start_date, veteran_icn)
 
       @itf_log_monitor.track_create_itf_begun(@itf_type, form_start_date, @user_account.id)
-      @service.create_intent_to_file(ITF_FORMS[form_type], '')
+      @service.create_intent_to_file(@itf_type, '')
       @itf_log_monitor.track_create_itf_success(@itf_type, form_start_date, @user_account.id)
     rescue => e
       @itf_log_monitor.track_create_itf_failure(@itf_type, form_start_date, @user_account.id, e)
@@ -70,7 +68,6 @@ module Lighthouse
     # Instantiate instance variables for _this_ job
     #
     def init(form_type, _form_start_date, veteran_icn)
-      LighthouseIntentToFile::TagSentry.tag_sentry
       @itf_log_monitor = LighthouseIntentToFile::Monitor.new
       @user_account = UserAccount.find_by(veteran_icn:)
       @itf_type = ITF_FORMS[form_type]
