@@ -23,28 +23,34 @@ RSpec.describe HCA::SubmissionJob, type: :job do
       timestamp: '2017-08-03 22:02:18 -0400'
     }
   end
-  let(:hca_service) do
-    double
-  end
+  let(:hca_service) { double }
 
-  describe 'when job has failed' do
+  describe 'when job has run out of retries' do
+    subject do
+      described_class.new.sidekiq_retries_exhausted_block.call(msg, nil)
+    end
+
     let(:msg) do
       {
         'args' => [nil, encrypted_form, health_care_application.id, 'google_analytics_client_id']
       }
     end
 
-    it 'passes unencrypted form to health_care_application' do
-      expect_any_instance_of(HealthCareApplication).to receive(:update).with(
-        state: 'failed',
-        form: form.to_json,
-        google_analytics_client_id: 'google_analytics_client_id'
-      )
-      described_class.new.sidekiq_retries_exhausted_block.call(msg)
+    it 'sets attributes on health_care_appplication instance' do
+      expect(HealthCareApplication).to receive(:find)
+        .with(health_care_application.id)
+        .and_return(health_care_application)
+      expect(health_care_application).to receive(:save).with(validate: false).and_return(true)
+
+      subject
+
+      expect(health_care_application.form).to eq(form.to_json)
+      expect(health_care_application.google_analytics_client_id).to eq('google_analytics_client_id')
     end
 
-    it 'sets the health_care_application state to failed' do
-      described_class.new.sidekiq_retries_exhausted_block.call(msg)
+    it 'persists the updated state to failed on health_care_application' do
+      subject
+
       expect(health_care_application.reload.state).to eq('failed')
     end
   end
