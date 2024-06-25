@@ -1279,6 +1279,10 @@ features:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
     enable_in_development: true
+  cdp_payment_history_vba:
+    actor_type: user
+    description: Enables showing the overpayment and summary pages for the CDP Payment History
+    enable_in_development: true
   show_digital_form_1095b:
     actor_type: user
     description: Enables access to digital 1095-B form download
