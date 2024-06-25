@@ -32,7 +32,7 @@ module SimpleFormsApi
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
-        response = if form_is210966 && first_party?
+        response = if form_is210966 && loa3 && icn && first_party?
                      handle_210966_authenticated
                    elsif form_is264555_and_should_use_lgy_api
                      handle264555
@@ -170,6 +170,10 @@ module SimpleFormsApi
 
       def should_authenticate
         true unless UNAUTHENTICATED_FORMS.include? params[:form_number]
+      end
+
+      def loa3
+        @current_user&.loa&[:current] == 3
       end
 
       def icn
