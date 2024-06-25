@@ -18,14 +18,14 @@ module CovidVaccine
                                                                     raw_form_data: })
 
         CovidVaccine::SubmissionJob.perform_async(record.id, user_type)
-        render json: record, serializer: CovidVaccine::V0::RegistrationSummarySerializer, status: :created
+        render json: CovidVaccine::V0::RegistrationSummarySerializer.new(record), status: :created
       end
 
       def show
         submission = CovidVaccine::V0::RegistrationSubmission.for_user(current_user).last
         raise Common::Exceptions::RecordNotFound, nil if submission.blank?
 
-        render json: submission, serializer: CovidVaccine::V0::RegistrationSubmissionSerializer
+        render json: CovidVaccine::V0::RegistrationSubmissionSerializer.new(submission)
       end
 
       def opt_out
