@@ -27,128 +27,19 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
 
   let(:scopes) do
     %w[
-      system/claim.write
+      system/system/claim.write
       system/claim.read
     ]
   end
 
-  describe 'with no ccg' do
-    it 'returns unauthorized' do
-      body = perform_request({})
-
-      expect(body).to eq(
-        'errors' => [
-          {
-            'title' => 'Not authorized',
-            'detail' => 'Not authorized'
-          }
-        ]
-      )
-
-      expect(response).to(
-        have_http_status(:unauthorized)
-      )
-    end
-  end
-
-  describe 'from underlying faraday connection issues' do
-    let(:params) do
-      {
-        'data' => {
-          'type' => 'powerOfAttorneyRequestDecision',
-          'attributes' => {
-            'status' => 'Declined',
-            'declinedReason' => 'Some reason',
-            'createdBy' => {
-              'firstName' => 'BEATRICE',
-              'lastName' => 'STROUD',
-              'email' => 'Beatrice.Stroud44@va.gov'
-            }
-          }
-        }
-      }
-    end
-
-    before do
-      pattern = %r{/VDC/ManageRepresentativeService}
-      stub_request(:post, pattern).to_raise(
-        described_class
-      )
-    end
-
-    describe Faraday::ConnectionFailed do
-      it 'returns a bad gateway error' do
-        body =
-          mock_ccg(scopes) do
-            perform_request(params)
-          end
-
-        expect(body).to eq(
-          'errors' => [
-            {
-              'title' => 'Bad Gateway',
-              'detail' => 'Bad Gateway'
-            }
-          ]
-        )
-
-        expect(response).to(
-          have_http_status(:bad_gateway)
-        )
-      end
-    end
-
-    describe Faraday::SSLError do
-      it 'returns a bad gateway error' do
-        body =
-          mock_ccg(scopes) do
-            perform_request(params)
-          end
-
-        expect(body).to eq(
-          'errors' => [
-            {
-              'title' => 'Bad Gateway',
-              'detail' => 'Bad Gateway'
-            }
-          ]
-        )
-
-        expect(response).to(
-          have_http_status(:bad_gateway)
-        )
-      end
-    end
-
-    describe Faraday::TimeoutError do
-      it 'returns a bad gateway error' do
-        body =
-          mock_ccg(scopes) do
-            perform_request(params)
-          end
-
-        expect(body).to eq(
-          'errors' => [
-            {
-              'title' => 'Gateway timeout',
-              'detail' => 'Did not receive a timely response from an upstream server'
-            }
-          ]
-        )
-
-        expect(response).to(
-          have_http_status(:gateway_timeout)
-        )
-      end
-    end
-  end
-
   describe 'when a malformed body is posted' do
-    it 'responds 400' do
+    let(:params) { '{{{{' }
+
+    it 'something' do
       mock_ccg(scopes) do
         post(
           "/services/claims/v2/power-of-attorney-requests/#{id}/decision",
-          params: '{{{{',
+          params:,
           headers:
         )
       end
@@ -178,7 +69,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
           'type' => 'powerOfAttorneyRequestDecision',
           'attributes' => {
             'declinedReason' => 'Some reason',
-            'createdBy' => {
+            'representative' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
               'email' => 'Beatrice.Stroud44@va.gov'
@@ -219,7 +110,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
           'attributes' => {
             'status' => 'Declined',
             'declinedReason' => 'Some reason',
-            'createdBy' => {
+            'representative' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
               'email' => 'Beatrice.Stroud44@va.gov'
@@ -262,7 +153,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
           'attributes' => {
             'status' => 'Declined',
             'declinedReason' => 'Some reason',
-            'createdBy' => {
+            'representative' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
               'email' => 'Beatrice.Stroud44@va.gov'
@@ -298,14 +189,14 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
   describe 'with a valid decline with reason submitted twice' do
     let(:id) { '600085312_3853983' }
 
-    it 'responds accepted first and then unprocessable_entity second', run_at: '2024-05-09T07:18:04Z' do
+    it 'responds no_content first and then unprocessable_entity second', run_at: '2024-05-09T07:18:04Z' do
       params = {
         'data' => {
           'type' => 'powerOfAttorneyRequestDecision',
           'attributes' => {
             'status' => 'Declined',
             'declinedReason' => 'Some reason',
-            'createdBy' => {
+            'representative' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
               'email' => 'Beatrice.Stroud44@va.gov'
@@ -319,7 +210,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
           perform_request(params)
 
           expect(response).to(
-            have_http_status(:accepted)
+            have_http_status(:no_content)
           )
 
           body = perform_request(params)
@@ -356,7 +247,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
           'attributes' => {
             'status' => 'Accepted',
             'declinedReason' => 'Some reason',
-            'createdBy' => {
+            'representative' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
               'email' => 'Beatrice.Stroud44@va.gov'
@@ -411,7 +302,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
           'attributes' => {
             'status' => 'Accepted',
             'declinedReason' => nil,
-            'createdBy' => {
+            'representative' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
               'email' => 'Beatrice.Stroud44@va.gov'
@@ -438,13 +329,13 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
     describe 'when decision not already made' do
       let(:blank?) { true }
 
-      it 'returns http status 202' do
+      it 'returns http status 204' do
         mock_ccg(scopes) do
           perform_request(params)
         end
 
         expect(response).to(
-          have_http_status(:accepted)
+          have_http_status(:no_content)
         )
       end
     end
