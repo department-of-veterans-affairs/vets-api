@@ -14,7 +14,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
         end
 
         it 'obscures all but the first 3 and last 2 characters of the filename' do
-          expect(attachment.obscured_filename).to eq('MyS*******le.pdf')
+          expect(attachment.obscured_filename).to eq('MySXXXXXXXle.pdf')
         end
       end
 
@@ -27,7 +27,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
         end
 
         it 'obscures the filename' do
-          expect(attachment.obscured_filename).to eq('MyS**********23.pdf')
+          expect(attachment.obscured_filename).to eq('MySXXXXXXXXXX23.pdf')
         end
       end
 
@@ -40,7 +40,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
         end
 
         it 'does not obscure the underscores' do
-          expect(attachment.obscured_filename).to eq('MyS*********_*23.pdf')
+          expect(attachment.obscured_filename).to eq('MySXXXXXXXXX_X23.pdf')
         end
       end
 
@@ -53,7 +53,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
         end
 
         it 'does not obscure the dashes' do
-          expect(attachment.obscured_filename).to eq('MyS*********-*23.pdf')
+          expect(attachment.obscured_filename).to eq('MySXXXXXXXXX-X23.pdf')
         end
       end
 
@@ -67,7 +67,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
         end
 
         it 'obsucres the filename properly' do
-          expect(attachment.obscured_filename).to eq('MyS*****.*****23.pdf')
+          expect(attachment.obscured_filename).to eq('MySXXXXX.XXXXX23.pdf')
         end
       end
 
@@ -80,7 +80,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
         end
 
         it 'preserves the whitespace' do
-          expect(attachment.obscured_filename).to eq('My ****** **le.pdf')
+          expect(attachment.obscured_filename).to eq('My XXXXXX XXle.pdf')
         end
       end
     end
@@ -114,7 +114,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
       end
 
       it 'obscures the original filename' do
-        expect(attachment.obscured_filename).to eq('Fil**23.pdf')
+        expect(attachment.obscured_filename).to eq('FilXX23.pdf')
       end
     end
   end
