@@ -172,7 +172,7 @@ RSpec.describe 'Forms uploader', type: :request do
     context 'when status codes include a 400' do
       it 'returns a status of 400' do
         expect(controller.send(:build_json, [200, 400], 'Error')).to eq({ json:
-        { error_message: 'Error' }, status: 400 })
+        { error_message: 'Bad request while uploading document(s)' }, status: 400 })
       end
     end
 
