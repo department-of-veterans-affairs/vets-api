@@ -33,10 +33,10 @@ module RepresentationManagement
     validates :representative_city, presence: true, length: { maximum: 18 }
     validates :representative_country, presence: true, length: { is: 2 }
     validates :representative_state_code, presence: true, length: { is: 2 }
-    validates :representative_zip_code, presence: true, length: { is: 5 }, numericality: { only_integer: true }
-    validates :representative_zip_code_suffix, length: { is: 4 }, numericality: { only_integer: true }
-    validates :representative_area_code, presence: true, length: { is: 3 }, numericality: { only_integer: true }
-    validates :representative_phone_number, presence: true, length: { is: 7 }, numericality: { only_integer: true }
+    validates :representative_zip_code, presence: true, length: { is: 5 }, format: { with: ZIP_CODE }
+    validates :representative_zip_code_suffix, length: { is: 4 }, format: { with: ZIP_CODE_SUFFIX }
+    validates :representative_area_code, presence: true, length: { is: 3 }, format: { with: AREA_CODE }
+    validates :representative_phone_number, presence: true, length: { is: 7 }, format: { with: PHONE_NUMBER }
 
     attr_reader [representative_attrs, representative_consent_attrs].flatten
   end
