@@ -91,7 +91,7 @@ module MebApi
           }
         else
           response = enrollment_service.get_enrollment(claimant_id)
-          render json: response, serializer: EnrollmentSerializer
+          render json: EnrollmentSerializer.new(response)
         end
       end
 
@@ -119,7 +119,7 @@ module MebApi
           response = enrollment_service.submit_enrollment(
             params[:education_benefit], claimant_id
           )
-          render json: response, serializer: SubmitEnrollmentSerializer
+          render json: SubmitEnrollmentSerializer.new(response)
         end
       end
 
@@ -133,7 +133,7 @@ module MebApi
         claimant_id = claimant_response['claimant_id']
         exclusion_response = exclusion_period_service.get_exclusion_periods(claimant_id)
 
-        render json: exclusion_response, serializer: ExclusionPeriodSerializer
+        render json: ExclusionPeriodSerializer.new(exclusion_response)
       end
 
       private
