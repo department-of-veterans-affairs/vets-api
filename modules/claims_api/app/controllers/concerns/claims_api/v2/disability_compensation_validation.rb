@@ -686,7 +686,6 @@ module ClaimsApi
           approximate_end_date = confinement&.dig('approximateEndDate')
 
           form_object_desc = "/confinement/#{idx}"
-
           if approximate_begin_date.blank?
             raise_exception_if_value_not_present('approximate begin date',
                                                  "#{form_object_desc}/approximateBeginDate")
@@ -724,6 +723,14 @@ module ClaimsApi
             )
           end
 
+          @ranges ||= []
+          @ranges << (date_regex_groups(approximate_begin_date)..date_regex_groups(approximate_end_date))
+          if overlapping_confinement_periods?(idx)
+            collect_error_messages(
+              source: "/confinements/#{idx}/approximateBeginDate",
+              detail: 'Confinement periods may not overlap each other.'
+            )
+          end
           unless confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date,
                                                               service_periods)
             collect_error_messages(
@@ -1013,6 +1020,7 @@ module ClaimsApi
         when 'yyyy-mm'
           param_date = Date.strptime(date, '%Y-%m')
           now_date = Date.strptime(Time.zone.today.strftime('%Y-%m'), '%Y-%m')
+          now_date.end_of_month
         when 'yyyy'
           param_date = Date.strptime(date, '%Y')
           now_date = Date.strptime(Time.zone.today.strftime('%Y'), '%Y')
@@ -1047,7 +1055,7 @@ module ClaimsApi
         if date_length == 4
           "#{date_object[:year]}-01-01".to_date
         elsif date_length == 7
-          "#{date_object[:year]}-#{date_object[:month]}-01".to_date
+          "#{date_object[:year]}-#{date_object[:month]}-01".to_date.end_of_month
         else
           "#{date_object[:year]}-#{date_object[:month]}-#{date_object[:day]}".to_date
         end
@@ -1061,6 +1069,20 @@ module ClaimsApi
         return unless date_is_valid?(begin_date, 'serviceInformation/servicePeriods/activeDutyEndDate')
 
         date_regex_groups(begin_date) > date_regex_groups(approximate_begin_date)
+      end
+
+      def overlapping_confinement_periods?(idx)
+        return if @ranges&.size&.<= 1
+
+        range_one = @ranges[idx - 1]
+        range_two = @ranges[idx]
+        range_one.present? && range_two.present? ? date_range_overlap?(range_one, range_two) : return
+      end
+
+      def date_range_overlap?(range_one, range_two)
+        return if range_one.last.nil? || range_one.first.nil? || range_two.last.nil? || range_two.first.nil?
+
+        (range_one&.last&.> range_two&.first) || (range_two&.last&.< range_one&.first)
       end
 
       # Will check for a real date including leap year
