@@ -18,7 +18,7 @@ module ClaimsApi
       # For example, given a request like:
       #   `POST /v2/power-of-attorney-requests/:id/decision`
       # Then a schema path mirroring the API will be used:
-      #   `/v2/power_of_attorney_requests/param/decision/post/request.json`
+      #   `/v2/power_of_attorney_requests/param/decision/post.json`
       #
       #
       # == Alternately, overriding the schema path
@@ -77,8 +77,7 @@ module ClaimsApi
             segment.underscore
           end
 
-          path << request.method.underscore
-          path << 'request.json'
+          path << "#{request.method.underscore}.json"
           path.join('/')
         end
       end

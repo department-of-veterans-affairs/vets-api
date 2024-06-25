@@ -18,7 +18,7 @@ module ClaimsApi
         log_service_progress(claim_id, 'docker_service',
                              'Submitting mapped data to Docker container')
 
-        evss_res = evss_service.submit(auto_claim, evss_data)
+        evss_res = evss_service.submit(auto_claim, evss_data, false)
 
         log_service_progress(claim_id, 'docker_service',
                              "Successfully submitted to Docker container with response: #{evss_res}")

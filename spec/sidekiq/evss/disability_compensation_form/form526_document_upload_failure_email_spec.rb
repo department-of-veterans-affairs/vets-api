@@ -37,7 +37,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
       form526_submission.created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
     end
 
-    let(:obscured_filename) { 'sm_***e1.jpg' }
+    let(:obscured_filename) { 'sm_XXXe1.jpg' }
 
     it 'dispatches a failure notification email with an obscured filename' do
       expect(notification_client).to receive(:send_email).with(

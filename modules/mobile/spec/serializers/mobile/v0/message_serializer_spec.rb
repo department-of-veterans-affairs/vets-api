@@ -10,7 +10,7 @@ describe Mobile::V0::MessageSerializer do
   end
   let(:rendered_relationships) { rendered_hash[:data][:relationships] }
 
-  it 'includes :message_id' do
+  it 'includes :attachments' do
     expect(rendered_relationships[:attachments][:data].size).to eq message.attachments.size
   end
 end

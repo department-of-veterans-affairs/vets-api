@@ -686,7 +686,6 @@ module ClaimsApi
           approximate_end_date = confinement&.dig('approximateEndDate')
 
           form_object_desc = "/confinement/#{idx}"
-
           if approximate_begin_date.blank?
             raise_exception_if_value_not_present('approximate begin date',
                                                  "#{form_object_desc}/approximateBeginDate")
@@ -697,6 +696,9 @@ module ClaimsApi
           end
 
           next if approximate_begin_date.blank? || approximate_end_date.blank?
+          next unless date_is_valid?(approximate_begin_date,
+                                     "#{form_object_desc}/approximateBeginDate") &&
+                      date_is_valid?(approximate_end_date, "#{form_object_desc}/approximateEndDate")
 
           if begin_date_is_after_end_date?(approximate_begin_date, approximate_end_date)
             collect_error_messages(
@@ -710,7 +712,7 @@ module ClaimsApi
 
           next if earliest_active_duty_begin_date['activeDutyBeginDate'].blank? # nothing to check against below
           next unless date_is_valid?(earliest_active_duty_begin_date['activeDutyBeginDate'],
-                                     'serviceInformation/servicePeriods/activeDutyEndDate')
+                                     'serviceInformation/servicePeriods/activeDutyBeginDate')
 
           # if confinementBeginDate is before earliest activeDutyBeginDate, raise error
           if duty_begin_date_is_after_approximate_begin_date?(earliest_active_duty_begin_date['activeDutyBeginDate'],
@@ -720,7 +722,65 @@ module ClaimsApi
               detail: 'Confinement approximate begin date must be after earliest active duty begin date.'
             )
           end
+
+          @ranges ||= []
+          @ranges << (date_regex_groups(approximate_begin_date)..date_regex_groups(approximate_end_date))
+          if overlapping_confinement_periods?(idx)
+            collect_error_messages(
+              source: "/confinements/#{idx}/approximateBeginDate",
+              detail: 'Confinement periods may not overlap each other.'
+            )
+          end
+          unless confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date,
+                                                              service_periods)
+            collect_error_messages(
+              source: "/confinements/#{idx}",
+              detail: 'Confinement dates must be within one of the service period dates.'
+            )
+          end
         end
+      end
+
+      def confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date, service_periods) # rubocop:disable Metrics/MethodLength
+        within_service_period = false
+        service_periods.each do |sp|
+          next unless date_is_valid?(sp['activeDutyBeginDate'],
+                                     'serviceInformation/servicePeriods/activeDutyBeginDate') &&
+                      date_is_valid?(sp['activeDutyEndDate'], 'serviceInformation/servicePeriods/activeDutyEndDate')
+
+          active_duty_begin_date = Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') if sp['activeDutyBeginDate']
+          active_duty_end_date = Date.strptime(sp['activeDutyEndDate'], '%Y-%m-%d') if sp['activeDutyEndDate']
+
+          next if active_duty_begin_date.blank? || active_duty_end_date.blank? # nothing to compare against
+
+          begin_date_has_day = date_has_day?(approximate_begin_date)
+          end_date_has_day = date_has_day?(approximate_end_date)
+          begin_date = if begin_date_has_day
+                         Date.strptime(approximate_begin_date, '%Y-%m-%d')
+                       else
+                         # Note approximate date conversion sets begin date to first of month
+                         Date.strptime(approximate_begin_date, '%Y-%m')
+                       end
+
+          end_date = if end_date_has_day
+                       Date.strptime(approximate_end_date, '%Y-%m-%d')
+                     else
+                       # Set approximate end date to end of month
+                       Date.strptime(approximate_end_date, '%Y-%m').end_of_month
+                     end
+
+          if date_is_within_range?(begin_date, end_date, active_duty_begin_date, active_duty_end_date)
+            within_service_period = true
+          end
+        end
+        within_service_period
+      end
+
+      def date_is_within_range?(conf_begin, conf_end, service_begin, service_end)
+        return if service_begin.blank? || service_end.blank?
+
+        conf_begin.between?(service_begin, service_end) &&
+          conf_end.between?(service_begin, service_end)
       end
 
       def validate_alternate_names(service_information)
@@ -960,6 +1020,7 @@ module ClaimsApi
         when 'yyyy-mm'
           param_date = Date.strptime(date, '%Y-%m')
           now_date = Date.strptime(Time.zone.today.strftime('%Y-%m'), '%Y-%m')
+          now_date.end_of_month
         when 'yyyy'
           param_date = Date.strptime(date, '%Y')
           now_date = Date.strptime(Time.zone.today.strftime('%Y'), '%Y')
@@ -994,7 +1055,7 @@ module ClaimsApi
         if date_length == 4
           "#{date_object[:year]}-01-01".to_date
         elsif date_length == 7
-          "#{date_object[:year]}-#{date_object[:month]}-01".to_date
+          "#{date_object[:year]}-#{date_object[:month]}-01".to_date.end_of_month
         else
           "#{date_object[:year]}-#{date_object[:month]}-#{date_object[:day]}".to_date
         end
@@ -1008,6 +1069,20 @@ module ClaimsApi
         return unless date_is_valid?(begin_date, 'serviceInformation/servicePeriods/activeDutyEndDate')
 
         date_regex_groups(begin_date) > date_regex_groups(approximate_begin_date)
+      end
+
+      def overlapping_confinement_periods?(idx)
+        return if @ranges&.size&.<= 1
+
+        range_one = @ranges[idx - 1]
+        range_two = @ranges[idx]
+        range_one.present? && range_two.present? ? date_range_overlap?(range_one, range_two) : return
+      end
+
+      def date_range_overlap?(range_one, range_two)
+        return if range_one.last.nil? || range_one.first.nil? || range_two.last.nil? || range_two.first.nil?
+
+        (range_one&.last&.> range_two&.first) || (range_two&.last&.< range_one&.first)
       end
 
       # Will check for a real date including leap year

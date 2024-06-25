@@ -17,7 +17,7 @@ module Mobile
 
     def backfill_location(appointment)
       unless appointment[:clinic].nil?
-        clinic = vaos_mobile_facility_service.get_clinic(station_id: [:location_id], clinic_id: appointment[:clinic])
+        clinic = vaos_mobile_facility_service.get_clinic(appointment[:location_id], appointment[:clinic])
         appointment[:service_name] = clinic&.[](:service_name)
         appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
       end

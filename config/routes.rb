@@ -474,6 +474,7 @@ Rails.application.routes.draw do
   mount TravelPay::Engine, at: '/travel_pay'
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
+  mount Pensions::Engine, at: '/pensions'
   # End Modules
 
   require 'sidekiq/web'

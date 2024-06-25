@@ -1,0 +1,8 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: string
+    description: "HTML content returned from the Krames API"
+    example: "<div>Prescription details and related information in HTML format.</div>"
