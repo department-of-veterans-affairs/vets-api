@@ -33,7 +33,7 @@ module CheckIn
 
       handle_response(claim_status_resp:, facility_type: opts[:facility_type])
     rescue => e
-      logger.error({ message: "Error calling BTSSS Service: #{e.message}" }.merge(opts))
+      logger.error({ message: "Error calling BTSSS Service: #{e.message}", method: 'claim_status' }.merge(opts))
       if 'oh'.casecmp?(opts[:facility_type])
         StatsD.increment(Constants::OH_STATSD_BTSSS_ERROR)
         template_id = Constants::OH_ERROR_TEMPLATE_ID

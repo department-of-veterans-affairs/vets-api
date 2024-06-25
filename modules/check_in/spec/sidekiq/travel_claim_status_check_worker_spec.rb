@@ -88,6 +88,36 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
         .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
     end
   end
+
+  context "when #{facility_type} and travel claim throws timeout error" do
+    before do
+      allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+    end
+
+    it 'sends notification with timeout error message' do
+      worker = described_class.new
+      notify_client = double
+
+      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
+                                                .and_return(notify_client)
+
+      expect(notify_client).to receive(:send_sms).with(
+        phone_number: patient_cell_phone,
+        template_id: @timeout_template_id,
+        sms_sender_id: @sms_sender_id,
+        personalisation: { claim_number: nil, appt_date: notify_appt_date }
+      )
+
+      Sidekiq::Testing.inline! do
+        worker.perform(uuid, appt_date)
+      end
+
+      expect(StatsD).to have_received(:increment).with(@statsd_timeout)
+                                                 .exactly(1).time
+      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
+                                                 .exactly(1).time
+    end
+  end
 end
 
 describe CheckIn::TravelClaimStatusCheckWorker, type: :worker do
@@ -123,61 +153,5 @@ describe CheckIn::TravelClaimStatusCheckWorker, type: :worker do
 
   describe '#perform for oracle health sites' do
     include_examples 'travel claim status check worker #perform', 'oracle_health'
-  end
-
-  context 'travel claim throws timeout error' do
-    before do
-      allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-    end
-
-    it 'throws timeout exception and sends notification with cie error message' do
-      worker = described_class.new
-      notify_client = double
-
-      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
-                                                .and_return(notify_client)
-
-      expect(notify_client).to receive(:send_sms).with(
-        phone_number: patient_cell_phone,
-        template_id: 'cie_fake_timeout_template_id',
-        sms_sender_id: 'cie_fake_sms_sender_id',
-        personalisation: { claim_number: nil, appt_date: notify_appt_date }
-      )
-
-      Sidekiq::Testing.inline! do
-        worker.perform(uuid, appt_date)
-      end
-
-      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_TIMEOUT)
-                                                 .exactly(1).time
-      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
-                                                 .exactly(1).time
-    end
-
-    it 'throws timeout exception and sends notification with oh error message' do
-      allow(redis_client).to receive(:facility_type).and_return('oh')
-
-      worker = described_class.new
-      notify_client = double
-
-      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
-                                                .and_return(notify_client)
-
-      expect(notify_client).to receive(:send_sms).with(
-        phone_number: patient_cell_phone,
-        template_id: 'oh_fake_timeout_template_id',
-        sms_sender_id: 'oh_fake_sms_sender_id',
-        personalisation: { claim_number: nil, appt_date: notify_appt_date }
-      )
-
-      Sidekiq::Testing.inline! do
-        worker.perform(uuid, appt_date)
-      end
-
-      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_TIMEOUT)
-                                                 .exactly(1).time
-      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
-                                                 .exactly(1).time
-    end
   end
 end
