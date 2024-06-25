@@ -18,6 +18,7 @@ module MyHealth
       # @client ||= SM::Client.new(session: { user_id: 1571704 }) # DEV USER
       # @client ||= SM::Client.new(session: { user_id: 7366505 }) # SYST MHV smautotest4
       # @client ||= SM::Client.new(session: { user_id: 10055239 }) # SYST vets.gov.user+41@gmail.co
+      # @client ||= SM::Client.new(session: { user_id: 21579884 }) # OH messages user
       @client ||= SM::Client.new(session: { user_id: 9_712_240 }) # MHVMARK mhvmark.test@id.me
     end
 
