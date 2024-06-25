@@ -104,8 +104,6 @@ module IvcChampva
           { json: {}, status: 200 }
         elsif unique_statuses == [400]
           { json: { error_message: }, status: 400 }
-        elsif unique_statuses.include?(200) && unique_statuses.include?(400)
-          { json: { error_message: 'Partial upload failure' }, status: 206 }
         else
           { json: { error_message: 'Internal server error' }, status: 500 }
         end
