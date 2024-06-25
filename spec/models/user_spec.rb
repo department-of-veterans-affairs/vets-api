@@ -1232,6 +1232,7 @@ RSpec.describe User, type: :model do
 
     before do
       Flipper.enable(:veteran_onboarding_beta_flow, user)
+      Flipper.disable(:veteran_onboarding_show_to_newly_onboarded)
       create(:user_verification, idme_uuid: user.idme_uuid)
     end
 
