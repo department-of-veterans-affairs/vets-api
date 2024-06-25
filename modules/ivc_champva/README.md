@@ -20,9 +20,9 @@ The supporting_document_ids method retrieves the IDs of any supporting documents
 - [Pega Callback API Implementation Plan](https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/health-care/champva/callback-api-technical-spec.md)
 
 ## Endpoints
-/ivc_champva/v1/forms
-/ivc_champva/v1/forms/submit_supporting_documents
-/ivc_champva/v1/forms/status_updates
+- `/ivc_champva/v1/forms`
+- `/ivc_champva/v1/forms/submit_supporting_documents`
+- `/ivc_champva/v1/forms/status_updates`
 
 
 ### Generate files for new forms
