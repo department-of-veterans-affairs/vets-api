@@ -12,7 +12,7 @@ module ClaimsApi
             deserialize(@body)
           )
 
-          head :no_content
+          render json: {}, status: :accepted
         end
 
         private
