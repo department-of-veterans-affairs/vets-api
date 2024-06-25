@@ -102,7 +102,7 @@ class FormProfiles::VA526ez < FormProfile
       Rails.logger.error("Form526 Prefill for payment information failed. #{e.message}")
     end
 
-    prefill_base_class_methods(e)
+    prefill_base_class_methods
 
     mappings = self.class.mappings_for_form(form_id)
     form_data = generate_prefill(mappings)
@@ -142,22 +142,22 @@ class FormProfiles::VA526ez < FormProfile
 
   private
 
-  def prefill_base_class_methods(e)
+  def prefill_base_class_methods
     begin
       @identity_information = initialize_identity_information
-    rescue
+    rescue => e
       Rails.logger.error("Form526 Prefill for identity information failed. #{e.message}")
     end
 
     begin
       @contact_information = initialize_contact_information
-    rescue
+    rescue => e
       Rails.logger.error("Form526 Prefill for contact information failed. #{e.message}")
     end
 
     begin
       @military_information = initialize_military_information
-    rescue
+    rescue => e
       Rails.logger.error("Form526 Prefill for military information failed. #{e.message}")
     end
   end
