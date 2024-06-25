@@ -34,7 +34,7 @@ module VAProfile
 
       def get_response(type)
         model = model(type)
-        raw_response = perform(:post, path, { bios: [{ bioPath: model.bio_path }] }))
+        raw_response = perform(:post, path, { bios: [{ bioPath: model.bio_path }] })
         response = model.response_class(raw_response)
         Sentry.set_extras(response.debug_data) unless response.ok?
         response
@@ -44,7 +44,7 @@ module VAProfile
 
       def self.get_person(edipi)
         stub_user = OpenStruct.new(edipi:)
-        new(stub_user).get_response("person")
+        new(stub_user).get_response('person')
       end
 
       def submit(params)
@@ -59,10 +59,10 @@ module VAProfile
 
         raw_response = perform(http_verb, type.pluralize, record.in_json)
         response = response_class(type).from(raw_response)
-        return response unless http_verb == :put && type == "email" && old_email.present?
+        return response unless http_verb == :put && type == 'email' && old_email.present?
 
         transaction = response.transaction
-        return response if !transaction.received?
+        return response unless transaction.received?
 
         # Create OldEmail to send notification to user's previous email
         OldEmail.create(transaction_id: transaction.id, email: old_email)
@@ -78,7 +78,7 @@ module VAProfile
           VAProfile::Stats.increment_transaction_results(raw_response)
 
           transaction_status = response_class(type).from(raw_response)
-          return transaction_status if !model(type).send_change_notifcations?
+          return transaction_status unless model(type).send_change_notifcations?
 
           send_change_notifications(transaction_status)
           transaction_status
@@ -87,30 +87,31 @@ module VAProfile
         handle_error(e)
       end
 
-
       private
 
       def model(type)
-        return "VAProfile::Models::#{type.capitalize}".constantize
+        "VAProfile::Models::#{type.capitalize}".constantize
       end
 
       def response_class(type)
-        return model(type).response_class
+        model(type).response_class
       end
 
       def icn_with_aaid
         return "#{@user.idme_uuid}^PN^200VIDM^USDVA" if @user.idme_uuid
         return "#{@user.logingov_uuid}^PN^200VLGN^USDVA" if @user.logingov_uuid
+
         nil
       end
 
       def path
         oid = MPI::Constants::VA_ROOT_OID
-        return "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
+        "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
       end
 
       def old_email(transaction_id: nil)
         return @user.va_profile_email if transaction_id.nil?
+
         OldEmail.find(transaction_id).try(:email)
       end
 
@@ -118,8 +119,9 @@ module VAProfile
         contact_info = VAProfileRedis::ProfileInformation.for_user(@user)
         attr = model(type).contact_info_attr(record)
         raise "invalid #{type} VAProfile::ProfileInformation" if attr.nil?
+
         record.id = contact_info.public_send(attr)&.id
-        return record.id.present? ? :put : :post
+        record.id.present? ? :put : :post
       end
 
       def get_email_personalisation(type)
@@ -146,7 +148,8 @@ module VAProfile
       end
 
       def notify_email_job(notify_email, personalisation)
-        VANotifyEmailJob.perform_async(notify_email, CONTACT_INFO_CHANGE_TEMPLATE, get_email_personalisation(personalisation))
+        VANotifyEmailJob.perform_async(notify_email, CONTACT_INFO_CHANGE_TEMPLATE,
+                                       get_email_personalisation(personalisation))
       end
     end
   end

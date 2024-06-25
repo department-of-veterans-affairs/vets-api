@@ -4,10 +4,10 @@ require 'common/client/configuration/rest'
 
 module VAProfile
   module ProfileInformation
-      ##
-      # HTTP client configuration for the {VAProfile::ProfileInformation::Service},
-      # sets the base path, the base request headers, and a service name for breakers and metrics.
-      #
+    ##
+    # HTTP client configuration for the {VAProfile::ProfileInformation::Service},
+    # sets the base path, the base request headers, and a service name for breakers and metrics.
+    #
     class Configuration < Common::Client::Configuration::REST
       self.read_timeout = VAProfile::Configuration::SETTINGS.profile_information.timeout || 30
 

@@ -2,7 +2,6 @@
 
 require 'va_profile/models/transaction'
 
-
 module VAProfile
   module ContactInformation
     class TransactionResponse < VAProfile::Response

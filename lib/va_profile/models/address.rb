@@ -112,6 +112,7 @@ module VAProfile
 
       def self.contact_info_attr(record)
         return 'residential' if record.address_pou == VAProfile::Models::BaseAddress::RESIDENCE
+
         'mailing'
       end
     end

@@ -62,7 +62,7 @@ module VAProfile
         VAProfile::ProfileInformation::PersonTransactionResponse
       end
 
-      def self.transaction_status_path(user, transaction_id)
+      def self.transaction_status_path(_user, transaction_id)
         "status/#{transaction_id}"
       end
 
@@ -70,7 +70,7 @@ module VAProfile
         false
       end
 
-      def self.contact_info_attr(record)
+      def self.contact_info_attr(_record)
         nil
       end
     end

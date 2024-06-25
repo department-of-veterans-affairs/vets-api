@@ -165,6 +165,7 @@ module VAProfile
         return 'work_phone' if record.phone_type == VAProfile::Models::Telephone::WORK
         return 'fax_number' if record.phone_type == VAProfile::Models::Telephone::FAX
         return 'temporary_phone' if record.phone_type == VAProfile::Models::Telephone::TEMPORARY
+
         nil
       end
     end

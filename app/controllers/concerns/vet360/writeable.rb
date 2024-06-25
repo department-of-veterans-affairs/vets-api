@@ -59,7 +59,7 @@ module Vet360
 
     def write_valid_record!(http_verb, type, record)
       if Flipper.enabled?(:va_profile_information_v3_service, @current_user)
-        service.send("create_or_update_info", http_verb.to_sym, type, record)
+        service.send('create_or_update_info', http_verb.to_sym, type, record)
       else
         service.send("#{http_verb}_#{type.downcase}", record)
       end
