@@ -2392,6 +2392,89 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
+        context 'when there are mutiple confinements that overlap' do
+          let(:confinements) do
+            [
+              {
+                approximateBeginDate: '2016-11-01',
+                approximateEndDate: '2017-12-01'
+              },
+              {
+                approximateBeginDate: '2017-11-01',
+                approximateEndDate: '2017-12-01'
+              }
+            ]
+          end
+
+          it 'responds with a 422 when the date ranges do overlap' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['confinements'] = confinements
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when there are 3 confinement periods' do
+          let(:confinements) do
+            [
+              {
+                approximateBeginDate: '2016-11-01',
+                approximateEndDate: '2017-12-01'
+              },
+              {
+                approximateBeginDate: '2018-02-01',
+                approximateEndDate: '2018-10-01'
+              },
+              {
+                approximateBeginDate: '2018-11-01',
+                approximateEndDate: '2018-12-01'
+              }
+            ]
+          end
+
+          it 'responds with a 422 when the date ranges do overlap' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['confinements'] = confinements
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when there are 3 confinement periods that overlap' do
+          let(:confinements) do
+            [
+              {
+                approximateBeginDate: '2016-11-01',
+                approximateEndDate: '2017-12-01'
+              },
+              {
+                approximateBeginDate: '2017-11-01',
+                approximateEndDate: '2017-12-01'
+              },
+              {
+                approximateBeginDate: '2018-11-01',
+                approximateEndDate: '2018-12-01'
+              }
+            ]
+          end
+
+          it 'responds with a 422 when the date ranges do overlap' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['confinements'] = confinements
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
         context 'when there are confinements with mixed date formatting and begin date is <= to end date' do
           let(:confinements) do
             [
