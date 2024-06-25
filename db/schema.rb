@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_04_203337) do
+ActiveRecord::Schema[7.0].define(version: 2024_06_11_183430) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -51,6 +51,93 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_04_203337) do
     t.index ["logingov_uuid"], name: "index_accounts_on_logingov_uuid", unique: true
     t.index ["sec_id"], name: "index_accounts_on_sec_id"
     t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
+  end
+
+  create_table "accreditations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "accredited_individual_id", null: false
+    t.uuid "accredited_organization_id", null: false
+    t.boolean "can_accept_reject_poa"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["accredited_individual_id", "accredited_organization_id"], name: "index_accreditations_on_indi_and_org_ids", unique: true
+    t.index ["accredited_individual_id"], name: "index_accreditations_on_accredited_individual_id"
+    t.index ["accredited_organization_id"], name: "index_accreditations_on_accredited_organization_id"
+  end
+
+  create_table "accredited_individuals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "ogc_id", null: false
+    t.string "registration_number", null: false
+    t.string "poa_code", limit: 3
+    t.string "individual_type", null: false
+    t.string "first_name"
+    t.string "middle_initial"
+    t.string "last_name"
+    t.string "full_name"
+    t.string "email"
+    t.string "phone"
+    t.string "address_type"
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "address_line3"
+    t.string "city"
+    t.string "country_code_iso3"
+    t.string "country_name"
+    t.string "county_name"
+    t.string "county_code"
+    t.string "international_postal_code"
+    t.string "province"
+    t.string "state_code"
+    t.string "zip_code"
+    t.string "zip_suffix"
+    t.jsonb "raw_address"
+    t.float "lat"
+    t.float "long"
+    t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["full_name"], name: "index_accredited_individuals_on_full_name"
+    t.index ["location"], name: "index_accredited_individuals_on_location", using: :gist
+    t.index ["poa_code"], name: "index_accredited_individuals_on_poa_code"
+    t.index ["registration_number", "individual_type"], name: "index_on_reg_num_and_type_for_accredited_individuals", unique: true
+  end
+
+  create_table "accredited_organizations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "ogc_id", null: false
+    t.string "poa_code", limit: 3, null: false
+    t.string "name"
+    t.string "phone"
+    t.string "address_type"
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "address_line3"
+    t.string "city"
+    t.string "country_code_iso3"
+    t.string "country_name"
+    t.string "county_name"
+    t.string "county_code"
+    t.string "international_postal_code"
+    t.string "province"
+    t.string "state_code"
+    t.string "zip_code"
+    t.string "zip_suffix"
+    t.jsonb "raw_address"
+    t.float "lat"
+    t.float "long"
+    t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["location"], name: "index_accredited_organizations_on_location", using: :gist
+    t.index ["name"], name: "index_accredited_organizations_on_name"
+    t.index ["poa_code"], name: "index_accredited_organizations_on_poa_code", unique: true
+  end
+
+  create_table "accredited_representative_portal_verified_representatives", force: :cascade do |t|
+    t.string "ogc_registration_number", null: false
+    t.string "email", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_verified_representatives_on_email", unique: true
+    t.index ["ogc_registration_number"], name: "index_verified_representatives_on_ogc_number", unique: true
   end
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -203,6 +290,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_04_203337) do
     t.index ["transaction_id"], name: "index_async_transactions_on_transaction_id"
     t.index ["user_account_id"], name: "index_async_transactions_on_user_account_id"
     t.index ["user_uuid"], name: "index_async_transactions_on_user_uuid"
+  end
+
+  create_table "average_days_for_claim_completions", force: :cascade do |t|
+    t.float "average_days"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "base_facilities", id: false, force: :cascade do |t|
@@ -388,6 +481,15 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_04_203337) do
     t.index ["email_address"], name: "index_credential_adoption_email_records_on_email_address"
     t.index ["email_template_id"], name: "index_credential_adoption_email_records_on_email_template_id"
     t.index ["icn"], name: "index_credential_adoption_email_records_on_icn"
+  end
+
+  create_table "decision_review_evidence_attachment_validations", force: :cascade do |t|
+    t.uuid "decision_review_evidence_attachment_guid", null: false
+    t.text "password_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["decision_review_evidence_attachment_guid"], name: "index_dr_evidence_attachment_validation_on_guid"
   end
 
   create_table "deprecated_user_accounts", force: :cascade do |t|
@@ -748,11 +850,35 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_04_203337) do
     t.index ["user_account_id"], name: "index_inherited_proof_verified_user_accounts_on_user_account_id", unique: true
   end
 
+  create_table "intent_to_file_queue_exhaustions", force: :cascade do |t|
+    t.string "user_uuid", null: false
+    t.string "form_type"
+    t.datetime "form_start_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_uuid"], name: "index_intent_to_file_queue_exhaustions_on_user_uuid"
+  end
+
   create_table "invalid_letter_address_edipis", id: :serial, force: :cascade do |t|
     t.string "edipi", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.index ["edipi"], name: "index_invalid_letter_address_edipis_on_edipi"
+  end
+
+  create_table "ivc_champva_forms", force: :cascade do |t|
+    t.string "email"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "form_number"
+    t.string "file_name"
+    t.uuid "form_uuid"
+    t.string "s3_status"
+    t.string "pega_status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "case_id"
+    t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
   end
 
   create_table "lighthouse526_document_uploads", force: :cascade do |t|
@@ -842,6 +968,13 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_04_203337) do
     t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
   end
 
+  create_table "pension_ipf_notifications", force: :cascade do |t|
+    t.text "payload_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "persistent_attachments", id: :serial, force: :cascade do |t|
     t.uuid "guid"
     t.string "type"
@@ -910,6 +1043,16 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_04_203337) do
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
+  end
+
+  create_table "schema_contract_validations", force: :cascade do |t|
+    t.string "contract_name", null: false
+    t.string "user_uuid", null: false
+    t.jsonb "response", null: false
+    t.integer "status", null: false
+    t.string "error_details"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "service_account_configs", force: :cascade do |t|
@@ -1191,6 +1334,14 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_04_203337) do
     t.index ["icn", "device_id"], name: "index_veteran_device_records_on_icn_and_device_id", unique: true
   end
 
+  create_table "veteran_onboardings", force: :cascade do |t|
+    t.boolean "display_onboarding_flow", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "user_account_uuid"
+    t.index ["user_account_uuid"], name: "index_veteran_onboardings_on_user_account_uuid", unique: true
+  end
+
   create_table "veteran_organizations", id: false, force: :cascade do |t|
     t.string "poa", limit: 3
     t.string "name"
@@ -1306,6 +1457,16 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_04_203337) do
     t.index ["user_info_id"], name: "index_vye_awards_on_user_info_id"
   end
 
+  create_table "vye_bdn_clones", force: :cascade do |t|
+    t.boolean "is_active"
+    t.boolean "export_ready"
+    t.date "transact_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["export_ready"], name: "index_vye_bdn_clones_on_export_ready"
+    t.index ["is_active"], name: "index_vye_bdn_clones_on_is_active"
+  end
+
   create_table "vye_direct_deposit_changes", force: :cascade do |t|
     t.integer "user_info_id"
     t.string "rpo"
@@ -1370,6 +1531,17 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_04_203337) do
     t.index ["ssn_digest"], name: "index_vye_user_infos_on_ssn_digest"
   end
 
+  create_table "vye_user_profiles", force: :cascade do |t|
+    t.binary "ssn_digest"
+    t.binary "file_number_digest"
+    t.string "icn"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["file_number_digest"], name: "index_vye_user_profiles_on_file_number_digest", unique: true
+    t.index ["icn"], name: "index_vye_user_profiles_on_icn", unique: true
+    t.index ["ssn_digest"], name: "index_vye_user_profiles_on_ssn_digest", unique: true
+  end
+
   create_table "vye_verifications", force: :cascade do |t|
     t.integer "user_info_id"
     t.integer "award_id"
@@ -1426,6 +1598,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_04_203337) do
   end
 
   add_foreign_key "account_login_stats", "accounts"
+  add_foreign_key "accreditations", "accredited_individuals"
+  add_foreign_key "accreditations", "accredited_organizations"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"
