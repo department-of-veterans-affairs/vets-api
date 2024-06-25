@@ -82,32 +82,31 @@ class FormProfiles::VA526ez < FormProfile
   attribute :toxic_exposure, VA526ez::FormToxicExposure
 
   def prefill
+    @toxic_exposure = initialize_toxic_exposure
+
     begin
       @rated_disabilities_information = initialize_rated_disabilities_information
     rescue => e
-      Rails.logger.error("Prefill for rated disabilities failed")
+      Rails.logger.error("Form526 Prefill for rated disabilities failed. #{e.message}")
     end
 
     begin
       @veteran_contact_information = initialize_veteran_contact_information
     rescue => e
-      Rails.logger.error("Prefill for veteran contact information failed")
+      Rails.logger.error("Form526 Prefill for veteran contact information failed. #{e.message}")
     end
 
     begin
       @payment_information = initialize_payment_information
     rescue => e
-      Rails.logger.error("Prefill for payment information failed")
+      Rails.logger.error("Form526 Prefill for payment information failed. #{e.message}")
     end
 
-    @toxic_exposure = initialize_toxic_exposure
+    prefill_base_class_methods(e)
 
-    super
-    # begin
-    #   super
-    # rescue => e
-    #   Rails.logger.error("Prefill for super failed")
-    # end
+    mappings = self.class.mappings_for_form(form_id)
+    form_data = generate_prefill(mappings)
+    { form_data:, metadata: }
   end
 
   def metadata
@@ -142,6 +141,26 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   private
+
+  def prefill_base_class_methods(e)
+    begin
+      @identity_information = initialize_identity_information
+    rescue
+      Rails.logger.error("Form526 Prefill for identity information failed. #{e.message}")
+    end
+
+    begin
+      @contact_information = initialize_contact_information
+    rescue
+      Rails.logger.error("Form526 Prefill for contact information failed. #{e.message}")
+    end
+
+    begin
+      @military_information = initialize_military_information
+    rescue
+      Rails.logger.error("Form526 Prefill for military information failed. #{e.message}")
+    end
+  end
 
   def initialize_toxic_exposure
     VA526ez::FormToxicExposure.new(
