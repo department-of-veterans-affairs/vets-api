@@ -10,12 +10,10 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
 
       claim = create(:auto_established_claim, :status_established)
       ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT', consumer_label: 'Consumer name here'
-      pact_act_data = ClaimsApi::ClaimSubmission.where(created_at: from..to)
 
       described_class.build(
         from,
         to,
-        pact_act_data,
         consumer_claims_totals: [],
         poa_totals: [],
         ews_totals: [],
@@ -37,6 +35,7 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
           kayla.watanabe@adhocteam.us
           matthew.christianson@adhocteam.us
           rockwell.rice@oddball.io
+          tyler.coleman@oddball.io
         ]
       )
     end
