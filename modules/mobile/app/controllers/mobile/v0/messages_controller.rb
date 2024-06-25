@@ -107,8 +107,7 @@ module Mobile
       def categories
         resource = client.get_categories
 
-        render json: resource,
-               serializer: Mobile::V0::CategorySerializer
+        render json: Mobile::V0::CategorySerializer.new(resource)
       end
 
       def move
