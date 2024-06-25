@@ -40,8 +40,6 @@ class VeteranOnboarding < ApplicationRecord
       elsif Flipper.enabled?(:veteran_onboarding_beta_flow, @user)
         display_onboarding_flow
       end
-    else
-      false
     end
   end
 
