@@ -36,7 +36,7 @@ module RepresentationManagement
       def representative_params
         %i[
           representative_type
-          representative_service_organization_name
+          representative_organization_name
           representative_first_name
           representative_middle_initial
           representative_last_name
@@ -47,7 +47,6 @@ module RepresentationManagement
           representative_state_code
           representative_zip_code
           representative_zip_code_suffix
-          representative_area_code
           representative_phone_number
           representative_email_address
         ]

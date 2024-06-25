@@ -22,7 +22,6 @@ module RepresentationManagement
           claimant_state_code
           claimant_zip_code
           claimant_zip_code_suffix
-          claimant_area_code
           claimant_phone_number
           claimant_email
           claimant_relationship
@@ -30,45 +29,11 @@ module RepresentationManagement
         ]
       end
 
-      def required_base_params
-        [required_claimant_params, required_veteran_params].flatten
-      end
-
-      def required_claimant_params
-        %i[
-          claimant_first_name
-          claimant_middle_initial
-          claimant_last_name
-          claimant_address_line1
-          claimant_city
-          claimant_country
-          claimant_state_code
-          claimant_zip_code
-          claimant_date_of_birth
-          claimant_relationship
-        ]
-      end
-
-      def required_veteran_params
-        %i[
-          veteran_first_name
-          veteran_middle_initial
-          veteran_last_name
-          veteran_social_security_number
-          veteran_date_of_birth
-          veteran_address_line1
-          veteran_city
-          veteran_country
-          veteran_state_code
-          veteran_zip_code
-        ]
-      end
-
       def veteran_params
         %i[
           veteran_first_name veteran_middle_initial veteran_last_name
           veteran_social_security_number
-          veteran_file_number
+          veteran_va_file_number
           veteran_date_of_birth
           veteran_address_line1
           veteran_address_line2
@@ -77,7 +42,6 @@ module RepresentationManagement
           veteran_state_code
           veteran_zip_code
           veteran_zip_code_suffix
-          veteran_area_code
           veteran_phone_number
           veteran_email
           veteran_service_number

@@ -4,7 +4,7 @@ module RepresentationManagement
   class Form2122aData < RepresentationManagement::Form2122Base
     representative_attrs = %i[
       representative_type
-      representative_service_organization_name
+      representative_organization_name
       representative_first_name
       representative_middle_initial
       representative_last_name
@@ -15,7 +15,6 @@ module RepresentationManagement
       representative_state_code
       representative_zip_code
       representative_zip_code_suffix
-      representative_area_code
       representative_phone_number
       representative_email_address
     ]
@@ -35,8 +34,7 @@ module RepresentationManagement
     validates :representative_state_code, presence: true, length: { is: 2 }
     validates :representative_zip_code, presence: true, length: { is: 5 }, format: { with: ZIP_CODE }
     validates :representative_zip_code_suffix, length: { is: 4 }, format: { with: ZIP_CODE_SUFFIX }
-    validates :representative_area_code, presence: true, length: { is: 3 }, format: { with: AREA_CODE }
-    validates :representative_phone_number, presence: true, length: { is: 7 }, format: { with: PHONE_NUMBER }
+    validates :representative_phone_number, presence: true, length: { is: 10 }, format: { with: PHONE_NUMBER }
 
     attr_reader [representative_attrs, representative_consent_attrs].flatten
   end
