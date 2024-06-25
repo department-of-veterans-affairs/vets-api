@@ -19,6 +19,17 @@ module VAProfile
       attribute :transaction_id, String
       attribute :updated_at, Common::ISO8601Time
       attribute :vet360_id, String
+      CONTACT_INFO_CHANGE_TEMPLATE = Settings.vanotify.services.va_gov.template_id.contact_info_change
+      EMAIL_PERSONALISATIONS = {
+        address: 'Address',
+        residence_address: 'Home address',
+        correspondence_address: 'Mailing address',
+        email: 'Email address',
+        phone: 'Phone number',
+        home_phone: 'Home phone number',
+        mobile_phone: 'Mobile phone number',
+        work_phone: 'Work phone number'
+      }.freeze
 
       # Converts a decoded JSON response from VAProfile to an instance of the Person model
       # @param body [Hash] the decoded response body from VAProfile
@@ -41,6 +52,10 @@ module VAProfile
           permissions: permissions || [],
           vet360_id: body['vet360_id']
         )
+      end
+
+      def self.bio_path
+        'person'
       end
     end
   end

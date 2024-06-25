@@ -16,6 +16,14 @@ module VAProfile
       attribute :service_specific_occupation_code, String
       attribute :service_specific_occupation_text, String
       attribute :effective_date, String
+
+      def self.bio_path
+        'healthBenefit'
+      end
+
+      def self.response_class
+        VAProfile::Profile::V3::MilitaryOccupationResponse
+      end
     end
   end
 end

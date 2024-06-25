@@ -2,6 +2,7 @@
 
 require 'common/exceptions/validation_errors'
 require 'va_profile/contact_information/service'
+require 'va_profile/profile/v3/service'
 
 module Vet360
   module Writeable
@@ -21,7 +22,11 @@ module Vet360
     def write_to_vet360_and_render_transaction!(type, params, http_verb: 'post')
       record = build_record(type, params)
       validate!(record)
-      response = write_valid_record!(http_verb, type, record)
+      if flipper?
+        response = service.send("create_or_update_info", http_verb.to_sym, type, record, "#{type.capitalize}TransactionResponse")
+      else
+        response = write_valid_record!(http_verb, type, record)
+      end
       render_new_transaction!(type, response)
     end
 
@@ -49,7 +54,11 @@ module Vet360
     end
 
     def service
-      VAProfile::ContactInformation::Service.new @current_user
+      if flipper?
+        VAProfile::Profile::Service.new @current_user
+      else
+        VAProfile::ContactInformation::Service.new @current_user
+      end
     end
 
     def write_valid_record!(http_verb, type, record)

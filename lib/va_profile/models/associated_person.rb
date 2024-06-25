@@ -38,6 +38,14 @@ module VAProfile
       attribute :state, String
       attribute :zip_code, String
       attribute :primary_phone, String
+
+      def self.bio_path
+        'healthBenefit'
+      end
+
+      def self.response_class
+        VAProfile::Profile::V3::HealthBenefitBioResponse
+      end
     end
   end
 end
