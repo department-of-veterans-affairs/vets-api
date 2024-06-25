@@ -37,7 +37,7 @@ module ClaimsApi
             datetime_format: :iso8601.to_proc
           )
 
-          association :created_by, blueprint: Representative
+          association :representative, blueprint: Representative
         end
 
         class Claimant < Blueprinter::Base
