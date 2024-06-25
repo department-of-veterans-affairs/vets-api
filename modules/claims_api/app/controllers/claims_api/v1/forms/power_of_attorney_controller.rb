@@ -60,7 +60,7 @@ module ClaimsApi
           end
 
           claims_v1_logging('poa_submit', message: "poa_submit complete, poa: #{power_of_attorney&.id}")
-          render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
+          render json: ClaimsApi::PowerOfAttorneySerializer.new(power_of_attorney)
         end
 
         # PUT to upload a wet-signed 2122 form.
@@ -82,7 +82,7 @@ module ClaimsApi
           # If upload is successful, then the PoaUpater job is also called to update the code in BGS.
           ClaimsApi::PoaVBMSUploadJob.perform_async(@power_of_attorney.id)
 
-          render json: @power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
+          render json: ClaimsApi::PowerOfAttorneySerializer.new(@power_of_attorney)
         end
 
         # GET the current status of a previous POA change request.
@@ -91,7 +91,7 @@ module ClaimsApi
         def status
           find_poa_by_id
 
-          render json: @power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
+          render json: ClaimsApi::PowerOfAttorneySerializer.new(@power_of_attorney)
         end
 
         # GET current POA for a Veteran.

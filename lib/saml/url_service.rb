@@ -238,7 +238,7 @@ module SAML
       type = previous&.payload_attr(:type) || params[:type]
       transaction_id = previous&.payload_attr(:transaction_id) || SecureRandom.uuid
       redirect = previous&.payload_attr(:redirect) || params[:redirect]
-      application = previous&.payload_attr(:application) || params[:application]
+      application = previous&.payload_attr(:application) || params[:application] || 'vaweb'
       post_login = previous&.payload_attr(:post_login) || params[:postLogin]
 
       # if created_at is set to nil (meaning no previous tracker to use), it

@@ -7,7 +7,7 @@ on:
     types: [completed]
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' && ${{ github.event.workflow_run.conclusion == 'success' }}
     uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@master
     with:
       ecr_repository: "vets-api"

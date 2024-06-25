@@ -239,7 +239,7 @@
           "radiation": true,
           "mustardgas": false
         },
-        "otherExposureDetails": {
+        "otherExposuresDetails": {
           "asbestos": {
             "startDate": "1991-03-01",
             "endDate": "1992-01-01"
