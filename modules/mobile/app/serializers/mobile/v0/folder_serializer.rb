@@ -10,7 +10,7 @@ module Mobile
 
       attributes :name, :count, :unread_count, :system_folder
 
-      attribute :folder_id, :id
+      attribute :folder_id, &:id
 
       link :self do |object|
         Mobile::UrlHelper.new.v0_folder_url(object.id)

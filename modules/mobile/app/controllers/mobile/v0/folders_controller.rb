@@ -5,7 +5,7 @@ require_relative '../concerns/json_api_pagination_links'
 module Mobile
   module V0
     class FoldersController < MessagingController
-      include JsonApiPaginationLinks
+      include Mobile::Concerns::JsonApiPaginationLinks
 
       def index
         resource = client.get_folders(@current_user.uuid, use_cache?)
