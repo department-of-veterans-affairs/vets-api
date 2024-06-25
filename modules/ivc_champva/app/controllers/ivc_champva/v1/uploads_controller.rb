@@ -20,15 +20,15 @@ module IvcChampva
           form_id = get_form_id
           parsed_form_data = JSON.parse(params.to_json)
           file_paths, metadata, attachment_ids = get_file_paths_and_metadata(parsed_form_data)
+          statuses, error_message = FileUploader.new(form_id, metadata, file_paths, attachment_ids, true).handle_uploads
+          response = build_json(Array(statuses), error_message)
 
-          status, error_message = FileUploader.new(form_id, metadata, file_paths, attachment_ids, true).handle_uploads
-
-          render json: build_json(Array(status), error_message), status:
+          render json: response[:json], status: response[:status]
         rescue => e
-          puts 'An unknown error occurred while uploading document(s).'
           Rails.logger.error "Error: #{e.message}"
           Rails.logger.error e.backtrace.join("\n")
-          render json: build_json([500, error_message], error_message), status: :internal_server_error
+          render json: { error_message: 'An unknown error occurred while uploading document(s).' },
+                 status: :internal_server_error
         end
       end
 
@@ -97,21 +97,17 @@ module IvcChampva
         FORM_NUMBER_MAP[form_number_without_colon]
       end
 
-      def build_json(status, error_message)
-        if status.all? { |s| s == 200 }
-          {
-            status: 200
-          }
-        elsif status.all? { |s| s == 400 }
-          {
-            error_message:,
-            status: 400
-          }
+      def build_json(statuses, error_message)
+        unique_statuses = statuses.uniq
+
+        if unique_statuses == [200]
+          { json: {}, status: 200 }
+        elsif unique_statuses == [400]
+          { json: { error_message: }, status: 400 }
+        elsif unique_statuses.include?(200) && unique_statuses.include?(400)
+          { json: { error_message: 'Partial upload failure' }, status: 206 }
         else
-          {
-            error_message: 'Partial upload failure',
-            status: 206
-          }
+          { json: { error_message: 'Internal server error' }, status: 500 }
         end
       end
 
