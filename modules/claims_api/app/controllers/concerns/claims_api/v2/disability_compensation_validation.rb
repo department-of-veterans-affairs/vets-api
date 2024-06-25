@@ -853,8 +853,13 @@ module ClaimsApi
         form_obj_desc = 'obligation terms of service'
 
         # if one is present both need to be present
-        raise_exception_if_value_not_present('begin date', form_obj_desc) if tos_start_date.blank? && tos_end_date.present?
-        raise_exception_if_value_not_present('end date', form_obj_desc) if tos_end_date.blank? && tos_start_date.present?
+        if tos_start_date.blank? && tos_end_date.present?
+          raise_exception_if_value_not_present('begin date', form_obj_desc)
+        end
+        if tos_end_date.blank? && tos_start_date.present?
+          raise_exception_if_value_not_present('end date',
+                                               form_obj_desc)
+        end
         if tos_start_date.present? && tos_end_date.present? && (Date.strptime(tos_start_date,
                                                                               '%Y-%m-%d') > Date.strptime(tos_end_date,
                                                                                                           '%Y-%m-%d'))
@@ -872,11 +877,9 @@ module ClaimsApi
 
         return if federal_activation.blank?
 
-        # form_obj_desc = '/serviceInformation/federalActivation'
+        form_obj_desc = '/serviceInformation/federalActivation'
 
-        # if federal_activation_date.blank?
-        #   raise_exception_if_value_not_present('federal activation date', form_obj_desc)
-        # end
+        raise_exception_if_value_not_present('federal activation date', form_obj_desc) if federal_activation_date.blank?
 
         return if anticipated_seperation_date.blank?
 
