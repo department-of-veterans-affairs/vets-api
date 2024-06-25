@@ -108,6 +108,8 @@ module ClaimsApi
         logged_in_representative_user = @current_user
         target_veteran_to_be_verified = target_veteran
         verify_representative_and_veteran(logged_in_representative_user, target_veteran_to_be_verified)
+      rescue ::Common::Exceptions::UnprocessableEntity
+        raise
       rescue
         raise ::Common::Exceptions::Unauthorized, detail: 'Cannot validate Power of Attorney'
       end
