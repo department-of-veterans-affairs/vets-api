@@ -185,6 +185,7 @@ module DebtsApi
       end
       # rubocop:enable Metrics/MethodLength
 
+      # rubocop:disable Metrics/MethodLength
       def full_transform_form
         params.permit(
           :'view:enhanced_financial_status_report',
@@ -205,52 +206,58 @@ module DebtsApi
           },
           assets: [
             :rec_vehicle_amount, :real_estate_value,
-            monetary_assets: %i[name amount],
-            other_assets: %i[name amount],
-            automobiles: %i[make model resale_value]
+            {
+              monetary_assets: %i[name amount],
+              other_assets: %i[name amount],
+              automobiles: %i[make model resale_value]
+            }
           ],
           benefits: { spouse_benefits: %i[compensation_and_pension education] },
           personal_data: [
             :date_of_birth, :telephone_number, :email_address,
-            spouse_full_name: %i[first last],
-            veteran_full_name: %i[first last middle],
-            veteran_contact_information: [
-              :email,
-              mobile_phone: %i[
-                area_code country_code created_at extension
-                effective_end_date effective_start_date id
-                is_international is_textable is_text_permitted
-                is_tty is_voicemailable phone_number phone_type
-                source_date source_system_user transaction_id
-                updated_at vet360_id
+            {
+              spouse_full_name: %i[first last],
+              veteran_full_name: %i[first last middle],
+              veteran_contact_information: [
+                :email,
+                {
+                  mobile_phone: %i[
+                    area_code country_code created_at extension
+                    effective_end_date effective_start_date id
+                    is_international is_textable is_text_permitted
+                    is_tty is_voicemailable phone_number phone_type
+                    source_date source_system_user transaction_id
+                    updated_at vet360_id
+                  ],
+                  address: %i[
+                    address_line1 address_line2 address_pou address_type
+                    city country_name country_code_iso2 country_code_iso3
+                    country_code_fips county_code county_name created_at
+                    effective_end_date effective_start_date id province
+                    source_date source_system_user state_code transaction_id
+                    updated_at validation_key vet360_id zip_code zip_code_suffix
+                  ]
+                }
               ],
+              dependents: [:dependent_age],
               address: %i[
-                address_line1 address_line2 address_pou address_type
-                city country_name country_code_iso2 country_code_iso3
-                country_code_fips county_code county_name created_at
-                effective_end_date effective_start_date id province
-                source_date source_system_user state_code transaction_id
-                updated_at validation_key vet360_id zip_code zip_code_suffix
-              ]
-            ],
-            dependents: [:dependent_age],
-            address: %i[
-              street city state country postal_code
-            ],
-            employment_history: [
-              veteran: [
-                employment_records: [
-                  :type, :from, :to, :is_current, :employer_name, :gross_monthly_income,
-                  deductions: %i[name amount]
-                ]
+                street city state country postal_code
               ],
-              spouse: [
-                sp_employment_records: [
-                  :type, :from, :to, :is_current, :employer_name, :gross_monthly_income,
-                  deductions: %i[name amount]
+              employment_history: [
+                veteran: [
+                  employment_records: [
+                    :type, :from, :to, :is_current, :employer_name, :gross_monthly_income,
+                    { deductions: %i[name amount] }
+                  ]
+                ],
+                spouse: [
+                  sp_employment_records: [
+                    :type, :from, :to, :is_current, :employer_name, :gross_monthly_income,
+                    { deductions: %i[name amount] }
+                  ]
                 ]
               ]
-            ]
+            }
           ],
           personal_identification: %i[ssn file_number],
           selected_debts_and_copays: [
@@ -259,7 +266,7 @@ module DebtsApi
             :diary_code, :diary_code_description, :amount_overpaid, :amount_withheld,
             :original_ar, :current_ar,
             :id, :debt_type, :resolution_comment,
-            debt_history: %i[date letter_code description],
+            { debt_history: %i[date letter_code description] }
           ],
           additional_income: [
             addl_inc_records: %i[name amount],
@@ -278,11 +285,11 @@ module DebtsApi
           other_expenses: %i[name amount],
           additional_data: [
             :additional_comments,
-            bankruptcy: %i[date_discharged court_location docket_number]
+            { bankruptcy: %i[date_discharged court_location docket_number] }
           ],
           income: [:veteran_or_spouse],
           gmt_data: [
-            :is_eligible_for_streamlined, :gmt_threshold, error: [:error]
+            :is_eligible_for_streamlined, :gmt_threshold, { error: [:error] }
           ],
           installment_contracts: %i[
             purpose creditor_name original_amount unpaid_balance
@@ -290,6 +297,7 @@ module DebtsApi
           ]
         ).to_h
       end
+      # rubocop:enable Metrics/MethodLength
 
       def service
         DebtsApi::V0::FinancialStatusReportService.new(current_user)

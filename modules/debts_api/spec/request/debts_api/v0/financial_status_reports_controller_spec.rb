@@ -62,15 +62,17 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
 
       before do
         expect_any_instance_of(fsr_service).to receive(
-                                                 :submit_financial_status_report
-                                               ).and_raise(
-          fsr_service::FSRNotFoundInRedis
-        )
+          :submit_financial_status_report
+        ).and_raise(fsr_service::FSRNotFoundInRedis)
       end
 
       it 'renders 404' do
         # adjust below to be on the root level of the form data
-        post('/debts_api/v0/financial_status_reports/transform_and_submit', params: pre_transform_fsr_form_data.to_h, as: :json)
+        post(
+          '/debts_api/v0/financial_status_reports/transform_and_submit',
+          params: pre_transform_fsr_form_data.to_h,
+          as: :json
+        )
         expect(response).to have_http_status(:not_found)
         expect(response.header['Content-Type']).to include('application/json')
         expect(JSON.parse(response.body)).to eq(nil)
@@ -80,7 +82,11 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
     it 'submits a financial status report' do
       VCR.use_cassette('dmc/submit_fsr') do
         VCR.use_cassette('bgs/people_service/person_data') do
-          post('/debts_api/v0/financial_status_reports/transform_and_submit', params: pre_transform_fsr_form_data.to_h, as: :json)
+          post(
+            '/debts_api/v0/financial_status_reports/transform_and_submit',
+            params: pre_transform_fsr_form_data.to_h,
+            as: :json
+          )
           expect(response.code).to eq('200')
         end
       end
