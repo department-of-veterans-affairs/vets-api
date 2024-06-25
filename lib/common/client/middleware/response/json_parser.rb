@@ -22,7 +22,7 @@ module Common
           def parse(body = nil)
             Oj.load(body)
           rescue Oj::Error => e
-            raise Common::Client::Errors::Serialization, e
+            raise Common::Client::Errors::Serialization.new(body:, message: e.message)
           end
         end
       end
