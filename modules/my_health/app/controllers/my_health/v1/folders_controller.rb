@@ -4,7 +4,8 @@ module MyHealth
   module V1
     class FoldersController < SMController
       def index
-        resource = client.get_folders(@current_user.uuid, use_cache?)
+        resource = client.get_folders(@current_user.uuid, use_cache?, requires_oh_messages)
+
         resource = resource.paginate(**pagination_params)
 
         render json: resource.data,
@@ -15,7 +16,7 @@ module MyHealth
 
       def show
         id = params[:id].try(:to_i)
-        resource = client.get_folder(id)
+        resource = client.get_folder(id, requires_oh_messages)
         raise Common::Exceptions::RecordNotFound, id if resource.blank?
 
         render json: resource,
@@ -54,7 +55,7 @@ module MyHealth
 
       def search
         message_search = MessageSearch.new(search_params)
-        resource = client.post_search_folder(params[:id], params[:page], params[:per_page], message_search)
+        resource = client.post_search_folder(params[:id], params[:page], params[:per_page], message_search, requires_oh_messages)
 
         render json: resource.data,
                serializer: CollectionSerializer,
@@ -70,6 +71,10 @@ module MyHealth
 
       def search_params
         params.permit(:exact_match, :sender, :subject, :category, :recipient, :from_date, :to_date, :message_id)
+      end
+
+      def requires_oh_messages
+        params[:requires_oh_messages].try(:to_s) || '0'
       end
     end
   end

@@ -80,10 +80,15 @@ module SM
     #
     # @return [Common::Collection[Folder]]
     #
-    def get_folders(user_uuid, use_cache)
+    def get_folders(user_uuid, use_cache, requires_oh_messages)
+      path = 'folder'
+      if requires_oh_messages == "1"
+        path += "?requiresOHMessages=#{requires_oh_messages}"
+      end
+      
       cache_key = "#{user_uuid}-folders"
       get_cached_or_fetch_data(use_cache, cache_key, Folder) do
-        json = perform(:get, 'folder', nil, token_headers).body
+        json = perform(:get, path, nil, token_headers).body
         data = Common::Collection.new(Folder, **json)
         Folder.set_cached(cache_key, data)
         data
@@ -95,8 +100,13 @@ module SM
     #
     # @return [Folder]
     #
-    def get_folder(id)
-      json = perform(:get, "folder/#{id}", nil, token_headers).body
+    def get_folder(id, requires_oh_messages)
+      path = "folder/#{id}"
+      if requires_oh_messages == "1"
+        path += "?requiresOHMessages=#{requires_oh_messages}"
+      end
+
+      json = perform(:get, path, nil, token_headers).body
       Folder.new(json)
     end
 
@@ -172,10 +182,12 @@ module SM
     # @return [Common::Collection]
     #
     def get_folder_threads(folder_id, page_size, page_number, sort_field, sort_order, requires_oh_messages)
-      path = "folder/threadlistview/#{folder_id}"
+      path = "folder/threadlistview/#{folder_id}?pageSize=#{page_size}&pageNumber=#{page_number}&sortField=#{sort_field}&sortOrder=#{sort_order}"
+      if requires_oh_messages == "1"
+        path += "&requiresOHMessages=#{requires_oh_messages}"
+      end
 
-      params = "?pageSize=#{page_size}&pageNumber=#{page_number}&sortField=#{sort_field}&sortOrder=#{sort_order}&requiresOHMessages=#{requires_oh_messages}"
-      json = perform(:get, path + params, nil, token_headers).body
+      json = perform(:get, path, nil, token_headers).body
 
       Common::Collection.new(MessageThread, **json)
     end
@@ -189,12 +201,17 @@ module SM
     # @param args [Hash] arguments for the message search
     # @return [Common::Collection]
     #
-    def post_search_folder(folder_id, page_num, page_size, args = {})
+    def post_search_folder(folder_id, page_num, page_size, args = {}, requires_oh_messages)
       page_num ||= 1
       page_size ||= MHV_MAXIMUM_PER_PAGE
 
+      path = "folder/#{folder_id}/searchMessage/page/#{page_num}/pageSize/#{page_size}"
+      if requires_oh_messages == "1"
+        path += "?requiresOHMessages=#{requires_oh_messages}"
+      end
+    
       json_data = perform(:post,
-                          "folder/#{folder_id}/searchMessage/page/#{page_num}/pageSize/#{page_size}",
+                          path,
                           args.to_h,
                           token_headers).body
       Common::Collection.new(Message, **json_data)
