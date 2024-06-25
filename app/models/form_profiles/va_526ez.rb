@@ -79,7 +79,7 @@ class FormProfiles::VA526ez < FormProfile
   attribute :rated_disabilities_information, VA526ez::FormRatedDisabilities
   attribute :veteran_contact_information, VA526ez::FormContactInformation
   attribute :payment_information, VA526ez::FormPaymentAccountInformation
-  attribute :toxic_exposure, VA526ez::Form526Prefill
+  attribute :form526_prefill, VA526ez::Form526Prefill
 
   def prefill
     @started_form_version = initialize_form526_prefill
