@@ -59,12 +59,12 @@ describe 'PowerOfAttorney', metadata do
       parameter name: 'data', in: :body, required: true, schema: body_schema
 
       response '202', 'Create decision' do
-        let(:id) { '600043198_12072' }
+        let(:id) { '600082980_3848768' }
         let(:data) { body_schema[:example] }
 
         before do |example|
           mock_ccg(scopes) do
-            use_soap_cassette('declined', use_spec_name_prefix: true) do
+            use_soap_cassette('declined', use_spec_name_prefix: true, record: :new_episodes) do
               submit_request(example.metadata)
             end
           end
@@ -175,6 +175,33 @@ describe 'PowerOfAttorney', metadata do
         end
       end
 
+      response '422', 'Obsolete POA request' do
+        schema JSON.load_file(File.expand_path('rswag/422-obsolete-error.json', __dir__))
+
+        let(:id) { '600043216_42665' }
+        let(:data) { body_schema[:example] }
+
+        before do |example|
+          mock_ccg(scopes) do
+            use_soap_cassette('obsolete', use_spec_name_prefix: true) do
+              submit_request(example.metadata)
+            end
+          end
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+
+        it do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+      end
+
       response '400', 'Malformed request body' do
         schema JSON.load_file(File.expand_path('rswag/400.json', __dir__))
 
@@ -208,7 +235,7 @@ describe 'PowerOfAttorney', metadata do
         let(:data) { body_schema[:example] }
 
         before do |example|
-          pattern = %r{/VDC/ManageRepresentativeService}
+          pattern = %r{/VDC/VeteranRepresentativeService}
           stub_request(:post, pattern).to_raise(
             Faraday::ConnectionFailed
           )
@@ -238,7 +265,7 @@ describe 'PowerOfAttorney', metadata do
         let(:data) { body_schema[:example] }
 
         before do |example|
-          pattern = %r{/VDC/ManageRepresentativeService}
+          pattern = %r{/VDC/VeteranRepresentativeService}
           stub_request(:post, pattern).to_raise(
             Faraday::TimeoutError
           )

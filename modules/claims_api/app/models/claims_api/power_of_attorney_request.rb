@@ -36,10 +36,6 @@ module ClaimsApi
       )
 
     class << self
-      def find(id)
-        Find.perform(id)
-      end
-
       def search(query)
         Search.perform(query)
       end

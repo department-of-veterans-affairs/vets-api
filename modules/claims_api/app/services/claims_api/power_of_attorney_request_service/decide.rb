@@ -5,16 +5,16 @@ module ClaimsApi
     module Decide
       class << self
         def perform(id, attrs)
-          previous = PowerOfAttorneyRequest::Decision.find(id)
-          current = PowerOfAttorneyRequest::Decision.build(attrs)
+          metadata = PowerOfAttorneyRequest::Metadata.find(id)
+          decision = PowerOfAttorneyRequest::Decision.build(attrs)
 
           Validation.perform!(
-            previous,
-            current
+            metadata,
+            decision
           )
 
           PowerOfAttorneyRequest::Decision.create(
-            id, current
+            id, decision
           )
         end
       end

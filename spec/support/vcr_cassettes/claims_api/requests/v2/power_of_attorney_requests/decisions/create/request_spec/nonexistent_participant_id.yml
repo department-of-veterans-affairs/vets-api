@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<BGS_BASE_URL>/VDC/ManageRepresentativeService"
+    uri: "<BGS_BASE_URL>/VDC/VeteranRepresentativeService"
     body:
       encoding: UTF-8
       string: |
@@ -33,16 +33,19 @@ http_interactions:
             </wsse:Security>
           </env:Header>
           <env:Body>
-            <tns:readPOARequestByPtcpntId>
-              <PtcpntId>1234</PtcpntId>
-            </tns:readPOARequestByPtcpntId>
+            <tns:readAllVeteranRepresentatives>
+              <data:CorpPtcpntIdFormTypeCode>
+                <formTypeCode>21-22</formTypeCode>
+                <veteranCorpPtcpntId>1234</veteranCorpPtcpntId>
+              </data:CorpPtcpntIdFormTypeCode>
+            </tns:readAllVeteranRepresentatives>
           </env:Body>
         </env:Envelope>
     headers:
       User-Agent:
       - Faraday v2.9.0
       Soapaction:
-      - '"readPOARequestByPtcpntId"'
+      - '"readAllVeteranRepresentatives"'
       Content-Type:
       - text/xml;charset=UTF-8
       Host:
@@ -53,11 +56,11 @@ http_interactions:
       - "*/*"
   response:
     status:
-      code: 500
-      message: Internal Server Error
+      code: 200
+      message: OK
     headers:
       Date:
-      - Thu, 23 May 2024 18:32:50 GMT
+      - Tue, 25 Jun 2024 08:05:08 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -72,35 +75,18 @@ http_interactions:
       encoding: UTF-8
       string: |-
         <?xml version='1.0' encoding='UTF-8' ?>
-        <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+        <S:Envelope
+          xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+          xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"
+        >
+          <env:Header />
           <S:Body>
-            <ns0:Fault
-              xmlns:ns0="http://schemas.xmlsoap.org/soap/envelope/"
-              xmlns:ns1="http://www.w3.org/2003/05/soap-envelope"
-            >
-              <faultcode>ns0:Server</faultcode>
-              <faultstring>No Record Found</faultstring>
-              <detail>
-                <ns0:MessageException
-                  xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
-                >
-                  <code>5999</code>
-                  <faultCode>Client</faultCode>
-                  <fieldName>ptcpntId</fieldName>
-                  <functionName>readPOARequestByPtcpntId</functionName>
-                  <jrnDate>Thu May 23 13:32:50 CDT 2024</jrnDate>
-                  <jrnExtnlKeyTxt>xKey</jrnExtnlKeyTxt>
-                  <jrnExtnlUserId>xUid</jrnExtnlUserId>
-                  <jrnLocationId>281</jrnLocationId>
-                  <jrnObjectId>VAgovAPI</jrnObjectId>
-                  <jrnUserId>VAgovAPI</jrnUserId>
-                  <message>No Record Found</message>
-                  <reason>NO_RECORD_FOUND</reason>
-                  <service>ManageRepresentativeService</service>
-                </ns0:MessageException>
-              </detail>
-            </ns0:Fault>
+            <ns0:readAllVeteranRepresentativesResponse
+              xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
+              xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
+              xmlns:ns2="http://gov.va.vba.benefits.vdc/data"
+            />
           </S:Body>
         </S:Envelope>
-  recorded_at: Thu, 23 May 2024 18:32:51 GMT
+  recorded_at: Tue, 25 Jun 2024 08:05:08 GMT
 recorded_with: VCR 6.2.0

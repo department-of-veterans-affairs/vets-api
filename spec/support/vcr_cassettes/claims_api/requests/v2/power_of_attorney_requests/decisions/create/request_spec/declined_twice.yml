@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<BGS_BASE_URL>/VDC/ManageRepresentativeService"
+    uri: "<BGS_BASE_URL>/VDC/VeteranRepresentativeService"
     body:
       encoding: UTF-8
       string: |
@@ -33,16 +33,19 @@ http_interactions:
             </wsse:Security>
           </env:Header>
           <env:Body>
-            <tns:readPOARequestByPtcpntId>
-              <PtcpntId>600085312</PtcpntId>
-            </tns:readPOARequestByPtcpntId>
+            <tns:readAllVeteranRepresentatives>
+              <data:CorpPtcpntIdFormTypeCode>
+                <formTypeCode>21-22</formTypeCode>
+                <veteranCorpPtcpntId>600043216</veteranCorpPtcpntId>
+              </data:CorpPtcpntIdFormTypeCode>
+            </tns:readAllVeteranRepresentatives>
           </env:Body>
         </env:Envelope>
     headers:
       User-Agent:
       - Faraday v2.9.0
       Soapaction:
-      - '"readPOARequestByPtcpntId"'
+      - '"readAllVeteranRepresentatives"'
       Content-Type:
       - text/xml;charset=UTF-8
       Host:
@@ -57,7 +60,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 21 May 2024 06:49:47 GMT
+      - Tue, 25 Jun 2024 08:15:45 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -78,38 +81,56 @@ http_interactions:
         >
           <env:Header />
           <S:Body>
-            <ns0:readPOARequestByPtcpntIdResponse
-              xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
+            <ns0:readAllVeteranRepresentativesResponse
               xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
+              xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
               xmlns:ns2="http://gov.va.vba.benefits.vdc/data"
             >
-              <ns2:POARequestRespondReturnVO>
-                <poaRequestRespondReturnVOList>
-                  <VSOUserEmail />
-                  <VSOUserFirstName>VDC USER</VSOUserFirstName>
-                  <VSOUserLastName />
-                  <changeAddressAuth>N</changeAddressAuth>
-                  <claimantCity>BELLE VERNON</claimantCity>
-                  <claimantCountry>USA</claimantCountry>
-                  <claimantMilitaryPO />
-                  <claimantMilitaryPostalCode />
-                  <claimantState>PA</claimantState>
-                  <claimantZip>15012</claimantZip>
-                  <dateRequestActioned>2024-02-27T14:03:19-06:00</dateRequestActioned>
-                  <dateRequestReceived>2024-02-27T14:03:19-06:00</dateRequestReceived>
-                  <declinedReason />
-                  <healthInfoAuth>N</healthInfoAuth>
-                  <poaCode>074</poaCode>
-                  <procID>3853983</procID>
-                  <secondaryStatus>New</secondaryStatus>
-                  <vetFirstName>BRANDY</vetFirstName>
-                  <vetLastName>BECK</vetLastName>
-                  <vetMiddleName>K</vetMiddleName>
-                  <vetPtcpntID>600085312</vetPtcpntID>
-                </poaRequestRespondReturnVOList>
-                <totalNbrOfRecords>1</totalNbrOfRecords>
-              </ns2:POARequestRespondReturnVO>
-            </ns0:readPOARequestByPtcpntIdResponse>
+              <ns2:VeteranRepresentativeReturnList>
+                <addressLine1>PO Box 1509</addressLine1>
+                <addressLine2 />
+                <addressLine3 />
+                <changeAddressAuth>true</changeAddressAuth>
+                <city>Montgomery</city>
+                <claimantRelationship />
+                <formTypeCode>21-22</formTypeCode>
+                <insuranceNumbers>34634563</insuranceNumbers>
+                <limitationAlcohol>false</limitationAlcohol>
+                <limitationDrugAbuse>false</limitationDrugAbuse>
+                <limitationHIV>false</limitationHIV>
+                <limitationSCA>false</limitationSCA>
+                <organizationName>ALABAMA DEPARTMENT OF VETERANS AFFAIRS</organizationName>
+                <otherServiceBranch />
+                <phoneNumber>2567754662</phoneNumber>
+                <poaCode>022</poaCode>
+                <postalCode>36102</postalCode>
+                <procId>73930</procId>
+                <representativeFirstName />
+                <representativeLastName />
+                <representativeLawFirmOrAgencyName />
+                <representativeTitle />
+                <representativeType>Recognized Veterans Service Organization</representativeType>
+                <section7332Auth>true</section7332Auth>
+                <serviceBranch />
+                <serviceNumber />
+                <state>AL</state>
+                <submittedDate>2017-06-21T10:31:05-05:00</submittedDate>
+                <vdcStatus>Complete</vdcStatus>
+                <veteranPtcpntId>120999</veteranPtcpntId>
+                <acceptedBy />
+                <claimantFirstName />
+                <claimantLastName />
+                <claimantMiddleName />
+                <declinedBy />
+                <declinedReason />
+                <secondaryStatus>New</secondaryStatus>
+                <veteranFirstName>FRANK</veteranFirstName>
+                <veteranLastName>ARNOLD</veteranLastName>
+                <veteranMiddleName>L</veteranMiddleName>
+                <veteranSSN>796143510</veteranSSN>
+                <veteranVAFileNumber>796143510</veteranVAFileNumber>
+              </ns2:VeteranRepresentativeReturnList>
+            </ns0:readAllVeteranRepresentativesResponse>
           </S:Body>
         </S:Envelope>
   recorded_at: Thu, 09 May 2024 07:18:04 GMT
@@ -148,7 +169,7 @@ http_interactions:
           <env:Body>
             <tns:updatePOARequest>
               <data:POARequestUpdate>
-                <procId>3853983</procId>
+                <procId>73930</procId>
                 <secondaryStatus>Declined</secondaryStatus>
                 <declinedReason>Some reason</declinedReason>
                 <dateRequestActioned>2024-05-09T07:18:04Z</dateRequestActioned>
@@ -178,7 +199,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 21 May 2024 06:49:48 GMT
+      - Tue, 25 Jun 2024 08:15:46 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -210,7 +231,7 @@ http_interactions:
                 <VSOUserLastName>STROUD</VSOUserLastName>
                 <dateRequestActioned>2024-05-09T02:18:04-05:00</dateRequestActioned>
                 <declinedReason>Some reason</declinedReason>
-                <procId>3853983</procId>
+                <procId>73930</procId>
                 <secondaryStatus>DEC</secondaryStatus>
               </ns2:POARequestUpdate>
             </ns0:updatePOARequestResponse>
@@ -219,7 +240,7 @@ http_interactions:
   recorded_at: Thu, 09 May 2024 07:18:04 GMT
 - request:
     method: post
-    uri: "<BGS_BASE_URL>/VDC/ManageRepresentativeService"
+    uri: "<BGS_BASE_URL>/VDC/VeteranRepresentativeService"
     body:
       encoding: UTF-8
       string: |
@@ -250,16 +271,19 @@ http_interactions:
             </wsse:Security>
           </env:Header>
           <env:Body>
-            <tns:readPOARequestByPtcpntId>
-              <PtcpntId>600085312</PtcpntId>
-            </tns:readPOARequestByPtcpntId>
+            <tns:readAllVeteranRepresentatives>
+              <data:CorpPtcpntIdFormTypeCode>
+                <formTypeCode>21-22</formTypeCode>
+                <veteranCorpPtcpntId>600043216</veteranCorpPtcpntId>
+              </data:CorpPtcpntIdFormTypeCode>
+            </tns:readAllVeteranRepresentatives>
           </env:Body>
         </env:Envelope>
     headers:
       User-Agent:
       - Faraday v2.9.0
       Soapaction:
-      - '"readPOARequestByPtcpntId"'
+      - '"readAllVeteranRepresentatives"'
       Content-Type:
       - text/xml;charset=UTF-8
       Host:
@@ -274,7 +298,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 21 May 2024 06:49:49 GMT
+      - Tue, 25 Jun 2024 08:15:47 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -295,38 +319,57 @@ http_interactions:
         >
           <env:Header />
           <S:Body>
-            <ns0:readPOARequestByPtcpntIdResponse
-              xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
+            <ns0:readAllVeteranRepresentativesResponse
               xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
+              xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
               xmlns:ns2="http://gov.va.vba.benefits.vdc/data"
             >
-              <ns2:POARequestRespondReturnVO>
-                <poaRequestRespondReturnVOList>
-                  <VSOUserEmail>Beatrice.Stroud44@va.gov</VSOUserEmail>
-                  <VSOUserFirstName>BEATRICE</VSOUserFirstName>
-                  <VSOUserLastName>STROUD</VSOUserLastName>
-                  <changeAddressAuth>N</changeAddressAuth>
-                  <claimantCity>BELLE VERNON</claimantCity>
-                  <claimantCountry>USA</claimantCountry>
-                  <claimantMilitaryPO />
-                  <claimantMilitaryPostalCode />
-                  <claimantState>PA</claimantState>
-                  <claimantZip>15012</claimantZip>
-                  <dateRequestActioned>2024-05-09T02:18:04-05:00</dateRequestActioned>
-                  <dateRequestReceived>2024-02-27T14:03:19-06:00</dateRequestReceived>
-                  <declinedReason>Some reason</declinedReason>
-                  <healthInfoAuth>N</healthInfoAuth>
-                  <poaCode>074</poaCode>
-                  <procID>3853983</procID>
-                  <secondaryStatus>Declined</secondaryStatus>
-                  <vetFirstName>BRANDY</vetFirstName>
-                  <vetLastName>BECK</vetLastName>
-                  <vetMiddleName>K</vetMiddleName>
-                  <vetPtcpntID>600085312</vetPtcpntID>
-                </poaRequestRespondReturnVOList>
-                <totalNbrOfRecords>1</totalNbrOfRecords>
-              </ns2:POARequestRespondReturnVO>
-            </ns0:readPOARequestByPtcpntIdResponse>
+              <ns2:VeteranRepresentativeReturnList>
+                <addressLine1>PO Box 1509</addressLine1>
+                <addressLine2 />
+                <addressLine3 />
+                <changeAddressAuth>true</changeAddressAuth>
+                <city>Montgomery</city>
+                <claimantRelationship />
+                <formTypeCode>21-22</formTypeCode>
+                <insuranceNumbers>34634563</insuranceNumbers>
+                <limitationAlcohol>false</limitationAlcohol>
+                <limitationDrugAbuse>false</limitationDrugAbuse>
+                <limitationHIV>false</limitationHIV>
+                <limitationSCA>false</limitationSCA>
+                <organizationName>ALABAMA DEPARTMENT OF VETERANS AFFAIRS</organizationName>
+                <otherServiceBranch />
+                <phoneNumber>2567754662</phoneNumber>
+                <poaCode>022</poaCode>
+                <postalCode>36102</postalCode>
+                <procId>73930</procId>
+                <representativeFirstName />
+                <representativeLastName />
+                <representativeLawFirmOrAgencyName />
+                <representativeTitle />
+                <representativeType>Recognized Veterans Service Organization</representativeType>
+                <section7332Auth>true</section7332Auth>
+                <serviceBranch />
+                <serviceNumber />
+                <state>AL</state>
+                <submittedDate>2017-06-21T10:31:05-05:00</submittedDate>
+                <vdcStatus>Complete</vdcStatus>
+                <veteranPtcpntId>120999</veteranPtcpntId>
+                <acceptedBy />
+                <claimantFirstName />
+                <claimantLastName />
+                <claimantMiddleName />
+                <declinedBy>STROUD,BEATRICE</declinedBy>
+                <declinedDate>2024-05-09T02:18:04-05:00</declinedDate>
+                <declinedReason>Some reason</declinedReason>
+                <secondaryStatus>Declined</secondaryStatus>
+                <veteranFirstName>FRANK</veteranFirstName>
+                <veteranLastName>ARNOLD</veteranLastName>
+                <veteranMiddleName>L</veteranMiddleName>
+                <veteranSSN>796143510</veteranSSN>
+                <veteranVAFileNumber>796143510</veteranVAFileNumber>
+              </ns2:VeteranRepresentativeReturnList>
+            </ns0:readAllVeteranRepresentativesResponse>
           </S:Body>
         </S:Envelope>
   recorded_at: Thu, 09 May 2024 07:18:04 GMT

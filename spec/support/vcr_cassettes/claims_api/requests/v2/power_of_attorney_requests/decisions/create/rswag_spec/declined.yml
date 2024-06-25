@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<BGS_BASE_URL>/VDC/ManageRepresentativeService"
+    uri: "<BGS_BASE_URL>/VDC/VeteranRepresentativeService"
     body:
       encoding: UTF-8
       string: |
@@ -33,16 +33,19 @@ http_interactions:
             </wsse:Security>
           </env:Header>
           <env:Body>
-            <tns:readPOARequestByPtcpntId>
-              <PtcpntId>600043198</PtcpntId>
-            </tns:readPOARequestByPtcpntId>
+            <tns:readAllVeteranRepresentatives>
+              <data:CorpPtcpntIdFormTypeCode>
+                <formTypeCode>21-22</formTypeCode>
+                <veteranCorpPtcpntId>600082980</veteranCorpPtcpntId>
+              </data:CorpPtcpntIdFormTypeCode>
+            </tns:readAllVeteranRepresentatives>
           </env:Body>
         </env:Envelope>
     headers:
       User-Agent:
       - Faraday v2.9.0
       Soapaction:
-      - '"readPOARequestByPtcpntId"'
+      - '"readAllVeteranRepresentatives"'
       Content-Type:
       - text/xml;charset=UTF-8
       Host:
@@ -57,7 +60,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 13 Jun 2024 19:31:03 GMT
+      - Tue, 25 Jun 2024 16:45:03 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -78,38 +81,56 @@ http_interactions:
         >
           <env:Header />
           <S:Body>
-            <ns0:readPOARequestByPtcpntIdResponse
-              xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
+            <ns0:readAllVeteranRepresentativesResponse
               xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
+              xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
               xmlns:ns2="http://gov.va.vba.benefits.vdc/data"
             >
-              <ns2:POARequestRespondReturnVO>
-                <poaRequestRespondReturnVOList>
-                  <VSOUserEmail />
-                  <VSOUserFirstName>VDC USER</VSOUserFirstName>
-                  <VSOUserLastName />
-                  <changeAddressAuth>N</changeAddressAuth>
-                  <claimantCity>CEDAR PARK</claimantCity>
-                  <claimantCountry>USA</claimantCountry>
-                  <claimantMilitaryPO />
-                  <claimantMilitaryPostalCode />
-                  <claimantState>TX</claimantState>
-                  <claimantZip>78613</claimantZip>
-                  <dateRequestActioned>2013-02-10T13:47:54-06:00</dateRequestActioned>
-                  <dateRequestReceived>2013-02-10T13:47:54-06:00</dateRequestReceived>
-                  <declinedReason />
-                  <healthInfoAuth>N</healthInfoAuth>
-                  <poaCode>083</poaCode>
-                  <procID>12072</procID>
-                  <secondaryStatus>New</secondaryStatus>
-                  <vetFirstName>Pat</vetFirstName>
-                  <vetLastName>Morris</vetLastName>
-                  <vetMiddleName>H</vetMiddleName>
-                  <vetPtcpntID>600043198</vetPtcpntID>
-                </poaRequestRespondReturnVOList>
-                <totalNbrOfRecords>1</totalNbrOfRecords>
-              </ns2:POARequestRespondReturnVO>
-            </ns0:readPOARequestByPtcpntIdResponse>
+              <ns2:VeteranRepresentativeReturnList>
+                <addressLine1>VVA, Alabama Dept of Vets. Affairs</addressLine1>
+                <addressLine2 />
+                <addressLine3 />
+                <changeAddressAuth>true</changeAddressAuth>
+                <city>Linden</city>
+                <claimantRelationship />
+                <formTypeCode>21-22</formTypeCode>
+                <insuranceNumbers>123456789</insuranceNumbers>
+                <limitationAlcohol>false</limitationAlcohol>
+                <limitationDrugAbuse>false</limitationDrugAbuse>
+                <limitationHIV>false</limitationHIV>
+                <limitationSCA>false</limitationSCA>
+                <organizationName>AMERICAN LEGION</organizationName>
+                <otherServiceBranch />
+                <phoneNumber>3342952243</phoneNumber>
+                <poaCode>074</poaCode>
+                <postalCode>36748</postalCode>
+                <procId>3848768</procId>
+                <representativeFirstName />
+                <representativeLastName />
+                <representativeLawFirmOrAgencyName />
+                <representativeTitle />
+                <representativeType>Recognized Veterans Service Organization</representativeType>
+                <section7332Auth>true</section7332Auth>
+                <serviceBranch />
+                <serviceNumber />
+                <state>AL</state>
+                <submittedDate>2023-01-31T15:35:55-06:00</submittedDate>
+                <vdcStatus>Submitted</vdcStatus>
+                <veteranPtcpntId>174691</veteranPtcpntId>
+                <acceptedBy />
+                <claimantFirstName />
+                <claimantLastName />
+                <claimantMiddleName />
+                <declinedBy />
+                <declinedReason />
+                <secondaryStatus>Pending</secondaryStatus>
+                <veteranFirstName>JEROME</veteranFirstName>
+                <veteranLastName>STEWART</veteranLastName>
+                <veteranMiddleName>ALLEN</veteranMiddleName>
+                <veteranSSN>796098273</veteranSSN>
+                <veteranVAFileNumber>796098273</veteranVAFileNumber>
+              </ns2:VeteranRepresentativeReturnList>
+            </ns0:readAllVeteranRepresentativesResponse>
           </S:Body>
         </S:Envelope>
   recorded_at: Thu, 13 Jun 2024 19:31:03 GMT
@@ -148,7 +169,7 @@ http_interactions:
           <env:Body>
             <tns:updatePOARequest>
               <data:POARequestUpdate>
-                <procId>12072</procId>
+                <procId>3848768</procId>
                 <secondaryStatus>Accepted</secondaryStatus>
                 <declinedReason />
                 <dateRequestActioned>2024-06-13T19:31:03Z</dateRequestActioned>
@@ -178,7 +199,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 13 Jun 2024 19:31:03 GMT
+      - Tue, 25 Jun 2024 16:45:04 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -210,11 +231,11 @@ http_interactions:
                 <VSOUserLastName>STROUD</VSOUserLastName>
                 <dateRequestActioned>2024-06-13T14:31:03-05:00</dateRequestActioned>
                 <declinedReason />
-                <procId>12072</procId>
+                <procId>3848768</procId>
                 <secondaryStatus>ACC</secondaryStatus>
               </ns2:POARequestUpdate>
             </ns0:updatePOARequestResponse>
           </S:Body>
         </S:Envelope>
-  recorded_at: Thu, 13 Jun 2024 19:31:04 GMT
+  recorded_at: Thu, 13 Jun 2024 19:31:03 GMT
 recorded_with: VCR 6.2.0

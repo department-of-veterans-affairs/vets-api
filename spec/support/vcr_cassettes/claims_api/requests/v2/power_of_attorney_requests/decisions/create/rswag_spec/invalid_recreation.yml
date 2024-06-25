@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<BGS_BASE_URL>/VDC/ManageRepresentativeService"
+    uri: "<BGS_BASE_URL>/VDC/VeteranRepresentativeService"
     body:
       encoding: UTF-8
       string: |
@@ -33,16 +33,19 @@ http_interactions:
             </wsse:Security>
           </env:Header>
           <env:Body>
-            <tns:readPOARequestByPtcpntId>
-              <PtcpntId>600043198</PtcpntId>
-            </tns:readPOARequestByPtcpntId>
+            <tns:readAllVeteranRepresentatives>
+              <data:CorpPtcpntIdFormTypeCode>
+                <formTypeCode>21-22</formTypeCode>
+                <veteranCorpPtcpntId>600043198</veteranCorpPtcpntId>
+              </data:CorpPtcpntIdFormTypeCode>
+            </tns:readAllVeteranRepresentatives>
           </env:Body>
         </env:Envelope>
     headers:
       User-Agent:
       - Faraday v2.9.0
       Soapaction:
-      - '"readPOARequestByPtcpntId"'
+      - '"readAllVeteranRepresentatives"'
       Content-Type:
       - text/xml;charset=UTF-8
       Host:
@@ -57,7 +60,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 14 Jun 2024 00:41:03 GMT
+      - Tue, 25 Jun 2024 16:52:02 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -78,38 +81,57 @@ http_interactions:
         >
           <env:Header />
           <S:Body>
-            <ns0:readPOARequestByPtcpntIdResponse
-              xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
+            <ns0:readAllVeteranRepresentativesResponse
               xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
+              xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
               xmlns:ns2="http://gov.va.vba.benefits.vdc/data"
             >
-              <ns2:POARequestRespondReturnVO>
-                <poaRequestRespondReturnVOList>
-                  <VSOUserEmail>Beatrice.Stroud44@va.gov</VSOUserEmail>
-                  <VSOUserFirstName>BEATRICE</VSOUserFirstName>
-                  <VSOUserLastName>STROUD</VSOUserLastName>
-                  <changeAddressAuth>N</changeAddressAuth>
-                  <claimantCity>CEDAR PARK</claimantCity>
-                  <claimantCountry>USA</claimantCountry>
-                  <claimantMilitaryPO />
-                  <claimantMilitaryPostalCode />
-                  <claimantState>TX</claimantState>
-                  <claimantZip>78613</claimantZip>
-                  <dateRequestActioned>2024-06-13T14:31:03-05:00</dateRequestActioned>
-                  <dateRequestReceived>2013-02-10T13:47:54-06:00</dateRequestReceived>
-                  <declinedReason />
-                  <healthInfoAuth>N</healthInfoAuth>
-                  <poaCode>083</poaCode>
-                  <procID>12072</procID>
-                  <secondaryStatus>Accepted</secondaryStatus>
-                  <vetFirstName>Pat</vetFirstName>
-                  <vetLastName>Morris</vetLastName>
-                  <vetMiddleName>H</vetMiddleName>
-                  <vetPtcpntID>600043198</vetPtcpntID>
-                </poaRequestRespondReturnVOList>
-                <totalNbrOfRecords>1</totalNbrOfRecords>
-              </ns2:POARequestRespondReturnVO>
-            </ns0:readPOARequestByPtcpntIdResponse>
+              <ns2:VeteranRepresentativeReturnList>
+                <addressLine1>1400 Circle Drive</addressLine1>
+                <addressLine2 />
+                <addressLine3 />
+                <changeAddressAuth>false</changeAddressAuth>
+                <city>Fort Worth</city>
+                <claimantRelationship />
+                <formTypeCode>21-22</formTypeCode>
+                <insuranceNumbers />
+                <limitationAlcohol>false</limitationAlcohol>
+                <limitationDrugAbuse>false</limitationDrugAbuse>
+                <limitationHIV>false</limitationHIV>
+                <limitationSCA>false</limitationSCA>
+                <organizationName>DISABLED AMERICAN VETERANS</organizationName>
+                <otherServiceBranch />
+                <phoneNumber>2025543581</phoneNumber>
+                <poaCode>083</poaCode>
+                <postalCode>76119</postalCode>
+                <procId>12072</procId>
+                <representativeFirstName />
+                <representativeLastName />
+                <representativeLawFirmOrAgencyName />
+                <representativeTitle />
+                <representativeType />
+                <section7332Auth>false</section7332Auth>
+                <serviceBranch />
+                <serviceNumber />
+                <state>TX</state>
+                <submittedDate>2013-02-10T13:47:54-06:00</submittedDate>
+                <vdcStatus>Submitted</vdcStatus>
+                <veteranPtcpntId>16362</veteranPtcpntId>
+                <acceptedBy>STROUD,BEATRICE</acceptedBy>
+                <acceptedDate>2024-06-13T14:31:03-05:00</acceptedDate>
+                <claimantFirstName />
+                <claimantLastName />
+                <claimantMiddleName />
+                <declinedBy />
+                <declinedReason />
+                <secondaryStatus>Accepted</secondaryStatus>
+                <veteranFirstName>PAT</veteranFirstName>
+                <veteranLastName>MORRIS</veteranLastName>
+                <veteranMiddleName>H</veteranMiddleName>
+                <veteranSSN>796127818</veteranSSN>
+                <veteranVAFileNumber>796127818</veteranVAFileNumber>
+              </ns2:VeteranRepresentativeReturnList>
+            </ns0:readAllVeteranRepresentativesResponse>
           </S:Body>
         </S:Envelope>
   recorded_at: Thu, 13 Jun 2024 19:31:03 GMT

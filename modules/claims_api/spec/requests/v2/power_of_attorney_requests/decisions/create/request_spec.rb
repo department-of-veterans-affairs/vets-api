@@ -70,7 +70,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
     end
 
     before do
-      pattern = %r{/VDC/ManageRepresentativeService}
+      pattern = %r{/VDC/VeteranRepresentativeService}
       stub_request(:post, pattern).to_raise(
         described_class
       )
@@ -295,8 +295,53 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
     end
   end
 
+  describe 'against an obsolete poa request' do
+    let(:id) { '600043216_42665' }
+
+    it 'responds 422' do
+      params = {
+        'data' => {
+          'type' => 'powerOfAttorneyRequestDecision',
+          'attributes' => {
+            'status' => 'Declined',
+            'declinedReason' => 'Some reason',
+            'createdBy' => {
+              'firstName' => 'BEATRICE',
+              'lastName' => 'STROUD',
+              'email' => 'Beatrice.Stroud44@va.gov'
+            }
+          }
+        }
+      }
+
+      mock_ccg(scopes, allow_playback_repeats: true) do
+        use_soap_cassette('obsolete', use_spec_name_prefix: true) do
+          body = perform_request(params)
+
+          expect(body).to eq(
+            'errors' => [
+              {
+                'title' => 'Power of attorney request must not be obsolete',
+                'detail' => 'power-of-attorney-request - must not be obsolete',
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/power-of-attorney-request'
+                },
+                'status' => '422'
+              }
+            ]
+          )
+
+          expect(response).to(
+            have_http_status(:unprocessable_entity)
+          )
+        end
+      end
+    end
+  end
+
   describe 'with a valid decline with reason submitted twice' do
-    let(:id) { '600085312_3853983' }
+    let(:id) { '600043216_73930' }
 
     it 'responds accepted first and then unprocessable_entity second', run_at: '2024-05-09T07:18:04Z' do
       params = {
@@ -397,9 +442,9 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
         receive(:create)
       )
 
-      expect(ClaimsApi::PowerOfAttorneyRequest::Decision).to(
+      expect(ClaimsApi::PowerOfAttorneyRequest::Metadata).to(
         receive(:find).and_return(
-          OpenStruct.new(blank?: blank?)
+          OpenStruct.new(decision_status: OpenStruct.new(blank?: blank?))
         )
       )
     end
@@ -445,6 +490,65 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
 
         expect(response).to(
           have_http_status(:accepted)
+        )
+      end
+    end
+  end
+
+  describe 'obsolescence' do
+    before do
+      allow(ClaimsApi::PowerOfAttorneyRequest::Decision).to(
+        receive(:create)
+      )
+
+      expect(ClaimsApi::PowerOfAttorneyRequest::Metadata).to(
+        receive(:find).and_return(
+          OpenStruct.new(obsolete: obsolete)
+        )
+      )
+    end
+
+    let(:params) do
+      {
+        'data' => {
+          'type' => 'powerOfAttorneyRequestDecision',
+          'attributes' => {
+            'status' => 'Accepted',
+            'declinedReason' => nil,
+            'createdBy' => {
+              'firstName' => 'BEATRICE',
+              'lastName' => 'STROUD',
+              'email' => 'Beatrice.Stroud44@va.gov'
+            }
+          }
+        }
+      }
+    end
+
+    describe 'when not obsolete' do
+      let(:obsolete) { false }
+
+      it 'returns http status 202' do
+        mock_ccg(scopes) do
+          perform_request(params)
+        end
+
+        expect(response).to(
+          have_http_status(:accepted)
+        )
+      end
+    end
+
+    describe 'when obsolete' do
+      let(:obsolete) { true }
+
+      it 'returns http status 422' do
+        mock_ccg(scopes) do
+          perform_request(params)
+        end
+
+        expect(response).to(
+          have_http_status(:unprocessable_entity)
         )
       end
     end

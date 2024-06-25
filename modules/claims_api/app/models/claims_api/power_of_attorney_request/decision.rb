@@ -18,10 +18,6 @@ module ClaimsApi
       end
 
       class << self
-        def find(id)
-          Find.perform(id)
-        end
-
         def create(id, decision)
           Create.perform(id, decision)
         end

@@ -60,7 +60,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 25 Jun 2024 07:33:45 GMT
+      - Tue, 25 Jun 2024 08:21:29 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -87,14 +87,14 @@ http_interactions:
               xmlns:ns2="http://gov.va.vba.benefits.vdc/data"
             >
               <ns2:VeteranRepresentativeReturnList>
-                <addressLine1>5232 East Pima Street Suite B</addressLine1>
+                <addressLine1 />
                 <addressLine2 />
                 <addressLine3 />
                 <changeAddressAuth>true</changeAddressAuth>
-                <city>Tucson</city>
+                <city>Glen Allen</city>
                 <claimantRelationship />
                 <formTypeCode>21-22</formTypeCode>
-                <insuranceNumbers />
+                <insuranceNumbers>12345678</insuranceNumbers>
                 <limitationAlcohol>false</limitationAlcohol>
                 <limitationDrugAbuse>false</limitationDrugAbuse>
                 <limitationHIV>false</limitationHIV>
@@ -103,35 +103,35 @@ http_interactions:
                 <otherServiceBranch />
                 <phoneNumber />
                 <poaCode>074</poaCode>
-                <postalCode>85712</postalCode>
-                <procId>3853237</procId>
+                <postalCode>23060</postalCode>
+                <procId>42665</procId>
                 <representativeFirstName />
                 <representativeLastName />
                 <representativeLawFirmOrAgencyName />
                 <representativeTitle />
-                <representativeType>Recognized Veterans Service Organization</representativeType>
+                <representativeType />
                 <section7332Auth>true</section7332Auth>
                 <serviceBranch />
                 <serviceNumber />
-                <state>AZ</state>
-                <submittedDate>2024-01-08T14:42:58-06:00</submittedDate>
-                <vdcStatus>Submitted</vdcStatus>
-                <veteranPtcpntId>180342</veteranPtcpntId>
+                <state>VA</state>
+                <submittedDate>2014-12-03T10:48:09-06:00</submittedDate>
+                <vdcStatus>Complete</vdcStatus>
+                <veteranPtcpntId>72360</veteranPtcpntId>
                 <acceptedBy />
                 <claimantFirstName />
                 <claimantLastName />
                 <claimantMiddleName />
                 <declinedBy />
                 <declinedReason />
-                <secondaryStatus>Pending</secondaryStatus>
+                <secondaryStatus>Obsolete</secondaryStatus>
                 <veteranFirstName>FRANK</veteranFirstName>
                 <veteranLastName>ARNOLD</veteranLastName>
-                <veteranMiddleName>LARRY</veteranMiddleName>
+                <veteranMiddleName>LEE</veteranMiddleName>
                 <veteranSSN>796143510</veteranSSN>
                 <veteranVAFileNumber>796143510</veteranVAFileNumber>
               </ns2:VeteranRepresentativeReturnList>
             </ns0:readAllVeteranRepresentativesResponse>
           </S:Body>
         </S:Envelope>
-  recorded_at: Thu, 09 May 2024 07:18:04 GMT
+  recorded_at: Tue, 25 Jun 2024 08:21:30 GMT
 recorded_with: VCR 6.2.0
