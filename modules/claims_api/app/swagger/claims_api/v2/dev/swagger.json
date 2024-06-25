@@ -4258,7 +4258,7 @@
     },
     "/veterans/{veteranId}/526/synchronous": {
       "post": {
-        "summary": "Submits disability compensation claim synchronously",
+        "summary": "Submits disability compensation claim synchronously (restricted access)",
         "tags": [
           "Disability Compensation Claims"
         ],
@@ -4295,7 +4295,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8fe0f7b0-66f0-494f-8739-bcb6d59fa3f4",
+                    "id": "ade7bc9b-e08a-4f21-a39f-78ea46faed4d",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -4478,7 +4478,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-06-26"
+                          "anticipatedSeparationDate": "2024-06-27"
                         },
                         "confinements": [
                           {
@@ -9167,7 +9167,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c7781ec9-9562-4596-a656-c4b3ff42a87b",
+                    "id": "99a41295-1de2-47cf-90ed-4d27c4227f97",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12050,8 +12050,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-06-24",
-                      "expirationDate": "2025-06-24",
+                      "creationDate": "2024-06-25",
+                      "expirationDate": "2025-06-25",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -12927,7 +12927,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "fd157bce-8467-4a9b-a96f-b57563041510",
+                    "id": "02f75aa3-d1fe-4d95-8765-eee91552dc8c",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13620,7 +13620,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "385e9cf2-4dc0-4d12-9d52-8b9a745fd438",
+                    "id": "1c88e787-52ad-4b3e-b8ae-00280c0e92da",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15571,10 +15571,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d2532ab0-7ae0-41e6-864b-b3e9104ba747",
+                    "id": "de50d1ec-0dc9-479d-b56f-f9aab36bd2bc",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-06-24",
+                      "dateRequestAccepted": "2024-06-25",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

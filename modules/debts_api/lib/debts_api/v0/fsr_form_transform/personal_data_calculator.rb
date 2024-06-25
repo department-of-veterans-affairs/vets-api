@@ -5,7 +5,6 @@ module DebtsApi
     module FsrFormTransform
       class PersonalDataCalculator
         include ::FsrFormTransform::Utils
-
         def initialize(form)
           @form = form
           @personal_data = form['personal_data']
@@ -22,6 +21,13 @@ module DebtsApi
             'agesOfOtherDependents' => dependents_ages,
             'employmentHistory' => veteran_employment_records + spouse_employment_records
           }
+        end
+
+        def name_str
+          first = @personal_data.dig('veteran_full_name', 'first')
+          middle = @personal_data.dig('veteran_full_name', 'middle')
+          last = @personal_data.dig('veteran_full_name', 'last')
+          "#{first} #{middle} #{last}"
         end
 
         private
