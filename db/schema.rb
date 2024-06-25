@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_13_175759) do
+ActiveRecord::Schema[7.1].define(version: 2024_06_21_200006) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -681,6 +681,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_13_175759) do
     t.index ["bgjob_errors"], name: "index_form526_job_statuses_on_bgjob_errors", using: :gin
     t.index ["form526_submission_id"], name: "index_form526_job_statuses_on_form526_submission_id"
     t.index ["job_id"], name: "index_form526_job_statuses_on_job_id", unique: true
+  end
+
+  create_table "form526_submission_remediations", force: :cascade do |t|
+    t.bigint "form526_submission_id", null: false
+    t.text "lifecycle", default: [], array: true
+    t.boolean "success", default: true
+    t.boolean "ignored_as_duplicate", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["form526_submission_id"], name: "index_form526_submission_remediations_on_form526_submission_id"
   end
 
   create_table "form526_submissions", id: :serial, force: :cascade do |t|
@@ -1568,6 +1578,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_13_175759) do
   add_foreign_key "deprecated_user_accounts", "user_verifications"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
   add_foreign_key "evss_claims", "user_accounts"
+  add_foreign_key "form526_submission_remediations", "form526_submissions"
   add_foreign_key "form526_submissions", "user_accounts"
   add_foreign_key "form5655_submissions", "user_accounts"
   add_foreign_key "form_submission_attempts", "form_submissions"
