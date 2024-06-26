@@ -1,7 +1,6 @@
 name: VES Data Sync
 on:
-  [workflow_dispatch]
-#  [push]
+  [push]
 #  branch: '87005-facilities-from-ves-oracle-db'
 #  workflow_dispatch: null
 #  schedule:
