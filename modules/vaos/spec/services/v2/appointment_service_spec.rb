@@ -286,7 +286,7 @@ describe VAOS::V2::AppointmentsService do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
                            match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
             response = subject.get_appointments(start_date2, end_date2)
-            expect(response[:data].size).to eq(7)
+            expect(response[:data].size).to eq(16)
           end
         end
 
