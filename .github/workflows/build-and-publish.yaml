@@ -27,10 +27,10 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           aws-region: us-gov-west-1
-          role-to-assume: arn:aws-us-gov:iam::008577686731:role/vets-api-gha-oidc-role
+          role-to-assume: arn:aws-us-gov:iam::008577686731:role/prt-gha-oidc-role
       - name: Login to Amazon ECR
         id: ecr-login
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@v2.0.1
         with:
           mask-password: true
       - name: Build Docker Image
