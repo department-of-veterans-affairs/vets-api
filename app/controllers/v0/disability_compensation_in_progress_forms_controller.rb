@@ -35,6 +35,12 @@ module V0
         parsed_form_data['updatedRatedDisabilities'] = camelize_with_olivebranch(evss_rated_disabilities)
       end
 
+      # for Toxic Exposure 1.1 - add indicator to In Progress Forms
+      if Flipper.enabled?(:disability_526_toxic_exposure_ipf, @current_user)
+        # moving forward, we don't want to change the version if it is already there
+        parsed_form_data['startedFormVersion'] = '2019' unless parsed_form_data['startedFormVersion'].present?
+      end
+
       {
         formData: parsed_form_data,
         metadata:

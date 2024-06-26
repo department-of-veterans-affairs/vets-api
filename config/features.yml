@@ -380,6 +380,9 @@ features:
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
+  disability_526_toxic_exposure_ipf:
+    actor_type: user
+    description: enables new pages, processing, and submission of toxic exposure claims for in progress forms (ipf)
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
