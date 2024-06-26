@@ -20,17 +20,22 @@ module VetsApi
 
       def configuring_clamav_antivirus
         print 'Configuring ClamAV in local settings...'
-        file_path = 'config/settings.local.yml'
-        data = YAML.load_file(file_path)
+        settings_path = 'config/settings.local.yml'
+        settings_file = File.read(settings_path)
+        settings = YAML.safe_load(settings_file, permitted_classes: [Symbol])
+        settings.delete('clamav')
 
-        data['clamav'] = {
+        settings['clamav'] = {
           'mock' => true,
           'host' => 'clamav',
           'port' => '3310'
         }
 
-        File.write(file_path, data.to_yaml)
+        updated_yaml = settings.to_yaml
+        updated_content = settings_file.gsub(/clamav:.*?(?=\n\w|\Z)/m,
+                                             updated_yaml.match(/clamav:.*?(?=\n\w|\Z)/m).to_s)
 
+        File.write(settings_path, updated_content)
         puts 'Done'
       end
 
