@@ -127,7 +127,7 @@ RSpec.describe 'Forms uploader', type: :request do
               VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/422_response')
               expect_any_instance_of(SimpleFormsApi::PdfUploader).to receive(
                 :upload_to_benefits_intake
-              )
+              ).and_return([:ok, 'confirmation number'])
             end
 
             after do
