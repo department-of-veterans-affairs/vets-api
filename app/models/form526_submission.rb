@@ -157,11 +157,28 @@ class Form526Submission < ApplicationRecord
   belongs_to :user_account, dependent: nil, optional: true
 
   validates(:auth_headers_json, presence: true)
+  enum backup_submitted_claim_status: { accepted: 0, rejected: 1 }
   enum submit_endpoint: { evss: 0, claims_api: 1, benefits_intake_api: 2 }
 
   scope :pending_backup_submissions, lambda {
     where(aasm_state: 'delivered_to_backup')
       .where.not(backup_submitted_claim_id: nil)
+  }
+  scope :in_process, lambda {
+    where(submitted_claim_id: nil, backup_submitted_claim_status: nil)
+      .where('created_at >= ?', 1.day.ago)
+  }
+  scope :success_type, lambda {
+    left_joins(:form526_submission_remediations)
+      .where.not(submitted_claim_id: nil)
+      .where(backup_submitted_claim_status: nil)
+      .or(where.not(backup_submitted_claim_id: nil)
+        .where(backup_submitted_claim_status: backup_submitted_claim_statuses[:accepted]))
+      .or(where(form526_submission_remediations: { success: true }))
+  }
+  scope :failure_type, lambda {
+    where.not(id: in_process.select(:id))
+         .where.not(id: success_type.select(:id))
   }
 
   def log_status_change
@@ -518,6 +535,31 @@ class Form526Submission < ApplicationRecord
     end
   end
 
+  def duplicate?
+    last_remediation&.ignored_as_duplicate || false
+  end
+
+  def remediated?
+    last_remediation&.success || false
+  end
+
+  def failure_type?
+    !success_type? && !in_process?
+  end
+
+  def success_type?
+    (submitted_claim_id && backup_submitted_claim_status.nil?) ||
+      (backup_submitted_claim_id && accepted?) || remediated?
+  end
+
+  def in_process?
+    if submitted_claim_id.nil? && backup_submitted_claim_status.nil?
+      created_at >= 1.day.ago
+    else
+      false
+    end
+  end
+
   private
 
   attr_accessor :lighthouse_validation_response
@@ -619,5 +661,9 @@ class Form526Submission < ApplicationRecord
 
   def cleanup
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
+  end
+
+  def last_remediation
+    form526_submission_remediations&.order(created_at: :desc)&.last
   end
 end

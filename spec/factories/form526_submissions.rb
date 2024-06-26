@@ -15,6 +15,7 @@ FactoryBot.define do
     form_json do
       File.read("#{submissions_path}/only_526.json")
     end
+    backup_submitted_claim_status { nil }
   end
 
   trait :backup_path do
@@ -255,5 +256,13 @@ FactoryBot.define do
 
   trait :with_empty_auth_headers do
     auth_headers_json { { bogus: nil }.to_json }
+  end
+
+  trait :with_submitted_claim_id do
+    submitted_claim_id { 1 }
+  end
+
+  trait :with_accepted_backup_status do
+    backup_submitted_claim_status { :accepted }
   end
 end
