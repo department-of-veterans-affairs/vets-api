@@ -148,6 +148,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
               post '/simple_forms_api/v1/simple_forms', params: data
 
+              puts response.inspect
+
               expect(response).to have_http_status(:ok)
             end
           end
