@@ -91,7 +91,7 @@ module ClaimsApi
       private
 
       def start_docker_container_job(auto_claim)
-        docker_container_service.new.perform(auto_claim)
+        docker_container_service.perform_async(auto_claim)
       end
 
       def docker_container_service
