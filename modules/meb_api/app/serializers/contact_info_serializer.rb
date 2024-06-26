@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-class ContactInfoSerializer < ActiveModel::Serializer
-  attributes :phone
-  attributes :email
+class ContactInfoSerializer
+  include JSONAPI::Serializer
 
-  def id
-    nil
-  end
+  set_id { '' }
+  attributes :phone, :email
 end

@@ -20,9 +20,9 @@ module ClaimsApi
               created_at = Utilities::Dump.time(decision.created_at)
               xml.dateRequestActioned(created_at)
 
-              xml.VSOUserEmail(decision.created_by.email)
-              xml.VSOUserFirstName(decision.created_by.first_name)
-              xml.VSOUserLastName(decision.created_by.last_name)
+              xml.VSOUserEmail(decision.representative.email)
+              xml.VSOUserFirstName(decision.representative.first_name)
+              xml.VSOUserLastName(decision.representative.last_name)
             end
           end
         end

@@ -5,9 +5,9 @@ module ClaimsApi
     class Decision <
       Data.define(
         :status,
+        :representative,
         :declined_reason,
-        :created_at,
-        :created_by
+        :created_at
       )
 
       module Statuses
@@ -27,9 +27,9 @@ module ClaimsApi
         end
 
         def build(attrs)
-          created_by =
+          representative =
             Representative.new(
-              **attrs.delete(:created_by)
+              **attrs.delete(:representative)
             )
 
           new(
@@ -38,7 +38,7 @@ module ClaimsApi
             # we don't have the opportunity to mutate only when creation
             # actually occurs.
             created_at: Time.current,
-            created_by:
+            representative:
           )
         end
       end

@@ -25,8 +25,8 @@ module ClaimsApi
           Decision.new(
             status:,
             declined_reason:,
-            created_at:,
-            created_by:
+            representative:,
+            created_at:
           )
         end
 
@@ -43,7 +43,7 @@ module ClaimsApi
           @data['declinedReason']
         end
 
-        def created_by
+        def representative
           Representative.new(
             first_name: @data['VSOUserFirstName'],
             last_name: @data['VSOUserLastName'],
