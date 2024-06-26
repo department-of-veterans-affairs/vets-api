@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'common/client/concerns/monitoring'
+require 'common/client/errors'
+require 'va_profile/service'
+require 'va_profile/stats'
 require_relative 'configuration'
 require_relative 'person_response'
 require_relative 'transaction_response'
@@ -33,17 +37,20 @@ module VAProfile
       end
 
       def get_response(type)
-        model = model(type)
-        raw_response = perform(:post, path, { bios: [{ bioPath: model.bio_path }] })
-        response = model.response_class(raw_response)
-        Sentry.set_extras(response.debug_data) unless response.ok?
-        response
+        with_monitoring do
+          icn_with_aaid_present!
+          model = model(type)
+          raw_response = perform(:post, path, { bios: [{ bioPath: model.bio_path }] })
+          response = model.response_class(raw_response)
+          Sentry.set_extras(response.debug_data) unless response.ok?
+          response
+        end
       rescue => e
         handle_error(e)
       end
 
-      def self.get_person(_vet360_id)
-        stub_user = OpenStruct.new(edipi:)
+      def self.get_person(vet360_id)
+        stub_user = OpenStruct.new(vet360_id:)
         new(stub_user).get_response('person')
       end
 
@@ -55,24 +62,27 @@ module VAProfile
       # Determine if the record needs to be created or updated with reassign_http_verb
       # Ensure http_verb is a symbol for the response request
       def create_or_update_info(http_verb, type, record)
-        http_verb = http_verb.to_sym == :update ? reassign_http_verb(type, record) : http_verb.to_sym
+        with_monitoring do
+          icn_with_aaid_present!
+          http_verb = http_verb.to_sym == :update ? reassign_http_verb(type, record) : http_verb.to_sym
+          raw_response = perform(http_verb, type.pluralize, record.in_json)
+          response = response_class(type).from(raw_response)
+          return response unless http_verb == :put && type == 'email' && old_email.present?
 
-        raw_response = perform(http_verb, type.pluralize, record.in_json)
-        response = response_class(type).from(raw_response)
-        return response unless http_verb == :put && type == 'email' && old_email.present?
+          transaction = response.transaction
+          return response unless transaction.received?
 
-        transaction = response.transaction
-        return response unless transaction.received?
-
-        # Create OldEmail to send notification to user's previous email
-        OldEmail.create(transaction_id: transaction.id, email: old_email)
-        response
+          # Create OldEmail to send notification to user's previous email
+          OldEmail.create(transaction_id: transaction.id, email: old_email)
+          response
+        end
       rescue => e
         handle_error(e)
       end
 
       def get_transaction_status(transaction_id, type)
         with_monitoring do
+          icn_with_aaid_present!
           transaction_status_path = model(type).transaction_status_path(@user, transaction_id)
           raw_response = perform(:get, transaction_status_path)
           VAProfile::Stats.increment_transaction_results(raw_response)
@@ -103,6 +113,11 @@ module VAProfile
 
         nil
       end
+
+      def icn_with_aaid_present!
+        raise 'User does not have a icn' if icn_with_aaid.blank?
+      end
+
 
       def path
         oid = MPI::Constants::VA_ROOT_OID

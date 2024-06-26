@@ -256,7 +256,12 @@ RSpec.describe 'user', type: :request do
 
     context 'when the upstream va profile service returns a 502' do
       before do
-        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
+        Flipper.enable(:va_profile_information_v3_service)
+        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(get_response("person")).and_raise(
+          Common::Exceptions::BackendServiceException.new('VET360_502')
+        )
+        Flipper.disable(:va_profile_information_v3_service)
+         allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(get_response("person")).and_raise(
           Common::Exceptions::BackendServiceException.new('VET360_502')
         )
       end
@@ -273,8 +278,13 @@ RSpec.describe 'user', type: :request do
 
     context 'when the upstream va profile service returns a 404' do
       before do
-        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
+        Flipper.enable(:va_profile_information_v3_service)
+        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(get_response("person")).and_raise(
           Common::Exceptions::RecordNotFound.new(user.uuid)
+        )
+        Flipper.disable(:va_profile_information_v3_service)
+         allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(get_response("person")).and_raise(
+          Common::Exceptions::BackendServiceException.new('VET360_502')
         )
       end
 
@@ -304,8 +314,13 @@ RSpec.describe 'user', type: :request do
 
     context 'when the va profile service throws an argument error' do
       before do
-        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
+        Flipper.enable(:va_profile_information_v3_service)
+        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(get_response("person")).and_raise(
           ArgumentError.new
+        )
+        Flipper.disable(:va_profile_information_v3_service)
+         allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(get_response("person")).and_raise(
+          Common::Exceptions::BackendServiceException.new('VET360_502')
         )
       end
 
@@ -319,8 +334,13 @@ RSpec.describe 'user', type: :request do
 
     context 'when the va profile service throws an client error' do
       before do
-        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
+        Flipper.enable(:va_profile_information_v3_service)
+        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(get_response("person")).and_raise(
           Common::Client::Errors::ClientError.new
+        )
+        Flipper.disable(:va_profile_information_v3_service)
+         allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(get_response("person")).and_raise(
+          Common::Exceptions::BackendServiceException.new('VET360_502')
         )
       end
 

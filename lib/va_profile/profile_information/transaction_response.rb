@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'va_profile/models/transaction'
+require 'va_profile/response'
 
 module VAProfile
   module ContactInformation
