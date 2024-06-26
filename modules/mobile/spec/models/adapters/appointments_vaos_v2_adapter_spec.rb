@@ -931,7 +931,21 @@ preferred dates:12/13/2022 PM|pager number:8675309"
   end
 
   describe 'healthcare provider' do
-    it 'uses the preferred_provider_name' do
+    let(:practitioner_list) do
+      [{ "identifier": [{ "system": 'dfn-983', "value": '520647609' }], "name": { "family": 'ENGHAUSER', "given": ['MATTHEW'] }, "practice_name": 'Site #983' },
+       { "identifier": [{ "system": 'dfn-983', "value": '520647609' }], "name": { "family": 'FORTH', "given": ['SALLY'] },
+         "practice_name": 'Site #983' }]
+    end
+
+    it 'uses the first practitioner name in the list' do
+      appointment = appointment_data[0]
+      appointment[:preferred_provider_name] = 'Dr. Hauser'
+      appointment[:practitioners] = practitioner_list
+      result = subject.parse([appointment]).first
+      expect(result.healthcare_provider).to eq('MATTHEW ENGHAUSER')
+    end
+
+    it 'uses the preferred_provider_name if no practitioner list exists' do
       appointment = appointment_data[0]
       appointment[:preferred_provider_name] = 'Dr. Hauser'
       result = subject.parse([appointment]).first
@@ -945,6 +959,14 @@ preferred dates:12/13/2022 PM|pager number:8675309"
       result = subject.parse([appointment]).first
 
       expect(result.healthcare_provider).to eq(nil)
+    end
+
+    it 'uses the practitioners list in favor of the not found message' do
+      appointment = appointment_data[0]
+      appointment[:preferred_provider_name] = VAOS::V2::AppointmentProviderName::NPI_NOT_FOUND_MSG
+      appointment[:practitioners] = practitioner_list
+      result = subject.parse([appointment]).first
+      expect(result.healthcare_provider).to eq('MATTHEW ENGHAUSER')
     end
   end
 end

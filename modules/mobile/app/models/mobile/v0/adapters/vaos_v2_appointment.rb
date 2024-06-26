@@ -128,9 +128,20 @@ module Mobile
 
         # we do not want to use the not found message for mobile because it would result in ugly formatting
         def healthcare_provider
+          practitioner_name = find_practitioner_name(appointment[:practitioners])
+          appointment[:preferred_provider_name] = practitioner_name if practitioner_name
           return nil if appointment[:preferred_provider_name] == VAOS::V2::AppointmentProviderName::NPI_NOT_FOUND_MSG
 
           appointment[:preferred_provider_name]
+        end
+
+        def find_practitioner_name(practitioner_list)
+          practitioner_list&.find do |practitioner|
+            first_name = practitioner.dig(:name, :given)&.join(' ')&.strip
+            last_name = practitioner.dig(:name, :family)
+            name = [first_name, last_name].compact.join(' ')
+            return name if name.present?
+          end
         end
 
         def extract_station_and_ien(appointment)

@@ -260,13 +260,13 @@ RSpec.describe 'vaos v2 appointments', type: :request do
             end
 
             appointments = response.parsed_body['data']
-            appointment_without_provider_info = appointments.find { |appt| appt['id'] == '76131' }
+            appointment_with_practitioner_list = appointments.find { |appt| appt['id'] == '76131' }
             proposed_cc_appointment_with_provider = appointments.find { |appt| appt['id'] == '76132' }
             booked_clinic_appointment_without_us_npi_id = appointments.find { |appt| appt['id'] == '76133' }
 
-            expect(appointment_without_provider_info['attributes']['healthcareProvider']).to be_nil
+            expect(appointment_with_practitioner_list['attributes']['healthcareProvider']).to be_nil
             expect(proposed_cc_appointment_with_provider['attributes']['healthcareProvider']).to eq('DEHGHAN, AMIR')
-            expect(booked_clinic_appointment_without_us_npi_id['attributes']['healthcareProvider']).to be_nil
+            expect(booked_clinic_appointment_without_us_npi_id['attributes']['healthcareProvider']).to eq('MATTHEW ENGHAUSER')
           end
         end
       end
