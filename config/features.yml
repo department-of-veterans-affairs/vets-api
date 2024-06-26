@@ -466,7 +466,7 @@ features:
   fsr_5655_server_side_transform:
     actor_type: user
     description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
-    enable_in_development: false
+    enable_in_development: true
   financial_status_report_debts_api_module:
     actor_type: user
     description: Points to debts-api module routes
@@ -1174,10 +1174,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for display of clinic location on appointment detail page
-  va_online_scheduling_status_improvement:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for homepage status improvement
   va_online_scheduling_status_improvement_canceled:
     actor_type: user
     enable_in_development: true
