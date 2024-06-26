@@ -51,21 +51,6 @@ module ClaimsApi
       end
     end
 
-    def monthly_claims_totals
-      @claims_consumers.map do |cid|
-        counts = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to, cid:).group(:status).count
-        totals = counts.sum { |_k, v| v }.to_f
-
-        if totals.positive?
-          consumer_name = ClaimsApi::CidMapper.new(cid:).name
-          {
-            consumer_name => counts.merge(totals:)
-                                   .deep_symbolize_keys
-          }
-        end
-      end
-    end
-
     def poa_totals
       @poa_consumers.map do |cid|
         counts = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to, cid:).group(:status).count

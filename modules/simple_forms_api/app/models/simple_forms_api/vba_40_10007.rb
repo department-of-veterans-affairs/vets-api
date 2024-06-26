@@ -146,10 +146,10 @@ module SimpleFormsApi
     end
 
     RELATIONSHIP_TO_VETS = {
-      '1' => 'Applicant is service member or veteran',
+      '1' => 'Is veteran',
       '2' => 'Spouse or surviving spouse',
       '3' => 'Unmarried adult child',
-      '4' => 'other'
+      '4' => 'Other'
     }.freeze
 
     def get_relationship_to_vet(key)
@@ -232,8 +232,8 @@ module SimpleFormsApi
     end
 
     def track_user_identity(confirmation_number)
-      identity = @data.dig('application', 'claimant', 'relationship_to_vet')
-      StatsD.increment("#{STATS_KEY}.#{get_relationship_to_vet(identity)}")
+      identity = get_relationship_to_vet(@data.dig('application', 'claimant', 'relationship_to_vet'))
+      StatsD.increment("#{STATS_KEY}.#{identity}")
       Rails.logger.info('Simple forms api - 40-10007 submission user identity', identity:, confirmation_number:)
     end
 

@@ -20,6 +20,7 @@ module ClaimsApi
       skip_after_action :set_csrf_header
       before_action :authenticate, except: %i[schema] # rubocop:disable Rails/LexicallyScopedActionFilter
       before_action :validate_json_format, if: -> { request.post? }
+      before_action :validate_header_values_format, if: -> { header_request? }
       before_action :validate_veteran_identifiers
 
       # fetch_audience: defines the audience used for oauth
@@ -32,6 +33,7 @@ module ClaimsApi
 
       def validate_veteran_identifiers(require_birls: false) # rubocop:disable Metrics/MethodLength
         ids = target_veteran&.mpi&.participant_ids || []
+
         if ids.size > 1
           claims_v1_logging('multiple_ids', message: "multiple_ids: #{ids.size},
                                             header_request: #{header_request?}")
@@ -149,14 +151,14 @@ module ClaimsApi
       end
 
       def target_veteran(with_gender: false)
-        if header_request?
-          headers_to_validate = %w[X-VA-SSN X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date]
-          validate_headers(headers_to_validate)
-          validate_ccg_token! if @is_valid_ccg_flow
-          veteran_from_headers(with_gender:)
-        else
-          build_target_veteran(veteran_id: @current_user.icn, loa: { current: 3, highest: 3 })
-        end
+        @target ||= if header_request?
+                      headers_to_validate = %w[X-VA-SSN X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date]
+                      validate_headers(headers_to_validate)
+                      validate_ccg_token! if @is_valid_ccg_flow
+                      veteran_from_headers(with_gender:)
+                    else
+                      build_target_veteran(veteran_id: @current_user.icn, loa: { current: 3, highest: 3 })
+                    end
       end
 
       def veteran_from_headers(with_gender: false)
@@ -169,7 +171,12 @@ module ClaimsApi
           last_signed_in: Time.now.utc,
           loa: @is_valid_ccg_flow ? { current: 3, highest: 3 } : @current_user.loa
         )
-        vet.mpi_record?
+        # Fail fast if mpi_record can't be found
+        unless vet.mpi_record?
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail:
+            'Unable to retrieve a record from Master Person Index (MPI). ' \
+            'Please try again later.')
+        end
         vet.gender = header('X-VA-Gender') || vet.gender_mpi if with_gender
         vet.edipi = vet.edipi_mpi
         vet.participant_id = vet.participant_id_mpi
@@ -187,6 +194,19 @@ module ClaimsApi
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
             "Unable to locate Veteran's EDIPI in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
+        end
+      end
+
+      def validate_header_values_format
+        errors = []
+        errors << 'X-VA-Birth-Date' if header('X-VA-Birth-Date').blank?
+        errors << 'X-VA-First-Name' if header('X-VA-First-Name').blank?
+        errors << 'X-VA-Last-Name' if header('X-VA-Last-Name').blank?
+
+        if errors.present?
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: "The following values are invalid: #{errors.join(', ')}"
+          )
         end
       end
 

@@ -183,7 +183,9 @@ module SAML
                   else
                     SAML::User::AUTHN_CONTEXTS.fetch(authn_context).fetch(:sign_in)
                   end
-        sign_in.merge(account_type:, auth_broker: SAML::URLService::BROKER_CODE)
+        sign_in.merge(account_type:,
+                      auth_broker: SAML::URLService::BROKER_CODE,
+                      client_id: tracker&.payload_attr(:application))
       end
 
       def needs_csp_id_mpi_update?
@@ -257,10 +259,7 @@ module SAML
       def mhv_outbound_redirect(mismatched_ids_error)
         return false if mismatched_ids_error[:tag] == :multiple_edipis
 
-        @mhv_outbound_redirect ||= begin
-          tracker = SAMLRequestTracker.find(@tracker_uuid)
-          %w[mhv myvahealth].include?(tracker&.payload_attr(:application))
-        end
+        @mhv_outbound_redirect ||= %w[mhv myvahealth].include?(tracker&.payload_attr(:application))
       end
 
       def check_id_mismatch(ids, multiple_ids_error_type)
@@ -289,6 +288,10 @@ module SAML
 
       def csid
         safe_attr('va_eauth_csid')&.downcase
+      end
+
+      def tracker
+        @tracker ||= SAMLRequestTracker.find(@tracker_uuid)
       end
     end
   end

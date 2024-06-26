@@ -66,6 +66,9 @@ features:
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
+  hca_submission_failure_email_va_notify:
+    actor_type: user
+    description: Send HCA Submission Failure email using VANotify.
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
@@ -73,6 +76,10 @@ features:
   ezr_tera_enabled:
     actor_type: user
     description: Enables Toxic Exposure questions for 10-10EZR applicants.
+    enable_in_development: true
+  ezr_upload_enabled:
+    actor_type: user
+    description: Enables Toxic Exposure File Upload for 10-10EZR applicants.
     enable_in_development: true
   ezr_auth_only_enabled:
     actor_type: user
@@ -129,10 +136,6 @@ features:
     actor_type: user
     description: Enables telephone appointments for check-in
     enable_in_development: false
-  check_in_experience_pre_check_in_action_link_top_placement:
-    actor_type: cookie_id
-    description: Changes pre-check-in action link placement to the top of the page
-    enable_in_development: true
   check_in_experience_travel_reimbursement:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
@@ -144,10 +147,6 @@ features:
   check_in_experience_cerner_travel_claims_enabled:
     actor_type: user
     description: Enables travel claims filing for Oracle Health (Cerner) sites
-    enable_in_development: true
-  check_in_experience_travel_logic:
-    actor_type: user
-    description: Enables the travel reimbursement logic
     enable_in_development: true
   check_in_experience_45_minute_reminder:
     actor_type: user
@@ -216,10 +215,6 @@ features:
   combined_financial_status_report:
     actor_type: user
     description: Enables users to submit FSR forms for VHA and VBA debts
-    enable_in_development: true
-  combined_financial_status_report_enhancements:
-    actor_type: user
-    description: Enables users to interact with the new cFSR enhancements and avoid list loops
     enable_in_development: true
   communication_preferences:
     actor_type: user
@@ -379,6 +374,9 @@ features:
   disability_526_ep_merge_api:
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.
+  disability_526_ep_merge_new_claims:
+    actor_type: user
+    description: enables EP Merge for single-contention 526 claims for a new condition
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
@@ -462,6 +460,10 @@ features:
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
+  fsr_5655_server_side_transform:
+    actor_type: user
+    description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
+    enable_in_development: true
   financial_status_report_debts_api_module:
     actor_type: user
     description: Points to debts-api module routes
@@ -469,14 +471,6 @@ features:
   financial_status_report_expenses_update:
     actor_type: user
     description: Update expense lists in the Financial Status Report (FSR - 5655) form
-    enable_in_development: true
-  financial_status_report_streamlined_waiver:
-    actor_type: user
-    description: Enables streamlined waiver flow for qualifying users completing the Financial Status Report (FSR) form
-    enable_in_development: true
-  financial_status_report_streamlined_waiver_assets:
-    actor_type: user
-    description: Enables a simplified asset calculation flow, including Cash in Bank, for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
   financial_status_report_review_page_navigation:
     actor_type: user
@@ -559,6 +553,10 @@ features:
   form20_10206_confirmation_email:
     actor_type: user
     description: Enables form 20-10206 email submission confirmation (VaNotify)
+    enable_in_development: true
+  form20_10207_confirmation_email:
+    actor_type: user
+    description: Enables form 20-10207 email submission confirmation (VaNotify)
     enable_in_development: true
   form21_0845_confirmation_email:
     actor_type: user
@@ -799,6 +797,10 @@ features:
     actor_type: user
     description: Enables/disables refill-related content for Medications on VA.gov
     enable_in_development: true
+  mhv_medications_display_documentation_content:
+    actor_type: user
+    description: Enables/disables documentation-related content for Medications on VA.gov
+    enable_in_development: true
   mhv_landing_page_enable_va_gov_health_tools_links:
     actor_type: user
     description: Enables VA.gov Health Tools links (Appts, SM, Rx, Records) on MHV-on-VA.gov Landing Page
@@ -895,6 +897,9 @@ features:
   profile_show_payments_notification_setting:
     actor_type: user
     description: Show/Hide the payments section of notifications in profile
+  profile_show_privacy_policy:
+    actor_type: user
+    description: Show/Hide the privacy policy section on profile pages
   profile_show_pronouns_and_sexual_orientation:
     actor_type: user
     description: Show/hide Pronouns and Sexual Orientation fields on profile page
@@ -1146,10 +1151,6 @@ features:
     actor_type: user
     description: Allows toggling of MAP STS OAuth token for VAOS
     enable_in_development: true
-  va_online_scheduling_GA4_migration:
-    actor_type: user
-    description: Toggle for the GA4 events migration work.
-    enable_in_development: true
   va_online_scheduling_vaos_service_cc_appointments:
     actor_type: user
     description: Toggle for new vaos service cc appointments.
@@ -1170,10 +1171,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for display of clinic location on appointment detail page
-  va_online_scheduling_status_improvement:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for homepage status improvement
   va_online_scheduling_status_improvement_canceled:
     actor_type: user
     enable_in_development: true
@@ -1255,6 +1252,10 @@ features:
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
+  va_profile_information_v3_service:
+    actor_type: user
+    description: When enabled, the VAProfile::V3::Service will be enabled for VaProfile::ProfileInformation
+    enable_in_development: false
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
@@ -1277,6 +1278,10 @@ features:
   payment_history:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
+    enable_in_development: true
+  cdp_payment_history_vba:
+    actor_type: user
+    description: Enables showing the overpayment and summary pages for the CDP Payment History
     enable_in_development: true
   show_digital_form_1095b:
     actor_type: user
@@ -1371,9 +1376,6 @@ features:
   disability_compensation_lighthouse_claims_service_provider:
     actor_type: user
     description: If enabled uses the lighthouse claims service
-  disability_compensation_lighthouse_submit_migration:
-    actor_type: user
-    description: If enabled uses the lighthouse submit endpoint
   disability_compensation_lighthouse_intent_to_file_provider:
     actor_type: user
     description: If enabled uses the lighthouse intent to file endpoint
@@ -1459,6 +1461,9 @@ features:
   pension_claim_submission_to_lighthouse:
     actor_type: user
     description: Pension claim submission uses Lighthouse API
+  pension_module_enabled:
+    actor_type: user
+    description: Enable the pension module routes
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
@@ -1500,7 +1505,7 @@ features:
     actor_type: user
     description: Enable the Accredited Representative Portal for the pilot
     enable_in_development: true
-  toggle_vye_adress_direct_deposit_forms:
+  toggle_vye_address_direct_deposit_forms:
     actor_type: user
     description: Enable mailing address and direct deposit for VYE
   veteran_readiness_employment_to_res:
@@ -1508,8 +1513,16 @@ features:
     description: Enable RES platform for Veteran Readiness & Employment form submissions, disabled will use VRE email
     enable_in_development: true
   vye_login_widget:
-     actor_type: user
-     description: Enable Vye authentication widget
-  toggle_vye_adress_direct_deposit_forms_in_profile: 
-     actor_type: user
-     description: Enable mailing address and direct deposit for VYE in profile page
+    actor_type: user
+    description: Enable Vye authentication widget
+  toggle_vye_address_direct_deposit_forms_in_profile:
+    actor_type: user
+    description: Enable mailing address and direct deposit for VYE in profile page
+  use_facilities_api_v2_for_cerner_cta:
+    actor_type: user
+    description: Use the new facilities API v2 for the Cerner CTA. Estimated time of removal June 18, 2024 after testing of deployment on staging of authenticated user.
+    enable_in_development: true
+  toggle_vye_application:
+    actor_type: user
+    description: Enable VYE
+    

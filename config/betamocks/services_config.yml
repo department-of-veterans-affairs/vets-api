@@ -680,6 +680,10 @@
       :path: <%= "/#{Settings.check_in.travel_reimbursement_api.claims_base_path}/api/ClaimIngest/submitclaim" %>
       :file_path: "/travel_claim/submitclaim/default"
       :response_delay: 15
+    - :method: :post
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api.claims_base_path}/api/ClaimIngest/V1/GetClaimsStatus" %>
+      :file_path: "/travel_claim/claimstatus/default"
+      :response_delay: 1
 
 #CHIP
 - :name: "CHIP"

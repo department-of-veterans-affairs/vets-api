@@ -2,7 +2,7 @@
 
 module AskVAApi
   module Correspondences
-    class Serializer < ActiveModel::Serializer
+    class Serializer
       include JSONAPI::Serializer
       set_type :correspondence
 

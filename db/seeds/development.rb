@@ -124,7 +124,7 @@ arp.update!(authentication: SignIn::Constants::Auth::COOKIE,
             access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
             access_token_attributes: %w[first_name last_name email],
             refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES,
-            logout_redirect_uri: 'http://localhost:3001/representatives',
+            logout_redirect_uri: 'http://localhost:3001/representative',
             credential_service_providers: [SignIn::Constants::Auth::IDME, SignIn::Constants::Auth::LOGINGOV],
             service_levels: [SignIn::Constants::Auth::LOA3, SignIn::Constants::Auth::IAL2])
 

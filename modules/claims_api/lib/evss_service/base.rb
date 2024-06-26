@@ -19,19 +19,23 @@ module ClaimsApi
         @use_mock = Settings.evss.mock_claims || false
       end
 
-      def submit(claim, data)
+      def submit(claim, data, async = true) # rubocop:disable Style/OptionalBooleanParameter
         @auth_headers = claim.auth_headers
 
         begin
           resp = client.post('submit', data)&.body&.deep_symbolize_keys
-          log_outcome_for_claims_api('submit', 'success', resp, claim)
-          resp # return is for v1 Sidekiq worker
+          log_outcome_for_claims_api('submit', 'success', resp, claim) # return is for v1 Sidekiq worker
+
+          resp
         rescue => e
-          error_handler(e)
+          detail = e.respond_to?(:original_body) ? e.original_body : e
+          log_outcome_for_claims_api('validate', 'error', detail, claim)
+
+          error_handler(e, async)
         end
       end
 
-      def validate(claim, data)
+      def validate(claim, data, async = true) # rubocop:disable Style/OptionalBooleanParameter
         @auth_headers = claim.auth_headers
 
         begin
@@ -43,7 +47,7 @@ module ClaimsApi
           detail = e.respond_to?(:original_body) ? e.original_body : e
           log_outcome_for_claims_api('validate', 'error', detail, claim)
 
-          error_handler(e)
+          error_handler(e, async)
         end
       end
 
@@ -61,7 +65,7 @@ module ClaimsApi
                     headers:) do |f|
           f.request :json
           f.response :betamocks if @use_mock
-          f.response :raise_error
+          f.response :raise_custom_error
           f.response :json, parser_options: { symbolize_names: true }
           f.adapter Faraday.default_adapter
         end
@@ -90,12 +94,8 @@ module ClaimsApi
                               detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}", claim: claim&.id)
       end
 
-      def custom_error(error)
-        ClaimsApi::CustomError.new(error)
-      end
-
-      def error_handler(error)
-        custom_error(error).build_error
+      def error_handler(error, async = true) # rubocop:disable Style/OptionalBooleanParameter
+        ClaimsApi::CustomError.new(error, async).build_error
       end
     end
   end
