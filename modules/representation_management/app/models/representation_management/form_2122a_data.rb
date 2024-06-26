@@ -23,6 +23,11 @@ module RepresentationManagement
       conditions_of_appointment
     ]
 
+    veteran_attrs = %i[
+      veteran_service_branch
+      veteran_service_branch_other
+    ]
+
     validates :representative_type, presence: true
     validates :representative_first_name, presence: true, length: { maximum: 12 }
     validates :representative_middle_initial, length: { maximum: 1 }
@@ -36,6 +41,6 @@ module RepresentationManagement
     validates :representative_zip_code_suffix, length: { is: 4 }, format: { with: ZIP_CODE_SUFFIX }
     validates :representative_phone_number, presence: true, length: { is: 10 }, format: { with: PHONE_NUMBER }
 
-    attr_reader [representative_attrs, representative_consent_attrs].flatten
+    attr_reader [representative_attrs, representative_consent_attrs, veteran_attrs].flatten
   end
 end

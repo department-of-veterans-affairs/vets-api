@@ -18,7 +18,7 @@ module RepresentationManagement
       private
 
       def form_params
-        params.require([:veteran, :organization_name]).permit(all_params)
+        params.require(%i[veteran organization_name]).permit(all_params)
       end
 
       def all_params
@@ -42,6 +42,7 @@ module RepresentationManagement
 
         ]
       end
+
       def flatten_form_params(params)
         {
           veteran_first_name: params.dig(:veteran, :name, :first),
