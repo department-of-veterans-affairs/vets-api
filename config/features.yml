@@ -1252,6 +1252,10 @@ features:
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
+  va_profile_information_v3_service:
+    actor_type: user
+    description: When enabled, the VAProfile::V3::Service will be enabled for VaProfile::ProfileInformation
+    enable_in_development: false
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
