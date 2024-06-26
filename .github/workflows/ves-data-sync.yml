@@ -1,10 +1,7 @@
 name: VES Data Sync
 on:
   [push]
-#  branch: '87005-facilities-from-ves-oracle-db'
-#  workflow_dispatch: null
-#  schedule:
-#    - cron: "35 0 28 * *"
+
 env:
   AWS_REGION: "us-gov-west-1"
   NLS_LANG: "AMERICAN_AMERICA.AL32UTF8"
