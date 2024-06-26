@@ -2,7 +2,7 @@
 
 require 'oci8'
 require 'csv'
-require_relative '../../config/environment.rb'
+# require_relative '../../config/environment.rb'
 
 # Oracle DB connection parameters
 db_username = ENV['VA_INCOME_LIMITS_VES_DB_USERNAME']
@@ -27,7 +27,7 @@ result.fetch_hash do |entry|
   puts entry
 end
 puts "Result end"
-puts "DB check - StdState.count should be ~110: #{StdState.count}"
+# puts "DB check - StdState.count should be ~110: #{StdState.count}"
 
 # Close the database connection
 conn.logoff if conn
