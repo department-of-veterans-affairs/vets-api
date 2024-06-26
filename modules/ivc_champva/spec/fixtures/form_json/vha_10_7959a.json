@@ -1,51 +1,55 @@
 {
   "form_number": "10-7959A",
-  "patient_name": {
-    "first": "John",
-    "middle": "I",
-    "last": "Conner"
+  "veteran": {
+    "full_name": {
+      "first": "Veteran",
+      "middle": "B",
+      "last": "Surname"
+    },
+    "ssn_or_tin": "222554444",
+    "address": {
+      "country": "USA",
+      "street": "1 First Ln",
+      "city": "Place",
+      "state": "AL",
+      "zip_code": "12345"
+    },
+    "phone_number": "5555555555",
+    "dob": "1980-01-01",
+    "checkifnew": true
   },
-  "patient_address": {
-    "street": "123 Main St",
-    "zip_code": "22223",
-    "state": "CA",
-    "city": "San Diego"
+  "sponsor": {
+    "full_name": {
+      "first": "Sponsor",
+      "middle": "B",
+      "last": "Surname"
+    }
   },
-  "patient_dob": "01/01/1980",
-  "veteran_name": {
-    "first": "Veteran",
-    "middle": "B",
-    "last": "Surname"
-  },
-  "patient_phone_number": "555-555-5555",
-  "patient_zip_code": "55555",
-  "ssn_or_tin": "123456789",
-  "insurance_1": "No",
-  "insurance_1_phone": "555-555-5515",
+  "insurance_1": "Insurance 1",
+  "insurance_2": "Insurance 2",
   "insurance_1_policy": "123456789",
-  "insurance_2": "No",
-  "insurance_2_phone": "555-555-5513",
-  "insurance_2_policy": "123456784",
-  "WorkRelatedTreat": "No",
-  "OutsdWrkAccdnt": "No",
-  "PtntCverage": "No",
-  "medicareAorB": "Yes",
-
-  "signature_address": {
-    "zip_code": "55555",
-    "state": "CA",
-    "city": "San Diego",
-    "street": "123 Main St"
-  },
-  "signature_phone": "555-555-5555",
-  "signature_relationship": "Spouse",
-  "signature_dob": "01/01/1980",
-
-  "signature_name": {
-    "first": "Veteran",
-    "middle": "B",
-    "last": "Surname"
-  },
-
-  "statement_of_truth_signature": "GI Joe"
+  "insurance_2_policy": "987654321",
+  "insurance_1_phone": "5555555555",
+  "insurance_2_phone": "5555555555",
+  "WorkRelatedTreat": true,
+  "OutsdWrkAccdnt": true,
+  "RadioButtonList": false,
+  "SpecifyOtherPrimaryHealthInsurance": "Other Primary Health Insurance",
+  "PtntCverage": true,
+  "signatureperson": {
+    "full_name": {
+      "first": "Veteran",
+      "last": "Surname",
+      "middle": "B"
+    },
+    "relationshipToApplicant": "Self",
+    "address": {
+      "country": "USA",
+      "street": "1 First Ln",
+      "city": "Place",
+      "state": "AL",
+      "zip_code": "12345"
+    },
+    "phone_number": "5555555555"
+  }
 }
