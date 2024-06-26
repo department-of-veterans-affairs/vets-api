@@ -13,7 +13,7 @@ module MebApi
       def claimant_info
         response = automation_service.get_claimant_info('Chapter33')
 
-        render json: response, serializer: AutomationSerializer
+        render json: AutomationSerializer.new(response)
       end
 
       def eligibility
@@ -25,7 +25,7 @@ module MebApi
         response = claimant_response.status == 201 ? eligibility_response : claimant_response
         serializer = claimant_response.status == 201 ? EligibilitySerializer : ClaimantSerializer
 
-        render json: response, serializer:
+        render json: serializer.new(response)
       end
 
       def claim_status
@@ -36,7 +36,7 @@ module MebApi
         response = claimant_response.status == 201 ? claim_status_response : claimant_response
         serializer = claimant_response.status == 201 ? ClaimStatusSerializer : ClaimantSerializer
 
-        render json: response, serializer:
+        render json: serializer.new(response)
       end
 
       def claim_letter
@@ -91,7 +91,7 @@ module MebApi
           }
         else
           response = enrollment_service.get_enrollment(claimant_id)
-          render json: response, serializer: EnrollmentSerializer
+          render json: EnrollmentSerializer.new(response)
         end
       end
 
@@ -119,13 +119,13 @@ module MebApi
           response = enrollment_service.submit_enrollment(
             params[:education_benefit], claimant_id
           )
-          render json: response, serializer: SubmitEnrollmentSerializer
+          render json: SubmitEnrollmentSerializer.new(response)
         end
       end
 
       def duplicate_contact_info
         response = contact_info_service.check_for_duplicates(params[:emails], params[:phones])
-        render json: response, serializer: ContactInfoSerializer
+        render json: ContactInfoSerializer.new(response)
       end
 
       def exclusion_periods
@@ -133,7 +133,7 @@ module MebApi
         claimant_id = claimant_response['claimant_id']
         exclusion_response = exclusion_period_service.get_exclusion_periods(claimant_id)
 
-        render json: exclusion_response, serializer: ExclusionPeriodSerializer
+        render json: ExclusionPeriodSerializer.new(exclusion_response)
       end
 
       private

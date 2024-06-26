@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class ExclusionPeriodSerializer < ActiveModel::Serializer
+class ExclusionPeriodSerializer
+  include JSONAPI::Serializer
+
   attribute :exclusion_periods
 
-  def id
-    nil
-  end
+  set_id { '' }
 end
