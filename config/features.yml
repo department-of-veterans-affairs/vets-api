@@ -136,10 +136,6 @@ features:
     actor_type: user
     description: Enables telephone appointments for check-in
     enable_in_development: false
-  check_in_experience_pre_check_in_action_link_top_placement:
-    actor_type: cookie_id
-    description: Changes pre-check-in action link placement to the top of the page
-    enable_in_development: true
   check_in_experience_travel_reimbursement:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
@@ -151,10 +147,6 @@ features:
   check_in_experience_cerner_travel_claims_enabled:
     actor_type: user
     description: Enables travel claims filing for Oracle Health (Cerner) sites
-    enable_in_development: true
-  check_in_experience_travel_logic:
-    actor_type: user
-    description: Enables the travel reimbursement logic
     enable_in_development: true
   check_in_experience_45_minute_reminder:
     actor_type: user
@@ -223,10 +215,6 @@ features:
   combined_financial_status_report:
     actor_type: user
     description: Enables users to submit FSR forms for VHA and VBA debts
-    enable_in_development: true
-  combined_financial_status_report_enhancements:
-    actor_type: user
-    description: Enables users to interact with the new cFSR enhancements and avoid list loops
     enable_in_development: true
   communication_preferences:
     actor_type: user
@@ -475,7 +463,7 @@ features:
   fsr_5655_server_side_transform:
     actor_type: user
     description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
-    enable_in_development: true
+    enable_in_development: false
   financial_status_report_debts_api_module:
     actor_type: user
     description: Points to debts-api module routes
@@ -483,14 +471,6 @@ features:
   financial_status_report_expenses_update:
     actor_type: user
     description: Update expense lists in the Financial Status Report (FSR - 5655) form
-    enable_in_development: true
-  financial_status_report_streamlined_waiver:
-    actor_type: user
-    description: Enables streamlined waiver flow for qualifying users completing the Financial Status Report (FSR) form
-    enable_in_development: true
-  financial_status_report_streamlined_waiver_assets:
-    actor_type: user
-    description: Enables a simplified asset calculation flow, including Cash in Bank, for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
   financial_status_report_review_page_navigation:
     actor_type: user
@@ -816,6 +796,10 @@ features:
   mhv_medications_display_refill_content:
     actor_type: user
     description: Enables/disables refill-related content for Medications on VA.gov
+    enable_in_development: true
+  mhv_medications_display_documentation_content:
+    actor_type: user
+    description: Enables/disables documentation-related content for Medications on VA.gov
     enable_in_development: true
   mhv_landing_page_enable_va_gov_health_tools_links:
     actor_type: user
@@ -1295,6 +1279,10 @@ features:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
     enable_in_development: true
+  cdp_payment_history_vba:
+    actor_type: user
+    description: Enables showing the overpayment and summary pages for the CDP Payment History
+    enable_in_development: true
   show_digital_form_1095b:
     actor_type: user
     description: Enables access to digital 1095-B form download
@@ -1473,6 +1461,9 @@ features:
   pension_claim_submission_to_lighthouse:
     actor_type: user
     description: Pension claim submission uses Lighthouse API
+  pension_module_enabled:
+    actor_type: user
+    description: Enable the pension module routes
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
