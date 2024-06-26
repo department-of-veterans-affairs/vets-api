@@ -15,7 +15,7 @@ module CovidVaccine
                                                                             raw_form_data: })
         audit_log(raw_form_data)
         CovidVaccine::ExpandedRegistrationEmailJob.perform_async(record.id) if raw_form_data['email_address'].present?
-        render json: record, serializer: CovidVaccine::V0::ExpandedRegistrationSerializer, status: :created
+        render json: CovidVaccine::V0::ExpandedRegistrationSerializer.new(record), status: :created
       end
 
       private
