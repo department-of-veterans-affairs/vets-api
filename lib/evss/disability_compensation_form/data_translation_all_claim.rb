@@ -61,7 +61,7 @@ module EVSS
         output_form['claimSubmissionSource'] = 'VA.gov'
         # any form that has a startedFormVersion (whether it is '2019' or '2022')
         # will go through the Toxic Exposure flow
-        output_form['startedFormVersion'] = input_form['startedFormVersion'] || false
+        output_form['startedFormVersion'] = input_form['startedFormVersion'] || nil
         output_form.compact!
 
         output_form.update(translate_banking_info)
