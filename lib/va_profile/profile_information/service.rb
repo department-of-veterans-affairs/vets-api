@@ -115,8 +115,10 @@ module VAProfile
         OldEmail.find(transaction_id).try(:email)
       end
 
+      # create_or_update cannot determine if record exists
+      # Reassign :update to either :put or :post
       def reassign_http_verb(type, record)
-        contact_info = VAProfileRedis::ContactInformation.for_user(@user)
+        contact_info = VAProfileRedis::ProfileInformation.for_user(@user)
         attr = model(type).contact_info_attr(record)
         raise "invalid #{type} VAProfile::ProfileInformation" if attr.nil?
 
