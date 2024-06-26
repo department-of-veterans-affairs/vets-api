@@ -38,7 +38,7 @@ module DebtsApi
         end
 
         def spouse_employment_records
-          records = @personal_data['employment_history']['spouse']['sp_employment_records']
+          records = @personal_data.dig('employment_history', 'spouse', 'sp_employment_records') || []
           transform_records_for('SPOUSE', records)
         end
 
