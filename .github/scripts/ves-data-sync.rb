@@ -2,7 +2,7 @@
 
 require 'oci8'
 require 'csv'
-require 'models/std_state'
+require '../../modules/income_limits/app/models/std_state'
 
 # Oracle DB connection parameters
 db_username = ENV['VA_INCOME_LIMITS_VES_DB_USERNAME']
