@@ -34,8 +34,7 @@ module ClaimsApi
           else
             ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: token.payload['cid'])
 
-            render json: bgs_response,
-                   serializer: ClaimsApi::IntentToFileSerializer
+            render json: ClaimsApi::IntentToFileSerializer.new(bgs_response)
           end
         end
 
@@ -65,7 +64,7 @@ module ClaimsApi
             raise ::Common::Exceptions::ResourceNotFound.new(detail: message)
           end
 
-          render json: bgs_active, serializer: ClaimsApi::IntentToFileSerializer
+          render json: ClaimsApi::IntentToFileSerializer.new(bgs_active)
         end
 
         # POST to validate 0966 submission payload.

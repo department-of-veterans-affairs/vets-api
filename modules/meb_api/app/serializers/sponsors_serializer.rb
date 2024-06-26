@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class SponsorsSerializer < ActiveModel::Serializer
+class SponsorsSerializer
+  include JSONAPI::Serializer
+
   attribute :sponsors
 
-  def id
-    nil
-  end
+  set_id { '' }
 end

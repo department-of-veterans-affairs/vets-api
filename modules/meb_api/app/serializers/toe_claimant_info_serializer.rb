@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-class ToeClaimantInfoSerializer < ActiveModel::Serializer
-  attribute :claimant
-  attribute :service_data
-  attribute :toe_sponsors
+class ToeClaimantInfoSerializer
+  include JSONAPI::Serializer
 
-  def id
-    nil
-  end
+  attributes :claimant, :service_data, :toe_sponsors
+
+  set_id { '' }
 end

@@ -363,7 +363,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result[0].exposure_dates.end_date).to eq('1992-01')
       expect(result[0].exposure_location).to eq('other location 1, other location 2 etc')
 
-      result = transformer.send(:transform_multiple_exposures, data['otherExposureDetails'],
+      result = transformer.send(:transform_multiple_exposures, data['otherExposuresDetails'],
                                 EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform::
                                     MULTIPLE_EXPOSURES_TYPE[:hazard])
       expect(result[0].exposure_dates.begin_date).to eq('1991-03')
