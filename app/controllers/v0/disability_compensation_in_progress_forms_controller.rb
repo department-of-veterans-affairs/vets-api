@@ -36,7 +36,7 @@ module V0
       end
 
       # for Toxic Exposure 1.1 - add indicator to In Progress Forms
-      # # moving forward, we don't want to change the version if it is already there
+      # moving forward, we don't want to change the version if it is already there
       if Flipper.enabled?(:disability_526_toxic_exposure_ipf,
                           @current_user) && parsed_form_data['startedFormVersion'].blank?
         parsed_form_data['startedFormVersion'] = '2019'
