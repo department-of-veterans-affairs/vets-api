@@ -265,4 +265,8 @@ FactoryBot.define do
   trait :with_accepted_backup_status do
     backup_submitted_claim_status { :accepted }
   end
+
+  trait :created_more_than_7_days_ago do
+    created_at { 8.days.ago }
+  end
 end

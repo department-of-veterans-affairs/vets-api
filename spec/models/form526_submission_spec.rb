@@ -139,7 +139,7 @@ RSpec.describe Form526Submission do
     describe 'in_process' do
       let!(:in_process_submission1) { create(:form526_submission) }
       let!(:in_process_submission2) { create(:form526_submission, :backup_path) }
-      let!(:expired_submission) { create(:form526_submission, :backup_path, created_at: 25.hours.ago) }
+      let!(:expired_submission) { create(:form526_submission, :backup_path, :created_more_than_7_days_ago) }
       let!(:backup_accepted_submission) { create(:form526_submission, :backup_path, :with_accepted_backup_status) }
       let!(:successful_submission) { create(:form526_submission, :with_submitted_claim_id) }
 
@@ -172,7 +172,7 @@ RSpec.describe Form526Submission do
       let!(:in_process_submission) { create(:form526_submission) }
       let!(:successful_submission) { create(:form526_submission, :with_submitted_claim_id) }
       let!(:rejected_submission) { create(:form526_submission, :backup_path, backup_submitted_claim_status: :rejected) }
-      let!(:expired_submission) { create(:form526_submission, :backup_path, created_at: 25.hours.ago) }
+      let!(:expired_submission) { create(:form526_submission, :backup_path, :created_more_than_7_days_ago) }
       let!(:remediated_submission) do
         create(:form526_submission_remediation, form526_submission: subject)
         subject
@@ -1441,14 +1441,14 @@ RSpec.describe Form526Submission do
 
   describe '#in_process?' do
     context 'when submitted_claim_id and backup_submitted_claim_status are both nil' do
-      context 'and the record was created within the last 24 hours' do
+      context 'and the record was created within the last 7 days' do
         it 'returns true' do
           expect(subject).to be_in_process
         end
       end
 
-      context 'and the record was created more than 24 hours ago' do
-        subject { create(:form526_submission, created_at: 25.hours.ago) }
+      context 'and the record was created more than 7 days ago' do
+        subject { create(:form526_submission, :created_more_than_7_days_ago) }
 
         it 'returns false' do
           expect(subject).not_to be_in_process
@@ -1489,7 +1489,7 @@ RSpec.describe Form526Submission do
     end
 
     context 'when the submission is neither a success type nor in process' do
-      subject { create(:form526_submission, created_at: 25.hours.ago) }
+      subject { create(:form526_submission, :created_more_than_7_days_ago) }
 
       it 'returns true' do
         expect(subject).to be_failure_type

@@ -166,7 +166,7 @@ class Form526Submission < ApplicationRecord
   }
   scope :in_process, lambda {
     where(submitted_claim_id: nil, backup_submitted_claim_status: nil)
-      .where('created_at >= ?', 1.day.ago)
+      .where('created_at >= ?', MAX_PENDING_TIME.ago)
   }
   scope :success_type, lambda {
     left_joins(:form526_submission_remediations)
@@ -199,6 +199,7 @@ class Form526Submission < ApplicationRecord
   FLASHES = 'flashes'
   BIRLS_KEY = 'va_eauth_birlsfilenumber'
   SUBMIT_FORM_526_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
+  MAX_PENDING_TIME = 7.days
 
   # Called when the DisabilityCompensation form controller is ready to hand off to the backend
   # submission process. Currently this passes directly to the retryable EVSS workflow, but if any
@@ -548,16 +549,11 @@ class Form526Submission < ApplicationRecord
   end
 
   def success_type?
-    (submitted_claim_id && backup_submitted_claim_status.nil?) ||
-      (backup_submitted_claim_id && accepted?) || remediated?
+    self.class.success_type.exists?(id:)
   end
 
   def in_process?
-    if submitted_claim_id.nil? && backup_submitted_claim_status.nil?
-      created_at >= 1.day.ago
-    else
-      false
-    end
+    self.class.in_process.exists?(id:)
   end
 
   private
@@ -664,6 +660,6 @@ class Form526Submission < ApplicationRecord
   end
 
   def last_remediation
-    form526_submission_remediations&.order(created_at: :desc)&.last
+    form526_submission_remediations&.order(:created_at)&.last
   end
 end
