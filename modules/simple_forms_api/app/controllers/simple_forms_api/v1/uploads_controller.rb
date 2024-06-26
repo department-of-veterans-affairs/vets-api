@@ -95,7 +95,7 @@ module SimpleFormsApi
           ).send
         end
 
-        json_for_210966(confirmation_number, expiration_date, existing_intents)
+        json_for210966(confirmation_number, expiration_date, existing_intents)
       rescue Common::Exceptions::UnprocessableEntity
         # There is an authentication issue with the Intent to File API so we revert to sending a PDF to Central Mail
         prepare_params_for_central_mail
@@ -204,7 +204,7 @@ module SimpleFormsApi
         params['veteran_mailing_address'] ||= { 'postal_code' => @current_user.address[:postal_code] || '00000' }
       end
 
-      def json_for_210966(confirmation_number, expiration_date, existing_intents)
+      def json_for210966(confirmation_number, expiration_date, existing_intents)
         { json: {
           confirmation_number:,
           expiration_date:,
