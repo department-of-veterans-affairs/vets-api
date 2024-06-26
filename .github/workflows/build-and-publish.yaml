@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-          fetch-depth: 0
+          fetch-depth: 0 # max depth
       - name: Setup Environment
         run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
       - name: Git Version
