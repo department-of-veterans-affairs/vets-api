@@ -2,15 +2,9 @@
 
 module RepresentationManagement
   class Form2122Data < RepresentationManagement::Form2122Base
-    organization_attrs = %i[
-      organization_name
-      organization_representative_name
-      organization_job_title
-      organization_email
-      organization_appointment_date
-    ]
 
-    attr_reader organization_attrs
+
+    attr_reader organization_name
 
     validates :organization_name, presence: true
   end

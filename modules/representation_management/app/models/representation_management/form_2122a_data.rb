@@ -4,7 +4,6 @@ module RepresentationManagement
   class Form2122aData < RepresentationManagement::Form2122Base
     representative_attrs = %i[
       representative_type
-      representative_organization_name
       representative_first_name
       representative_middle_initial
       representative_last_name

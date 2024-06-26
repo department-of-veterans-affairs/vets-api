@@ -36,6 +36,7 @@ module RepresentationManagement
       claimant_middle_initial
       claimant_last_name
       claimant_date_of_birth
+      claimant_relationship
       claimant_address_line1
       claimant_address_line2
       claimant_city
@@ -45,7 +46,6 @@ module RepresentationManagement
       claimant_zip_code_suffix
       claimant_phone_number
       claimant_email
-      claimant_relationship
     ]
 
     consent_attrs = %i[

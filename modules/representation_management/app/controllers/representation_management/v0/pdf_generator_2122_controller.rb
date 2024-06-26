@@ -33,11 +33,6 @@ module RepresentationManagement
       def organization_params
         %i[
           organization_name
-          organization_representative_name
-          organization_job_title
-          organization_email
-          organization_appointment_date
-
         ]
       end
 

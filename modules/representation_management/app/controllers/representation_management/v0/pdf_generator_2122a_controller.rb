@@ -35,7 +35,6 @@ module RepresentationManagement
       def representative_params
         %i[
           representative_type
-          representative_organization_name
           representative_first_name
           representative_middle_initial
           representative_last_name
@@ -71,7 +70,6 @@ module RepresentationManagement
           veteran_va_file_number: params.dig(:veteran, :va_file_number),
           veteran_date_of_birth: params.dig(:veteran, :date_of_birth),
           veteran_service_number: params.dig(:veteran, :service_number),
-          # veteran_insurance_numbers: params.dig(:veteran, :insurance_numbers),
           veteran_service_branch: params.dig(:veteran, :service_branch),
           veteran_service_branch_other: params.dig(:veteran, :service_branch_other),
           veteran_address_line1: params.dig(:veteran, :address, :address_line1),
@@ -93,7 +91,6 @@ module RepresentationManagement
           claimant_last_name: params.dig(:claimant, :name, :last),
           claimant_date_of_birth: params.dig(:claimant, :date_of_birth),
           claimant_relationship: params.dig(:claimant, :relationship),
-          # claimant_id: params.dig(:claimant, :claimant_id),
           claimant_address_line1: params.dig(:claimant, :address, :address_line1),
           claimant_address_line2: params.dig(:claimant, :address, :address_line2),
           claimant_city: params.dig(:claimant, :address, :city),
