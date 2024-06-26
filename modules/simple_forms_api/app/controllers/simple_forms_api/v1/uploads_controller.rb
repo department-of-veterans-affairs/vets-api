@@ -95,13 +95,7 @@ module SimpleFormsApi
           ).send
         end
 
-        { json: {
-          confirmation_number:,
-          expiration_date:,
-          compensation_intent: existing_intents['compensation'],
-          pension_intent: existing_intents['pension'],
-          survivor_intent: existing_intents['survivor']
-        } }
+        210966_json(confirmation_number, expiration_date, existing_intents)
       rescue Common::Exceptions::UnprocessableEntity
         # There is an authentication issue with the Intent to File API so we revert to sending a PDF to Central Mail
         prepare_params_for_central_mail
@@ -208,6 +202,16 @@ module SimpleFormsApi
         }
         params['veteran_id'] ||= { 'ssn' => params['ssn'] }
         params['veteran_mailing_address'] ||= { 'postal_code' => @current_user.address[:postal_code] || '00000' }
+      end
+
+      def 210966_json(confirmation_number, expiration_date, existing_intents)
+        { json: {
+          confirmation_number:,
+          expiration_date:,
+          compensation_intent: existing_intents['compensation'],
+          pension_intent: existing_intents['pension'],
+          survivor_intent: existing_intents['survivor']
+        } }
       end
     end
   end
