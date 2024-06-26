@@ -2,7 +2,7 @@
 
 require 'oci8'
 require 'csv'
-require '../../config/environment.rb'
+require_relative '../../config/environment.rb'
 
 # Oracle DB connection parameters
 db_username = ENV['VA_INCOME_LIMITS_VES_DB_USERNAME']
