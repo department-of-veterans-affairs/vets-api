@@ -55,7 +55,8 @@ module MyHealth
 
       def search
         message_search = MessageSearch.new(search_params)
-        resource = client.post_search_folder(params[:id], params[:page], params[:per_page], message_search, requires_oh_messages)
+        resource = client.post_search_folder(params[:id], params[:page], params[:per_page], message_search,
+                                             requires_oh_messages)
 
         render json: resource.data,
                serializer: CollectionSerializer,
