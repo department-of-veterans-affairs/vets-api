@@ -11,7 +11,7 @@ permissions:
   id-token: write
   contents: read 
 jobs:
-  income_limits_data_sync:
+  ves_data_sync:
     runs-on: self-hosted
     container:
       image: public.ecr.aws/docker/library/ruby:3.2.4-bullseye
