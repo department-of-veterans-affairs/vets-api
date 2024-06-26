@@ -1,12 +1,12 @@
 common:
   - 'kristen.brown@adhocteam.us'
   - 'michael.hobson@adhocteam.us'
-  - 'casey.williams@adhocteam.us'
   - 'michel.mcdonald@adhocteam.us'
   - 'emily.goodrich@oddball.io'
   - 'melinda.cuerda@adhocteam.us'
   - 'heather.roy@adhocteam.us'
   - 'matt.kelly@adhocteam.us'
+  - 'gia.antoniades@adhocteam.us'
 dev:
 staging:
 sandbox:
