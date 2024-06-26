@@ -82,10 +82,8 @@ module SM
     #
     def get_folders(user_uuid, use_cache, requires_oh_messages)
       path = 'folder'
-      if requires_oh_messages == "1"
-        path += "?requiresOHMessages=#{requires_oh_messages}"
-      end
-      
+      path = append_requires_oh_messages_query(path, requires_oh_messages)
+
       cache_key = "#{user_uuid}-folders"
       get_cached_or_fetch_data(use_cache, cache_key, Folder) do
         json = perform(:get, path, nil, token_headers).body
@@ -102,9 +100,7 @@ module SM
     #
     def get_folder(id, requires_oh_messages)
       path = "folder/#{id}"
-      if requires_oh_messages == "1"
-        path += "?requiresOHMessages=#{requires_oh_messages}"
-      end
+      path = append_requires_oh_messages_query(path, requires_oh_messages)
 
       json = perform(:get, path, nil, token_headers).body
       Folder.new(json)
@@ -183,9 +179,7 @@ module SM
     #
     def get_folder_threads(folder_id, page_size, page_number, sort_field, sort_order, requires_oh_messages)
       path = "folder/threadlistview/#{folder_id}?pageSize=#{page_size}&pageNumber=#{page_number}&sortField=#{sort_field}&sortOrder=#{sort_order}"
-      if requires_oh_messages == "1"
-        path += "&requiresOHMessages=#{requires_oh_messages}"
-      end
+      path = append_requires_oh_messages_query(path, requires_oh_messages)
 
       json = perform(:get, path, nil, token_headers).body
 
@@ -206,10 +200,8 @@ module SM
       page_size ||= MHV_MAXIMUM_PER_PAGE
 
       path = "folder/#{folder_id}/searchMessage/page/#{page_num}/pageSize/#{page_size}"
-      if requires_oh_messages == "1"
-        path += "?requiresOHMessages=#{requires_oh_messages}"
-      end
-    
+      path = append_requires_oh_messages_query(path, requires_oh_messages)
+
       json_data = perform(:post,
                           path,
                           args.to_h,
@@ -404,8 +396,8 @@ module SM
     #
     def post_move_thread(id, folder_id)
       custom_headers = token_headers.merge('Content-Type' => 'application/json')
+      puts "custom_headers: #{custom_headers.inspect}"
       response = perform(:post, "message/#{id}/movethreadmessages/tofolder/#{folder_id}", nil, custom_headers)
-
       response&.status
     end
 
@@ -512,6 +504,14 @@ module SM
         draft.errors.add(:base, 'attempted to use reply draft in send message')
         raise Common::Exceptions::ValidationErrors, draft
       end
+    end
+
+    def append_requires_oh_messages_query(path, requires_oh_messages)
+      if requires_oh_messages == '1'
+        separator = path.include?('?') ? '&' : '?'
+        path += "#{separator}requiresOHMessages=#{requires_oh_messages}"
+      end
+      path
     end
 
     def validate_reply_context(args)
