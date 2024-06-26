@@ -33,12 +33,12 @@ module DebtsApi
         private
 
         def veteran_employment_records
-          records = @personal_data['employment_history']['veteran']['employment_records']
+          records = @personal_data.dig('employment_history', 'veteran', 'employment_records') || []
           transform_records_for('VETERAN', records)
         end
 
         def spouse_employment_records
-          records = @personal_data['employment_history']['spouse']['sp_employment_records']
+          records = @personal_data.dig('employment_history', 'spouse', 'sp_employment_records') || []
           transform_records_for('SPOUSE', records)
         end
 
@@ -103,7 +103,11 @@ module DebtsApi
               'last' => @personal_data['spouse_full_name']['last']
             }
           else
-            {}
+            {
+              'first' => '',
+              'middle' => '',
+              'last' => ''
+            }
           end
         end
 
