@@ -16,7 +16,7 @@ db_connection_string = "//#{db_host}:#{db_port}/#{db_sid}"
 conn = OCI8.new(db_username, db_password, db_connection_string)
 
 # Query the data for the table.
-sql_query = "SELECT COUNT(*) FROM sdsadm.std_institution"
+sql_query = "SELECT * FROM sdsadm.std_institution WHERE COLNUM <= 3"
 puts "Running query: " + sql_query
 result = conn.exec(sql_query)
 
