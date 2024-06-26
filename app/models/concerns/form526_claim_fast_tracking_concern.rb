@@ -225,7 +225,8 @@ module Form526ClaimFastTrackingConcern
       contentions: contentions_array
     }
     classifier_response = classify_vagov_contentions(params)
-    log_claim_level_metrics(classifier_response)
+    classifier_response['is_multi_contention_claim'] = disabilities.count > 1
+    Rails.logger('classifier response for 526Submission', classifier_response)
     classifier_response['contentions'].each do |contention|
       classification = nil
       if contention.key?('classification_code') && contention.key?('classification_name')
@@ -238,7 +239,7 @@ module Form526ClaimFastTrackingConcern
       # preserved in order to match existing datadog dashboard
       Rails.logger.info('Classified 526Submission',
                         id:, saved_claim_id:, classification:,
-                        claim_type: contention['contention_type'])
+                        claim_type: contention['contention_type'], is_multi_contention_claim:)
     end
     update_form_with_classification_codes(classifier_response['contentions'])
     classifier_response['is_fully_classified']
