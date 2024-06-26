@@ -45,6 +45,16 @@ module RepresentationManagement
 
       def flatten_form_params(params)
         {
+          organization_name: params[:organizationName],
+          record_consent: params[:recordConsent],
+          consent_limits: params[:consentLimits],
+          consent_address_change: params[:consentAddressChange]
+        }.merge(flatten_veteran_params(params))
+          .merge(flatten_claimant_params(params))
+      end
+
+      def flatten_veteran_params(params)
+        {
           veteran_first_name: params.dig(:veteran, :name, :first),
           veteran_middle_initial: params.dig(:veteran, :name, :middle),
           veteran_last_name: params.dig(:veteran, :name, :last),
@@ -61,7 +71,12 @@ module RepresentationManagement
           veteran_zip_code: params.dig(:veteran, :address, :zipCode),
           veteran_zip_code_suffix: params.dig(:veteran, :address, :zipCodeSuffix),
           veteran_phone: params.dig(:veteran, :phone),
-          veteran_email: params.dig(:veteran, :email),
+          veteran_email: params.dig(:veteran, :email)
+        }
+      end
+
+      def flatten_claimant_params(params)
+        {
           claimant_first_name: params.dig(:claimant, :name, :first),
           claimant_middle_initial: params.dig(:claimant, :name, :middle),
           claimant_last_name: params.dig(:claimant, :name, :last),
@@ -76,11 +91,7 @@ module RepresentationManagement
           claimant_zip_code: params.dig(:claimant, :address, :zipCode),
           claimant_zip_code_suffix: params.dig(:claimant, :address, :zipCodeSuffix),
           claimant_phone: params.dig(:claimant, :phone),
-          claimant_email: params.dig(:claimant, :email),
-          organization_name: params[:organizationName],
-          record_consent: params[:recordConsent],
-          consent_limits: params[:consentLimits],
-          consent_address_change: params[:consentAddressChange]
+          claimant_email: params.dig(:claimant, :email)
         }
       end
     end
