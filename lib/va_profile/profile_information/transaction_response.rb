@@ -47,7 +47,8 @@ module VAProfile
         return_val
       end
 
-      def changed_field
+      def changed_field(return_type: false)
+        return 'address' if return_type.true?
         return :address unless response_body['tx_output']
 
         address_pou = response_body['tx_output'][0]['address_pou']
@@ -136,7 +137,9 @@ module VAProfile
         tx_output['email_address_text']
       end
 
-      def changed_field
+      def changed_field(return_type: false)
+        return 'email' if return_type.true?
+
         :email
       end
     end
@@ -151,7 +154,8 @@ module VAProfile
         return_val
       end
 
-      def changed_field
+      def changed_field(return_type: false)
+        return 'telephone' if return_type.true?
         return :phone unless response_body['tx_output']
 
         phone_type = response_body['tx_output'][0]['phone_type']

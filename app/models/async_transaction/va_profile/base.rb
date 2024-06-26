@@ -63,7 +63,7 @@ module AsyncTransaction
         transaction_record = find_transaction!(user.uuid, tx_id)
         return transaction_record if transaction_record.finished?
 
-        api_response = Base.fetch_transaction(transaction_record, service)
+        api_response = Base.fetch_transaction(transaction_record, service, user)
         update_transaction_from_api(transaction_record, api_response)
       end
 
@@ -72,22 +72,28 @@ module AsyncTransaction
       # @param transaction_record [AsyncTransaction::VAProfile::Base] the tx record to be checked
       # @param service [VAProfile::ContactInformation::Service] an initialized VAProfile client
       # @return [VAProfile::Models::Transaction]
-      def self.fetch_transaction(transaction_record, service)
-        case transaction_record
-        when AsyncTransaction::Vet360::AddressTransaction, AsyncTransaction::VAProfile::AddressTransaction
-          service.get_address_transaction_status(transaction_record.transaction_id)
-        when AsyncTransaction::Vet360::EmailTransaction, AsyncTransaction::VAProfile::EmailTransaction
-          service.get_email_transaction_status(transaction_record.transaction_id)
-        when AsyncTransaction::Vet360::TelephoneTransaction, AsyncTransaction::VAProfile::TelephoneTransaction
-          service.get_telephone_transaction_status(transaction_record.transaction_id)
-        when AsyncTransaction::Vet360::PermissionTransaction, AsyncTransaction::VAProfile::PermissionTransaction
-          service.get_permission_transaction_status(transaction_record.transaction_id)
-        when AsyncTransaction::Vet360::InitializePersonTransaction,
-             AsyncTransaction::VAProfile::InitializePersonTransaction
-          service.get_person_transaction_status(transaction_record.transaction_id)
+      def self.fetch_transaction(transaction_record, service, user)
+        if Flipper.enabled?(:va_profile_information_v3_service, user)
+          changed_field = transaction_record.changed_field(return_type: true)
+          # send email, address, person, or permission
+          service.get_transaction_status(transaction_record.transaction_id, changed_field)
         else
-          # Unexpected transaction type means something went sideways
-          raise
+          case transaction_record
+          when AsyncTransaction::Vet360::AddressTransaction, AsyncTransaction::VAProfile::AddressTransaction
+            service.get_address_transaction_status(transaction_record.transaction_id)
+          when AsyncTransaction::Vet360::EmailTransaction, AsyncTransaction::VAProfile::EmailTransaction
+            service.get_email_transaction_status(transaction_record.transaction_id)
+          when AsyncTransaction::Vet360::TelephoneTransaction, AsyncTransaction::VAProfile::TelephoneTransaction
+            service.get_telephone_transaction_status(transaction_record.transaction_id)
+          when AsyncTransaction::Vet360::PermissionTransaction, AsyncTransaction::VAProfile::PermissionTransaction
+            service.get_permission_transaction_status(transaction_record.transaction_id)
+          when AsyncTransaction::Vet360::InitializePersonTransaction,
+              AsyncTransaction::VAProfile::InitializePersonTransaction
+            service.get_person_transaction_status(transaction_record.transaction_id)
+          else
+            # Unexpected transaction type means something went sideways
+            raise
+          end
         end
       end
 

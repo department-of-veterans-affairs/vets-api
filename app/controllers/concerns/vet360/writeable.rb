@@ -2,7 +2,7 @@
 
 require 'common/exceptions/validation_errors'
 require 'va_profile/contact_information/service'
-require 'va_profile/profile/v3/service'
+require 'va_profile/profile_information/service'
 
 module Vet360
   module Writeable
@@ -49,7 +49,7 @@ module Vet360
       raise Common::Exceptions::ValidationErrors, record
     end
 
-    def service(type: nil)
+    def service
       if Flipper.enabled?(:va_profile_information_v3_service, @current_user)
         VAProfile::ProfileInformation::Service.new @current_user
       else

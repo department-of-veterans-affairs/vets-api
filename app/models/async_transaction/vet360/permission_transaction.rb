@@ -2,6 +2,10 @@
 
 module AsyncTransaction
   module Vet360
-    class PermissionTransaction < AsyncTransaction::Vet360::Base; end
+    class PermissionTransaction < AsyncTransaction::Vet360::Base
+      def changed_field(*)
+        'permission'
+      end
+    end
   end
 end

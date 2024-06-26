@@ -42,7 +42,7 @@ module VAProfile
         handle_error(e)
       end
 
-      def self.get_person(edipi)
+      def self.get_person(_vet360_id)
         stub_user = OpenStruct.new(edipi:)
         new(stub_user).get_response('person')
       end
@@ -119,7 +119,7 @@ module VAProfile
       # Reassign :update to either :put or :post
       def reassign_http_verb(type, record)
         contact_info = VAProfileRedis::ProfileInformation.for_user(@user)
-        attr = model(type).contact_info_attr(record)
+        attr = model(type).contact_info_attr
         raise "invalid #{type} VAProfile::ProfileInformation" if attr.nil?
 
         record.id = contact_info.public_send(attr)&.id
