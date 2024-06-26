@@ -1,6 +1,7 @@
 name: Build And Publish Preview Environment
 run-name: Build And Publish Preview Environment
 on: [push]
+permissions: write-all
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
