@@ -125,21 +125,29 @@ RSpec.describe 'Forms uploader', type: :request do
           context 'fails to go to Lighthouse Benefits Claims API because of UnprocessableEntity error' do
             before do
               VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/422_response')
-              expect_any_instance_of(SimpleFormsApi::PdfUploader).to receive(:upload_to_benefits_intake).and_call_original
+              expect_any_instance_of(SimpleFormsApi::PdfUploader).to receive(
+                :upload_to_benefits_intake
+              ).and_call_original
             end
-      
+
             after do
               VCR.eject_cassette('lighthouse/benefits_claims/intent_to_file/422_response')
             end
-      
+
             it 'catches the exception and sends a PDF to Central Mail instead' do
-              fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-              'vba_21_0966-min.json')
+              fixture_path = Rails.root.join(
+                'modules',
+                'simple_forms_api',
+                'spec',
+                'fixtures',
+                'form_json',
+                'vba_21_0966-min.json'
+              )
               data = JSON.parse(fixture_path.read)
               data['preparer_identification'] = 'VETERAN'
-      
+
               post '/simple_forms_api/v1/simple_forms', params: data
-      
+
               expect(response).to have_http_status(:ok)
             end
           end

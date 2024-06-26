@@ -104,9 +104,7 @@ module SimpleFormsApi
         } }
       rescue Common::Exceptions::UnprocessableEntity
         # There is an authentication issue with the Intent to File API so we revert to sending a PDF to Central Mail
-        params['veteran_full_name'] ||= { 'first' => params['full_name']['first'], 'last' => params['full_name']['last'] }
-        params['veteran_id'] ||= { 'ssn' => params['ssn'] }
-        params['veteran_mailing_address'] ||= { 'postal_code' => @current_user.address[:postal_code] || '00000' }
+        prepare_params_for_central_mail
         submit_form_to_central_mail
       end
 
@@ -201,6 +199,15 @@ module SimpleFormsApi
         json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
 
         json
+      end
+
+      def prepare_params_for_central_mail
+        params['veteran_full_name'] ||= {
+          'first' => params['full_name']['first'],
+          'last' => params['full_name']['last']
+        }
+        params['veteran_id'] ||= { 'ssn' => params['ssn'] }
+        params['veteran_mailing_address'] ||= { 'postal_code' => @current_user.address[:postal_code] || '00000' }
       end
     end
   end
