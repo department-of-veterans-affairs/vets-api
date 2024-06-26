@@ -7,8 +7,9 @@ module AskVAApi
     module Status
       RSpec.describe Retriever do
         subject(:retriever) do
-          described_class.new(icn: '1', user_mock_data: nil, entity_class: Entity, inquiry_number: 'A-1')
+          described_class.new(icn:, user_mock_data: nil, entity_class: Entity, inquiry_number: 'A-1')
         end
+        let(:icn) { '1' }
 
         context 'when successful' do
           before do
@@ -26,8 +27,18 @@ module AskVAApi
                                             })
           end
 
-          it 'returns the status of the inquiry' do
-            expect(subject.call).to be_an(Entity)
+          context 'when ICN is given' do
+            it 'returns the status of the inquiry' do
+              expect(subject.call).to be_an(Entity)
+            end
+          end
+
+          context 'when ICN is NOT given' do
+            let(:icn) { nil }
+
+            it 'returns the status of the inquiry' do
+              expect(subject.call).to be_an(Entity)
+            end
           end
         end
 
