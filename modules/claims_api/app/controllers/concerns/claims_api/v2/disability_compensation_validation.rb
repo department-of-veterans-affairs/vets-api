@@ -78,7 +78,7 @@ module ClaimsApi
       def validate_form_526_change_of_address_ending_date
         change_of_address = form_attributes&.dig('changeOfAddress')
         date = change_of_address&.dig('dates', 'endDate')
-        return if date&.nil? # nullable on schema
+        return if date.nil? # nullable on schema
 
         if 'PERMANENT'.casecmp?(change_of_address['typeOfAddressChange']) && date.present?
           collect_error_messages(
@@ -405,7 +405,7 @@ module ClaimsApi
         other_exposures = form_attributes&.dig('toxicExposure', 'additionalHazardExposures')
         validate_form_526_toxic_exp_sections(other_exposures, 'additionalHazardExposures')
         multi_exposures = form_attributes&.dig('toxicExposure', 'multipleExposures')
-        validate_form_526_toxic_exp_sections(multi_exposures, 'multipleExposures')
+        validate_form_526_toxic_multi_exp(multi_exposures, 'multipleExposures')
       end
 
       def validate_form_526_toxic_exp_sections(section, attribute_name)
@@ -423,6 +423,22 @@ module ClaimsApi
         validate_service_date(begin_date, begin_prop) unless begin_date.nil? || !date_is_valid?(begin_date,
                                                                                                 begin_prop)
         validate_service_date(end_date, end_prop) unless end_date.nil? || !date_is_valid?(end_date, end_prop)
+      end
+
+      def validate_form_526_toxic_multi_exp(section, attribute_name)
+        return if section.nil?
+
+        section&.each do |item, idx|
+          begin_date = item&.dig('serviceDates', 'beginDate')
+          end_date = item&.dig('serviceDates', 'endDate')
+
+          begin_prop = "/toxicExposure/#{attribute_name}/#{idx}/exposureDates/beginDate"
+          end_prop = "/toxicExposure/#{attribute_name}/#{idx}/exposureDates/endDate"
+
+          validate_service_date(begin_date, begin_prop) unless begin_date.nil? || !date_is_valid?(begin_date,
+                                                                                                  begin_prop)
+          validate_service_date(end_date, end_prop) unless end_date.nil? || !date_is_valid?(end_date, end_prop)
+        end
       end
 
       def validate_service_date(date, prop)

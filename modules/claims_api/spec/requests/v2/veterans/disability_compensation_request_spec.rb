@@ -3182,7 +3182,6 @@ RSpec.describe 'Disability Claims', type: :request do
                     disabilityActionType: 'NEW',
                     name: 'PTSD (post traumatic stress disorder)',
                     diagnosticCode: 9999,
-                    serviceRelevance: 'Heavy equipment operator in service.',
                     secondaryDisabilities: [
                       {
                         disabilityActionType: 'SECONDARY',
@@ -3194,12 +3193,15 @@ RSpec.describe 'Disability Claims', type: :request do
                     ]
                   }
                 ]
+                params['data']['attributes']['treatments'] =
+                  [{ 'beginDate' => '2009-03', 'treatedDisabilityNames' => ['PTSD (post traumatic stress disorder)'],
+                     'center' => { 'name' => 'Center One', 'city' => 'Decatur', 'state' => 'GA' } }]
                 params['data']['attributes']['disabilities'] = disabilities
                 post submit_path, params: params.to_json, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
                 expect(response_body['errors'][0]['detail']).to eq(
-                  'The service relevance is required for /disability/0/secondaryDisability/0/serviceRelevance.'
+                  "The serviceRelevance is required if disabilityActionType' is NEW."
                 )
               end
             end
