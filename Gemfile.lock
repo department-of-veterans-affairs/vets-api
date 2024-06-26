@@ -605,8 +605,8 @@ GEM
     jwe (0.4.0)
     jwt (2.8.2)
       base64
-    kms_encrypted (1.5.1)
-      activesupport (>= 6)
+    kms_encrypted (1.6.0)
+      activesupport (>= 6.1)
     kramdown (2.4.0)
       rexml
     kramdown-parser-gfm (1.1.0)
