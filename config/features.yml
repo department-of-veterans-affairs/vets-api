@@ -1171,10 +1171,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for display of clinic location on appointment detail page
-  va_online_scheduling_status_improvement:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for homepage status improvement
   va_online_scheduling_status_improvement_canceled:
     actor_type: user
     enable_in_development: true
