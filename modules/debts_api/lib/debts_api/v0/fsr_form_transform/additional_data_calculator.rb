@@ -24,7 +24,7 @@ module DebtsApi
         end
 
         def get_bankruptcy_data
-          return {} if @bankruptcy.empty?
+          return {} if @bankruptcy.blank?
 
           {
             'hasBeenAdjudicatedBankrupt' => @form['questions']['has_been_adjudicated_bankrupt'],
