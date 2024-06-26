@@ -2,6 +2,7 @@
 
 require 'oci8'
 require 'csv'
+require 'models/std_state'
 
 # Oracle DB connection parameters
 db_username = ENV['VA_INCOME_LIMITS_VES_DB_USERNAME']
@@ -21,6 +22,10 @@ result = conn.exec(sql_query)
 
 puts "Result:"
 puts result
+puts result.get_col_names
+result.fetch_hash do |entry|
+  puts entry
+end
 puts "Result end"
 puts "DB check - StdState.count should be ~110: #{StdState.count}"
 
