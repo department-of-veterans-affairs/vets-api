@@ -127,7 +127,7 @@ RSpec.describe 'Forms uploader', type: :request do
               VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/422_response')
               expect_any_instance_of(SimpleFormsApi::PdfUploader).to receive(
                 :upload_to_benefits_intake
-              ).and_call_original
+              )
             end
 
             after do
@@ -147,6 +147,8 @@ RSpec.describe 'Forms uploader', type: :request do
               data['preparer_identification'] = 'VETERAN'
 
               post '/simple_forms_api/v1/simple_forms', params: data
+
+              expect(response).to have_http_status(:ok)
             end
           end
         end
