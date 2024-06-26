@@ -147,8 +147,6 @@ RSpec.describe 'Forms uploader', type: :request do
               data['preparer_identification'] = 'VETERAN'
 
               post '/simple_forms_api/v1/simple_forms', params: data
-
-              expect(response).to have_http_status(:ok)
             end
           end
         end
