@@ -67,6 +67,8 @@ module VA526ez
     attribute :veteran, FormContactInformation
   end
 
+  # internal form prefill
+  # does not reach out to external services
   class Form526Prefill
     include Virtus.model
 
@@ -79,10 +81,10 @@ class FormProfiles::VA526ez < FormProfile
   attribute :rated_disabilities_information, VA526ez::FormRatedDisabilities
   attribute :veteran_contact_information, VA526ez::FormContactInformation
   attribute :payment_information, VA526ez::FormPaymentAccountInformation
-  attribute :form526_prefill, VA526ez::Form526Prefill
+  attribute :prefill_526, VA526ez::Form526Prefill
 
   def prefill
-    @started_form_version = initialize_form526_prefill
+    @prefill_526 = initialize_form526_prefill
 
     begin
       @rated_disabilities_information = initialize_rated_disabilities_information

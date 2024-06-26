@@ -244,18 +244,18 @@ RSpec.describe 'Disability compensation form' do
           expect(response).to match_response_schema('submit_disability_form')
         end
 
-        context 'where the includeToxicExposure indicator is true' do
+        context 'where the startedFormVersion indicator is true' do
           it 'creates a submission that includes a toxic exposure component' do
             post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('submit_disability_form')
             expect(Form526Submission.count).to eq(1)
             form = Form526Submission.last.form
-            expect(form.dig('form526', 'form526', 'toxicExposure')).not_to eq(nil)
+            expect(form.dig('form526', 'form526', 'startedFormVersion')).not_to eq(nil)
           end
         end
 
-        context 'where the includeToxicExposure indicator is false' do
+        context 'where the startedFormVersion indicator is false' do
           it 'does not create a submission that includes a toxic exposure component' do
             json_object = JSON.parse(all_claims_form)
             json_object['form526']['startedFormVersion'] = nil
@@ -265,7 +265,7 @@ RSpec.describe 'Disability compensation form' do
             expect(response).to match_response_schema('submit_disability_form')
             expect(Form526Submission.count).to eq(1)
             form = Form526Submission.last.form
-            expect(form.dig('form526', 'form526', 'toxicExposure')).to eq(nil)
+            expect(form.dig('form526', 'form526', 'startedFormVersion')).to eq(nil)
           end
         end
 

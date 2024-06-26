@@ -144,7 +144,7 @@
         ]
       }
     ],
-    "includeToxicExposure": true,
+    "startedFormVersion": "2022",
     "toxicExposure": {
       "conditions": {
         "arthritis": true
