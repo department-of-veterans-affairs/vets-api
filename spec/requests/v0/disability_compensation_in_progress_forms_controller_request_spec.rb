@@ -103,7 +103,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
         end
 
         context 'when toxic exposure' do
-
           before do
             Flipper.disable('disability_526_toxic_exposure_ipf')
           end
@@ -254,7 +253,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
         end
 
         context 'when toxic exposure' do
-
           before do
             Flipper.disable('disability_526_toxic_exposure_ipf')
           end
