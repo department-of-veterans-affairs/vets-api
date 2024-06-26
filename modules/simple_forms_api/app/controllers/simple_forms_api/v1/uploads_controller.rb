@@ -9,7 +9,6 @@ module SimpleFormsApi
     class UploadsController < ApplicationController
       skip_before_action :authenticate
       before_action :authenticate, if: :should_authenticate
-      before_action :mpi_proxy, if: :use_itf_api_for_210966_form?
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
@@ -80,10 +79,6 @@ module SimpleFormsApi
         )
       end
 
-      def mpi_proxy
-        authorize(:mpi, :access_add_person_proxy?)
-      end
-
       private
 
       def handle_210966_authenticated
@@ -107,6 +102,12 @@ module SimpleFormsApi
           pension_intent: existing_intents['pension'],
           survivor_intent: existing_intents['survivor']
         } }
+      rescue Common::Exceptions::UnprocessableEntity
+        # There is an authentication issue with the Intent to File API so we revert to sending a PDF to Central Mail
+        params['veteran_full_name'] ||= { 'first' => params['full_name']['first'], 'last' => params['full_name']['last'] }
+        params['veteran_id'] ||= { 'ssn' => params['ssn'] }
+        params['veteran_mailing_address'] ||= { 'postal_code' => @current_user.address[:postal_code] || '00000' }
+        submit_form_to_central_mail
       end
 
       def handle264555
