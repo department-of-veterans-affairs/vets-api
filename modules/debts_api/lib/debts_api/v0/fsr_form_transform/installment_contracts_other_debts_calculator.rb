@@ -11,14 +11,16 @@ module DebtsApi
 
         def initialize(form)
           @form = form
+          @installment_contracts = @form['installment_contracts'] ||= []
+          @credit_card_bills = @form['expenses']['credit_card_bills'] ||= []
         end
 
         def get_data
-          transformed_installment_contracts = @form['installment_contracts'].map do |it|
+          transformed_installment_contracts = @installment_contracts.map do |it|
             get_installment_or_other_debt_data_for(it)
           end
 
-          transformed_cc_payments = @form['expenses']['credit_card_bills'].map do |it|
+          transformed_cc_payments = @credit_card_bills.map do |it|
             get_installment_or_other_debt_data_for(it)
           end
 

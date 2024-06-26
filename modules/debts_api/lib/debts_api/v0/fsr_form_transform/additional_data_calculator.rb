@@ -52,8 +52,10 @@ module DebtsApi
         end
 
         def get_discharged_date
-          # should probably be a dig
-          raw_date = @form['additional_data']['bankruptcy']['date_discharged']
+          raw_date = @form.dig('additional_data', 'bankruptcy', 'date_discharged')
+
+          return if raw_date.blank?
+
           date_object = Date.parse(raw_date)
 
           "#{date_object.strftime('%m')}/#{date_object.year}"
