@@ -73,7 +73,7 @@ module DebtsApi
         end
 
         def cash_below_gmt_threshold?
-          @asset_data['cashOnHand'] < @gmt_data['gmt_threshold']
+          @asset_data['cashOnHand'].to_f < @gmt_data['gmt_threshold']
         end
 
         def streamlined_waiver_asset_update?
@@ -93,11 +93,11 @@ module DebtsApi
         end
 
         def total_annual_income
-          @income_data['totalMonthlyNetIncome'] * 12
+          @income_data[:totalMonthlyNetIncome] * 12
         end
 
         def total_discretionary_income
-          monthly_net_income = @income_data['totalMonthlyNetIncome']
+          monthly_net_income = @income_data[:totalMonthlyNetIncome]
           monthly_expenses = @enhanced_expense_calculator['totalMonthlyExpenses']
 
           monthly_net_income - monthly_expenses

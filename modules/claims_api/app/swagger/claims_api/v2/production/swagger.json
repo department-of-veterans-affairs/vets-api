@@ -2237,13 +2237,13 @@
                                       "approximateBeginDate": {
                                         "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
                                         "type": "string",
-                                        "nullable": true,
+                                        "nullable": false,
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                         "example": "2018-06-06 or 2018-06"
                                       },
                                       "approximateEndDate": {
                                         "type": "string",
-                                        "nullable": true,
+                                        "nullable": false,
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                         "example": "2018-06-06 or 2018-06"
                                       }
@@ -3586,13 +3586,13 @@
                                     "approximateBeginDate": {
                                       "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
                                       "type": "string",
-                                      "nullable": true,
+                                      "nullable": false,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                       "example": "2018-06-06 or 2018-06"
                                     },
                                     "approximateEndDate": {
                                       "type": "string",
-                                      "nullable": true,
+                                      "nullable": false,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                       "example": "2018-06-06 or 2018-06"
                                     }
@@ -4295,7 +4295,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3def5800-a06e-4b17-b248-07edda1c6904",
+                    "id": "85af9033-e9df-4203-b7a3-ecdab4e683d3",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -4478,7 +4478,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-06-26"
+                          "anticipatedSeparationDate": "2024-06-27"
                         },
                         "confinements": [
                           {
@@ -5468,13 +5468,13 @@
                                       "approximateBeginDate": {
                                         "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
                                         "type": "string",
-                                        "nullable": true,
+                                        "nullable": false,
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                         "example": "2018-06-06 or 2018-06"
                                       },
                                       "approximateEndDate": {
                                         "type": "string",
-                                        "nullable": true,
+                                        "nullable": false,
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                         "example": "2018-06-06 or 2018-06"
                                       }
@@ -6817,13 +6817,13 @@
                                     "approximateBeginDate": {
                                       "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
                                       "type": "string",
-                                      "nullable": true,
+                                      "nullable": false,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                       "example": "2018-06-06 or 2018-06"
                                     },
                                     "approximateEndDate": {
                                       "type": "string",
-                                      "nullable": true,
+                                      "nullable": false,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                       "example": "2018-06-06 or 2018-06"
                                     }
@@ -8709,13 +8709,13 @@
                                     "approximateBeginDate": {
                                       "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
                                       "type": "string",
-                                      "nullable": true,
+                                      "nullable": false,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                       "example": "2018-06-06 or 2018-06"
                                     },
                                     "approximateEndDate": {
                                       "type": "string",
-                                      "nullable": true,
+                                      "nullable": false,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                       "example": "2018-06-06 or 2018-06"
                                     }
@@ -9167,7 +9167,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8cadc31b-1f9d-4ff9-bda0-e49a20ecebc8",
+                    "id": "31f114e6-0bf9-4125-8d8d-7f06fac761c2",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12050,8 +12050,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-06-24",
-                      "expirationDate": "2025-06-24",
+                      "creationDate": "2024-06-25",
+                      "expirationDate": "2025-06-25",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -12927,7 +12927,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "80d84c18-2468-4af2-9f81-edf07ddd5ac5",
+                    "id": "9c4edea8-8afc-4a34-b418-04bb84648f98",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13620,7 +13620,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1db67827-5a75-4ee4-936d-c47a7f614d7d",
+                    "id": "1ac0409e-0686-4a71-a7ac-7822f3caffb6",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15571,10 +15571,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7f0f3673-8443-4fa3-91f9-879b93d10292",
+                    "id": "6f0a7698-7599-4f0c-aed4-8531effa9266",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-06-24",
+                      "dateRequestAccepted": "2024-06-25",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

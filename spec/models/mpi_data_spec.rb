@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe MPIData, skip_mvi: true do
+describe MPIData, :skip_mvi do
   let(:user) { build(:user, :loa3, :no_mpi_profile) }
 
   describe '.for_user' do

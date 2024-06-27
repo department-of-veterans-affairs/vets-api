@@ -20,5 +20,15 @@ FactoryBot.define do
         JSON.parse(raw_claim).deep_transform_keys!(&:underscore)
       end
     end
+
+    trait :bad_data do
+      data do
+        fixture_file_name = ::Rails.root.join(*'/spec/fixtures/evss_claim/claim-detail.json'.split('/')).to_s
+        File.open(fixture_file_name, 'rb') do |f|
+          raw_claim = f.read
+          JSON.parse(raw_claim).deep_transform_keys!(&:underscore)
+        end.merge('development_letter_sent' => 'Test')
+      end
+    end
   end
 end
