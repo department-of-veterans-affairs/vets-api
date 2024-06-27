@@ -261,12 +261,12 @@ FactoryBot.define do
   trait :with_submitted_claim_id do
     submitted_claim_id { 1 }
   end
-
+  spec/models/form526_submission_spec.rb
   trait :with_accepted_backup_status do
     backup_submitted_claim_status { :accepted }
   end
 
-  trait :created_more_than_7_days_ago do
-    created_at { 8.days.ago }
+  trait :created_more_than_3_days_ago do
+    created_at { 4.days.ago }
   end
 end
