@@ -293,7 +293,7 @@ module V1
     end
 
     def new_stats(type, client_id)
-      tags = ["context:#{type}", VERSION_TAG, "client_id:#{client_id}"]
+      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}"]
       StatsD.increment(STATSD_SSO_NEW_KEY, tags:)
       Rails.logger.info("SSO_NEW_KEY, tags: #{tags}")
     end
