@@ -36,9 +36,7 @@ describe 'PowerOfAttorney', metadata do
           )
         )
 
-      # No idea why string keys don't work here.
-      query_schema.deep_transform_keys!(&:to_sym)
-      query_schema[:example] = {
+      query_example = {
         'filter' => {
           'poaCodes' => %w[
             083 002 003 065 074 022 091 070
@@ -61,7 +59,14 @@ describe 'PowerOfAttorney', metadata do
         }
       }
 
-      parameter name: 'query', in: :query, required: true, schema: query_schema
+      # No idea why string keys don't work here.
+      query_schema.deep_transform_keys!(&:to_sym)
+      query_schema[:example] = query_example
+
+      parameter(
+        name: 'query', in: :query, required: true,
+        schema: query_schema, example: query_example
+      )
 
       response '200', 'Search results' do
         schema JSON.load_file(File.expand_path('rswag/200.json', __dir__))
