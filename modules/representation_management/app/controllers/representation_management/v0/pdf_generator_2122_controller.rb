@@ -4,6 +4,10 @@ module RepresentationManagement
   module V0
     class PdfGenerator2122Controller < RepresentationManagement::V0::PdfGeneratorBaseController
       def create
+        p '*' * 100, "params: #{params}",
+          "form_params: #{form_params}",
+          "flatten_form_params: #{flatten_form_params(form_params)}"
+
         form = RepresentationManagement::Form2122Data.new(flatten_form_params(form_params))
 
         if form.valid?
@@ -15,26 +19,60 @@ module RepresentationManagement
 
       private
 
+      # rubocop:disable Metrics/MethodLength
       def form_params
-        params.require(%i[veteran organization_name]).permit(all_params)
-      end
-
-      def all_params
-        [
-          claimant_params,
-          organization_params,
-          veteran_params,
+        params.require(:pdf_generator2122).permit(
+          :organization_name,
           :record_consent,
           :consent_address_change,
-          { consent_limits: [] }
-        ].flatten
+          consent_limits: [],
+          claimant: [
+            :claimant_id,
+            :date_of_birth,
+            :relationship,
+            :phone,
+            :email,
+            { name: %i[
+                first
+                middle
+                last
+              ],
+              address: %i[
+                address_line1
+                address_line2
+                city
+                state_code
+                country
+                zip_code
+                zip_code_suffix
+              ] }
+          ],
+          veteran: [
+            :ssn,
+            :va_file_number,
+            :date_of_birth,
+            :service_number,
+            :phone,
+            :email,
+            { insurance_numbers: [],
+              name: %i[
+                first
+                middle
+                last
+              ],
+              address: %i[
+                address_line1
+                address_line2
+                city
+                state_code
+                country
+                zip_code
+                zip_code_suffix
+              ] }
+          ]
+        )
       end
-
-      def organization_params
-        %i[
-          organization_name
-        ]
-      end
+      # rubocop:enable Metrics/MethodLength
 
       def flatten_form_params(params)
         {

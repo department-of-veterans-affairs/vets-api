@@ -54,7 +54,7 @@ module RepresentationManagement
       consent_limits
     ]
 
-    attr_reader [veteran_attrs, claimant_attrs, consent_attrs].flatten
+    attr_reader(*[veteran_attrs, claimant_attrs, consent_attrs].flatten)
 
     validates :veteran_first_name, presence: true, length: { maximum: 12 }
     validates :veteran_middle_initial, length: { maximum: 1 }
@@ -72,26 +72,24 @@ module RepresentationManagement
     validates :veteran_phone_number, length: { is: 10 }, format: { with: PHONE_NUMBER }
     validates :veteran_service_number, length: { is: 9 }, format: { with: SSN }
 
-    with_options if: claimant_first_name_present? do
-      validates :claimant_first_name, presence: true, length: { maximum: 12 }
-      validates :claimant_middle_initial, length: { maximum: 1 }
-      validates :claimant_last_name, presence: true, length: { maximum: 18 }
-      validates :claimant_date_of_birth, presence: true
-      validates :claimant_relationship, presence: true
-      validates :claimant_address_line1, presence: true, length: { maximum: 30 }
-      validates :claimant_address_line2, length: { maximum: 5 }
-      validates :claimant_city, presence: true, length: { maximum: 18 }
-      validates :claimant_country, presence: true, length: { is: 2 }
-      validates :claimant_state_code, presence: true, length: { is: 2 }
-      validates :claimant_zip_code, presence: true, length: { is: 5 }, format: { with: ZIP_CODE }
-      validates :claimant_zip_code_suffix, length: { is: 4 }, format: { with: ZIP_CODE_SUFFIX }
-      validates :claimant_phone_number, length: { is: 10 }, format: { with: PHONE_NUMBER }
-    end
-  end
-
-  private
-
-  def claimant_first_name_present?
-    claimant_first_name.present?
+    # with_options if: claimant_first_name_present? do
+    #   validates :claimant_first_name, presence: true, length: { maximum: 12 }
+    #   validates :claimant_middle_initial, length: { maximum: 1 }
+    #   validates :claimant_last_name, presence: true, length: { maximum: 18 }
+    #   validates :claimant_date_of_birth, presence: true
+    #   validates :claimant_relationship, presence: true
+    #   validates :claimant_address_line1, presence: true, length: { maximum: 30 }
+    #   validates :claimant_address_line2, length: { maximum: 5 }
+    #   validates :claimant_city, presence: true, length: { maximum: 18 }
+    #   validates :claimant_country, presence: true, length: { is: 2 }
+    #   validates :claimant_state_code, presence: true, length: { is: 2 }
+    #   validates :claimant_zip_code, presence: true, length: { is: 5 }, format: { with: ZIP_CODE }
+    #   validates :claimant_zip_code_suffix, length: { is: 4 }, format: { with: ZIP_CODE_SUFFIX }
+    #   validates :claimant_phone_number, length: { is: 10 }, format: { with: PHONE_NUMBER }
+    # end
+    # def claimant_first_name_present?
+    #   claimant_first_name.present?
+    # end
+    # private
   end
 end

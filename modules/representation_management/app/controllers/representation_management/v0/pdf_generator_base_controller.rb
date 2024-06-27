@@ -4,14 +4,15 @@ module RepresentationManagement
   module V0
     class PdfGeneratorBaseController < ApplicationController
       service_tag 'lighthouse-veteran' # Is this the correct service tag?
-      before_action :feature_enabled
-
+      skip_before_action :verify_authenticity_token
       skip_before_action :authenticate
+      before_action :feature_enabled
 
       private
 
       def claimant_params
         %i[
+          claimant
           claimant_first_name
           claimant_middle_initial
           claimant_last_name
@@ -31,6 +32,7 @@ module RepresentationManagement
 
       def veteran_params
         %i[
+          veteran
           veteran_first_name veteran_middle_initial veteran_last_name
           veteran_social_security_number
           veteran_va_file_number
