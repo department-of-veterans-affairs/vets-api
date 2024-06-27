@@ -5,6 +5,7 @@ require 'lighthouse/facilities/client'
 module AskVAApi
   module V0
     class HealthFacilitiesController < FacilitiesApi::ApplicationController
+      around_action :handle_exceptions
       skip_before_action :verify_authenticity_token
 
       def search
@@ -68,6 +69,25 @@ module AskVAApi
 
       def covid_mobile_params?
         lighthouse_params.fetch(:type, '')[/health/i] && lighthouse_params[:services]&.any?(/Covid19Vaccine/i)
+      end
+
+      def handle_exceptions
+        yield
+      rescue => e
+        log_and_render_error('unexpected_error', e, e.status_code)
+      end
+
+      def log_and_render_error(action, exception, status)
+        log_error(action, exception)
+        render json: { error: exception.message }, status:
+      end
+
+      def log_error(action, exception)
+        LogService.new.call(action) do |span|
+          span.set_tag('error', true)
+          span.set_tag('error.msg', exception.message)
+        end
+        Rails.logger.error("Error during #{action}: #{exception.message}")
       end
     end
   end
