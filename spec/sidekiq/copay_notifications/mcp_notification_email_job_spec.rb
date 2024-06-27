@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe CopayNotifications::McpNotificationEmailJob, skip_vet360: true, type: :worker do
+RSpec.describe CopayNotifications::McpNotificationEmailJob, :skip_vet360, type: :worker do
   let(:template_id) { 'template_id' }
   let(:email) { 'person43@example.com' }
   let(:backup_email) { 'meepmorp@example.com' }

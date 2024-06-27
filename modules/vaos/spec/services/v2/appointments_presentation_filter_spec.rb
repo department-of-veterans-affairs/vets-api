@@ -70,7 +70,7 @@ describe VAOS::V2::AppointmentsPresentationFilter do
         expect(filterer.user_facing?(request)).to be false
       end
 
-      describe 'date validations', aggregate_errors: true do
+      describe 'date validations', :aggregate_errors do
         context 'for appointments' do
           it 'returns false but does not raise an error if start time is empty' do
             cancelled[:start] = nil

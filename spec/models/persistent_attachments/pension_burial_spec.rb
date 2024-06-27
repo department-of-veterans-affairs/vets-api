@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe PersistentAttachments::PensionBurial, uploader_helpers: true do
+RSpec.describe PersistentAttachments::PensionBurial, :uploader_helpers do
   let(:file) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
   let(:instance) { described_class.new(form_id: 'T-123') }
 

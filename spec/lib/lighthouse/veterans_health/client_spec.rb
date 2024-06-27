@@ -46,9 +46,8 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
       end
 
       before do
-        allow(@client).to receive(:perform).and_return generic_response
         allow(Lighthouse::VeteransHealth::JwtWrapper).to receive(:new).and_return(jwt_double)
-        allow(@client).to receive(:authenticate).and_return bearer_token_object
+        allow(@client).to receive_messages(perform: generic_response, authenticate: bearer_token_object)
       end
 
       describe 'when requesting medication_requests' do

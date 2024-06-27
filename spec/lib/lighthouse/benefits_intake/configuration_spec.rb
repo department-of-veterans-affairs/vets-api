@@ -69,10 +69,8 @@ RSpec.describe BenefitsIntake::Configuration do
     before do
       allow(Faraday).to receive(:new).and_yield(faraday)
 
-      allow(config).to receive(:service_path).and_return('service_path')
-      allow(config).to receive(:base_request_headers).and_return('base_request_headers')
-      allow(config).to receive(:request_options).and_return('request_options')
-      allow(config).to receive(:use_mocks?).and_return(true)
+      allow(config).to receive_messages(service_path: 'service_path', base_request_headers: 'base_request_headers',
+                                        request_options: 'request_options', use_mocks?: true)
     end
 
     it 'returns existing connection' do

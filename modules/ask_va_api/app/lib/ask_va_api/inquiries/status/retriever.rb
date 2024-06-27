@@ -3,44 +3,35 @@
 module AskVAApi
   module Inquiries
     module Status
-      ENDPOINT = 'inquirystatus'
+      class StatusRetrieverError < StandardError; end
 
-      class Retriever
-        class RetrievalError < StandardError; end
-        class ServiceError < StandardError; end
+      class Retriever < BaseRetriever
+        ENDPOINT = 'inquirystatus'
 
-        attr_reader :icn, :service
+        attr_reader :icn, :service, :inquiry_number
 
-        def initialize(icn:, service: nil)
+        def initialize(user_mock_data:, entity_class:, inquiry_number:, icn: nil)
+          super(user_mock_data:, entity_class:)
           @icn = icn
-          @service = service || default_service
-        end
-
-        def call(inquiry_number:)
-          payload = { inquiryNumber: inquiry_number }
-          data = fetch_data(payload:)
-
-          Entity.new(data)
-        rescue ServiceError => e
-          raise RetrievalError, "Failed to retrieve inquiry status: #{e.message}"
+          @inquiry_number = inquiry_number
+          @service = Crm::Service.new(icn:)
         end
 
         private
 
-        def default_service
-          Crm::Service.new(icn:)
+        def fetch_data
+          payload = { inquiry_number: }
+          response = service.call(endpoint: ENDPOINT, payload:)
+          handle_response_data(response)
         end
 
-        def fetch_data(payload: {})
-          data = service.call(endpoint: ENDPOINT, payload:)
-          validate_data!(data)
-          data
-        end
-
-        def validate_data!(data)
-          if data[:Status].nil?
-            error = JSON.parse(data[:body], symbolize_names: true)
-            raise ServiceError, error[:Message]
+        def handle_response_data(response)
+          case response
+          when Hash
+            response[:Data]
+          else
+            error = JSON.parse(response.body, symbolize_names: true)
+            raise(StatusRetrieverError, error[:Message])
           end
         end
       end
