@@ -23,7 +23,7 @@ describe VANotify::FindInProgressForms do
 
       subject = described_class.new
 
-      expect(subject.to_notify).to match_array([in_progress_form_2.id, in_progress_form_1.id])
+      expect(subject.to_notify).to contain_exactly(in_progress_form_2.id, in_progress_form_1.id)
     end
 
     context 'only fetches saved forms based on the correct cadence' do

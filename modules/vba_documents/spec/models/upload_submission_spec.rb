@@ -379,21 +379,21 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload.status = 'uploaded'
       upload.save!
       elapsed = upload.metadata['status']['pending']['end'] - upload.metadata['status']['pending']['start']
-      expect(elapsed).to be == 60
+      expect(elapsed).to eq 60
     end
 
     it 'records status changes' do
       upload = VBADocuments::UploadSubmission.new
       upload.status = 'uploaded'
       upload.save!
-      expect(upload.metadata['status']['pending']['start'].class).to be == Integer
-      expect(upload.metadata['status']['pending']['end'].class).to be == Integer
-      expect(upload.metadata['status']['uploaded']['start'].class).to be == Integer
-      expect(upload.metadata['status']['uploaded']['end'].class).to be == NilClass
+      expect(upload.metadata['status']['pending']['start'].class).to eq Integer
+      expect(upload.metadata['status']['pending']['end'].class).to eq Integer
+      expect(upload.metadata['status']['uploaded']['start'].class).to eq Integer
+      expect(upload.metadata['status']['uploaded']['end'].class).to eq NilClass
       upload.status = 'error'
       upload.save!
-      expect(upload.metadata['status']['uploaded']['end'].class).to be == Integer
-      expect(upload.metadata['status']['error']['start'].class).to be == Integer
+      expect(upload.metadata['status']['uploaded']['end'].class).to eq Integer
+      expect(upload.metadata['status']['error']['start'].class).to eq Integer
     end
 
     it 'records status changes after being found' do
@@ -403,8 +403,8 @@ describe VBADocuments::UploadSubmission, type: :model do
       found = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       found.status = 'error'
       found.save!
-      expect(found.metadata['status']['uploaded']['end'].class).to be == Integer
-      expect(found.metadata['status']['error']['start'].class).to be == Integer
+      expect(found.metadata['status']['uploaded']['end'].class).to eq Integer
+      expect(found.metadata['status']['error']['start'].class).to eq Integer
     end
 
     it 'does not allow the same guid used twice' do

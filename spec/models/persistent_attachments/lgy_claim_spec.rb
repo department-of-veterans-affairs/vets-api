@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe PersistentAttachments::LgyClaim, uploader_helpers: true do
+RSpec.describe PersistentAttachments::LgyClaim, :uploader_helpers do
   let(:file) { Rails.root.join('spec', 'fixtures', 'files', 'marriage-certificate.pdf') }
   let(:instance) { described_class.new(form_id: '28-1880') }
 

@@ -839,16 +839,8 @@ RSpec.describe 'Claims', type: :request do
                         .and_return(local_bgs_service)
 
                       allow(local_bgs_service)
-                        .to receive(:find_benefit_claim_details_by_benefit_claim_id)
-                        .and_return(bgs_claim)
-
-                      allow(local_bgs_service)
-                        .to receive(:find_by_ssn)
-                        .and_return(nil)
-
-                      allow(local_bgs_service)
-                        .to receive(:find_tracked_items)
-                        .and_return({ dvlpmt_items: [] })
+                        .to receive_messages(find_benefit_claim_details_by_benefit_claim_id: bgs_claim,
+                                             find_by_ssn: nil, find_tracked_items: { dvlpmt_items: [] })
 
                       get claim_by_id_path, headers: auth_header
 

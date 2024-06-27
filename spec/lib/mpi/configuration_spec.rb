@@ -7,13 +7,11 @@ describe MPI::Configuration do
   describe '.ssl_options' do
     context 'when there are no SSL options' do
       before do
-        allow(MPI::Configuration.instance).to receive(:ssl_cert).and_return(nil)
-        allow(MPI::Configuration.instance).to receive(:ssl_key).and_return(nil)
+        allow(MPI::Configuration.instance).to receive_messages(ssl_cert: nil, ssl_key: nil)
       end
 
       it 'returns nil' do
-        allow(MPI::Configuration.instance).to receive(:ssl_cert).and_return(nil)
-        allow(MPI::Configuration.instance).to receive(:ssl_key).and_return(nil)
+        allow(MPI::Configuration.instance).to receive_messages(ssl_cert: nil, ssl_key: nil)
         expect(MPI::Configuration.instance.ssl_options).to be_nil
       end
     end

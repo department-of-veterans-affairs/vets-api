@@ -10,8 +10,7 @@ describe EVSS::PCIUAddress::ResponseStrategy do
   let(:countries_response) { EVSS::PCIUAddress::CountriesResponse.new(200, faraday_response) }
 
   before do
-    allow(faraday_response).to receive(:status).and_return(200)
-    allow(faraday_response).to receive(:body).and_return(cnp_countries: %w[Afghanistan Albania Algeria])
+    allow(faraday_response).to receive_messages(status: 200, body: { cnp_countries: %w[Afghanistan Albania Algeria] })
   end
 
   describe '#cache_or_service' do

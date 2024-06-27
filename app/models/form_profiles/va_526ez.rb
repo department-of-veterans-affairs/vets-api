@@ -82,11 +82,31 @@ class FormProfiles::VA526ez < FormProfile
   attribute :toxic_exposure, VA526ez::FormToxicExposure
 
   def prefill
-    @rated_disabilities_information = initialize_rated_disabilities_information
-    @veteran_contact_information = initialize_veteran_contact_information
-    @payment_information = initialize_payment_information
     @toxic_exposure = initialize_toxic_exposure
-    super
+
+    begin
+      @rated_disabilities_information = initialize_rated_disabilities_information
+    rescue => e
+      Rails.logger.error("Form526 Prefill for rated disabilities failed. #{e.message}")
+    end
+
+    begin
+      @veteran_contact_information = initialize_veteran_contact_information
+    rescue => e
+      Rails.logger.error("Form526 Prefill for veteran contact information failed. #{e.message}")
+    end
+
+    begin
+      @payment_information = initialize_payment_information
+    rescue => e
+      Rails.logger.error("Form526 Prefill for payment information failed. #{e.message}")
+    end
+
+    prefill_base_class_methods
+
+    mappings = self.class.mappings_for_form(form_id)
+    form_data = generate_prefill(mappings)
+    { form_data:, metadata: }
   end
 
   def metadata
@@ -121,6 +141,26 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   private
+
+  def prefill_base_class_methods
+    begin
+      @identity_information = initialize_identity_information
+    rescue => e
+      Rails.logger.error("Form526 Prefill for identity information failed. #{e.message}")
+    end
+
+    begin
+      @contact_information = initialize_contact_information
+    rescue => e
+      Rails.logger.error("Form526 Prefill for contact information failed. #{e.message}")
+    end
+
+    begin
+      @military_information = initialize_military_information
+    rescue => e
+      Rails.logger.error("Form526 Prefill for military information failed. #{e.message}")
+    end
+  end
 
   def initialize_toxic_exposure
     VA526ez::FormToxicExposure.new(
@@ -158,9 +198,9 @@ class FormProfiles::VA526ez < FormProfile
     # from VA Profile alone versus VA Profile + PCIU. This logging will be removed when the Flipper flag is.
     Rails.logger.info("disability_compensation_remove_pciu=#{Flipper.enabled?(:disability_compensation_remove_pciu,
                                                                               user)}," \
-                      "mailing_address=#{contact_info[:mailing_address].present?}," \
-                      "email_address=#{contact_info[:email_address].present?}," \
-                      "primary_phone=#{contact_info[:primary_phone].present?}")
+                        "mailing_address=#{contact_info[:mailing_address].present?}," \
+                        "email_address=#{contact_info[:email_address].present?}," \
+                        "primary_phone=#{contact_info[:primary_phone].present?}")
 
     contact_info = VA526ez::FormContactInformation.new(contact_info)
 

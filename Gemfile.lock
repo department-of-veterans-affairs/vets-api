@@ -252,15 +252,15 @@ GEM
       aws-partitions (~> 1, >= 1.651.0)
       aws-sigv4 (~> 1.8)
       jmespath (~> 1, >= 1.6.1)
-    aws-sdk-kms (1.85.0)
-      aws-sdk-core (~> 3, >= 3.197.0)
+    aws-sdk-kms (1.87.0)
+      aws-sdk-core (~> 3, >= 3.199.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-s3 (1.154.0)
       aws-sdk-core (~> 3, >= 3.199.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.8)
-    aws-sdk-sns (1.78.0)
-      aws-sdk-core (~> 3, >= 3.198.0)
+    aws-sdk-sns (1.79.0)
+      aws-sdk-core (~> 3, >= 3.199.0)
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.8.0)
       aws-eventstream (~> 1, >= 1.0.2)
@@ -719,7 +719,7 @@ GEM
     parallel (1.25.1)
     parallel_tests (4.7.1)
       parallel
-    parser (3.3.2.0)
+    parser (3.3.3.0)
       ast (~> 2.4.1)
       racc
     patience_diff (1.2.0)
@@ -929,23 +929,21 @@ GEM
       unicode-display_width (>= 2.4.0, < 3.0)
     rubocop-ast (1.31.3)
       parser (>= 3.3.1.0)
-    rubocop-capybara (2.20.0)
+    rubocop-capybara (2.21.0)
       rubocop (~> 1.41)
-    rubocop-factory_bot (2.25.1)
-      rubocop (~> 1.41)
+    rubocop-factory_bot (2.26.1)
+      rubocop (~> 1.61)
     rubocop-junit-formatter (0.1.4)
     rubocop-rails (2.25.0)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
-    rubocop-rspec (2.30.0)
-      rubocop (~> 1.40)
-      rubocop-capybara (~> 2.17)
-      rubocop-factory_bot (~> 2.22)
-      rubocop-rspec_rails (~> 2.28)
-    rubocop-rspec_rails (2.28.3)
-      rubocop (~> 1.40)
+    rubocop-rspec (3.0.1)
+      rubocop (~> 1.61)
+    rubocop-rspec_rails (2.30.0)
+      rubocop (~> 1.61)
+      rubocop-rspec (~> 3, >= 3.0.1)
     rubocop-thread_safety (0.5.1)
       rubocop (>= 0.90.0)
     ruby-progressbar (1.13.0)
@@ -1257,9 +1255,12 @@ DEPENDENCIES
   rswag-specs
   rswag-ui
   rubocop
+  rubocop-capybara
+  rubocop-factory_bot
   rubocop-junit-formatter
   rubocop-rails
   rubocop-rspec
+  rubocop-rspec_rails
   rubocop-thread_safety
   ruby-saml
   rubyzip

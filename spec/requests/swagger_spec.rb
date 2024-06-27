@@ -1820,8 +1820,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
     context 'without EVSS mock' do
       before do
-        allow(Settings.evss).to receive(:mock_gi_bill_status).and_return(false)
-        allow(Settings.evss).to receive(:mock_letters).and_return(false)
+        allow(Settings.evss).to receive_messages(mock_gi_bill_status: false, mock_letters: false)
       end
 
       it 'supports getting EVSS Letters' do
@@ -1861,7 +1860,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       let(:user) { build(:user, middle_name: 'Lee') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
 
-      it 'supports getting user with some external errors', skip_mvi: true do
+      it 'supports getting user with some external errors', :skip_mvi do
         expect(subject).to validate(:get, '/v0/user', 296, headers)
       end
     end

@@ -185,11 +185,8 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_travel_btsss_ssm_urls_enabled').and_return(false)
 
-    allow(redis_client).to receive(:patient_cell_phone).and_return(patient_cell_phone)
-    allow(redis_client).to receive(:token).and_return(redis_token)
-    allow(redis_client).to receive(:icn).and_return(icn)
-    allow(redis_client).to receive(:station_number).and_return(station_number)
-    allow(redis_client).to receive(:facility_type).and_return(nil)
+    allow(redis_client).to receive_messages(patient_cell_phone:, token: redis_token, icn:,
+                                            station_number:, facility_type: nil)
 
     allow(StatsD).to receive(:increment)
   end

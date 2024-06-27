@@ -215,8 +215,11 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'rswag-specs'
   gem 'rubocop', require: false
+  gem 'rubocop-capybara'
+  gem 'rubocop-factory_bot'
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
+  gem 'rubocop-rspec_rails'
   gem 'rubocop-thread_safety'
   gem 'sidekiq', '~> 7.2.0'
   gem 'timecop'
