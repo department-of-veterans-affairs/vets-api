@@ -4,7 +4,6 @@ require 'debts_api/v0/fsr_form_transform/additional_data_calculator'
 require 'debts_api/v0/fsr_form_transform/asset_calculator'
 require 'debts_api/v0/fsr_form_transform/expense_calculator'
 require 'debts_api/v0/fsr_form_transform/income_calculator'
-require 'debts_api/v0/fsr_form_transform/bankruptcy_calculator'
 require 'debts_api/v0/fsr_form_transform/discretionary_income_calculator'
 require 'debts_api/v0/fsr_form_transform/installment_contracts_other_debts_calculator'
 require 'debts_api/v0/fsr_form_transform/personal_data_calculator'
@@ -22,7 +21,6 @@ module DebtsApi
           @assets = AssetCalculator.new(form).transform_assets
           @income = IncomeCalculator.new(form).get_transformed_income
           @expenses = ExpenseCalculator.build(form).transform_expenses
-          @bankruptcy = BankruptcyCalculator.new(form).get_bankruptcy_data
           @additional_data = AdditionalDataCalculator.new(form).get_data
           @discretionary_income = DiscretionaryIncomeCalculator.new(form).get_data
           installment_calculator = InstallmentContractsOtherDebtsCalculator.new(form)

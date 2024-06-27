@@ -19,6 +19,9 @@ module MAP
         token
       rescue Common::Client::Errors::ClientError => e
         parse_and_raise_error(e, icn, application)
+      rescue Common::Exceptions::GatewayTimeout => e
+        Rails.logger.error("#{config.logging_prefix} token failed, gateway timeout", application:, icn:)
+        raise e
       rescue Errors::ApplicationMismatchError => e
         Rails.logger.error(e.message, application:, icn:)
         raise e

@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'legacy claims document upload', skip_json_api_validation: true, type: :request do
+RSpec.describe 'legacy claims document upload', :skip_json_api_validation, type: :request do
   include JsonSchemaMatchers
 
   before do
