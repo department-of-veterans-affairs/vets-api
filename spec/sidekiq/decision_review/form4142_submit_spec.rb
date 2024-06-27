@@ -50,9 +50,9 @@ RSpec.describe DecisionReview::Form4142Submit, type: :job do
         end
 
         it 'generates a 4142 PDF and sends it to Lighthouse API' do
-          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
-              with_settings(Settings.lighthouse.benefits_intake, api_key: 'fake_api_key') do
+          with_settings(Settings.lighthouse.benefits_intake, api_key: 'fake_api_key') do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
                 expect do
                   form4142 = request_body['form4142']
                   payload = get_and_rejigger_required_info(
