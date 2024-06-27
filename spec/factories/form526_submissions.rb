@@ -261,7 +261,7 @@ FactoryBot.define do
   trait :with_submitted_claim_id do
     submitted_claim_id { 1 }
   end
-  spec/models/form526_submission_spec.rb
+
   trait :with_accepted_backup_status do
     backup_submitted_claim_status { :accepted }
   end
