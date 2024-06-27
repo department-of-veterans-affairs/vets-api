@@ -62,8 +62,7 @@ RSpec.describe VAOS::V2::ClinicsController, type: :controller do
 
     context 'when clinic is nil' do
       it 'logs "Appointment does not have clinic"' do
-        allow(appt).to receive(:location_id).and_return('location')
-        allow(appt).to receive(:clinic).and_return(nil)
+        allow(appt).to receive_messages(location_id: 'location', clinic: nil)
         expect(mock_logger).to receive(:info).with('VAOS last_visited_clinic', 'Appointment does not have clinic id')
         subject.send(:log_unable_to_lookup_clinic, appt)
       end
@@ -71,8 +70,7 @@ RSpec.describe VAOS::V2::ClinicsController, type: :controller do
 
     context 'when all attributes are present' do
       it 'does not log any message' do
-        allow(appt).to receive(:location_id).and_return('location')
-        allow(appt).to receive(:clinic).and_return('clinic')
+        allow(appt).to receive_messages(location_id: 'location', clinic: 'clinic')
         expect(mock_logger).not_to receive(:info)
         subject.send(:log_unable_to_lookup_clinic, appt)
       end

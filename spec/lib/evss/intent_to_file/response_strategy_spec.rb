@@ -12,18 +12,15 @@ describe EVSS::IntentToFile::ResponseStrategy do
   let(:itf_type) { 'compensation' }
 
   before do
-    allow(faraday_response).to receive(:status).and_return(200)
-    allow(faraday_response).to receive(:body).and_return(
-      intent_to_file: {
-        'creation_date' => '2017-06-06T17:31:01+0000',
-        'expiration_date' => '2018-06-06T17:31:01+0000',
-        'id' => '1',
-        'participant_id' => 1,
-        'source' => 'VETS.GOV',
-        'status' => 'active',
-        'type' => 'compensation'
-      }
-    )
+    allow(faraday_response).to receive_messages(status: 200, body: { intent_to_file: {
+                                                  'creation_date' => '2017-06-06T17:31:01+0000',
+                                                  'expiration_date' => '2018-06-06T17:31:01+0000',
+                                                  'id' => '1',
+                                                  'participant_id' => 1,
+                                                  'source' => 'VETS.GOV',
+                                                  'status' => 'active',
+                                                  'type' => 'compensation'
+                                                } })
   end
 
   after { Timecop.return }

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Mobile::V0::Adapters::LighthouseIndividualClaims, aggregate_failures: true do
+describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures do
   def claim_data
     JSON.parse(claims_fixture, symbolize_names: false)
   end

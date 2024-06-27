@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'lib/saved_claims_spec_helper'
 
-RSpec.describe SavedClaim::Pension, uploader_helpers: true do
+RSpec.describe SavedClaim::Pension, :uploader_helpers do
   subject { described_class.new }
 
   let(:instance) { FactoryBot.build(:pension_claim) }

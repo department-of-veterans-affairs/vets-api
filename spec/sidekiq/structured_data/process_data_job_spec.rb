@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe StructuredData::ProcessDataJob, uploader_helpers: true do
+RSpec.describe StructuredData::ProcessDataJob, :uploader_helpers do
   stub_virus_scan
   let(:pension_burial) { create(:pension_burial) }
   let(:claim) { pension_burial.saved_claim }

@@ -193,7 +193,7 @@ RSpec.describe 'letters', type: :request do
         }
       end
 
-      it 'downloads a PDF', skip_json_api_validation: true do
+      it 'downloads a PDF', :skip_json_api_validation do
         VCR.use_cassette('evss/letters/download_options') do
           post '/mobile/v0/letters/commissary/download', params: options, headers: sis_headers
           expect(response).to have_http_status(:ok)

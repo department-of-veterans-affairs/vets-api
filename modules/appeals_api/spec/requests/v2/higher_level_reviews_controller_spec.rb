@@ -183,7 +183,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         error = parsed['errors'][0]
         expect(error['title']).to eq 'Missing required fields'
         expect(error['code']).to eq '145'
-        expect(error['meta']['missing_fields']).to match_array(['address'])
+        expect(error['meta']['missing_fields']).to contain_exactly('address')
       end
     end
 

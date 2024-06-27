@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
+describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   # while hashes will work for these tests, this better reflects the data returned from the VAOS service
   def appointment_data(index = nil)
     parsed = JSON.parse(appointment_fixtures, symbolize_names: true)

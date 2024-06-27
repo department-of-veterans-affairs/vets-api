@@ -110,8 +110,7 @@ RSpec.describe SignIn::SessionCreator do
         end
 
         before do
-          allow(SecureRandom).to receive(:hex).and_return(stubbed_random_number)
-          allow(SecureRandom).to receive(:uuid).and_return(expected_handle)
+          allow(SecureRandom).to receive_messages(hex: stubbed_random_number, uuid: expected_handle)
           allow(Time.zone).to receive(:now).and_return(expected_created_time)
         end
 
@@ -188,8 +187,7 @@ RSpec.describe SignIn::SessionCreator do
         end
 
         before do
-          allow(SecureRandom).to receive(:hex).and_return(stubbed_random_number)
-          allow(SecureRandom).to receive(:uuid).and_return(expected_handle)
+          allow(SecureRandom).to receive_messages(hex: stubbed_random_number, uuid: expected_handle)
         end
 
         it 'returns a Session Container with expected Refresh Token and fields' do
@@ -231,8 +229,7 @@ RSpec.describe SignIn::SessionCreator do
         let(:expected_last_regeneration_time) { Time.zone.now }
 
         before do
-          allow(SecureRandom).to receive(:hex).and_return(stubbed_random_number)
-          allow(SecureRandom).to receive(:uuid).and_return(expected_handle)
+          allow(SecureRandom).to receive_messages(hex: stubbed_random_number, uuid: expected_handle)
           allow(Time.zone).to receive(:now).and_return(expected_last_regeneration_time)
         end
 

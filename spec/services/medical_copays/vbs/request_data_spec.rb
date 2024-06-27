@@ -14,9 +14,8 @@ RSpec.describe MedicalCopays::VBS::RequestData do
   end
 
   before do
-    allow(user).to receive(:vha_facility_hash).and_return(facility_vista_data)
-    allow(user).to receive(:edipi).and_return('123')
-    allow(user).to receive(:va_treatment_facility_ids).and_return(facility_vista_data.keys)
+    allow(user).to receive_messages(vha_facility_hash: facility_vista_data, edipi: '123',
+                                    va_treatment_facility_ids: facility_vista_data.keys)
   end
 
   describe 'attributes' do
@@ -71,8 +70,7 @@ RSpec.describe MedicalCopays::VBS::RequestData do
 
     context 'when errors' do
       it 'returns false' do
-        allow(user).to receive(:edipi).and_return(1)
-        allow(user).to receive(:vha_facility_hash).and_return({})
+        allow(user).to receive_messages(edipi: 1, vha_facility_hash: {})
 
         expect(subject.valid?).to be(false)
       end

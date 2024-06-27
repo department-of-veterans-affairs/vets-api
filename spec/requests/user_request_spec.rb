@@ -67,7 +67,7 @@ RSpec.describe 'Fetching user data' do
     it 'gives me va profile cerner data' do
       va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
       expect(va_profile['is_cerner_patient']).to be false
-      expect(va_profile['facilities']).to match_array([{ 'facility_id' => '358', 'is_cerner' => false }])
+      expect(va_profile['facilities']).to contain_exactly({ 'facility_id' => '358', 'is_cerner' => false })
     end
 
     it 'returns patient status' do
@@ -158,7 +158,7 @@ RSpec.describe 'Fetching user data' do
       end
     end
 
-    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person', skip_vet360: true do
+    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person', :skip_vet360 do
       before do
         exception  = 'the server responded with status 503'
         error_body = { 'status' => 'some service unavailable status' }

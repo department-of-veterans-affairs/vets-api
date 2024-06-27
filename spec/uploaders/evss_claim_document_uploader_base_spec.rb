@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe EVSSClaimDocumentUploaderBase, uploader_helpers: true do
+describe EVSSClaimDocumentUploaderBase, :uploader_helpers do
   before do
     allow_any_instance_of(described_class).to receive(:max_file_size_non_pdf).and_return(100)
   end

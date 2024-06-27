@@ -35,20 +35,15 @@ describe AppealsApi::EvidenceSubmissionBackup, type: :job do
   # rubocop:disable RSpec/SubjectStub
   describe '#perform' do
     before do
-      allow(subject).to receive(:evidence_to_submit_by_status).and_return(
-        [
-          evidence_submission_appeal_success,
-          evidence_submission_appeal_complete
-        ]
-      )
       allow(evidence_submission_appeal_success).to receive(:submit_to_central_mail!)
       allow(evidence_submission_appeal_complete).to receive(:submit_to_central_mail!)
 
-      allow(subject).to receive(:evidence_to_submit_by_age).and_return(
-        [
-          evidence_submission_appeal_with_old_uploaded_status_updates
-        ]
-      )
+      allow(subject).to receive_messages(evidence_to_submit_by_status: [
+                                           evidence_submission_appeal_success,
+                                           evidence_submission_appeal_complete
+                                         ], evidence_to_submit_by_age: [
+                                           evidence_submission_appeal_with_old_uploaded_status_updates
+                                         ])
       allow(evidence_submission_appeal_with_old_uploaded_status_updates).to receive(:submit_to_central_mail!)
     end
 

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe VAOS::V2::SchedulingController, type: :request, skip_mvi: true do
+RSpec.describe VAOS::V2::SchedulingController, :skip_mvi, type: :request do
   include SchemaMatchers
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }

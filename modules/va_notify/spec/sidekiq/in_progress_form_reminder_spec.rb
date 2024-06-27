@@ -11,8 +11,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
     it 'fails if ICN is not present' do
       user_without_icn = double('VANotify::Veteran')
       allow(VANotify::Veteran).to receive(:new).and_return(user_without_icn)
-      allow(user_without_icn).to receive(:first_name).and_return('first_name')
-      allow(user_without_icn).to receive(:icn).and_return(nil)
+      allow(user_without_icn).to receive_messages(first_name: 'first_name', icn: nil)
 
       expect do
         described_class.new.perform(in_progress_form.id)
@@ -22,8 +21,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
 
     it 'skips sending reminder email if there is no first name' do
       veteran_double = double('VaNotify::Veteran')
-      allow(veteran_double).to receive(:icn).and_return('icn')
-      allow(veteran_double).to receive(:first_name).and_return(nil)
+      allow(veteran_double).to receive_messages(icn: 'icn', first_name: nil)
       allow(VANotify::Veteran).to receive(:new).and_return(veteran_double)
 
       allow(VANotify::IcnJob).to receive(:perform_async)
@@ -74,8 +72,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
 
       it 'skips email if its not the oldest in_progress_form' do
         veteran_double = double('VaNotify::Veteran')
-        allow(veteran_double).to receive(:icn).and_return('icn')
-        allow(veteran_double).to receive(:first_name).and_return('first_name')
+        allow(veteran_double).to receive_messages(icn: 'icn', first_name: 'first_name')
         allow(VANotify::Veteran).to receive(:new).and_return(veteran_double)
 
         allow(VANotify::IcnJob).to receive(:perform_async)

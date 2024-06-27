@@ -117,7 +117,6 @@ describe 'LGY API' do
           @lgy_service = double('LGY Service')
           # Simulate http response object
           @res = OpenStruct.new(body: File.read('spec/fixtures/files/lgy_file.pdf'))
-          allow(@lgy_service).to receive(:get_document).and_return @res
           lgy_documents_response_body = [{
             'id' => 123_456_789,
             'document_type' => '705',
@@ -126,7 +125,7 @@ describe 'LGY API' do
             'mime_type' => 'COE Application First Returned.pdf'
           }]
           lgy_documents_response = double(:lgy_documents_response, body: lgy_documents_response_body)
-          allow(@lgy_service).to receive(:get_coe_documents).and_return(lgy_documents_response)
+          allow(@lgy_service).to receive_messages(get_document: @res, get_coe_documents: lgy_documents_response)
           allow_any_instance_of(V0::CoeController).to receive(:lgy_service) { @lgy_service }
         end
 

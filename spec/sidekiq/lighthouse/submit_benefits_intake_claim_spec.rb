@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, uploader_helpers: true do
+RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
   stub_virus_scan
   let(:job) { described_class.new }
   let(:pension_burial) { create(:pension_burial) }
@@ -17,8 +17,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, uploader_helpers: true do
     before do
       allow(BenefitsIntakeService::Service).to receive(:new).and_return(service)
       allow(service).to receive(:uuid)
-      allow(service).to receive(:location).and_return(location)
-      allow(service).to receive(:upload_doc).and_return(response)
+      allow(service).to receive_messages(location:, upload_doc: response)
     end
 
     it 'submits the saved claim successfully' do
@@ -33,8 +32,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, uploader_helpers: true do
     end
 
     it 'submits and gets a response error' do
-      allow(response).to receive(:success?).and_return(false)
-      allow(response).to receive(:body).and_return('There was an error submitting the claim')
+      allow(response).to receive_messages(success?: false, body: 'There was an error submitting the claim')
       expect(job).to receive(:create_form_submission_attempt)
       expect(job).to receive(:generate_metadata).once
       expect(service).to receive(:upload_doc)
