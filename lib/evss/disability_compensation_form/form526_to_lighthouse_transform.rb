@@ -88,7 +88,9 @@ module EVSS
         transform_veteran_section(form526, lh_request_body)
 
         service_information = form526['serviceInformation']
-        lh_request_body.service_information = transform_service_information(service_information)
+        if service_information.present?
+          lh_request_body.service_information = transform_service_information(service_information)
+        end
 
         transform_disabilities_section(form526, lh_request_body)
 
@@ -171,6 +173,7 @@ module EVSS
 
       def transform_service_information(service_information_source)
         service_information = Requests::ServiceInformation.new
+
         transform_service_periods(service_information_source, service_information)
         if service_information_source['confinements']
           transform_confinements(service_information_source, service_information)
@@ -182,11 +185,13 @@ module EVSS
           transform_reserves_national_guard_service(service_information_source, service_information)
           reserves_national_guard_service_source =
             service_information_source['reservesNationalGuardService']['title10Activation']
-          # Title10Activation == FederalActivation
-          service_information.federal_activation = Requests::FederalActivation.new(
-            anticipated_separation_date: reserves_national_guard_service_source['anticipatedSeparationDate'],
-            activation_date: reserves_national_guard_service_source['title10ActivationDate']
-          )
+          if reserves_national_guard_service_source.present?
+            # Title10Activation == FederalActivation
+            service_information.federal_activation = Requests::FederalActivation.new(
+              anticipated_separation_date: reserves_national_guard_service_source['anticipatedSeparationDate'],
+              activation_date: reserves_national_guard_service_source['title10ActivationDate']
+            )
+          end
         end
 
         service_information
@@ -275,8 +280,8 @@ module EVSS
             transform_multiple_exposures_other_details(toxic_exposure_source['otherHerbicideLocations'],
                                                        MULTIPLE_EXPOSURES_TYPE[:herbicide])
         end
-        if toxic_exposure_source['otherExposureDetails'].present?
-          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['otherExposureDetails'],
+        if toxic_exposure_source['otherExposuresDetails'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['otherExposuresDetails'],
                                                              MULTIPLE_EXPOSURES_TYPE[:hazard])
         end
         if values_present(toxic_exposure_source['specifyOtherExposures'])
@@ -322,10 +327,12 @@ module EVSS
 
         obj.exposure_dates.begin_date = convert_date_no_day(details['startDate']) if details['startDate'].present?
         obj.exposure_dates.end_date = convert_date_no_day(details['endDate']) if details['endDate'].present?
-        if multiple_exposures_type == MULTIPLE_EXPOSURES_TYPE[:hazard]
-          obj.hazard_exposed_to = details['description'] if details['description'].present?
-        elsif details['description'].present?
-          obj.exposure_location = details['description']
+        if details['description'].present?
+          if multiple_exposures_type == MULTIPLE_EXPOSURES_TYPE[:hazard]
+            obj.hazard_exposed_to = details['description']
+          else
+            obj.exposure_location = details['description']
+          end
         end
 
         [obj]
@@ -409,10 +416,13 @@ module EVSS
         separation_pay_payment_source = separation_pay_source['payment'] if separation_pay_source.present?
         if separation_pay_payment_source.present?
           service_pay_target.separation_severance_pay = Requests::SeparationSeverancePay.new(
-            date_payment_received: convert_approximate_date(separation_pay_source['receivedDate']),
             branch_of_service: separation_pay_payment_source['serviceBranch'],
             pre_tax_amount_received: separation_pay_payment_source['amount']
           )
+          if separation_pay_source['receivedDate']
+            service_pay_target.separation_severance_pay.date_payment_received =
+              convert_approximate_date(separation_pay_source['receivedDate'])
+          end
         end
       end
 

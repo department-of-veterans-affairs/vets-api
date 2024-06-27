@@ -91,4 +91,22 @@ RSpec.describe SignIn::SessionContainer, type: :model do
       end
     end
   end
+
+  describe '#context' do
+    subject { session_container.context }
+
+    let(:expected_context) do
+      {
+        user_uuid: session_container.access_token.user_uuid,
+        session_handle: session_container.session.handle,
+        client_id: session_container.session.client_id,
+        type: session.user_verification.credential_type,
+        icn: session.user_account.icn
+      }
+    end
+
+    it 'returns serialized access_token context details' do
+      expect(subject).to eq(expected_context)
+    end
+  end
 end

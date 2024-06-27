@@ -8,7 +8,7 @@ http_interactions:
       string: ''
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -176,7 +176,7 @@ http_interactions:
           </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Content-Type:
       - text/xml;charset=UTF-8
       Host:

@@ -40,6 +40,8 @@ describe VAOS::V2::AppointmentsService do
   end
   let(:appt_no_service_cat) { { kind: 'clinic' } }
 
+  let(:provider_name) { 'TEST PROVIDER NAME' }
+
   mock_facility = {
     test: 'test',
     timezone: {
@@ -271,7 +273,6 @@ describe VAOS::V2::AppointmentsService do
     context 'using VAOS' do
       before do
         Flipper.disable(:va_online_scheduling_use_vpg)
-        Flipper.disable(:va_online_scheduling_enable_OH_reads)
       end
 
       context 'when requesting a list of appointments given a date range' do
@@ -397,6 +398,32 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
+      context 'when requesting a list of appointments containing proposed or cancelled cc appointments' do
+        it 'fetches provider info for a proposed cc appointment' do
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility2)
+          allow_any_instance_of(VAOS::V2::AppointmentProviderName).to receive(
+            :form_names_from_appointment_practitioners_list
+          ).and_return(provider_name)
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_cc_proposed',
+                           allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
+            response = subject.get_appointments(start_date2, end_date2)
+            expect(response[:data][0][:preferred_provider_name]).not_to be_nil
+          end
+        end
+
+        it 'fetches provider info for a cancelled cc appointment' do
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility2)
+          allow_any_instance_of(VAOS::V2::AppointmentProviderName).to receive(
+            :form_names_from_appointment_practitioners_list
+          ).and_return(provider_name)
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_cc_cancelled',
+                           allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
+            response = subject.get_appointments(start_date2, end_date2)
+            expect(response[:data][0][:preferred_provider_name]).not_to be_nil
+          end
+        end
+      end
+
       context '400' do
         it 'raises a 400 error' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_400',
@@ -506,7 +533,6 @@ describe VAOS::V2::AppointmentsService do
   describe '#get_appointment' do
     context 'using VAOS' do
       before do
-        Flipper.disable(:va_online_scheduling_enable_OH_reads)
         Flipper.disable(:va_online_scheduling_use_vpg)
       end
 
@@ -601,7 +627,6 @@ describe VAOS::V2::AppointmentsService do
 
     context 'using VPG' do
       before do
-        Flipper.enable(:va_online_scheduling_enable_OH_reads)
         Flipper.enable(:va_online_scheduling_use_vpg)
       end
 
@@ -702,7 +727,6 @@ describe VAOS::V2::AppointmentsService do
           before do
             Flipper.enable(:va_online_scheduling_enable_OH_cancellations)
             Flipper.enable(:va_online_scheduling_use_vpg)
-            Flipper.enable(:va_online_scheduling_enable_OH_reads)
           end
 
           it 'returns a cancelled status and the cancelled appointment information' do
