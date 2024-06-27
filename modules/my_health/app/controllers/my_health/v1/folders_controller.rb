@@ -5,7 +5,7 @@ require_relative '../../concerns/my_health/json_api_pagination_links'
 module MyHealth
   module V1
     class FoldersController < SMController
-      include MyHealth::Concerns::MyHealth::JsonApiPaginationLinks
+      include MyHealth::JsonApiPaginationLinks
 
       def index
         resource = client.get_folders(@current_user.uuid, use_cache?)
