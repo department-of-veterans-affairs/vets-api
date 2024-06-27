@@ -623,6 +623,9 @@ features:
   form400247:
     actor_type: user
     description: If enabled shows the digital form experience for form 40-0247
+  form1010d:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
   form_upload_flow:
     actor_type: user
     description: If enabled shows the find-a-form widget for the Form Upload Flow
