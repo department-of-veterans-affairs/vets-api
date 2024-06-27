@@ -26,7 +26,7 @@
           "required": [
             "status",
             "declinedReason",
-            "representative"
+            "createdBy"
           ],
           "properties": {
             "status": {
@@ -45,7 +45,7 @@
               "description": "TODO",
               "nullable": true
             },
-            "representative": {
+            "createdBy": {
               "type": "object",
               "description": "TODO",
               "additionalProperties": false,
