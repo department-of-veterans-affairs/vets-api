@@ -42,12 +42,9 @@ module DebtsApi
           {
             'cashInBank' => '0.00',
             'cashOnHand' => '0.00',
-            'automobiles' => [],
-            'trailersBoatsCampers' => '0.00',
             'usSavingsBonds' => '0.00',
             'stocksAndOtherBonds' => '0.00',
             'realEstateOwned' => '0.00',
-            'otherAssets' => [],
             'totalAssets' => '0.00'
           }
         end
