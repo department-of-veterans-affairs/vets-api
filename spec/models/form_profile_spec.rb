@@ -12,6 +12,7 @@ RSpec.describe FormProfile, type: :model do
   before do
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
+    Flipper.disable(:disability_526_toxic_exposure)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
   end
 
@@ -749,7 +750,8 @@ RSpec.describe FormProfile, type: :model do
       'bankAccountNumber' => '*********1234',
       'bankAccountType' => 'Checking',
       'bankName' => 'Comerica',
-      'bankRoutingNumber' => '*****2115'
+      'bankRoutingNumber' => '*****2115',
+      'startedFormVersion' => '2022'
     }
   end
 
@@ -902,7 +904,8 @@ RSpec.describe FormProfile, type: :model do
         character_of_discharge_code: nil,
         deployments: [],
         end_date: '2018-10-31',
-        personnel_category_type_code: 'N',
+        period_of_service_type_code: 'N',
+        period_of_service_type_text: 'National Guard member',
         service_type: 'Military Service',
         termination_reason_code: 'C',
         termination_reason_text: 'Completion of Active Service period'
@@ -914,7 +917,8 @@ RSpec.describe FormProfile, type: :model do
         character_of_discharge_code: nil,
         deployments: [],
         end_date: '2012-12-31',
-        personnel_category_type_code: 'N',
+        period_of_service_type_code: 'N',
+        period_of_service_type_text: 'National Guard member',
         service_type: 'Military Service',
         termination_reason_code: 'C',
         termination_reason_text: 'Completion of Active Service period'
@@ -926,7 +930,8 @@ RSpec.describe FormProfile, type: :model do
         character_of_discharge_code: nil,
         deployments: [],
         end_date: '2008-12-01',
-        personnel_category_type_code: 'N',
+        period_of_service_type_code: 'N',
+        period_of_service_type_text: 'National Guard member',
         service_type: 'Military Service',
         termination_reason_code: 'C',
         termination_reason_text: 'Completion of Active Service period'
@@ -977,7 +982,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  describe '#initialize_military_information', skip_va_profile: true do
+  describe '#initialize_military_information', :skip_va_profile do
     context 'with military_information vaprofile' do
       it 'prefills military data from va profile' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
@@ -1259,7 +1264,7 @@ RSpec.describe FormProfile, type: :model do
         expect(user.authorize(:mdot, :access?)).to eq(true)
       end
 
-      it 'returns a prefilled MDOT form', skip_va_profile: true do
+      it 'returns a prefilled MDOT form', :skip_va_profile do
         VCR.use_cassette('mdot/get_supplies_200') do
           expect_prefilled('MDOT')
         end
@@ -1345,7 +1350,7 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
-    context 'when VA Profile returns 404', skip_va_profile: true do
+    context 'when VA Profile returns 404', :skip_va_profile do
       it 'returns default values' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_404',
                          allow_playback_repeats: true, match_requests_on: %i[method body]) do
@@ -1370,7 +1375,7 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
-    context 'when VA Profile returns 500', skip_va_profile: true do
+    context 'when VA Profile returns 500', :skip_va_profile do
       it 'sends a BackendServiceException to Sentry and returns and empty hash' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_500',
                          allow_playback_repeats: true, match_requests_on: %i[method uri]) do
@@ -1397,7 +1402,7 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
-    context 'with military information data', skip_va_profile: true do
+    context 'with military information data', :skip_va_profile do
       context 'with va profile prefill on' do
         before do
           VAProfile::Configuration::SETTINGS.prefill = true
@@ -1497,7 +1502,7 @@ RSpec.describe FormProfile, type: :model do
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           v22_10203_expected['remainingEntitlement'] = {
             'months' => 0,
-            'days' => 12
+            'days' => 10
           }
           v22_10203_expected['schoolName'] = 'OLD DOMINION UNIVERSITY'
           v22_10203_expected['schoolCity'] = 'NORFOLK'
@@ -1508,14 +1513,17 @@ RSpec.describe FormProfile, type: :model do
         it 'prefills 10203 with VA Profile and entitlement information' do
           VCR.use_cassette('evss/pciu_address/address_domestic') do
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-              VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
+              VCR.use_cassette('form_10203/gi_bill_status_200_response') do
                 VCR.use_cassette('gi_client/gets_the_institution_details') do
                   VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                    allow_playback_repeats: true) do
+                    expect(BenefitsEducation::Service).to receive(:new).with(user.icn).and_call_original
+
                     prefilled_data = Oj.load(
                       described_class.for(form_id: '22-10203', user:).prefill.to_json
                     )['form_data']
-                    expect(prefilled_data).to eq(form_profile.send(:clean!, v22_10203_expected))
+                    actual = form_profile.send(:clean!, v22_10203_expected)
+                    expect(prefilled_data).to eq(actual)
                   end
                 end
               end
@@ -1584,6 +1592,7 @@ RSpec.describe FormProfile, type: :model do
             it 'returns prefilled 21-526EZ' do
               Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
               Flipper.disable(:disability_compensation_remove_pciu)
+              Flipper.enable(:disability_526_toxic_exposure, user)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                   VCR.use_cassette('evss/ppiu/payment_information') do
@@ -1616,6 +1625,7 @@ RSpec.describe FormProfile, type: :model do
 
             it 'returns prefilled 21-526EZ' do
               Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
+              Flipper.enable(:disability_526_toxic_exposure, user)
               expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
               expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
               VCR.use_cassette('evss/pciu_address/address_domestic') do

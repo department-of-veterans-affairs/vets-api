@@ -68,7 +68,7 @@ module Vye
     end
 
     def load_awards(awards)
-      awards.each do |attributes|
+      awards&.each do |attributes|
         user_info.awards.create!(attributes)
       end
     end

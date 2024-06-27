@@ -1,0 +1,75 @@
+---
+:profile:
+  :ssn: '796123607'
+  :file_number: '796123607'
+  :icn: 1012740600V714187
+:info:
+  :file_number: '796123607'
+  :dob: 1981-01-09
+  :stub_nm: JLWEAVE
+  :mr_status: A
+  :rem_ent: '1354063'
+  :cert_issue_date: 2019-01-28
+  :del_date: 2025-11-19
+  :date_last_certified: 2024-04-21
+  :rpo_code: 3233
+  :fac_code: aut
+  :payment_amt: 5001.62
+  :indicator: A
+  :bdn_clone_active: true
+:address:
+  :veteran_name: Johnnie Leonard Weaver
+  :address1: 843 Ritchie Forge
+  :city: East Nelson
+  :state: VT
+  :zip_code: '31588'
+  :origin: backend
+:awards:
+- :cur_award_ind: P
+  :award_begin_date: 2023-12-27
+  :award_end_date: 2024-01-20
+  :training_time: 4
+  :payment_date:
+  :monthly_rate: 1488.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: C
+  :award_begin_date: 2024-01-23
+  :award_end_date: 2024-03-25
+  :training_time: 3
+  :payment_date:
+  :monthly_rate: 1176.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: F
+  :award_begin_date: 2024-03-25
+  :award_end_date: 2024-05-16
+  :training_time: 4
+  :payment_date:
+  :monthly_rate: 1488.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: F
+  :award_begin_date: 2024-05-16
+  :award_end_date: 2024-05-18
+  :training_time: 1
+  :payment_date:
+  :monthly_rate: 725.09
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+:pending_documents:
+- :doc_type: itaque
+  :queue_date: 2024-05-06
+  :rpo: magni

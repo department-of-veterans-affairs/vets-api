@@ -60,6 +60,10 @@ module CentralMail
 
       StatsD.increment("#{api_statsd_key}.exhausted")
 
+      if Flipper.enabled?(:form526_send_4142_failure_notification)
+        EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(form526_submission_id)
+      end
+
       ::Rails.logger.warn(
         'Submit Form 4142 Retries exhausted',
         { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }

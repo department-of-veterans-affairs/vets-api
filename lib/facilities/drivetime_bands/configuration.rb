@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/rest'
-require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/raise_custom_error'
 
 module Facilities
   module DrivetimeBands
@@ -19,7 +19,7 @@ module Facilities
           conn.use :breakers
           conn.request :json
 
-          conn.response :raise_error, error_prefix: service_name
+          conn.response :raise_custom_error, error_prefix: service_name
           conn.response :betamocks if Settings.locators.mock_gis
 
           conn.adapter Faraday.default_adapter

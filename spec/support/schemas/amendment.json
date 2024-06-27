@@ -1,26 +1,43 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "required": [ "type" ],
+  "required": [
+    "type"
+  ],
   "additionalProperties": false,
   "properties": {
     "on_campus_hours": {
-      "type": "number"
+      "type": [
+        "number",
+        "null"
+      ]
     },
     "online_hours": {
-      "type": "number"
+      "type": [
+        "number",
+        "null"
+      ]
     },
     "yellow_ribbon_amount": {
       "type": "number"
     },
     "type": {
-      "type": "string"
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "status": {
-      "type": "string"
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "change_effective_date": {
-      "type": "string"
+      "type": [
+        "string",
+        "null"
+      ]
     }
   }
 }

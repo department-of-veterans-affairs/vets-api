@@ -6,10 +6,7 @@ module Vye
       class EmptyAwards < StandardError; end
       class AwardsMismatch < StandardError; end
 
-      include Pundit::Authorization
       include Vye::Ivr
-
-      service_tag 'verify-your-enrollment'
 
       rescue_from EmptyAwards, with: -> { head :unprocessable_entity }
       rescue_from AwardsMismatch, with: -> { head :unprocessable_entity }
@@ -32,7 +29,7 @@ module Vye
       private
 
       def award_ids
-        transformed_params.fetch(:award_ids, []).map(&:to_i)
+        params.fetch(:award_ids, []).map(&:to_i)
       end
 
       def matching_awards?
@@ -54,12 +51,6 @@ module Vye
         return super(scoped:) unless api_key?
 
         @user_info = user_info_for_ivr(scoped:)
-      end
-
-      protected
-
-      def transformed_params
-        @transform_params ||= params.deep_transform_keys!(&:underscore)
       end
     end
   end

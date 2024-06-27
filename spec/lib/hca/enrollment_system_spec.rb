@@ -909,6 +909,100 @@ describe HCA::EnrollmentSystem do
     ]
   )
 
+  describe '#veteran_to_tera' do
+    test_method(
+      described_class,
+      'veteran_to_tera',
+      [
+        [
+          { 'hasTeraResponse' => false },
+          {}
+        ],
+        [
+          {
+            'hasTeraResponse' => true
+          },
+          {
+            'supportOperationsInd' => false
+          }
+        ],
+        [
+          {
+            'hasTeraResponse' => true,
+            'combatOperationService' => true
+          },
+          {
+            'supportOperationsInd' => true
+          }
+        ],
+        [
+          {
+            'hasTeraResponse' => true,
+            'gulfWarService' => true,
+            'gulfWarStartDate' => '1993-16-08',
+            'gulfWarEndDate' => '1994-16-07'
+          },
+          {
+            'supportOperationsInd' => false,
+            'gulfWarHazard' => {
+              'gulfWarHazardInd' => true,
+              'fromDate' => '08/16/1993',
+              'toDate' => '07/16/1994'
+            }
+          }
+        ]
+      ]
+    )
+  end
+
+  describe '#veteran_to_toxic_exposure' do
+    test_method(
+      described_class,
+      'veteran_to_toxic_exposure',
+      [
+        [
+          {},
+          {}
+        ],
+        [
+          {
+            'exposureToAirPollutants' => 'true',
+            'toxicExposureStartDate' => '1980-16-08',
+            'toxicExposureEndDate' => '1989-13-08'
+          },
+          {
+            'toxicExposure' => {
+              'exposureCategories' => {
+                'exposureCategory' => ['Air Pollutants']
+              },
+              'otherText' => nil,
+              'fromDate' => '08/16/1980',
+              'toDate' => '08/13/1989'
+            }
+          }
+        ],
+        [
+          {
+            'exposureToOther' => 'true',
+            'otherToxicExposure' => 'other exposure text value here',
+            'toxicExposureStartDate' => '1980-16-08',
+            'toxicExposureEndDate' => '1989-13-08'
+          },
+          {
+            'toxicExposure' => {
+              'exposureCategories' => {
+                'exposureCategory' => ['Other']
+              },
+              'otherText' => 'other exposure text value here',
+              'fromDate' => '08/16/1980',
+              'toDate' => '08/13/1989'
+            }
+          }
+        ]
+      ]
+    )
+  end
+
   test_method(
     described_class,
     'veteran_to_financials_info',

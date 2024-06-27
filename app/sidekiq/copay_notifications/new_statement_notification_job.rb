@@ -14,6 +14,8 @@ module CopayNotifications
   class NewStatementNotificationJob
     include Sidekiq::Job
     include SentryLogging
+    MCP_NOTIFICATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.vha_new_copay_statement_email
+    STATSD_KEY_PREFIX = 'api.copay_notifications.new_statement'
 
     sidekiq_options retry: 5
 
@@ -26,8 +28,14 @@ module CopayNotifications
       end
     end
 
-    MCP_NOTIFICATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.vha_new_copay_statement_email
-    STATSD_KEY_PREFIX = 'api.copay_notifications.new_statement'
+    sidekiq_retries_exhausted do |_msg, ex|
+      StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
+      Rails.logger.error <<~LOG
+        NewStatementNotificationJob retries exhausted:
+        Exception: #{ex.class} - #{ex.message}
+        Backtrace: #{ex.backtrace.join("\n")}
+      LOG
+    end
 
     def perform(statement)
       # rubocop:disable Lint/UselessAssignment

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'mobile/v0/exceptions/custom_errors'
+
 module Mobile
   module V0
     class AppointmentsController < ApplicationController
@@ -9,6 +11,7 @@ module Mobile
       after_action :clear_appointments_cache, only: %i[cancel create]
 
       def index
+        staging_custom_error
         appointments, failures = fetch_appointments
         appointments = filter_by_date_range(appointments)
         partial_errors = partial_errors(failures)
@@ -87,7 +90,7 @@ module Mobile
       # The mobile app does not distinguish between VA and CC errors so we are only indicating that there are errors
       # If we ever want to distinguish be VA and CC errors, it will require coordination with the front-end team
       def partial_errors(failures)
-        if appointment_errors?(failures)
+        if failures.present?
           {
             errors: [{ source: 'VA Service' }]
           }
@@ -95,11 +98,7 @@ module Mobile
       end
 
       def get_response_status(failures)
-        appointment_errors?(failures) ? :multi_status : :ok
-      end
-
-      def appointment_errors?(failures)
-        Array.wrap(failures).any? { |failure| failure[:appointment_errors].present? }
+        failures.present? ? :multi_status : :ok
       end
 
       def filter_by_date_range(appointments)
@@ -144,6 +143,18 @@ module Mobile
 
       def raise_access_denied_no_icn
         raise Common::Exceptions::Forbidden, detail: 'No patient ICN found'
+      end
+
+      def staging_custom_error
+        if Settings.vsp_environment != 'production' && @current_user.email == 'vets.gov.user+141@gmail.com'
+          raise Mobile::V0::Exceptions::CustomErrors.new(
+            title: 'Custom error title',
+            body: 'Custom error body. \n This explains to the user the details of the ongoing issue.',
+            source: 'VAOS',
+            telephone: '999-999-9999',
+            refreshable: true
+          )
+        end
       end
     end
   end

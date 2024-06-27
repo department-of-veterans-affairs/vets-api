@@ -1,36 +1,31 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative 'shared_base_power_of_attorney'
 
-RSpec.describe 'RepresentativeSerializer' do
-  before do
-    create(:representative, representative_id: '123', poa_codes: ['rp1'])
+describe RepresentationManagement::PowerOfAttorney::RepresentativeSerializer do
+  let(:object) { build_stubbed(:representative) }
+
+  let(:rendered_hash) do
+    ActiveModelSerializers::SerializableResource.new(object, { serializer: described_class }).as_json
+  end
+  let(:rendered_attributes) { rendered_hash[:data][:attributes] }
+
+  it_behaves_like 'power_of_attorney'
+
+  it 'includes :type' do
+    expect(rendered_attributes[:type]).to eq 'representative'
   end
 
-  def representative
-    Veteran::Service::Representative.find('123')
+  it 'includes :name' do
+    expect(rendered_attributes[:name]).to eq object.full_name
   end
 
-  it 'can serialize a representative' do
-    result = serialize(representative,
-                       serializer_class: RepresentationManagement::PowerOfAttorney::RepresentativeSerializer)
-    attributes = JSON.parse(result)['data']['attributes']
+  it 'includes :email' do
+    expect(rendered_attributes[:email]).to eq object.email
+  end
 
-    expect(attributes.keys).to eq(%w[address_line1
-                                     address_line2
-                                     address_line3
-                                     address_type
-                                     city
-                                     country_name
-                                     country_code_iso3
-                                     province
-                                     international_postal_code
-                                     state_code
-                                     zip_code
-                                     zip_suffix
-                                     phone
-                                     type
-                                     name
-                                     email])
+  it 'includes :phone' do
+    expect(rendered_attributes[:phone]).to eq object.phone_number
   end
 end

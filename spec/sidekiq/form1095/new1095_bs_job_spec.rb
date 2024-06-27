@@ -47,9 +47,7 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
     before do
       allow(Aws::S3::Resource).to receive(:new).and_return(s3_resource)
       allow(s3_resource).to receive(:bucket).and_return(bucket)
-      allow(bucket).to receive(:objects).and_return(objects)
-      allow(bucket).to receive(:delete_objects).and_return(true)
-      allow(bucket).to receive(:object).and_return(object)
+      allow(bucket).to receive_messages(objects:, delete_objects: true, object:)
       allow(object).to receive(:get).and_return(nil)
     end
 

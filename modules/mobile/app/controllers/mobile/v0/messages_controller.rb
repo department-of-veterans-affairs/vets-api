@@ -11,7 +11,6 @@ module Mobile
 
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
         resource = resource.sort(params[:sort])
-        log_bad_sort(resource)
         resource = resource.paginate(**pagination_params)
         resource.metadata.merge!(message_counts(resource))
 
@@ -38,6 +37,7 @@ module Mobile
                meta: response.metadata.merge(user_in_triage_team?: user_in_triage_team)
       end
 
+      # rubocop:disable Metrics/MethodLength
       def create
         message = Message.new(message_params.merge(upload_params))
         raise Common::Exceptions::ValidationErrors, message unless message.valid?
@@ -47,7 +47,14 @@ module Mobile
         Rails.logger.info('Mobile SM Category Tracking', category: create_message_params.dig(:message, :category))
 
         client_response = if message.uploads.present?
-                            client.post_create_message_with_attachment(create_message_params)
+                            begin
+                              client.post_create_message_with_attachment(create_message_params)
+                            rescue Common::Client::Errors::Serialization => e
+                              Rails.logger.info('Mobile SM create with attachment error', status: e&.status,
+                                                                                          error_body: e&.body,
+                                                                                          message: e&.message)
+                              raise e
+                            end
                           else
                             client.post_create_message(message_params.to_h)
                           end
@@ -57,6 +64,7 @@ module Mobile
                include: 'attachments',
                meta: {}
       end
+      # rubocop:enable Metrics/MethodLength
 
       def destroy
         client.delete_message(params[:id])
@@ -115,30 +123,6 @@ module Mobile
       end
 
       private
-
-      def log_bad_sort(resource)
-        last_sent_date = Time.now.utc
-        bad_sort_flag = false
-        nil_sent_dates_count = 0
-        sent_dates = resource.attributes.map do |message|
-          unless message&.sent_date
-            nil_sent_dates_count += 1
-            next
-          end
-
-          bad_sort_flag ||= message.sent_date > last_sent_date
-
-          last_sent_date = message.sent_date
-
-          message.sent_date
-        end
-
-        if bad_sort_flag || nil_sent_dates_count.positive?
-          Rails.logger.info('Mobile Message Bad Sort', sent_dates:, bad_sort_flag:, nil_sent_dates_count:)
-        end
-      rescue => e
-        Rails.logger.info('Mobile Message Log Bad Sort Failed', error: e)
-      end
 
       # When we get message parameters as part of a multipart payload (i.e. with attachments),
       # ActionController::Parameters leaves the message part as a string so we have to turn it into

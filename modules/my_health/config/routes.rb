@@ -54,6 +54,7 @@ MyHealth::Engine.routes.draw do
       patch :refill_prescriptions, to: 'prescriptions#refill_prescriptions', on: :collection
       get :list_refillable_prescriptions, to: 'prescriptions#list_refillable_prescriptions', on: :collection
       get 'get_prescription_image/:cmopNdcNumber', to: 'prescriptions#get_prescription_image', on: :collection
+      get :documentation, to: 'prescriptions#documentation', on: :member
       resources :trackings, only: :index, controller: :trackings
       collection do
         resource :preferences, only: %i[show update], controller: 'prescription_preferences'

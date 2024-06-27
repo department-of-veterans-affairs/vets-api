@@ -10,4 +10,8 @@ class FormSubmission < ApplicationRecord
   belongs_to :user_account, optional: true
 
   validates :form_type, presence: true
+
+  def latest_pending_attempt
+    form_submission_attempts.where(aasm_state: 'pending').order(created_at: :asc).last
+  end
 end

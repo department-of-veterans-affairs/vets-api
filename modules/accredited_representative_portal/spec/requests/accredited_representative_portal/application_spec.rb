@@ -41,7 +41,7 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
 
       context 'with an invalid audience' do
         let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: invalid_access_token).perform }
-        let(:expected_log_message) { '[SignIn::AudienceValidator] Invalid audience' }
+        let(:expected_log_message) { '[SignIn][AudienceValidator] Invalid audience' }
         let(:expected_log_payload) do
           { invalid_audience: invalid_access_token.audience, valid_audience: valid_access_token.audience }
         end

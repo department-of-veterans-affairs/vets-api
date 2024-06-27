@@ -12,11 +12,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   end
 
   describe 'POST /accept' do
-    let(:proc_id) { '123' }
+    let(:id) { '123' }
 
     it 'returns a successful response with an accepted message' do
       Flipper.enable(:accredited_representative_portal_pilot, representative_user)
-      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{proc_id}/accept"
+      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{id}/accept"
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
       expect(json['message']).to eq('Accepted')
@@ -24,11 +24,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   end
 
   describe 'POST /decline' do
-    let(:proc_id) { '123' }
+    let(:id) { '123' }
 
     it 'returns a successful response with a declined message' do
       Flipper.enable(:accredited_representative_portal_pilot, representative_user)
-      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{proc_id}/decline"
+      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{id}/decline"
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
       expect(json['message']).to eq('Declined')
@@ -79,7 +79,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     end
 
     context 'when pilot feature flag not enabled for the user' do
-      let(:proc_id) { '123' }
+      let(:id) { '123' }
       let(:representative_user) { create(:representative_user) }
       let(:non_enabled_representative_user) { create(:representative_user) }
 
@@ -89,12 +89,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       end
 
       it 'returns a forbidden status for POST /accept' do
-        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{proc_id}/accept"
+        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{id}/accept"
         expect(response).to have_http_status(:forbidden)
       end
 
       it 'returns a forbidden status for POST /decline' do
-        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{proc_id}/decline"
+        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{id}/decline"
         expect(response).to have_http_status(:forbidden)
       end
 

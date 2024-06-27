@@ -59,10 +59,6 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     shared_context 'error response' do
       let(:expected_error) { 'Access token JWT is malformed' }
       let(:expected_error_json) { { 'errors' => expected_error } }
-      let(:sentry_context) do
-        { access_token_authorization_header: access_token, access_token_cookie: }.compact
-      end
-      let(:sentry_log_level) { :error }
 
       it 'renders Malformed Params error' do
         expect(JSON.parse(subject.body)).to eq(expected_error_json)
@@ -71,6 +67,16 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       it 'returns unauthorized status' do
         expect(subject).to have_http_status(:unauthorized)
       end
+    end
+
+    shared_context 'error response with sentry log' do
+      let(:expected_error) { 'Access token JWT is malformed' }
+      let(:sentry_context) do
+        { access_token_authorization_header: access_token, access_token_cookie: }.compact
+      end
+      let(:sentry_log_level) { :error }
+
+      it_behaves_like 'error response'
 
       it 'logs error to sentry' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(expected_error,
@@ -126,7 +132,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
           let(:expected_error) { 'Access token JWT is malformed' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
-          it_behaves_like 'error response'
+          it_behaves_like 'error response with sentry log'
         end
 
         context 'and access_token is an expired JWT' do
@@ -178,7 +184,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         let(:expected_error) { 'Access token JWT is malformed' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
-        it_behaves_like 'error response'
+        it_behaves_like 'error response with sentry log'
       end
 
       context 'and access_token is an expired JWT' do
@@ -376,10 +382,6 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     shared_context 'error response' do
       let(:expected_error) { 'Access token JWT is malformed' }
       let(:expected_error_json) { { 'errors' => expected_error } }
-      let(:sentry_context) do
-        { access_token_authorization_header: access_token, access_token_cookie: }.compact
-      end
-      let(:sentry_log_level) { :error }
 
       it 'returns unauthorized status' do
         expect(subject).to have_http_status(:unauthorized)
@@ -387,13 +389,6 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
 
       it 'renders Malformed Params error' do
         expect(JSON.parse(subject.body)).to eq(expected_error_json)
-      end
-
-      it 'logs error to sentry' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(expected_error,
-                                                                                      sentry_log_level,
-                                                                                      sentry_context)
-        subject
       end
 
       context 'when skip_error_handling is true' do
@@ -406,6 +401,25 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         it 'returns a nil body' do
           expect(subject.body).to be_empty
         end
+      end
+    end
+
+    shared_context 'error response with sentry log' do
+      let(:expected_error) { 'Access token JWT is malformed' }
+      let(:sentry_context) do
+        { access_token_authorization_header: access_token, access_token_cookie: }.compact
+      end
+      let(:sentry_log_level) { :error }
+
+      it 'logs error to sentry' do
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(expected_error,
+                                                                                      sentry_log_level,
+                                                                                      sentry_context)
+        subject
+      end
+
+      context 'when skip_error_handling is true' do
+        let(:skip_error_handling) { true }
 
         it 'does not log an error to sentry' do
           expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry)
@@ -434,7 +448,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         context 'and access_token is some arbitrary value' do
           let(:access_token_cookie) { 'some-arbitrary-access-token' }
 
-          it_behaves_like 'error response'
+          it_behaves_like 'error response with sentry log'
         end
 
         context 'and access_token is an expired JWT' do
@@ -477,6 +491,12 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         let(:access_token) { 'some-arbitrary-access-token' }
         let(:expected_error) { 'Access token JWT is malformed' }
         let(:expected_error_json) { { 'errors' => expected_error } }
+
+        it_behaves_like 'error response'
+      end
+
+      context 'and access_token equals the string undefined' do
+        let(:access_token) { 'undefined' }
 
         it_behaves_like 'error response'
       end

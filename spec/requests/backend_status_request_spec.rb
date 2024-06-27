@@ -11,7 +11,7 @@ RSpec.describe 'Backend Status' do
   describe '#show' do
     let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
     let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
-    let(:tz) { ActiveSupport::TimeZone.new(EVSS::GiBillStatus::Service::OPERATING_ZONE) }
+    let(:tz) { ActiveSupport::TimeZone.new(BenefitsEducation::Service::OPERATING_ZONE) }
     let(:offline_saturday) { tz.parse('17th Mar 2018 19:00:01') }
     let(:online_weekday) { tz.parse('24th Jan 2018 06:00:00') }
 

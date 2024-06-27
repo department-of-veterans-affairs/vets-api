@@ -11,7 +11,7 @@ module TravelPay
       begin
         claims = client.get_claims(veis_token, btsss_token)
       rescue Faraday::Error => e
-        raise common_exception(e)
+        TravelPay::ServiceError.raise_mapped_error(e)
       end
 
       render json: claims, status: :ok

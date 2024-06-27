@@ -2,6 +2,26 @@
 
 module Vye
   module NeedsEnrollmentVerification
+    def enrollments
+      return [] if queued_verifications?
+      return @enrollments if defined?(@enrollments)
+
+      setup
+      awards.each do |award|
+        @award = award
+
+        eval_case_eom
+        flag_open_cert || eval_case1a || eval_case1b || eval_case2 || eval_case3
+        eval_case4 || eval_case5
+        eval_case6 || eval_case7 || eval_case8
+        eval_case9
+      end
+
+      @enrollments
+    end
+
+    alias pending_verifications enrollments
+
     private
 
     attr_accessor :award
@@ -68,22 +88,13 @@ module Vye
       @open_cert_payment_date = nil
     end
 
-    # rubocop:disable Metrics/ParameterLists
-    def push_enrollment(
-      award_id:, act_begin:, act_end:,
-      number_hours:, monthly_rate:, payment_date:, trace:
-    )
+    def push_enrollment(**attributes)
       @enrollments.push(
-        Verification.build(
-          user_profile:,
-          award_id:, act_begin:, act_end:,
-          number_hours:, monthly_rate:, payment_date:, trace:
-        )
+        Verification.build(user_profile:, **attributes)
       )
 
       true
     end
-    # rubocop:enable Metrics/ParameterLists
 
     def eval_case_eom
       return unless dlc_before_ldpm?
@@ -306,27 +317,5 @@ module Vye
 
       true
     end
-
-    public
-
-    def enrollments
-      return [] if queued_verifications?
-      return @enrollments if defined?(@enrollments)
-
-      setup
-      awards.each do |award|
-        @award = award
-
-        eval_case_eom
-        flag_open_cert || eval_case1a || eval_case1b || eval_case2 || eval_case3
-        eval_case4 || eval_case5
-        eval_case6 || eval_case7 || eval_case8
-        eval_case9
-      end
-
-      @enrollments
-    end
-
-    alias pending_verifications enrollments
   end
 end

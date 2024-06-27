@@ -21,7 +21,6 @@ RSpec.describe V0::PensionClaimsController, type: :controller do
       expect(Rails.logger).to receive(:info).with('21P-527EZ submission to Sidekiq success',
                                                   hash_including(:confirmation_number, :user_uuid,
                                                                  :in_progress_form_id))
-      expect(Rails.logger).to receive(:info).at_least(:once)
       post(:create, params: { param_name => { form: form.form } })
     end
   end

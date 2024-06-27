@@ -6,7 +6,7 @@ module ClaimsApi
   module PoaVerification
     extend ActiveSupport::Concern
 
-    included do
+    included do # rubocop:disable Metrics/BlockLength
       #
       # Validate poa code provided exists in OGC dataset, that provided poa code is a valid/active poa code
       # @param poa_code [String] poa code to validate
@@ -68,6 +68,8 @@ module ClaimsApi
       #
       # @return [Boolean] True if valid poa code, False if not
       def valid_poa_code_for_current_user?(poa_code) # rubocop:disable Metrics/MethodLength
+        return false if @current_user.first_name.nil? || @current_user.last_name.nil?
+
         reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
                                                                last_name: @current_user.last_name)
 
@@ -106,6 +108,8 @@ module ClaimsApi
         logged_in_representative_user = @current_user
         target_veteran_to_be_verified = target_veteran
         verify_representative_and_veteran(logged_in_representative_user, target_veteran_to_be_verified)
+      rescue ::Common::Exceptions::UnprocessableEntity
+        raise
       rescue
         raise ::Common::Exceptions::Unauthorized, detail: 'Cannot validate Power of Attorney'
       end

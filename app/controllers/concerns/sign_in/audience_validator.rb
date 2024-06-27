@@ -38,7 +38,7 @@ module SignIn
       return if valid_audience.blank?
       return if access_token.audience.any? { |aud| valid_audience.include?(aud) }
 
-      Rails.logger.error('[SignIn::AudienceValidator] Invalid audience',
+      Rails.logger.error('[SignIn][AudienceValidator] Invalid audience',
                          { invalid_audience: access_token.audience, valid_audience: })
       raise Errors::InvalidAudienceError.new(message: 'Invalid audience')
     end

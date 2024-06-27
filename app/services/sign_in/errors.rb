@@ -66,5 +66,9 @@ module SignIn
     class CredentialLockedError < StandardError; end
     class InvalidAudienceError < StandardError; end
     class InvalidScope < StandardError; end
+    class InvalidTokenError < StandardError; end
+    class InvalidTokenTypeError < StandardError; end
+    class InvalidClientConfigError < StandardError; end
+    class InvalidSSORequestError < StandardError; end
   end
 end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'bgs_service/local_bgs_refactored/error_handler'
-require 'bgs_service/local_bgs_refactored/find_service_definition'
+require 'bgs_service/local_bgs_refactored/find_definition'
 require 'bgs_service/local_bgs_refactored/miscellaneous'
 
 module ClaimsApi
@@ -27,13 +27,14 @@ module ClaimsApi
     #   this, rather than being centralized here.
     include Miscellaneous
 
-    ##
-    # @deprecated Not all (or perhaps any?) of these correspond to genuine bad
-    #   gateway `502` errors.
-    #
     BAD_GATEWAY_EXCEPTIONS = [
       BGSClient::Error::ConnectionFailed,
       BGSClient::Error::SSLError,
+      ##
+      # @deprecated According to VA API Standards, a timeout should correspond
+      #   to the HTTP error code for a gateway timeout, 504:
+      #     https://department-of-veterans-affairs.github.io/va-api-standards/errors/#choosing-an-error-code
+      #
       BGSClient::Error::TimeoutError
     ].freeze
 
@@ -60,23 +61,31 @@ module ClaimsApi
     # @deprecated Prefer doing just transport against bundled BGS service action
     #   definitions rather than wrapping them at higher abstraction layers.
     #
-    def make_request(
+    def make_request( # rubocop:disable Metrics/MethodLength
       endpoint:, action:, body:, key: nil
     )
-      service = FindServiceDefinition.perform(endpoint)
-      action = BGSClient::Definitions::Action.new(service:, name: action)
+      action =
+        FindDefinition.for_action(
+          endpoint,
+          action
+        )
 
       request =
         BGSClient.const_get(:Request).new(
-          external_id: @external_id,
-          action:
+          action, external_id: @external_id
         )
 
       ##
-      # @deprecated Callers should be hydrating domain entities anyway, so
-      #   centralizing `key` configuration here was unnecessary.
+      # @deprecated Every service action result always lives within a particular
+      #   key, so we can always extract the result rather than expose another
+      #   option to the caller.
       #
-      result = request.perform(body)
+      # @deprecated Prefer composing XML documents with an XML builder. Other
+      #   approaches like templating into strings or immediately parsing and
+      #   injecting with open-ended xpath are inconvenient or error-prone.
+      #
+      result = request.perform { |xml| xml << body.to_s }
+      result = { action.key => result }
       result = result[key].to_h if key.present?
 
       request.send(:log_duration, 'transformed_response') do
@@ -111,7 +120,7 @@ module ClaimsApi
     #   definitions rather than wrapping them at higher abstraction layers.
     #
     def healthcheck(endpoint)
-      service = FindServiceDefinition.perform(endpoint)
+      service = FindDefinition.for_service(endpoint)
       BGSClient.healthcheck(service)
     end
   end

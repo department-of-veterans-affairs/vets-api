@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'lib/vets-api/commands/lint'
+require 'rake'
+
+VALID_OPTIONS = ['--dry', '--only-rubocop', '--only-brakeman'].freeze
+
+def help_message
+  puts <<~HELP
+    Usage:
+      bin/lint [options] [files|folders]
+    Options:
+      --help, -h            Display help message for 'setup'
+      --dry                 Run the cops without autocorrect
+      --only-rubocop        Only runs Rubocop
+      --only-brakeman       Only runs Brakeman
+    Examples:
+      bin/lint
+      bin/lint --dry --only-rubocop
+      bin/lint lib/forms/client.rb
+    Notes:
+      bin/lint runs both Rubocop and Brakeman. Rubocop safe autocorrect is ON by default
+  HELP
+end
+
+# rubocop:disable Rails/NegateInclude
+invalid_options = ARGV.select { |o| o.start_with?('--', '-') && !VALID_OPTIONS.include?(o) }
+# rubocop:enable Rails/NegateInclude
+
+if ARGV.include?('--help') || ARGV.include?('-h')
+  help_message
+elsif invalid_options.empty?
+  VetsApi::Commands::Lint.run(ARGV)
+else
+  puts "Invalid option(s) found: #{invalid_options.join(', ')}."
+  help_message
+end

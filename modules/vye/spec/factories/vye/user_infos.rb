@@ -24,5 +24,9 @@ FactoryBot.define do
     payment_amt { Faker::Number.decimal(l_digits: 4, r_digits: 2) }
     indicator { 'A' }
     bdn_clone_active { true }
+
+    after(:create) do |user_info|
+      create_list(:vye_address_change, 3, user_info:)
+    end
   end
 end
