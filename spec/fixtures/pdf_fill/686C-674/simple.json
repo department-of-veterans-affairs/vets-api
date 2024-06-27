@@ -19,6 +19,7 @@
       },
       "phone_number": "1112223333",
       "email_address": "vets.gov.user+228@gmail.com",
+      "international_phone_number": "1234567890123",
       "electronic_correspondence": true
     },
     "household_income": true,

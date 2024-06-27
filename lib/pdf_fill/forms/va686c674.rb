@@ -122,6 +122,13 @@ module PdfFill
                 question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > TELEPHONE NUMBER'
               }
             },
+            'international_phone_number' => {
+              key: 'form1[0].#subform[17].TelephoneNumber_International[0]',
+              limit: 13,
+              question_num: 8,
+              question_suffix: 'C',
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > Enter International Phone Number'
+            },
             'email_address' => {
               key: 'form1[0].#subform[17].Email_Address[0]',
               limit: 30,
