@@ -36,7 +36,6 @@ module Mobile
         render json: Mobile::V0::MessageSerializer.new(response, { meta: })
       end
 
-      # rubocop:disable Metrics/MethodLength
       def create
         message = Message.new(message_params.merge(upload_params))
         raise Common::Exceptions::ValidationErrors, message unless message.valid?
@@ -62,7 +61,6 @@ module Mobile
         options[:include] = [:attachments] if client_response.attachment
         render json: Mobile::V0::MessageSerializer.new(client_response, options)
       end
-      # rubocop:enable Metrics/MethodLength
 
       def destroy
         client.delete_message(params[:id])
