@@ -36,7 +36,7 @@ http_interactions:
             <tns:readAllVeteranRepresentatives>
               <data:CorpPtcpntIdFormTypeCode>
                 <formTypeCode>21-22</formTypeCode>
-                <veteranCorpPtcpntId>600043216</veteranCorpPtcpntId>
+                <veteranCorpPtcpntId>600043198</veteranCorpPtcpntId>
               </data:CorpPtcpntIdFormTypeCode>
             </tns:readAllVeteranRepresentatives>
           </env:Body>
@@ -60,7 +60,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 25 Jun 2024 07:33:45 GMT
+      - Tue, 25 Jun 2024 16:52:02 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -87,11 +87,11 @@ http_interactions:
               xmlns:ns2="http://gov.va.vba.benefits.vdc/data"
             >
               <ns2:VeteranRepresentativeReturnList>
-                <addressLine1>5232 East Pima Street Suite B</addressLine1>
+                <addressLine1>1400 Circle Drive</addressLine1>
                 <addressLine2 />
                 <addressLine3 />
-                <changeAddressAuth>true</changeAddressAuth>
-                <city>Tucson</city>
+                <changeAddressAuth>false</changeAddressAuth>
+                <city>Fort Worth</city>
                 <claimantRelationship />
                 <formTypeCode>21-22</formTypeCode>
                 <insuranceNumbers />
@@ -99,39 +99,40 @@ http_interactions:
                 <limitationDrugAbuse>false</limitationDrugAbuse>
                 <limitationHIV>false</limitationHIV>
                 <limitationSCA>false</limitationSCA>
-                <organizationName>AMERICAN LEGION</organizationName>
+                <organizationName>DISABLED AMERICAN VETERANS</organizationName>
                 <otherServiceBranch />
-                <phoneNumber />
-                <poaCode>074</poaCode>
-                <postalCode>85712</postalCode>
-                <procId>3853237</procId>
+                <phoneNumber>2025543581</phoneNumber>
+                <poaCode>083</poaCode>
+                <postalCode>76119</postalCode>
+                <procId>12072</procId>
                 <representativeFirstName />
                 <representativeLastName />
                 <representativeLawFirmOrAgencyName />
                 <representativeTitle />
-                <representativeType>Recognized Veterans Service Organization</representativeType>
-                <section7332Auth>true</section7332Auth>
+                <representativeType />
+                <section7332Auth>false</section7332Auth>
                 <serviceBranch />
                 <serviceNumber />
-                <state>AZ</state>
-                <submittedDate>2024-01-08T14:42:58-06:00</submittedDate>
+                <state>TX</state>
+                <submittedDate>2013-02-10T13:47:54-06:00</submittedDate>
                 <vdcStatus>Submitted</vdcStatus>
-                <veteranPtcpntId>180342</veteranPtcpntId>
-                <acceptedBy />
+                <veteranPtcpntId>16362</veteranPtcpntId>
+                <acceptedBy>STROUD,BEATRICE</acceptedBy>
+                <acceptedDate>2024-06-13T14:31:03-05:00</acceptedDate>
                 <claimantFirstName />
                 <claimantLastName />
                 <claimantMiddleName />
                 <declinedBy />
                 <declinedReason />
-                <secondaryStatus>Pending</secondaryStatus>
-                <veteranFirstName>FRANK</veteranFirstName>
-                <veteranLastName>ARNOLD</veteranLastName>
-                <veteranMiddleName>LARRY</veteranMiddleName>
-                <veteranSSN>796143510</veteranSSN>
-                <veteranVAFileNumber>796143510</veteranVAFileNumber>
+                <secondaryStatus>Accepted</secondaryStatus>
+                <veteranFirstName>PAT</veteranFirstName>
+                <veteranLastName>MORRIS</veteranLastName>
+                <veteranMiddleName>H</veteranMiddleName>
+                <veteranSSN>796127818</veteranSSN>
+                <veteranVAFileNumber>796127818</veteranVAFileNumber>
               </ns2:VeteranRepresentativeReturnList>
             </ns0:readAllVeteranRepresentativesResponse>
           </S:Body>
         </S:Envelope>
-  recorded_at: Thu, 09 May 2024 07:18:04 GMT
+  recorded_at: Thu, 13 Jun 2024 19:31:03 GMT
 recorded_with: VCR 6.2.0
