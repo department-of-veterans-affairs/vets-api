@@ -47,7 +47,7 @@ module IvcChampva
         else
           { json:
           { error_message: "No form(s) found with the form_uuid: #{form_uuid} and/or the file_names: #{file_names}." },
-            status: :accepted }
+            status: :not_found }
         end
       end
 
