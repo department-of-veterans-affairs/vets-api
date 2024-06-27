@@ -20,7 +20,7 @@ module AskVAApi
         private
 
         def fetch_data
-          payload = { inquiry_number: }
+          payload = { InquiryNumber: inquiry_number }
           response = service.call(endpoint: ENDPOINT, payload:)
           handle_response_data(response)
         end
