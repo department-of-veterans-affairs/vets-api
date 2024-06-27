@@ -54,7 +54,7 @@ module DebtsApi
 
         def get_discharged_date
           raw_date = @bankruptcy['date_discharged']
-          return '00/0000' unless raw_date
+          return '00/0000' if raw_date.blank?
 
           date_object = Date.parse(raw_date)
 
