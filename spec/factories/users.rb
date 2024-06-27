@@ -344,8 +344,7 @@ FactoryBot.define do
       icn { '82836359962678900' }
 
       after(:build) do
-        allow(BGS.configuration).to receive(:env).and_return('prepbepbenefits')
-        allow(BGS.configuration).to receive(:client_ip).and_return('10.247.35.119')
+        allow(BGS.configuration).to receive_messages(env: 'prepbepbenefits', client_ip: '10.247.35.119')
       end
     end
 
