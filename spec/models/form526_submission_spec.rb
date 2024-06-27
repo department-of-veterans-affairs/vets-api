@@ -1441,13 +1441,13 @@ RSpec.describe Form526Submission do
 
   describe '#in_process?' do
     context 'when submitted_claim_id and backup_submitted_claim_status are both nil' do
-      context 'and the record was created within the last 7 days' do
+      context 'and the record was created within the last 3 days' do
         it 'returns true' do
           expect(subject).to be_in_process
         end
       end
 
-      context 'and the record was created more than 7 days ago' do
+      context 'and the record was created more than 3 days ago' do
         subject { create(:form526_submission, :created_more_than_3_days_ago) }
 
         it 'returns false' do
