@@ -25,8 +25,8 @@ module ClaimsApi
 
           bgs_form_attributes = build_bgs_attributes(form_attributes)
 
-          # skip the BGS API calls in sandbox to prevent 3rd parties from creating data in external systems
-          unless sandbox?
+          # skip the BGS API calls in lower environments to prevent 3rd parties from creating data in external systems
+          unless Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
             ClaimsApi::PowerOfAttorneyRequestService::Orchestrator.new(target_veteran.participant_id,
                                                                        bgs_form_attributes.deep_symbolize_keys,
                                                                        user_profile&.profile&.participant_id,
@@ -107,10 +107,6 @@ module ClaimsApi
               'organizationName' => @organization.name
             }
           }
-        end
-
-        def sandbox?
-          Settings.claims_api.claims_error_reporting.environment_name&.downcase.eql? 'sandbox'
         end
       end
     end

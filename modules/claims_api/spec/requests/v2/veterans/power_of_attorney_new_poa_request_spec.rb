@@ -144,30 +144,36 @@ RSpec.describe 'Power Of Attorney Request Controller', type: :request do
                           'power_of_attorney', 'request_representative', 'valid.json').read
         end
 
-        context 'sandbox environment' do
+        context 'lighthouse_claims_v2_poa_requests_skip_bgs enabled' do
+          before do
+            Flipper.enable(:lighthouse_claims_v2_poa_requests_skip_bgs)
+          end
+
           let(:request_body) do
             Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                             'power_of_attorney', 'request_representative', 'valid_no_claimant.json').read
           end
 
           it 'does not call the Orchestrator' do
-            with_settings(Settings.claims_api.claims_error_reporting, environment_name: 'sandbox') do
-              mock_ccg(scopes) do |auth_header|
-                expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::Orchestrator)
-                  .not_to receive(:submit_request)
+            mock_ccg(scopes) do |auth_header|
+              expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::Orchestrator)
+                .not_to receive(:submit_request)
 
-                post request_path, params: request_body, headers: auth_header
+              post request_path, params: request_body, headers: auth_header
 
-                response_body = JSON.parse(response.body)
+              response_body = JSON.parse(response.body)
 
-                expect(response).to have_http_status(:created)
-                expect(response_body).to eq(JSON.parse(request_body))
-              end
+              expect(response).to have_http_status(:created)
+              expect(response_body).to eq(JSON.parse(request_body))
             end
           end
         end
 
-        context 'non-sandbox environment' do
+        context 'lighthouse_claims_v2_poa_requests_skip_bgs disabled' do
+          before do
+            Flipper.disable(:lighthouse_claims_v2_poa_requests_skip_bgs)
+          end
+
           it 'responds with created status and the original request body' do
             VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
               mock_ccg(scopes) do |auth_header|
