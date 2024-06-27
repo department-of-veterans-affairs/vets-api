@@ -80,7 +80,7 @@ module SM
     #
     # @return [Common::Collection[Folder]]
     #
-    def get_folders(user_uuid, use_cache, requires_oh_messages)
+    def get_folders(user_uuid, use_cache, requires_oh_messages = nil)
       path = 'folder'
       path = append_requires_oh_messages_query(path, requires_oh_messages)
 
@@ -98,7 +98,7 @@ module SM
     #
     # @return [Folder]
     #
-    def get_folder(id, requires_oh_messages)
+    def get_folder(id, requires_oh_messages = nil)
       path = "folder/#{id}"
       path = append_requires_oh_messages_query(path, requires_oh_messages)
 
@@ -177,8 +177,16 @@ module SM
     #
     # @return [Common::Collection]
     #
-    def get_folder_threads(folder_id, page_size, page_number, sort_field, sort_order, requires_oh_messages)
-      path = "folder/threadlistview/#{folder_id}?pageSize=#{page_size}&pageNumber=#{page_number}&sortField=#{sort_field}&sortOrder=#{sort_order}"
+    def get_folder_threads(params)
+      requires_oh_messages = params[:requires_oh_messages]
+      base_path = "folder/threadlistview/#{params[:folder_id]}"
+      query_params = [
+        "pageSize=#{params[:page_size]}",
+        "pageNumber=#{params[:page_number]}",
+        "sortField=#{params[:sort_field]}",
+        "sortOrder=#{params[:sort_order]}"
+      ].join('&')
+      path = "#{base_path}?#{query_params}"
       path = append_requires_oh_messages_query(path, requires_oh_messages)
 
       json = perform(:get, path, nil, token_headers).body
@@ -195,7 +203,7 @@ module SM
     # @param args [Hash] arguments for the message search
     # @return [Common::Collection]
     #
-    def post_search_folder(folder_id, page_num, page_size, args = {}, requires_oh_messages)
+    def post_search_folder(folder_id, page_num, page_size, args = {}, requires_oh_messages = nil)
       page_num ||= 1
       page_size ||= MHV_MAXIMUM_PER_PAGE
 
@@ -294,11 +302,11 @@ module SM
     # @param id [Fixnum] message id
     # @return [Common::Collection[MessageThread]]
     #
-    def get_messages_for_thread(id, requires_oh_messages)
+    def get_messages_for_thread(id, requires_oh_messages = nil)
       path = "message/#{id}/messagesforthread"
-      params = "?requiresOHMessages=#{requires_oh_messages}"
+      path = append_requires_oh_messages_query(path, requires_oh_messages)
 
-      json = perform(:get, path + params, nil, token_headers).body
+      json = perform(:get, path, nil, token_headers).body
       Common::Collection.new(MessageThreadDetails, **json)
     end
 
@@ -308,10 +316,10 @@ module SM
     # @param id [Fixnum] message id
     # @return [Common::Collection[MessageThreadDetails]]
     #
-    def get_full_messages_for_thread(id, requires_oh_messages)
+    def get_full_messages_for_thread(id, requires_oh_messages = nil)
       path = "message/#{id}/allmessagesforthread/1"
-      params = "?requiresOHMessages=#{requires_oh_messages}"
-      json = perform(:get, path + params, nil, token_headers).body
+      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      json = perform(:get, path, nil, token_headers).body
       Common::Collection.new(MessageThreadDetails, **json)
     end
 
@@ -396,7 +404,6 @@ module SM
     #
     def post_move_thread(id, folder_id)
       custom_headers = token_headers.merge('Content-Type' => 'application/json')
-      puts "custom_headers: #{custom_headers.inspect}"
       response = perform(:post, "message/#{id}/movethreadmessages/tofolder/#{folder_id}", nil, custom_headers)
       response&.status
     end
@@ -506,7 +513,7 @@ module SM
       end
     end
 
-    def append_requires_oh_messages_query(path, requires_oh_messages)
+    def append_requires_oh_messages_query(path, requires_oh_messages = nil)
       if requires_oh_messages == '1'
         separator = path.include?('?') ? '&' : '?'
         path += "#{separator}requiresOHMessages=#{requires_oh_messages}"

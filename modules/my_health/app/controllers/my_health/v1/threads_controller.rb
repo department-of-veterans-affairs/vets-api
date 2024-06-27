@@ -22,15 +22,14 @@ module MyHealth
       private
 
       def fetch_folder_threads
-        puts "Fetching folder threads params #{params.inspect}"
-        client.get_folder_threads(
-          params[:folder_id].to_s,
-          params[:page_size],
-          params[:page_number],
-          params[:sort_field],
-          params[:sort_order],
-          params[:requires_oh_messages].to_s
-        )
+        client.get_folder_threads({
+                                    folder_id: params[:folder_id].to_s,
+                                    page_size: params[:page_size],
+                                    page_number: params[:page_number],
+                                    sort_field: params[:sort_field],
+                                    sort_order: params[:sort_order],
+                                    requires_oh_messages: params[:requires_oh_messages].to_s
+                                  })
       rescue => e
         handle_error(e)
       end
