@@ -19,7 +19,7 @@ module FacilitiesApi
       property :type, type: :string, example: 'va_facilities'
 
       property :attributes, type: :object do
-        property :address, type: %i[object null] do
+        property :address, type: %i[object array] do
           key :description, 'Physical and mailing addresses for facilities'
           property :physical do
             key :$ref, :FacilityAddress
@@ -32,7 +32,7 @@ module FacilitiesApi
         property :classification, type: %i[string null], example: 'VA Medical Center'
         property :facility_type, type: :string, example: 'va_health_facility'
 
-        property :feedback, type: %i[object null] do
+        property :feedback, type: %i[object array] do
           property :health, type: :object do
             key :description, 'Patient satisfaction scores for health facilities'
             property :primaryCareRoutine, type: :number, format: :float, example: 95.2
@@ -43,7 +43,7 @@ module FacilitiesApi
           property :effectiveDate, type: :string, format: :date, example: '2017-07-01'
         end
 
-        property :hours, type: :object do
+        property :hours, type: %i[object array] do
           key :description, 'Hours of operation for facilities'
           property :monday, type: :string, example: '800AM-430PM'
           property :tuesday, type: :string, example: '800AM-430PM'
@@ -60,7 +60,7 @@ module FacilitiesApi
         property :mobile, type: %i[boolean null], example: false
         property :name, type: :string, example: 'Example VAMC'
 
-        property :operatingStatus, type: :object do
+        property :operatingStatus, type: %i[object array] do
           key :description, 'Current status of facility operations.'
           property :code, type: :string, example: 'NORMAL'
           property :additionalInfo, type: :string, example: 'Additional information about the operating status.'
@@ -70,7 +70,7 @@ module FacilitiesApi
           items type: :string
         end
 
-        property :phone, type: :object do
+        property :phone, type: %i[object array] do
           key :description, 'Telephone numbers for facilities'
           property :main, type: %i[string null], example: '212-555-1212'
           property :fax, type: %i[string null], example: '212-555-1212'
@@ -81,7 +81,7 @@ module FacilitiesApi
           property :mentalHealthClinic, type: %i[string null], example: '212-555-1212 x 123'
         end
 
-        property :services, type: %i[object null] do
+        property :services, type: %i[object array] do
           property :other, type: :array do
             items type: :string
           end

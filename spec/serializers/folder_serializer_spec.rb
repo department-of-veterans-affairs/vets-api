@@ -34,7 +34,7 @@ RSpec.describe FolderSerializer do
     expect(attributes['system_folder']).to eq(folder.system_folder)
   end
 
-  it 'includes a link to itself' do
+  it 'includes :self link' do
     expect(links['self']).to eq(v0_folder_url(folder.id))
   end
 end

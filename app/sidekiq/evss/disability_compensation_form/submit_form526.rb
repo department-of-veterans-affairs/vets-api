@@ -103,11 +103,9 @@ module EVSS
           user_account = UserAccount.find_by(id: submission.user_account_id) ||
                          Account.find_by(idme_uuid: submission.user_uuid)
 
-          user = OpenStruct.new({ user_account_uuid: user_account.id, flipper_id: user_account.id })
           begin
-            submit_to_claims_api = submission.claims_api?
             # send submission data to either EVSS or Lighthouse (LH)
-            response = if submit_to_claims_api # not needed once fully migrated to LH
+            response = if submission.claims_api? # not needed once fully migrated to LH
                          # submit 526 through LH API
                          # 1. get user's ICN
                          icn = user_account.icn
@@ -116,9 +114,7 @@ module EVSS
                          body = transform_service.transform(submission.form['form526'])
                          # 3. send transformed submission data to LH endpoint
                          service = BenefitsClaims::Service.new(icn)
-                         # conditionally set options argument based on toxic exposure Flipper state for user
-                         options = generate_options_hash(submit_to_claims_api, user)
-                         raw_response = service.submit526(body, options)
+                         raw_response = service.submit526(body)
                          # 4. convert LH raw response to a FormSubmitResponse for further processing (claim_id, status)
                          # parse claimId from LH response
                          submitted_claim_id = JSON.parse(raw_response.body).dig('data', 'attributes', 'claimId').to_i
@@ -146,11 +142,6 @@ module EVSS
 
       def submit_complete_form
         service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
-      end
-
-      def generate_options_hash(submit_to_claims_api, user)
-        te_flipper_disabled_for_user = !Flipper.enabled?(:disability_526_toxic_exposure, user)
-        submit_to_claims_api && te_flipper_disabled_for_user ? { generate_pdf: true } : {}
       end
 
       def response_handler(response)
