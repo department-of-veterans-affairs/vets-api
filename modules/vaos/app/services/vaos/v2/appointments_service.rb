@@ -45,6 +45,12 @@ module VAOS
             merge_facility(appt) if include[:facilities]
             cnp_count += 1 if cnp?(appt)
           end
+
+          if Flipper.enabled?(:appointments_consolidation, user)
+            filterer = AppointmentsPresentationFilter.new
+            appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
+          end
+
           # log count of C&P appointments in the appointments list, per GH#78141
           log_cnp_appt_count(cnp_count) if cnp_count.positive?
           {
@@ -53,6 +59,7 @@ module VAOS
           }
         end
       end
+
       # rubocop:enable Metrics/MethodLength
 
       def get_appointment(appointment_id)
@@ -94,6 +101,7 @@ module VAOS
           raise e
         end
       end
+
       # rubocop:enable Metrics/MethodLength
 
       def update_appointment(appt_id, status)
@@ -153,6 +161,7 @@ module VAOS
 
         facility_info[:timezone]&.[](:time_zone_id)
       end
+
       memoize :get_facility_timezone_memoized
 
       private

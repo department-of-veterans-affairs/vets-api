@@ -113,8 +113,7 @@ RSpec.describe SignIn::SessionSpawner do
       let(:expected_credential_email) { current_session.credential_email }
 
       before do
-        allow(SecureRandom).to receive(:hex).and_return(stubbed_random_number)
-        allow(SecureRandom).to receive(:uuid).and_return(expected_handle)
+        allow(SecureRandom).to receive_messages(hex: stubbed_random_number, uuid: expected_handle)
       end
 
       it 'returns a Session Container with expected OAuth Session and fields' do
@@ -176,8 +175,7 @@ RSpec.describe SignIn::SessionSpawner do
       end
 
       before do
-        allow(SecureRandom).to receive(:hex).and_return(stubbed_random_number)
-        allow(SecureRandom).to receive(:uuid).and_return(expected_handle)
+        allow(SecureRandom).to receive_messages(hex: stubbed_random_number, uuid: expected_handle)
       end
 
       it 'returns a Session Container with expected Refresh Token and fields' do
@@ -219,8 +217,7 @@ RSpec.describe SignIn::SessionSpawner do
       let(:expected_last_regeneration_time) { current_session.refresh_creation }
 
       before do
-        allow(SecureRandom).to receive(:hex).and_return(stubbed_random_number)
-        allow(SecureRandom).to receive(:uuid).and_return(expected_handle)
+        allow(SecureRandom).to receive_messages(hex: stubbed_random_number, uuid: expected_handle)
       end
 
       it 'returns a Session Container with expected Access Token and fields' do

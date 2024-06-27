@@ -17,7 +17,7 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
     end
   end
 
-  describe 'authentication', aggregate_errors: true do
+  describe 'authentication', :aggregate_errors do
     let(:error_detail) { JSON.parse(response.body)['errors'].first['detail'] }
 
     context 'with an invalid authorization header' do

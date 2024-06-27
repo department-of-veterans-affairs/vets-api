@@ -31,7 +31,7 @@ AskVAApi::Engine.routes.draw do
     post '/address_validation', to: 'address_validation#create'
 
     # health_facilities
-    get '/health_facilities', to: 'health_facilities#index'
+    post '/health_facilities', to: 'health_facilities#search'
     get '/health_facilities/:id', to: 'health_facilities#show'
 
     # education_facilities
