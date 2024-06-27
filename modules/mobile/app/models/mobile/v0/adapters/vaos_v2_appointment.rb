@@ -126,7 +126,8 @@ module Mobile
 
         private
 
-        # we do not want to use the not found message for mobile because it would result in ugly formatting
+        # to match web behavior, prefer the value found in the practitioners list over the preferred_provider_name.
+        # Unlike web, we want to remove the not found message because it's too long and may cause formatting issues.
         def healthcare_provider
           practitioner_name = find_practitioner_name(appointment[:practitioners])
           appointment[:preferred_provider_name] = practitioner_name if practitioner_name
