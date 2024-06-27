@@ -131,7 +131,8 @@ module Mobile
         # Unlike web, we want to remove the not found message because it's too long and may cause formatting issues.
         def healthcare_provider
           practitioner_name = find_practitioner_name(appointment[:practitioners])
-          appointment[:preferred_provider_name] = practitioner_name if practitioner_name
+          return practitioner_name if practitioner_name
+
           return nil if appointment[:preferred_provider_name] == VAOS::V2::AppointmentProviderName::NPI_NOT_FOUND_MSG
 
           appointment[:preferred_provider_name]
