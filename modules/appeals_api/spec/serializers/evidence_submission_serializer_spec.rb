@@ -5,7 +5,7 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::EvidenceSubmissionSerializer, type: :serializer do
   subject do
-    serialize(evidence_submission, serializer_class: described_class, params: { render_location: })
+    serialize(evidence_submission, { serializer_class: described_class, render_location: })
   end
 
   let(:evidence_submission) { build_stubbed(:evidence_submission_v0) }

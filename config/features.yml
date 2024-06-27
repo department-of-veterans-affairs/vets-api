@@ -23,6 +23,9 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal
     enable_in_development: true
+  appointments_consolidation:
+    actor_type: user
+    description: For features being tested while merging logic for appointments between web and mobile
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
@@ -136,10 +139,6 @@ features:
     actor_type: user
     description: Enables telephone appointments for check-in
     enable_in_development: false
-  check_in_experience_pre_check_in_action_link_top_placement:
-    actor_type: cookie_id
-    description: Changes pre-check-in action link placement to the top of the page
-    enable_in_development: true
   check_in_experience_travel_reimbursement:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
@@ -151,10 +150,6 @@ features:
   check_in_experience_cerner_travel_claims_enabled:
     actor_type: user
     description: Enables travel claims filing for Oracle Health (Cerner) sites
-    enable_in_development: true
-  check_in_experience_travel_logic:
-    actor_type: user
-    description: Enables the travel reimbursement logic
     enable_in_development: true
   check_in_experience_45_minute_reminder:
     actor_type: user
@@ -388,6 +383,9 @@ features:
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
+  disability_526_toxic_exposure_ipf:
+    actor_type: user
+    description: enables new pages, processing, and submission of toxic exposure claims for in progress forms (ipf)
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
@@ -471,7 +469,7 @@ features:
   fsr_5655_server_side_transform:
     actor_type: user
     description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
-    enable_in_development: false
+    enable_in_development: true
   financial_status_report_debts_api_module:
     actor_type: user
     description: Points to debts-api module routes
@@ -631,6 +629,9 @@ features:
   form400247:
     actor_type: user
     description: If enabled shows the digital form experience for form 40-0247
+  form1010d:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
   form_upload_flow:
     actor_type: user
     description: If enabled shows the find-a-form widget for the Form Upload Flow
@@ -1179,10 +1180,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for display of clinic location on appointment detail page
-  va_online_scheduling_status_improvement:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for homepage status improvement
   va_online_scheduling_status_improvement_canceled:
     actor_type: user
     enable_in_development: true
@@ -1264,9 +1261,16 @@ features:
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
+  va_profile_information_v3_service:
+    actor_type: user
+    description: When enabled, the VAProfile::V3::Service will be enabled for VaProfile::ProfileInformation
+    enable_in_development: false
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
+  veteran_onboarding_show_to_newly_onboarded:
+    actor_type: user
+    description: Conditionally display the new veteran onboarding flow to user, based upon number of days since verified
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
@@ -1286,6 +1290,10 @@ features:
   payment_history:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
+    enable_in_development: true
+  cdp_payment_history_vba:
+    actor_type: user
+    description: Enables showing the overpayment and summary pages for the CDP Payment History
     enable_in_development: true
   show_digital_form_1095b:
     actor_type: user
@@ -1526,3 +1534,7 @@ features:
     actor_type: user
     description: Use the new facilities API v2 for the Cerner CTA. Estimated time of removal June 18, 2024 after testing of deployment on staging of authenticated user.
     enable_in_development: true
+  toggle_vye_application:
+    actor_type: user
+    description: Enable VYE
+    
