@@ -36,9 +36,11 @@ class AccreditationService
     # See ZH 85933: https://app.zenhub.com/workspaces/accredited-representative-facing-team-65453a97a9cc36069a2ad1d6/issues/gh/department-of-veterans-affairs/va.gov-team/85933
     case Rails.env
     when 'development', 'test'
-      'http://localhost:5000/api/v1/accreditation/applications/form21a'
+      'http://localhost:5000/api/v1/accreditation/applications/form21a' # TODO: Update with OGC URLs
+      # See ZH: https://app.zenhub.com/workspaces/accredited-representative-facing-team-65453a97a9cc36069a2ad1d6/issues/gh/department-of-veterans-affairs/va.gov-team/87177
     when 'production'
-      Settings.form21a_service_url
+      # TODO: Update with actual OGC production URL
+      # See ZH: https://app.zenhub.com/workspaces/accredited-representative-facing-team-65453a97a9cc36069a2ad1d6/issues/gh/department-of-veterans-affairs/va.gov-team/87177
     end
   end
 end
