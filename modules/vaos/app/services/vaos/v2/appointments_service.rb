@@ -211,7 +211,7 @@ module VAOS
 
         convert_appointment_time(appt)
         fetch_avs_and_update_appt_body(appt) if avs_applicable?(appt) && Flipper.enabled?(AVS_FLIPPER, user)
-        find_and_merge_provider_name(appt) if appt[:kind] == 'cc' && %w[proposed cancelled].include?(appt[:status])
+        find_and_merge_provider_name(appt) if cc?(appt) && %w[proposed cancelled].include?(appt[:status])
       end
 
       def find_and_merge_provider_name(appt)
