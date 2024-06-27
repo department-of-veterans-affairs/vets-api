@@ -398,6 +398,25 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
+      context 'when requesting a list of appointments containing a booked cc appointment' do
+        it 'sets cancellable to false' do
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility2)
+          allow_any_instance_of(VAOS::V2::AppointmentProviderName).to receive(
+            :form_names_from_appointment_practitioners_list
+          ).and_return(provider_name)
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_cc_booked',
+                           allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
+            response = subject.get_appointments(start_date2, end_date2)
+            expect(response[:data][0][:kind]).to eq('cc')
+            expect(response[:data][0][:status]).to eq('booked')
+            expect(response[:data][0][:cancellable]).to eq(false)
+            expect(response[:data][1][:kind]).to eq('cc')
+            expect(response[:data][1][:status]).to eq('booked')
+            expect(response[:data][1][:cancellable]).to eq(false)
+          end
+        end
+      end
+
       context 'when requesting a list of appointments containing proposed or cancelled cc appointments' do
         it 'fetches provider info for a proposed cc appointment' do
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility2)
@@ -577,14 +596,14 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
-      context 'when requesting a CC appointment' do
+      context 'when requesting a proposed CC appointment' do
         let(:user) { build(:user, :vaos) }
 
-        it 'sets the cancellable attribute to false' do
+        it 'does not set the cancellable attribute to false' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_cc',
                            match_requests_on: %i[method path query]) do
             response = subject.get_appointment('159472')
-            expect(response[:cancellable]).to eq(false)
+            expect(response[:cancellable]).not_to eq(false)
           end
         end
       end
@@ -683,14 +702,14 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
-      context 'when requesting a CC appointment' do
+      context 'when requesting a proposed CC appointment' do
         let(:user) { build(:user, :vaos) }
 
-        it 'sets the cancellable attribute to false' do
+        it 'does not set the cancellable attribute to false' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_cc_vpg',
                            match_requests_on: %i[method path query]) do
             response = subject.get_appointment('159472')
-            expect(response[:cancellable]).to eq(false)
+            expect(response[:cancellable]).not_to eq(false)
           end
         end
       end

@@ -190,34 +190,26 @@ module VAOS
         get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
       end
 
-      def prepare_appointment(appointment)
+      def prepare_appointment(appt)
         # for CnP, covid, CC and telehealth appointments set cancellable to false per GH#57824, GH#58690, ZH#326
-        if cnp?(appointment) || covid?(appointment) || cc?(appointment) || telehealth?(appointment)
-          set_cancellable_false(appointment)
-        end
+        set_cancellable_false(appt) if cnp?(appt) || covid?(appt) || telehealth?(appt) || (cc?(appt) && booked?(appt))
 
         # remove service type(s) for non-medical non-CnP appointments per GH#56197
-        unless medical?(appointment) || cnp?(appointment) || no_service_cat?(appointment)
-          remove_service_type(appointment)
-        end
+        remove_service_type(appt) unless medical?(appt) || cnp?(appt) || no_service_cat?(appt)
 
         # set requestedPeriods to nil if the appointment is a booked cerner appointment per GH#62912
-        appointment[:requested_periods] = nil if booked?(appointment) && VAOS::AppointmentsHelper.cerner?(appointment)
+        appt[:requested_periods] = nil if booked?(appt) && VAOS::AppointmentsHelper.cerner?(appt)
 
-        convert_appointment_time(appointment)
-        if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
-          fetch_avs_and_update_appt_body(appointment)
-        end
-        if appointment[:kind] == 'cc' && %w[proposed cancelled].include?(appointment[:status])
-          find_and_merge_provider_name(appointment)
-        end
+        convert_appointment_time(appt)
+        fetch_avs_and_update_appt_body(appt) if avs_applicable?(appt) && Flipper.enabled?(AVS_FLIPPER, user)
+        find_and_merge_provider_name(appt) if appt[:kind] == 'cc' && %w[proposed cancelled].include?(appt[:status])
       end
 
-      def find_and_merge_provider_name(appointment)
-        practitioners_list = appointment[:practitioners]
+      def find_and_merge_provider_name(appt)
+        practitioners_list = appt[:practitioners]
         names = appointment_provider_name_service.form_names_from_appointment_practitioners_list(practitioners_list)
 
-        appointment[:preferred_provider_name] = names
+        appt[:preferred_provider_name] = names
       end
 
       def merge_clinic(appt)
