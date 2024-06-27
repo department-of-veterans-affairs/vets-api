@@ -54,7 +54,7 @@ unless Rails.env.test?
     end
 
     TravelClaim::Client.extend(StatsD::Instrument)
-    %i[token submit_claim].each do |method|
+    %i[token submit_claim claim_status].each do |method|
       TravelClaim::Client.statsd_count_success method, "api.check_in.v0.travel_claim.#{method}.count"
       TravelClaim::Client.statsd_measure method, "api.check_in.v0.travel_claim.#{method}.measure"
     end

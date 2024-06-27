@@ -20,7 +20,7 @@ RSpec.describe 'push send', type: :request do
         }
       end
 
-      it 'returns 200 and empty json', skip_json_api_validation: true do
+      it 'returns 200 and empty json', :skip_json_api_validation do
         VCR.use_cassette('vetext/send_success', match_requests_on: [:body]) do
           post '/mobile/v0/push/send', headers: sis_headers(json: true), params: params.to_json
           expect(response).to have_http_status(:ok)

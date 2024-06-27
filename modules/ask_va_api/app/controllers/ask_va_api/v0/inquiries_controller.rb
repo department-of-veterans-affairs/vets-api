@@ -4,7 +4,7 @@ module AskVAApi
   module V0
     class InquiriesController < ApplicationController
       around_action :handle_exceptions
-      skip_before_action :authenticate, only: %i[unauth_create upload_attachment show]
+      skip_before_action :authenticate, only: %i[unauth_create upload_attachment status]
       skip_before_action :verify_authenticity_token, only: %i[unauth_create upload_attachment]
 
       def index
@@ -47,7 +47,9 @@ module AskVAApi
       end
 
       def status
-        stat = Inquiries::Status::Retriever.new(icn: current_user.icn).call(inquiry_number: params[:id])
+        entity_class = Inquiries::Status::Entity
+        stat = Inquiries::Status::Retriever.new(user_mock_data: params[:user_mock_data], entity_class:,
+                                                inquiry_number: params[:id]).call
         render json: Inquiries::Status::Serializer.new(stat).serializable_hash, status: :ok
       end
 
@@ -66,7 +68,7 @@ module AskVAApi
 
       def retriever(icn: current_user.icn)
         entity_class = AskVAApi::Inquiries::Entity
-        @retriever ||= Inquiries::Retriever.new(icn:, user_mock_data: params[:mock], entity_class:)
+        @retriever ||= Inquiries::Retriever.new(icn:, user_mock_data: params[:user_mock_data], entity_class:)
       end
 
       def convert_keys_to_camel_case(params, translation_map)

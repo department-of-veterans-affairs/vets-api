@@ -36,6 +36,7 @@ module ClaimsApi
         # now upload to benefits documents
         start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
       rescue Faraday::ParsingError, Faraday::TimeoutError => e
+        set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
         error_status = get_error_status_code(e)
         log_job_progress(claim_id,
@@ -44,6 +45,7 @@ module ClaimsApi
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
+        set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
         log_job_progress(claim_id,
                          "Docker container job errored #{e.class}: #{auto_claim&.evss_response}")
@@ -54,6 +56,7 @@ module ClaimsApi
           {}
         end
       rescue => e
+        set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e) if auto_claim.evss_response.blank?
         log_job_progress(claim_id,
                          "Docker container job errored #{e.class}: #{e&.detailed_message}")

@@ -154,19 +154,11 @@ module ClaimsApi
           { data: {} }
         end
 
-        def process_claim(auto_claim, perform_async = true) # rubocop:disable Style/OptionalBooleanParameter
-          if perform_async
-            ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(
-              auto_claim.id,
-              veteran_middle_initial # PDF mapper just needs middle initial
-            )
-          else
-            ClaimsApi::V2::DisabilityCompensationPdfGenerator.new.perform(
-              auto_claim.id,
-              veteran_middle_initial, # PDF mapper just needs middle initial
-              false
-            )
-          end
+        def process_claim(auto_claim)
+          ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(
+            auto_claim.id,
+            veteran_middle_initial # PDF mapper just needs middle initial
+          )
         end
 
         # Only value required by background jobs that is missing in headers is middle name

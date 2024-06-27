@@ -869,14 +869,14 @@
             "properties": {
               "approximateBeginDate": {
                 "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
-                "type": ["string", "null"],
-                "nullable": true,
+                "type": ["string"],
+                "nullable": false,
                 "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                 "example": "2018-06-06 or 2018-06"
               },
               "approximateEndDate": {
-                "type": ["string", "null"],
-                "nullable": true,
+                "type": ["string"],
+                "nullable": false,
                 "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                 "example": "2018-06-06 or 2018-06"
               }

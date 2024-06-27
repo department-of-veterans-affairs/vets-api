@@ -7,8 +7,10 @@ inherit_from:
 require:
   - rubocop-rails
   - rubocop-rspec
-  - rubocop-thread_safety
+  - rubocop-capybara
   - rubocop-factory_bot
+  - rubocop-rspec_rails
+  - rubocop-thread_safety
 
 AllCops:
   NewCops: disable
@@ -193,10 +195,6 @@ RSpec/SpecFilePathFormat:
 RSpec/SpecFilePathSuffix:
   Enabled: true
 
-# This can be false if we have RSpec/SpecFilePathSuffix and RSpec/SpecFilePathFormat enabled.
-RSpec/FilePath:
-  Enabled: false
-
 # Was determined that using described_class makes the code less readable.
 RSpec/DescribedClass:
   Enabled: false
@@ -224,7 +222,24 @@ RSpec/BeforeAfterAll:
   Enabled: false
 
 # Determined to be too benign and/or numerous to justify changing
+RSpec/ExpectInLet:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/IndexedLet:
+  Enabled: false
+
+RSpec/RemoveConst:
+    Exclude:
+      - 'spec/sidekiq/kms_key_rotation/batch_initiator_job_spec.rb'
+      - 'modules/vba_documents/spec/mailers/unsuccessful_report_mailer_spec.rb'
+
+# Determined to be too benign and/or numerous to justify changing
 RSpec/ContextWording:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/MissingExpectationTargetMethod:
   Enabled: false
 
 # Determined to be too benign and/or numerous to justify changing

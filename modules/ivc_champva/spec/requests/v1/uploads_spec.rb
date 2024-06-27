@@ -158,20 +158,28 @@ RSpec.describe 'Forms uploader', type: :request do
 
     context 'when all status codes are 200' do
       it 'returns a status of 200' do
-        expect(controller.send(:build_json, [200, 200], 'Error')).to eq({ status: 200 })
+        expect(controller.send(:build_json, [200, 200], 'Error')).to eq({ json: {}, status: 200 })
       end
     end
 
     context 'when all status codes are 400' do
       it 'returns a status of 400 and an error message' do
-        expect(controller.send(:build_json, [400, 400], 'Error')).to eq({ error_message: 'Error', status: 400 })
+        expect(controller.send(:build_json, [400, 400], nil)).to eq({ json:
+        { error_message: 'An unknown error occurred while uploading some documents.' }, status: 400 })
       end
     end
 
-    context 'when status codes are mixed' do
-      it 'returns a status of 206 and a partial failure message' do
-        expect(controller.send(:build_json, [200, 400], 'Error')).to eq({ error_message:
-        'Partial upload failure', status: 206 })
+    context 'when status codes include a 400' do
+      it 'returns a status of 400' do
+        expect(controller.send(:build_json, [200, 400], nil)).to eq({ json:
+        { error_message: 'An unknown error occurred while uploading some documents.' }, status: 400 })
+      end
+    end
+
+    context 'when status codes are do not include 200 or 400' do
+      it 'returns a status of 500' do
+        expect(controller.send(:build_json, [300, 500], 'Error')).to eq({ json:
+        { error_message: 'An unknown error occurred while uploading document(s).' }, status: 500 })
       end
     end
   end

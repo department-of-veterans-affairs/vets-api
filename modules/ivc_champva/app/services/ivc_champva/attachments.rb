@@ -34,11 +34,10 @@ module IvcChampva
 
     def get_attachments
       attachments = []
-
       if defined?(self.class::ADDITIONAL_PDF_KEY) &&
          defined?(self.class::ADDITIONAL_PDF_COUNT) &&
+         @data[self.class::ADDITIONAL_PDF_KEY].is_a?(Array) &&
          @data[self.class::ADDITIONAL_PDF_KEY].count > self.class::ADDITIONAL_PDF_COUNT
-
         additional_data = @data[self.class::ADDITIONAL_PDF_KEY].drop(self.class::ADDITIONAL_PDF_COUNT)
         additional_data.each_slice(self.class::ADDITIONAL_PDF_COUNT) do |data|
           file_path = generate_additional_pdf(data)

@@ -3,6 +3,8 @@
 require 'claims_api/common/exceptions/lighthouse/token_validation_error'
 require 'claims_api/common/exceptions/lighthouse/json_validation_error'
 require 'claims_api/common/exceptions/lighthouse/json_disability_compensation_validation_error'
+require 'claims_api/common/exceptions/lighthouse/backend_service_exception'
+require './lib/common/exceptions/backend_service_exception'
 require 'claims_api/common/exceptions/lighthouse/unprocessable_entity'
 require 'claims_api/common/exceptions/lighthouse/resource_not_found'
 require 'claims_api/common/exceptions/lighthouse/bad_request'
@@ -22,7 +24,9 @@ module ClaimsApi
 
             rescue_from ::Common::Exceptions::ResourceNotFound,
                         ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound,
-                        ::ClaimsApi::Common::Exceptions::Lighthouse::BadRequest do |err|
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::BadRequest,
+                        ::Common::Exceptions::BackendServiceException,
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException do |err|
                           render_non_source_error(err)
                         end
 
@@ -51,7 +55,7 @@ module ClaimsApi
         def render_non_source_error(error)
           render json: {
             errors: error.errors.map do |e|
-              error_hash = e.as_json.slice('title', 'status', 'detail')
+              error_hash = e.as_json.slice('status', 'title', 'detail')
               error_hash
             end
           }, status: error.status_code

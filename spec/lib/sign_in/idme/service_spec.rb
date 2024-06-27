@@ -157,8 +157,8 @@ describe SignIn::Idme::Service do
     let(:expected_jwks_log) { '[SignIn][Idme][Service] Get Public JWKs Success' }
 
     before do
-      allow(Settings.idme).to receive(:client_cert_path).and_return(test_client_cert_path)
-      allow(Settings.idme).to receive(:client_key_path).and_return(test_client_key_path)
+      allow(Settings.idme).to receive_messages(client_cert_path: test_client_cert_path,
+                                               client_key_path: test_client_key_path)
     end
 
     it 'returns user attributes', vcr: { cassette_name: 'identity/idme_200_responses' } do

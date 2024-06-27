@@ -112,7 +112,7 @@ RSpec.describe 'Pega callback', type: :request do
 
       it 'returns HTTP status 200' do
         post '/ivc_champva/v1/forms/status_updates', params: invalid_payload
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:bad_request)
       end
 
       it 'returns an error message' do
