@@ -1579,10 +1579,26 @@ describe HCA::EnrollmentSystem do
     end
 
     context 'with attachments' do
-      it 'creates the right result', run_at: '2019-01-11 14:19:04 -0800' do
-        health_care_application = build(:hca_app_with_attachment)
-        result = described_class.veteran_to_save_submit_form(health_care_application.parsed_form, nil, '10-10EZ')
-        expect(result.to_json).to eq(get_fixture('hca/result_with_attachment').to_json)
+      context 'HCA attachment' do
+        it 'creates the right result', run_at: '2019-01-11 14:19:04 -0800' do
+          health_care_application = build(:hca_app_with_attachment)
+          result = described_class.veteran_to_save_submit_form(health_care_application.parsed_form, nil, '10-10EZ')
+          expect(result.to_json).to eq(get_fixture('hca/result_with_attachment').to_json)
+        end
+      end
+
+      context 'Form1010Ezr attachment' do
+        it 'creates the right result', run_at: '2024-06-27 18:22:17 -0800' do
+          parsed_form = get_fixture('form1010_ezr/valid_form').merge(
+            'attachments' => [
+              {
+                'confirmationCode' => create(:form1010_ezr_attachment).guid
+              }
+            ]
+          )
+          result = described_class.veteran_to_save_submit_form(parsed_form, nil, '10-10EZR')
+          expect(result.to_json).to eq(get_fixture('form1010_ezr/result_with_attachment').to_json)
+        end
       end
     end
 
