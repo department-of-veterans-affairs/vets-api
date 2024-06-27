@@ -932,9 +932,18 @@ preferred dates:12/13/2022 PM|pager number:8675309"
 
   describe 'healthcare provider' do
     let(:practitioner_list) do
-      [{ "identifier": [{ "system": 'dfn-983', "value": '520647609' }], "name": { "family": 'ENGHAUSER', "given": ['MATTHEW'] }, "practice_name": 'Site #983' },
-       { "identifier": [{ "system": 'dfn-983', "value": '520647609' }], "name": { "family": 'FORTH', "given": ['SALLY'] },
-         "practice_name": 'Site #983' }]
+      [
+        {
+          "identifier": [{ "system": 'dfn-983', "value": '520647609' }],
+          "name": { "family": 'ENGHAUSER', "given": ['MATTHEW'] },
+          "practice_name": 'Site #983'
+        },
+        {
+          "identifier": [{ "system": 'dfn-983', "value": '520647609' }],
+          "name": { "family": 'FORTH', "given": ['SALLY'] },
+          "practice_name": 'Site #983'
+        }
+      ]
     end
 
     it 'uses the first practitioner name in the list' do
