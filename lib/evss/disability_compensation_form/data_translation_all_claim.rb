@@ -59,7 +59,9 @@ module EVSS
         output_form['overflowText'] = overflow_text
         output_form['bddQualified'] = bdd_qualified?
         output_form['claimSubmissionSource'] = 'VA.gov'
-        output_form['includeToxicExposure'] = input_form['includeToxicExposure'] || false
+        # any form that has a startedFormVersion (whether it is '2019' or '2022')
+        # will go through the Toxic Exposure flow
+        output_form['startedFormVersion'] = input_form['startedFormVersion'] || nil
         output_form.compact!
 
         output_form.update(translate_banking_info)
@@ -68,7 +70,9 @@ module EVSS
         output_form.update(translate_veteran)
         output_form.update(translate_treatments)
         output_form.update(translate_disabilities)
-        output_form.update(add_toxic_exposure) if output_form['includeToxicExposure']
+        # any form that has a startedFormVersion (whether it is '2019' or '2022')
+        # will go through the Toxic Exposure flow
+        output_form.update(add_toxic_exposure) if output_form['startedFormVersion']
 
         @translated_form
       end

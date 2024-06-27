@@ -751,7 +751,7 @@ RSpec.describe FormProfile, type: :model do
       'bankAccountType' => 'Checking',
       'bankName' => 'Comerica',
       'bankRoutingNumber' => '*****2115',
-      'includeToxicExposure' => true
+      'startedFormVersion' => '2022'
     }
   end
 

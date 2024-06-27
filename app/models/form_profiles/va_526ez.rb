@@ -67,10 +67,12 @@ module VA526ez
     attribute :veteran, FormContactInformation
   end
 
-  class FormToxicExposure
+  # internal form prefill
+  # does not reach out to external services
+  class Form526Prefill
     include Virtus.model
 
-    attribute :include_toxic_exposure, Boolean
+    attribute :started_form_version, String
   end
 end
 
@@ -79,10 +81,10 @@ class FormProfiles::VA526ez < FormProfile
   attribute :rated_disabilities_information, VA526ez::FormRatedDisabilities
   attribute :veteran_contact_information, VA526ez::FormContactInformation
   attribute :payment_information, VA526ez::FormPaymentAccountInformation
-  attribute :toxic_exposure, VA526ez::FormToxicExposure
+  attribute :prefill_526, VA526ez::Form526Prefill
 
   def prefill
-    @toxic_exposure = initialize_toxic_exposure
+    @prefill_526 = initialize_form526_prefill
 
     begin
       @rated_disabilities_information = initialize_rated_disabilities_information
@@ -162,9 +164,11 @@ class FormProfiles::VA526ez < FormProfile
     end
   end
 
-  def initialize_toxic_exposure
-    VA526ez::FormToxicExposure.new(
-      include_toxic_exposure: Flipper.enabled?(:disability_526_toxic_exposure, user)
+  def initialize_form526_prefill
+    VA526ez::Form526Prefill.new(
+      # any form that has a startedFormVersion (whether it is '2019' or '2022') will go through the Toxic Exposure flow
+      # '2022' means the Toxic Exposure 1.0 flag.
+      started_form_version: Flipper.enabled?(:disability_526_toxic_exposure, user) ? '2022' : nil
     )
   end
 
