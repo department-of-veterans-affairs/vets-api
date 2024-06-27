@@ -25,6 +25,10 @@ RSpec.describe Form526Submission do
   end
   let(:submit_endpoint) { nil }
 
+  describe 'associations' do
+    it { is_expected.to have_many(:form526_submission_remediations) }
+  end
+
   describe 'submit_endpoint enum' do
     context 'when submit_endpoint is evss' do
       let(:submit_endpoint) { 'evss' }

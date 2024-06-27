@@ -58,7 +58,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 
@@ -163,7 +163,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 
@@ -184,7 +184,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 
@@ -205,7 +205,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 
@@ -221,7 +221,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 
@@ -237,7 +237,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 
@@ -256,7 +256,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 
@@ -392,7 +392,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::MHV_ORIGINAL_CSID,
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 
@@ -431,7 +431,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::DSLOGON_CSID,
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 

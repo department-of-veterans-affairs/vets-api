@@ -1,0 +1,291 @@
+{
+  "personalIdentification": {
+    "ssn": "4437",
+    "fileNumber": "4437",
+    "fsrReason": ""
+  },
+  "personalData": {
+    "veteranFullName": {
+      "first": "Mark",
+      "middle": "",
+      "last": "Webb"
+    },
+    "address": {
+      "addresslineOne": "1200 Park Ave",
+      "addresslineTwo": "c/o Pixar",
+      "addresslineThree": "",
+      "city": "Emeryville",
+      "stateOrProvince": "CA",
+      "zipOrPostalCode": "94608",
+      "countryName": "US"
+    },
+    "telephoneNumber": "(510) 922-4444",
+    "dateOfBirth": "10/04/1950",
+    "married": false,
+    "spouseFullName": {
+      "first": "",
+      "middle": "",
+      "last": ""
+    },
+    "agesOfOtherDependents": [
+      "12",
+      "17"
+    ],
+    "employmentHistory": []
+  },
+  "income": [
+    {
+      "veteranOrSpouse": "VETERAN",
+      "monthlyGrossSalary": "0.00",
+      "deductions": {
+        "taxes": "0.00",
+        "retirement": "0.00",
+        "socialSecurity": "0.00",
+        "otherDeductions": {
+          "name": "",
+          "amount": "0.00"
+        }
+      },
+      "totalDeductions": "0.00",
+      "netTakeHomePay": "0.00",
+      "otherIncome": {
+        "name": "",
+        "amount": "0.00"
+      },
+      "totalMonthlyNetIncome": "0.00"
+    },
+    {
+      "veteranOrSpouse": "SPOUSE",
+      "monthlyGrossSalary": "0.00",
+      "deductions": {
+        "taxes": "0.00",
+        "retirement": "0.00",
+        "socialSecurity": "0.00",
+        "otherDeductions": {
+          "name": "",
+          "amount": "0.00"
+        }
+      },
+      "totalDeductions": "0.00",
+      "netTakeHomePay": "0.00",
+      "otherIncome": {
+        "name": "",
+        "amount": "0.00"
+      },
+      "totalMonthlyNetIncome": "0.00"
+    }
+  ],
+  "expenses": {
+    "rentOrMortgage": "0.00",
+    "food": "0.00",
+    "utilities": "0.00",
+    "otherLivingExpenses": {
+      "name": "",
+      "amount": "0.00"
+    },
+    "expensesInstallmentContractsAndOtherDebts": "0.00",
+    "totalMonthlyExpenses": "0.00"
+  },
+  "discretionaryIncome": {
+    "netMonthlyIncomeLessExpenses": "0.00",
+    "amountCanBePaidTowardDebt": "0.00"
+  },
+  "assets": {
+    "cashInBank": "329.12",
+    "cashOnHand": "125.00",
+    "usSavingsBonds": "0.00",
+    "stocksAndOtherBonds": "0.00",
+    "realEstateOwned": "0.00",
+    "totalAssets": "454.12"
+  },
+  "installmentContractsAndOtherDebts": [],
+  "totalOfInstallmentContractsAndOtherDebts": {
+    "originalAmount": "0.00",
+    "unpaidBalance": "0.00",
+    "amountDueMonthly": "0.00",
+    "amountPastDue": "0.00"
+  },
+  "additionalData": {
+    "bankruptcy": {}
+  },
+  "applicantCertifications": {
+    "veteranSignature": "Mark  Webb",
+    "veteranDateSigned": "06/25/2024"
+  },
+  "selectedDebtsAndCopays": [
+    {
+      "id": "f4385298-08a6-42f8-a86f-50e97033fb85",
+      "pSSeqNum": "506.00",
+      "pSTotSeqNum": "588.00",
+      "pSFacilityNum": "534",
+      "pSFacPhoneNum": null,
+      "pSTotStatement": "27.00",
+      "pSStatementVal": "0000018255H",
+      "pSStatementDate": "11152019",
+      "pSStatementDateOutput": "11/15/2019",
+      "pSProcessDate": "11112019",
+      "pSProcessDateOutput": "11/11/2019",
+      "pHPatientLstNme": "JONES",
+      "pHPatientFstNme": "TRAVIS",
+      "pHPatientMidNme": "D",
+      "pHAddress1": "1885 SHORE DR S APT 327",
+      "pHAddress2": null,
+      "pHAddress3": null,
+      "pHCity": "SAVANNAH",
+      "pHState": "FL",
+      "pHZipCde": "314104413",
+      "pHZipCdeOutput": "31410-4413",
+      "pHCtryNme": null,
+      "pHAmtDue": "15.00",
+      "pHAmtDueOutput": "15.00&nbsp;&nbsp;",
+      "pHPrevBal": "135.00",
+      "pHPrevBalOutput": "135.00&nbsp;&nbsp;",
+      "pHTotCharges": "15.00",
+      "pHTotChargesOutput": "15.00&nbsp;&nbsp;",
+      "pHTotCredits": "-135.00",
+      "pHTotCreditsOutput": "135.00-&nbsp;",
+      "pHNewBalance": "15.00",
+      "pHNewBalanceOutput": "15.00&nbsp;&nbsp;",
+      "pHSpecialNotes": "To pay your statement online, go to www.pay.gov or call 1-888-827-4817.",
+      "pHroParaCdes": "304050556065708085",
+      "pHNumOfLines": "10.00",
+      "pHDfnNumber": "346310.00",
+      "pHCernerStatementNumber": "1005154223.00",
+      "pHCernerPatientId": "1005154223",
+      "pHCernerAccountNumber": "1005154223",
+      "pHIcnNumber": "1012845638V677813",
+      "pHAccountNumber": "0",
+      "pHLargeFontIndcator": "0.00",
+      "details": [
+        {
+          "pDDatePosted": "10072019",
+          "pDDatePostedOutput": "10/07/2019",
+          "pDTransDesc": "OUTPATIENT CARE(NSC)",
+          "pDTransDescOutput": "OUTPATIENT CARE",
+          "pDTransAmt": "-15.00",
+          "pDTransAmtOutput": "15.00-&nbsp;",
+          "pDRefNo": "534-K90HEWN"
+        },
+        {
+          "pDDatePosted": "10072019",
+          "pDDatePostedOutput": "10/07/2019",
+          "pDTransDesc": "OUTPATIENT CARE(NSC)",
+          "pDTransDescOutput": "OUTPATIENT CARE",
+          "pDTransAmt": "-15.00",
+          "pDTransAmtOutput": "15.00-&nbsp;",
+          "pDRefNo": "534-K90HEWN"
+        },
+        {
+          "pDDatePosted": "10072019",
+          "pDDatePostedOutput": "10/07/2019",
+          "pDTransDesc": "OUTPATIENT CARE(NSC)",
+          "pDTransDescOutput": "OUTPATIENT CARE",
+          "pDTransAmt": "-15.00",
+          "pDTransAmtOutput": "15.00-&nbsp;",
+          "pDRefNo": "534-K90HEWN"
+        },
+        {
+          "pDDatePosted": "10072019",
+          "pDDatePostedOutput": "10/07/2019",
+          "pDTransDesc": "OUTPATIENT CARE(NSC)",
+          "pDTransDescOutput": "OUTPATIENT CARE",
+          "pDTransAmt": "-15.00",
+          "pDTransAmtOutput": "15.00-&nbsp;",
+          "pDRefNo": "534-K90HEWN"
+        },
+        {
+          "pDDatePosted": "10072019",
+          "pDDatePostedOutput": "10/07/2019",
+          "pDTransDesc": "OUTPATIENT CARE(NSC)",
+          "pDTransDescOutput": "OUTPATIENT CARE",
+          "pDTransAmt": "-15.00",
+          "pDTransAmtOutput": "15.00-&nbsp;",
+          "pDRefNo": "534-K90HEWN"
+        },
+        {
+          "pDDatePosted": "10072019",
+          "pDDatePostedOutput": "10/07/2019",
+          "pDTransDesc": "OUTPATIENT CARE(NSC)",
+          "pDTransDescOutput": "OUTPATIENT CARE",
+          "pDTransAmt": "-15.00",
+          "pDTransAmtOutput": "15.00-&nbsp;",
+          "pDRefNo": "534-K90HEWN"
+        },
+        {
+          "pDDatePosted": "10072019",
+          "pDDatePostedOutput": "10/07/2019",
+          "pDTransDesc": "OUTPATIENT CARE(NSC)",
+          "pDTransDescOutput": "OUTPATIENT CARE",
+          "pDTransAmt": "-15.00",
+          "pDTransAmtOutput": "15.00-&nbsp;",
+          "pDRefNo": "534-K90HEWN"
+        },
+        {
+          "pDDatePosted": "10072019",
+          "pDDatePostedOutput": "10/07/2019",
+          "pDTransDesc": "OUTPATIENT CARE(NSC)",
+          "pDTransDescOutput": "OUTPATIENT CARE",
+          "pDTransAmt": "-15.00",
+          "pDTransAmtOutput": "15.00-&nbsp;",
+          "pDRefNo": "534-K90HEWN"
+        },
+        {
+          "pDDatePosted": "10072019",
+          "pDDatePostedOutput": "10/07/2019",
+          "pDTransDesc": "OUTPATIENT CARE(NSC)",
+          "pDTransDescOutput": "OUTPATIENT CARE",
+          "pDTransAmt": "-15.00",
+          "pDTransAmtOutput": "15.00-&nbsp;",
+          "pDRefNo": "534-K90HEWN"
+        },
+        {
+          "pDDatePosted": "10152019",
+          "pDDatePostedOutput": "10/15/2019",
+          "pDTransDesc": "OUTPATIENT CARE(NSC) VISIT DATE: 09/07/2018",
+          "pDTransDescOutput": "OUTPATIENT CARE VISIT DATE: 09/07/2018",
+          "pDTransAmt": "15.00",
+          "pDTransAmtOutput": "15.00&nbsp;&nbsp;",
+          "pDRefNo": "534-K009FK8"
+        }
+      ],
+      "station": {
+        "facilitYNum": "534",
+        "visNNum": "07",
+        "facilitYDesc": "RALPH H. JOHNSON VA MEDICAL CENTER (534)",
+        "cyclENum": "012",
+        "remiTToFlag": "L",
+        "maiLInsertFlag": "0",
+        "staTAddress1": "ACCOUNTS RECEIVABLE (04AR)",
+        "staTAddress2": "109 BEE ST",
+        "staTAddress3": null,
+        "city": "Charleston",
+        "state": "SC",
+        "ziPCde": "294015703",
+        "ziPCdeOutput": "29401-5703",
+        "baRCde": "*294015703090*",
+        "teLNumFlag": "P",
+        "teLNum": "1-866-258-2772",
+        "teLNum2": null,
+        "contacTInfo": null,
+        "dM2TelNum": null,
+        "contacTInfo2": null,
+        "toPTelNum": null,
+        "lbXFedexAddress1": null,
+        "lbXFedexAddress2": null,
+        "lbXFedexAddress3": null,
+        "lbXFedexCity": null,
+        "lbXFedexState": null,
+        "lbXFedexZipCde": null,
+        "lbXFedexBarCde": null,
+        "lbXFedexContact": null,
+        "lbXFedexContactTelNum": null,
+        "facilityName": "Ralph H. Johnson Department of Veterans Affairs Medical Center"
+      },
+      "debtType": "COPAY"
+    }
+  ],
+  "streamlined": {
+    "value": true,
+    "type": "short"
+  }
+}

@@ -3,7 +3,9 @@
 require 'rails_helper'
 require 'dgi/forms/response/sponsor_response'
 
-describe SponsorsSerializer do
+describe SponsorsSerializer, type: :serializer do
+  subject { serialize(sponsors_response, serializer_class: described_class) }
+
   let(:sponsors) do
     [
       {
@@ -19,36 +21,14 @@ describe SponsorsSerializer do
     response = double('response', status: 201, body: sponsors)
     MebApi::DGI::Forms::Response::SponsorResponse.new(response)
   end
-
-  let(:expected_response) do
-    {
-      data: {
-        id: '',
-        type: 'meb_api_dgi_exclusion_period_responses',
-        attributes: {
-          sponsors: [
-            {
-              'first_name' => 'Rodrigo',
-              'last_name' => 'Diaz',
-              'sponsor_relationship' => 'Spouse',
-              'date_of_birth' => '06/12/1975'
-            }
-          ]
-        }
-      }
-    }
-  end
-
-  let(:rendered_hash) do
-    ActiveModelSerializers::SerializableResource.new(sponsors_response, { serializer: described_class }).as_json
-  end
-  let(:rendered_attributes) { rendered_hash[:data][:attributes] }
+  let(:data) { JSON.parse(subject)['data'] }
+  let(:attributes) { data['attributes'] }
 
   it 'includes :id' do
-    expect(rendered_hash[:data][:id]).to be_blank
+    expect(data['id']).to be_blank
   end
 
-  it 'includes :sponsors' do
-    expect(rendered_attributes[:sponsors]).to eq expected_response[:data][:attributes][:sponsors]
+  it 'includes :enrollment_verifications' do
+    expect_data_eq(attributes['sponsors'], sponsors)
   end
 end

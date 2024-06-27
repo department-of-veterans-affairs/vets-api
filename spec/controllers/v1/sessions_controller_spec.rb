@@ -131,6 +131,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to eq({
                          type:,
                          authn_context: authn,
+                         application: payload[:application],
                          transaction_id: payload[:transaction_id]
                        })
             end
@@ -169,6 +170,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to eq({
                          type: 'custom',
                          authn_context: IAL::LOGIN_GOV_IAL2,
+                         application: payload[:application],
                          transaction_id: payload[:transaction_id]
                        })
             end
@@ -235,6 +237,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to eq({
                          type: 'custom',
                          authn_context: 'myhealthevet',
+                         application: payload[:application],
                          transaction_id: payload[:transaction_id]
                        })
             end
@@ -616,7 +619,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                                               'context:http://idmanagement.gov/ns/assurance/loa/1/vets',
                                               'version:v1'])
           .and trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE,
-                                        tags: ['context:idme', 'version:v1', 'client_id:', 'error:102'])
+                                        tags: ['type:idme', 'version:v1', 'client_id:vaweb', 'error:102'])
           .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY,
                                         tags: ['error:multiple_edipis', 'version:v1'])
 
@@ -626,7 +629,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'USiP user' do
         it 'logs the USiP client application' do
           SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: 'vamobile' })
-          login_failed_tags = ['context:idme', 'version:v1', 'client_id:vamobile', 'error:102']
+          login_failed_tags = ['type:idme', 'version:v1', 'client_id:vamobile', 'error:102']
 
           expect { call_endpoint }
             .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE, tags: login_failed_tags)
@@ -721,7 +724,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
 
           it 'logs the USiP client application' do
-            callback_tags = ['context:idme', 'version:v1', 'client_id:vamobile']
+            callback_tags = ['type:idme', 'version:v1', 'client_id:vamobile']
 
             expect { call_endpoint }
               .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_SUCCESS, tags: callback_tags, **once)
@@ -1047,7 +1050,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           )
           callback_tags = ['status:failure', 'context:unknown', 'version:v1']
           callback_failed_tags = ['error:clicked_deny', 'version:v1']
-          login_failed_tags = ['context:idme', 'version:v1', 'client_id:', 'error:001']
+          login_failed_tags = ['type:idme', 'version:v1', 'client_id:vaweb', 'error:001']
 
           expect { call_endpoint }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
@@ -1061,7 +1064,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         context 'USiP user' do
           it 'logs the USiP client application' do
             SAMLRequestTracker.create(uuid: multi_error_uuid, payload: { type: 'idme', application: 'vamobile' })
-            login_failed_tags = ['context:idme', 'version:v1', 'client_id:vamobile', 'error:001']
+            login_failed_tags = ['type:idme', 'version:v1', 'client_id:vamobile', 'error:001']
 
             expect { call_endpoint }
               .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE, tags: login_failed_tags)

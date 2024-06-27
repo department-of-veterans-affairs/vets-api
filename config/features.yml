@@ -136,10 +136,6 @@ features:
     actor_type: user
     description: Enables telephone appointments for check-in
     enable_in_development: false
-  check_in_experience_pre_check_in_action_link_top_placement:
-    actor_type: cookie_id
-    description: Changes pre-check-in action link placement to the top of the page
-    enable_in_development: true
   check_in_experience_travel_reimbursement:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
@@ -151,10 +147,6 @@ features:
   check_in_experience_cerner_travel_claims_enabled:
     actor_type: user
     description: Enables travel claims filing for Oracle Health (Cerner) sites
-    enable_in_development: true
-  check_in_experience_travel_logic:
-    actor_type: user
-    description: Enables the travel reimbursement logic
     enable_in_development: true
   check_in_experience_45_minute_reminder:
     actor_type: user
@@ -471,7 +463,7 @@ features:
   fsr_5655_server_side_transform:
     actor_type: user
     description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
-    enable_in_development: false
+    enable_in_development: true
   financial_status_report_debts_api_module:
     actor_type: user
     description: Points to debts-api module routes
@@ -804,6 +796,10 @@ features:
   mhv_medications_display_refill_content:
     actor_type: user
     description: Enables/disables refill-related content for Medications on VA.gov
+    enable_in_development: true
+  mhv_medications_display_documentation_content:
+    actor_type: user
+    description: Enables/disables documentation-related content for Medications on VA.gov
     enable_in_development: true
   mhv_landing_page_enable_va_gov_health_tools_links:
     actor_type: user
@@ -1175,10 +1171,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for display of clinic location on appointment detail page
-  va_online_scheduling_status_improvement:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for homepage status improvement
   va_online_scheduling_status_improvement_canceled:
     actor_type: user
     enable_in_development: true
@@ -1260,6 +1252,10 @@ features:
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
+  va_profile_information_v3_service:
+    actor_type: user
+    description: When enabled, the VAProfile::V3::Service will be enabled for VaProfile::ProfileInformation
+    enable_in_development: false
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
@@ -1282,6 +1278,10 @@ features:
   payment_history:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
+    enable_in_development: true
+  cdp_payment_history_vba:
+    actor_type: user
+    description: Enables showing the overpayment and summary pages for the CDP Payment History
     enable_in_development: true
   show_digital_form_1095b:
     actor_type: user
@@ -1522,3 +1522,7 @@ features:
     actor_type: user
     description: Use the new facilities API v2 for the Cerner CTA. Estimated time of removal June 18, 2024 after testing of deployment on staging of authenticated user.
     enable_in_development: true
+  toggle_vye_application:
+    actor_type: user
+    description: Enable VYE
+    

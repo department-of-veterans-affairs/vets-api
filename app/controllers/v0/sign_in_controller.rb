@@ -114,7 +114,7 @@ module V0
       serializer_response = SignIn::TokenSerializer.new(session_container:,
                                                         cookies: token_cookies).perform
 
-      sign_in_logger.info('refresh', session_container.access_token.to_s)
+      sign_in_logger.info('refresh', session_container.context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS)
 
       render json: serializer_response, status: :ok
