@@ -251,8 +251,13 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_disability_secondary_disabilities
+      def validate_form_526_disability_secondary_disabilities # rubocop:disable Metrics/MethodLength
         form_attributes['disabilities'].each_with_index do |disability, dis_idx|
+          if disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].blank?
+            collect_error_messages(source: "disabilities/#{dis_idx}/",
+                                   detail: 'If the `disabilityActionType` is set to `NONE` ' \
+                                           'there must be a secondary disability present.')
+          end
           next if disability['secondaryDisabilities'].blank?
 
           validate_form_526_disability_secondary_disability_required_fields(disability, dis_idx)
