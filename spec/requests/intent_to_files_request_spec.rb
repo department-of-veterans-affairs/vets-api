@@ -43,8 +43,7 @@ RSpec.describe 'Intent to file' do
         it 'does not throw a 403 when user is missing birls_id and edipi' do
           # Stub blank birls_id and blank edipi
           allow(user.identity).to receive(:edipi).and_return(nil)
-          allow(user).to receive(:edipi_mpi).and_return(nil)
-          allow(user).to receive(:birls_id).and_return(nil)
+          allow(user).to receive_messages(edipi_mpi: nil, birls_id: nil)
           VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response') do
             get '/v0/intent_to_file'
             expect(response).to have_http_status(:ok)
