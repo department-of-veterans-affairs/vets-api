@@ -99,6 +99,10 @@ RSpec.describe V1::SupplementalClaimsController do
   end
 
   describe '#create with 4142' do
+    before do
+      Flipper.disable :decision_review_sc_use_lighthouse_api_for_form4142
+    end
+
     def personal_information_logs
       PersonalInformationLog.where 'error_class like ?',
                                    'V1::SupplementalClaimsController#create exception % (SC_V1)'
