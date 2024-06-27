@@ -56,7 +56,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
                  'veteran_relationship' => 'self' } }
         end
 
-        before { get inquiry_path, params: { mock: true } }
+        before { get inquiry_path, params: { user_mock_data: true } }
 
         it { expect(response).to have_http_status(:ok) }
         it { expect(JSON.parse(response.body)['data']).to include(json_response) }
@@ -140,7 +140,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       context 'when mock is given' do
         before do
           sign_in(authorized_user)
-          get "#{inquiry_path}/#{valid_id}", params: { mock: true }
+          get "#{inquiry_path}/#{valid_id}", params: { user_mock_data: true }
         end
 
         it { expect(response).to have_http_status(:ok) }
@@ -317,25 +317,55 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   end
 
   describe 'GET #status' do
-    before do
-      allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
-      allow_any_instance_of(Crm::Service)
-        .to receive(:call).and_return({
-                                        Status: 'Reopened',
-                                        Message: nil,
-                                        ExceptionOccurred: false,
-                                        ExceptionMessage: nil,
-                                        MessageId: 'c6252e77-cf7f-48b6-96be-1b43d8e9905c'
-                                      })
-      sign_in(authorized_user)
-      get "/ask_va_api/v0/inquiries/#{valid_id}/status"
+    context 'When succesful' do
+      before do
+        allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+        allow_any_instance_of(Crm::Service)
+          .to receive(:call).and_return({
+                                          Data: {
+                                            Status: 'Reopened',
+                                            InquiryLevelOfAuthentication: 'Personal'
+                                          },
+                                          Message: nil,
+                                          ExceptionOccurred: false,
+                                          ExceptionMessage: nil,
+                                          MessageId: '26f5be95-87c6-47f0-9722-1abb5f1a59b5'
+                                        })
+        get "/ask_va_api/v0/inquiries/#{valid_id}/status"
+      end
+
+      it 'returns the status for the given inquiry id' do
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['data']).to eq({ 'id' => nil,
+                                                          'type' => 'inquiry_status',
+                                                          'attributes' => { 'status' => 'Reopened' } })
+      end
     end
 
-    it 'returns the status for the given inquiry id' do
-      expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)['data']).to eq({ 'id' => nil,
-                                                        'type' => 'inquiry_status',
-                                                        'attributes' => { 'status' => 'Reopened' } })
+    context 'When not successful' do
+      let(:endpoint) { AskVAApi::Inquiries::Status::Retriever::ENDPOINT }
+      let(:body) do
+        '{"Data":null,"Message":"Data Validation: No Inquiries found",' \
+          '"ExceptionOccurred":true,' \
+          '"ExceptionMessage":"Data Validation: No Inquiries found",' \
+          '"MessageId":"28cda301-5977-4052-a391-9ab36d514919"}'
+      end
+      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
+      let(:payload) { { inquiry_number: 'A-1' } }
+
+      before do
+        allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+        allow_any_instance_of(Crm::Service).to receive(:call)
+          .with(endpoint:, payload:).and_return(failure)
+        get "/ask_va_api/v0/inquiries/#{valid_id}/status"
+      end
+
+      it 'raise StatusRetrieverError' do
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                      'AskVAApi::Inquiries::Status::StatusRetrieverError: Data Validation: No Inquiries found'
     end
   end
 

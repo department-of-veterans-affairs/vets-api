@@ -155,7 +155,8 @@ module V0
     end
 
     def includes_toxic_exposure?
-      form_content['form526']['includeToxicExposure']
+      # any form that has a startedFormVersion (whether it is '2019' or '2022') will go through the Toxic Exposure flow
+      form_content['form526']['startedFormVersion']
     end
   end
 end

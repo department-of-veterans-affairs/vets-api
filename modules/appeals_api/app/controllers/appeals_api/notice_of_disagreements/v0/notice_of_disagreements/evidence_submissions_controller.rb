@@ -31,7 +31,7 @@ module AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements
 
       submission = with_status_simulation(submission) if status_requested_and_allowed?
 
-      render json: AppealsApi::NoticeOfDisagreements::V0::EvidenceSubmissionSerializer.new(submission).serializable_hash
+      render json: AppealsApi::EvidenceSubmissionSerializer.new(submission).serializable_hash
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -60,7 +60,7 @@ module AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements
       )
 
       render status: :created,
-             json: AppealsApi::NoticeOfDisagreements::V0::EvidenceSubmissionSerializer.new(
+             json: AppealsApi::EvidenceSubmissionSerializer.new(
                submission, { params: { render_location: true } }
              ).serializable_hash
     end

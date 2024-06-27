@@ -14,8 +14,7 @@ RSpec.describe Representatives::XlsxFileFetcher do
       allow(fetcher).to receive(:fetch_github_access_token).and_return(github_access_token)
       allow(fetcher).to receive(:log_message_to_sentry)
       allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-      allow(octokit_client).to receive(:commits).and_return(commits)
-      allow(octokit_client).to receive(:contents).and_return(file_info)
+      allow(octokit_client).to receive_messages(commits:, contents: file_info)
       allow(Net::HTTP).to receive(:get_response).and_return(instance_double(Net::HTTPSuccess, body: 'file content',
                                                                                               is_a?: true))
     end

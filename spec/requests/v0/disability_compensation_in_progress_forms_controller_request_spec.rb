@@ -101,6 +101,34 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             expect(json_response['metadata']['returnUrl']).to eq('/va-employee')
           end
         end
+
+        context 'when toxic exposure' do
+          before do
+            Flipper.disable('disability_526_toxic_exposure_ipf')
+          end
+
+          it 'returns startedFormVersion as 2019 in the response for toxic exposure 1.1 release' do
+            Flipper.enable('disability_526_toxic_exposure_ipf')
+            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+              get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+            end
+
+            expect(response).to have_http_status(:ok)
+            json_response = JSON.parse(response.body)
+            expect(json_response['formData']['startedFormVersion']).to eq('2019')
+          end
+
+          # if the user with an IPF was not chosen for Toxic Exposure 1.1 release
+          it 'does not return startedFormVersion' do
+            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+              get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+            end
+
+            expect(response).to have_http_status(:ok)
+            json_response = JSON.parse(response.body)
+            expect(json_response['formData']['startedFormVersion']).to eq(nil)
+          end
+        end
       end
 
       context 'prefills formData when user does not have an InProgressForm pending submission' do
@@ -112,17 +140,17 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
         let(:user) { loa1_user }
         let!(:form_id) { '21-526EZ' }
 
-        it 'adds includeToxicExposure when corresponding flag is enabled for user' do
+        it 'adds startedFormVersion when corresponding flag is enabled for user' do
           Flipper.enable(:disability_526_toxic_exposure, user)
           get v0_disability_compensation_in_progress_form_url(form_id), params: nil
           json_response = JSON.parse(response.body)
-          expect(json_response['formData']['includeToxicExposure']).to eq(true)
+          expect(json_response['formData']['startedFormVersion']).to eq('2022')
         end
 
-        it 'omits adding includeToxicExposure when corresponding flag is not enabled for user' do
+        it 'omits adding startedFormVersion when corresponding flag is not enabled for user' do
           get v0_disability_compensation_in_progress_form_url(form_id), params: nil
           json_response = JSON.parse(response.body)
-          expect(json_response['formData']['includeToxicExposure']).to eq(nil)
+          expect(json_response['formData']['startedFormVersion']).to eq(nil)
         end
       end
 
@@ -221,6 +249,34 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             )
             expect(json_response['formData']['updatedRatedDisabilities']).to be_nil
             expect(json_response['metadata']['returnUrl']).to eq('/va-employee')
+          end
+        end
+
+        context 'when toxic exposure' do
+          before do
+            Flipper.disable('disability_526_toxic_exposure_ipf')
+          end
+
+          it 'returns startedFormVersion as 2019 in the response for toxic exposure 1.1 release' do
+            Flipper.enable('disability_526_toxic_exposure_ipf')
+            VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+              get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
+            end
+
+            expect(response).to have_http_status(:ok)
+            json_response = JSON.parse(response.body)
+            expect(json_response['formData']['startedFormVersion']).to eq('2019')
+          end
+
+          # if the user with an IPF was not chosen for Toxic Exposure 1.1 release
+          it 'does not return startedFormVersion' do
+            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+              get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
+            end
+
+            expect(response).to have_http_status(:ok)
+            json_response = JSON.parse(response.body)
+            expect(json_response['formData']['startedFormVersion']).to eq(nil)
           end
         end
 
