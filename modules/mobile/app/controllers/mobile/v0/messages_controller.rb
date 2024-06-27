@@ -49,11 +49,10 @@ module Mobile
         client_response = if message.uploads.present?
                             begin
                               client.post_create_message_with_attachment(create_message_params)
-                            rescue => e
-                              Rails.logger.info('Mobile SM create with attachment error', status: e.status,
-                                                                                          error_body: e.body,
-                                                                                          message: e.message,
-                                                                                          response: response&.body)
+                            rescue Common::Client::Errors::Serialization => e
+                              Rails.logger.info('Mobile SM create with attachment error', status: e&.status,
+                                                                                          error_body: e&.body,
+                                                                                          message: e&.message)
                               raise e
                             end
                           else

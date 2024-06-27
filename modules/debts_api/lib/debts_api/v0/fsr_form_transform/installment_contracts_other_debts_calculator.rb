@@ -11,14 +11,16 @@ module DebtsApi
 
         def initialize(form)
           @form = form
+          @install_contracts = @form['installment_contracts'] || []
+          @credit_card_bills = @form.dig('expenses', 'credit_card_bills') || []
         end
 
         def get_data
-          transformed_installment_contracts = @form['installment_contracts'].map do |it|
+          transformed_installment_contracts = @install_contracts.map do |it|
             get_installment_or_other_debt_data_for(it)
           end
 
-          transformed_cc_payments = @form['expenses']['credit_card_bills'].map do |it|
+          transformed_cc_payments = @credit_card_bills.map do |it|
             get_installment_or_other_debt_data_for(it)
           end
 
@@ -66,7 +68,7 @@ module DebtsApi
 
         def get_total_installment_debt_amounts_for(key)
           credit_card_bills = @form['expenses']['credit_card_bills']
-          installment_contracts = @form['installment_contracts']
+          installment_contracts = @install_contracts
           sum_amount = [*credit_card_bills, *installment_contracts].reduce(0) { |acc, it| acc + str_to_num(it[key]) }
 
           format('%.2f', sum_amount)

@@ -41,13 +41,13 @@ module MebApi
       def claimant_info
         response = claimant_service.get_claimant_info('toe')
 
-        render json: response, serializer: ToeClaimantInfoSerializer
+        render json: ToeClaimantInfoSerializer.new(response)
       end
 
       def sponsors
         response = sponsor_service.post_sponsor
 
-        render json: response, serializer: SponsorsSerializer
+        render json: SponsorsSerializer.new(response)
       end
 
       def submit_claim
