@@ -42,7 +42,7 @@ module MAP
 
       def parse_and_raise_error(e, icn, application)
         status = e.status
-        parse_body = e.body.present? ? JSON.parse(e.body) : {}
+        parse_body = e.body.presence || {}
         context = { error: parse_body['error'] }
         message = "#{config.logging_prefix} token failed, client error"
 
@@ -51,7 +51,7 @@ module MAP
       end
 
       def parse_response(response, application, icn)
-        response_body = JSON.parse(response.body)
+        response_body = response.body
 
         {
           access_token: response_body['access_token'],
