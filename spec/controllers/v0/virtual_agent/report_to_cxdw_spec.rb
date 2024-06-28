@@ -9,9 +9,8 @@ RSpec.describe 'VirtualAgent.ReportToCxdw', type: :request do
   expected_token = 'fake_token'
 
   it 'retrieves a dataverse oauth token' do
-    allow(Settings.virtual_agent).to receive(:cxdw_app_uri).and_return('https://fake.com')
-    allow(Settings.virtual_agent).to receive(:cxdw_client_id).and_return('client_id')
-    allow(Settings.virtual_agent).to receive(:cxdw_client_secret).and_return('client_secret')
+    allow(Settings.virtual_agent).to receive_messages(cxdw_app_uri: 'https://fake.com', cxdw_client_id: 'client_id',
+                                                      cxdw_client_secret: 'client_secret')
     VCR.use_cassette('virtual_agent_cxdw_oauth_token', record: :none, match_requests_on: [:uri]) do
       access_token = V0::VirtualAgent::ReportToCxdw.new.send(:get_new_token, dataverse_uri)
       expect(access_token).to eq(expected_token)

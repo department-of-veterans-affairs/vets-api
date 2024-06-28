@@ -6,8 +6,7 @@ require 'carma/client/mule_soft_configuration'
 describe CARMA::Client::MuleSoftConfiguration do
   describe 'id and secret' do
     before do
-      allow(Settings.form_10_10cg.carma.mulesoft).to receive(:client_id).and_return(fake_id)
-      allow(Settings.form_10_10cg.carma.mulesoft).to receive(:client_secret).and_return(fake_secret)
+      allow(Settings.form_10_10cg.carma.mulesoft).to receive_messages(client_id: fake_id, client_secret: fake_secret)
     end
 
     context 'have values' do

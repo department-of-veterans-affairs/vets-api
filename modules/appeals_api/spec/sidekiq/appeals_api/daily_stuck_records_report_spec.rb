@@ -63,7 +63,7 @@ describe AppealsApi::DailyStuckRecordsReport, type: :job do
           end
 
           expect(AppealsApi::Slack::StuckRecordNotification)
-            .to have_received(:new).with(contain_exactly(*expected_data))
+            .to have_received(:new).with(match_array(expected_data))
         end
       end
     end

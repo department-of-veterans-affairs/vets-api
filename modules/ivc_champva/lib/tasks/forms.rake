@@ -47,6 +47,13 @@ namespace :ivc_champva do
       end
     SUB_DATE_CONFIG
 
+    track_user_identity_method = <<-TRACK_USER_CONFIG
+      def track_user_identity
+        # Add STATS_KEY to top of file
+        # Copy other data from 10-10D
+      end
+    TRACK_USER_CONFIG
+
     method_missing_method = <<-METHOD_MISSING
     def method_missing(_, *args)
       args&.first
@@ -85,6 +92,8 @@ namespace :ivc_champva do
       f.puts metadata_method
 
       f.puts submission_date_config_method
+
+      f.puts track_user_identity_method
 
       f.puts method_missing_method
 

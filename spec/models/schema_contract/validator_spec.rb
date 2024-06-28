@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative Rails.root.join('app', 'models', 'schema_contract', 'validator')
 
-describe SchemaContract::Validator, aggregate_failures: true do
+describe SchemaContract::Validator, :aggregate_failures do
   describe '#validate' do
     let(:fixture) { 'spec/fixtures/schema_contract/test_schema.json' }
     let(:test_data) { Rails.root.join(fixture).read }
