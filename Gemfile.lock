@@ -818,7 +818,7 @@ GEM
       nokogiri (~> 1.14)
     rails-session_cookie (0.3.0)
       rails (>= 4.0)
-    rails_semantic_logger (4.14.0)
+    rails_semantic_logger (4.15.0)
       rack
       railties (>= 5.1)
       semantic_logger (~> 4.13)
