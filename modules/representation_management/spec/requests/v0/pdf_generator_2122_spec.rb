@@ -63,7 +63,6 @@ RSpec.describe 'PdfGenerator2122Controller', type: :request do
 
       it 'responds with a created status' do
         post base_path, params: all_required_params
-        p "response: #{response.inspect}"
         expect(response).to have_http_status(:created)
       end
     end
