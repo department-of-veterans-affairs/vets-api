@@ -98,16 +98,7 @@ module SimpleFormsApi
         json_for210966(confirmation_number, expiration_date, existing_intents)
       rescue Common::Exceptions::UnprocessableEntity => e
         # There is an authentication issue with the Intent to File API so we revert to sending a PDF to Central Mail
-        Rails.logger.info(
-          'Simple forms api - 21-0966 Benefits Claims Intent to File API error,' \
-          'reverting to filling a PDF and sending it to Central Mail',
-          {
-            error: e,
-            current_user_participant_id: @current_user.participant_id,
-            current_user_account_uuid: @current_user.user_account_uuid
-          }
-        )
-        prepare_params_for_central_mail
+        prepare_params_for_central_mail_and_log_error
         submit_form_to_central_mail
       end
 
@@ -200,13 +191,22 @@ module SimpleFormsApi
         json
       end
 
-      def prepare_params_for_central_mail
+      def prepare_params_for_central_mail_and_log_error
         params['veteran_full_name'] ||= {
           'first' => params['full_name']['first'],
           'last' => params['full_name']['last']
         }
         params['veteran_id'] ||= { 'ssn' => params['ssn'] }
         params['veteran_mailing_address'] ||= { 'postal_code' => @current_user.address[:postal_code] || '00000' }
+        Rails.logger.info(
+          'Simple forms api - 21-0966 Benefits Claims Intent to File API error,' \
+          'reverting to filling a PDF and sending it to Central Mail',
+          {
+            error: e,
+            current_user_participant_id: @current_user.participant_id,
+            current_user_account_uuid: @current_user.user_account_uuid
+          }
+        )
       end
 
       def json_for210966(confirmation_number, expiration_date, existing_intents)
