@@ -120,7 +120,7 @@ RSpec.describe 'immunizations', :skip_json_api_validation, type: :request do
         end
       end
 
-      it 'returns a 500' do
+      it 'returns a 502' do
         expect(response).to have_http_status(:bad_gateway)
         error = { 'errors' => [{ 'title' => 'Bad Gateway',
                                  'detail' => 'Received an an invalid response from the upstream server',
