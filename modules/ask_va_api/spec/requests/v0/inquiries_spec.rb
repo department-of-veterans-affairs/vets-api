@@ -351,7 +351,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
           '"MessageId":"28cda301-5977-4052-a391-9ab36d514919"}'
       end
       let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
-      let(:payload) { { inquiry_number: 'A-1' } }
+      let(:payload) { { InquiryNumber: 'A-1' } }
 
       before do
         allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
