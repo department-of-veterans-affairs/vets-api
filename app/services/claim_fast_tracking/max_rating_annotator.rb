@@ -39,13 +39,14 @@ module ClaimFastTracking
     end
 
     def self.diagnostic_code_type(diagnostic_code)
-      if diagnostic_code.nil?
+      case diagnostic_code
+      when nil
         :missing_diagnostic_code
-      elsif diagnostic_code.between?(7200, 7399)
+      when 7200..7399
         :digestive_system
-      elsif diagnostic_code.between?(6300, 6399)
+      when 6300..6399
         :infectious_disease
-      elsif diagnostic_code % 100 == 99
+      when ->(dc) { dc % 100 == 99 }
         :unlisted_condition
       else
         :primary_max_rating
