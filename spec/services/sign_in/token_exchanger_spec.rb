@@ -104,7 +104,7 @@ RSpec.describe SignIn::TokenExchanger, type: :model do
               let(:actor_token_type) { SignIn::Constants::Urn::DEVICE_SECRET }
               let(:new_client_config) do
                 create(:client_config,
-                       access_token_attributes: %i[first_name last_name email],
+                       access_token_attributes: %i[first_name last_name email all_emails],
                        shared_sessions:,
                        enforced_terms: nil)
               end

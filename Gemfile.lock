@@ -136,7 +136,7 @@ PATH
 GEM
   remote: https://enterprise.contribsys.com/
   specs:
-    sidekiq-ent (7.2.2)
+    sidekiq-ent (7.2.4)
       einhorn (~> 1.0)
       gserver
       sidekiq (>= 7.2.0, < 8)
@@ -346,7 +346,7 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    datadog-ci (0.6.0)
+    datadog-ci (0.8.3)
       msgpack
     date (3.3.4)
     date (3.3.4-java)
@@ -354,10 +354,10 @@ GEM
     date_validator (0.12.0)
       activemodel (>= 3)
       activesupport (>= 3)
-    ddtrace (1.19.0)
-      datadog-ci (~> 0.6.0)
+    ddtrace (1.23.2)
+      datadog-ci (~> 0.8.1)
       debase-ruby_core_source (= 3.3.1)
-      libdatadog (~> 5.0.0.1.0)
+      libdatadog (~> 7.0.0.1.0)
       libddwaf (~> 1.14.0.0.0)
       msgpack
     debase-ruby_core_source (3.3.1)
@@ -612,9 +612,9 @@ GEM
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
     language_server-protocol (3.17.0.3)
-    libdatadog (5.0.0.1.0)
-    libdatadog (5.0.0.1.0-aarch64-linux)
-    libdatadog (5.0.0.1.0-x86_64-linux)
+    libdatadog (7.0.0.1.0)
+    libdatadog (7.0.0.1.0-aarch64-linux)
+    libdatadog (7.0.0.1.0-x86_64-linux)
     libddwaf (1.14.0.0.0)
       ffi (~> 1.0)
     libddwaf (1.14.0.0.0-aarch64-linux)
@@ -840,7 +840,7 @@ GEM
       psych (>= 4.0.0)
     redis (5.2.0)
       redis-client (>= 0.22.0)
-    redis-client (0.22.1)
+    redis-client (0.22.2)
       connection_pool
     redis-namespace (1.11.0)
       redis (>= 4)

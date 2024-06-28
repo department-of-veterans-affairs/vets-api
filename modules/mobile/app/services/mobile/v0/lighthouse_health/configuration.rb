@@ -38,6 +38,7 @@ module Mobile
         def access_token_connection
           Faraday.new(access_token_url) do |conn|
             conn.use :breakers
+            conn.use Faraday::Response::RaiseError
             conn.response :json, content_type: /\bjson$/
             conn.adapter Faraday.default_adapter
           end
