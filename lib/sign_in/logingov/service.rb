@@ -9,7 +9,7 @@ module SignIn
     class Service < Common::Client::Base
       configuration Configuration
 
-      SCOPE = 'profile profile:verified_at address email social_security_number openid'
+      SCOPE = 'profile profile:verified_at address email social_security_number openid all_emails'
 
       def render_auth(state: SecureRandom.hex,
                       acr: Constants::Auth::LOGIN_GOV_IAL1,
@@ -43,6 +43,7 @@ module SignIn
       def user_info(token)
         response = perform(:get, config.userinfo_path, nil, { 'Authorization' => "Bearer #{token}" })
         log_credential(response.body) if config.log_credential
+
         OpenStruct.new(response.body)
       rescue Common::Client::Errors::ClientError => e
         raise_client_error(e, 'UserInfo')
@@ -59,6 +60,7 @@ module SignIn
           last_name: user_info.family_name,
           address: normalize_address(user_info.address),
           csp_email: user_info.email,
+          all_csp_emails: user_info.all_emails,
           multifactor: true,
           service_name: config.service_name,
           authn_context: get_authn_context(credential_level.current_ial),
