@@ -4,6 +4,7 @@ module IvcChampva
   class VHA1010d
     ADDITIONAL_PDF_KEY = 'applicants'
     ADDITIONAL_PDF_COUNT = 3
+    STATS_KEY = 'api.ivc_champva_form.10_10d'
 
     include Virtus.model(nullify_blank: true)
     include Attachments
@@ -39,6 +40,12 @@ module IvcChampva
 
     def submission_date_config
       { should_stamp_date?: false }
+    end
+
+    def track_user_identity
+      identity = data['certifier_role']
+      StatsD.increment("#{STATS_KEY}.#{identity}")
+      Rails.logger.info('IVC ChampVA Forms - 10-10D Submission User Identity', identity:)
     end
 
     def method_missing(_, *args)
