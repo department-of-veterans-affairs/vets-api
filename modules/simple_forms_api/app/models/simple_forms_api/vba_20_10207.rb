@@ -53,7 +53,7 @@ module SimpleFormsApi
     end
 
     def words_to_remove
-      veteran_ssn + veteran_date_of_birth + veteran_address + veteran_home_phone + veteran_email +
+      veteran_ssn + veteran_date_of_birth + veteran_address + veteran_home_phone +
         non_veteran_date_of_birth + non_veteran_ssn + non_veteran_phone
     end
 
