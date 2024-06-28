@@ -505,12 +505,13 @@ RSpec.describe HealthCareApplication, type: :model do
             let(:email_address) { health_care_application.parsed_form['email'] }
             let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
             let(:template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email }
-
             let(:template_params) do
               [
                 email_address,
                 template_id,
-                nil,
+                {
+                  'first_name' => health_care_application.parsed_form['veteranFullName']['first']
+                },
                 api_key
               ]
             end
@@ -526,6 +527,27 @@ RSpec.describe HealthCareApplication, type: :model do
               allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
               expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
               expect { subject }.not_to raise_error
+            end
+
+            context 'without first name' do
+              subject do
+                health_care_application.parsed_form['veteranFullName'] = nil
+                super()
+              end
+
+              let(:template_params) do
+                [
+                  email_address,
+                  template_id,
+                  nil,
+                  api_key
+                ]
+              end
+
+              it 'sends email without personalisations' do
+                subject
+                expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params)
+              end
             end
           end
 

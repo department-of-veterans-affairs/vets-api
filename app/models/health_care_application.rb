@@ -284,13 +284,16 @@ class HealthCareApplication < ApplicationRecord
     if Flipper.enabled?(:hca_submission_failure_email_va_notify)
       begin
         email = parsed_form['email']
+        first_name = parsed_form.dig('veteranFullName', 'first')
         template_id = Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email
         api_key = Settings.vanotify.services.health_apps_1010.api_key
+
+        personalisations = first_name ? { 'first_name' => first_name } : nil
 
         VANotify::EmailJob.perform_async(
           email,
           template_id,
-          nil,
+          personalisations,
           api_key
         )
       rescue => e
