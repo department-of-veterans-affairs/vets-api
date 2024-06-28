@@ -118,7 +118,7 @@ module SimpleFormsApi
 
       living_situation_data = data['living_situation']
       other_reasons_data = data['other_reasons']
-      living_situation = living_situation_data ? living_situation_data.select { |_, v| v }.keys.join(', ') : nil
+      living_situations = living_situation_data ? living_situation_data.select { |_, v| v }.keys.join(', ') : nil
       other_reasons = other_reasons_data ? other_reasons_data.select { |_, v| v }.keys.join(', ') : nil
       Rails.logger.info('Simple forms api - 20-10207 submission living situations and other reasons for request',
                         living_situations:, other_reasons:)
