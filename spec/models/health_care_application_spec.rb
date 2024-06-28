@@ -486,51 +486,141 @@ RSpec.describe HealthCareApplication, type: :model do
       health_care_application
     end
 
-    describe '#send_failure_mail' do
-      context 'has form' do
-        context 'with email address' do
-          it 'sends a failure email to the email address provided on the form' do
-            expect(health_care_application).to receive(:send_failure_mail).and_call_original
-            expect(HCASubmissionFailureMailer).to receive(:build).and_call_original
-            subject
+    before do
+      allow(VANotify::EmailJob).to receive(:perform_async)
+    end
+
+    describe '#send_failure_email' do
+      context 'VANotify flipper enabled' do
+        before do
+          Flipper.enable(:hca_submission_failure_email_va_notify)
+        end
+
+        after do
+          Flipper.disable(:hca_submission_failure_email_va_notify)
+        end
+
+        context 'has form' do
+          context 'with email address' do
+            let(:email_address) { health_care_application.parsed_form['email'] }
+            let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
+            let(:template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email }
+
+            let(:template_params) do
+              [
+                email_address,
+                template_id,
+                nil,
+                api_key
+              ]
+            end
+
+            let(:standard_error) { StandardError.new('Test error') }
+
+            it 'sends a failure email to the email address provided on the form' do
+              subject
+              expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params)
+            end
+
+            it 'logs error to sentry if email job throws error' do
+              allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
+              expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
+              expect { subject }.not_to raise_error
+            end
+          end
+
+          context 'without email address' do
+            subject do
+              health_care_application.parsed_form['email'] = nil
+              super()
+            end
+
+            it 'does not send email' do
+              expect(health_care_application).not_to receive(:send_failure_email)
+              subject
+            end
           end
         end
 
-        context 'without email address' do
+        context 'does not have form' do
           subject do
-            health_care_application.parsed_form['email'] = nil
+            health_care_application.form = nil
             super()
           end
 
-          it 'does not send email' do
-            expect(health_care_application).not_to receive(:send_failure_mail)
-            subject
+          context 'with email address' do
+            it 'does not send email' do
+              expect(health_care_application).not_to receive(:send_failure_email)
+              subject
+            end
+          end
+
+          context 'without email address' do
+            subject do
+              health_care_application.parsed_form['email'] = nil
+              super()
+            end
+
+            it 'does not send email' do
+              expect(health_care_application).not_to receive(:send_failure_email)
+              subject
+            end
           end
         end
       end
 
-      context 'does not have form' do
-        subject do
-          health_care_application.form = nil
-          super()
+      context 'VANotify flipper disabled' do
+        before do
+          Flipper.disable(:hca_submission_failure_email_va_notify)
         end
 
-        context 'with email address' do
-          it 'does not send email' do
-            expect(health_care_application).not_to receive(:send_failure_mail)
-            subject
+        context 'has form' do
+          context 'with email address' do
+            let(:email_address) { health_care_application.parsed_form['email'] }
+
+            it 'sends a failure email to the email address provided on the form' do
+              expect(health_care_application).to receive(:send_failure_email).and_call_original
+              expect(HCASubmissionFailureMailer).to receive(:build).and_call_original
+              subject
+            end
+          end
+
+          context 'without email address' do
+            subject do
+              health_care_application.parsed_form['email'] = nil
+              super()
+            end
+
+            it 'does not send email' do
+              expect(health_care_application).not_to receive(:send_failure_email)
+              subject
+            end
           end
         end
 
-        context 'without email address' do
+        context 'does not have form' do
           subject do
-            health_care_application.parsed_form['email'] = nil
+            health_care_application.form = nil
             super()
           end
 
-          it 'does not send email' do
-            expect(health_care_application).not_to receive(:send_failure_mail)
-            subject
+          context 'with email address' do
+            it 'does not send email' do
+              expect(health_care_application).not_to receive(:send_failure_email)
+              subject
+            end
+          end
+
+          context 'without email address' do
+            subject do
+              health_care_application.parsed_form['email'] = nil
+              super()
+            end
+
+            it 'does not send email' do
+              expect(health_care_application).not_to receive(:send_failure_email)
+              subject
+            end
           end
         end
       end

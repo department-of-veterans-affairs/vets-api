@@ -153,6 +153,7 @@ class Form526Submission < ApplicationRecord
              inverse_of: false
 
   has_many :form526_job_statuses, dependent: :destroy
+  has_many :form526_submission_remediations, dependent: :destroy
   belongs_to :user_account, dependent: nil, optional: true
 
   validates(:auth_headers_json, presence: true)
@@ -477,30 +478,21 @@ class Form526Submission < ApplicationRecord
   # NOTE: This is a synchronous access to an external API
   #       so should not be used within a request/response workflow.
   #
+
   def form_content_valid?
-    begin
-      transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
-      body = transform_service.transform(form['form526'])
+    transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
+    body = transform_service.transform(form['form526'])
 
-      @lighthouse_validation_response = lighthouse_service.validate526(body)
-    rescue => e
-      errors = e.errors if e.respond_to?(:errors)
-      detail = errors&.dig(0, :detail)
-      status = errors&.dig(0, :status)
+    @lighthouse_validation_response = lighthouse_service.validate526(body)
 
-      if detail
-        match_data = detail.match(/"description"=>"([^"]+)"/)
-        description = match_data ? match_data[1] : nil
-      end
-
-      error_msg = "#{description || e} -- #{e.backtrace[0]}"
-      mock_lighthouse_response(status:, error: error_msg)
-      return false
+    if lighthouse_validation_response&.status == 200
+      true
+    else
+      mock_lighthouse_response(status: lighthouse_validation_response&.status)
+      false
     end
-
-    return true if lighthouse_validation_response&.status == 200
-
-    mock_lighthouse_response(status: lighthouse_validation_response&.status)
+  rescue => e
+    handle_validation_error(e)
     false
   end
 
@@ -534,17 +526,30 @@ class Form526Submission < ApplicationRecord
   # Lighthouse calls the user_account.icn the "ID of Veteran"
   #
   def lighthouse_service
-    BenefitsClaims::Service.new(user_account.icn)
+    account = user_account ||
+              Account.lookup_by_user_uuid(user_uuid)
+    BenefitsClaims::Service.new(account.icn)
+  end
+
+  def handle_validation_error(e)
+    errors = e.errors if e.respond_to?(:errors)
+    detail = errors&.dig(0, :detail)
+    status = errors&.dig(0, :status)
+    error_msg = "#{detail || e} -- #{e.backtrace[0]}"
+    mock_lighthouse_response(status:, error: error_msg)
   end
 
   def mock_lighthouse_response(status:, error: 'Unknown')
-    mock_response = Struct.new(:status, :body).new(609, nil)
-    mock_response.status = status if status
-    mock_response.body = { 'errors' => [
-      {
-        'title' => "Response Status Code '#{status}' - #{error}"
-      }
-    ] }
+    response_struct = Struct.new(:status, :body)
+    mock_response = response_struct.new(status || 609, nil)
+
+    mock_response.body = {
+      'errors' => [
+        {
+          'title' => "Response Status Code '#{mock_response.status}' - #{error}"
+        }
+      ]
+    }
 
     @lighthouse_validation_response = mock_response
   end

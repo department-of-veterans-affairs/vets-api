@@ -1547,6 +1547,7 @@ RSpec.describe V0::SignInController, type: :controller do
             aud:,
             sub:,
             jti:,
+            iat:,
             exp:,
             service_account_id:,
             scopes:
@@ -1556,6 +1557,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:aud) { "https://#{Settings.hostname}#{SignIn::Constants::Auth::TOKEN_ROUTE_PATH}" }
         let(:sub) { user_identifier }
         let(:jti) { 'some-jti' }
+        let(:iat) { 1.month.ago.to_i }
         let(:exp) { 1.month.since.to_i }
         let(:user_identifier) { 'some-user-identifier' }
         let(:service_account_id) { service_account_config.service_account_id }
@@ -2445,15 +2447,11 @@ RSpec.describe V0::SignInController, type: :controller do
           it 'logs the successful refresh request' do
             access_token = JWT.decode(JSON.parse(subject.body)['data']['access_token'], nil, false).first
             logger_context = {
-              uuid: access_token['jti'],
               user_uuid: access_token['sub'],
               session_handle: access_token['session_handle'],
               client_id: access_token['client_id'],
-              audience: access_token['aud'],
-              version: access_token['version'],
-              last_regeneration_time: access_token['last_regeneration_time'],
-              created_time: access_token['iat'],
-              expiration_time: access_token['exp']
+              type: user_verification.credential_type,
+              icn: user_account.icn
             }
             expect(Rails.logger).to have_received(:info).with(expected_log_message, logger_context)
           end
@@ -2493,15 +2491,11 @@ RSpec.describe V0::SignInController, type: :controller do
             access_token_cookie = subject.cookies[access_token_cookie_name]
             access_token = JWT.decode(access_token_cookie, nil, false).first
             logger_context = {
-              uuid: access_token['jti'],
               user_uuid: access_token['sub'],
               session_handle: access_token['session_handle'],
               client_id: access_token['client_id'],
-              audience: access_token['aud'],
-              version: access_token['version'],
-              last_regeneration_time: access_token['last_regeneration_time'],
-              created_time: access_token['iat'],
-              expiration_time: access_token['exp']
+              type: user_verification.credential_type,
+              icn: user_account.icn
             }
             expect(Rails.logger).to have_received(:info).with(expected_log_message, logger_context)
           end

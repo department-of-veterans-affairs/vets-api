@@ -109,3 +109,7 @@ clamav_tmp/*
 
 # Ignore development setup (native, docker, hybrid)
 .developer-setup
+
+# ignore DBEX LH migration debug tools
+lib/TREX
+staging.benefits_claims.pem

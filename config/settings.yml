@@ -1007,6 +1007,9 @@ lighthouse:
     version: v1
     use_mocks: false
     api_key: ~
+    report:
+      stale_sla: 10 # days
+      batch_size: 1000
   letters_generator:
     url: https://sandbox-api.va.gov
     path: /services/va-letter-generator/v1/
@@ -1280,6 +1283,7 @@ vanotify:
         form21_10203_confirmation_email: form21_10203_confirmation_email_template_id
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
         form20_10206_confirmation_email: form20_10206_confirmation_email_template_id
+        form20_10207_confirmation_email: form20_10207_confirmation_email_template_id
         form21_0845_confirmation_email: form21_0845_confirmation_email_template_id
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
@@ -1331,6 +1335,10 @@ vanotify:
       api_key: fake_secret
       template_id:
         pega_status_update_email_template_id: pega_status_update_email_template_id
+    health_apps_1010:
+      api_key: fake_secret
+      template_id:
+        form1010_ez_failure_email: fake_template_id
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
@@ -1341,6 +1349,8 @@ va_forms:
   drupal_username: ~
   drupal_password: ~
   drupal_url: https://fake-url.com
+  form_reloader:
+    enabled: false
   # A notification for when a forms url has changed
   slack:
     enabled: false

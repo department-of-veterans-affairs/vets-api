@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
+RSpec.describe 'vaos appointments', :skip_mvi, type: :request do
   include SchemaMatchers
   mock_clinic = {
     'service_name': 'service_name',
@@ -17,9 +17,9 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
   before do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-    allow_any_instance_of(Mobile::AppointmentsHelper).to \
+    allow_any_instance_of(VAOS::V2::MobileFacilityService).to \
       receive(:get_clinic).and_return(mock_clinic)
-    allow_any_instance_of(Mobile::AppointmentsHelper).to \
+    allow_any_instance_of(VAOS::V2::MobileFacilityService).to \
       receive(:get_facility).and_return(mock_facility)
   end
 

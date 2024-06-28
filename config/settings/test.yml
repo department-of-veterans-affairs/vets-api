@@ -26,6 +26,11 @@ saml_ssoe:
   cert_path: spec/support/certificates/ruby-saml.crt
   key_path: spec/support/certificates/ruby-saml.key
 
+clamav:
+  mock: true
+  host: 0.0.0.0
+  port: '33100'
+
 sign_in:
   jwt_encode_key: 'spec/fixtures/sign_in/privatekey.pem'
 

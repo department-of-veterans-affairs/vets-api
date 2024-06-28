@@ -7,6 +7,8 @@ module DebtsApi
   module V0
     module FsrFormTransform
       class DiscretionaryIncomeCalculator
+        include ::FsrFormTransform::Utils
+
         def initialize(form)
           @form = form
           income_calculator = DebtsApi::V0::FsrFormTransform::IncomeCalculator.new(form)
@@ -28,22 +30,12 @@ module DebtsApi
         end
 
         def amount_can_be_paid_toward_debt
-          debts_and_copays = @form['selectedDebtsAndCopays']
+          debts_and_copays = @form['selected_debts_and_copays']
           amount_paid = debts_and_copays
-                        .select { |item| item['resolutionComment'].present? }
-                        .reduce(0) { |acc, item| acc + str_to_num(item['resolutionComment']) }
+                        .select { |item| item['resolution_comment'].present? }
+                        .reduce(0) { |acc, item| acc + str_to_num(item['resolution_comment']) }
 
           format_number(amount_paid)
-        end
-
-        def str_to_num(str)
-          return 0 unless str.instance_of?(String)
-
-          str.gsub(/[^0-9.-]/, '').to_i || 0
-        end
-
-        def format_number(number)
-          format('%.2f', number).to_s
         end
       end
     end

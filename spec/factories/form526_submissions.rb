@@ -220,6 +220,7 @@ FactoryBot.define do
     end
   end
 
+  # TODO: fix spelling mistakes
   trait :with_one_succesful_job do
     after(:create) do |submission|
       create(:form526_job_status, form526_submission: submission)

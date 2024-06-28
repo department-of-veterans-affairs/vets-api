@@ -26,7 +26,7 @@ class HealthCareApplication < ApplicationRecord
   validates(:form, presence: true, on: :create)
   validate(:form_matches_schema, on: :create)
 
-  after_save :send_failure_mail, if: %i[async_submission_failed? email?]
+  after_save :send_failure_email, if: %i[async_submission_failed? email?]
   after_save :log_async_submission_failure, if: :async_submission_failed?
 
   # @param [Account] user
@@ -280,8 +280,25 @@ class HealthCareApplication < ApplicationRecord
     )
   end
 
-  def send_failure_mail
-    HCASubmissionFailureMailer.build(parsed_form['email'], google_analytics_client_id).deliver_now
+  def send_failure_email
+    if Flipper.enabled?(:hca_submission_failure_email_va_notify)
+      begin
+        email = parsed_form['email']
+        template_id = Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email
+        api_key = Settings.vanotify.services.health_apps_1010.api_key
+
+        VANotify::EmailJob.perform_async(
+          email,
+          template_id,
+          nil,
+          api_key
+        )
+      rescue => e
+        log_exception_to_sentry(e)
+      end
+    else
+      HCASubmissionFailureMailer.build(parsed_form['email'], google_analytics_client_id).deliver_now
+    end
   end
 
   # If the hca_use_facilities_API flag is on then vaMedicalFacility will only

@@ -4,6 +4,7 @@ module DebtsApi
   module V0
     module FsrFormTransform
       class PersonalDataCalculator
+        include ::FsrFormTransform::Utils
         def initialize(form)
           @form = form
           @personal_data = form['personal_data']
@@ -22,15 +23,22 @@ module DebtsApi
           }
         end
 
+        def name_str
+          first = @personal_data.dig('veteran_full_name', 'first')
+          middle = @personal_data.dig('veteran_full_name', 'middle')
+          last = @personal_data.dig('veteran_full_name', 'last')
+          "#{first} #{middle} #{last}"
+        end
+
         private
 
         def veteran_employment_records
-          records = @personal_data['employment_history']['veteran']['employment_records']
+          records = @personal_data.dig('employment_history', 'veteran', 'employment_records') || []
           transform_records_for('VETERAN', records)
         end
 
         def spouse_employment_records
-          records = @personal_data['employment_history']['spouse']['sp_employment_records']
+          records = @personal_data.dig('employment_history', 'spouse', 'sp_employment_records') || []
           transform_records_for('SPOUSE', records)
         end
 
@@ -95,7 +103,11 @@ module DebtsApi
               'last' => @personal_data['spouse_full_name']['last']
             }
           else
-            {}
+            {
+              'first' => '',
+              'middle' => '',
+              'last' => ''
+            }
           end
         end
 
@@ -107,16 +119,6 @@ module DebtsApi
           else
             []
           end
-        end
-
-        def sanitize_date_string(date)
-          return '' if date.empty?
-
-          date_string = date.gsub('XX', '01')
-          date_string << '-01' if date_string.split('-').length == 2
-          year, month = date_string.split('-')
-          month = "0#{month}" if month.length == 1
-          "#{month}/#{year}"
         end
 
         def married?

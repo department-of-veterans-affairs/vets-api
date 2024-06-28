@@ -20,7 +20,20 @@ module SimpleFormsApi
     end
 
     def submission_date_stamps
-      []
+      [
+        {
+          coords: [460, 710],
+          text: 'Application Submitted:',
+          page: 0,
+          font_size: 12
+        },
+        {
+          coords: [460, 690],
+          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          page: 0,
+          font_size: 12
+        }
+      ]
     end
 
     def metadata
