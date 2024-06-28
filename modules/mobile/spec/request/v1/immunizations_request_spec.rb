@@ -121,8 +121,12 @@ RSpec.describe 'immunizations', :skip_json_api_validation, type: :request do
       end
 
       it 'returns a 500' do
-        expect(response).to have_http_status(:internal_server_error)
-        expect(response.parsed_body.dig('errors', 0, 'meta', 'exception')).to eq('the server responded with status 429')
+        expect(response).to have_http_status(:bad_gateway)
+        error = { 'errors' => [{ 'title' => 'Bad Gateway',
+                                 'detail' => 'Received an an invalid response from the upstream server',
+                                 'code' => 'MOBL_502_upstream_error',
+                                 'status' => '502' }] }
+        expect(response.parsed_body).to eq(error)
       end
     end
 

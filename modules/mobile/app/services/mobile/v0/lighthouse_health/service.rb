@@ -57,6 +57,8 @@ module Mobile
           session = LighthouseSession.new(token_hash.symbolize_keys)
           LighthouseSession.set_cached(@user, session, session.expires_in)
           session.access_token
+        rescue
+          raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
         end
       end
     end
