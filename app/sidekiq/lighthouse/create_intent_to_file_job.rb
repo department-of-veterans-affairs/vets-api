@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_claims/service'
-require 'lighthouse_intent_to_file/monitor'
+require 'lighthouse/benefits_claims/intent_to_file/monitor'
 
 module Lighthouse
   class CreateIntentToFileJob
@@ -22,7 +22,7 @@ module Lighthouse
     sidekiq_options retry: 14, queue: 'low'
     sidekiq_retries_exhausted do |msg, error|
       form_type, form_start_date, veteran_icn = msg['args']
-      itf_log_monitor = LighthouseIntentToFile::Monitor.new
+      itf_log_monitor = BenefitsClaims::IntentToFile::Monitor.new
       itf_type = ITF_FORMS[form_type]
       user_account = UserAccount.find_by(icn: veteran_icn)
 
@@ -68,7 +68,7 @@ module Lighthouse
     # Instantiate instance variables for _this_ job
     #
     def init(form_type, _form_start_date, veteran_icn)
-      @itf_log_monitor = LighthouseIntentToFile::Monitor.new
+      @itf_log_monitor = BenefitsClaims::IntentToFile::Monitor.new
       @user_account = UserAccount.find_by(veteran_icn:)
       @itf_type = ITF_FORMS[form_type]
 
