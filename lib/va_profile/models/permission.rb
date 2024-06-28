@@ -76,7 +76,7 @@ module VAProfile
         )
       end
 
-      def self.response_class
+      def self.transaction_response_class
         VAProfile::ProfileInformation::PermissionTransactionResponse
       end
 
@@ -88,7 +88,7 @@ module VAProfile
         false
       end
 
-      def self.contact_info_attr(_record)
+      def contact_info_attr
         'text_permission'
       end
     end

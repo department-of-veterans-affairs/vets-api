@@ -98,7 +98,7 @@ module VAProfile
         @address_pou == VAProfile::Models::Address::CORRESPONDENCE
       end
 
-      def self.response_class
+      def self.transaction_response_class
         VAProfile::ProfileInformation::AddressTransactionResponse
       end
 
@@ -108,6 +108,10 @@ module VAProfile
 
       def self.send_change_notifcations?
         true
+      end
+
+      def contact_info_attr
+        'address'
       end
 
       def self.contact_info_attr(record)

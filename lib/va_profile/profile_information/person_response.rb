@@ -10,12 +10,33 @@ module VAProfile
       attribute :messages, Array[VAProfile::Models::Message]
 
       def initialize(response)
-        attributes = {
-          person: response.body.dig('profile', 'bio'),
-          messages: response.body['messages']
-        }
+        body = response.body
+        person =  body.dig('profile', 'bio')
+        messages = body['messages']
+        va_profile_tx_audit_id = response.response_headers['vaprofiletxauditid']
+        super(response.status, { person:, messages:, va_profile_tx_audit_id: })
+      end
 
-        super(response.status, attributes)
+      # def self.from(raw_response = nil)
+      #   @response_body = raw_response&.body
+
+      #   new(
+      #     raw_response&.status,
+      #     person: VAProfile::Models::Person.build_from(@response_body&.dig('bio'))
+      #   )
+      # end
+
+      # def cache?
+      #   super || (status >= 400 && status < 500)
+      # end
+
+      private
+
+      def message
+        m = messages&.first
+        return '' unless m
+
+        "#{m.code} #{m.key} #{m.text}"
       end
     end
   end

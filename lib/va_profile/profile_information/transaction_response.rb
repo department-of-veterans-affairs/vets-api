@@ -4,7 +4,7 @@ require 'va_profile/models/transaction'
 require 'va_profile/response'
 
 module VAProfile
-  module ContactInformation
+  module ProfileInformation
     class TransactionResponse < VAProfile::Response
       extend SentryLogging
 
@@ -13,7 +13,7 @@ module VAProfile
 
       attr_reader :response_body
 
-      def self.from(raw_response = nil)
+      def self.from(raw_response = nil, user= nil)
         @response_body = raw_response&.body
 
         if error?
@@ -48,8 +48,7 @@ module VAProfile
         return_val
       end
 
-      def changed_field(return_type: false)
-        return 'address' if return_type.true?
+      def changed_field
         return :address unless response_body['tx_output']
 
         address_pou = response_body['tx_output'][0]['address_pou']
@@ -64,10 +63,14 @@ module VAProfile
         end
       end
 
+      def model_class
+        VAProfile::Models::Address
+      end
+
       def self.log_error
         if error?
           PersonalInformationLog.create(
-            error_class: 'VAProfile::ContactInformation::AddressTransactionResponseError',
+            error_class: 'VAProfile::ProfileInformation::AddressTransactionResponseError',
             data:
               {
                 address: @response_body['tx_push_input'].except(
@@ -96,6 +99,10 @@ module VAProfile
         log_mpi_error if @user.mpi_status == :ok
 
         return_val
+      end
+
+      def model_class
+        VAProfile::Models::Person
       end
 
       def self.log_mpi_error
@@ -138,10 +145,12 @@ module VAProfile
         tx_output['email_address_text']
       end
 
-      def changed_field(return_type: false)
-        return 'email' if return_type.true?
-
+      def changed_field
         :email
+      end
+
+      def model_class
+        VAProfile::Models::Email
       end
     end
 
@@ -155,8 +164,7 @@ module VAProfile
         return_val
       end
 
-      def changed_field(return_type: false)
-        return 'telephone' if return_type.true?
+      def changed_field
         return :phone unless response_body['tx_output']
 
         phone_type = response_body['tx_output'][0]['phone_type']
@@ -172,8 +180,16 @@ module VAProfile
           :phone
         end
       end
+
+      def model_class
+        VAProfile::Models::Telephone
+      end
     end
 
-    class PermissionTransactionResponse < TransactionResponse; end
+    class PermissionTransactionResponse < TransactionResponse
+      def model_class
+        VAProfile::Models::Permission
+      end
+    end
   end
 end

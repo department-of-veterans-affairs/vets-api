@@ -147,7 +147,7 @@ module VAProfile
         )
       end
 
-      def self.response_class
+      def self.transaction_response_class
         VAProfile::ProfileInformation::TelephoneTransactionResponse
       end
 
@@ -157,6 +157,10 @@ module VAProfile
 
       def self.send_change_notifcations?
         true
+      end
+
+      def contact_info_attr
+        'telephone'
       end
 
       def self.contact_info_attr(record)

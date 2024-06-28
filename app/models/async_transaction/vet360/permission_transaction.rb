@@ -3,8 +3,8 @@
 module AsyncTransaction
   module Vet360
     class PermissionTransaction < AsyncTransaction::Vet360::Base
-      def changed_field(*)
-        'permission'
+      def model_class
+        "VAProfile::Models::Permission"
       end
     end
   end

@@ -55,10 +55,14 @@ module VAProfile
       end
 
       def self.bio_path
-        'person'
+        'profile'
       end
 
       def self.response_class
+        VAProfile::ProfileInformation::PersonResponse
+      end
+
+      def self.transaction_response_class
         VAProfile::ProfileInformation::PersonTransactionResponse
       end
 
@@ -70,7 +74,7 @@ module VAProfile
         false
       end
 
-      def self.contact_info_attr(_record)
+      def contact_info_attr
         nil
       end
     end

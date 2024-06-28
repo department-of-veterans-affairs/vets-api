@@ -74,9 +74,7 @@ module AsyncTransaction
       # @return [VAProfile::Models::Transaction]
       def self.fetch_transaction(transaction_record, service, user)
         if Flipper.enabled?(:va_profile_information_v3_service, user)
-          changed_field = transaction_record.changed_field(return_type: true)
-          # send email, address, person, or permission
-          service.get_transaction_status(transaction_record.transaction_id, changed_field)
+          service.get_transaction_status(transaction_record.transaction_id, transaction_record.model_class)
         else
           case transaction_record
           when AsyncTransaction::Vet360::AddressTransaction, AsyncTransaction::VAProfile::AddressTransaction

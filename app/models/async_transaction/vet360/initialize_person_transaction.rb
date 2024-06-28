@@ -6,6 +6,10 @@ module AsyncTransaction
       def changed_field(*)
         'person'
       end
+
+      def model_class
+        "VAProfile::Models::Person"
+      end
     end
   end
 end

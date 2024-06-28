@@ -277,6 +277,8 @@ vet360:
   profile_information:
     mock: true
     timeout: 30
+    enabled: true
+    cache_enabled: true
 
 
 # Settings for IHub

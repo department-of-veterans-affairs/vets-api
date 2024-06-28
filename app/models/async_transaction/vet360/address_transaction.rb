@@ -3,8 +3,8 @@
 module AsyncTransaction
   module Vet360
     class AddressTransaction < AsyncTransaction::Vet360::Base
-      def changed_field(*)
-        'address'
+      def model_class
+        "VAProfile::Models::Address"
       end
     end
   end

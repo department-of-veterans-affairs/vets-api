@@ -21,7 +21,7 @@ module VAProfile
         'healthBenefit'
       end
 
-      def self.response_class
+      def self.transaction_response_class
         VAProfile::Profile::V3::MilitaryOccupationResponse
       end
     end
