@@ -4,10 +4,6 @@ module RepresentationManagement
   module V0
     class PdfGenerator2122Controller < RepresentationManagement::V0::PdfGeneratorBaseController
       def create
-        p '*' * 100, "params: #{params}",
-          "form_params: #{form_params}",
-          "flatten_form_params: #{flatten_form_params(form_params)}"
-
         form = RepresentationManagement::Form2122Data.new(flatten_form_params(form_params))
 
         if form.valid?
