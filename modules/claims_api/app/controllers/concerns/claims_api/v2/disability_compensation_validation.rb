@@ -292,7 +292,7 @@ module ClaimsApi
             raise_exception_if_value_not_present('disabilityActionType',
                                                  "#{form_object_desc}/disabilityActionType")
           end
-          if sd_disability_action_type == 'NEW' && sd_service_relevance.blank?
+          if sd_service_relevance.blank?
             raise_exception_if_value_not_present('service relevance',
                                                  "#{form_object_desc}/serviceRelevance")
           end
@@ -408,9 +408,9 @@ module ClaimsApi
         herbicide_service = form_attributes&.dig('toxicExposure', 'herbicideHazardService')
         validate_form_526_toxic_exp_sections(herbicide_service, 'herbicideHazardService')
         other_exposures = form_attributes&.dig('toxicExposure', 'additionalHazardExposures')
-        validate_form_526_toxic_exp_sections(other_exposures, 'additionalHazardExposures')
+        validate_form_526_toxic_multi_addtl_exp(other_exposures, 'additionalHazardExposures')
         multi_exposures = form_attributes&.dig('toxicExposure', 'multipleExposures')
-        validate_form_526_toxic_multi_exp(multi_exposures, 'multipleExposures')
+        validate_form_526_toxic_multi_addtl_exp(multi_exposures, 'multipleExposures')
       end
 
       def validate_form_526_toxic_exp_sections(section, attribute_name)
@@ -430,12 +430,12 @@ module ClaimsApi
         validate_service_date(end_date, end_prop) unless end_date.nil? || !date_is_valid?(end_date, end_prop)
       end
 
-      def validate_form_526_toxic_multi_exp(section, attribute_name)
+      def validate_form_526_toxic_multi_addtl_exp(section, attribute_name)
         return if section.nil?
 
-        section&.each do |item, idx|
-          begin_date = item&.dig('serviceDates', 'beginDate')
-          end_date = item&.dig('serviceDates', 'endDate')
+        [section].flatten&.each do |item, idx|
+          begin_date = item&.dig('exposureDates', 'beginDate')
+          end_date = item&.dig('exposureDates', 'endDate')
 
           begin_prop = "/toxicExposure/#{attribute_name}/#{idx}/exposureDates/beginDate"
           end_prop = "/toxicExposure/#{attribute_name}/#{idx}/exposureDates/endDate"

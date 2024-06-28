@@ -80,9 +80,9 @@ describe TestDisabilityCompensationValidationClass do
 
   describe '#date_is_valid' do
     let(:begin_date) { '2017-02-29' }
-    let(:begin_prop) { '/toxicExposure/additionalHazardExposures/serviceDates/beginDate' }
+    let(:begin_prop) { '/toxicExposure/additionalHazardExposures/exposureDates/beginDate' }
     let(:end_date) { '2017-02-28' }
-    let(:end_prop) { '/toxicExposure/additionalHazardExposures/serviceDates/endDate' }
+    let(:end_prop) { '/toxicExposure/additionalHazardExposures/exposureDates/endDate' }
 
     it 'returns false when a date is invalid' do
       result = test_526_validation_instance.send(:date_is_valid?, begin_date, begin_prop)
