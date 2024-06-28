@@ -52,6 +52,11 @@ module SimpleFormsApi
       @data['statement_of_truth_signature'] if @data['third_party_type'] == 'power-of-attorney'
     end
 
+    def words_to_remove
+      veteran_ssn + veteran_date_of_birth + veteran_address + veteran_home_phone + veteran_email +
+        non_veteran_date_of_birth + non_veteran_ssn + non_veteran_phone
+    end
+
     def metadata
       {
         'veteranFirstName' => @data.dig('veteran_full_name', 'first'),
@@ -149,6 +154,61 @@ module SimpleFormsApi
       end
 
       attachments
+    end
+
+    def veteran_ssn
+      [
+        data.dig('veteran_id', 'ssn')&.[](0..2),
+        data.dig('veteran_id', 'ssn')&.[](3..4),
+        data.dig('veteran_id', 'ssn')&.[](5..8)
+      ]
+    end
+
+    def veteran_date_of_birth
+      [
+        data['veteran_date_of_birth']&.[](0..3),
+        data['veteran_date_of_birth']&.[](5..6),
+        data['veteran_date_of_birth']&.[](8..9)
+      ]
+    end
+
+    def veteran_address
+      [
+        data.dig('veteran_mailing_address', 'postal_code')&.[](0..4),
+        data.dig('veteran_mailing_address', 'postal_code')&.[](5..8)
+      ]
+    end
+
+    def veteran_home_phone
+      [
+        data['veteran_phone']&.gsub('-', '')&.[](0..2),
+        data['veteran_phone']&.gsub('-', '')&.[](3..5),
+        data['veteran_phone']&.gsub('-', '')&.[](6..9)
+      ]
+    end
+
+    def non_veteran_date_of_birth
+      [
+        data['non_veteran_date_of_birth']&.[](0..3),
+        data['non_veteran_date_of_birth']&.[](5..6),
+        data['non_veteran_date_of_birth']&.[](8..9)
+      ]
+    end
+
+    def non_veteran_ssn
+      [
+        data.dig('non_veteran_ssn', 'ssn')&.[](0..2),
+        data.dig('non_veteran_ssn', 'ssn')&.[](3..4),
+        data.dig('non_veteran_ssn', 'ssn')&.[](5..8)
+      ]
+    end
+
+    def non_veteran_phone
+      [
+        data['non_veteran_phone']&.gsub('-', '')&.[](0..2),
+        data['non_veteran_phone']&.gsub('-', '')&.[](3..5),
+        data['non_veteran_phone']&.gsub('-', '')&.[](6..9)
+      ]
     end
   end
 end
