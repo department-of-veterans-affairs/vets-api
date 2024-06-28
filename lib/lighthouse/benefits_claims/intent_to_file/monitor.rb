@@ -36,11 +36,11 @@ module BenefitsClaims
       def track_create_itf_exhaustion(itf_type, form_start_date, user_account_uuid, error)
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
         Rails.logger.error("Lighthouse::CreateIntentToFileJob create #{itf_type} ITF exhausted", {
-                            error:,
-                            itf_type:,
-                            form_start_date:,
-                            user_account_uuid:
-                          })
+                             error:,
+                             itf_type:,
+                             form_start_date:,
+                             user_account_uuid:
+                           })
       end
     end
   end
