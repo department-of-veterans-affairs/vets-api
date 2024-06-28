@@ -111,7 +111,7 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
                 zip_code: '12345',
                 zip_code_suffix: '6789'
               }
-            }            
+            }
           }
         }
       end
