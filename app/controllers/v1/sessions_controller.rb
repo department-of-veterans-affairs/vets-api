@@ -260,6 +260,7 @@ module V1
       StatsD.increment(STATSD_SSO_SAMLREQUEST_KEY,
                        tags: ["type:#{tracker&.payload_attr(:type)}",
                               "context:#{tracker&.payload_attr(:authn_context)}",
+                              "client_id:#{tracker&.payload_attr(:application)}",
                               VERSION_TAG])
     end
 
