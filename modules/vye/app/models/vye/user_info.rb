@@ -3,17 +3,7 @@
 module Vye
   class Vye::UserInfo < ApplicationRecord
     include NeedsEnrollmentVerification
-
-    self.ignored_columns +=
-      [
-        :icn, :ssn_ciphertext, :ssn_digest,                               # moved to UserProfile
-
-        :suffix,                                                          # not needed
-
-        :address_line2_ciphertext, :address_line3_ciphertext,             # moved to AddressChange
-        :address_line4_ciphertext, :address_line5_ciphertext,             # moved to AddressChange
-        :address_line6_ciphertext, :full_name_ciphertext, :zip_ciphertext # moved to AddressChange
-      ]
+    # include CanDecodeAttribute
 
     belongs_to :user_profile
     belongs_to :bdn_clone
@@ -41,15 +31,9 @@ module Vye
 
     scope :with_bdn_clone_active, -> { where(bdn_clone_active: true) }
 
-    enum(
-      mr_status: { active: 'A', expired: 'E' },
-      _prefix: :mr_status
-    )
+    # decode_attribute :mr_status, with: { active: 'A', expired: 'E' }
 
-    enum(
-      indicator: { chapter1606: 'A', chapter1607: 'E', chapter30: 'B', D: 'D' },
-      _suffix: true
-    )
+    # decode_attribute :indicator, with: { chapter1606: 'A', chapter1607: 'E', chapter30: 'B', D: 'D' }
 
     delegate :icn, to: :user_profile, allow_nil: true
     delegate :ssn, to: :mpi_profile, allow_nil: true

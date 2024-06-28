@@ -77,8 +77,7 @@ module EVSS
       #
       # @param submission_id [Integer] The {Form526Submission} id
       #
-      # rubocop:disable Metrics/MethodLength
-      def perform(submission_id)
+      def perform(submission_id) # rubocop:disable Metrics/MethodLength
         send_notifications = true
         @submission_id = submission_id
 
@@ -102,16 +101,13 @@ module EVSS
           end
 
           user_account = UserAccount.find_by(id: submission.user_account_id) ||
-                         Account.find_by(idme_uuid: submission.user_uuid)
+                         Account.lookup_by_user_uuid(submission.user_uuid)
 
-          user = OpenStruct.new({ user_account_uuid: user_account.id, flipper_id: user_account.id })
           begin
             # send submission data to either EVSS or Lighthouse (LH)
-            response = if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration, user)
+            response = if submission.claims_api? # not needed once fully migrated to LH
                          # submit 526 through LH API
                          # 1. get user's ICN
-                         user_account = UserAccount.find_by(id: submission.user_account_id) ||
-                                        Account.find_by(idme_uuid: submission.user_uuid)
                          icn = user_account.icn
                          # 2. transform submission data to LH format
                          transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
@@ -119,15 +115,16 @@ module EVSS
                          # 3. send transformed submission data to LH endpoint
                          service = BenefitsClaims::Service.new(icn)
                          raw_response = service.submit526(body)
+                         raw_response_body = if raw_response.body.is_a? String
+                                               JSON.parse(raw_response.body)
+                                             else
+                                               raw_response.body
+                                             end
                          # 4. convert LH raw response to a FormSubmitResponse for further processing (claim_id, status)
-                         # JSON.parse when it matters to get the claim id
-                         # something like response_json = JSON.parse(raw_response.body)
+                         # parse claimId from LH response
+                         submitted_claim_id = raw_response_body.dig('data', 'attributes', 'claimId').to_i
                          raw_response_struct = OpenStruct.new({
-                                                                # TODO: for now, set claim id to unix time stamp.
-                                                                # When the lighthouse synchronous
-                                                                # submit response is ready,
-                                                                # switch to VBMS claim id.
-                                                                body: { claim_id: Time.now.to_i },
+                                                                body: { claim_id: submitted_claim_id },
                                                                 status: raw_response.status
                                                               })
                          EVSS::DisabilityCompensationForm::FormSubmitResponse
@@ -145,7 +142,6 @@ module EVSS
           send_post_evss_notifications(submission) if send_notifications
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       private
 

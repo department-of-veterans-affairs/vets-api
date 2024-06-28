@@ -12,21 +12,16 @@ module ClaimsApi
     private_constant :Request
 
     class Request
-      def initialize(service_action:, external_id:)
-        @service_action = service_action
+      def initialize(action, external_id:)
+        @action = action
         @external_id = external_id
       end
 
-      def perform(body)
-        wsdl =
-          log_duration('connection_wsdl_get') do
-            get_wsdl
-          end
-
+      def perform(&)
         body =
           log_duration('built_request') do
-            wsdl = Hash.from_xml(wsdl)
-            build_request(body, wsdl)
+            body = Envelope::Body.build(&)
+            build_request(body)
           end
 
         response =
@@ -41,15 +36,7 @@ module ClaimsApi
 
       private
 
-      def get_wsdl
-        BGSClient.send(
-          :get_wsdl,
-          connection,
-          @service_action
-        ).body
-      end
-
-      def build_request(body, wsdl)
+      def build_request(body)
         headers =
           Envelope::Headers.new(
             ip: client_ip,
@@ -60,19 +47,30 @@ module ClaimsApi
           )
 
         Envelope.build(
-          namespaces: build_namespaces(wsdl),
-          action: @service_action.action_name,
+          namespaces: @action.service.bean.namespaces,
+          action: @action.name,
           headers:,
           body:
         )
       end
 
       def post(body)
-        connection.post(@service_action.service_path) do |req|
+        connection =
+          BGSClient.send(:build_connection) do |conn|
+            # Should all of this connection configuration really not be
+            # involved in `BGSClient.healthcheck`? Maybe we truly don't want
+            # `breakers` and `timeout` logic to impact our assessment of service
+            # health in that context?
+            conn.options.timeout = Settings.bgs.timeout || 120
+            conn.use :breakers
+            conn.use WrapError
+          end
+
+        connection.post(@action.service.full_path) do |req|
           req.body = body
 
           req.headers.merge!(
-            'Soapaction' => %("#{@service_action.action_name}"),
+            'Soapaction' => %("#{@action.name}"),
             'Content-Type' => 'text/xml;charset=UTF-8',
             'Host' => "#{Settings.bgs.env}.vba.va.gov"
           )
@@ -80,7 +78,12 @@ module ClaimsApi
       end
 
       def parse_response!(body)
-        body = Hash.from_xml(body)
+        body =
+          # `Nokogiri` is 6 times as fast as our default backend `REXML` here.
+          ActiveSupport::XmlMini.with_backend('Nokogiri') do
+            Hash.from_xml(body)
+          end
+
         body = body.dig('Envelope', 'Body').to_h
         fault = body['Fault'].to_h
 
@@ -92,52 +95,10 @@ module ClaimsApi
           )
         end
 
-        key = "#{@service_action.action_name}Response"
-        body[key].to_h
-      end
-
-      def build_namespaces(wsdl)
-        {}.tap do |value|
-          namespace = wsdl.dig('definitions', 'targetNamespace')
-          namespace = URI(namespace.to_s)
-          value['tns'] = namespace
-
-          @service_action.service_namespaces.to_h.each do |aliaz, path|
-            uri = namespace.clone
-            uri.path = path
-            value[aliaz] = uri
-          end
-        end
-      end
-
-      def client_ip
-        if Rails.env.test?
-          # For all intents and purposes, BGS behaves identically no matter
-          # what IP we provide it. So in a test environment, let's just give
-          # it a fake IP so that cassette matching isn't defeated on CI and
-          # everyone's computer.
-          '127.0.0.1'
-        else
-          Socket
-            .ip_address_list
-            .detect(&:ipv4_private?)
-            .ip_address
-        end
-      end
-
-      def connection
-        @connection ||=
-          BGSClient.send(:build_connection) do |conn|
-            # Should all of this connection configuration really not be
-            # involved in the BGS service healthcheck performed by
-            # `BGSClient.healthcheck`? Under the hood, that just fetches WSDL
-            # which we also do here but with this more sophisticated logic.
-            # Maybe we truly don't want `breakers` and `timeout` logic to
-            # impact our assessment of service health in that context?
-            conn.options.timeout = Settings.bgs.timeout || 120
-            conn.use :breakers
-            conn.use WrapError
-          end
+        body.dig(
+          "#{@action.name}Response",
+          @action.key
+        )
       end
 
       # The underlying Faraday exceptions will be the `#cause` of our wrapped
@@ -153,8 +114,7 @@ module ClaimsApi
             when Faraday::SSLError
               Error::SSLError
             else
-              # The middleware should proceed with its default re-raise
-              # behavior.
+              # The middleware should proceed with its default re-raise behavior.
               return
             end
 
@@ -164,8 +124,21 @@ module ClaimsApi
         end
       end
 
+      def client_ip
+        # For all intents and purposes, BGS behaves identically no matter what
+        # IP we provide it. So in a test environment, let's just give it a fake
+        # IP so that cassette matching isn't defeated on CI and everyone's
+        # computer.
+        return '127.0.0.1' if Rails.env.test?
+
+        Socket
+          .ip_address_list
+          .detect(&:ipv4_private?)
+          .ip_address
+      end
+
       # Use features of `SemanticLogger` like tags, metrics, benchmarking,
-      # appenders (e.g. for statsd?), etc rather than bespoke implementation?
+      # appenders (e.g. for statsd?), etc rather than a bespoke implementation?
       # https://logger.rocketjob.io/
       def log_duration(event)
         start = now
@@ -179,8 +152,8 @@ module ClaimsApi
           'local_bgs',
           # event should be first key in log, duration last
           event:,
-          endpoint: @service_action.service_path,
-          action: @service_action.action_name,
+          endpoint: @action.service.full_path,
+          action: @action.name,
           duration:
         )
       end

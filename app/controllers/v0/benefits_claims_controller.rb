@@ -33,6 +33,10 @@ module V0
                             claim_type_code: claim_info['claimTypeCode'],
                             num_contentions: claim_info['contentions'].count,
                             ep_code: claim_info['endProductCode'],
+                            current_phase_back: claim_info['claimPhaseDates']['currentPhaseBack'],
+                            latest_phase_type: claim_info['claimPhaseDates']['latestPhaseType'],
+                            decision_letter_sent: claim_info['decisionLetterSent'],
+                            development_letter_sent: claim_info['developmentLetterSent'],
                             claim_id: params[:id] })
       log_evidence_requests(params[:id], claim_info)
 

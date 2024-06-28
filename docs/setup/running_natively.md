@@ -23,6 +23,12 @@ they would be when running rails directly.
 - `RAILS_ENV=test bundle exec rake parallel:setup` - This prepares all of the test databases. It will create a test database for each processor on your computer.
 - `RAILS_ENV=test NOCOVERAGE=true bundle exec parallel_rspec spec modules` - This runs the entire test suite. Optionally, a folder path can be given as a parameter. Each file is assigned a processor, so it probably doesn't make sense to pass an individual file to run it in parallel. It is currently suggested to forgo the coverage testing by adding `NOCOVERAGE=true` flag (currently the coverage check will fail, even if the test suite passes). If you would like to check coverage for the test run, remove that flag.
 
+#### Running pending tests
+
+Pending or skipped tests are ignored by default, to run the test suite _with_ pending tests in the output, simply add the PENDING=true environment variable to the test command
+
+`RAILS_ENV=test PENDING=true NOCOVERAGE=true bundle exec parallel_rspec spec modules`
+
 ### Running linters
 
 - `rake lint` - Run the full suite of linters on the codebase and autocorrect.

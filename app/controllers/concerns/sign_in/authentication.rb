@@ -70,12 +70,16 @@ module SignIn
 
     def handle_authenticate_error(error, access_token_cookie_name: Constants::Auth::ACCESS_TOKEN_COOKIE_NAME)
       context = {
-        access_token_authorization_header: bearer_token,
+        access_token_authorization_header: scrub_bearer_token,
         access_token_cookie: cookie_access_token(access_token_cookie_name:)
       }.compact
 
-      log_message_to_sentry(error.message, :error, context)
+      log_message_to_sentry(error.message, :error, context) if context.present?
       render json: { errors: error }, status: :unauthorized
+    end
+
+    def scrub_bearer_token
+      bearer_token == 'undefined' ? nil : bearer_token
     end
 
     def validate_request_ip

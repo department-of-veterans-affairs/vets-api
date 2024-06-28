@@ -8,17 +8,20 @@ module MAP
     class Service < Common::Client::Base
       configuration Configuration
 
-      def token(application:, icn:)
+      def token(application:, icn:, cache: true)
+        cached_response = true
         Rails.logger.info("#{config.logging_prefix} token request", { application:, icn: })
-        response = perform(:post,
-                           config.token_path,
-                           token_params(application, icn),
-                           { 'Content-Type' => 'application/x-www-form-urlencoded' })
-        sts_token = parse_response(response, application, icn)
-        Rails.logger.info("#{config.logging_prefix} token success", { application:, icn: })
-        sts_token
+        token = Rails.cache.fetch("map_sts_token_#{application}_#{icn}", expires_in: 5.minutes, force: !cache) do
+          cached_response = false
+          request_token(application, icn)
+        end
+        Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cached_response: })
+        token
       rescue Common::Client::Errors::ClientError => e
         parse_and_raise_error(e, icn, application)
+      rescue Common::Exceptions::GatewayTimeout => e
+        Rails.logger.error("#{config.logging_prefix} token failed, gateway timeout", application:, icn:)
+        raise e
       rescue Errors::ApplicationMismatchError => e
         Rails.logger.error(e.message, application:, icn:)
         raise e
@@ -28,6 +31,14 @@ module MAP
       end
 
       private
+
+      def request_token(application, icn)
+        response = perform(:post,
+                           config.token_path,
+                           token_params(application, icn),
+                           { 'Content-Type' => 'application/x-www-form-urlencoded' })
+        parse_response(response, application, icn)
+      end
 
       def parse_and_raise_error(e, icn, application)
         status = e.status

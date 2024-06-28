@@ -50,7 +50,7 @@ ClaimsApi::Engine.routes.draw do
         post '/:veteranId/2122a/validate', to: 'individual#validate'
         post '/:veteranId/2122a', to: 'individual#submit'
         get '/:veteranId/power-of-attorney/:id', to: 'base#status'
-        post '/:veteranId/power-of-attorney-request', to: 'base#request_representative'
+        post '/:veteranId/power-of-attorney-request', to: 'request#request_representative'
       end
       ## 0966 Forms
       get '/:veteranId/intent-to-file/:type', to: 'intent_to_file#type'
@@ -65,10 +65,8 @@ ClaimsApi::Engine.routes.draw do
     end
 
     resources :power_of_attorney_requests, path: 'power-of-attorney-requests', only: [:index] do
-      scope module: :power_of_attorney_request do
-        member do
-          resource :decision, only: [:update], param: :id
-        end
+      scope module: :power_of_attorney_requests do
+        resource :decision, only: [:create]
       end
     end
   end

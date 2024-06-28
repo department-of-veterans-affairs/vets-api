@@ -1,0 +1,56 @@
+---
+:profile:
+  :ssn: '796292881'
+  :file_number: '796292881'
+  :icn: 1012830899V368969
+:info:
+  :file_number: '796292881'
+  :dob: 1973-06-17
+  :stub_nm: CDTURNE
+  :mr_status: A
+  :rem_ent: '2184779'
+  :cert_issue_date: 2016-09-30
+  :del_date: 2024-12-08
+  :date_last_certified: 2024-03-13
+  :rpo_code: 2973
+  :fac_code: aut
+  :payment_amt: 2119.89
+  :indicator: A
+  :bdn_clone_active: true
+:address:
+  :veteran_name: Christian Darnell Turner
+  :address1: 9595 Moore Roads
+  :city: Zulaufville
+  :state: MA
+  :zip_code: 53717-5600
+  :origin: backend
+:awards:
+- :cur_award_ind: P
+  :award_begin_date: 2020-09-21
+  :award_end_date: 2020-10-01
+  :training_time: 2
+  :payment_date:
+  :monthly_rate: 195.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: C
+  :award_begin_date: 2020-10-01
+  :award_end_date: 2020-12-03
+  :training_time: 2
+  :payment_date:
+  :monthly_rate: 198.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+:pending_documents:
+- :doc_type: neque
+  :queue_date: 2024-05-16
+  :rpo: aut
+- :doc_type: omnis
+  :queue_date: 2024-05-08
+  :rpo: ea

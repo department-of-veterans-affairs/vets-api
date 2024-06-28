@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'pdf_fill/forms/va21p527ez'
+require 'pdf_fill/forms/va21p0969'
 require 'pdf_fill/forms/va21p530'
 require 'pdf_fill/forms/va21p530v2'
 require 'pdf_fill/forms/va214142'
@@ -23,6 +24,7 @@ module PdfFill
     PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
     UNICODE_PDF_FORMS = PdfForms.new(Settings.binaries.pdftk, data_format: 'XFdf', utf8_fields: true)
     FORM_CLASSES = {
+      '21P-0969' => PdfFill::Forms::Va21p0969,
       '21P-527EZ' => PdfFill::Forms::Va21p527ez,
       '21P-530' => PdfFill::Forms::Va21p530,
       '21P-530V2' => PdfFill::Forms::Va21p530v2,

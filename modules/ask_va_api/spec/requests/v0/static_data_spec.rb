@@ -66,6 +66,43 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     end
   end
 
+  describe 'GET #branch_of_service' do
+    context 'when successful' do
+      before do
+        allow_any_instance_of(ClaimsApi::BRD).to receive(:service_branches).and_return(
+          [{ code: 'USMA', description: 'US Military Academy' },
+           { code: 'MM', description: 'Merchant Marine' },
+           { code: 'AF', description: 'Air Force' },
+           { code: 'ARMY', description: 'Army' },
+           { code: 'AFR', description: 'Air Force Reserves' },
+           { code: 'PHS', description: 'Public Health Service' },
+           { code: 'AAC', description: 'Army Air Corps or Army Air Force' },
+           { code: 'WAC', description: "Women's Army Corps" },
+           { code: 'NOAA', description: 'National Oceanic & Atmospheric Administration' },
+           { code: 'SF', description: 'Space Force' },
+           { code: 'NAVY', description: 'Navy' },
+           { code: 'N ACAD', description: 'Naval Academy' },
+           { code: 'OTH', description: 'Other' },
+           { code: 'ARNG', description: 'Army National Guard' },
+           { code: 'CG', description: 'Coast Guard' },
+           { code: 'MC', description: 'Marine Corps' },
+           { code: 'AR', description: 'Army Reserves' },
+           { code: 'CGR', description: 'Coast Guard Reserves' },
+           { code: 'MCR', description: 'Marine Corps Reserves' },
+           { code: 'NR', description: 'Navy Reserves' },
+           { code: 'ANG', description: 'Air National Guard' },
+           { code: 'AF ACAD', description: 'Air Force Academy' },
+           { code: 'CG ACAD', description: 'Coast Guard Academy' }]
+        )
+        get '/ask_va_api/v0//branch_of_service'
+      end
+
+      it 'returns http status :ok' do
+        expect(response).to have_http_status(:ok)
+      end
+    end
+  end
+
   describe 'GET #categories' do
     let(:categories_path) { '/ask_va_api/v0/categories' }
     let(:expected_hash) do

@@ -20,7 +20,7 @@ module BipClaims
         faraday.use :breakers
         faraday.request :json
 
-        faraday.response :raise_error, error_prefix: service_name
+        faraday.response :raise_custom_error, error_prefix: service_name
         faraday.response :betamocks if mock_enabled?
         faraday.response :json
         faraday.adapter Faraday.default_adapter

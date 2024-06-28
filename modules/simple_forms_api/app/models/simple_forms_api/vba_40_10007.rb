@@ -5,6 +5,7 @@ require 'json'
 module SimpleFormsApi
   class VBA4010007
     include Virtus.model(nullify_blank: true)
+    STATS_KEY = 'api.simple_forms_api.40_10007'
 
     attribute :data
 
@@ -144,6 +145,17 @@ module SimpleFormsApi
       DISCHARGE_TYPE[key]
     end
 
+    RELATIONSHIP_TO_VETS = {
+      '1' => 'Is veteran',
+      '2' => 'Spouse or surviving spouse',
+      '3' => 'Unmarried adult child',
+      '4' => 'Other'
+    }.freeze
+
+    def get_relationship_to_vet(key)
+      RELATIONSHIP_TO_VETS[key]
+    end
+
     # rubocop:disable Metrics/MethodLength
     def create_attachment_page(file_path)
       place_of_birth = @data.dig('application', 'veteran', 'place_of_birth')
@@ -219,7 +231,11 @@ module SimpleFormsApi
       FileUtils.rm_f(attachment_page_path)
     end
 
-    def track_user_identity(confirmation_number); end
+    def track_user_identity(confirmation_number)
+      identity = get_relationship_to_vet(@data.dig('application', 'claimant', 'relationship_to_vet'))
+      StatsD.increment("#{STATS_KEY}.#{identity}")
+      Rails.logger.info('Simple forms api - 40-10007 submission user identity', identity:, confirmation_number:)
+    end
 
     def submission_date_stamps
       []

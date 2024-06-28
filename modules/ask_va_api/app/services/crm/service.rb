@@ -8,6 +8,12 @@ module Crm
 
     BASE_URI = 'https://dev.integration.d365.va.gov'
     VEIS_API_PATH = 'eis/vagov.lob.ava/api'
+    CRM_ENV = {
+      'test' => 'iris-dev',
+      'development' => 'iris-dev',
+      'staging' => 'iris-preprod',
+      'production' => 'iris-PROD'
+    }.freeze
 
     def_delegators :settings,
                    :base_url,
@@ -25,8 +31,9 @@ module Crm
 
     def call(endpoint:, method: :get, payload: {})
       endpoint = "#{VEIS_API_PATH}/#{endpoint}" if base_uri == BASE_URI
+      organization = CRM_ENV[Settings.vsp_environment]
 
-      params = { icn:, organizationName: 'iris-dev' }
+      params = { icn:, organizationName: organization }
 
       response = conn.public_send(method, endpoint, prepare_payload(method, payload, params)) do |req|
         req.headers = default_header.merge('Authorization' => "Bearer #{token}")
@@ -42,7 +49,7 @@ module Crm
     def conn(url: base_uri)
       Faraday.new(url:) do |f|
         f.use :breakers
-        f.response :raise_error, error_prefix: service_name
+        f.response :raise_custom_error, error_prefix: service_name
         f.adapter Faraday.default_adapter
       end
     end

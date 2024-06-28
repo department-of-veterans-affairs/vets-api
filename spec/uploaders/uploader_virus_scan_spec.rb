@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe UploaderVirusScan, uploader_helpers: true do
+describe UploaderVirusScan, :uploader_helpers do
   class UploaderVirusScanTest < CarrierWave::Uploader::Base
     include UploaderVirusScan
   end

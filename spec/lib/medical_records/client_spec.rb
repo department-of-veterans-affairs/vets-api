@@ -183,45 +183,23 @@ describe MedicalRecords::Client do
     end
   end
 
-  it 'gets a list of chem/hem labs', :vcr do
+  it 'gets a list of labs & tests', :vcr do
     VCR.use_cassette 'mr_client/get_a_list_of_chemhem_labs' do
-      chemhem_list = client.list_labs_chemhem_diagnostic_report
+      chemhem_list = client.list_labs_and_tests
       expect(chemhem_list).to be_a(FHIR::Bundle)
-    end
-  end
-
-  it 'gets a list of other DiagnosticReport labs', :vcr do
-    VCR.use_cassette 'mr_client/get_a_list_of_diagreport_labs' do
-      other_lab_list = client.list_labs_other_diagnostic_report
-      expect(other_lab_list).to be_a(FHIR::Bundle)
-    end
-  end
-
-  it 'gets a list of other DocumentReference labs', :vcr do
-    VCR.use_cassette 'mr_client/get_a_list_of_docref_labs' do
-      lab_doc_list = client.list_labs_document_reference
-      expect(lab_doc_list).to be_a(FHIR::Bundle)
-    end
-  end
-
-  it 'combines the lab results', :vcr do
-    VCR.use_cassette('mr_client/get_a_list_of_chemhem_labs') do
-      VCR.use_cassette('mr_client/get_a_list_of_diagreport_labs') do
-        VCR.use_cassette('mr_client/get_a_list_of_docref_labs') do
-          combined_labs_bundle = client.list_labs_and_tests
-          expect(combined_labs_bundle).to be_a(FHIR::Bundle)
-          expect(combined_labs_bundle.total).to eq(5)
-          expect(combined_labs_bundle.entry.count { |entry| entry.is_a?(FHIR::DiagnosticReport) }).to eq(3)
-          expect(combined_labs_bundle.entry.count { |entry| entry.is_a?(FHIR::DocumentReference) }).to eq(2)
-
-          # Ensure all entries are sorted in reverse chronological order
-          combined_labs_bundle.entry.each_cons(2) do |prev, curr|
-            prev_date = extract_date(prev)
-            curr_date = extract_date(curr)
-            expect(prev_date).to be >= curr_date
-          end
-        end
+      # Verify that the list is sorted reverse chronologically (with nil values to the end).
+      chemhem_list.entry.each_cons(2) do |prev, curr|
+        prev_date = prev.resource.effectiveDateTime
+        curr_date = curr.resource.effectiveDateTime
+        expect(curr_date.nil? || prev_date >= curr_date).to be true
       end
+    end
+  end
+
+  it 'gets a single diagnostic report', :vcr do
+    VCR.use_cassette 'mr_client/get_a_diagnostic_report' do
+      report = client.get_diagnostic_report(1234)
+      expect(report).to be_a(FHIR::DiagnosticReport)
     end
   end
 

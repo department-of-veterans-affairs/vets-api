@@ -17,7 +17,7 @@ class FormProfiles::VA107959f1 < FormProfile
     attribute :international_postal_code, String
   end
 
-  attribute :form_address
+  attribute :residential_address
 
   def prefill
     prefill_form_address
@@ -36,11 +36,11 @@ class FormProfiles::VA107959f1 < FormProfile
   private
 
   def prefill_form_address
-    mailing_address = VAProfileRedis::ContactInformation.for_user(user).mailing_address if user.vet360_id.present?
-    return if mailing_address.blank?
+    residential_address = VAProfileRedis::ContactInformation.for_user(user).residential_address if user.vet360_id.present? # rubocop:disable Layout/LineLength
+    return if residential_address.blank?
 
-    @form_address = FormAddress.new(
-      mailing_address.to_h.slice(
+    @residential_address = FormAddress.new(
+      residential_address.to_h.slice(
         :address_line1,
         :address_line2,
         :address_line3,
@@ -49,7 +49,7 @@ class FormProfiles::VA107959f1 < FormProfile
         :province,
         :zip_code,
         :international_postal_code
-      ).merge(country_name: mailing_address.country_code_iso3)
+      ).merge(country_name: residential_address.country_code_iso3)
     )
   end
 end

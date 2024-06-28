@@ -12,8 +12,7 @@ module Vye
 
       after_action :verify_authorized
 
-      rescue_from Pundit::NotAuthorizedError, with: -> { head :forbidden }
-      rescue_from FeatureDisabled, with: -> { head :bad_request }
+      rescue_from FeatureDisabled, with: -> { render json: { error: 'Bad Request' }, status: :bad_request }
 
       private
 

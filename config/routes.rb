@@ -100,7 +100,7 @@ Rails.application.routes.draw do
     resource :user, only: [:show] do
       get 'icn', to: 'users#icn'
     end
-    resource :post911_gi_bill_status, only: [:show]
+    resource :veteran_onboarding, only: %i[show update]
 
     resource :education_benefits_claims, only: %i[create show] do
       collection do
@@ -119,6 +119,7 @@ Rails.application.routes.draw do
     end
 
     resource :hca_attachments, only: :create
+    resource :form1010_ezr_attachments, only: :create
 
     resources :caregivers_assistance_claims, only: :create
     post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
@@ -139,6 +140,9 @@ Rails.application.routes.draw do
       resources :pension_claims, only: %i[create show]
       resources :burial_claims, only: %i[create show]
     end
+
+    post 'form0969', to: 'income_and_assets_claims#create'
+    get 'form0969', to: 'income_and_assets_claims#show'
 
     resources :benefits_claims, only: %i[index show] do
       post :submit5103, on: :member
@@ -471,6 +475,7 @@ Rails.application.routes.draw do
   mount TravelPay::Engine, at: '/travel_pay'
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
+  mount Pensions::Engine, at: '/pensions'
   # End Modules
 
   require 'sidekiq/web'

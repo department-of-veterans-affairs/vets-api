@@ -28,10 +28,13 @@ class SavedClaim < ApplicationRecord
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
   has_many :form_submissions, dependent: :nullify
 
+  after_create ->(claim) { StatsD.increment('saved_claim.create', tags: ["form_id:#{claim.form_id}"]) }
+  after_destroy ->(claim) { StatsD.increment('saved_claim.destroy', tags: ["form_id:#{claim.form_id}"]) }
+
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
   after_initialize do
-    self.form_id = self.class::FORM.upcase unless instance_of?(SavedClaim::Burial)
+    self.form_id = self.class::FORM.upcase unless instance_of?(::SavedClaim::Burial)
   end
 
   def self.add_form_and_validation(form_id)
@@ -46,7 +49,7 @@ class SavedClaim < ApplicationRecord
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
 
-    CentralMail::SubmitSavedClaimJob.perform_async(id)
+    Lighthouse::SubmitBenefitsIntakeClaim.perform_async(id)
   end
 
   def submit_to_structured_data_services!

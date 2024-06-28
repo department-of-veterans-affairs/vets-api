@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'pension_burial/processing_office'
-
-class SavedClaim::Pension < CentralMailClaim
+class SavedClaim::Pension < SavedClaim
   FORM = '21P-527EZ'
 
   def regional_office
@@ -10,6 +8,10 @@ class SavedClaim::Pension < CentralMailClaim
      'Pension Intake Center',
      'P.O. Box 5365',
      'Janesville, Wisconsin 53547-5365']
+  end
+
+  def business_line
+    'PMC'
   end
 
   def attachment_keys

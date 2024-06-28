@@ -43,9 +43,7 @@ RSpec.describe CovidResearch::Volunteer::GenisisDeliveryJob do
       end
 
       it 'raises GenisisDeliveryFailure if there is an error' do
-        allow(response_double).to receive(:success?).and_return(false)
-        allow(response_double).to receive(:body).and_return('Internal Server Error')
-        allow(response_double).to receive(:status).and_return(500)
+        allow(response_double).to receive_messages(success?: false, body: 'Internal Server Error', status: 500)
 
         expect { subject.perform(form_data) }.to raise_error(CovidResearch::Volunteer::GenisisDeliveryFailure)
       end

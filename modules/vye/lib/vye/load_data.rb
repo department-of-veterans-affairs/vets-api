@@ -6,26 +6,29 @@ module Vye
 
     private_constant :SOURCES
 
-    attr_reader :profile
+    private
 
-    def initialize(source:, bdn_clone: nil, records: {})
+    attr_reader :bdn_clone, :locator, :user_profile, :user_info
+
+    def initialize(source:, locator:, bdn_clone: nil, records: {})
       raise ArgumentError, format('Invalid source: %<source>s', source:) unless sources.include?(source)
       raise ArgumentError, 'Missing profile' if records[:profile].blank?
       raise ArgumentError, 'Missing bdn_clone' unless source == :tims_feed || bdn_clone.present?
 
       @bdn_clone = bdn_clone
+      @locator = locator
 
-      send(source, **records)
-      profile.save!
+      UserProfile.transaction do
+        send(source, **records)
+      end
+
+      @valid_flag = true
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error e.message
+      Rails.logger.error e.backtrace.join("\n")
+
+      @valid_flag = false
     end
-
-    private
-
-    attr_reader :bdn_clone
-    attr_accessor :info
-    attr_writer :profile
 
     def sources = SOURCES
 
@@ -43,39 +46,47 @@ module Vye
     end
 
     def bdn_feed(profile:, info:, address:, awards: [])
+      bdn_clone_line = locator
       load_profile(profile)
-      load_info(info)
+      load_info(info.merge(bdn_clone_line:))
       load_address(address)
       load_awards(awards)
     end
 
     def load_profile(attributes)
-      self.profile = UserProfile.produce(attributes)
+      user_profile = UserProfile.produce(attributes)
+      user_profile.save!
+      @user_profile = user_profile
     end
 
     def load_info(attributes)
-      final_attributes = attributes.merge(bdn_clone:)
-      self.info = profile.user_infos.build(final_attributes)
+      @user_info = user_profile.user_infos.create!(attributes.merge(bdn_clone:))
     end
 
     def load_address(attributes)
-      info.address_changes.build(attributes)
+      user_info.address_changes.create!(attributes)
     end
 
     def load_awards(awards)
-      awards.each do |attributes|
-        info.awards.build(attributes)
+      awards&.each do |attributes|
+        user_info.awards.create!(attributes)
       end
     end
 
     def load_pending_document(attributes)
-      profile.pending_documents.build(attributes)
+      user_profile.pending_documents.create!(attributes)
     end
 
     def load_pending_documents(pending_documents)
       pending_documents.each do |attributes|
-        profile.pending_documents.build(attributes)
+        user_profile.pending_documents.create!(attributes)
       end
+    end
+
+    public
+
+    def valid?
+      @valid_flag
     end
   end
 end

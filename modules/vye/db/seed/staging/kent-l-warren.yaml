@@ -1,0 +1,56 @@
+---
+:profile:
+  :ssn: '796127160'
+  :file_number: '796127160'
+  :icn: 1012662125V786396
+:info:
+  :file_number: '796127160'
+  :dob: 1980-05-19
+  :stub_nm: KLWARRE
+  :mr_status: A
+  :rem_ent: '3538096'
+  :cert_issue_date: 2017-01-10
+  :del_date: 2024-12-09
+  :date_last_certified: 2024-03-26
+  :rpo_code: 9654
+  :fac_code: eum
+  :payment_amt: 4784.92
+  :indicator: A
+  :bdn_clone_active: true
+:address:
+  :veteran_name: Kent L Warren
+  :address1: 73971 Leannon Roads
+  :city: New Alfonzo
+  :state: MT
+  :zip_code: '16368'
+  :origin: backend
+:awards:
+- :cur_award_ind: P
+  :award_begin_date: 2023-10-01
+  :award_end_date: 2023-12-17
+  :training_time: 4
+  :payment_date:
+  :monthly_rate: 744.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: C
+  :award_begin_date: 2024-01-22
+  :award_end_date: 2024-05-21
+  :training_time: 3
+  :payment_date:
+  :monthly_rate: 744.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+:pending_documents:
+- :doc_type: excepturi
+  :queue_date: 2024-05-15
+  :rpo: non
+- :doc_type: tempora
+  :queue_date: 2024-05-07
+  :rpo: sit

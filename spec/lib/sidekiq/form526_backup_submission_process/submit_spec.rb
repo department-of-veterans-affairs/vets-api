@@ -56,8 +56,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   %w[single multi].each do |payload_method|
     describe ".perform_async, enabled, #{payload_method} payload" do
       before do
-        allow(Settings.form526_backup).to receive(:submission_method).and_return(payload_method)
-        allow(Settings.form526_backup).to receive(:enabled).and_return(true)
+        allow(Settings.form526_backup).to receive_messages(submission_method: payload_method, enabled: true)
       end
 
       let!(:submission) { create :form526_submission, :with_everything, aasm_state: 'failed_primary_delivery' }
@@ -115,6 +114,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
                 submission = Form526Submission.last
                 expect(submission.backup_submitted_claim_id).not_to be(nil)
                 expect(submission.aasm_state).to eq('delivered_to_backup')
+                expect(submission.submit_endpoint).to eq('benefits_intake_api')
               end
             end
           end
@@ -163,8 +163,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
 
   describe '.perform_async, enabled, and converts non-pdf evidence to pdf' do
     before do
-      allow(Settings.form526_backup).to receive(:submission_method).and_return('single')
-      allow(Settings.form526_backup).to receive(:enabled).and_return(true)
+      allow(Settings.form526_backup).to receive_messages(submission_method: 'single', enabled: true)
     end
 
     let!(:submission) { create :form526_submission, :with_non_pdf_uploads }

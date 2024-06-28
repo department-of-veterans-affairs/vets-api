@@ -142,6 +142,9 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
         it 'updates a StatsD counter and updates the status on an exhaustion event' do
+          # We are also incrementing a metric when the Form4142DocumentUploadFailureEmail job runs
+          allow(StatsD).to receive(:increment)
+
           subject.within_sidekiq_retries_exhausted_block({ 'jid' => form526_job_status.job_id }) do
             expect(StatsD).to receive(:increment).with("#{subject::CENTRAL_MAIL_STATSD_KEY_PREFIX}.exhausted")
             expect(Rails).to receive(:logger).and_call_original
@@ -287,12 +290,51 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
         it 'updates a StatsD counter and updates the status on an exhaustion event' do
+          # We are also incrementing a metric when the Form4142DocumentUploadFailureEmail job runs
+          allow(StatsD).to receive(:increment)
+
           subject.within_sidekiq_retries_exhausted_block({ 'jid' => form526_job_status.job_id }) do
             expect(StatsD).to receive(:increment).with("#{subject::LIGHTHOUSE_STATSD_KEY_PREFIX}.exhausted")
             expect(Rails).to receive(:logger).and_call_original
           end
           form526_job_status.reload
           expect(form526_job_status.status).to eq(Form526JobStatus::STATUS[:exhausted])
+        end
+
+        context 'when the form526_send_4142_failure_notification Flipper is enabled' do
+          before do
+            Flipper.enable(:form526_send_4142_failure_notification)
+          end
+
+          it 'enqueues a failure notification mailer to send to the veteran' do
+            subject.within_sidekiq_retries_exhausted_block(
+              {
+                'jid' => form526_job_status.job_id,
+                'args' => [form526_submission.id]
+              }
+            ) do
+              expect(EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail)
+                .to receive(:perform_async).with(form526_submission.id)
+            end
+          end
+        end
+
+        context 'when the form526_send_4142_failure_notification Flipper is disabled' do
+          before do
+            Flipper.disable(:form526_send_4142_failure_notification)
+          end
+
+          it 'does not enqueue a failure notification mailer to send to the veteran' do
+            subject.within_sidekiq_retries_exhausted_block(
+              {
+                'jid' => form526_job_status.job_id,
+                'args' => [form526_submission.id]
+              }
+            ) do
+              expect(EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail)
+                .not_to receive(:perform_async)
+            end
+          end
         end
       end
     end

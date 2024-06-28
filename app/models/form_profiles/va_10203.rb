@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'evss/gi_bill_status/service'
+require 'lighthouse/benefits_education/service'
 
 module VA10203
   FORM_ID = '22-10203'
@@ -52,7 +52,7 @@ class FormProfiles::VA10203 < FormProfile
   private
 
   def get_gi_bill_status
-    service = EVSS::GiBillStatus::Service.new(user)
+    service = BenefitsEducation::Service.new(user.icn)
     service.get_gi_bill_status
   rescue => e
     Rails.logger.error "Failed to retrieve GiBillStatus data: #{e.message}"

@@ -414,6 +414,9 @@ intent_to_file:
 ivc_champva:
   prefill: true
 
+form_upload_flow:
+  prefill: true
+
 # Settings for Expiry Scanner
 expiry_scanner:
   slack:
@@ -1004,6 +1007,9 @@ lighthouse:
     version: v1
     use_mocks: false
     api_key: ~
+    report:
+      stale_sla: 10 # days
+      batch_size: 1000
   letters_generator:
     url: https://sandbox-api.va.gov
     path: /services/va-letter-generator/v1/
@@ -1272,10 +1278,12 @@ vanotify:
         form1990meb_offramp_confirmation_email: form1990meb_offramp_confirmation_email_template_id
         form1990meb_denied_confirmation_email: form1990meb_denied_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
+        form21_0966_confirmation_email: form21_0966_confirmation_email_template_id
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
         form21_10203_confirmation_email: form21_10203_confirmation_email_template_id
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
         form20_10206_confirmation_email: form20_10206_confirmation_email_template_id
+        form20_10207_confirmation_email: form20_10207_confirmation_email_template_id
         form21_0845_confirmation_email: form21_0845_confirmation_email_template_id
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
@@ -1322,6 +1330,15 @@ vanotify:
       api_key: fake_secret
       template_id:
         form526_document_upload_failure_notification_template_id: form526_document_upload_failure_notification_template_id
+        form4142_upload_failure_notification_template_id: form4142_upload_failure_notification_template_id
+    ivc_champva:
+      api_key: fake_secret
+      template_id:
+        pega_status_update_email_template_id: pega_status_update_email_template_id
+    health_apps_1010:
+      api_key: fake_secret
+      template_id:
+        form1010_ez_failure_email: fake_template_id
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
@@ -1332,6 +1349,8 @@ va_forms:
   drupal_username: ~
   drupal_password: ~
   drupal_url: https://fake-url.com
+  form_reloader:
+    enabled: false
   # A notification for when a forms url has changed
   slack:
     enabled: false
@@ -1361,6 +1380,10 @@ vetext_push:
   base_url: https://vetext1.r01.med.va.gov
   user: vets-api-username
   pass: secret
+
+res:
+  base_url: ~
+  api_key: ~
 
 veteran_readiness_and_employment:
   base_url: ~
@@ -1545,6 +1568,7 @@ virtual_regional_office:
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
   evidence_pdf_path: evidence-pdf
   ctn_classification_path: classifier
+  vagov_classification_path: contention-classification/va-gov-claim-classifier
   max_cfi_path: employee-experience/max-ratings
   ep_merge_path: employee-experience-ep-merge-app/merge
 
@@ -1648,6 +1672,10 @@ ivc_forms:
     bucket: "bucket"
     enabled: true
     region: "region"
+  sidekiq:
+    missing_form_status_job:
+      enabled: true
+
 
 coverband:
   github_organization: ~

@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'common/file_helpers'
 require 'lighthouse/benefits_intake/service'
+require 'pdf_utilities/pdf_validator'
 
 RSpec.describe BenefitsIntake::Service do
   let(:service) { BenefitsIntake::Service.new }
@@ -136,7 +137,7 @@ RSpec.describe BenefitsIntake::Service do
   describe '#get_status' do
     it 'gets an upload status' do
       uuid = '12345TEST'
-      headers = { 'accept' => mime_json }
+      headers = { 'Accept' => mime_json }
 
       expect(service).to receive(:perform).with(:get, "uploads/#{uuid}", {}, headers)
       service.get_status(uuid:)
@@ -146,8 +147,8 @@ RSpec.describe BenefitsIntake::Service do
   describe '#bulk_status' do
     it 'requests a status report' do
       uuids = ['12345TEST', '6789FOO', 'BAR!']
-      headers = { 'Content-Type' => mime_json, 'accept' => mime_json }
-      data = { uuids: }.to_json
+      headers = { 'Content-Type' => mime_json, 'Accept' => mime_json }
+      data = { ids: uuids }.to_json
 
       expect(service).to receive(:perform).with(:post, 'uploads/report', data, headers)
 
@@ -158,7 +159,7 @@ RSpec.describe BenefitsIntake::Service do
   describe '#download' do
     it 'gets the download' do
       uuid = '12345TEST'
-      headers = { 'accept' => Mime[:zip].to_s }
+      headers = { 'Accept' => Mime[:zip].to_s }
 
       expect(service).to receive(:perform).with(:get, "uploads/#{uuid}/download", {}, headers)
       service.download(uuid:)
@@ -202,17 +203,19 @@ RSpec.describe BenefitsIntake::Service do
 
   describe '#valid_document?' do
     let(:document) { 'fake-file-path' }
+    let(:validator) { PDFUtilities::PDFValidator::Validator }
+    let(:mock_valid) { OpenStruct.new({ validate: OpenStruct.new({ valid_pdf?: true }) }) }
+    let(:mock_invalid) { OpenStruct.new({ validate: OpenStruct.new({ valid_pdf?: false, errors: ['TEST'] }) }) }
 
     context 'a valid file' do
       before do
         allow(File).to receive(:read).and_return('test-file-read')
-        allow(Marcel::MimeType).to receive(:for).and_return(mime_pdf)
+        allow(validator).to receive(:new).and_return mock_valid
         allow(service).to receive(:perform).and_return OpenStruct.new({ success?: true })
       end
 
       it 'returns document path' do
         expect(File).to receive(:read).once.with(document, mode: 'rb')
-        expect(Marcel::MimeType).to receive(:for).once.with('test-file-read')
         expect(service).to receive(:perform).once.with(:post, 'uploads/validate_document', 'test-file-read', anything)
 
         expect(service.valid_document?(document:)).to eq(document)
@@ -226,18 +229,17 @@ RSpec.describe BenefitsIntake::Service do
         end.to raise_error SystemCallError, /#{document}/
       end
 
-      it 'errors if not a PDF' do
-        allow(File).to receive(:read).and_return('test-file-read')
-        allow(Marcel::MimeType).to receive(:for).and_return('not-a-pdf')
+      it 'errors if not a valid PDF' do
+        allow(validator).to receive(:new).and_return mock_invalid
 
         expect do
           service.valid_document?(document:)
-        end.to raise_error TypeError, 'Invalid Document MimeType: not-a-pdf'
+        end.to raise_error BenefitsIntake::Service::InvalidDocumentError, 'Invalid Document: ["TEST"]'
       end
 
       it 'errors on unsuccessful api validation' do
+        allow(validator).to receive(:new).and_return mock_valid
         allow(File).to receive(:read).and_return('test-file-read')
-        allow(Marcel::MimeType).to receive(:for).and_return(mime_pdf)
         allow(service).to receive(:perform).and_return OpenStruct.new({ success?: false })
 
         expect do

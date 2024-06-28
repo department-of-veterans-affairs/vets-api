@@ -12,8 +12,8 @@ module Vye
 
     validates(
       *%i[
-        award_end_date cur_award_ind end_rsn
-        monthly_rate number_hours payment_date training_time
+        award_end_date cur_award_ind
+        monthly_rate number_hours training_time
       ].freeze,
       presence: true
     )

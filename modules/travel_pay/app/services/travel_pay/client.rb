@@ -35,6 +35,7 @@ module TravelPay
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['Ocp-Apim-Subscription-Key'] = api_key
         req.headers['BTSSS-API-Client-Number'] = client_number.to_s
+        req.headers['X-Correlation-ID'] = SecureRandom.uuid
         req.body = { authJwt: sts_token }
       end
 
@@ -53,6 +54,7 @@ module TravelPay
       connection(server_url: btsss_url).get('api/v1/Sample/ping') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['Ocp-Apim-Subscription-Key'] = api_key
+        req.headers['X-Correlation-ID'] = SecureRandom.uuid
       end
     end
 
@@ -69,6 +71,7 @@ module TravelPay
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['BTSSS-Access-Token'] = btsss_token
         req.headers['Ocp-Apim-Subscription-Key'] = api_key
+        req.headers['X-Correlation-ID'] = SecureRandom.uuid
       end
     end
 
@@ -82,20 +85,15 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       api_key = Settings.travel_pay.subscription_key
 
-      ### TODO: Remove this token parsing code.
-      ### This is a very temporary workaround.
-      ### A fix is being worked on by the API team, deployed soon
-      payload = JWT.decode(btsss_token, nil, false)[0]
-      contact_id = payload['ContactID']
-
-      response = connection(server_url: btsss_url).get("api/v1/claims/by-contact/#{contact_id}") do |req|
+      response = connection(server_url: btsss_url).get('api/v1/claims') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['BTSSS-Access-Token'] = btsss_token
         req.headers['Ocp-Apim-Subscription-Key'] = api_key
+        req.headers['X-Correlation-ID'] = SecureRandom.uuid
       end
 
       symbolized_body = response.body.deep_symbolize_keys
-      parse_claim_date = ->(c) { Date.parse(c[:modifiedOn]) }
+      parse_claim_date = ->(c) { Date.parse(c[:appointmentDateTime]) }
 
       sorted_claims = symbolized_body[:data].sort_by(&parse_claim_date).reverse
 
@@ -184,7 +182,7 @@ module TravelPay
 
       Faraday.new(url: server_url) do |conn|
         conn.use :breakers
-        conn.response :raise_error, error_prefix: service_name, include_request: true
+        conn.response :raise_custom_error, error_prefix: service_name, include_request: true
         conn.response :betamocks if mock_enabled?
         conn.response :json
         conn.request :json

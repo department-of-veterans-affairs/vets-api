@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'simple_forms_api_submission/metadata_validator'
+
 module SimpleFormsApi
   module V1
     class ScannedFormUploadsController < ApplicationController

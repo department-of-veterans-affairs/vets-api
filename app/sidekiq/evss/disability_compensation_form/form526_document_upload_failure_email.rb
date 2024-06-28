@@ -55,19 +55,23 @@ module EVSS
       end
 
       def perform(form526_submission_id, supporting_evidence_attachment_guid)
-        @notify_client ||= VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key)
-        send_notification_mailer(form526_submission_id, supporting_evidence_attachment_guid)
+        super(form526_submission_id)
+        submission = Form526Submission.find(form526_submission_id)
 
-        StatsD.increment("#{STATSD_METRIC_PREFIX}.success")
+        with_tracking('Form526DocumentUploadFailureEmail', submission.saved_claim_id, form526_submission_id) do
+          @notify_client ||= VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key)
+          send_notification_mailer(submission, supporting_evidence_attachment_guid)
+
+          StatsD.increment("#{STATSD_METRIC_PREFIX}.success")
+        end
       rescue => e
         retryable_error_handler(e)
       end
 
       private
 
-      def send_notification_mailer(form526_submission_id, supporting_evidence_attachment_guid)
+      def send_notification_mailer(submission, supporting_evidence_attachment_guid)
         form_attachment = SupportingEvidenceAttachment.find_by!(guid: supporting_evidence_attachment_guid)
-        submission = Form526Submission.find(form526_submission_id)
 
         # We need to obscure the original filename since it may contain PII
         obscured_filename = form_attachment.obscured_filename

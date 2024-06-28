@@ -6,6 +6,8 @@ RSpec.describe AccreditedOrganization, type: :model do
   describe 'validations' do
     subject { build(:accredited_organization) }
 
+    it { is_expected.to have_many(:accredited_individuals).through(:accreditations) }
+
     it { expect(subject).to validate_presence_of(:ogc_id) }
     it { expect(subject).to validate_presence_of(:poa_code) }
     it { expect(subject).to validate_length_of(:poa_code).is_equal_to(3) }
@@ -42,14 +44,14 @@ RSpec.describe AccreditedOrganization, type: :model do
         # check within 50 miles of Washington, D.C.
         results = described_class.find_within_max_distance(-77.0369, 38.9072)
 
-        expect(results.pluck(:id)).to match_array([ai1.id, ai2.id, ai3.id])
+        expect(results.pluck(:id)).to contain_exactly(ai1.id, ai2.id, ai3.id)
       end
 
       it 'returns all organizations located within the specified max distance' do
         # check within 40 miles of Washington, D.C.
         results = described_class.find_within_max_distance(-77.0369, 38.9072, 64_373.8)
 
-        expect(results.pluck(:id)).to match_array([ai1.id, ai2.id])
+        expect(results.pluck(:id)).to contain_exactly(ai1.id, ai2.id)
       end
     end
 

@@ -17,6 +17,9 @@ module V0
       else
         StatsD.increment("#{stats_key}.failure")
         Sentry.set_tags(team: 'vfs-ebenefits') # tag sentry logs with team name
+        Rails.logger.error('VR&E claim was not saved', { error_messages: claim.errors,
+                                                         user_logged_in: current_user.present?,
+                                                         current_user_uuid: current_user&.uuid })
         raise Common::Exceptions::ValidationErrors, claim
       end
     end

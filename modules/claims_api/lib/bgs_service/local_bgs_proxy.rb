@@ -39,16 +39,23 @@ module ClaimsApi
       common_api:
     )
 
+    class << self
+      delegate :breakers_service, to: :get_proxied_klass
+
+      def get_proxied_klass
+        if Flipper.enabled?(:claims_api_local_bgs_refactor)
+          LocalBGSRefactored
+        else
+          LocalBGS
+        end
+      end
+    end
+
     delegate(*common_api, to: :proxied)
     attr_reader :proxied
 
     def initialize(...)
-      @proxied =
-        if Flipper.enabled?(:claims_api_local_bgs_refactor)
-          LocalBGSRefactored.new(...)
-        else
-          LocalBGS.new(...)
-        end
+      @proxied = self.class.get_proxied_klass.new(...)
     end
   end
 end

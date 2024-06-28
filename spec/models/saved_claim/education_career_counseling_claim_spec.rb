@@ -26,26 +26,9 @@ RSpec.describe SavedClaim::EducationCareerCounselingClaim do
       claim.send_to_benefits_intake!
     end
 
-    context 'Feature ecc_benefits_intake_submission is true' do
-      before do
-        Flipper.enable(:ecc_benefits_intake_submission)
-      end
-
-      it 'calls Lighthouse::SubmitBenefitsIntakeClaim job' do
-        expect_any_instance_of(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform).with(claim.id)
-        claim.send_to_benefits_intake!
-      end
-    end
-
-    context 'Feature ecc_benefits_intake_submission is false' do
-      before do
-        Flipper.disable(:ecc_benefits_intake_submission)
-      end
-
-      it 'calls CentralMail::SubmitSavedClaimJob job' do
-        expect_any_instance_of(CentralMail::SubmitSavedClaimJob).to receive(:perform).with(claim.id)
-        claim.send_to_benefits_intake!
-      end
+    it 'calls Lighthouse::SubmitBenefitsIntakeClaim job' do
+      expect_any_instance_of(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform).with(claim.id)
+      claim.send_to_benefits_intake!
     end
   end
 end
