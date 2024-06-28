@@ -200,10 +200,10 @@ module SimpleFormsApi
         params['veteran_mailing_address'] ||= { 'postal_code' => @current_user.address[:postal_code] || '00000' }
         Rails.logger.info(
           'Simple forms api - 21-0966 Benefits Claims Intent to File API error,' \
-          'reverting to filling a PDF and sending it to Central Mail',
+          'reverting to filling a PDF and sending it to Benefits Intake API',
           {
             error: e,
-            current_user_participant_id: @current_user.participant_id,
+            is_current_user_participant_id_present: @current_user.participant_id ? true : false,
             current_user_account_uuid: @current_user.user_account_uuid
           }
         )
