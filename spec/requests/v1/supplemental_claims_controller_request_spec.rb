@@ -99,6 +99,12 @@ RSpec.describe V1::SupplementalClaimsController do
   end
 
   describe '#create with 4142' do
+    subject do
+      post '/v1/supplemental_claims',
+           params: VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json,
+           headers:
+    end
+
     before do
       Flipper.disable :decision_review_sc_use_lighthouse_api_for_form4142
     end
@@ -106,12 +112,6 @@ RSpec.describe V1::SupplementalClaimsController do
     def personal_information_logs
       PersonalInformationLog.where 'error_class like ?',
                                    'V1::SupplementalClaimsController#create exception % (SC_V1)'
-    end
-
-    subject do
-      post '/v1/supplemental_claims',
-           params: VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json,
-           headers:
     end
 
     it 'creates a supplemental claim and queues a 4142 form when 4142 info is provided' do
