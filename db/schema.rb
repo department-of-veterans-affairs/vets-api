@@ -885,6 +885,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_28_173854) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "case_id"
+    t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
   end
 
   create_table "maintenance_windows", id: :serial, force: :cascade do |t|
