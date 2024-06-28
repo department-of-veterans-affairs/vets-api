@@ -112,6 +112,20 @@ RSpec.describe 'immunizations', :skip_json_api_validation, type: :request do
       end
     end
 
+    context 'when token service returns an error' do
+      before do
+        VCR.use_cassette('mobile/lighthouse_health/get_immunizations_token_too_many_error',
+                         match_requests_on: %i[method uri]) do
+          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 12, number: 1 } }
+        end
+      end
+
+      it 'returns a 500' do
+        expect(response).to have_http_status(:internal_server_error)
+        expect(response.parsed_body.dig('errors', 0, 'meta', 'exception')).to eq('the server responded with status 429')
+      end
+    end
+
     describe 'vaccine group name and manufacturer population' do
       let(:immunizations_request_non_covid_paginated) do
         VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
