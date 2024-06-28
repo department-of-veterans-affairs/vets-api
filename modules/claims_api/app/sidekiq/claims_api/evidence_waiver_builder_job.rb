@@ -10,13 +10,14 @@ module ClaimsApi
     # Generate a 5103 "form" for a given veteran.
     #
     # @param evidence_waiver_id [String] Unique identifier of the submitted EWS
-    def perform(evidence_waiver_id)
+    def perform(evidence_waiver_id, claim)
       evidence_waiver_submission = ClaimsApi::EvidenceWaiverSubmission.find(evidence_waiver_id)
       auth_headers = evidence_waiver_submission.auth_headers
       output_path = ClaimsApi::EvidenceWaiver.new(auth_headers:).construct
 
-      upload_to_vbms(evidence_waiver_submission, output_path)
-      ClaimsApi::EwsUpdater.perform_async(evidence_waiver_id)
+      # upload to BD
+      benefits_doc_api.upload(claim:, pdf_path: output_path, ews: evidence_waiver_submission)
+      ClaimsApi::EwsUpdater.new.perform(evidence_waiver_id)
 
       ::Common::FileHelpers.delete_file_if_exists(output_path)
     rescue VBMS::ClientError => e
@@ -26,6 +27,10 @@ module ClaimsApi
       raise VBMS::Unknown # for sidekiq retries
     rescue Errno::ENOENT
       rescue_file_not_found(evidence_waiver_submission)
+    end
+
+    def benefits_doc_api
+      ClaimsApi::BD.new
     end
   end
 end

@@ -33,7 +33,7 @@ module ClaimsApi
     # Upload document of mapped claim
     #
     # @return success or failure
-    def upload(claim:, pdf_path:, doc_type: 'L122', file_number: nil, original_filename: nil)
+    def upload(claim:, pdf_path:, doc_type: 'L122', file_number: nil, original_filename: nil, ews: nil) # rubocop:disable Metrics/ParameterLists
       unless File.exist? pdf_path
         ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist",
                                                     claim_id: claim&.id)
@@ -41,7 +41,7 @@ module ClaimsApi
       end
 
       @multipart = true
-      body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:)
+      body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:, ews:)
       res = client.post('documents', body)&.body&.deep_symbolize_keys
       request_id = res&.dig(:data, :requestId)
       ClaimsApi::Logger.log(
@@ -62,17 +62,20 @@ module ClaimsApi
     # Generate form body to upload a document
     #
     # @return {parameters, file}
-    def generate_upload_body(claim:, doc_type:, pdf_path:, file_number: nil, original_filename: nil)
+    def generate_upload_body(claim:, doc_type:, pdf_path:, file_number: nil, original_filename: nil, ews: nil) # rubocop:disable Metrics/ParameterLists
       payload = {}
-      veteran_name = "#{claim.auth_headers['va_eauth_firstName']}_#{claim.auth_headers['va_eauth_lastName']}"
-      file_name = generate_file_name(doc_type:, veteran_name:, claim_id: claim.evss_id, original_filename:)
+      auth_headers = ews.nil? ? claim.auth_headers : ews.auth_headers
+      veteran_name = "#{auth_headers['va_eauth_firstName']}_#{auth_headers['va_eauth_lastName']}"
+
+      file_name = generate_file_name(doc_type:, veteran_name:, claim_id: claim&.evss_id, original_filename:)
+      birls_file_num = auth_headers['va_eauth_birlsfilenumber']
 
       data = {
         data: {
           systemName: 'VA.gov',
           docType: doc_type,
-          claimId: claim.evss_id,
-          fileNumber: file_number || claim.auth_headers['va_eauth_birlsfilenumber'],
+          claimId: claim&.evss_id,
+          fileNumber: file_number || birls_file_num,
           fileName: file_name,
           trackedItemIds: []
         }
