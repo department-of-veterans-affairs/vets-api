@@ -21,13 +21,17 @@ module IvcChampva
       template_form_path = "#{TEMPLATE_BASE}/#{form_number}.pdf"
       generated_form_path = "tmp/#{name}-tmp.pdf"
       stamped_template_path = "tmp/#{name}-stamped.pdf"
-      pdftk = PdfForms.new(Settings.binaries.pdftk)
       FileUtils.copy(template_form_path, stamped_template_path)
+
       if File.exist? stamped_template_path
-        PdfStamper.stamp_pdf(stamped_template_path, form, current_loa)
-        pdftk.fill_form(stamped_template_path, generated_form_path, mapped_data, flatten: true)
-        Common::FileHelpers.delete_file_if_exists(stamped_template_path)
-        generated_form_path
+        begin
+          PdfStamper.stamp_pdf(stamped_template_path, form, current_loa)
+          pdftk = PdfForms.new(Settings.binaries.pdftk)
+          pdftk.fill_form(stamped_template_path, generated_form_path, mapped_data, flatten: true)
+          generated_form_path
+        ensure
+          Common::FileHelpers.delete_file_if_exists(stamped_template_path)
+        end
       else
         raise "stamped template file does not exist: #{stamped_template_path}"
       end
