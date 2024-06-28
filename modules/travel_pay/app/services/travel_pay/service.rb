@@ -2,26 +2,19 @@
 
 module TravelPay
   class Service
-    def ping
-      veis_token = client.request_veis_token
-      client.ping(veis_token)
-    end
-
-    def authorized_ping(current_user)
-      sts_token = client.request_sts_token(current_user)
-      veis_token = client.request_veis_token
-      btsss_token = client.request_btsss_token(veis_token, sts_token)
-
-      client.authorized_ping(veis_token, btsss_token)
-    end
-
     def get_claims(current_user)
-      veis_token = client.request_veis_token
+      claims_response = client.get_claims(current_user)
+      symbolized_body = claims_response.body.deep_symbolize_keys
+      parse_claim_date = ->(c) { Date.parse(c[:appointmentDateTime]) }
 
-      sts_token = client.request_sts_token(current_user)
-      btsss_token = client.request_btsss_token(veis_token, sts_token)
+      sorted_claims = symbolized_body[:data].sort_by(&parse_claim_date).reverse
 
-      client.get_claims(veis_token, btsss_token)
+      {
+        data: sorted_claims.map do |sc|
+          sc[:claimStatus] = sc[:claimStatus].underscore.titleize
+          sc
+        end
+      }
     end
 
     private
