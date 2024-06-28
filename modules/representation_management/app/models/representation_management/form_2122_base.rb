@@ -56,7 +56,10 @@ module RepresentationManagement
     validates :veteran_middle_initial, length: { maximum: 1 }
     validates :veteran_last_name, presence: true, length: { maximum: 18 }
     validates :veteran_social_security_number, presence: true, format: { with: NINE_DIGIT_NUMBER }
-    validates :veteran_va_file_number, presence: true, length: { is: 9 }, format: { with: NINE_DIGIT_NUMBER }
+    validates :veteran_va_file_number,
+              length: { is: 9 },
+              format: { with: NINE_DIGIT_NUMBER },
+              if: -> { veteran_va_file_number.present? }
     validates :veteran_date_of_birth, presence: true
     validates :veteran_address_line1, presence: true, length: { maximum: 30 }
     validates :veteran_address_line2, length: { maximum: 5 }
@@ -66,9 +69,10 @@ module RepresentationManagement
     validates :veteran_zip_code, presence: true, length: { is: 5 }, format: { with: FIVE_DIGIT_NUMBER }
     validates :veteran_zip_code_suffix, length: { is: 4 }, format: { with: FOUR_DIGIT_NUMBER }
     validates :veteran_phone, length: { is: 10 }, format: { with: TEN_DIGIT_NUMBER }
-    validates :veteran_service_number, length: { is: 9 }, format: { with: NINE_DIGIT_NUMBER }, if: lambda {
-                                                                                                  veteran_service_number.present?
-                                                                                                }
+    validates :veteran_service_number,
+              length: { is: 9 },
+              format: { with: NINE_DIGIT_NUMBER },
+              if: -> { veteran_service_number.present? }
 
     with_options if: -> { claimant_first_name.present? } do
       validates :claimant_first_name, presence: true, length: { maximum: 12 }
