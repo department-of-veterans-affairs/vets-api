@@ -25,7 +25,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
         context 'when provided' do
           context 'when valid' do
             context 'when success' do
-              it 'returns a 200' do
+              it 'returns a 202' do
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
                     allow_any_instance_of(ClaimsApi::LocalBGS)
@@ -33,7 +33,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
 
                     post sub_path, headers: auth_header
 
-                    expect(response.status).to eq(200)
+                    expect(response.status).to eq(202)
                   end
                 end
               end
@@ -76,7 +76,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
 
                 post sub_path, params: { sponsorIcn: sponsor_id }, headers: auth_header
 
-                expect(response.status).to eq(200)
+                expect(response.status).to eq(202)
               end
             end
 
@@ -87,7 +87,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
                     .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
                   post sub_path, params: { sponsorIcn: sponsor_id }, headers: auth_header
 
-                  expect(response.status).to eq(200)
+                  expect(response.status).to eq(202)
                 end
               end
             end
@@ -122,7 +122,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
                 mock_ccg_for_fine_grained_scope(ews_scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
                     post sub_path, headers: auth_header
-                    expect(response).to have_http_status(:ok)
+                    expect(response).to have_http_status(:accepted)
                   end
                 end
               end

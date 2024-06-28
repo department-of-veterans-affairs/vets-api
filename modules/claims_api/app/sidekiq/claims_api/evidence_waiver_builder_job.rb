@@ -2,6 +2,7 @@
 
 require 'claims_api/ews_vbms_sidekiq'
 require 'claims_api/evidence_waiver_pdf/pdf'
+require 'bd/bd'
 
 module ClaimsApi
   class EvidenceWaiverBuilderJob < ClaimsApi::ServiceBase
