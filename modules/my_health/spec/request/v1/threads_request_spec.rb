@@ -106,6 +106,15 @@ RSpec.describe 'Threads Integration', type: :request do
         json_response = JSON.parse(response.body)['errors'].first
         expect(json_response['code']).to eq('SM115')
       end
+    
+      it 'responds with error to PATCH threads/move with invalid folder id' do
+        VCR.use_cassette('sm_client/threads/moves_a_thread_with_invalid_folder_id') do
+          patch '/my_health/v1/messaging/threads/3470562/move?folder_id=123'
+        end
+        puts "response #{response.inspect}"
+        json_response = JSON.parse(response.body)['errors'].first
+        expect(json_response['detail']).to eq("Folder Doesn't exists")
+      end
     end
   end
 end
