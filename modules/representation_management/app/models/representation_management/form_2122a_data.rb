@@ -14,7 +14,7 @@ module RepresentationManagement
       representative_state_code
       representative_zip_code
       representative_zip_code_suffix
-      representative_phone_number
+      representative_phone
       representative_email_address
     ]
 
@@ -38,7 +38,7 @@ module RepresentationManagement
     validates :representative_state_code, presence: true, length: { is: 2 }
     validates :representative_zip_code, presence: true, length: { is: 5 }, format: { with: ZIP_CODE }
     validates :representative_zip_code_suffix, length: { is: 4 }, format: { with: ZIP_CODE_SUFFIX }
-    validates :representative_phone_number, presence: true, length: { is: 10 }, format: { with: PHONE_NUMBER }
+    validates :representative_phone, presence: true, length: { is: 10 }, format: { with: PHONE_NUMBER }
 
     attr_reader [representative_attrs, representative_consent_attrs, veteran_attrs].flatten
   end

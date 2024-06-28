@@ -44,7 +44,7 @@ module RepresentationManagement
           veteran_state_code
           veteran_zip_code
           veteran_zip_code_suffix
-          veteran_phone_number
+          veteran_phone
           veteran_email
           veteran_service_number
           veteran_insurance_number

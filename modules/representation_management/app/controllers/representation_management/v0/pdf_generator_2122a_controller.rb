@@ -45,7 +45,7 @@ module RepresentationManagement
           representative_state_code
           representative_zip_code
           representative_zip_code_suffix
-          representative_phone_number
+          representative_phone
           representative_email_address
         ]
       end
@@ -116,7 +116,7 @@ module RepresentationManagement
           representative_country: params.dig(:representative, :address, :country),
           representative_zip_code: params.dig(:representative, :address, :zip_code),
           representative_zip_code_suffix: params.dig(:representative, :address, :zip_code_suffix),
-          representative_phone_number: params.dig(:representative, :phone),
+          representative_phone: params.dig(:representative, :phone),
           representative_email_address: params.dig(:representative, :email)
         }
       end
