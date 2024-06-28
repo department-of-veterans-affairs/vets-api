@@ -926,10 +926,6 @@ features:
     description: Use VA Forms System Core for forms instead of schema based forms
     actor_type: user
     enable_in_development: true
-  profile_contacts:
-    description: Enable the Personal Health Care Contacts feature. Data provided by the VA Profile Health Benefit Service.
-    actor_type: user
-    enable_in_development: true
   pw_ehr_cta_drupal_source_of_truth:
     actor_type: user
     description: Enabling Public Websites-managed EHR CTAs to use Drupal EHR data, including for Cerner cutovers
@@ -1537,4 +1533,3 @@ features:
   toggle_vye_application:
     actor_type: user
     description: Enable VYE
-    

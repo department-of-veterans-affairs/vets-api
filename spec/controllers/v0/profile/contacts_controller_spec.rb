@@ -13,11 +13,9 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
     subject { get :index }
 
     around do |ex|
-      Flipper.enable(:profile_contacts)
       VCR.use_cassette('va_profile/profile/v3/health_benefit_bio_200') do
         ex.run
       end
-      Flipper.disable(:profile_contacts)
     end
 
     context 'feature enabled' do
@@ -45,7 +43,6 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
 
     context 'feature disabled' do
       it 'returns a not found status code' do
-        Flipper.disable(:profile_contacts)
         sign_in_as user
         expect(subject).to have_http_status(:not_found)
       end
