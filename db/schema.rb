@@ -635,7 +635,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_28_195735) do
     t.string "key", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["key"], name: "index_flipper_features_on_key", unique: true
   end
 
   create_table "flipper_gates", force: :cascade do |t|
@@ -1483,12 +1482,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_28_195735) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
-    t.date "cert_issue_date"
-    t.date "del_date"
-    t.date "date_last_certified"
     t.integer "bdn_clone_id"
     t.integer "bdn_clone_line"
     t.boolean "bdn_clone_active"
+    t.date "cert_issue_date"
+    t.date "del_date"
+    t.date "date_last_certified"
     t.index ["bdn_clone_active"], name: "index_vye_user_infos_on_bdn_clone_active"
     t.index ["bdn_clone_id"], name: "index_vye_user_infos_on_bdn_clone_id"
     t.index ["bdn_clone_line"], name: "index_vye_user_infos_on_bdn_clone_line"
