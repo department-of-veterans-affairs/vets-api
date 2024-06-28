@@ -17,6 +17,10 @@ module MAP
         end
         Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cached_response: })
         token
+      rescue Common::Client::Errors::ParsingError => e
+        Rails.logger.error("#{config.logging_prefix} token failed, parsing error", application:, icn:,
+                                                                                   context: e.message)
+        raise e
       rescue Common::Client::Errors::ClientError => e
         parse_and_raise_error(e, icn, application)
       rescue Common::Exceptions::GatewayTimeout => e
