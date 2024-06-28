@@ -1040,6 +1040,35 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
+        context 'when a federalActivation date is invalid' do
+          let(:begin_date) { '2017-02-29' }
+
+          it 'returns a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['serviceDates']['beginDate'] =
+                begin_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when a federalActivation date is valid' do
+          let(:end_date) { '2017-02-28' }
+
+          it 'returns a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['serviceDates']['endDare'] = end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
         context 'when gulf war service is set to YES, and service dates are not formatted correctly' do
           let(:gulf_war_hazard_service) { 'YES' }
           let(:service_dates) do
