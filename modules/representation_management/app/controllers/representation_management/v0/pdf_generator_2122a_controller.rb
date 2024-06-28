@@ -16,8 +16,77 @@ module RepresentationManagement
       private
 
       def form_params
-        params.permit(all_params)
-        params.require(%i[veteran representative]).permit(all_params)
+        params.require(:pdf_generator2122a).permit(
+          :record_consent,
+          :consent_address_change,
+          consent_limits: [],
+          conditions_of_appointment: [],
+          claimant: [
+            :date_of_birth,
+            :relationship,
+            :phone,
+            :email,
+            { name: %i[
+                first
+                middle
+                last
+              ],
+              address: %i[
+                address_line1
+                address_line2
+                city
+                state_code
+                country
+                zip_code
+                zip_code_suffix
+              ] }
+          ],
+          veteran: [
+            :ssn,
+            :va_file_number,
+            :date_of_birth,
+            :service_number,
+            :service_branch,
+            :service_branch_other,
+            :phone,
+            :email,
+            {
+              name: %i[
+                first
+                middle
+                last
+              ],
+              address: %i[
+                address_line1
+                address_line2
+                city
+                state_code
+                country
+                zip_code
+                zip_code_suffix
+              ]
+            }
+          ],
+          representative: [
+            :type,
+            :phone,
+            :email,
+            { name: %i[
+                first
+                middle
+                last
+              ],
+              address: %i[
+                address_line1
+                address_line2
+                city
+                state_code
+                country
+                zip_code
+                zip_code_suffix
+              ] }
+          ]
+        )
       end
 
       def all_params
