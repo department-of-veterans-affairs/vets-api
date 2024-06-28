@@ -116,8 +116,8 @@ module SimpleFormsApi
       StatsD.increment("#{STATS_KEY}.#{identity}")
       Rails.logger.info('Simple forms api - 20-10207 submission user identity', identity:, confirmation_number:)
 
-      living_situations = data['living_situation'].select { |_, v| v }.keys.join(', ')
-      other_reasons = data['other_reasons'].select { |_, v| v }.keys.join(', ')
+      living_situations = data['living_situation']&.select { |_, v| v }.keys.join(', ')
+      other_reasons = data['other_reasons']&.select { |_, v| v }.keys.join(', ')
       Rails.logger.info('Simple forms api - 20-10207 submission living situations and other reasons for request',
                         living_situations:, other_reasons:)
     end
