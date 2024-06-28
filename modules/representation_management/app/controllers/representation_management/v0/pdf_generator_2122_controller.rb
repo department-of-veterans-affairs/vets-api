@@ -27,7 +27,6 @@ module RepresentationManagement
           :consent_address_change,
           consent_limits: [],
           claimant: [
-            :claimant_id,
             :date_of_birth,
             :relationship,
             :phone,
@@ -113,7 +112,6 @@ module RepresentationManagement
           claimant_last_name: params.dig(:claimant, :name, :last),
           claimant_date_of_birth: params.dig(:claimant, :date_of_birth),
           claimant_relationship: params.dig(:claimant, :relationship),
-          # claimant_id: params.dig(:claimant, :claimant_id),
           claimant_address_line1: params.dig(:claimant, :address, :address_line1),
           claimant_address_line2: params.dig(:claimant, :address, :address_line2),
           claimant_city: params.dig(:claimant, :address, :city),
