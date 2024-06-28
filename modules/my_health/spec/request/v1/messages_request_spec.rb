@@ -305,7 +305,7 @@ RSpec.describe 'Messages Integration', type: :request do
           get "/my_health/v1/messaging/messages/#{thread_id}/thread?requires_oh_messages=1"
         end
 
-       expect(response).to be_successful
+        expect(response).to be_successful
       end
     end
 

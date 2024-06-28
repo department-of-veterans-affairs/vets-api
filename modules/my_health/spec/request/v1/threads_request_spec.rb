@@ -73,14 +73,15 @@ RSpec.describe 'Threads Integration', type: :request do
         end
 
         it 'responds to GET #index when requires_oh_messages param is provided' do
-        VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder_oh_messages') do
-          get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
-              params: { page_size: '5', page_number: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC', requires_oh_messages: '1'}
-        end
+          VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder_oh_messages') do
+            get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
+                params: { page_size: '5', page_number: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC',
+                          requires_oh_messages: '1' }
+          end
 
-        expect(response).to be_successful
-        expect(response.body).to be_a(String)
-      end
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+        end
 
         it 'returns an empty array when there are no messages in the folder' do
           VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder_no_messages') do
