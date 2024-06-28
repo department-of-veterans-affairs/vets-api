@@ -98,7 +98,7 @@ module SimpleFormsApi
         json_for210966(confirmation_number, expiration_date, existing_intents)
       rescue Common::Exceptions::UnprocessableEntity => e
         # There is an authentication issue with the Intent to File API so we revert to sending a PDF to Central Mail
-        prepare_params_for_central_mail_and_log_error
+        prepare_params_for_central_mail_and_log_error(e)
         submit_form_to_central_mail
       end
 
@@ -191,7 +191,7 @@ module SimpleFormsApi
         json
       end
 
-      def prepare_params_for_central_mail_and_log_error
+      def prepare_params_for_central_mail_and_log_error(e)
         params['veteran_full_name'] ||= {
           'first' => params['full_name']['first'],
           'last' => params['full_name']['last']
