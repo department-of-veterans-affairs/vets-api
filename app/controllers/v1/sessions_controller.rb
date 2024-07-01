@@ -277,6 +277,7 @@ module V1
       Rails.logger.info("SSOe: SAML Response => #{values}")
       StatsD.increment(STATSD_SSO_SAMLRESPONSE_KEY,
                        tags: ["type:#{tracker&.payload_attr(:type)}",
+                              "client_id:#{tracker&.payload_attr(:application)}",
                               "context:#{saml_response.authn_context}",
                               VERSION_TAG])
     end

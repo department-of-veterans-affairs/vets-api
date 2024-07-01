@@ -123,7 +123,9 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect { call_endpoint }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["type:#{type}", 'version:v1', 'client_id:vaweb'], **once)
-                .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY, **once)
+                .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
+                                              tags: ["type:#{type}", "context:#{authn}", 'client_id:vaweb', 'version:v1'],
+                                              **once)
               expect(response).to have_http_status(:ok)
               expect(SAMLRequestTracker.keys.length).to eq(1)
               payload = SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload
@@ -617,6 +619,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           .to trigger_statsd_increment(described_class::STATSD_SSO_SAMLRESPONSE_KEY,
                                        tags: ['type:idme',
                                               'context:http://idmanagement.gov/ns/assurance/loa/1/vets',
+                                              'client_id:vaweb',
                                               'version:v1'])
           .and trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE,
                                         tags: ['type:idme', 'version:v1', 'client_id:vaweb', 'error:102'])
