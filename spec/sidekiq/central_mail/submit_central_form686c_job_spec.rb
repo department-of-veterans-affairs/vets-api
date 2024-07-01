@@ -112,9 +112,6 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
         allow(mailer_double).to receive(:deliver_now)
         expect(claim).to receive(:submittable_686?).and_return(true).exactly(:twice)
         expect(claim).to receive(:submittable_674?).and_return(false)
-        expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(OpenStruct)) {
-                                                        mailer_double
-                                                      }
         expect { subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct) }.to raise_error(CentralMail::SubmitCentralForm686cJob::CentralMailResponseError) # rubocop:disable Layout/LineLength
 
         expect(central_mail_submission.reload.state).to eq('failed')

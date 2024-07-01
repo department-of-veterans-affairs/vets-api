@@ -42,7 +42,6 @@ module CentralMail
       Rails.logger.warn('CentralMail::SubmitCentralForm686cJob failed!',
                         { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'], error: e.message })
       update_submission('failed')
-      DependentsApplicationFailureMailer.build(OpenStruct.new(user_struct)).deliver_now if user_struct['email'].present?
       raise
     ensure
       cleanup_file_paths
