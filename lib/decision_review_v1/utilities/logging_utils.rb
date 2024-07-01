@@ -52,7 +52,7 @@ module DecisionReviewV1
       # rubocop:enable Metrics/ParameterLists
       # rubocop:enable Layout/LineLength
 
-      def parse_form412_response_to_log_msg(appeal_submission_id:, data:, bm: nil)
+      def parse_form412_response_to_log_msg(appeal_submission_id:, data:, uuid: nil, bm: nil)
         log_data = { message: 'Supplemental Claim 4142 submitted.',
                      lighthouse_submission: {
                        id: appeal_submission_id
@@ -60,7 +60,7 @@ module DecisionReviewV1
                      form_id: FORM4142_ID, parent_form_id: SUPP_CLAIM_FORM_ID,
                      response_body: data.body,
                      response_status: data.status }
-        log_data[:extracted_uuid] = extract_uuid_from_central_mail_message(data) if data.success?
+        log_data[:extracted_uuid] = extract_uuid_from_central_mail_message(data, uuid) if data.success?
         log_data[:meta] = benchmark_to_log_data_hash(bm) unless bm.nil?
         log_data
       end
@@ -109,7 +109,9 @@ module DecisionReviewV1
 
       private
 
-      def extract_uuid_from_central_mail_message(data)
+      def extract_uuid_from_central_mail_message(data, uuid)
+        return uuid unless uuid.nil?
+
         data.body[/(?<=\[).*?(?=\])/].split(': ').last
       end
 

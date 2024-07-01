@@ -8,23 +8,47 @@ describe IvcChampva::PdfStamper do
   let(:form) { "IvcChampva::#{test_payload.titleize.gsub(' ', '')}".constantize.new(data) }
   let(:path) { 'tmp/stuff.json' }
 
-  describe '.stamp107959f1' do
-    subject(:stamp107959f1) { described_class.stamp107959f1(path, form) }
+  describe '.stamp_signature' do
+    subject(:stamp_signature) { described_class.stamp_signature(path, form) }
 
     before do
-      allow(described_class).to receive(:stamp).and_return(true)
       allow(File).to receive(:size).and_return(1, 2)
     end
 
-    context 'when statement_of_truth_signature is provided' do
-      before { stamp107959f1 }
+    context 'when no stamps are needed' do
+      before do
+        allow(described_class).to receive(:stamp).and_return(true)
+        stamp_signature
+      end
 
-      let(:test_payload) { 'vha_10_7959f_1' }
+      let(:test_payload) { 'vha_10_7959c' }
+      let(:stamps) { [] }
+
+      it 'does not call :stamp' do
+        expect(described_class).not_to have_received(:stamp)
+      end
+    end
+
+    context 'when it is called with legitimate parameters' do
+      before do
+        allow(described_class).to receive(:multistamp).and_return(true)
+        stamp_signature
+      end
+
+      let(:test_payload) { 'vha_10_10d' }
       let(:signature) { form.data['statement_of_truth_signature'] }
-      let(:stamps) { [[26, 82.5, signature]] }
+      let(:page_config) do
+        [
+          { type: :text, position: [40, 105] },
+          { type: :new_page },
+          { type: :new_page },
+          { type: :new_page },
+          { type: :new_page }
+        ]
+      end
 
-      it 'calls stamp with correct desired_stamp' do
-        expect(described_class).to have_received(:stamp).with(stamps, path, false)
+      it 'calls multistamp correctly' do
+        expect(described_class).to have_received(:multistamp).with(path, signature, page_config, nil)
       end
     end
   end
