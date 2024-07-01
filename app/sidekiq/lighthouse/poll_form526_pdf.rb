@@ -70,7 +70,7 @@ module Lighthouse
     # :nocov:
 
     # Checks claims status for supporting documents for a submission and exits out when found.
-    # If the timeout period is exceeded (48 hours), then alert somebody I guess
+    # If the timeout period is exceeded (48 hours), then the 'pdf_not_found' status is written to Form526JobStatus
     #
     # @param submission_id [Integer] The {Form526Submission} id
     #
