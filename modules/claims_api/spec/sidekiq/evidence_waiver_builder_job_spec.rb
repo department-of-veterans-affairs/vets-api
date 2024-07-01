@@ -17,15 +17,13 @@ RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job, use_cassette: 'c
 
   describe 'generating the filled and signed pdf' do
     it 'generates the pdf to match example' do
-      VCR.use_cassette('claims_api/bd/upload') do
-        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-        allow_any_instance_of(ClaimsApi::BenefitClaimService).to receive(:find_bnft_claim).and_return(bgs_claim)
-        expect_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return(true)
-        allow_any_instance_of(ClaimsApi::EwsUpdater).to receive(:update_bgs_claim).with(ews, bgs_claim)
-        allow_any_instance_of(Common::FileHelpers).to receive(:delete_file_if_exists).with(output_path)
+      allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+      allow_any_instance_of(ClaimsApi::BenefitClaimService).to receive(:find_bnft_claim).and_return(bgs_claim)
+      expect_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return(true)
+      allow_any_instance_of(ClaimsApi::EwsUpdater).to receive(:update_bgs_claim).with(ews, bgs_claim)
+      allow_any_instance_of(Common::FileHelpers).to receive(:delete_file_if_exists).with(output_path)
 
-        subject.new.perform(ews.id, bgs_claim)
-      end
+      subject.new.perform(ews.id, bgs_claim)
     end
   end
 
