@@ -15,7 +15,8 @@ module RepresentationManagement
 
           if flags.all?(&:valid?)
             flags.each(&:save!)
-            render json: flags, each_serializer: RepresentationManagement::FlaggedVeteranRepresentativeContactDataSerializer, status: :created # rubocop:disable Layout/LineLength
+            serializer = RepresentationManagement::FlaggedVeteranRepresentativeContactDataSerializer.new(flags)
+            render json: serializer, status: :created
           else
             raise ActiveRecord::Rollback, 'Invalid flags present'
           end

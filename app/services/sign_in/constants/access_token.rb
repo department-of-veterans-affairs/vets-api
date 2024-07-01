@@ -11,7 +11,7 @@ module SignIn
       ].freeze
 
       ISSUER = 'va.gov sign in'
-      USER_ATTRIBUTES = %w[first_name last_name email].freeze
+      USER_ATTRIBUTES = %w[first_name last_name email all_emails].freeze
     end
   end
 end

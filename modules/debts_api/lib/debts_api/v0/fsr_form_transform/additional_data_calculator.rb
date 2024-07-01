@@ -14,22 +14,23 @@ module DebtsApi
           @form = form
           @comments = @form.dig('additional_data', 'additional_comments')
           @expense_calculator = DebtsApi::V0::FsrFormTransform::ExpenseCalculator.build(@form)
+          @bankruptcy = @form.dig('additional_data', 'bankruptcy') || {}
         end
 
         def get_data
-          {
-            'bankruptcy' => get_bankruptcy_data,
-            'additionalComments' => get_comments
-          }
+          data = { 'bankruptcy' => get_bankruptcy_data }
+          data['additionalComments'] = get_comments unless get_comments == "\n"
+          data
         end
 
         def get_bankruptcy_data
-          # these should probably be digs
+          return {} if @bankruptcy.blank?
+
           {
             'hasBeenAdjudicatedBankrupt' => @form['questions']['has_been_adjudicated_bankrupt'],
             'dateDischarged' => get_discharged_date,
-            'courtLocation' => @form['additional_data']['bankruptcy']['court_location'],
-            'docketNumber' => @form['additional_data']['bankruptcy']['docket_number']
+            'courtLocation' => @bankruptcy['court_location'],
+            'docketNumber' => @bankruptcy['docket_number']
           }
         end
 
@@ -45,15 +46,17 @@ module DebtsApi
           return '' if filtered_expenses.blank?
 
           joined_expenses = filtered_expenses.map do |expense|
-            "#{expense['name']} ($#{dollars_cents(expense['amount'].to_f)})"
+            cash_str = dollars_cents(expense['amount'].to_f).gsub(/(\d)(?=(\d{3})+.\d{2}$)/, '\1,')
+            "#{expense['name']} ($#{cash_str})"
           end.join(', ')
 
           "Individual expense amount: #{joined_expenses}"
         end
 
         def get_discharged_date
-          # should probably be a dig
-          raw_date = @form['additional_data']['bankruptcy']['date_discharged']
+          raw_date = @bankruptcy['date_discharged']
+          return '00/0000' if raw_date.blank?
+
           date_object = Date.parse(raw_date)
 
           "#{date_object.strftime('%m')}/#{date_object.year}"

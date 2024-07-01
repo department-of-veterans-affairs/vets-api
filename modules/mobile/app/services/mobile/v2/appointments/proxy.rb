@@ -21,8 +21,11 @@ module Mobile
                                                                    pagination_params, include_params)
 
           appointments = response[:data]
-          filterer = PresentationFilter.new(include_pending:)
-          appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
+
+          unless Flipper.enabled?(:appointments_consolidation, @user)
+            filterer = VAOS::V2::AppointmentsPresentationFilter.new
+            appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
+          end
 
           appointments = vaos_v2_to_v0_appointment_adapter.parse(appointments)
 

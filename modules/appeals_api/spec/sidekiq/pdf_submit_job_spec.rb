@@ -31,9 +31,7 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
         allow(file_digest_stub).to receive(:hexdigest).and_return('file_digest_12345')
 
         allow(CentralMail::Service).to receive(:new) { client_stub }
-        allow(faraday_response).to receive(:status).and_return(200)
-        allow(faraday_response).to receive(:body).and_return('')
-        allow(faraday_response).to receive(:success?).and_return(true)
+        allow(faraday_response).to receive_messages(status: 200, body: '', success?: true)
         capture_body = nil
         expect(client_stub).to receive(:upload) { |arg|
           capture_body = arg
@@ -74,9 +72,7 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
         allow(Digest::SHA256).to receive(:file) { file_digest_stub }
         allow(file_digest_stub).to receive(:hexdigest).and_return('file_digest_12345')
 
-        allow(faraday_response).to receive(:status).and_return(200)
-        allow(faraday_response).to receive(:body).and_return('')
-        allow(faraday_response).to receive(:success?).and_return(true)
+        allow(faraday_response).to receive_messages(status: 200, body: '', success?: true)
         capture_body = nil
         expect(client_stub).to receive(:upload) { |arg|
           capture_body = arg
@@ -119,9 +115,7 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
         allow(file_digest_stub).to receive(:hexdigest).and_return('file_digest_12345')
 
         allow(CentralMail::Service).to receive(:new) { client_stub }
-        allow(faraday_response).to receive(:status).and_return(200)
-        allow(faraday_response).to receive(:body).and_return('')
-        allow(faraday_response).to receive(:success?).and_return(true)
+        allow(faraday_response).to receive_messages(status: 200, body: '', success?: true)
         capture_body = nil
         expect(client_stub).to receive(:upload) { |arg|
           capture_body = arg
@@ -158,9 +152,7 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
 
   it 'sets error status for upstream server error' do
     allow(CentralMail::Service).to receive(:new) { client_stub }
-    allow(faraday_response).to receive(:status).and_return(500)
-    allow(faraday_response).to receive(:body).and_return('Server Down')
-    allow(faraday_response).to receive(:success?).and_return(false)
+    allow(faraday_response).to receive_messages(status: 500, body: 'Server Down', success?: false)
     capture_body = nil
     expect(client_stub).to receive(:upload) { |arg|
       capture_body = arg
@@ -188,9 +180,7 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
   context 'with a downstream error' do
     before do
       allow(CentralMail::Service).to receive(:new) { client_stub }
-      allow(faraday_response).to receive(:status).and_return(501)
-      allow(faraday_response).to receive(:body).and_return('')
-      allow(faraday_response).to receive(:success?).and_return(false)
+      allow(faraday_response).to receive_messages(status: 501, body: '', success?: false)
     end
 
     it 'puts the NOD into an error state' do
@@ -229,10 +219,10 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
   context 'with a duplicate UUID response from Central Mail' do
     before do
       allow(CentralMail::Service).to receive(:new) { client_stub }
-      allow(faraday_response).to receive(:status).and_return(400)
-      allow(faraday_response).to receive(:body)
-        .and_return("Document already uploaded with uuid [uuid: #{higher_level_review.id}]")
-      allow(faraday_response).to receive(:success?).and_return(false)
+      allow(faraday_response)
+        .to receive_messages(status: 400,
+                             body: "Document already uploaded with uuid [uuid: #{higher_level_review.id}]",
+                             success?: false)
       expect(client_stub).to receive(:upload).and_return(faraday_response)
       allow(StatsD).to receive(:increment)
       allow(Rails.logger).to receive(:warn)

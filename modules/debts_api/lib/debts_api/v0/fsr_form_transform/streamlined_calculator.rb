@@ -64,7 +64,7 @@ module DebtsApi
         end
 
         def are_liquid_assets_below_gmt_threshold?
-          liquid_assets = @asset_data['cashOnHand'] + @asset_data['cashInBank']
+          liquid_assets = @asset_data['cashOnHand'].to_f + @asset_data['cashInBank'].to_f
           liquid_assets < @gmt_data['gmt_threshold']
         end
 
@@ -73,11 +73,11 @@ module DebtsApi
         end
 
         def cash_below_gmt_threshold?
-          @asset_data['cashOnHand'] < @gmt_data['gmt_threshold']
+          @asset_data['cashOnHand'].to_f < @gmt_data['gmt_threshold']
         end
 
         def streamlined_waiver_asset_update?
-          @form['view:streamlinedWaiverAssetUpdate']
+          @form['view:streamlined_waiver_asset_update']
         end
 
         def income_below_upper_threshold?
@@ -93,11 +93,14 @@ module DebtsApi
         end
 
         def total_annual_income
-          @income_data['totalMonthlyNetIncome'] * 12
+          vet_income = @income_data.dig(:vetIncome, :totalMonthlyNetIncome).to_f
+          spouse_income = @income_data.dig(:spIncome, :totalMonthlyNetIncome).to_f
+          total_income = (vet_income + spouse_income)
+          total_income * 12
         end
 
         def total_discretionary_income
-          monthly_net_income = @income_data['totalMonthlyNetIncome']
+          monthly_net_income = @income_data[:totalMonthlyNetIncome]
           monthly_expenses = @enhanced_expense_calculator['totalMonthlyExpenses']
 
           monthly_net_income - monthly_expenses
