@@ -73,8 +73,8 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 586b2fae156fff3e12edb69e51c9e5c67d358213
-  branch: 78498_1010_cg_add_county_to_address
+  revision: b85554087545c8f035a68f7d1cd37f7732ad7613
+  branch: master
   specs:
     vets_json_schema (23.0.0)
       multi_json (~> 1.0)
