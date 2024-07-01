@@ -6,10 +6,7 @@ module MyHealth
       def refresh
         resource = client.get_extract_status
 
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: ExtractStatusSerializer,
-               meta: resource.metadata
+        render json: ExtractStatusSerializer.new(resource.data, { meta: resource.metadata })
       end
 
       def eligible_data_classes
