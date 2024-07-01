@@ -289,11 +289,18 @@ module ClaimsApi
       connection.options.timeout = @timeout
 
       begin
-        begin
-          namespace = ClaimsApi::LocalBGSRefactored::FindDefinition
-                      .for_action(endpoint, action)
-                      .service.bean.namespaces.target
-        rescue
+        if Flipper.enabled? :claims_api_hardcode_wsdl
+          begin
+            namespace = ClaimsApi::LocalBGSRefactored::FindDefinition
+                        .for_service(endpoint)
+                        .bean.namespaces.target
+          rescue
+            wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
+              connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
+            end
+            namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace').to_s
+          end
+        else
           wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
             connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
           end

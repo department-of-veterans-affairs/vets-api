@@ -10,16 +10,41 @@ describe ClaimsApi::LocalBGS do
   let(:soap_error_handler) { ClaimsApi::SoapErrorHandler.new }
 
   describe '#find_poa_by_participant_id' do
+    context 'hardcoded WSDL' do
+      it 'response with the correct namespace' do
+        allow(Flipper).to receive(:enabled?).with(:claims_api_hardcode_wsdl).and_return true
+        VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
+          result = subject.find_poa_by_participant_id('does-not-matter')
+          expect(result).to be_a Hash
+          expect(result[:end_date]).to eq '08/26/2020'
+        end
+      end
+
+      it 'falls back to WSDL' do
+        allow(Flipper).to receive(:enabled?).with(:claims_api_hardcode_wsdl).and_return true
+        allow(ClaimsApi::LocalBGSRefactored::FindDefinition).to receive(:for_service).and_raise(
+          ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
+        )
+
+        VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
+          result = subject.find_poa_by_participant_id('does-not-matter')
+          expect(result).to be_a Hash
+          expect(result[:end_date]).to eq '08/26/2020'
+        end
+      end
+    end
+
     it 'responds as expected, with extra ClaimsApi::Logger logging' do
       VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
         allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id).and_return({})
+        allow(Flipper).to receive(:enabled?).with(:claims_api_hardcode_wsdl).and_return false
 
         # Events logged:
         # 1: establish_ssl_connection - how long to establish the connection
         # 2: connection_wsdl_get - duration of WSDL request cycle
         # 3: connection_post - how long does the post itself take for the request cycle
         # 4: parsed_response - how long to parse the response
-        expect(ClaimsApi::Logger).to receive(:log).exactly(3).times
+        expect(ClaimsApi::Logger).to receive(:log).exactly(4).times
         result = subject.find_poa_by_participant_id('does-not-matter')
         expect(result).to be_a Hash
         expect(result[:end_date]).to eq '08/26/2020'
@@ -38,6 +63,19 @@ describe ClaimsApi::LocalBGS do
         ClaimsApi::LocalBGS.breakers_service.begin_forced_outage!
         expect { subject.find_poa_by_participant_id('also-does-not-matter') }.to raise_error(Breakers::OutageException)
         ClaimsApi::LocalBGS.breakers_service.end_forced_outage!
+      end
+    end
+
+    it 'triggers StatsD measurements' do
+      VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id',
+                       allow_playback_repeats: true) do
+        allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id).and_return({})
+        allow(Flipper).to receive(:enabled?).with(:claims_api_hardcode_wsdl).and_return false
+
+        %w[establish_ssl_connection connection_wsdl_get connection_post parsed_response].each do |event|
+          expect { subject.find_poa_by_participant_id('does-not-matter') }
+            .to trigger_statsd_measure("api.claims_api.local_bgs.#{event}.duration")
+        end
       end
     end
   end
