@@ -26,7 +26,7 @@ class HealthCareApplication < ApplicationRecord
   validates(:form, presence: true, on: :create)
   validate(:form_matches_schema, on: :create)
 
-  after_save :send_failure_email, if: :should_send_failure_email?
+  after_save :send_failure_email, if: :send_failure_email?
   after_save :log_async_submission_failure, if: :async_submission_failed?
 
   # @param [Account] user
@@ -61,10 +61,10 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def email
-    form.present? && parsed_form['email']
+    form.present? && parsed_form&.fetch('email', nil)
   end
 
-  def should_send_failure_email?
+  def send_failure_email?
     async_submission_failed? && email.present?
   end
 
