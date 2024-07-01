@@ -61,7 +61,9 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def email
-    form.present? && parsed_form&.fetch('email', nil)
+    return nil if form.blank?
+
+    parsed_form['email']
   end
 
   def send_failure_email?
