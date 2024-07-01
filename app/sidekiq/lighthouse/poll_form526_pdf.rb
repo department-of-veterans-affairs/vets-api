@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'lighthouse/benefits_claims/service'
 require 'sentry_logging'
 require 'logging/third_party_transaction'
@@ -34,42 +35,37 @@ module Lighthouse
     # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
     # :nocov:
     sidekiq_retries_exhausted do |msg, _ex|
-      submission = nil
-
       # log, mark Form526JobStatus for submission as "pdf_not_found"
-      begin
-        job_id = msg['jid']
-        error_class = msg['error_class']
-        error_message = msg['error_message']
-        timestamp = Time.now.utc
-        form526_submission_id = msg['args'].first
 
-        form_job_status = Form526JobStatus.find_by(job_id:)
-        bgjob_errors = form_job_status.bgjob_errors || {}
-        new_error = {
-          "#{timestamp.to_i}": {
-            caller_method: __method__.to_s,
-            error_class:,
-            error_message:,
-            timestamp:,
-            form526_submission_id:
-          }
+      job_id = msg['jid']
+      error_class = msg['error_class']
+      error_message = msg['error_message']
+      timestamp = Time.now.utc
+      form526_submission_id = msg['args'].first
+
+      form_job_status = Form526JobStatus.find_by(job_id:)
+      bgjob_errors = form_job_status.bgjob_errors || {}
+      new_error = {
+        "#{timestamp.to_i}": {
+          caller_method: __method__.to_s,
+          error_class:,
+          error_message:,
+          timestamp:,
+          form526_submission_id:
         }
+      }
 
-        form_job_status.update(
-          status: Form526JobStatus::STATUS[:pdf_not_found],
-          bgjob_errors: bgjob_errors.merge(new_error)
-        )
+      form_job_status.update(
+        status: Form526JobStatus::STATUS[:pdf_not_found],
+        bgjob_errors: bgjob_errors.merge(new_error)
+      )
 
-        ::Rails.logger.warn(
-          'Poll for Form 526 PDF Retries exhausted',
-          { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
-        )
-
-      rescue => e
-        log_exception_to_sentry(e)
-      end
-
+      ::Rails.logger.warn(
+        'Poll for Form 526 PDF Retries exhausted',
+        { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+      )
+    rescue => e
+      log_exception_to_sentry(e)
     end
     # :nocov:
 
@@ -78,32 +74,34 @@ module Lighthouse
     #
     # @param submission_id [Integer] The {Form526Submission} id
     #
-    def perform(submission_id)
+    def perform(submission_id) # rubocop:disable Metrics/MethodLength
       @submission_id = submission_id
 
       Sentry.set_tags(source: '526EZ-all-claims')
 
       with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
         user_account = UserAccount.find_by(id: submission.user_account_id) ||
-          Account.lookup_by_user_uuid(submission.user_uuid)
+                       Account.lookup_by_user_uuid(submission.user_uuid)
 
-          icn = user_account.icn
-          service = BenefitsClaims::Service.new(icn)
-          raw_response = service.get_claim(submission.submitted_claim_id)
-          raw_response_body = if raw_response.is_a? String
-                                JSON.parse(raw_response)
-                              else
-                                raw_response
-                              end
+        icn = user_account.icn
+        service = BenefitsClaims::Service.new(icn)
+        raw_response = service.get_claim(submission.submitted_claim_id)
+        raw_response_body = if raw_response.is_a? String
+                              JSON.parse(raw_response)
+                            else
+                              raw_response
+                            end
 
-          supporting_documents = raw_response_body.dig('data', 'attributes', 'supportingDocuments')
-          form526_pdf = supporting_documents.find { |d| d['documentTypeLabel'] == 'VA 21-526 Veterans Application for Compensation or Pension' }
-          if form526_pdf.present?
-            Rails.logger.info('PDF found')
-            return
-          else
-            raise StandardError('keep on retrying!')
-          end
+        supporting_documents = raw_response_body.dig('data', 'attributes', 'supportingDocuments')
+        form526_pdf = supporting_documents.find do |d|
+          d['documentTypeLabel'] == 'VA 21-526 Veterans Application for Compensation or Pension'
+        end
+        if form526_pdf.present?
+          Rails.logger.info('PDF found')
+          return
+        else
+          raise StandardError('keep on retrying!')
+        end
       end
     end
 
