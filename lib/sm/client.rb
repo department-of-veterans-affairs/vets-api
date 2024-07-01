@@ -177,9 +177,8 @@ module SM
     #
     # @return [Common::Collection]
     #
-    def get_folder_threads(params)
-      requires_oh_messages = params[:requires_oh_messages]
-      base_path = "folder/threadlistview/#{params[:folder_id]}"
+    def get_folder_threads(folder_id, params)
+      base_path = "folder/threadlistview/#{folder_id}"
       query_params = [
         "pageSize=#{params[:page_size]}",
         "pageNumber=#{params[:page_number]}",
@@ -187,7 +186,7 @@ module SM
         "sortOrder=#{params[:sort_order]}"
       ].join('&')
       path = "#{base_path}?#{query_params}"
-      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      path = append_requires_oh_messages_query(path, params[:requires_oh_messages])
 
       json = perform(:get, path, nil, token_headers).body
 
