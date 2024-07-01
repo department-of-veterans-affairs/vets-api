@@ -122,9 +122,11 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .with(force_authn: true)
               expect { call_endpoint }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["type:#{type}", 'version:v1', 'client_id:vaweb'], **once)
+                                             tags: ["type:#{type}", 'version:v1', 'client_id:vaweb'],
+                                             **once)
                 .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
-                                              tags: ["type:#{type}", "context:#{authn}", 'client_id:vaweb', 'version:v1'],
+                                              tags: ["type:#{type}", "context:#{authn}", 'client_id:vaweb',
+                                                     'version:v1'],
                                               **once)
               expect(response).to have_http_status(:ok)
               expect(SAMLRequestTracker.keys.length).to eq(1)
@@ -612,7 +614,8 @@ RSpec.describe V1::SessionsController, type: :controller do
       it 'logs a status failure stat' do
         SAMLRequestTracker.create(
           uuid: login_uuid,
-          payload: { type: 'idme' }
+          payload: { type: 'idme' },
+          application: 'vaweb'
         )
         expect(controller).to receive(:log_message_to_sentry)
         expect { call_endpoint }
