@@ -128,8 +128,8 @@ http_interactions:
       - chunked
     body:
       encoding: UTF-8
-      string: '{ "access_token" : "mHO_gU3WooLm0xoDxIAulw", "token_type" : "Bearer", "expires_in" : 900, "id_token" : "eyJraWQiOiJmNWNlMTIzOWUzOWQzZGE4MzZmOTYzYmNjZDg1Zjg1ZDU3ZDQzMzVjZmRjNmExNzAzOWYyNzQzNjFhMThiMTNjIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJlYmYyZTZlZC01M2I2LTQwOWQtYTMwYS1jYzk4YWUyYWRjMDEiLCJpc3MiOiJodHRwczovL2lkcC5pbnQuaWRlbnRpdHlzYW5kYm94Lmdvdi8iLCJlbWFpbCI6ImpvZS5uaXF1ZXR0ZStsZ292aWFsMkBvZGRiYWxsLmlvIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImdpdmVuX25hbWUiOiJqb2VpYWwyIiwiZmFtaWx5X25hbWUiOiJ0ZXN0bGFzdG5hbWUiLCJiaXJ0aGRhdGUiOiIxOTgwLTA4LTE2Iiwic29jaWFsX3NlY3VyaXR5X251bWJlciI6IjEwMjk5ODc3NSIsImFkZHJlc3MiOnsiZm9ybWF0dGVkIjoiMjI4IE4gU3BlbmNlciBSZFxuUGF4dG9uLCBNQSAwMTYxMiIsInN0cmVldF9hZGRyZXNzIjoiMjI4IE4gU3BlbmNlciBSZCIsImxvY2FsaXR5IjoiUGF4dG9uIiwicmVnaW9uIjoiTUEiLCJwb3N0YWxfY29kZSI6IjAxNjEyIn0sInZlcmlmaWVkX2F0IjoxNjM2NDc4Nzg1LCJpYWwiOiJodHRwOi8vaWRtYW5hZ2VtZW50Lmdvdi9ucy9hc3N1cmFuY2UvaWFsLzIiLCJhYWwiOiJ1cm46Z292OmdzYTphYzpjbGFzc2VzOnNwOlBhc3N3b3JkUHJvdGVjdGVkVHJhbnNwb3J0OmR1byIsImFjciI6Imh0dHA6Ly9pZG1hbmFnZW1lbnQuZ292L25zL2Fzc3VyYW5jZS9pYWwvMiIsIm5vbmNlIjoiYzY0YzBjNzcyYjdiNDM1ZDdkZWVhMTM1ZDY3NDg2ZjgiLCJhdWQiOiJodHRwczovL3NxYS5lYXV0aC52YS5nb3YvaXNhbS9zcHMvc2FtbDIwc3Avc2FtbDIwIiwianRpIjoibW9rQ2xwV1FRSWZVdzNMTG1MM0F6dyIsImF0X2hhc2giOiJ4aW9Ubk9aVEFaZ2w5N0FqSHJ0Q0xBIiwiY19oYXNoIjoiWDdNMG00SnRwQlJDQTZzNk5jb243ZyIsImV4cCI6MTY5MjY2MzkzOCwiaWF0IjoxNjkyNjYzMDM4LCJuYmYiOjE2OTI2NjMwMzh9.pvy7yGYMewc-nLvcO7C-Wu1DIk58HaUSo9FloN8mOEuNPk8WqmXeV7el0jMUi7nwe_fyUn-yqvaGp7wJ11a3gAHbYGJWrfDfp4_nl6sL0B5ZX6wwlK-lppcSJcLMEQQbXW4LO8SzGSfQP07Mzp5IH35WTF3FZVaE-xBekGI4jj4dnsuCYGE13cOQpYMpfmJPKm4Pzpe6L257Mjzim50ufXSHlmxdxD5ldx_tA1AktRXtfHszrXXh7zdO2zmRvLe4VqZc13G1NJxP4HfNh_FPWJ5--Jn_BKp5HqroETr02Ubl2T0dzYqlH8qd3Z2_4cxblwkix6W8uo6VaoKYbZkDSQ" }'
-    http_version: 
+      string: '{ "access_token": "mHO_gU3WooLm0xoDxIAulw", "token_type": "Bearer", "expires_in": 900, "id_token": "eyJraWQiOiJmNWNlMTIzOWUzOWQzZGE4MzZmOTYzYmNjZDg1Zjg1ZDU3ZDQzMzVjZmRjNmExNzAzOWYyNzQzNjFhMThiMTNjIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJlYmYyZTZlZC01M2I2LTQwOWQtYTMwYS1jYzk4YWUyYWRjMDEiLCJpc3MiOiJodHRwczovL2lkcC5pbnQuaWRlbnRpdHlzYW5kYm94Lmdvdi8iLCJlbWFpbCI6ImpvZS5uaXF1ZXR0ZStsZ292aWFsMkBvZGRiYWxsLmlvIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImdpdmVuX25hbWUiOiJqb2VpYWwyIiwiZmFtaWx5X25hbWUiOiJ0ZXN0bGFzdG5hbWUiLCJiaXJ0aGRhdGUiOiIxOTgwLTA4LTE2Iiwic29jaWFsX3NlY3VyaXR5X251bWJlciI6IjEwMjk5ODc3NSIsImFkZHJlc3MiOnsiZm9ybWF0dGVkIjoiMjI4IE4gU3BlbmNlciBSZFxuUGF4dG9uLCBNQSAwMTYxMiIsInN0cmVldF9hZGRyZXNzIjoiMjI4IE4gU3BlbmNlciBSZCIsImxvY2FsaXR5IjoiUGF4dG9uIiwicmVnaW9uIjoiTUEiLCJwb3N0YWxfY29kZSI6IjAxNjEyIn0sInZlcmlmaWVkX2F0IjoxNjM2NDc4Nzg1LCJpYWwiOiJodHRwOi8vaWRtYW5hZ2VtZW50Lmdvdi9ucy9hc3N1cmFuY2UvaWFsLzIiLCJhYWwiOiJ1cm46Z292OmdzYTphYzpjbGFzc2VzOnNwOlBhc3N3b3JkUHJvdGVjdGVkVHJhbnNwb3J0OmR1byIsImFjciI6Imh0dHA6Ly9pZG1hbmFnZW1lbnQuZ292L25zL2Fzc3VyYW5jZS9pYWwvMiIsIm5vbmNlIjoiYzY0YzBjNzcyYjdiNDM1ZDdkZWVhMTM1ZDY3NDg2ZjgiLCJhdWQiOiJodHRwczovL3NxYS5lYXV0aC52YS5nb3YvaXNhbS9zcHMvc2FtbDIwc3Avc2FtbDIwIiwianRpIjoibW9rQ2xwV1FRSWZVdzNMTG1MM0F6dyIsImF0X2hhc2giOiJ4aW9Ubk9aVEFaZ2w5N0FqSHJ0Q0xBIiwiY19oYXNoIjoiWDdNMG00SnRwQlJDQTZzNk5jb243ZyIsImV4cCI6MTY5MjY2MzkzOCwiaWF0IjoxNjkyNjYzMDM4LCJuYmYiOjE2OTI2NjMwMzh9.pvy7yGYMewc-nLvcO7C-Wu1DIk58HaUSo9FloN8mOEuNPk8WqmXeV7el0jMUi7nwe_fyUn-yqvaGp7wJ11a3gAHbYGJWrfDfp4_nl6sL0B5ZX6wwlK-lppcSJcLMEQQbXW4LO8SzGSfQP07Mzp5IH35WTF3FZVaE-xBekGI4jj4dnsuCYGE13cOQpYMpfmJPKm4Pzpe6L257Mjzim50ufXSHlmxdxD5ldx_tA1AktRXtfHszrXXh7zdO2zmRvLe4VqZc13G1NJxP4HfNh_FPWJ5--Jn_BKp5HqroETr02Ubl2T0dzYqlH8qd3Z2_4cxblwkix6W8uo6VaoKYbZkDSQ" }'
+    http_version:
   recorded_at: Thu, 23 Dec 2021 16:09:22 GMT
 - request:
     method: get
@@ -179,10 +179,11 @@ http_interactions:
       - chunked
     body:
       encoding: UTF-8
-      string: '{ "sub" : "12345678-0990-10a1-f038-2839ab281f90", "iss" : "https://idp.int.identitysandbox.gov/",
-                 "email" : "user@test.com", "email_verified" : true, "given_name" : "Bob", "family_name" : "User",
-                 "birthdate" : "1993-01-01", "social_security_number" : "999-11-9999", "address" : { "formatted" : "1 Microsoft Way\nApt 3\nBayside, NY 11364",
-                 "street_address" : "1 Microsoft Way\nApt 3", "locality" : "Bayside", "region" : "NY", "postal_code" : "11364" }, "verified_at" : 1635465286 }'
-    http_version: 
+      string: '{ "sub": "12345678-0990-10a1-f038-2839ab281f90", "iss": "https://idp.int.identitysandbox.gov/",
+                 "email": "user@test.com", "email_verified": true, "all_emails": ["user@test.com", "user@secondaryemail.com"],
+                 "given_name": "Bob", "family_name": "User", "birthdate": "1993-01-01", "social_security_number": "999-11-9999",
+                 "address": { "formatted": "1 Microsoft Way\nApt 3\nBayside, NY 11364", "street_address": "1 Microsoft Way\nApt 3",
+                 "locality": "Bayside", "region": "NY", "postal_code": "11364" }, "verified_at": 1635465286 }'
+    http_version:
   recorded_at: Thu, 23 Dec 2021 16:09:22 GMT
 recorded_with: VCR 5.0.0

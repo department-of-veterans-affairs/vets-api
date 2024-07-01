@@ -6,6 +6,7 @@ module SignIn
                 :idme_uuid,
                 :logingov_uuid,
                 :credential_email,
+                :all_credential_emails,
                 :verified_icn,
                 :edipi,
                 :mhv_correlation_id,
@@ -18,6 +19,7 @@ module SignIn
       @idme_uuid = user_attributes[:idme_uuid]
       @logingov_uuid = user_attributes[:logingov_uuid]
       @credential_email = user_attributes[:csp_email]
+      @all_credential_emails = user_attributes[:all_csp_emails]
       @edipi = user_attributes[:edipi]
       @mhv_correlation_id = user_attributes[:mhv_correlation_id]
       @verified_icn = verified_icn
@@ -103,7 +105,8 @@ module SignIn
     def access_token_attributes
       { first_name:,
         last_name:,
-        email: credential_email }.compact
+        email: credential_email,
+        all_emails: all_credential_emails }.compact
     end
 
     def needs_accepted_terms_of_use?
