@@ -29,7 +29,7 @@ module ClaimsApi
 
           fields(
             :status,
-            :declined_reason
+            :declining_reason
           )
 
           field(

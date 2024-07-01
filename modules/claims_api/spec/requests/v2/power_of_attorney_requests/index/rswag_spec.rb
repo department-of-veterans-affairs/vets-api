@@ -44,9 +44,9 @@ describe 'PowerOfAttorney', metadata do
           ],
           'decision' => {
             'statuses' => %w[
-              None
-              Accepted
-              Declined
+              none
+              accepting
+              declining
             ]
           }
         },

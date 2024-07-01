@@ -57,8 +57,8 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
         'data' => {
           'type' => 'powerOfAttorneyRequestDecision',
           'attributes' => {
-            'status' => 'Declined',
-            'declinedReason' => 'Some reason',
+            'status' => 'declining',
+            'decliningReason' => 'Some reason',
             'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
@@ -177,7 +177,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
         'data' => {
           'type' => 'powerOfAttorneyRequestDecision',
           'attributes' => {
-            'declinedReason' => 'Some reason',
+            'decliningReason' => 'Some reason',
             'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
@@ -217,8 +217,8 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
         'data' => {
           'type' => 'powerOfAttorneyRequestDecision',
           'attributes' => {
-            'status' => 'Declined',
-            'declinedReason' => 'Some reason',
+            'status' => 'declining',
+            'decliningReason' => 'Some reason',
             'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
@@ -260,8 +260,8 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
         'data' => {
           'type' => 'powerOfAttorneyRequestDecision',
           'attributes' => {
-            'status' => 'Declined',
-            'declinedReason' => 'Some reason',
+            'status' => 'declining',
+            'decliningReason' => 'Some reason',
             'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
@@ -303,8 +303,8 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
         'data' => {
           'type' => 'powerOfAttorneyRequestDecision',
           'attributes' => {
-            'status' => 'Declined',
-            'declinedReason' => 'Some reason',
+            'status' => 'declining',
+            'decliningReason' => 'Some reason',
             'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
@@ -348,8 +348,8 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
         'data' => {
           'type' => 'powerOfAttorneyRequestDecision',
           'attributes' => {
-            'status' => 'Declined',
-            'declinedReason' => 'Some reason',
+            'status' => 'declining',
+            'decliningReason' => 'Some reason',
             'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
@@ -399,8 +399,8 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
         'data' => {
           'type' => 'powerOfAttorneyRequestDecision',
           'attributes' => {
-            'status' => 'Accepted',
-            'declinedReason' => 'Some reason',
+            'status' => 'accepting',
+            'decliningReason' => 'Some reason',
             'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
@@ -417,11 +417,11 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
           expect(body).to eq(
             'errors' => [
               {
-                'title' => 'Declined reason can only accompany a declination',
-                'detail' => 'declined-reason - can only accompany a declination',
+                'title' => 'Declining reason can only accompany a declination',
+                'detail' => 'declining-reason - can only accompany a declination',
                 'code' => '100',
                 'source' => {
-                  'pointer' => 'data/attributes/declined-reason'
+                  'pointer' => 'data/attributes/declining-reason'
                 },
                 'status' => '422'
               }
@@ -436,15 +436,53 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
     end
   end
 
+  describe 'valid acceptance' do
+    let(:id) { '600036161_74840' }
+
+    it 'succeeds', run_at: '2024-05-09T07:18:04Z' do
+      params = {
+        'data' => {
+          'type' => 'powerOfAttorneyRequestDecision',
+          'attributes' => {
+            'status' => 'accepting',
+            'decliningReason' => nil,
+            'createdBy' => {
+              'firstName' => 'BEATRICE',
+              'lastName' => 'STROUD',
+              'email' => 'Beatrice.Stroud44@va.gov'
+            }
+          }
+        }
+      }
+
+      mock_ccg(scopes, allow_playback_repeats: true) do
+        use_soap_cassette('acceptance', use_spec_name_prefix: true, record: :new_episodes) do
+          perform_request(params)
+
+          expect(response).to(
+            have_http_status(:accepted)
+          )
+        end
+      end
+    end
+  end
+
   describe 'originality' do
     before do
       allow(ClaimsApi::PowerOfAttorneyRequest::Decision).to(
         receive(:create)
       )
 
-      expect(ClaimsApi::PowerOfAttorneyRequest::Metadata).to(
+      allow(ClaimsApi::PowerOfAttorneyRequestService::UpdatePowerOfAttorney).to(
+        receive(:perform)
+      )
+
+      expect(ClaimsApi::PowerOfAttorneyRequest).to(
         receive(:find).and_return(
-          OpenStruct.new(decision_status: OpenStruct.new(blank?: blank?))
+          OpenStruct.new(
+            decision_status:,
+            obsolete: false
+          )
         )
       )
     end
@@ -454,8 +492,8 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
         'data' => {
           'type' => 'powerOfAttorneyRequestDecision',
           'attributes' => {
-            'status' => 'Accepted',
-            'declinedReason' => nil,
+            'status' => 'accepting',
+            'decliningReason' => nil,
             'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
@@ -467,12 +505,27 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
     end
 
     describe 'when decision already made' do
-      let(:blank?) { false }
+      let(:decision_status) { 'accepting' }
 
       it 'returns http status 422' do
-        mock_ccg(scopes) do
-          perform_request(params)
-        end
+        body =
+          mock_ccg(scopes) do
+            perform_request(params)
+          end
+
+        expect(body).to eq(
+          'errors' => [
+            {
+              'title' => 'must be original',
+              'detail' => 'base - must be original',
+              'code' => '100',
+              'source' => {
+                'pointer' => 'data/attributes/base'
+              },
+              'status' => '422'
+            }
+          ]
+        )
 
         expect(response).to(
           have_http_status(:unprocessable_entity)
@@ -481,7 +534,7 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
     end
 
     describe 'when decision not already made' do
-      let(:blank?) { true }
+      let(:decision_status) { nil }
 
       it 'returns http status 202' do
         mock_ccg(scopes) do
@@ -501,9 +554,16 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
         receive(:create)
       )
 
-      expect(ClaimsApi::PowerOfAttorneyRequest::Metadata).to(
+      allow(ClaimsApi::PowerOfAttorneyRequestService::UpdatePowerOfAttorney).to(
+        receive(:perform)
+      )
+
+      expect(ClaimsApi::PowerOfAttorneyRequest).to(
         receive(:find).and_return(
-          OpenStruct.new(obsolete:)
+          OpenStruct.new(
+            decision_status: nil,
+            obsolete:
+          )
         )
       )
     end
@@ -513,8 +573,8 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
         'data' => {
           'type' => 'powerOfAttorneyRequestDecision',
           'attributes' => {
-            'status' => 'Accepted',
-            'declinedReason' => nil,
+            'status' => 'accepting',
+            'decliningReason' => nil,
             'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
@@ -543,9 +603,24 @@ RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :requ
       let(:obsolete) { true }
 
       it 'returns http status 422' do
-        mock_ccg(scopes) do
-          perform_request(params)
-        end
+        body =
+          mock_ccg(scopes) do
+            perform_request(params)
+          end
+
+        expect(body).to eq(
+          'errors' => [
+            {
+              'title' => 'Power of attorney request must not be obsolete',
+              'detail' => 'power-of-attorney-request - must not be obsolete',
+              'code' => '100',
+              'source' => {
+                'pointer' => 'data/attributes/power-of-attorney-request'
+              },
+              'status' => '422'
+            }
+          ]
+        )
 
         expect(response).to(
           have_http_status(:unprocessable_entity)

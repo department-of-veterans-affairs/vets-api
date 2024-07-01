@@ -26,9 +26,9 @@
               "items": {
                 "type": "string",
                 "enum": [
-                  "None",
-                  "Accepted",
-                  "Declined"
+                  "none",
+                  "accepting",
+                  "declining"
                 ]
               }
             }

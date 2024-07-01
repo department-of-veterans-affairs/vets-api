@@ -5,15 +5,15 @@ module ClaimsApi
     class Decision <
       Data.define(
         :status,
-        :declined_reason,
+        :declining_reason,
         :created_at,
         :created_by
       )
 
       module Statuses
         ALL = [
-          ACCEPTED = 'Accepted',
-          DECLINED = 'Declined'
+          ACCEPTING = 'accepting',
+          DECLINING = 'declining'
         ].freeze
       end
 
@@ -46,12 +46,12 @@ module ClaimsApi
           :email
         )
 
-      def accepted?
-        status == Statuses::ACCEPTED
+      def accepting?
+        status == Statuses::ACCEPTING
       end
 
-      def declined?
-        status == Statuses::DECLINED
+      def declining?
+        status == Statuses::DECLINING
       end
     end
   end

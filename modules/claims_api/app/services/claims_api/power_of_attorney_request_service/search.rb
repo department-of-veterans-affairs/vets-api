@@ -9,7 +9,7 @@ module ClaimsApi
           # it is valid, it gives back a query object with defaults filled out
           # that we can then show back to the client as helpful metadata.
           query = Query.compile!(params)
-          total_count, data = PowerOfAttorneyRequest.search(query)
+          total_count, data = PowerOfAttorneyRequest::Summary.search(query)
 
           {
             metadata: {
