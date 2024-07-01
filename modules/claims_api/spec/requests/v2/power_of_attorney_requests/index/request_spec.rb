@@ -95,7 +95,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                   'decision' => {
                     'statuses' => {
                       '0' => [
-                        'must be one of: None, Accepted, Declined'
+                        'must be one of: none, accepting, declining'
                       ]
                     }
                   }
@@ -207,9 +207,9 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             ],
             'decision' => {
               'statuses' => %w[
-                None
-                Accepted
-                Declined
+                none
+                accepting
+                declining
               ]
             }
           },
@@ -244,8 +244,8 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                 ],
                 'decision' => {
                   'statuses' => %w[
-                    Accepted
-                    Declined
+                    accepting
+                    declining
                   ]
                 }
               },
@@ -276,8 +276,8 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           },
           'claimant' => nil,
           'decision' => {
-            'status' => 'Declined',
-            'declinedReason' => 'Kyle has an appeal in progress.',
+            'status' => 'declining',
+            'decliningReason' => 'Kyle has an appeal in progress.',
             'createdAt' => '2024-04-03T15:58:35Z',
             'createdBy' => {
               'firstName' => 'NATE',
@@ -311,7 +311,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                 ],
                 'decision' => {
                   'statuses' => %w[
-                    Declined
+                    declining
                   ]
                 }
               }
@@ -365,7 +365,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           ],
           'decision' => {
             'statuses' => [
-              'Declined'
+              'declining'
             ]
           }
         }
@@ -391,7 +391,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               ],
               'decision' => {
                 'statuses' => [
-                  'Declined'
+                  'declining'
                 ]
               }
             },
@@ -450,9 +450,9 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               ],
               'decision' => {
                 'statuses' => %w[
-                  None
-                  Accepted
-                  Declined
+                  none
+                  accepting
+                  declining
                 ]
               }
             },
@@ -505,9 +505,9 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               ],
               'decision' => {
                 'statuses' => %w[
-                  None
-                  Accepted
-                  Declined
+                  none
+                  accepting
+                  declining
                 ]
               }
             },

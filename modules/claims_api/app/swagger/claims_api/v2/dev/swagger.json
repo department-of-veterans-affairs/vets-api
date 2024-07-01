@@ -187,7 +187,7 @@
                       "errors": [
                         {
                           "title": "Validation error",
-                          "detail": "object at `/data/attributes` is missing required properties: status, declinedReason",
+                          "detail": "object at `/data/attributes` is missing required properties: status, decliningReason",
                           "code": "109",
                           "status": "422"
                         }
@@ -505,7 +505,7 @@
                         "additionalProperties": false,
                         "required": [
                           "status",
-                          "declinedReason",
+                          "decliningReason",
                           "createdBy"
                         ],
                         "properties": {
@@ -517,7 +517,7 @@
                               "Declined"
                             ]
                           },
-                          "declinedReason": {
+                          "decliningReason": {
                             "type": "string",
                             "description": "TODO",
                             "nullable": true
@@ -553,7 +553,7 @@
                     "type": "powerOfAttorneyRequestDecision",
                     "attributes": {
                       "status": "Accepted",
-                      "declinedReason": null,
+                      "decliningReason": null,
                       "createdBy": {
                         "firstName": "BEATRICE",
                         "lastName": "STROUD",
@@ -1179,7 +1179,7 @@
                                       "Declined"
                                     ]
                                   },
-                                  "declinedReason": {
+                                  "decliningReason": {
                                     "type": "string",
                                     "description": "The reason given for declining the Power of Attorney request",
                                     "nullable": true
