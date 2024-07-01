@@ -759,4 +759,46 @@ RSpec.describe HealthCareApplication, type: :model do
       expect(health_care_application.timestamp).to eq(result[:timestamp])
     end
   end
+
+  describe '#parsed_form' do
+    subject { health_care_application.parsed_form }
+
+    let(:form) { Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json').read }
+
+    context '@parsed_form is already set' do
+      it 'returns parsed_form' do
+        expect(subject).to eq JSON.parse(form)
+      end
+
+      context 'form is nil' do
+        before do
+          health_care_application.form = nil
+        end
+
+        it 'returns parsed_form' do
+          expect(subject).to eq JSON.parse(form)
+        end
+      end
+    end
+
+    context '@parsed_form is nil' do
+      before do
+        health_care_application.instance_variable_set(:@parsed_form, nil)
+      end
+
+      it 'returns parsed form' do
+        expect(subject).to eq JSON.parse(form)
+      end
+
+      context 'form is nil' do
+        before do
+          health_care_application.form = nil
+        end
+
+        it 'returns nil' do
+          expect(subject).to eq nil
+        end
+      end
+    end
+  end
 end

@@ -211,7 +211,7 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def parsed_form
-    @parsed_form ||= JSON.parse(form)
+    @parsed_form ||= form.present? ? JSON.parse(form) : nil
   end
 
   private
