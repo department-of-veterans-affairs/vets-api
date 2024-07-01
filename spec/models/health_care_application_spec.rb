@@ -510,7 +510,7 @@ RSpec.describe HealthCareApplication, type: :model do
                 email_address,
                 template_id,
                 {
-                  'first_name' => health_care_application.parsed_form['veteranFullName']['first']
+                  'salutation' => "Dear #{health_care_application.parsed_form['veteranFullName']['first']},"
                 },
                 api_key
               ]

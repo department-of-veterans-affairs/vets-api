@@ -291,7 +291,7 @@ class HealthCareApplication < ApplicationRecord
         template_id = Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email
         api_key = Settings.vanotify.services.health_apps_1010.api_key
 
-        personalisations = first_name ? { 'first_name' => first_name } : nil
+        personalisations = first_name ? { 'salutation' => "Dear #{first_name}," } : nil
 
         VANotify::EmailJob.perform_async(
           email,
