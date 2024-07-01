@@ -47,7 +47,7 @@ module ClaimFastTracking
       when 6300..6399
         :infectious_disease
       when ->(dc) { dc % 100 == 99 }
-        :unlisted_condition
+        :analogous_code
       else
         :primary_max_rating
       end

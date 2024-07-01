@@ -170,7 +170,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
       )
       expect(Rails.logger).to have_received(:info).with(
         'Max CFI rated disability',
-        { diagnostic_code: 6599, diagnostic_code_type: :unlisted_condition, hyphenated_diagnostic_code: 6516 }
+        { diagnostic_code: 6599, diagnostic_code_type: :analogous_code, hyphenated_diagnostic_code: 6516 }
       )
     end
   end
@@ -196,10 +196,10 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
       it { is_expected.to eq(:infectious_disease) }
     end
 
-    context 'when diagnostic code is an unlisted condition' do
+    context 'when diagnostic code is for an unlisted condition requiring an analogous code' do
       let(:diagnostic_code) { 6599 }
 
-      it { is_expected.to eq(:unlisted_condition) }
+      it { is_expected.to eq(:analogous_code) }
     end
 
     context 'when diagnostic code does not invoke any hyphenated logic' do
