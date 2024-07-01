@@ -21,7 +21,7 @@ RSpec.describe SignIn::SessionSpawner do
     end
     let(:client_id) { 'some-client-id' }
     let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
-    let(:access_token_attributes) { %w[first_name last_name email all_emails] }
+    let(:access_token_attributes) { %w[first_name last_name email] }
     let(:enforced_terms) { nil }
     let(:device_sso) { false }
 
