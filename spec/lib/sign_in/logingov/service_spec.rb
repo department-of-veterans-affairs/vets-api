@@ -11,6 +11,7 @@ describe SignIn::Logingov::Service do
                      iss: 'https://idp.int.identitysandbox.gov/',
                      email:,
                      email_verified: true,
+                     all_emails:,
                      given_name: first_name,
                      family_name: last_name,
                      address:,
@@ -39,6 +40,8 @@ describe SignIn::Logingov::Service do
   let(:locality) { 'Bayside' }
   let(:multifactor) { true }
   let(:email) { 'user@test.com' }
+  let(:secondary_email) { 'user@secondaryemail.com' }
+  let(:all_emails) { [email, secondary_email] }
   let(:user_uuid) { '12345678-0990-10a1-f038-2839ab281f90' }
   let(:success_callback_url) { 'http://localhost:3001/auth/login/callback?type=logingov' }
   let(:failure_callback_url) { 'http://localhost:3001/auth/login/callback?auth=fail&code=007' }
@@ -277,6 +280,7 @@ describe SignIn::Logingov::Service do
         max_ial: SignIn::Constants::Auth::IAL_TWO,
         service_name:,
         csp_email: email,
+        all_csp_emails: all_emails,
         multifactor:,
         authn_context:,
         auto_uplevel:
