@@ -33,23 +33,25 @@ module ClaimFastTracking
       rated_disabilities.each do |dis|
         Rails.logger.info('Max CFI rated disability',
                           diagnostic_code: dis&.diagnostic_code,
-                          diagnostic_code_type: diagnostic_code_type(dis&.diagnostic_code),
+                          diagnostic_code_type: diagnostic_code_type(dis),
                           hyphenated_diagnostic_code: dis&.hyphenated_diagnostic_code)
       end
     end
 
-    def self.diagnostic_code_type(diagnostic_code)
-      case diagnostic_code
+    def self.diagnostic_code_type(rated_disability)
+      case rated_disability&.diagnostic_code
       when nil
         :missing_diagnostic_code
       when 7200..7399
         :digestive_system
       when 6300..6399
         :infectious_disease
-      when ->(dc) { dc % 100 == 99 }
-        :analogous_code
       else
-        :primary_max_rating
+        if (rated_disability&.hyphenated_diagnostic_code || 0) % 100 == 99
+          :analogous_code
+        else
+          :primary_max_rating
+        end
       end
     end
 

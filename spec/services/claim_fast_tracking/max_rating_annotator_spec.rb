@@ -154,7 +154,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
       [
         { name: 'Tinnitus', diagnostic_code: 6260, rating_percentage: 10 },
         { name: 'Pancreatitis, chronic', diagnostic_code: 7347, rating_percentage: 30 },
-        { name: 'Postop tonsillectomy', diagnostic_code: 6599, hyphenated_diagnostic_code: 6516, rating_percentage: 30 }
+        { name: 'Postop tonsillectomy', diagnostic_code: 6516, hyphenated_diagnostic_code: 6599, rating_percentage: 30 }
       ]
     end
 
@@ -170,13 +170,18 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
       )
       expect(Rails.logger).to have_received(:info).with(
         'Max CFI rated disability',
-        { diagnostic_code: 6599, diagnostic_code_type: :analogous_code, hyphenated_diagnostic_code: 6516 }
+        { diagnostic_code: 6516, diagnostic_code_type: :analogous_code, hyphenated_diagnostic_code: 6599 }
       )
     end
   end
 
   describe 'diagnostic_code_type' do
-    subject { described_class.diagnostic_code_type(diagnostic_code) }
+    subject { described_class.diagnostic_code_type(rated_disability) }
+
+    let(:rated_disability) do
+      DisabilityCompensation::ApiProvider::RatedDisability.new(diagnostic_code:, hyphenated_diagnostic_code:)
+    end
+    let(:hyphenated_diagnostic_code) { nil }
 
     context 'when diagnostic code is nil' do
       let(:diagnostic_code) { nil }
@@ -197,7 +202,8 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
     end
 
     context 'when diagnostic code is for an unlisted condition requiring an analogous code' do
-      let(:diagnostic_code) { 6599 }
+      let(:hyphenated_diagnostic_code) { 6599 }
+      let(:diagnostic_code) { 6516 }
 
       it { is_expected.to eq(:analogous_code) }
     end
