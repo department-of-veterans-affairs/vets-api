@@ -187,7 +187,7 @@
                       "errors": [
                         {
                           "title": "Validation error",
-                          "detail": "object at `/data/attributes` is missing required properties: status, declinedReason",
+                          "detail": "object at `/data/attributes` is missing required properties: status, decliningReason",
                           "code": "109",
                           "status": "422"
                         }
@@ -505,7 +505,7 @@
                         "additionalProperties": false,
                         "required": [
                           "status",
-                          "declinedReason",
+                          "decliningReason",
                           "createdBy"
                         ],
                         "properties": {
@@ -513,11 +513,11 @@
                             "type": "string",
                             "description": "TODO",
                             "enum": [
-                              "Accepted",
-                              "Declined"
+                              "accepting",
+                              "declining"
                             ]
                           },
-                          "declinedReason": {
+                          "decliningReason": {
                             "type": "string",
                             "description": "TODO",
                             "nullable": true
@@ -552,8 +552,8 @@
                   "data": {
                     "type": "powerOfAttorneyRequestDecision",
                     "attributes": {
-                      "status": "Accepted",
-                      "declinedReason": null,
+                      "status": "accepting",
+                      "decliningReason": null,
                       "createdBy": {
                         "firstName": "BEATRICE",
                         "lastName": "STROUD",
@@ -629,9 +629,9 @@
                           "items": {
                             "type": "string",
                             "enum": [
-                              "None",
-                              "Accepted",
-                              "Declined"
+                              "none",
+                              "accepting",
+                              "declining"
                             ]
                           }
                         }
@@ -697,9 +697,9 @@
                   ],
                   "decision": {
                     "statuses": [
-                      "None",
-                      "Accepted",
-                      "Declined"
+                      "none",
+                      "accepting",
+                      "declining"
                     ]
                   }
                 },
@@ -734,9 +734,9 @@
                 ],
                 "decision": {
                   "statuses": [
-                    "None",
-                    "Accepted",
-                    "Declined"
+                    "none",
+                    "accepting",
+                    "declining"
                   ]
                 }
               },
@@ -780,9 +780,9 @@
                         ],
                         "decision": {
                           "statuses": [
-                            "None",
-                            "Accepted",
-                            "Declined"
+                            "none",
+                            "accepting",
+                            "declining"
                           ]
                         }
                       },
@@ -975,9 +975,9 @@
                                       "items": {
                                         "type": "string",
                                         "enum": [
-                                          "None",
-                                          "Accepted",
-                                          "Declined"
+                                          "none",
+                                          "accepting",
+                                          "declining"
                                         ]
                                       }
                                     }
@@ -1175,11 +1175,11 @@
                                     "type": "string",
                                     "description": "Whether the Power of Attorney request was accepted or declined",
                                     "enum": [
-                                      "Accepted",
-                                      "Declined"
+                                      "accepting",
+                                      "declining"
                                     ]
                                   },
-                                  "declinedReason": {
+                                  "decliningReason": {
                                     "type": "string",
                                     "description": "The reason given for declining the Power of Attorney request",
                                     "nullable": true
@@ -1240,7 +1240,7 @@
                             "decision": {
                               "statuses": {
                                 "0": [
-                                  "must be one of: None, Accepted, Declined"
+                                  "must be one of: none, accepting, declining"
                                 ]
                               }
                             }
