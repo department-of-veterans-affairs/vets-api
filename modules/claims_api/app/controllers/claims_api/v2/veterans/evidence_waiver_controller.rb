@@ -33,7 +33,7 @@ module ClaimsApi
           end
 
           ews = create_ews(params[:id])
-          ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id, lighthouse_claim)
+          ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id, bgs_claim)
 
           render json: { success: true }, status: :accepted
         end

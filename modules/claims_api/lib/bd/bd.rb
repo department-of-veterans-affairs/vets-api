@@ -33,10 +33,10 @@ module ClaimsApi
     # Upload document of mapped claim
     #
     # @return success or failure
-    def upload(claim:, pdf_path:, doc_type: 'L122', file_number: nil, original_filename: nil, ews: nil) # rubocop:disable Metrics/ParameterLists
+    def upload(claim:, pdf_path:, doc_type: 'L122', file_number: nil, original_filename: nil)
       unless File.exist? pdf_path
         ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist",
-                                                    claim_id: claim&.id)
+                                                    claim_id: claim.id)
         raise Errno::ENOENT, pdf_path
       end
 
@@ -52,7 +52,7 @@ module ClaimsApi
       res
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
-                            detail: "/upload failure for claimId #{claim&.id}, #{e.message}")
+                            detail: "/upload failure for claimId #{claim.id}, #{e.message}")
       raise e
     end
 
@@ -62,24 +62,21 @@ module ClaimsApi
     # Generate form body to upload a document
     #
     # @return {parameters, file}
-    def generate_upload_body(claim:, doc_type:, pdf_path:, file_number: nil, original_filename: nil, ews: nil) # rubocop:disable Metrics/ParameterLists
+    def generate_upload_body(claim:, doc_type:, pdf_path:, file_number: nil, original_filename: nil)
       payload = {}
-      auth_headers = ews.nil? ? claim.auth_headers : ews.auth_headers
+      auth_headers = claim.auth_headers
+
       veteran_name = "#{auth_headers['va_eauth_firstName']}_#{auth_headers['va_eauth_lastName']}"
+      file_name = generate_file_name(doc_type:, veteran_name:, claim_id: claim.evss_id, original_filename:)
 
-      file_name = generate_file_name(doc_type:, veteran_name:, claim_id: claim&.evss_id, original_filename:)
-      birls_file_num = auth_headers['va_eauth_birlsfilenumber']
+      # new method based on doc type
+      data = if doc_type == 'L023'
+               birls_file_num = auth_headers['va_eauth_birlsfilenumber'] || file_number
+               build_body(doc_type:, file_name:, claim_id:, file_number: birls_file_num)
+             elsif doc_type == 'L705'
+               build_body(doc_type:, file_name:, participant_id: nil, claim_id:, tracked_item_ids:, file_number: nil)
+             end
 
-      data = {
-        data: {
-          systemName: 'VA.gov',
-          docType: doc_type,
-          claimId: claim&.evss_id,
-          fileNumber: file_number || birls_file_num,
-          fileName: file_name,
-          trackedItemIds: []
-        }
-      }
       fn = Tempfile.new('params')
       File.write(fn, data.to_json)
       payload[:parameters] = Faraday::UploadIO.new(fn, 'application/json')
@@ -128,6 +125,19 @@ module ClaimsApi
         f.response :json, parser_options: { symbolize_names: true }
         f.adapter Faraday.default_adapter
       end
+    end
+
+    def build_body(doc_type:, file_name:, claim_id:, participant_id: nil, tracked_item_ids: nil, file_number: nil) # rubocop:disable Metrics/ParameterLists
+      data = {
+        systemName: 'VA.gov',
+        docType: doc_type,
+        claimId: claim_id,
+        fileName: file_name,
+        trackedItemIds: tracked_item_ids
+      }
+      data[:participantId] = participant_id unless participant_id.nil?
+      data[:fileNumber] = file_number unless file_number.nil?
+      data
     end
   end
 end
