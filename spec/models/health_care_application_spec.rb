@@ -535,7 +535,7 @@ RSpec.describe HealthCareApplication, type: :model do
                 super()
               end
 
-              let(:template_params) do
+              let(:template_params_no_name) do
                 [
                   email_address,
                   template_id,
@@ -546,7 +546,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
               it 'sends email without personalisations' do
                 subject
-                expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params)
+                expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params_no_name)
               end
             end
           end
