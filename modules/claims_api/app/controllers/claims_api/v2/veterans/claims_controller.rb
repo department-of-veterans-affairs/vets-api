@@ -583,7 +583,7 @@ module ClaimsApi
           when 'index'
             {
               phase_change_date: format_bgs_phase_chng_dates(bgs_claim),
-              phase_type: bgs_claim[:phase_type]
+              phase_type: bgs_phase_status_mapper.get_phase_type_from_dictionary(bgs_claim[:phase_type].downcase)
             }
           end
         end
