@@ -67,7 +67,7 @@ module MyHealth
       end
 
       def requires_oh_messages
-        params[:requires_oh_messages].try(:to_s) || '0'
+        params[:requires_oh_messages].try(:to_s)
       end
     end
   end
