@@ -539,7 +539,9 @@ RSpec.describe HealthCareApplication, type: :model do
                 [
                   email_address,
                   template_id,
-                  nil,
+                  {
+                    'salutation' => ''
+                  },
                   api_key
                 ]
               end
