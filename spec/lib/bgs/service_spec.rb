@@ -28,8 +28,7 @@ RSpec.describe BGS::Service do
 
     context 'with a user that has no icn' do
       before do
-        allow(user_object).to receive(:icn).and_return(nil)
-        allow(user_object).to receive(:uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
+        allow(user_object).to receive_messages(icn: nil, uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef')
       end
 
       it 'retrieves a users dd eft info' do

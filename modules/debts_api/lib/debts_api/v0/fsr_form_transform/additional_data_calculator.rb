@@ -46,7 +46,8 @@ module DebtsApi
           return '' if filtered_expenses.blank?
 
           joined_expenses = filtered_expenses.map do |expense|
-            "#{expense['name']} ($#{dollars_cents(expense['amount'].to_f)})"
+            cash_str = dollars_cents(expense['amount'].to_f).gsub(/(\d)(?=(\d{3})+.\d{2}$)/, '\1,')
+            "#{expense['name']} ($#{cash_str})"
           end.join(', ')
 
           "Individual expense amount: #{joined_expenses}"
@@ -54,7 +55,7 @@ module DebtsApi
 
         def get_discharged_date
           raw_date = @bankruptcy['date_discharged']
-          return '00/0000' unless raw_date
+          return '00/0000' if raw_date.blank?
 
           date_object = Date.parse(raw_date)
 

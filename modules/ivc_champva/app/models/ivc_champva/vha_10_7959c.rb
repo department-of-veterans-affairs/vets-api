@@ -30,15 +30,6 @@ module IvcChampva
       }
     end
 
-    def submission_date_config
-      {
-        should_stamp_date?: false,
-        page_number: 1,
-        title_coords: [440, 690],
-        text_coords: [440, 670]
-      }
-    end
-
     # rubocop:disable Naming/BlockForwarding,Style/HashSyntax
     def method_missing(method_name, *args, &block)
       super unless respond_to_missing?(method_name)

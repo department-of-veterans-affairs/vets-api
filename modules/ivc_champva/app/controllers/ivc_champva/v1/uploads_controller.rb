@@ -27,7 +27,7 @@ module IvcChampva
         rescue => e
           Rails.logger.error "Error: #{e.message}"
           Rails.logger.error e.backtrace.join("\n")
-          render json: { error_message: 'An unknown error occurred while uploading document(s).' },
+          render json: { error_message: "Error: #{e.message}" },
                  status: :internal_server_error
         end
       end
@@ -57,6 +57,7 @@ module IvcChampva
         applicant_rounded_number = total_applicants_count.positive? ? total_applicants_count.ceil : total_applicants_count.floor
 
         form = form_class.new(parsed_form_data)
+        form.track_user_identity
 
         attachment_ids = generate_attachment_ids(form_id, applicant_rounded_number)
         attachment_ids.concat(supporting_document_ids(parsed_form_data))

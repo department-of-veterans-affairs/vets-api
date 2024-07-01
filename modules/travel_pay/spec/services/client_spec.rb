@@ -130,8 +130,7 @@ describe TravelPay::Client do
 
   context 'authorized_ping' do
     it 'receives response from authorized-ping endpoint' do
-      allow(Settings.travel_pay.veis).to receive(:auth_url).and_return('sample_url')
-      allow(Settings.travel_pay.veis).to receive(:tenant_id).and_return('sample_id')
+      allow(Settings.travel_pay.veis).to receive_messages(auth_url: 'sample_url', tenant_id: 'sample_id')
       @stubs.get('/api/v1/Sample/authorized-ping') do
         [
           200,

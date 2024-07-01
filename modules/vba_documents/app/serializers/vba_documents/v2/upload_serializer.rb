@@ -4,27 +4,28 @@ require './lib/webhooks/utilities'
 module VBADocuments
   module V2
     class UploadSerializer < VBADocuments::UploadSerializer
-      delegate :status, to: :object
+      attr_reader :observers
 
-      attribute :observers, if: :observing
-
-      def attributes(fields)
-        attrs = super
-        attrs.delete(:location) if Settings.vba_documents.v2_upload_endpoint_enabled
-        attrs
+      attribute :status
+      attribute :location, if: proc { !Settings.vba_documents.v2_upload_endpoint_enabled } do |object, params|
+        object.get_location if params[:render_location]
+      rescue => e
+        raise Common::Exceptions::InternalServerError, e
       end
 
-      def observing
-        @observers = Webhooks::Subscription.get_observers_by_guid(
+      # does not appear to be in use, so return nil
+      # the tests that check observers are pending
+      attribute :observers, if: proc { |object|
+        observers = Webhooks::Subscription.get_observers_by_guid(
           api_name: Webhooks::Utilities.event_to_api_name[VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT],
           consumer_id: object.consumer_id,
           api_guid: object.guid
         )
 
-        @observers.any?
+        observers.any?
+      } do |_object|
+        nil
       end
-
-      attr_reader :observers
     end
   end
 end
