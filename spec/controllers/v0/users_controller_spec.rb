@@ -91,6 +91,7 @@ RSpec.describe V0::UsersController, type: :controller do
 
       it 'returns a JSON user without onboarding information when the feature toggle is disabled' do
         Flipper.disable(:veteran_onboarding_beta_flow)
+        Flipper.disable(:veteran_onboarding_show_to_newly_onboarded)
         get :show
         json = json_body_for(response)
         expect(response).to be_successful

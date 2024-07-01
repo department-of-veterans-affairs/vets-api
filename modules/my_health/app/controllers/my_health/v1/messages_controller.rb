@@ -95,8 +95,7 @@ module MyHealth
       def categories
         resource = client.get_categories
 
-        render json: resource,
-               serializer: CategorySerializer
+        render json: CategorySerializer.new(resource)
       end
 
       def signature

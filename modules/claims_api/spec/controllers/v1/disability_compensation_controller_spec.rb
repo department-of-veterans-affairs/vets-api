@@ -17,10 +17,8 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
 
       formatted_error = subject.send(:format_526_errors, error)
 
-      expect(formatted_error).to match_array([
-                                               { status: 422, detail: "#{error[0][:key]}, #{error[0][:text]}",
-                                                 source: error[0][:key] }
-                                             ])
+      expect(formatted_error).to contain_exactly({ status: 422, detail: "#{error[0][:key]}, #{error[0][:text]}",
+                                                   source: error[0][:key] })
     end
   end
 end

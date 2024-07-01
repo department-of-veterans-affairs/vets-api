@@ -2,19 +2,18 @@
 
 require 'rails_helper'
 
-describe CovidVaccine::V0::ExpandedRegistrationSerializer do
-  let(:submission) { build_stubbed(:covid_vax_expanded_registration) }
+describe CovidVaccine::V0::ExpandedRegistrationSerializer, type: :serializer do
+  subject { serialize(submission, serializer_class: described_class) }
 
-  let(:rendered_hash) do
-    ActiveModelSerializers::SerializableResource.new(submission, { serializer: described_class }).as_json
-  end
-  let(:rendered_attributes) { rendered_hash[:data][:attributes] }
+  let(:submission) { build_stubbed(:covid_vax_expanded_registration) }
+  let(:data) { JSON.parse(subject)['data'] }
+  let(:attributes) { data['attributes'] }
 
   it 'includes :id' do
-    expect(rendered_hash[:data][:id]).to be_blank
+    expect(data['id']).to be_blank
   end
 
   it 'includes :created_at' do
-    expect(rendered_attributes[:created_at]).to eq submission.created_at
+    expect_time_eq(attributes['created_at'], submission.created_at)
   end
 end

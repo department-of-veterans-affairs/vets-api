@@ -2,17 +2,17 @@
 http_interactions:
 - request:
     method: post
-    uri: "<BGS_BASE_URL>/VDC/ManageRepresentativeService"
+    uri: "<BGS_BASE_URL>/VDC/VeteranRepresentativeService"
     body:
       encoding: UTF-8
       string: |
-        <?xml version="1.0" encoding="UTF-8"?>
+        <?xml version="1.0" encoding="UTF-8" ?>
         <env:Envelope
           xmlns:xsd="http://www.w3.org/2001/XMLSchema"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
           xmlns:tns="http://gov.va.vba.benefits.vdc/services"
-        xmlns:data="http://gov.va.vba.benefits.vdc/data"
+          xmlns:data="http://gov.va.vba.benefits.vdc/data"
         >
           <env:Header>
             <wsse:Security
@@ -33,14 +33,19 @@ http_interactions:
             </wsse:Security>
           </env:Header>
           <env:Body>
-            <tns:readPOARequestByPtcpntId><PtcpntId>600043216</PtcpntId></tns:readPOARequestByPtcpntId>
+            <tns:readAllVeteranRepresentatives>
+              <data:CorpPtcpntIdFormTypeCode>
+                <formTypeCode>21-22</formTypeCode>
+                <veteranCorpPtcpntId>600043216</veteranCorpPtcpntId>
+              </data:CorpPtcpntIdFormTypeCode>
+            </tns:readAllVeteranRepresentatives>
           </env:Body>
         </env:Envelope>
     headers:
       User-Agent:
-      - Faraday v2.9.0
+      - <FARADAY_VERSION>
       Soapaction:
-      - '"readPOARequestByPtcpntId"'
+      - '"readAllVeteranRepresentatives"'
       Content-Type:
       - text/xml;charset=UTF-8
       Host:
@@ -55,7 +60,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sun, 26 May 2024 03:06:54 GMT
+      - Tue, 25 Jun 2024 07:33:45 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -68,9 +73,65 @@ http_interactions:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
-        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header/><S:Body><ns0:readPOARequestByPtcpntIdResponse
-        xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault" xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
-        xmlns:ns2="http://gov.va.vba.benefits.vdc/data"><ns2:POARequestRespondReturnVO><poaRequestRespondReturnVOList><VSOUserEmail>Beatrice.Stroud44@va.gov</VSOUserEmail><VSOUserFirstName>BEATRICE</VSOUserFirstName><VSOUserLastName>STROUD</VSOUserLastName><changeAddressAuth>Y</changeAddressAuth><claimantCity>Portland</claimantCity><claimantCountry>USA</claimantCountry><claimantMilitaryPO></claimantMilitaryPO><claimantMilitaryPostalCode></claimantMilitaryPostalCode><claimantState>OR</claimantState><claimantZip>41726</claimantZip><dateRequestActioned>2024-02-05T15:41:52-06:00</dateRequestActioned><dateRequestReceived>2024-01-08T14:42:58-06:00</dateRequestReceived><declinedReason>N/A</declinedReason><healthInfoAuth>Y</healthInfoAuth><poaCode>074</poaCode><procID>3853237</procID><secondaryStatus>Pending</secondaryStatus><vetFirstName>FRANK</vetFirstName><vetLastName>ARNOLD</vetLastName><vetMiddleName>LARRY</vetMiddleName><vetPtcpntID>600043216</vetPtcpntID></poaRequestRespondReturnVOList><totalNbrOfRecords>1</totalNbrOfRecords></ns2:POARequestRespondReturnVO></ns0:readPOARequestByPtcpntIdResponse></S:Body></S:Envelope>
+      string: |-
+        <?xml version='1.0' encoding='UTF-8' ?>
+        <S:Envelope
+          xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+          xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"
+        >
+          <env:Header />
+          <S:Body>
+            <ns0:readAllVeteranRepresentativesResponse
+              xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
+              xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
+              xmlns:ns2="http://gov.va.vba.benefits.vdc/data"
+            >
+              <ns2:VeteranRepresentativeReturnList>
+                <addressLine1>5232 East Pima Street Suite B</addressLine1>
+                <addressLine2 />
+                <addressLine3 />
+                <changeAddressAuth>true</changeAddressAuth>
+                <city>Tucson</city>
+                <claimantRelationship />
+                <formTypeCode>21-22</formTypeCode>
+                <insuranceNumbers />
+                <limitationAlcohol>false</limitationAlcohol>
+                <limitationDrugAbuse>false</limitationDrugAbuse>
+                <limitationHIV>false</limitationHIV>
+                <limitationSCA>false</limitationSCA>
+                <organizationName>AMERICAN LEGION</organizationName>
+                <otherServiceBranch />
+                <phoneNumber />
+                <poaCode>074</poaCode>
+                <postalCode>85712</postalCode>
+                <procId>3853237</procId>
+                <representativeFirstName />
+                <representativeLastName />
+                <representativeLawFirmOrAgencyName />
+                <representativeTitle />
+                <representativeType>Recognized Veterans Service Organization</representativeType>
+                <section7332Auth>true</section7332Auth>
+                <serviceBranch />
+                <serviceNumber />
+                <state>AZ</state>
+                <submittedDate>2024-01-08T14:42:58-06:00</submittedDate>
+                <vdcStatus>Submitted</vdcStatus>
+                <veteranPtcpntId>180342</veteranPtcpntId>
+                <acceptedBy />
+                <claimantFirstName />
+                <claimantLastName />
+                <claimantMiddleName />
+                <declinedBy />
+                <declinedReason />
+                <secondaryStatus>Pending</secondaryStatus>
+                <veteranFirstName>FRANK</veteranFirstName>
+                <veteranLastName>ARNOLD</veteranLastName>
+                <veteranMiddleName>LARRY</veteranMiddleName>
+                <veteranSSN>796143510</veteranSSN>
+                <veteranVAFileNumber>796143510</veteranVAFileNumber>
+              </ns2:VeteranRepresentativeReturnList>
+            </ns0:readAllVeteranRepresentativesResponse>
+          </S:Body>
+        </S:Envelope>
   recorded_at: Thu, 09 May 2024 07:18:04 GMT
 recorded_with: VCR 6.2.0

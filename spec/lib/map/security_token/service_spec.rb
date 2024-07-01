@@ -91,6 +91,22 @@ describe MAP::SecurityToken::Service do
         end
       end
 
+      context 'when request to STS times out' do
+        let(:expected_error) { Common::Exceptions::GatewayTimeout }
+        let(:expected_error_message) { 'Gateway timeout' }
+        let(:expected_logger_message) { "#{log_prefix} token failed, gateway timeout" }
+        let(:expected_log_values) { { application:, icn: } }
+
+        before do
+          stub_request(:post, 'https://veteran.apps-staging.va.gov/sts/oauth/v1/token').to_raise(Net::ReadTimeout)
+        end
+
+        it 'raises an gateway timeout error and creates a log' do
+          expect(Rails.logger).to receive(:error).with(expected_logger_message, expected_log_values)
+          expect { subject }.to raise_exception(expected_error, expected_error_message)
+        end
+      end
+
       context 'and response is successful' do
         let(:expected_log_message) { "#{log_prefix} token success" }
         let(:expected_log_payload) { { application:, icn:, cached_response: false } }
