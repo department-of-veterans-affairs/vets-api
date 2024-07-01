@@ -67,7 +67,7 @@ class Form526Submission < ApplicationRecord
     # - The only state that means we no longer own completion of this submission
     # - There is nothing more to do.  E.G.
     #   - VBMS has accepted and returned the applicable status to us via
-    #     lighthouse benefits intack API
+    #     lighthouse benefits intake API
     #   - Manual remediation has been confirmed successful
     #   - EVSS has received this submission and now owns it
     event :finalize_success do

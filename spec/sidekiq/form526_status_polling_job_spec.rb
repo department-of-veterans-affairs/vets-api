@@ -27,16 +27,16 @@ RSpec.describe Form526StatusPollingJob, type: :job do
       create(:form526_submission, :backup_path, aasm_state: 'finalized_as_successful')
     end
     let!(:delivered_backup_submission_a) do
-      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
+      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup', backup_submitted_claim_id: 'a')
     end
     let!(:delivered_backup_submission_b) do
-      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
+      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup', backup_submitted_claim_id: 'b')
     end
     let!(:delivered_backup_submission_c) do
-      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
+      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup', backup_submitted_claim_id: 'c')
     end
     let!(:delivered_backup_submission_d) do
-      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
+      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup', backup_submitted_claim_id: 'd')
     end
 
     describe 'submission to the bulk status report endpoint' do
@@ -130,6 +130,7 @@ RSpec.describe Form526StatusPollingJob, type: :job do
       it 'updates local state to reflect the returned statuses' do
         pending_claim_ids = Form526Submission.pending_backup_submissions.pluck(:backup_submitted_claim_id)
         response = double
+
         allow(response).to receive(:body).and_return(api_response)
         allow_any_instance_of(BenefitsIntakeService::Service)
           .to receive(:get_bulk_status_of_uploads)
@@ -139,7 +140,7 @@ RSpec.describe Form526StatusPollingJob, type: :job do
         Form526StatusPollingJob.new.perform
 
         expect(delivered_backup_submission_a.reload.aasm_state).to eq 'finalized_as_successful'
-        expect(delivered_backup_submission_b.reload.aasm_state).to eq 'finalized_as_successful'
+        expect(delivered_backup_submission_b.reload.aasm_state).to eq 'delivered_to_backup'
         expect(delivered_backup_submission_c.reload.aasm_state).to eq 'rejected_by_backup'
         expect(delivered_backup_submission_d.reload.aasm_state).to eq 'rejected_by_backup'
       end
