@@ -2,8 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.shared_examples 'a representative serializer' do |serializer_class|
-
+RSpec.shared_examples 'a representative serializer' do |_serializer_class|
   it 'includes :full_name' do
     expect(attributes['full_name']).to eq  "#{representative.first_name} #{representative.last_name}"
   end
@@ -78,7 +77,6 @@ RSpec.shared_examples 'a representative serializer' do |serializer_class|
 
   it 'includes :distance' do
     expected_distance = representative.distance / Veteran::Service::Constants::METERS_PER_MILE
-    expect(attributes['distance']).to eq expected_distance
+    expect(attributes['distance']).to eq expected_distance.to_s
   end
-
 end
