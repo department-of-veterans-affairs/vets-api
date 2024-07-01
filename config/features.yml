@@ -738,6 +738,10 @@ features:
     actor_type: user
     description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
+  mhv_secure_messaging_to_va_gov_release:
+    actor_type: user
+    description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
+    enable_in_development: true
   mhv_secure_messaging_to_phase_1:
     actor_type: user
     description: Enables/disables Secure Messaging Phase 1 on VA.gov
