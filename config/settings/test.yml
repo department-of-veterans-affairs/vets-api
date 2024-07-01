@@ -247,7 +247,7 @@ lighthouse:
         client_id: ~
         rsa_key: ~
   benefits_intake:
-    api_key: fake_api_key
+      api_key: fake_api_key
 
 rrd:
   alerts:
