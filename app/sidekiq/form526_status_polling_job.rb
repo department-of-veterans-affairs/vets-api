@@ -53,7 +53,7 @@ class Form526StatusPollingJob
         form_submission.finalize_success!
       else
         Rails.logger.warn('Unknown status returned from Benefits Intake API for 526 submission',
-                          status:, submission_id: submission.id)
+                          status:, submission_id: form_submission.id)
       end
       @total_handled += 1
     end
