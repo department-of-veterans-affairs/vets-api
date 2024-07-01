@@ -2,15 +2,19 @@
 
 module Mobile
   module V0
-    class AttachmentSerializer < ActiveModel::Serializer
-      include Mobile::Engine.routes.url_helpers
+    class AttachmentSerializer
+      include JSONAPI::Serializer
 
-      attribute :id
-      attribute :name
-      attribute :message_id
-      attribute :attachment_size, if: -> { object.attachment_size&.positive? }
+      set_id :id
+      set_type :attachments
 
-      link(:download) { Mobile::UrlHelper.new.v0_message_attachment_url(object.message_id, object.id) }
+      attributes :name, :message_id
+
+      attribute :attachment_size, if: proc { |object| object.attachment_size&.positive? }
+
+      link :download do |object|
+        Mobile::UrlHelper.new.v0_message_attachment_url(object.message_id, object.id)
+      end
     end
   end
 end

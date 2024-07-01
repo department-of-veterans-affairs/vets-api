@@ -39,6 +39,7 @@ RSpec.describe 'Threads Integration', type: :request do
 
   context 'when authorized' do
     before do
+      allow(SM::Client).to receive(:new).and_return(authenticated_client)
       VCR.insert_cassette('sm_client/session')
     end
 
@@ -96,6 +97,23 @@ RSpec.describe 'Threads Integration', type: :request do
 
         expect(response).to be_successful
         expect(response).to have_http_status(:no_content)
+      end
+
+      it 'responds with error to PATCH threads/move with invalid thread id' do
+        VCR.use_cassette('sm_client/threads/moves_a_thread_with_invalid_thread_id') do
+          patch '/my_health/v1/messaging/threads/123/move?folder_id=0'
+        end
+        json_response = JSON.parse(response.body)['errors'].first
+        expect(json_response['code']).to eq('SM115')
+      end
+
+      it 'responds with error to PATCH threads/move with invalid folder id' do
+        VCR.use_cassette('sm_client/threads/moves_a_thread_with_invalid_folder_id') do
+          patch '/my_health/v1/messaging/threads/3470562/move?folder_id=123'
+        end
+        puts "response #{response.inspect}"
+        json_response = JSON.parse(response.body)['errors'].first
+        expect(json_response['detail']).to eq("Folder Doesn't exists")
       end
     end
   end

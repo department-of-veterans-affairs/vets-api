@@ -308,6 +308,10 @@ features:
   decision_review_sc_status_updater_enabled:
     actor_type: user
     description: Enables the Supplemental Claim status update batch job
+  decision_review_sc_use_lighthouse_api_for_form4142:
+    actor_type: user
+    description: Use Lighthouse API to submit Form 21-4142 from Supplemental Claims
+    enable_in_development: true
   decision_review_icn_updater_enabled:
     actor_type: user
     description: Enables the ICN lookup job
@@ -1255,9 +1259,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for displaying the most recent facilities on the Choose your VA location page.
-  va_view_dependents_access:
-    actor_type: user
-    description: Allows us to gate the View/ Modify dependents content in a progressive rollout
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
@@ -1409,9 +1410,6 @@ features:
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
-  drupal_footer:
-    actor_type: user
-    description: If enabled, pulls Drupal data to populate most of the global footer
   virtual_agent_lighthouse_claims:
     actor_type: user
     description: Use lighthouse instead of EVSS to view benefit claims for virtual agent chatbot application
@@ -1537,4 +1535,3 @@ features:
   toggle_vye_application:
     actor_type: user
     description: Enable VYE
-    

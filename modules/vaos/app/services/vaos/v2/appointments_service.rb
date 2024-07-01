@@ -201,9 +201,7 @@ module VAOS
 
       def prepare_appointment(appointment)
         # for CnP, covid, CC and telehealth appointments set cancellable to false per GH#57824, GH#58690, ZH#326
-        if cnp?(appointment) || covid?(appointment) || cc?(appointment) || telehealth?(appointment)
-          set_cancellable_false(appointment)
-        end
+        set_cancellable_false(appointment) if cannot_be_cancelled?(appointment)
 
         # remove service type(s) for non-medical non-CnP appointments per GH#56197
         unless medical?(appointment) || cnp?(appointment) || no_service_cat?(appointment)
@@ -363,6 +361,11 @@ module VAOS
         err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
         Rails.logger.error("VAOS: Error retrieving AVS link: #{e.class}, #{e.message} \n   #{err_stack}")
         appt[:avs_path] = AVS_ERROR_MESSAGE
+      end
+
+      def cannot_be_cancelled?(appointment)
+        cnp?(appointment) || covid?(appointment) ||
+          (cc?(appointment) && booked?(appointment)) || telehealth?(appointment)
       end
 
       # Checks if appointment is eligible for receiving an AVS link, i.e.

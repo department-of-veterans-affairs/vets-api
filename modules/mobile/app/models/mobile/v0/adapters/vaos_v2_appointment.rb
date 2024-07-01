@@ -3,6 +3,7 @@
 module Mobile
   module V0
     module Adapters
+      # rubocop:disable Metrics/ClassLength
       class VAOSV2Appointment
         APPOINTMENT_TYPES = {
           va: 'VA',
@@ -126,11 +127,24 @@ module Mobile
 
         private
 
-        # we do not want to use the not found message for mobile because it would result in ugly formatting
+        # to match web behavior, prefer the value found in the practitioners list over the preferred_provider_name.
+        # Unlike web, we want to remove the not found message because it's too long and may cause formatting issues.
         def healthcare_provider
+          practitioner_name = find_practitioner_name(appointment[:practitioners])
+          return practitioner_name if practitioner_name
+
           return nil if appointment[:preferred_provider_name] == VAOS::V2::AppointmentProviderName::NPI_NOT_FOUND_MSG
 
           appointment[:preferred_provider_name]
+        end
+
+        def find_practitioner_name(practitioner_list)
+          practitioner_list&.find do |practitioner|
+            first_name = practitioner.dig(:name, :given)&.join(' ')&.strip
+            last_name = practitioner.dig(:name, :family)
+            name = [first_name, last_name].compact.join(' ')
+            return name if name.present?
+          end
         end
 
         def extract_station_and_ien(appointment)
@@ -498,6 +512,7 @@ module Mobile
           time.is_a?(DateTime) ? time : DateTime.parse(time)
         end
       end
+      # rubocop:enable Metrics/ClassLength
     end
   end
 end
