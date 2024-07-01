@@ -582,7 +582,8 @@ module ClaimsApi
             }
           when 'index'
             {
-              phase_change_date: format_bgs_phase_chng_dates(bgs_claim)
+              phase_change_date: format_bgs_phase_chng_dates(bgs_claim),
+              phase_type: bgs_claim[:phase_type]
             }
           end
         end
