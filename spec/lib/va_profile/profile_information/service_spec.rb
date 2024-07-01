@@ -20,31 +20,31 @@ describe VAProfile::ProfileInformation::Service, skip_vet360: true do
   end
 
   # describe '#get_person' do
-  #   context 'when successful' do
-  #     it 'returns a status of 200' do
-  #       VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
-  #         response = subject.get_response('person')
-  #         expect(response).to be_ok
-  #         expect(response.person).to be_a(VAProfile::Models::Person)
-  #       end
-  #     end
+    # context 'when successful' do
+    #   it 'returns a status of 200' do
+    #     VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
+    #       response = subject.get_response('person')
+    #       expect(response).to be_ok
+    #       expect(response.person).to be_a(VAProfile::Models::Person)
+    #     end
+    #   end
 
-  #     it 'supports international provinces' do
-  #       VCR.use_cassette('va_profile/profile_information/person_intl_addr', VCR::MATCH_EVERYTHING) do
-  #         response = subject.get_response('person')
+      # it 'supports international provinces' do
+      #   VCR.use_cassette('va_profile/profile_information/person_intl_addr', VCR::MATCH_EVERYTHING) do
+      #     response = subject.get_response('person')
 
-  #         expect(response.person.addresses[0].province).to eq('province')
-  #       end
-  #     end
+      #     expect(response.person.addresses[0].province).to eq('province')
+      #   end
+      # end
 
-  #     it 'has a bad address' do
-  #       VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
-  #         response = subject.get_response('person')
+      # it 'has a bad address' do
+      #   VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
+      #     response = subject.get_response('person')
 
-  #         expect(response.person.addresses[0].bad_address).to eq(true)
-  #       end
-  #     end
-  #   end
+      #     expect(response.person.addresses[0].bad_address).to eq(true)
+      #   end
+      # end
+    # end
 
   #   context 'when not successful' do
   #     let(:vet360_id) { '6767671' }
@@ -196,6 +196,7 @@ describe VAProfile::ProfileInformation::Service, skip_vet360: true do
     #       email.id = 42
     #       email.email_address = 'person42@example.com'
     #       expect { subject.create_or_update_info(:post, email) }.to raise_error do |e|
+    #         binding.pry
     #         expect(e).to be_a(Common::Exceptions::BackendServiceException)
     #         expect(e.status_code).to eq(400)
     #         expect(e.errors.first.code).to eq('VET360_EMAIL200')
@@ -254,22 +255,22 @@ describe VAProfile::ProfileInformation::Service, skip_vet360: true do
       end
     end
 
-    # context 'when an ID is included' do
-    #   it 'raises an exception' do
-    #     VCR.use_cassette('va_profile/profile_information/post_address_w_id_error', VCR::MATCH_EVERYTHING) do
-    #       address.id = 42
-    #       address.address_line1 = '1493 Martin Luther King Rd'
-    #       address.city = 'Fulton'
-    #       address.state_code = 'MS'
-    #       address.zip_code = '38843'
-    #       expect { subject.create_or_update_info(:post, address) }.to raise_error do |e|
-    #         expect(e).to be_a(Common::Exceptions::BackendServiceException)
-    #         expect(e.status_code).to eq(400)
-    #         expect(e.errors.first.code).to eq('VET360_ADDR200')
-    #       end
-    #     end
-    #   end
-    # end
+    context 'when an ID is included' do
+      it 'raises an exception' do
+        VCR.use_cassette('va_profile/profile_information/post_address_w_id_error', VCR::MATCH_EVERYTHING) do
+          address.id = 42
+          address.address_line1 = '1493 Martin Luther King Rd'
+          address.city = 'Fulton'
+          address.state_code = 'MS'
+          address.zip_code = '38843'
+          expect { subject.create_or_update_info(:post, address) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_ADDR200')
+          end
+        end
+      end
+    end
   end
 
   describe '#put_address' do

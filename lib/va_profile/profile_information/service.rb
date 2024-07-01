@@ -2,8 +2,14 @@
 
 require 'common/client/concerns/monitoring'
 require 'common/client/errors'
-require 'va_profile/stats'
+require 'common/exceptions/backend_service_exception'
 require 'va_profile/service'
+require 'va_profile/stats'
+require 'va_profile/models/address'
+require 'va_profile/models/email'
+require 'va_profile/models/permission'
+require 'va_profile/models/person'
+require 'va_profile/models/telephone'
 require_relative 'configuration'
 require_relative 'transaction_response'
 require_relative 'person_response'
@@ -13,6 +19,7 @@ module VAProfile
   module ProfileInformation
     class Service < Common::Client::Base
       include Common::Client::Concerns::Monitoring
+      include ERB::Util
 
       STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.profile_information".freeze
       configuration VAProfile::ProfileInformation::Configuration
@@ -43,7 +50,7 @@ module VAProfile
         with_monitoring do
           icn_with_aaid_present!
           model = "VAProfile::Models::#{type.capitalize}".constantize
-          raw_response = perform(:post, path, { bios: [{ bioPath: 'bio' }]})
+          raw_response = perform(:post, path, { bios: [{ bioPath: 'bio' }] })
           response = model.response_class(raw_response)
           Sentry.set_extras(response.debug_data) unless response.ok?
           response
@@ -61,6 +68,7 @@ module VAProfile
         elsif e.status >= 400 && e.status < 500
           return PersonResponse.new(e.status, person: nil)
         end
+        handle_error(e)
       rescue => e
         handle_error(e)
       end
@@ -85,15 +93,30 @@ module VAProfile
           update_path = record.try(:permission_type).present? ? "permissions" : record.contact_info_attr.pluralize
           raw_response = perform(http_verb, update_path, record.in_json)
           response = model.transaction_response_class.from(raw_response)
-          return response unless http_verb == :put && record.contact_info_attr == 'email' && old_email.present?
+          if http_verb == :put && record.contact_info_attr == 'email' && old_email.present?
 
-          transaction = response.transaction
-          return response unless transaction.received?
+            transaction = response.transaction
+            return response unless transaction.received?
 
-          # Create OldEmail to send notification to user's previous email
-          OldEmail.create(transaction_id: transaction.id, email: old_email)
+            # Create OldEmail to send notification to user's previous email
+            OldEmail.create(transaction_id: transaction.id, email: old_email)
+          end
           response
         end
+
+      rescue Common::Client::Errors::ClientError => e
+        error_status = e.status
+
+        if error_status == 404
+
+          return record.model.transaction_response_class.new(404, transaction: nil)
+        elsif error_status && error_status >= 400 && error_status < 500
+          return record.model.transaction_response_class.new(error_status, transaction: nil)
+        end
+
+        # Sometimes e.status is nil. Why?
+        Rails.logger.info('Miscellaneous service history error', error: e)
+        handle_error(e)
       rescue => e
         handle_error(e)
       end

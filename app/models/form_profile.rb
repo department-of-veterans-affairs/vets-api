@@ -298,7 +298,11 @@ class FormProfile
 
     @vet360_contact_info_retrieved = true
     if VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
-      @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
+      if Flipper.enabled?(:va_profile_information_v3_service, user)
+        @vet360_contact_info = VAProfileRedis::ProfileInformation.for_user(user)
+      else
+        @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
+      end
     else
       Rails.logger.info('Vet360 Contact Info Null')
     end

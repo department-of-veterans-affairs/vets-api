@@ -15,7 +15,6 @@ module VAProfile
 
       def self.from(raw_response = nil, user= nil)
         @response_body = raw_response&.body
-
         if error?
           log_message_to_sentry(
             'VAProfile transaction error',
