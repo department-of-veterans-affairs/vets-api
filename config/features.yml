@@ -738,10 +738,6 @@ features:
     actor_type: user
     description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
-  mhv_secure_messaging_to_va_gov_release:
-    actor_type: user
-    description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
-    enable_in_development: true
   mhv_secure_messaging_to_phase_1:
     actor_type: user
     description: Enables/disables Secure Messaging Phase 1 on VA.gov
@@ -1410,9 +1406,6 @@ features:
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
-  drupal_footer:
-    actor_type: user
-    description: If enabled, pulls Drupal data to populate most of the global footer
   virtual_agent_lighthouse_claims:
     actor_type: user
     description: Use lighthouse instead of EVSS to view benefit claims for virtual agent chatbot application
@@ -1538,4 +1531,3 @@ features:
   toggle_vye_application:
     actor_type: user
     description: Enable VYE
-    
