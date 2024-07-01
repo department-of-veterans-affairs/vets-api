@@ -34,14 +34,61 @@ namespace :user_credential do
     puts "#{namespace} failed - #{e.message}"
   end
 
+  task :lock_all, %i[icn requested_by] => :environment do |_, args|
+    namespace = 'UserCredential::LockAll'
+    validate_icn_args(args)
+    icn = args[:icn]
+    context = { icn:, requested_by: args[:requested_by] }
+    log_to_stdout(level: 'info', message: "[#{namespace}] rake task start, context: #{context.to_json}")
+    user_account = UserAccount.find_by(icn:)
+    user_account.user_verifications.each do |user_verification|
+      user_verification.lock!
+      uv_context = { type: user_verification.credential_type, credential_id: user_verification.credential_identifier,
+                     locked: user_verification.locked }
+      log_to_stdout(level: 'info',
+                    message: "[#{namespace}] credential locked, context: #{context.merge(uv_context).to_json}")
+      puts "#{namespace} credential locked - #{uv_context[:type]}_uuid: #{uv_context[:credential_id]}"
+    end
+    log_to_stdout(level: 'info', message: "[#{namespace}] rake task complete, context: #{context.to_json}")
+    puts "#{namespace} complete - ICN: #{icn}"
+  rescue => e
+    puts "#{namespace} failed - #{e.message}"
+  end
+
+  task :unlock_all, %i[icn requested_by] => :environment do |_, args|
+    namespace = 'UserCredential::UnlockAll'
+    validate_icn_args(args)
+    icn = args[:icn]
+    context = { icn:, requested_by: args[:requested_by] }
+    log_to_stdout(level: 'info', message: "[#{namespace}] rake task start, context: #{context.to_json}")
+    user_account = UserAccount.find_by(icn:)
+    user_account.user_verifications.each do |user_verification|
+      user_verification.unlock!
+      uv_context = { type: user_verification.credential_type, credential_id: user_verification.credential_identifier,
+                     locked: user_verification.locked }
+      log_to_stdout(level: 'info',
+                    message: "[#{namespace}] credential unlocked, context: #{context.merge(uv_context).to_json}")
+      puts "#{namespace} credential unlocked - #{uv_context[:type]}_uuid: #{uv_context[:credential_id]}"
+    end
+    log_to_stdout(level: 'info', message: "[#{namespace}] rake task complete, context: #{context.to_json}")
+    puts "#{namespace} complete - ICN: #{icn}"
+  rescue => e
+    puts "#{namespace} failed - #{e.message}"
+  end
+
   def validate_args(args)
     raise 'Missing required arguments' if args[:type].blank? ||
                                           args[:credential_id].blank? ||
                                           args[:requested_by].blank?
   end
 
+  def validate_icn_args(args)
+    raise 'Missing required arguments' if args[:icn].blank? ||
+                                          args[:requested_by].blank?
+  end
+
   def log_to_stdout(level:, message:)
-    `echo "#{log_message(level:, message:).to_json.dump}" >> /proc/1/fd/1`
+    `echo "#{log_message(level:, message:).to_json.dump}" >> /proc/1/fd/1` if Rails.env.production?
   end
 
   def log_message(level:, message:)
