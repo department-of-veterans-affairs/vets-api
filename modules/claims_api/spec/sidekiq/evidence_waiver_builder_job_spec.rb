@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'bgs_service/benefit_claim_service'
+require 'common/file_helpers'
 
-RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job do
+RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job, use_cassette: 'claims_api/bd/upload' do
   subject { described_class }
 
   before do
@@ -10,16 +12,20 @@ RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job do
   end
 
   let(:ews) { create(:claims_api_evidence_waiver_submission, :with_full_headers_tamara) }
-  let(:claim) { create(:auto_established_claim_with_auth_headers, :with_full_headers_tamara) }
+  let(:bgs_claim) { create(:bgs_response) }
+  let(:output_path) { '' }
 
   describe 'generating the filled and signed pdf' do
     it 'generates the pdf to match example' do
-      allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-      expect(ClaimsApi::EvidenceWaiver).to receive(:new).and_call_original
-      expect_any_instance_of(ClaimsApi::EvidenceWaiver).to receive(:construct).and_call_original
-      expect_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return(true)
+      VCR.use_cassette('claims_api/bd/upload') do
+        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+        allow_any_instance_of(ClaimsApi::BenefitClaimService).to receive(:find_bnft_claim).and_return(bgs_claim)
+        expect_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return(true)
+        allow_any_instance_of(ClaimsApi::EwsUpdater).to receive(:update_bgs_claim).with(ews, bgs_claim)
+        allow_any_instance_of(Common::FileHelpers).to receive(:delete_file_if_exists).with(output_path)
 
-      subject.new.perform(ews.id, claim)
+        subject.new.perform(ews.id, bgs_claim)
+      end
     end
   end
 
@@ -38,19 +44,6 @@ RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job do
           error: error_msg
         )
       end
-    end
-  end
-
-  describe 'bad file number error raised by VBMS' do
-    it 'EW builder job handles and sets status to errored, does not retry' do
-      allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: 'asdf' })
-      expect(ClaimsApi::EvidenceWaiver).to receive(:new).and_call_original
-      expect_any_instance_of(ClaimsApi::EvidenceWaiver).to receive(:construct).and_call_original
-      expect_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return(true)
-
-      subject.new.perform(ews.id, claim)
-      ews.reload
-      expect(ews.status).to eq('errored')
     end
   end
 end

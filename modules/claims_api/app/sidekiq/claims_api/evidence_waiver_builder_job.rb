@@ -18,7 +18,7 @@ module ClaimsApi
 
       # upload to BD
       benefits_doc_api.upload(claim:, pdf_path: output_path, ews: evidence_waiver_submission)
-      ClaimsApi::EwsUpdater.new.perform(evidence_waiver_id)
+      ClaimsApi::EwsUpdater.perform_async(evidence_waiver_id)
 
       ::Common::FileHelpers.delete_file_if_exists(output_path)
     rescue VBMS::ClientError => e
