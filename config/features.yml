@@ -330,6 +330,9 @@ features:
     actor_type: user
     description: Enables saving a copy of encrypted decision review evidence attachment files for manual validation
     enable_in_development: true
+  decision_review_hlr_form_v4_enabled:
+    actor_type: user
+    description: Enable using MAR 2024 revision of 200996 Higher Level Review form when submitting to EMMS for intake
   decision_review_use_hexapdf_for_encrypted_attachments:
     actor_type: user
     description: Enables using Hexapdf instead of PDFTK for decrypting password protected decision review evidence attachment files
