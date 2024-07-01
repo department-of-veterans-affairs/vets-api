@@ -19,10 +19,11 @@ FactoryBot.define do
   end
 
   trait :backup_path do
-    lighthouse_format_guid = "#{SecureRandom.hex(8)}-#{SecureRandom.hex(4)}-" \
-                             "#{SecureRandom.hex(4)}-#{SecureRandom.hex(4)}-" \
-                             "#{SecureRandom.hex(12)}"
-    backup_submitted_claim_id { lighthouse_format_guid }
+    backup_submitted_claim_id {
+      "#{SecureRandom.hex(8)}-#{SecureRandom.hex(4)}-" \
+        "#{SecureRandom.hex(4)}-#{SecureRandom.hex(4)}-" \
+        "#{SecureRandom.hex(12)}"
+    }
   end
 
   trait :with_everything do

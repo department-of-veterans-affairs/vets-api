@@ -27,16 +27,16 @@ RSpec.describe Form526StatusPollingJob, type: :job do
       create(:form526_submission, :backup_path, aasm_state: 'finalized_as_successful')
     end
     let!(:delivered_backup_submission_a) do
-      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup', backup_submitted_claim_id: 'a')
+      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
     end
     let!(:delivered_backup_submission_b) do
-      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup', backup_submitted_claim_id: 'b')
+      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
     end
     let!(:delivered_backup_submission_c) do
-      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup', backup_submitted_claim_id: 'c')
+      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
     end
     let!(:delivered_backup_submission_d) do
-      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup', backup_submitted_claim_id: 'd')
+      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
     end
 
     describe 'submission to the bulk status report endpoint' do
