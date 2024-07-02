@@ -35,8 +35,10 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::AssetCalculator, type: :service d
     end
 
     context 'with full payload' do
-      let(:calculator) { described_class.new(pre_transform_fsr_form_data) }
-      let(:assets) { calculator.transform_assets }
+      let(:assets) do
+        calculator = described_class.new(pre_transform_fsr_form_data)
+        calculator.transform_assets
+      end
 
       it 'gets cashInBank right' do
         expected_cash_in_bank = post_transform_fsr_form_data['assets']['cashInBank']
