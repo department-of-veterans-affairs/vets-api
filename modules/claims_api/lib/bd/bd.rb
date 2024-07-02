@@ -41,7 +41,7 @@ module ClaimsApi
       end
 
       @multipart = true
-      body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:, ews:)
+      body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:)
       res = client.post('documents', body)&.body&.deep_symbolize_keys
       request_id = res&.dig(:data, :requestId)
       ClaimsApi::Logger.log(
@@ -72,9 +72,10 @@ module ClaimsApi
       # new method based on doc type
       data = if doc_type == 'L023'
                birls_file_num = auth_headers['va_eauth_birlsfilenumber'] || file_number
-               build_body(doc_type:, file_name:, claim_id:, file_number: birls_file_num)
+               build_body(doc_type:, file_name:, claim_id: claim.id, file_number: birls_file_num)
              elsif doc_type == 'L705'
-               build_body(doc_type:, file_name:, participant_id: nil, claim_id:, tracked_item_ids:, file_number: nil)
+               build_body(doc_type:, file_name:, participant_id: nil, claim_id: claim.id, tracked_item_ids:,
+                          file_number: nil)
              end
 
       fn = Tempfile.new('params')
@@ -129,11 +130,13 @@ module ClaimsApi
 
     def build_body(doc_type:, file_name:, claim_id:, participant_id: nil, tracked_item_ids: nil, file_number: nil) # rubocop:disable Metrics/ParameterLists
       data = {
-        systemName: 'VA.gov',
-        docType: doc_type,
-        claimId: claim_id,
-        fileName: file_name,
-        trackedItemIds: tracked_item_ids
+        data: {
+          systemName: 'VA.gov',
+          docType: doc_type,
+          claimId: claim_id,
+          fileName: file_name,
+          trackedItemIds: tracked_item_ids
+        }
       }
       data[:participantId] = participant_id unless participant_id.nil?
       data[:fileNumber] = file_number unless file_number.nil?
