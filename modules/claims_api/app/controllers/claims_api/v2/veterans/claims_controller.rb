@@ -180,7 +180,6 @@ module ClaimsApi
         end
 
         def build_claim_structure(view, data:, lighthouse_id:, upstream_id:) # rubocop:disable Metrics/MethodLength
-
           {
             base_end_prdct_type_cd: data[:base_end_prdct_type_cd],
             claim_date: date_present(data[:claim_dt]),
