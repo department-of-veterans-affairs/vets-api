@@ -1085,6 +1085,10 @@ features:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
     enable_in_development: true
+  dgi_rudisill_hide_benefits_selection_step:
+    actor_type: user
+    description: Hides benefit selection page on original claims application.
+    enable_in_development: false
   show_forms_app:
     actor_type: user
     description: Enables the TOE form to be displayed.
