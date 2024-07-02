@@ -73,4 +73,11 @@ FactoryBot.define do
       }
     end
   end
+
+  trait :poll_form526_pdf do
+    status { 'try' }
+    error_class { nil }
+    error_message { nil }
+    bgjob_errors { nil }
+  end
 end

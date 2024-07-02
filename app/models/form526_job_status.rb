@@ -10,7 +10,8 @@ class Form526JobStatus < ApplicationRecord
     success: 'success',
     retryable_error: 'retryable_error',
     non_retryable_error: 'non_retryable_error',
-    exhausted: 'exhausted'
+    exhausted: 'exhausted',
+    pdf_not_found: 'pdf_not_found'
   }.freeze
 
   store_accessor :bgjob_errors
