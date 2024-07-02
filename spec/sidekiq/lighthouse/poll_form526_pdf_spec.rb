@@ -30,7 +30,7 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
         create(:form526_job_status, :poll_form526_pdf, form526_submission: submission, job_id: 1)
       end
 
-      it 'transitions the submission to a failure state' do
+      it 'transitions to the pdf_not_found status' do
         job_params = { 'jid' => form526_job_status.job_id, 'args' => [submission.id] }
 
         subject.within_sidekiq_retries_exhausted_block(job_params) do
