@@ -368,7 +368,6 @@ module Mobile
           practitioners_address = appointment.dig(:practitioners, 0, :address)
           return if practitioners_address.blank?
 
-          # location_template[:name] = practitioners_address[:practice_name]
           location_template[:address][:street] = practitioners_address.dig(:line, 0)
           location_template[:address][:city] = practitioners_address[:city]
           location_template[:address][:state] = practitioners_address[:state]
