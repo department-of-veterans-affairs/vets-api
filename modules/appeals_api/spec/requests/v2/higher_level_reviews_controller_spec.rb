@@ -74,6 +74,8 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
   describe '#create' do
     let(:path) { base_path 'higher_level_reviews' }
 
+    before { Flipper.disable(:decision_review_hlr_form_v4_enabled) }
+
     context 'with all headers' do
       it 'creates an HLR and persists the data' do
         post(path, params: data_default, headers: headers_default)
