@@ -35,7 +35,7 @@ module DebtsApi
           @rec_vehicle_amount = @assets['rec_vehicle_amount']
           @real_estate_value = @assets['real_estate_value']&.gsub(/[^0-9.-]/, '').to_f
           @real_estate_records = @form['real_estate_records']
-          @questions = @form['questions']
+          @questions = @form['questions'] || {}
         end
 
         def default_output
@@ -66,7 +66,7 @@ module DebtsApi
         def get_total_assets
           tot_other_assets = sum_values(@assets['other_assets'], 'amount')
           tot_rec_vehicles = @enhanced_fsr_active ? @assets['rec_vehicle_amount']&.gsub(/[^0-9.-]/, '')&.to_f || 0 : 0
-          tot_vehicles = @questions&.dig('has_vehicle') ? sum_values(@assets['automobiles'], 'resale_value') : 0
+          tot_vehicles = @questions['has_vehicle'] ? sum_values(@assets['automobiles'], 'resale_value') : 0
           real_estate = if @enhanced_fsr_active
                           @real_estate_value
                         else
