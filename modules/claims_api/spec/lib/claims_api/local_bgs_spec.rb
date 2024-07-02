@@ -10,9 +10,34 @@ describe ClaimsApi::LocalBGS do
   let(:soap_error_handler) { ClaimsApi::SoapErrorHandler.new }
 
   describe '#find_poa_by_participant_id' do
+    context 'hardcoded WSDL' do
+      it 'response with the correct namespace' do
+        allow(Flipper).to receive(:enabled?).with(:claims_api_hardcode_wsdl).and_return true
+        VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
+          result = subject.find_poa_by_participant_id('does-not-matter')
+          expect(result).to be_a Hash
+          expect(result[:end_date]).to eq '08/26/2020'
+        end
+      end
+
+      it 'falls back to WSDL' do
+        allow(Flipper).to receive(:enabled?).with(:claims_api_hardcode_wsdl).and_return true
+        allow(ClaimsApi::LocalBGSRefactored::FindDefinition).to receive(:for_service).and_raise(
+          ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
+        )
+
+        VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
+          result = subject.find_poa_by_participant_id('does-not-matter')
+          expect(result).to be_a Hash
+          expect(result[:end_date]).to eq '08/26/2020'
+        end
+      end
+    end
+
     it 'responds as expected, with extra ClaimsApi::Logger logging' do
       VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
         allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id).and_return({})
+        allow(Flipper).to receive(:enabled?).with(:claims_api_hardcode_wsdl).and_return false
 
         # Events logged:
         # 1: establish_ssl_connection - how long to establish the connection
@@ -28,7 +53,7 @@ describe ClaimsApi::LocalBGS do
 
     describe 'breakers' do
       it 'returns a Bad Gateway' do
-        stub_request(:any, "#{Settings.bgs.url}/ClaimantServiceBean/ClaimantWebService?WSDL").to_timeout
+        stub_request(:any, "#{Settings.bgs.url}/ClaimantServiceBean/ClaimantWebService").to_timeout
         expect do
           subject.find_poa_by_participant_id('also-does-not-matter')
         end.to raise_error(Common::Exceptions::BadGateway)
@@ -45,6 +70,7 @@ describe ClaimsApi::LocalBGS do
       VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id',
                        allow_playback_repeats: true) do
         allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id).and_return({})
+        allow(Flipper).to receive(:enabled?).with(:claims_api_hardcode_wsdl).and_return false
 
         %w[establish_ssl_connection connection_wsdl_get connection_post parsed_response].each do |event|
           expect { subject.find_poa_by_participant_id('does-not-matter') }
