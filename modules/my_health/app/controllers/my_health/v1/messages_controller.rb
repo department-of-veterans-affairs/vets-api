@@ -60,9 +60,9 @@ module MyHealth
         message_id = params[:id].try(:to_i)
         resource = if params[:full_body] == 'true'
                      # returns full body of message including attachments attributes
-                     client.get_full_messages_for_thread(message_id)
+                     client.get_full_messages_for_thread(message_id, params[:requires_oh_messages].to_s)
                    else
-                     client.get_messages_for_thread(message_id)
+                     client.get_messages_for_thread(message_id, params[:requires_oh_messages].to_s)
                    end
         raise Common::Exceptions::RecordNotFound, message_id if resource.blank?
 

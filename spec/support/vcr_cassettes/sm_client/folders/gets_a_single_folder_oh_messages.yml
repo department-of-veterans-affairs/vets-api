@@ -1,0 +1,56 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/0?requiresOHMessages=1"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 28 Jun 2024 13:25:29 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '69'
+      X-Amzn-Requestid:
+      - 1ddeaf53-9499-4d5c-9c0a-30f4f4726eec
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - aFH3iFaWvHMFW_Q=
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      Pragma:
+      - no-cache
+      X-Amzn-Remapped-Date:
+      - Fri, 28 Jun 2024 13:25:29 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"id":0,"name":"Inbox","unreadCount":0,"count":1,"systemFolder":true}'
+  recorded_at: Fri, 28 Jun 2024 13:25:29 GMT
+recorded_with: VCR 6.2.0

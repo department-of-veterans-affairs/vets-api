@@ -397,6 +397,15 @@ paths:
       summary: /v1/messaging/folders
       parameters:
         - $ref: "#/components/parameters/InflectionHeader"
+        - name: requires_oh_messages
+          in: query
+          description: Count of folder messages includes Oracle Health messages if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - "0"
+              - "1"
   /v1/messaging/folders/{id}:
     get:
       description: Get a secure messaging folder
@@ -423,6 +432,15 @@ paths:
       summary: /v1/messaging/folders/{id}
       parameters:
         - $ref: "#/components/parameters/InflectionHeader"
+        - name: requires_oh_messages
+          in: query
+          description: Count of folder messages includes Oracle Health messages if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - "0"
+              - "1"
     put:
       description: Rename an existing folder
       operationId: post_rename_folder
@@ -522,6 +540,15 @@ paths:
           schema:
             type: string
             enum: [ASC, DESC]
+        - name: requires_oh_messages
+          in: query
+          description: Includes Oracle Health threads if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - "0"
+              - "1"
         - $ref: "#/components/parameters/InflectionHeader"
       responses:
         "200":
@@ -568,6 +595,15 @@ paths:
           schema:
             type: integer
             default: 250
+        - name: requires_oh_messages
+          in: query
+          description: Includes Oracle Health messages in search results if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - "0"
+              - "1"
         - $ref: "#/components/parameters/InflectionHeader"
       requestBody:
         content:
@@ -1138,6 +1174,15 @@ paths:
           required: false
           schema:
             type: boolean
+        - name: requires_oh_messages
+          in: query
+          description: Includes Oracle Health messages if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - "0"
+              - "1"
         - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/recipients:
     get:
@@ -1229,8 +1274,7 @@ paths:
       summary: /v1/messaging/threads/{id}/move
   /v1/prescriptions:
     get:
-      description:
-        List medications.
+      description: List medications.
       operationId: get_prescriptions
       parameters:
         - description: One refill status to filter on
@@ -1280,8 +1324,7 @@ paths:
       summary: /v1/prescriptions
   /v1/prescriptions/{id}:
     get:
-      description:
-        Get prescription.
+      description: Get prescription.
       operationId: get_prescription
       parameters:
         - description: prescription id
@@ -1313,8 +1356,7 @@ paths:
       summary: /v1/prescriptions/{id}
   /v1/prescriptions/{id}/refill:
     patch:
-      description:
-        Refill the prescription
+      description: Refill the prescription
       operationId: patch_refill_prescription
       parameters:
         - description: The id of the prescription
@@ -1342,8 +1384,7 @@ paths:
       summary: /v1/prescriptions/{id}/refill
   /v1/prescriptions/list_refillable_prescriptions:
     get:
-      description:
-        List refillable medications.
+      description: List refillable medications.
       operationId: get_list_refillable_prescriptions
       parameters:
         - $ref: "#/components/parameters/InflectionHeader"
@@ -1369,8 +1410,7 @@ paths:
       summary: /v1/prescriptions/list_refillable_prescriptions
   /v1/prescriptions/refill_prescriptions:
     patch:
-      description:
-        Refill the prescriptions
+      description: Refill the prescriptions
       operationId: patch_refill_prescription
       parameters:
         - description: Array of the prescription ids
@@ -1401,8 +1441,7 @@ paths:
       summary: /v1/prescriptions/refill_prescriptions
   /v1/prescriptions/get_prescription_image/{cmopNdcNumber}:
     get:
-      description:
-        Get prescription image.
+      description: Get prescription image.
       operationId: get_prescription_image
       parameters:
         - description: cmopNdcNumber
@@ -1454,5 +1493,14 @@ components:
         type: string
         enum: [camel, snake]
       description: Instructs the API to return camelCase keys rather than snake_case
+    RequiresOHMessages:
+      name: requires_oh_messages
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - "0"
+          - "1"
 security:
   - CookieAuth: []
