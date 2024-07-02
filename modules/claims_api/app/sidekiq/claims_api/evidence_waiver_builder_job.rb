@@ -17,7 +17,8 @@ module ClaimsApi
       output_path = ClaimsApi::EvidenceWaiver.new(auth_headers:).construct
 
       # upload to BD
-      benefits_doc_api.upload(claim: lighthouse_claim, pdf_path: output_path, original_filename: '5103.pdf', doc_type: 'L705')
+      benefits_doc_api.upload(claim: lighthouse_claim, pdf_path: output_path, original_filename: '5103.pdf',
+                              doc_type: 'L705')
       ClaimsApi::EwsUpdater.new.perform(evidence_waiver_id)
       ::Common::FileHelpers.delete_file_if_exists(output_path)
     rescue VBMS::ClientError => e
