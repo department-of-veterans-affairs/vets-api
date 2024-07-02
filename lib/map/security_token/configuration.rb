@@ -86,8 +86,9 @@ module MAP
         ) do |conn|
           conn.use :breakers
           conn.use Faraday::Response::RaiseError
-          conn.response :betamocks if Settings.map_services.secure_token_service.mock
           conn.adapter Faraday.default_adapter
+          conn.response :json, content_type: /\bjson/
+          conn.response :betamocks if Settings.map_services.secure_token_service.mock
         end
       end
     end
