@@ -4,10 +4,10 @@ module V0
   class VeteranReadinessEmploymentClaimsController < ClaimsBaseController
     service_tag 'vre-application'
     before_action :authenticate
-    skip_before_action :load_user
+    # skip_before_action :load_user
 
     def create
-      claim = SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form])
+      claim = SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form], user_accounts_id: current_user.user_account_uuid)
 
       if claim.save
         VRE::Submit1900Job.perform_async(claim.id, current_user.uuid)

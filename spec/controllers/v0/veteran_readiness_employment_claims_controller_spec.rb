@@ -28,6 +28,7 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
       it 'validates successfully' do
         form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
         expect { post(:create, params: form_params) }.to change(VRE::Submit1900Job.jobs, :size).by(1)
+        expect
         expect(response.code).to eq('200')
       end
 

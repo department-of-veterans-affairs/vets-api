@@ -27,7 +27,7 @@ class SavedClaim < ApplicationRecord
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
   has_many :form_submissions, dependent: :nullify
-
+  belongs_to :user_account, optional: true
   after_create ->(claim) { StatsD.increment('saved_claim.create', tags: ["form_id:#{claim.form_id}"]) }
   after_destroy ->(claim) { StatsD.increment('saved_claim.destroy', tags: ["form_id:#{claim.form_id}"]) }
 

@@ -49,7 +49,7 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
     load_user
 
     if @session_object.nil?
-      Rails.logger.debug('SSO: INVALID SESSION', sso_logging_info)
+      Rails.logger.debug('SsSO: INVALID SESSION', sso_logging_info)
       clear_session
       return false
     end
