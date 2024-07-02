@@ -23,11 +23,18 @@ describe ClaimsApi::BD do
       end
     end
 
-    it 'uploads an attachment to BD' do
+    it 'uploads an attachment to BD for L023' do
       result = subject.send(:generate_upload_body, claim:, doc_type: 'L023', original_filename: '21-526EZ.pdf',
                                                    pdf_path:)
       js = JSON.parse(result[:parameters].read)
       expect(js['data']['docType']).to eq 'L023'
+    end
+
+    it 'uploads an attachment to BD for L705' do
+      result = subject.send(:generate_upload_body, claim:, doc_type: 'L705', original_filename: '5103.pdf',
+                                                   pdf_path:)
+      js = JSON.parse(result[:parameters].read)
+      expect(js['data']['docType']).to eq 'L705'
     end
   end
 

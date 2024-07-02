@@ -36,7 +36,7 @@ module ClaimsApi
     def upload(claim:, pdf_path:, doc_type: 'L122', file_number: nil, original_filename: nil)
       unless File.exist? pdf_path
         ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist",
-                                                    claim_id: claim&.id)
+                                                    claim_id: claim.id)
         raise Errno::ENOENT, pdf_path
       end
 
@@ -52,7 +52,7 @@ module ClaimsApi
       res
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
-                            detail: "/upload failure for claimId #{claim&.id}, #{e.message}")
+                            detail: "/upload failure for claimId #{claim.id}, #{e.message}")
       raise e
     end
 
@@ -64,19 +64,21 @@ module ClaimsApi
     # @return {parameters, file}
     def generate_upload_body(claim:, doc_type:, pdf_path:, file_number: nil, original_filename: nil)
       payload = {}
-      veteran_name = "#{claim.auth_headers['va_eauth_firstName']}_#{claim.auth_headers['va_eauth_lastName']}"
-      file_name = generate_file_name(doc_type:, veteran_name:, claim_id: claim.evss_id, original_filename:)
+      auth_headers = claim.auth_headers
 
-      data = {
-        data: {
-          systemName: 'VA.gov',
-          docType: doc_type,
-          claimId: claim.evss_id,
-          fileNumber: file_number || claim.auth_headers['va_eauth_birlsfilenumber'],
-          fileName: file_name,
-          trackedItemIds: []
-        }
-      }
+      veteran_name = "#{auth_headers['va_eauth_firstName']}_#{auth_headers['va_eauth_lastName']}"
+      file_name = generate_file_name(doc_type:, veteran_name:, claim_id: claim.id, original_filename:)
+
+      # new method based on doc type
+      data = if doc_type == 'L023'
+               birls_file_num = auth_headers['va_eauth_birlsfilenumber'] || file_number
+               build_body(doc_type:, file_name:, claim_id: claim.id, file_number: birls_file_num)
+             elsif doc_type == 'L705'
+               build_body(doc_type:, file_name:, participant_id: nil, claim_id: claim.id,
+                          # tracked_item_ids:,
+                          file_number: nil)
+             end
+
       fn = Tempfile.new('params')
       File.write(fn, data.to_json)
       payload[:parameters] = Faraday::UploadIO.new(fn, 'application/json')
@@ -87,6 +89,8 @@ module ClaimsApi
     def generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
       if doc_type == 'L122'
         "#{veteran_name}_#{claim_id}_526EZ.pdf"
+      elsif doc_type == 'L705'
+        "#{veteran_name}_#{claim_id}_5103.pdf"
       else
         filename = get_original_supporting_doc_file_name(original_filename)
         "#{veteran_name}_#{claim_id}_#{filename}.pdf"
@@ -125,6 +129,21 @@ module ClaimsApi
         f.response :json, parser_options: { symbolize_names: true }
         f.adapter Faraday.default_adapter
       end
+    end
+
+    def build_body(doc_type:, file_name:, claim_id:, participant_id: nil, tracked_item_ids: nil, file_number: nil) # rubocop:disable Metrics/ParameterLists
+      data = {
+        data: {
+          systemName: 'VA.gov',
+          docType: doc_type,
+          claimId: claim_id,
+          fileName: file_name,
+          trackedItemIds: tracked_item_ids
+        }
+      }
+      data[:participantId] = participant_id unless participant_id.nil?
+      data[:fileNumber] = file_number unless file_number.nil?
+      data
     end
   end
 end

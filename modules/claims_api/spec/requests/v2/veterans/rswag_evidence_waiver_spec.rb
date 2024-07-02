@@ -44,7 +44,7 @@ describe 'EvidenceWaiver5103',
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
 
       describe 'Getting a successful response' do
-        response '200', 'Successful response' do
+        response '202', 'Successful response' do
           schema JSON.parse(File.read(Rails.root.join('spec',
                                                       'support',
                                                       'schemas',
@@ -75,7 +75,7 @@ describe 'EvidenceWaiver5103',
             }
           end
 
-          it 'returns a valid 200 response' do |example|
+          it 'returns a valid 202 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
