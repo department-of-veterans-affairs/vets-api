@@ -23,6 +23,7 @@ module DebtsApi
           @assets = @form['assets']
 
           @monetary_assets = @assets['monetary_assets'] || []
+          @questions = @form['questions'] || {}
           @cash_on_hand = sum_values(@monetary_assets.select { |asset| asset['name'] == CASH_ON_HAND }, 'amount')
           @cash_in_bank = sum_values(@monetary_assets.select { |asset| asset['name'] == CASH_IN_BANK }, 'amount')
           @us_savings_bonds = @monetary_assets.select { |asset| asset['name'] == US_BONDS }
@@ -35,7 +36,6 @@ module DebtsApi
           @rec_vehicle_amount = @assets['rec_vehicle_amount']
           @real_estate_value = @assets['real_estate_value']&.gsub(/[^0-9.-]/, '').to_f
           @real_estate_records = @form['real_estate_records']
-          @questions = @form['questions']
         end
 
         def default_output
