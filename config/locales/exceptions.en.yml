@@ -512,6 +512,11 @@ en:
         code: "MEDICALRECORDS_404"
         detail: "The resource could not be found"
         status: 404
+      BBINTERNAL_400:
+        <<: *external_defaults
+        code: "BBINTERNAL_400"
+        detail: "Upstream service responded with Bad Request"
+        status: 400
       BBINTERNAL_401:
         <<: *external_defaults
         code: "BBINTERNAL_401"

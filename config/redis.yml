@@ -56,6 +56,9 @@ development: &defaults
   mhv_session_lock:
     namespace: mhv-session-lock
     each_ttl: 10
+  mhv_mr_bb_session_lock:
+    namespace: mhv-mr-bb-session-lock
+    each_ttl: 10
   mdot:
     namespace: mdot
     each_ttl: 1800
