@@ -36,7 +36,7 @@ module SimpleFormsApi
                    elsif form_is264555_and_should_use_lgy_api
                      handle264555
                    else
-                     submit_form_to_central_mail
+                     submit_form_to_benefits_intake
                    end
 
         clear_saved_form(params[:form_number])
@@ -98,8 +98,9 @@ module SimpleFormsApi
         json_for210966(confirmation_number, expiration_date, existing_intents)
       rescue Common::Exceptions::UnprocessableEntity => e
         # There is an authentication issue with the Intent to File API so we revert to sending a PDF to Central Mail
-        prepare_params_for_central_mail_and_log_error(e)
-        submit_form_to_central_mail
+        # through the Benefits Intake API
+        prepare_params_for_benefits_intake_and_log_error(e)
+        submit_form_to_benefits_intake
       end
 
       def handle264555
@@ -111,7 +112,7 @@ module SimpleFormsApi
         { json: { reference_number:, status: }, status: lgy_response.status }
       end
 
-      def submit_form_to_central_mail
+      def submit_form_to_benefits_intake
         form_id = get_form_id
         parsed_form_data = JSON.parse(params.to_json)
         file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
@@ -191,7 +192,7 @@ module SimpleFormsApi
         json
       end
 
-      def prepare_params_for_central_mail_and_log_error(e)
+      def prepare_params_for_benefits_intake_and_log_error(e)
         params['veteran_full_name'] ||= {
           'first' => params['full_name']['first'],
           'last' => params['full_name']['last']
