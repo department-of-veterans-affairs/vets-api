@@ -372,7 +372,9 @@ Rails.application.routes.draw do
       post 'document_upload'
     end
 
-    get 'terms_of_use_agreements/:icn/current_status', to: 'terms_of_use_agreements#current_status'
+    unless Settings.vsp_environment == 'production'
+      get 'terms_of_use_agreements/:icn/current_status', to: 'terms_of_use_agreements#current_status'
+    end
     get 'terms_of_use_agreements/:version/latest', to: 'terms_of_use_agreements#latest'
     post 'terms_of_use_agreements/:version/accept', to: 'terms_of_use_agreements#accept'
     post 'terms_of_use_agreements/:version/accept_and_provision', to: 'terms_of_use_agreements#accept_and_provision'
