@@ -711,6 +711,41 @@
                   "order": "asc"
                 }
               }
+            },
+            "example": {
+              "filter": {
+                "poaCodes": [
+                  "083",
+                  "002",
+                  "003",
+                  "065",
+                  "074",
+                  "022",
+                  "091",
+                  "070",
+                  "097",
+                  "077",
+                  "1EY",
+                  "6B6",
+                  "862",
+                  "9U7",
+                  "BQX"
+                ],
+                "decision": {
+                  "statuses": [
+                    "Accepted",
+                    "Declined"
+                  ]
+                }
+              },
+              "page": {
+                "number": 2,
+                "size": 5
+              },
+              "sort": {
+                "field": "createdAt",
+                "order": "asc"
+              }
             }
           }
         ],
