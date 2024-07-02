@@ -8,6 +8,7 @@ module PdfFill
   class HashConverter
     ITERATOR = '%iterator%'
     EXTRAS_TEXT = "See add'l info page"
+    DEFAULT_MAX_LENGTH = 10_000
 
     attr_reader :extras_generator
 
@@ -18,26 +19,27 @@ module PdfFill
     end
 
     def convert_value(v, key_data, is_overflow = false)
+      max_length = key_data&.dig(:max_length).is_a?(Integer) && key_data[:max_length] > 0 ? key_data[:max_length] : DEFAULT_MAX_LENGTH
       if [true, false].include?(v) && !is_overflow
         v ? 1 : 0
       elsif key_data.try(:[], :format) == 'date'
         convert_val_as_date(v)
       else
-        convert_val_as_string(v)
+        convert_val_as_string(v, max_length)
       end
     end
 
-    def convert_val_as_string(v)
+    def convert_val_as_string(v, max_length = DEFAULT_MAX_LENGTH)
       case v
       when Array
         return v.map do |item|
-          convert_val_as_string(item)
+          convert_val_as_string(item, max_length)
         end.join(', ')
       when PdfFill::FormValue
         return v
       end
 
-      v.to_s
+      v.to_s[0, max_length]
     end
 
     def convert_val_as_date(v)
@@ -67,11 +69,13 @@ module PdfFill
       return if v.blank?
       return if key_data.try(:[], :question_text).blank?
 
+      max_length = key_data&.dig(:max_length).is_a?(Integer) && key_data[:max_length] > 0 ? key_data[:max_length] : DEFAULT_MAX_LENGTH
+
       i = nil if key_data[:skip_index]
       v = "$#{v}" if key_data[:dollar]
-      v = v.extras_value if v.is_a?(PdfFill::FormValue)
+      v = v.extras_value[0, max_length] if v.is_a?(PdfFill::FormValue)
       @extras_generator.add_text(
-        v,
+        v.to_s[0, max_length],
         key_data.slice(:question_num, :question_suffix, :question_text).merge(
           i:
         )
