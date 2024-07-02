@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'disability_compensation/providers/rated_disabilities/lighthouse_rated_disabilities_provider'
 
 RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
   describe 'annotate_disabilities' do
@@ -138,6 +139,79 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
           end
         end
       end
+    end
+  end
+
+  describe 'log_hyphenated_diagnostic_codes' do
+    subject { described_class.log_hyphenated_diagnostic_codes(rated_disabilities) }
+
+    before { allow(Rails.logger).to receive(:info) }
+
+    let(:rated_disabilities) do
+      disabilities_data.map { |dis| DisabilityCompensation::ApiProvider::RatedDisability.new(**dis) }
+    end
+    let(:disabilities_data) do
+      [
+        { name: 'Tinnitus', diagnostic_code: 6260, rating_percentage: 10 },
+        { name: 'Pancreatitis, chronic', diagnostic_code: 7347, rating_percentage: 30 },
+        { name: 'Postop tonsillectomy', diagnostic_code: 6516, hyphenated_diagnostic_code: 6599, rating_percentage: 30 }
+      ]
+    end
+
+    it 'sends the correct output to Rails log' do
+      subject
+      expect(Rails.logger).to have_received(:info).with(
+        'Max CFI rated disability',
+        { diagnostic_code: 6260, diagnostic_code_type: :primary_max_rating, hyphenated_diagnostic_code: nil }
+      )
+      expect(Rails.logger).to have_received(:info).with(
+        'Max CFI rated disability',
+        { diagnostic_code: 7347, diagnostic_code_type: :digestive_system, hyphenated_diagnostic_code: nil }
+      )
+      expect(Rails.logger).to have_received(:info).with(
+        'Max CFI rated disability',
+        { diagnostic_code: 6516, diagnostic_code_type: :analogous_code, hyphenated_diagnostic_code: 6599 }
+      )
+    end
+  end
+
+  describe 'diagnostic_code_type' do
+    subject { described_class.diagnostic_code_type(rated_disability) }
+
+    let(:rated_disability) do
+      DisabilityCompensation::ApiProvider::RatedDisability.new(diagnostic_code:, hyphenated_diagnostic_code:)
+    end
+    let(:hyphenated_diagnostic_code) { nil }
+
+    context 'when diagnostic code is nil' do
+      let(:diagnostic_code) { nil }
+
+      it { is_expected.to eq(:missing_diagnostic_code) }
+    end
+
+    context 'when diagnostic code is in the digestive system range' do
+      let(:diagnostic_code) { 7329 }
+
+      it { is_expected.to eq(:digestive_system) }
+    end
+
+    context 'when diagnostic code is in the infectious disease range' do
+      let(:diagnostic_code) { 6354 }
+
+      it { is_expected.to eq(:infectious_disease) }
+    end
+
+    context 'when diagnostic code is for an unlisted condition requiring an analogous code' do
+      let(:hyphenated_diagnostic_code) { 6599 }
+      let(:diagnostic_code) { 6516 }
+
+      it { is_expected.to eq(:analogous_code) }
+    end
+
+    context 'when diagnostic code does not invoke any hyphenated logic' do
+      let(:diagnostic_code) { 6260 }
+
+      it { is_expected.to eq(:primary_max_rating) }
     end
   end
 end
