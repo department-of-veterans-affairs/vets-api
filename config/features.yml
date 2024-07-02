@@ -636,6 +636,9 @@ features:
   form1010d:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
+  form107959f1:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program)
   form_upload_flow:
     actor_type: user
     description: If enabled shows the find-a-form widget for the Form Upload Flow
