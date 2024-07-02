@@ -27,7 +27,7 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
 
     context 'when all retries are exhausted' do
       let(:form526_job_status) do
-        create(:form526_job_status, :poll_form526_pdf, form526_submission:submission, job_id: 1)
+        create(:form526_job_status, :poll_form526_pdf, form526_submission: submission, job_id: 1)
       end
 
       it 'transitions the submission to a failure state' do
