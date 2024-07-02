@@ -13,10 +13,13 @@ module V0
     # gets suggestions list from search.gov after being passed a query, name, and API key
     #
     def index
-      response = SearchTypeahead::Service.new(query).suggestions
-
-      render json: response.body,
-             status: response.status
+      if query.present?
+        response = SearchTypeahead::Service.new(query).suggestions
+        render json: response.body,
+              status: response.status
+      else
+        render json: nil
+      end
     end
 
     private
