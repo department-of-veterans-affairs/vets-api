@@ -274,6 +274,12 @@ vet360:
     api_key: "<AV_KEY>"
   health_benefit:
     mock: true
+  profile_information:
+    mock: true
+    timeout: 30
+    enabled: true
+    cache_enabled: true
+
 
 # Settings for IHub
 ihub:

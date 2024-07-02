@@ -383,9 +383,15 @@ class User < Common::RedisStore
   delegate :show_onboarding_flow_on_login, to: :onboarding, allow_nil: true
 
   def vet360_contact_info
-    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && vet360_id.present?
+    if Flipper.enabled?(:va_profile_information_v3_service, self)
+      return nil unless VAProfile::Configuration::SETTINGS.profile_information.enabled && vet360_id.present?
 
-    @vet360_contact_info ||= VAProfileRedis::ContactInformation.for_user(self)
+      @vet360_contact_info ||= VAProfileRedis::ProfileInformation.for_user(self)
+    else
+      return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && vet360_id.present?
+
+      @vet360_contact_info ||= VAProfileRedis::ContactInformation.for_user(self)
+    end
   end
 
   def va_profile_email

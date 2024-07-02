@@ -2,6 +2,7 @@
 
 require 'common/exceptions/validation_errors'
 require 'va_profile/contact_information/service'
+require 'va_profile/profile_information/service'
 
 module Vet360
   module Writeable
@@ -49,11 +50,19 @@ module Vet360
     end
 
     def service
-      VAProfile::ContactInformation::Service.new @current_user
+      if Flipper.enabled?(:va_profile_information_v3_service, @current_user)
+        VAProfile::ProfileInformation::Service.new @current_user
+      else
+        VAProfile::ContactInformation::Service.new @current_user
+      end
     end
 
     def write_valid_record!(http_verb, type, record)
-      service.send("#{http_verb}_#{type.downcase}", record)
+      if Flipper.enabled?(:va_profile_information_v3_service, @current_user)
+        service.send('create_or_update_info', http_verb.to_sym, record)
+      else
+        service.send("#{http_verb}_#{type.downcase}", record)
+      end
     end
 
     def render_new_transaction!(type, response)

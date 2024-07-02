@@ -301,7 +301,6 @@ module VAProfile
         with_monitoring do
           vet360_id_present!
           raw_response = perform(method, path, model.in_json)
-
           response_class.from(raw_response)
         end
       rescue => e

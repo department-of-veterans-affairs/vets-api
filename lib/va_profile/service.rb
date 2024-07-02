@@ -18,7 +18,6 @@ module VAProfile
 
     def perform(method, path, body = nil, headers = {})
       log_dates(body)
-
       VAProfile::Stats.increment('total_operations')
       config.base_request_headers.merge(headers)
       super(method, path, body, headers)
