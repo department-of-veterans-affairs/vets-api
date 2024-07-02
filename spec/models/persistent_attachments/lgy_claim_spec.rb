@@ -2,17 +2,20 @@
 
 require 'rails_helper'
 
-RSpec.describe PersistentAttachments::LgyClaim, uploader_helpers: true do
+RSpec.describe PersistentAttachments::LgyClaim, :uploader_helpers do
   let(:file) { Rails.root.join('spec', 'fixtures', 'files', 'marriage-certificate.pdf') }
   let(:instance) { described_class.new(form_id: '28-1880') }
+
+  before do
+    allow(Common::VirusScan).to receive(:scan).and_return(true)
+  end
 
   it 'sets a guid on initialize' do
     expect(instance.guid).to be_a(String)
   end
 
   it 'allows adding a file' do
-    allow(ClamScan::Client).to receive(:scan)
-      .and_return(instance_double('ClamScan::Response', safe?: true))
+    allow_any_instance_of(ClamAV::PatchClient).to receive(:safe?).and_return(true)
     instance.file = file.open
     expect(instance.valid?).to be(true)
     expect(instance.file.shrine_class).to be(ClaimDocumentation::Uploader)

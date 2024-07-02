@@ -12,8 +12,6 @@ require 'claims_api/evss_bgs_mapper'
 
 module ClaimsApi
   class LocalBGS
-    attr_accessor :external_uid, :external_key
-
     # rubocop:disable Metrics/MethodLength
     def initialize(external_uid:, external_key:)
       @client_ip =
@@ -211,8 +209,6 @@ module ClaimsApi
       transform_bgs_claims_to_evss(claims)
     end
     # END: switching v1 from evss to bgs. Delete after EVSS is no longer available. Fix controller first.
-
-    private
 
     def header # rubocop:disable Metrics/MethodLength
       # Stock XML structure {{{

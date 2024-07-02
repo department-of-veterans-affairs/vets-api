@@ -19,12 +19,16 @@ module IvcChampva
           Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
           form_id = get_form_id
           parsed_form_data = JSON.parse(params.to_json)
-          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          status, error_message = FileUploader.new(form_id, metadata, file_paths).handle_uploads
+          file_paths, metadata, attachment_ids = get_file_paths_and_metadata(parsed_form_data)
+          statuses, error_message = FileUploader.new(form_id, metadata, file_paths, attachment_ids, true).handle_uploads
+          response = build_json(Array(statuses), error_message)
 
-          render json: build_json(Array(status), error_message)
-        rescue
-          puts 'An unknown error occurred while uploading document(s).'
+          render json: response[:json], status: response[:status]
+        rescue => e
+          Rails.logger.error "Error: #{e.message}"
+          Rails.logger.error e.backtrace.join("\n")
+          render json: { error_message: "Error: #{e.message}" },
+                 status: :internal_server_error
         end
       end
 
@@ -41,45 +45,69 @@ module IvcChampva
 
       private
 
-      def get_file_paths_and_metadata(parsed_form_data)
+      # rubocop:disable Layout/LineLength
+      def get_attachment_ids_and_form(parsed_form_data)
         form_id = get_form_id
-        form = "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
-        filler = IvcChampva::PdfFiller.new(form_number: form_id, form:)
+        form_class = "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize
+        additional_pdf_count = form_class.const_defined?(:ADDITIONAL_PDF_COUNT) ? form_class::ADDITIONAL_PDF_COUNT : 1
+        applicant_key = form_class.const_defined?(:ADDITIONAL_PDF_KEY) ? form_class::ADDITIONAL_PDF_KEY : 'applicants'
 
+        applicants_count = parsed_form_data[applicant_key]&.count || 1
+        total_applicants_count = applicants_count.to_f / additional_pdf_count
+        applicant_rounded_number = total_applicants_count.positive? ? total_applicants_count.ceil : total_applicants_count.floor
+
+        form = form_class.new(parsed_form_data)
+        form.track_user_identity
+
+        attachment_ids = generate_attachment_ids(form_id, applicant_rounded_number)
+        attachment_ids.concat(supporting_document_ids(parsed_form_data))
+        attachment_ids = [form_id] if attachment_ids.empty?
+
+        [attachment_ids, form]
+      end
+      # rubocop:enable Layout/LineLength
+
+      def generate_attachment_ids(form_id, count)
+        count == 1 ? [form_id] : Array.new(count, form_id)
+      end
+
+      def supporting_document_ids(parsed_form_data)
+        parsed_form_data['supporting_docs']&.pluck('attachment_id') || []
+      end
+
+      def get_file_paths_and_metadata(parsed_form_data)
+        attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
+        filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:)
         file_path = if @current_user
                       filler.generate(@current_user.loa[:current])
                     else
                       filler.generate
                     end
-
         metadata = IvcChampva::MetadataValidator.validate(form.metadata)
         file_paths = form.handle_attachments(file_path)
 
-        [file_paths, metadata]
+        [file_paths, metadata, attachment_ids]
       end
 
       def get_form_id
         form_number = params[:form_number]
         raise 'missing form_number in params' unless form_number
 
-        FORM_NUMBER_MAP[form_number]
+        form_number_without_colon = form_number.sub(':', '')
+
+        FORM_NUMBER_MAP[form_number_without_colon]
       end
 
-      def build_json(status, error_message)
-        if status.all? { |s| s == 200 }
-          {
-            status: 200
-          }
-        elsif status.all? { |s| s == 400 }
-          {
-            error_message:,
-            status: 400
-          }
+      def build_json(statuses, error_message)
+        unique_statuses = statuses.uniq
+
+        if unique_statuses == [200]
+          { json: {}, status: 200 }
+        elsif unique_statuses.include? 400
+          { json: { error_message: error_message ||
+            'An unknown error occurred while uploading some documents.' }, status: 400 }
         else
-          {
-            error_message: 'Partial upload failure',
-            status: 206
-          }
+          { json: { error_message: 'An unknown error occurred while uploading document(s).' }, status: 500 }
         end
       end
 

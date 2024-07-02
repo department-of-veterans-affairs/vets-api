@@ -38,7 +38,7 @@ _Note: Optional_
 - [ ]  Events are being sent to the appropriate logging solution
 - [ ]  Documentation has been updated (link to documentation)
 - [ ]  No sensitive information (i.e. PII/credentials/internal URLs/etc.) is captured in logging, hardcoded, or specs
-- [ ]  Feature/bug has a monitor built into Datadog or Grafana (if applicable)
+- [ ]  Feature/bug has a monitor built into Datadog (if applicable)
 - [ ]  If app impacted requires authentication, did you login to a local build and verify all authenticated routes work as expected
 - [ ]  I added a screenshot of the developed feature
 

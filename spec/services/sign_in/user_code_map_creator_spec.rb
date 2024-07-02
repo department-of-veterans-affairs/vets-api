@@ -15,6 +15,7 @@ RSpec.describe SignIn::UserCodeMapCreator do
       {
         logingov_uuid:,
         csp_email:,
+        all_csp_emails:,
         first_name:,
         last_name:
       }
@@ -24,7 +25,8 @@ RSpec.describe SignIn::UserCodeMapCreator do
              client_state:,
              client_id:,
              code_challenge:,
-             type:)
+             type:,
+             scope:)
     end
     let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
     let(:client_id) { client_config.client_id }
@@ -34,6 +36,7 @@ RSpec.describe SignIn::UserCodeMapCreator do
     let(:logingov_uuid) { SecureRandom.hex }
     let(:icn) { 'some-icn' }
     let(:csp_email) { 'some-csp-email' }
+    let(:all_csp_emails) { [csp_email] }
     let(:service_name) { SignIn::Constants::Auth::LOGINGOV }
     let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
     let!(:user_verification) { create(:logingov_user_verification, logingov_uuid:) }
@@ -46,7 +49,9 @@ RSpec.describe SignIn::UserCodeMapCreator do
     let(:first_name) { Faker::Name.first_name }
     let(:last_name) { Faker::Name.last_name }
     let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
-    let(:expected_user_attributes) { { first_name:, last_name:, email: csp_email } }
+    let(:device_sso) { true }
+    let(:scope) { SignIn::Constants::Auth::DEVICE_SSO }
+    let(:expected_user_attributes) { { first_name:, last_name:, email: csp_email, all_emails: all_csp_emails } }
 
     before do
       allow(SecureRandom).to receive(:uuid).and_return(login_code)
@@ -107,6 +112,28 @@ RSpec.describe SignIn::UserCodeMapCreator do
       end
     end
 
+    context 'if state payload scope is set to device sso' do
+      let(:scope) { SignIn::Constants::Auth::DEVICE_SSO }
+      let(:expected_device_sso) { true }
+
+      it 'creates a code container with device_sso attribute set to false' do
+        user_code_map = subject
+        code_container = SignIn::CodeContainer.find(user_code_map.login_code)
+        expect(code_container.device_sso).to eq(expected_device_sso)
+      end
+    end
+
+    context 'if state payload scope is not set to device sso' do
+      let(:scope) { 'some-scope' }
+      let(:expected_device_sso) { false }
+
+      it 'creates a code container with device_sso attribute set to false' do
+        user_code_map = subject
+        code_container = SignIn::CodeContainer.find(user_code_map.login_code)
+        expect(code_container.device_sso).to eq(expected_device_sso)
+      end
+    end
+
     it 'creates a code container mapped to expected login code' do
       user_code_map = subject
       code_container = SignIn::CodeContainer.find(user_code_map.login_code)
@@ -115,6 +142,7 @@ RSpec.describe SignIn::UserCodeMapCreator do
       expect(code_container.credential_email).to eq(csp_email)
       expect(code_container.client_id).to eq(client_id)
       expect(code_container.user_attributes).to eq(expected_user_attributes)
+      expect(code_container.device_sso).to eq(device_sso)
     end
   end
 end

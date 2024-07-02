@@ -13,7 +13,6 @@ browser and start interacting with the API. Changes to the source in your local
 directory will be reflected automatically via a docker volume mount, just as
 they would be when running rails directly.
 
-
 ### Running tests
 
 - `bundle exec rake spec` - Run the entire test suite  ( for `rspec spec`). Test coverage statistics are in `coverage/index.html`.
@@ -24,6 +23,12 @@ they would be when running rails directly.
 - `RAILS_ENV=test bundle exec rake parallel:setup` - This prepares all of the test databases. It will create a test database for each processor on your computer.
 - `RAILS_ENV=test NOCOVERAGE=true bundle exec parallel_rspec spec modules` - This runs the entire test suite. Optionally, a folder path can be given as a parameter. Each file is assigned a processor, so it probably doesn't make sense to pass an individual file to run it in parallel. It is currently suggested to forgo the coverage testing by adding `NOCOVERAGE=true` flag (currently the coverage check will fail, even if the test suite passes). If you would like to check coverage for the test run, remove that flag.
 
+#### Running pending tests
+
+Pending or skipped tests are ignored by default, to run the test suite _with_ pending tests in the output, simply add the PENDING=true environment variable to the test command
+
+`RAILS_ENV=test PENDING=true NOCOVERAGE=true bundle exec parallel_rspec spec modules`
+
 ### Running linters
 
 - `rake lint` - Run the full suite of linters on the codebase and autocorrect.
@@ -33,3 +38,48 @@ they would be when running rails directly.
 ### Running a rails interactive console
 
 - `rails console` -  runs an IRB like REPL in which all of the API's classes and environmental variables have been loaded.
+
+### Running with ClamAV
+
+#### Run with ClamAV containers (recommended)
+
+1. In `settings.local.yml` turn mocking off:
+```
+clamav:
+  mock: false
+  host: '0.0.0.0'
+  port: '33100'
+```
+
+1. In another terminal window, navigate to the project directory and run 
+```
+docker-compose -f docker-compose-clamav.yml up
+```
+
+1. In the original terminal run the following command
+```
+foreman start -m all=1,clamd=0,freshclam=0
+```
+
+This overrides any configurations that utilize the daemon socket
+
+#### Run with ClamAV daemon
+
+1. In `settings.local.yml` turn mocking off and make sure the host and port are removed:
+```
+clamav:
+  mock: false
+```
+
+1. Uncomment socket env var in `config/initializers/clamav.rb`
+
+```
+ENV['CLAMD_UNIX_SOCKET'] = '/usr/local/etc/clamav/clamd.sock'
+```
+
+*Note you will need to comment this line out before pushing to GitHub*
+
+1. In terminal run the following command
+```
+foreman start -m all=1
+```

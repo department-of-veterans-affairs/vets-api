@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
-require 'evss/gi_bill_status/service'
+require 'lighthouse/benefits_education/service'
+require 'feature_flipper'
 
 class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   include SentryLogging
   add_form_and_validation('22-10203')
 
-  class Submit10203EVSSError < StandardError
+  class Submit10203Error < StandardError
   end
 
   def after_submit(user)
@@ -55,14 +56,14 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
 
     @user.power_of_attorney.present? ? true : nil
   rescue => e
-    log_exception_to_sentry(Submit10203EVSSError.new("Failed to retrieve VSOSearch data: #{e.message}"))
+    log_exception_to_sentry(Submit10203Error.new("Failed to retrieve VSOSearch data: #{e.message}"))
     nil
   end
 
   private
 
   def get_gi_bill_status
-    service = EVSS::GiBillStatus::Service.new(@user)
+    service = BenefitsEducation::Service.new(@user.icn)
     service.get_gi_bill_status
   rescue => e
     Rails.logger.error "Failed to retrieve GiBillStatus data: #{e.message}"
@@ -81,8 +82,8 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
 
   def remaining_entitlement
     if Settings.vsp_environment != 'production'
-      service = EVSS::GiBillStatus::Service.new(@user)
-      Rails.logger.info '#### 10203 EVSS ##########'
+      service = BenefitsEducation::Service.new(@user.icn)
+      Rails.logger.info '#### 10203 Lighthouse ##########'
       Rails.logger.info "#### User Info ########## \n #{@user.to_json}"
       Rails.logger.info @user.to_json
       Rails.logger.info "#### Request Info ########## \n #{service.inspect}"

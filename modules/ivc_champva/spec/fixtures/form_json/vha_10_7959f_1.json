@@ -1,5 +1,12 @@
 {
   "form_number": "10-7959F-1",
+  "primary_contact_info": {
+    "name": {
+      "first": "Veteran",
+      "last": "Surname"
+    },
+    "email": "email@address.com"
+  },
   "veteran": {
     "date_of_birth": "02/02/1987",
     "full_name": {

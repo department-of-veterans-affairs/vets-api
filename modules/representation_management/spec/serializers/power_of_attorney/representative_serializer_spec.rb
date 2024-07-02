@@ -1,36 +1,30 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative 'shared_base_power_of_attorney'
 
-RSpec.describe 'RepresentativeSerializer' do
-  before do
-    create(:representative, representative_id: '123', poa_codes: ['rp1'])
+describe RepresentationManagement::PowerOfAttorney::RepresentativeSerializer, type: :serializer do
+  subject { serialize(object, serializer_class: described_class) }
+
+  let(:object) { build_stubbed(:representative) }
+  let(:data) { JSON.parse(subject)['data'] }
+  let(:attributes) { data['attributes'] }
+
+  it_behaves_like 'power_of_attorney'
+
+  it 'includes :type' do
+    expect(attributes['type']).to eq 'representative'
   end
 
-  def representative
-    Veteran::Service::Representative.find('123')
+  it 'includes :name' do
+    expect(attributes['name']).to eq object.full_name
   end
 
-  it 'can serialize a representative' do
-    result = serialize(representative,
-                       serializer_class: RepresentationManagement::PowerOfAttorney::RepresentativeSerializer)
-    attributes = JSON.parse(result)['data']['attributes']
+  it 'includes :email' do
+    expect(attributes['email']).to eq object.email
+  end
 
-    expect(attributes.keys).to eq(%w[address_line1
-                                     address_line2
-                                     address_line3
-                                     address_type
-                                     city
-                                     country_name
-                                     country_code_iso3
-                                     province
-                                     international_postal_code
-                                     state_code
-                                     zip_code
-                                     zip_suffix
-                                     phone
-                                     type
-                                     name
-                                     email])
+  it 'includes :phone' do
+    expect(attributes['phone']).to eq object.phone_number
   end
 end

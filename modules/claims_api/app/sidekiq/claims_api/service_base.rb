@@ -21,9 +21,24 @@ module ClaimsApi
                             record_id: message['args']&.first,
                             detail: "Job retries exhausted for #{message['class']}",
                             error: message['error_message'])
+
+      classes = %w[ClaimsApi::V2::DisabilityCompensationPdfGenerator
+                   ClaimApi::V2::DisabilityCompensationDockerContainerUpload
+                   ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader].freeze
+
+      claim_id = message&.dig('args', 0)
+
+      if message['class'].present? && classes.include?(message['class']) && claim_id.present?
+        claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+        claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+      end
     end
 
     protected
+
+    def set_errored_state_on_claim(auto_claim)
+      save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::ERRORED)
+    end
 
     def set_established_state_on_claim(auto_claim)
       save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
@@ -34,10 +49,6 @@ module ClaimsApi
       save_auto_claim!(auto_claim, auto_claim.status)
     end
 
-    def set_errored_state_on_claim(auto_claim)
-      save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::ERRORED)
-    end
-
     def set_pending_state_on_claim(auto_claim)
       save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::PENDING)
     end
@@ -45,6 +56,18 @@ module ClaimsApi
     def save_auto_claim!(auto_claim, status)
       auto_claim.status = status
       auto_claim.validation_method = ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
+      auto_claim.save!
+    end
+
+    def set_evss_response(auto_claim, error)
+      auto_claim.evss_response ||= []
+
+      if error&.original_body.present?
+        error&.original_body&.each { |e| auto_claim.evss_response << e }
+      elsif error&.errors.present?
+        error&.errors&.each { |e| auto_claim.evss_response << e }
+      end
+
       auto_claim.save!
     end
 
@@ -65,13 +88,14 @@ module ClaimsApi
     def get_error_key(error_message)
       return error_message if error_message.is_a? String
 
-      error_message.dig(:messages, 0, :key) || error_message
+      error_message&.dig(:messages, 0, :key) || error_message&.dig(:key)
     end
 
     def get_error_text(error_message)
       return error_message if error_message.is_a? String
 
-      error_message.dig(:messages, 0, :text) || error_message
+      error_message&.dig(:messages, 0, :text) || error_message&.dig(:text) ||
+        error_message&.dig(:message) || error_message&.dig(:detail)
     end
 
     def get_error_status_code(error)
@@ -90,13 +114,14 @@ module ClaimsApi
       end
     end
 
-    def will_retry?(error)
-      msg = if error.respond_to? :original_body
+    def will_retry?(auto_claim, error)
+      msg = if auto_claim.evss_response.present?
+              auto_claim.evss_response&.dig(0, 'key')
+            elsif error.respond_to? :original_body
               get_error_key(error.original_body)
             else
               ''
             end
-
       # If there is a match return false because we will not retry
       NO_RETRY_ERROR_CODES.exclude?(msg)
     end

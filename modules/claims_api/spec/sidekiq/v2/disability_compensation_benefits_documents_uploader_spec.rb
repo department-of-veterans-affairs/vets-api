@@ -77,6 +77,28 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
     end
   end
 
+  context 'when the pdf is mocked' do
+    it 'uploads to BD' do
+      with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
+        subject.perform_async(claim.id)
+
+        claim.reload
+        expect(claim.uploader).to be_a(ClaimsApi::SupportingDocumentUploader)
+      end
+    end
+  end
+
+  describe '#get_file_body' do
+    service = described_class.new
+    it 'returns the file body correctly' do
+      subject.perform_async(claim.id)
+
+      expect(service.send(:get_file_body, claim).blank?).to eq(false)
+      claim.reload
+      expect(claim.uploader).to be_a(ClaimsApi::SupportingDocumentUploader)
+    end
+  end
+
   describe 'when an errored job has exhausted its retries' do
     it 'logs to the ClaimsApi Logger' do
       error_msg = 'An error occurred from the BD Uploader Job'
@@ -91,6 +113,14 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
           detail: "Job retries exhausted for #{subject}",
           error: error_msg
         )
+      end
+    end
+  end
+
+  describe 'when an errored job has a time limitation' do
+    it 'logs to the ClaimsApi Logger' do
+      described_class.within_sidekiq_retries_exhausted_block do
+        expect(subject).to be_expired_in 48.hours
       end
     end
   end

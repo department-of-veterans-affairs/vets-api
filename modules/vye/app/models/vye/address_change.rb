@@ -13,27 +13,20 @@ module Vye
       key: :kms_key, **lockbox_options
     )
 
+    validates(:origin, presence: true)
+
     validates(
       :veteran_name, :address1, :city,
       presence: true, if: -> { origin == 'frontend' }
     )
 
-    validates(
-      :veteran_name, :address1,
-      presence: true, if: -> { origin == 'backend' }
+    # The 'cached' enum is a special case where the record was created on the frontend
+    # and sent to the backend, but the backend has not yet processed it.
+    # So it will not have been reflected from the backend until the next pull.
+    enum(
+      origin: { frontend: 'frontend', cached: 'cached', backend: 'backend', expired: 'expired' },
+      _suffix: true
     )
-
-    enum origin: {
-
-      frontend: 'f',
-
-      # This is a special case where the record was created on the frontend
-      # but will not have been reflected from the backend yet
-      cached: 'c',
-
-      backend: 'b'
-
-    }
 
     scope :created_today, lambda {
       includes(user_info: :user_profile)

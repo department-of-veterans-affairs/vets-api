@@ -27,6 +27,7 @@ RSpec.describe 'Fetching user data' do
       let(:mhv_user) { build(:user, :mhv, :no_mpi_profile) }
 
       it 'GET /v0/user - returns proper json' do
+        create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_correlation_id)
         assert_response :success
         expect(response).to match_response_schema('user_loa3')
       end
@@ -66,7 +67,7 @@ RSpec.describe 'Fetching user data' do
     it 'gives me va profile cerner data' do
       va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
       expect(va_profile['is_cerner_patient']).to be false
-      expect(va_profile['facilities']).to match_array([{ 'facility_id' => '358', 'is_cerner' => false }])
+      expect(va_profile['facilities']).to contain_exactly({ 'facility_id' => '358', 'is_cerner' => false })
     end
 
     it 'returns patient status' do
@@ -157,7 +158,7 @@ RSpec.describe 'Fetching user data' do
       end
     end
 
-    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person', skip_vet360: true do
+    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person', :skip_vet360 do
       before do
         exception  = 'the server responded with status 503'
         error_body = { 'status' => 'some service unavailable status' }
@@ -194,6 +195,7 @@ RSpec.describe 'Fetching user data' do
     before do
       user = new_user(:loa1)
       sign_in_as(user)
+      create(:user_verification, idme_uuid: user.idme_uuid)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
       VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
         get v0_user_url, params: nil, headers: v0_user_request_headers
@@ -229,6 +231,7 @@ RSpec.describe 'Fetching user data' do
     before do
       user = new_user(:loa1)
       sign_in_as(user)
+      create(:user_verification, idme_uuid: user.idme_uuid)
       get v0_user_url, params: nil, headers: v0_user_request_headers
     end
 

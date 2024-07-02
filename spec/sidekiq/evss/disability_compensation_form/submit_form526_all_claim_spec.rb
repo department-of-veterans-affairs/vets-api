@@ -13,8 +13,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
   before do
     Sidekiq::Job.clear_all
     Flipper.disable(:disability_526_classifier_new_claims)
-    Flipper.disable(:disability_compensation_lighthouse_submit_migration)
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
+    Flipper.disable(:disability_526_classifier_multi_contention)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -27,8 +27,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
     let(:saved_claim) { FactoryBot.create(:va526ez) }
     let(:submitted_claim_id) { 600_130_094 }
+    let(:user_account) { create(:user_account, icn: '123498767V234859') }
     let(:submission) do
       create(:form526_submission,
+             user_account_id: user_account.id,
              user_uuid: user.uuid,
              auth_headers_json: auth_headers.to_json,
              saved_claim_id: saved_claim.id)
@@ -40,7 +42,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     let(:lh_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload_location' }
     let(:evss_get_pdf) { 'form526_backup/200_evss_get_pdf' }
     let(:lh_intake_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload' }
-    let(:lh_submission) { 'lighthouse/benefits_claims/submit526/200_response' }
+    let(:lh_submission) { 'lighthouse/benefits_claims/submit526/200_synchronous_response' }
     let(:cassettes) do
       [open_claims_cassette, caseflow_cassette, rated_disabilities_cassette,
        submit_form_cassette, lh_upload, evss_get_pdf,
@@ -158,6 +160,30 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             )
           end
 
+          context 'when using LH Benefits Claims API instead of EVSS' do
+            before do
+              Flipper.enable(:disability_compensation_lighthouse_claims_service_provider)
+              allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return('access_token')
+            end
+
+            after { Flipper.disable(:disability_compensation_lighthouse_claims_service_provider) }
+
+            let(:open_claims_cassette) { 'lighthouse/benefits_claims/index/claims_with_single_open_disability_claim' }
+
+            it 'logs the expected data for EP 400 merge eligibility' do
+              subject.perform_async(submission.id)
+              VCR.use_cassette('virtual_regional_office/contention_classification') do
+                described_class.drain
+              end
+              expect(Rails.logger).to have_received(:info).with('EP Merge total open EPs', id: submission.id, count: 1)
+              expect(Rails.logger).to have_received(:info).with(
+                'EP Merge open EP eligibility',
+                { id: submission.id, feature_enabled: true, open_claim_review: false,
+                  pending_ep_age: 365, pending_ep_status: 'INITIAL_REVIEW' }
+              )
+            end
+          end
+
           context 'when EP400 merge API call is enabled' do
             before do
               Flipper.enable(:disability_526_ep_merge_api, user)
@@ -229,6 +255,60 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             end
           end
         end
+      end
+    end
+
+    context 'with multi-contention classification disabled' do
+      let(:submission) do
+        create(:form526_submission,
+               :with_multiple_mas_diagnostic_code,
+               user_uuid: user.uuid,
+               auth_headers_json: auth_headers.to_json,
+               saved_claim_id: saved_claim.id)
+      end
+
+      it 'does not call va-gov-claim-classifier' do
+        subject.perform_async(submission.id)
+        expect_any_instance_of(Form526Submission).not_to receive(:classify_vagov_contentions)
+        described_class.drain
+      end
+    end
+
+    context 'with multi-contention classification enabled' do
+      let(:submission) do
+        create(:form526_submission,
+               :with_mixed_action_disabilities_and_free_text,
+               user_uuid: user.uuid,
+               auth_headers_json: auth_headers.to_json,
+               saved_claim_id: saved_claim.id)
+      end
+
+      before do
+        Flipper.enable(:disability_526_classifier_multi_contention)
+      end
+
+      after do
+        Flipper.disable(:disability_526_classifier_multi_contention)
+      end
+
+      it 'does something when multi-contention api endpoint is hit' do
+        subject.perform_async(submission.id)
+
+        expect do
+          VCR.use_cassette('virtual_regional_office/multi_contention_classification') do
+            described_class.drain
+          end
+        end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+        submission.reload
+
+        classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
+        expect(classification_codes).to eq([9012, 8994, nil])
+      end
+
+      it 'calls va-gov-claim-classifier' do
+        subject.perform_async(submission.id)
+        expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions)
+        described_class.drain
       end
     end
 
@@ -370,16 +450,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                  :with_everything,
                  user_uuid: user.uuid,
                  auth_headers_json: auth_headers.to_json,
-                 saved_claim_id: saved_claim.id)
+                 saved_claim_id: saved_claim.id,
+                 submit_endpoint: 'claims_api')
         end
 
         before do
-          Flipper.enable(:disability_compensation_lighthouse_submit_migration)
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
-        end
-
-        after do
-          Flipper.disable(:disability_compensation_lighthouse_submit_migration)
         end
 
         it 'performs a successful submission' do
@@ -387,7 +463,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           expect { described_class.drain }.not_to change(backup_klass.jobs, :size)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:success]
           submission.reload
-          expect(submission.submitted_claim_id).to eq(1_234_567_890)
+          expect(submission.submitted_claim_id).to eq(Form526JobStatus.last.submission.submitted_claim_id)
         end
       end
     end

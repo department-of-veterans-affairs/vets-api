@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
+require_relative '../support/helpers/rails_helper'
 
 RSpec.describe 'appointments', type: :request do
   include JsonSchemaMatchers
@@ -11,7 +9,6 @@ RSpec.describe 'appointments', type: :request do
   let(:cancel_id) { '70060' }
 
   before do
-    Flipper.enable('va_online_scheduling')
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
@@ -35,12 +32,40 @@ RSpec.describe 'appointments', type: :request do
     end
 
     context 'when feature flag is on and user has access' do
-      it 'returns no content' do
-        VCR.use_cassette('mobile/appointments/VAOS_v2/cancel_appointment_vpg_200', match_requests_on: %i[method uri]) do
-          VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
-            put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
+      context 'using VAOS' do
+        before do
+          Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+          Flipper.disable(:va_online_scheduling_use_vpg)
+        end
 
-            expect(response).to have_http_status(:no_content)
+        it 'returns no content' do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/cancel_appointment_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
+
+              expect(response).to have_http_status(:no_content)
+            end
+          end
+        end
+      end
+
+      context 'using VPG' do
+        before do
+          Flipper.enable(:va_online_scheduling_enable_OH_cancellations)
+          Flipper.enable(:va_online_scheduling_use_vpg)
+        end
+
+        it 'returns no content' do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/cancel_appointment_vpg_204',
+                           match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_cancelled_200_vpg',
+                             match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+                put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
+
+                expect(response).to have_http_status(:no_content)
+              end
+            end
           end
         end
       end
@@ -50,6 +75,7 @@ RSpec.describe 'appointments', type: :request do
   context 'using vaos-service' do
     before do
       Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+      Flipper.disable(:va_online_scheduling_use_vpg)
     end
 
     describe 'PUT /mobile/v0/appointments/cancel', :aggregate_failures do
@@ -101,12 +127,15 @@ RSpec.describe 'appointments', type: :request do
 
     describe 'PUT /mobile/v0/appointments/cancel', :aggregate_failures do
       it 'returns a no content code' do
-        VCR.use_cassette('mobile/appointments/VAOS_v2/cancel_appointment_vpg_200', match_requests_on: %i[method uri]) do
-          VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
-            put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
+        VCR.use_cassette('mobile/appointments/VAOS_v2/cancel_appointment_vpg_204', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_cancelled_200_vpg',
+                           match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
 
-            expect(response).to have_http_status(:no_content)
-            expect(response.body).to be_an_instance_of(String).and be_empty
+              expect(response).to have_http_status(:no_content)
+              expect(response.body).to be_an_instance_of(String).and be_empty
+            end
           end
         end
       end

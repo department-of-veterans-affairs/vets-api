@@ -2,10 +2,15 @@
 
 module IvcChampva
   class VHA1010d
+    ADDITIONAL_PDF_KEY = 'applicants'
+    ADDITIONAL_PDF_COUNT = 3
+    STATS_KEY = 'api.ivc_champva_form.10_10d'
+
     include Virtus.model(nullify_blank: true)
     include Attachments
 
     attribute :data
+    attr_reader :form_id
 
     def initialize(data)
       @data = data
@@ -28,12 +33,30 @@ module IvcChampva
         'docType' => @data['form_number'],
         'businessLine' => 'CMP',
         'ssn_or_tin' => @data.dig('veteran', 'ssn_or_tin'),
-        'uuid' => @uuid
+        'uuid' => @uuid,
+        'primaryContactInfo' => @data['primary_contact_info']
       }
     end
 
-    def submission_date_config
-      { should_stamp_date?: false }
+    def desired_stamps
+      [{ coords: [40, 105], text: data['statement_of_truth_signature'], page: 0 }]
+    end
+
+    def submission_date_stamps
+      [
+        {
+          coords: [40, 500],
+          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          page: 1,
+          font_size: 12
+        }
+      ]
+    end
+
+    def track_user_identity
+      identity = data['certifier_role']
+      StatsD.increment("#{STATS_KEY}.#{identity}")
+      Rails.logger.info('IVC ChampVA Forms - 10-10D Submission User Identity', identity:)
     end
 
     def method_missing(_, *args)

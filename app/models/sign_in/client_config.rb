@@ -2,6 +2,8 @@
 
 module SignIn
   class ClientConfig < ApplicationRecord
+    include SignIn::Concerns::Certifiable
+
     attribute :access_token_duration, :interval
     attribute :refresh_token_duration, :interval
 
@@ -30,12 +32,6 @@ module SignIn
       find_by(client_id:).present?
     end
 
-    def client_assertion_public_keys
-      @client_assertion_public_keys ||= certificates.compact.map do |certificate|
-        OpenSSL::X509::Certificate.new(certificate).public_key
-      end
-    end
-
     def cookie_auth?
       authentication == Constants::Auth::COOKIE
     end
@@ -58,6 +54,10 @@ module SignIn
 
     def valid_service_level?(acr)
       service_levels.include?(acr)
+    end
+
+    def device_sso_enabled?
+      api_auth? && shared_sessions
     end
 
     private

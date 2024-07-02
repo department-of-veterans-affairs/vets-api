@@ -38,21 +38,12 @@ module TravelPay
       logger.info('travel-pay') { Utils::Logger.build(self).after }
     end
 
-    def authorize
-      auth_header = request.headers['Authorization']
-      raise_unauthorized('Missing Authorization header') if auth_header.nil?
-      raise_unauthorized('Authorization header missing Bearer token') unless auth_header.start_with?('Bearer ')
-    end
-
-    def raise_unauthorized(detail)
-      raise Common::Exceptions::Unauthorized.new(detail:)
-    end
-
-    # Blocks requests from being handled if feature flag is disabled
     def block_if_flag_disabled
-      unless Flipper.enabled?(:travel_pay_power_switch, @current_user)
-        raise Common::Exceptions::ServiceUnavailable, detail: 'This feature has been temporarily disabled'
-      end
+      raise_access_denied unless Flipper.enabled?(:travel_pay_power_switch, @current_user)
+    end
+
+    def raise_access_denied
+      raise Common::Exceptions::Forbidden, detail: 'You do not have access to travel pay'
     end
   end
 end

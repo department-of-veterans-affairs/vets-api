@@ -30,7 +30,7 @@ RSpec.describe Crm::CrmToken do
       end
     end
 
-    context 'with invalid JSON' do
+    context 'when veis auth service returns a 401 error response' do
       let(:resp) { mock_response(body: { error: 'invalid_client' }, status: 401) }
       let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
 

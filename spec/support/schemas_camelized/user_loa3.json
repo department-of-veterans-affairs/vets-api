@@ -400,6 +400,11 @@
                 "object",
                 "null"
               ]
+            },
+            "onboarding": {
+              "show": {
+                "type": ["boolean", "null"]
+              }
             }
           }
         }

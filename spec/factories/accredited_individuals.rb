@@ -15,7 +15,7 @@ FactoryBot.define do
 
     trait :with_organizations do
       after(:create) do |individual, evaluator|
-        create_list(:accredited_organization, evaluator.org_count, accredited_individuals: [individual])
+        individual.accredited_organizations << create_list(:accredited_organization, evaluator.org_count)
 
         individual.reload
       end

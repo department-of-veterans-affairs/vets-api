@@ -839,16 +839,8 @@ RSpec.describe 'Claims', type: :request do
                         .and_return(local_bgs_service)
 
                       allow(local_bgs_service)
-                        .to receive(:find_benefit_claim_details_by_benefit_claim_id)
-                        .and_return(bgs_claim)
-
-                      allow(local_bgs_service)
-                        .to receive(:find_by_ssn)
-                        .and_return(nil)
-
-                      allow(local_bgs_service)
-                        .to receive(:find_tracked_items)
-                        .and_return({ dvlpmt_items: [] })
+                        .to receive_messages(find_benefit_claim_details_by_benefit_claim_id: bgs_claim,
+                                             find_by_ssn: nil, find_tracked_items: { dvlpmt_items: [] })
 
                       get claim_by_id_path, headers: auth_header
 
@@ -1015,6 +1007,31 @@ RSpec.describe 'Claims', type: :request do
                   expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to eq(true)
                   expect(json_response['data']['attributes']['claimPhaseDates']['latestPhaseType'])
                     .to eq('UNDER_REVIEW')
+                end
+              end
+            end
+          end
+        end
+
+        context 'when there are several phases and one does not have a date' do
+          let(:bgs_claim_with_many_phases) { build(:bgs_response_with_lc_status) }
+
+          it 'gracefully handles a nil date' do
+            mock_ccg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
+                  bgs_claim_with_many_phases[:benefit_claim_details_dto][:bnft_claim_lc_status][0][:phase_type_change_ind] = nil # rubocop:disable Layout/LineLength
+                  expect_any_instance_of(bcs)
+                    .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_with_many_phases)
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:get_by_id_and_icn).and_return(nil)
+
+                  get claim_by_id_path, headers: auth_header
+
+                  json_response = JSON.parse(response.body)
+                  prev_phases = json_response['data']['attributes']['claimPhaseDates']['previousPhases']
+                  expect(response.status).to eq(200)
+                  expect(prev_phases).to eq({})
                 end
               end
             end

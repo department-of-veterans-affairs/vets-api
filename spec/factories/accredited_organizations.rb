@@ -12,7 +12,7 @@ FactoryBot.define do
 
     trait :with_representatives do
       after(:create) do |organization, evaluator|
-        create_list(:accredited_individual, evaluator.rep_count, accredited_organizations: [organization])
+        organization.accredited_individuals << create_list(:accredited_individual, evaluator.rep_count)
 
         organization.reload
       end

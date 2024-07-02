@@ -7,6 +7,10 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
     described_class.new(user_mock_data:, entity_class: AskVAApi::Inquiries::Entity, icn:)
   end
 
+  def mock_response(status:, body:)
+    instance_double(Faraday::Response, status:, body: body.to_json)
+  end
+
   let(:service) { instance_double(Crm::Service) }
   let(:icn) { nil }
   let(:error_message) { 'Some error occurred' }
@@ -25,21 +29,14 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
           ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Inquiries found by ' \
           'ID A-20240423-30709","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
       end
-      let(:failure) do
-        {
-          status: 400,
-          body:,
-          response_headers: nil,
-          url: nil
-        }
-      end
+      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
       before do
         allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
         allow(service).to receive(:call).and_return(failure)
       end
 
-      it 'raise CorrespondenceRetrieverrError' do
+      it 'raise InquiriesRetrieverrError' do
         expect { retriever.call }.to raise_error(ErrorHandler::ServiceError)
       end
     end
@@ -161,6 +158,70 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
 
           it 'returns an array object with correct data' do
             expect(retriever.call.first).to be_a(AskVAApi::Inquiries::Entity)
+          end
+        end
+      end
+
+      context 'with Correspondences' do
+        let(:id) { '123' }
+        let(:response) do
+          { Data: [{ Id: '154163f2-8fbb-ed11-9ac4-00155da17a6f',
+                     InquiryNumber: 'A-20230305-306178',
+                     InquiryStatus: 'Reopened',
+                     SubmitterQuestion: 'test',
+                     LastUpdate: '4/1/2024 12:00:00 AM',
+                     InquiryHasAttachments: true,
+                     InquiryHasBeenSplit: true,
+                     VeteranRelationship: 'GIBillBeneficiary',
+                     SchoolFacilityCode: '77a51029-6816-e611-9436-0050568d743d',
+                     InquiryTopic: 'Medical Care Concerns at a VA Medical Facility',
+                     InquiryLevelOfAuthentication: 'Unauthenticated',
+                     AttachmentNames: [{ Id: '367e8d31-6c82-1d3c-81b8-dd2cabed7555',
+                                         Name: 'Test.txt' }] }] }
+        end
+
+        context 'when Correspondence::Retriever returns an error' do
+          before do
+            allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+            allow(service).to receive(:call).and_return(response)
+            allow_any_instance_of(AskVAApi::Correspondences::Retriever).to receive(:call)
+              .and_return('Data Validation: No Inquiry Found')
+          end
+
+          it 'returns correspondences as an empty array' do
+            inquiry = retriever.fetch_by_id(id:)
+
+            expect(inquiry.correspondences).to eq([])
+          end
+        end
+
+        context 'when Correspondence::Retriever returns a success' do
+          let(:cor_info) do
+            {
+              Id: 'f4b12ee3-93bb-ed11-9886-001dd806a6a7',
+              ModifiedOn: '3/5/2023 8:25:49 PM',
+              StatusReason: 'Sent',
+              Description: 'Dear aminul, Thank you for submitting your ' \
+                           'Inquiry with the U.S. Department of Veteran Affairs.',
+              MessageType: 'Notification',
+              EnableReply: true,
+              AttachmentNames: nil
+            }
+          end
+
+          let(:correspondence) { AskVAApi::Correspondences::Entity.new(cor_info) }
+
+          before do
+            allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+            allow(service).to receive(:call).and_return(response)
+            allow_any_instance_of(AskVAApi::Correspondences::Retriever).to receive(:call)
+              .and_return([correspondence])
+          end
+
+          it 'returns correspondences as an empty array' do
+            inquiry = retriever.fetch_by_id(id:)
+
+            expect(inquiry.correspondences).to eq([correspondence])
           end
         end
       end

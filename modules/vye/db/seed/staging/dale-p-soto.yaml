@@ -1,0 +1,53 @@
+---
+:profile:
+  :ssn: '796083573'
+  :file_number: '796083573'
+  :icn: 1012833451V763238
+:info:
+  :file_number: '796083573'
+  :dob: 1967-05-25
+  :stub_nm: DPSOTO
+  :mr_status: A
+  :rem_ent: '2712562'
+  :cert_issue_date: 2016-02-08
+  :del_date: 2026-03-01
+  :date_last_certified: 2024-03-28
+  :rpo_code: 8067
+  :fac_code: unde
+  :payment_amt: 8344.05
+  :indicator: A
+  :bdn_clone_active: true
+:address:
+  :veteran_name: Dale P Soto
+  :address1: 119 Dong Village
+  :city: Ornberg
+  :state: HI
+  :zip_code: 15693-1167
+  :origin: backend
+:awards:
+- :cur_award_ind: P
+  :award_begin_date: 2020-09-21
+  :award_end_date: 2020-10-01
+  :training_time: 2
+  :payment_date:
+  :monthly_rate: 195.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: C
+  :award_begin_date: 2020-10-01
+  :award_end_date: 2020-12-03
+  :training_time: 2
+  :payment_date:
+  :monthly_rate: 198.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+:pending_documents:
+- :doc_type: animi
+  :queue_date: 2024-05-12
+  :rpo: molestias

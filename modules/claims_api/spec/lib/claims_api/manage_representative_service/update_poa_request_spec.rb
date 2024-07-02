@@ -2,12 +2,12 @@
 
 require 'rails_helper'
 require 'bgs_service/manage_representative_service'
-require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_helpers.rb')
+require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_spec_helpers.rb')
 
 metadata = {
   bgs: {
     service: 'manage_representative_service',
-    operation: 'update_poa_request'
+    action: 'update_poa_request'
   }
 }
 

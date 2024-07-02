@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../config/boot'
+require_relative 'lib/vets-api/commands/info'
+require 'rails'
+
+if ARGV.include?('--help') || ARGV.include?('-h')
+  puts <<~HELP
+    Usage:
+      bin/info [option]
+    Options:
+      --help, -h            Display help message for 'info'
+    Examples:
+      bin/info              Show version information
+  HELP
+else
+  VetsApi::Commands::Info.run
+end

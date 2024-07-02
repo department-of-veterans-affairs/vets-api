@@ -35,6 +35,12 @@ but the following tasks have been aliased to speed development:
 - `make spec_parallel_setup` - This sets up the parallel tests databases. First the existing test database is dropped and reset, then the rest of the test databases are cloned off the standard one
 - `make spec_parallel` - Run the entire test suite in parallel. A spec folder path can optionally be given as an argument to run just the spec folder in parallel
 
+### Running pending tests
+
+Pending or skipped tests are ignored by default, to run the test suite _with_ pending tests in the output, simply add the PENDING=true environment variable to the test command
+
+`PENDING=true make spec_parallel`
+
 ### Running linters
 
 - `make lint` - Run the full suite of linters on the codebase.
@@ -63,6 +69,10 @@ root@63aa89d76c17:/src/vets-api# rspec spec/requests/user_request_spec.rb:26
 ### Troubleshooting
 
 As a general technique, if you're running `vets-api` in Docker and run into a problem, doing a `make rebuild` is a good first step to fix configuration, gem, and other various code problems.
+
+#### `make up` failing
+
+Run `make build` and then try `make up` again.
 
 #### `make up` fails with a message about missing gems
 

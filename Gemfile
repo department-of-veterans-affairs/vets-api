@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '~> 3.2.3'
+ruby '~> 3.2.4'
 
 # Modules
 path 'modules' do
@@ -25,6 +25,7 @@ path 'modules' do
   gem 'mobile'
   gem 'mocked_authentication'
   gem 'my_health'
+  gem 'pensions'
   gem 'representation_management'
   gem 'simple_forms_api'
   gem 'test_user_dashboard'
@@ -55,7 +56,7 @@ gem 'bootsnap', require: false
 gem 'breakers'
 gem 'carrierwave'
 gem 'carrierwave-aws'
-gem 'clam_scan'
+gem 'clamav-client', require: 'clamav/client'
 gem 'combine_pdf'
 gem 'config'
 gem 'connect_vbms', git: 'https://github.com/adhocteam/connect_vbms', tag: 'v2.0.0.rc', require: 'vbms'
@@ -86,6 +87,7 @@ gem 'googleauth'
 gem 'google-protobuf' # For Datadog Profiling
 gem 'govdelivery-tms', git: 'https://github.com/department-of-veterans-affairs/govdelivery-tms-ruby.git', tag: 'v4.0.0', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
+gem 'hexapdf'
 gem 'holidays'
 gem 'httpclient' # for lib/evss/base_service.rb
 gem 'ice_nine'
@@ -213,8 +215,11 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'rswag-specs'
   gem 'rubocop', require: false
+  gem 'rubocop-capybara'
+  gem 'rubocop-factory_bot'
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
+  gem 'rubocop-rspec_rails'
   gem 'rubocop-thread_safety'
   gem 'sidekiq', '~> 7.2.0'
   gem 'timecop'

@@ -6,7 +6,8 @@ describe IvcChampva::FileUploader do
   let(:form_id) { '123' }
   let(:metadata) { { key: 'value' } }
   let(:file_paths) { ['tmp/file1.pdf', 'tmp/file2.pdf'] }
-  let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths) }
+  let(:attachment_ids) { ['Social Security card', 'Birth certificate'] }
+  let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, attachment_ids) }
 
   describe '#handle_uploads' do
     context 'when all PDF uploads succeed' do
@@ -42,7 +43,11 @@ describe IvcChampva::FileUploader do
 
     it 'writes metadata to a JSON file and uploads it' do
       expect(File).to receive(:write).with(meta_file_path, metadata.to_json)
-      expect(uploader).to receive(:upload).with("#{form_id}_metadata.json", meta_file_path).and_return([200, nil])
+      expect(uploader).to receive(:upload).with(
+        "#{form_id}_metadata.json",
+        meta_file_path,
+        attachment_ids:
+      ).and_return([200, nil])
       uploader.send(:generate_and_upload_meta_json)
     end
 
@@ -73,20 +78,26 @@ describe IvcChampva::FileUploader do
 
     it 'uploads the file to S3 and returns the upload status' do
       expect(s3_client).to receive(:put_object).and_return({ success: true })
-      expect(uploader.send(:upload, 'file_name', 'file_path')).to eq([200])
+      expect(uploader.send(:upload, 'file_name', 'file_path', attachment_ids: 'attachment_ids')).to eq([200])
     end
 
     context 'when upload fails' do
       it 'returns the error message' do
         expect(s3_client).to receive(:put_object).and_return({ success: false, error_message: 'Upload failed' })
-        expect(uploader.send(:upload, 'file_name', 'file_path')).to eq([400, 'Upload failed'])
+        expect(uploader.send(:upload,
+                             'file_name',
+                             'file_path',
+                             attachment_ids: 'attachment_ids')).to eq([400, 'Upload failed'])
       end
     end
 
     context 'when unexpected response from S3' do
       it 'returns an unexpected response error' do
         expect(s3_client).to receive(:put_object).and_return(nil)
-        expect(uploader.send(:upload, 'file_name', 'file_path')).to eq([500, 'Unexpected response from S3 upload'])
+        expect(uploader.send(:upload,
+                             'file_name',
+                             'file_path',
+                             attachment_ids: 'attachment_ids')).to eq([500, 'Unexpected response from S3 upload'])
       end
     end
   end

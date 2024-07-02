@@ -14,6 +14,7 @@ require 'support/rx_client_helpers'
 require 'bgs/service'
 require 'sign_in/logingov/service'
 require 'hca/enrollment_eligibility/constants'
+require 'form1010_ezr/service'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -25,7 +26,7 @@ RSpec.describe 'API doc validations', type: :request do
   end
 end
 
-RSpec.describe 'the API documentation', type: %i[apivore request], order: :defined do
+RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :defined do
   include AuthenticatedSessionHelper
 
   subject { Apivore::SwaggerChecker.instance_for('/v0/apidocs.json') }
@@ -418,6 +419,30 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           }
         )
       end
+    end
+
+    it 'supports adding an income and assets statement' do
+      expect(subject).to validate(
+        :post,
+        '/v0/form0969',
+        200,
+        '_data' => {
+          'income_and_assets_claim' => {
+            'form' => build(:income_and_assets_claim).form
+          }
+        }
+      )
+
+      expect(subject).to validate(
+        :post,
+        '/v0/form0969',
+        422,
+        '_data' => {
+          'income_and_assets_claim' => {
+            'invalid-form' => { invalid: true }.to_json
+          }
+        }
+      )
     end
 
     context 'MDOT tests' do
@@ -869,6 +894,166 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             'form' => test_veteran
           }
         )
+      end
+    end
+
+    context 'Form1010Ezr tests' do
+      let(:form) do
+        json_string = File.read(
+          Rails.root.join('spec', 'fixtures', 'form1010_ezr', 'valid_form.json')
+        )
+        json = JSON.parse(json_string)
+        json.to_json
+      end
+      let(:user) do
+        build(
+          :evss_user,
+          :loa3,
+          icn: '1013032368V065534',
+          birth_date: '1986-01-02',
+          first_name: 'FirstName',
+          middle_name: 'MiddleName',
+          last_name: 'ZZTEST',
+          suffix: 'Jr.',
+          ssn: '111111234',
+          gender: 'F'
+        )
+      end
+      let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
+
+      context 'attachments' do
+        context 'unauthenticated user' do
+          it 'returns unauthorized status code' do
+            expect(subject).to validate(
+              :post,
+              '/v0/form1010_ezr_attachments',
+              401
+            )
+          end
+        end
+
+        context 'authenticated' do
+          it 'supports submitting an ezr attachment' do
+            expect(subject).to validate(
+              :post,
+              '/v0/form1010_ezr_attachments',
+              200,
+              headers.merge(
+                '_data' => {
+                  'form1010_ezr_attachment' => {
+                    file_data: fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+                  }
+                }
+              )
+            )
+          end
+
+          it 'returns 422 if the attachment is not an allowed type' do
+            expect(subject).to validate(
+              :post,
+              '/v0/form1010_ezr_attachments',
+              422,
+              headers.merge(
+                '_data' => {
+                  'form1010_ezr_attachment' => {
+                    file_data: fixture_file_upload('invalid_idme_cert.crt')
+                  }
+                }
+              )
+            )
+          end
+
+          it 'returns a 400 if no attachment data is given' do
+            expect(subject).to validate(
+              :post,
+              '/v0/form1010_ezr_attachments',
+              400,
+              headers
+            )
+          end
+        end
+      end
+
+      context 'submitting a 1010EZR form' do
+        before do
+          Flipper.disable('ezr_async')
+        end
+
+        context 'unauthenticated user' do
+          it 'returns unauthorized status code' do
+            expect(subject).to validate(:post, '/v0/form1010_ezrs', 401)
+          end
+        end
+
+        context 'authenticated' do
+          it 'supports submitting a 1010EZR application', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+            VCR.use_cassette('form1010_ezr/authorized_submit_with_es_dev_uri', match_requests_on: [:body]) do
+              expect(subject).to validate(
+                :post,
+                '/v0/form1010_ezrs',
+                200,
+                headers.merge(
+                  '_data' => {
+                    'form' => form
+                  }
+                )
+              )
+            end
+          end
+
+          it 'returns a 422 if form validation fails', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+            VCR.use_cassette('form1010_ezr/authorized_submit_with_es_dev_uri', match_requests_on: [:body]) do
+              expect(subject).to validate(
+                :post,
+                '/v0/form1010_ezrs',
+                422,
+                headers.merge(
+                  '_data' => {
+                    'form' => {}.to_json
+                  }
+                )
+              )
+            end
+          end
+
+          it 'returns a 400 if a backend service error occurs', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+            VCR.use_cassette('form1010_ezr/authorized_submit', match_requests_on: [:body]) do
+              allow_any_instance_of(Form1010Ezr::Service).to receive(:submit_form) do
+                raise Common::Exceptions::BackendServiceException, 'error message'
+              end
+
+              expect(subject).to validate(
+                :post,
+                '/v0/form1010_ezrs',
+                400,
+                headers.merge(
+                  '_data' => {
+                    'form' => form
+                  }
+                )
+              )
+            end
+          end
+
+          it 'returns a 500 if a server error occurs', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+            VCR.use_cassette('form1010_ezr/authorized_submit', match_requests_on: [:body]) do
+              allow_any_instance_of(Form1010Ezr::Service).to receive(:submit_form) do
+                raise Common::Exceptions::InternalServerError, 'error message'
+              end
+
+              expect(subject).to validate(
+                :post,
+                '/v0/form1010_ezrs',
+                500,
+                headers.merge(
+                  '_data' => {
+                    'form' => form
+                  }
+                )
+              )
+            end
+          end
+        end
       end
     end
 
@@ -1796,29 +1981,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     context 'without EVSS mock' do
       before do
-        allow(Settings.evss).to receive(:mock_gi_bill_status).and_return(false)
-        allow(Settings.evss).to receive(:mock_letters).and_return(false)
-      end
-
-      it 'supports getting EVSS Gi Bill Status' do
-        Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 12:15:06'))
-        expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 401)
-        VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
-          # TODO: this cassette was hacked to return all 3 entitlements since
-          # I cannot make swagger doc allow an attr to be :object or :null
-          expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 200, headers)
-        end
-        VCR.use_cassette('evss/gi_bill_status/vet_not_found') do
-          expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 404, headers)
-        end
-        Timecop.return
-      end
-
-      it 'supports Gi Bill Status 503 condition' do
-        # Timecop.freeze(Time.zone.parse('1st Feb 2018 00:15:06'))
-        Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 00:15:06'))
-        expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 503, headers)
-        Timecop.return
+        allow(Settings.evss).to receive_messages(mock_gi_bill_status: false, mock_letters: false)
       end
 
       it 'supports getting EVSS Letters' do
@@ -1858,7 +2021,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       let(:user) { build(:user, middle_name: 'Lee') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
 
-      it 'supports getting user with some external errors', skip_mvi: true do
+      it 'supports getting user with some external errors', :skip_mvi do
         expect(subject).to validate(:get, '/v0/user', 296, headers)
       end
     end
@@ -2548,9 +2711,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       context 'ch33 bank accounts methods' do
-        let(:mhv_user) { FactoryBot.build(:ch33_dd_user) }
+        before do
+          allow_any_instance_of(User).to receive(:common_name).and_return('abraham.lincoln@vets.gov')
 
-        before { allow_any_instance_of(User).to receive(:common_name).and_return('abraham.lincoln@vets.gov') }
+          allow(Flipper).to receive(:enabled?).with(
+            :profile_show_direct_deposit_single_form_edu_downtime,
+            instance_of(User)
+          ).and_return(false)
+        end
+
+        let(:mhv_user) { FactoryBot.build(:ch33_dd_user) }
 
         it 'supports the update ch33 bank account api 400 response' do
           res = {
@@ -3413,6 +3583,30 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
   end
 
+  describe 'travel pay' do
+    context 'index' do
+      let(:mhv_user) { build(:user, :loa3) }
+
+      it 'returns unauthorized for unauthed user' do
+        expect(subject).to validate(:get, '/travel_pay/claims', 401)
+      end
+
+      it 'returns 400 for invalid request' do
+        headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
+        VCR.use_cassette('travel_pay/404_claims') do
+          expect(subject).to validate(:get, '/travel_pay/claims', 400, headers)
+        end
+      end
+
+      it 'returns 200 for successful response' do
+        headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
+        VCR.use_cassette('travel_pay/200_claims') do
+          expect(subject).to validate(:get, '/travel_pay/claims', 200, headers)
+        end
+      end
+    end
+  end
+
   context 'and' do
     it 'tests all documented routes' do
       # exclude these route as they return binaries
@@ -3430,6 +3624,35 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       subject.untested_mappings.delete('/v0/sign_in/logout')
 
       expect(subject).to validate_all_paths
+    end
+  end
+end
+
+RSpec.describe 'the v1 API documentation', type: %i[apivore request], order: :defined do
+  include AuthenticatedSessionHelper
+
+  subject { Apivore::SwaggerChecker.instance_for('/v1/apidocs.json') }
+
+  let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob', icn: '1012667145V762142') }
+
+  context 'has valid paths' do
+    let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
+
+    context 'GI Bill Status' do
+      it 'supports getting Gi Bill Status' do
+        Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 12:15:06'))
+        expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 401)
+        VCR.use_cassette('lighthouse/benefits_education/200_response') do
+          expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 200, headers)
+        end
+        Timecop.return
+      end
+
+      it 'supports Gi Bill Status 503 condition' do
+        Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 00:15:06'))
+        expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 503, headers)
+        Timecop.return
+      end
     end
   end
 end

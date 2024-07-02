@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require_relative '../../rails_helper'
+require 'rails_helper'
+require Vye::Engine.root / 'spec/rails_helper'
 
 RSpec.describe Vye::DirectDepositChange, type: :model do
   let(:user_info) { FactoryBot.create(:vye_user_info) }

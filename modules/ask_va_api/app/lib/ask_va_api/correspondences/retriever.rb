@@ -2,20 +2,27 @@
 
 module AskVAApi
   module Correspondences
-    class CorrespondencesRetrieverError < StandardError; end
-
-    class Retriever < BaseRetriever
-      attr_reader :inquiry_id, :entity_class
+    class Retriever
+      attr_reader :inquiry_id, :entity_class, :user_mock_data
 
       def initialize(inquiry_id:, user_mock_data:, entity_class:)
-        super(user_mock_data:, entity_class:)
+        @user_mock_data = user_mock_data
+        @entity_class = entity_class
         @inquiry_id = inquiry_id
+      end
+
+      def call
+        case fetch_data
+        when Array
+          fetch_data.map { |data| entity_class.new(data) }
+        else
+          fetch_data
+        end
       end
 
       private
 
       def fetch_data
-        validate_input(inquiry_id, 'Invalid Inquiry ID')
         if user_mock_data
           data = File.read('modules/ask_va_api/config/locales/get_replies_mock_data.json')
 
@@ -29,10 +36,6 @@ module AskVAApi
         end
       end
 
-      def validate_input(input, error_message)
-        raise ArgumentError, error_message if input.blank?
-      end
-
       def filter_data(data)
         data.select do |cor|
           cor[:InquiryId] == inquiry_id
@@ -40,7 +43,13 @@ module AskVAApi
       end
 
       def handle_response_data(response)
-        response[:Data].presence || raise(CorrespondencesRetrieverError, response[:Message])
+        case response
+        when Hash
+          response[:Data]
+        else
+          error = JSON.parse(response.body, symbolize_names: true)
+          error[:Message]
+        end
       end
     end
   end

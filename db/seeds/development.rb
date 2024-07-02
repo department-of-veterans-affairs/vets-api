@@ -24,6 +24,7 @@ vamobile.update!(authentication: SignIn::Constants::Auth::API,
                  pkce: true,
                  access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_LONG_MINUTES,
                  access_token_audience: 'vamobile',
+                 shared_sessions: true,
                  enforced_terms: SignIn::Constants::Auth::VA_TERMS,
                  terms_of_use_url: 'http://localhost:3001/terms-of-use',
                  refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS)
@@ -123,7 +124,7 @@ arp.update!(authentication: SignIn::Constants::Auth::COOKIE,
             access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
             access_token_attributes: %w[first_name last_name email],
             refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES,
-            logout_redirect_uri: 'http://localhost:3001/representatives',
+            logout_redirect_uri: 'http://localhost:3001/representative',
             credential_service_providers: [SignIn::Constants::Auth::IDME, SignIn::Constants::Auth::LOGINGOV],
             service_levels: [SignIn::Constants::Auth::LOA3, SignIn::Constants::Auth::IAL2])
 
@@ -134,6 +135,17 @@ btsss.update!(
   scopes: [],
   access_token_audience: 'http://localhost:3000',
   access_token_user_attributes: ['icn'],
+  access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+  certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')]
+)
+
+# Create Service Account Config for IVC_Champva
+btsss = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: '6747fb5e6bdb18b2f6f0b890ff584b07')
+btsss.update!(
+  description: 'DOCMP/PEGA Access Token',
+  scopes: ['http://localhost:3000/ivc_champva/v1/forms/status_updates'],
+  access_token_audience: 'docmp-champva-forms-aws-lambda',
+  access_token_user_attributes: [],
   access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
   certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')]
 )

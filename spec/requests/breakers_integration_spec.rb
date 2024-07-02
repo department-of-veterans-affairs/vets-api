@@ -48,7 +48,7 @@ RSpec.describe 'breakers', type: :request do
 
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', '{"message":"ack"}', status_code: 500)
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/getactiverx', '{"message":"ack"}', status_code: 500)
-      20.times do
+      80.times do
         response = get '/v0/prescriptions'
         expect(response).to eq(400)
       end

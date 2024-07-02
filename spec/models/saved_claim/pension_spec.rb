@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'lib/saved_claims_spec_helper'
 
-RSpec.describe SavedClaim::Pension, uploader_helpers: true do
+RSpec.describe SavedClaim::Pension, :uploader_helpers do
   subject { described_class.new }
 
   let(:instance) { FactoryBot.build(:pension_claim) }
@@ -50,7 +50,7 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
 
     describe '#process_attachments!' do
       it 'sets the attachments saved_claim_id' do
-        expect(CentralMail::SubmitSavedClaimJob).to receive(:perform_async).with(claim.id)
+        expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(claim.id)
         claim.process_attachments!
         expect(claim.persistent_attachments.size).to eq(2)
       end

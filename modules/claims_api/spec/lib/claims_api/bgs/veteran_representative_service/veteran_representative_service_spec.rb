@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'bgs_service/veteran_representative_service'
-require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_helpers.rb')
 
 describe ClaimsApi::VeteranRepresentativeService do
   let(:header_params) do

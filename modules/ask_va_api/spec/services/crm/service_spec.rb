@@ -5,29 +5,14 @@ require 'rails_helper'
 RSpec.describe Crm::Service do
   let(:service) { described_class.new(icn: '123') }
 
-  # Helper method to create a mock response
   def mock_response(status:, body:)
     instance_double(Faraday::Response, status:, body: body.to_json)
-  end
-
-  # Shared examples for error handling
-  shared_examples 'error handling' do |status, message|
-    let(:body) { 'Sample error message' }
-
-    it "returns a formatted message for status #{status}" do
-      response = mock_response(status:, body:)
-      expected_error_message = "#{message} to #{endpoint}: \"#{body}\""
-
-      expect do
-        Crm::ErrorHandler.handle(endpoint, response)
-      end.to raise_error(Crm::ErrorHandler::ServiceError, expected_error_message)
-    end
   end
 
   describe '#call' do
     let(:endpoint) { 'inquiries' }
 
-    context 'server response' do
+    context 'when server response successful' do
       context 'with valid JSON' do
         let(:response) do
           mock_response(
@@ -60,35 +45,6 @@ RSpec.describe Crm::Service do
         it 'returns a parsed response' do
           res = JSON.parse(response.body, symbolize_names: true)
           expect(service.call(endpoint:)[:data].first).to eq(res[:data].first)
-        end
-      end
-    end
-
-    describe 'error message formatting' do
-      context 'when response is nil' do
-        it 'returns a message indicating no response was received' do
-          expect do
-            Crm::ErrorHandler.handle(endpoint,
-                                     nil)
-          end.to raise_error(Crm::ErrorHandler::ServiceError, "Server Error to #{endpoint}: ")
-        end
-      end
-
-      context 'with specific response status codes' do
-        include_examples 'error handling', 400, 'Bad request'
-        include_examples 'error handling', 401, 'Unauthorized'
-        include_examples 'error handling', 403, 'Forbidden: You do not have permission to access'
-        include_examples 'error handling', 404, 'Resource not found'
-      end
-
-      context 'with unspecified response status codes' do
-        let(:body) { 'General error message' }
-
-        it 'returns a generic error message' do
-          response = mock_response(status: 418, body:)
-          expect do
-            Crm::ErrorHandler.handle(endpoint, response)
-          end.to raise_error(Crm::ErrorHandler::ServiceError, "Service Error to #{endpoint}: \"#{body}\"")
         end
       end
     end

@@ -34,16 +34,19 @@ namespace :ivc_champva do
         'country' => @data.dig('veteran', 'address', 'country') || 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
-        'businessLine' => 'CMP'
+        'businessLine' => 'CMP',
+        'uuid' => @uuid,
+        'primaryContactInfo' => @data.dig('primary_contact_info')
       }
     end
     METADATA
 
-    submission_date_config_method = <<-SUB_DATE_CONFIG
-      def submission_date_config
-        { should_stamp_date?: false }
+    track_user_identity_method = <<-TRACK_USER_CONFIG
+      def track_user_identity
+        # Add STATS_KEY to top of file
+        # Copy other data from 10-10D
       end
-    SUB_DATE_CONFIG
+    TRACK_USER_CONFIG
 
     method_missing_method = <<-METHOD_MISSING
     def method_missing(_, *args)
@@ -74,14 +77,15 @@ namespace :ivc_champva do
 
       f.puts ''
       f.puts '    def initialize(data)'
-      f.puts '      @data = data'
+      f.puts '      @data = data,'
+      f.puts "      @uuid = #{SecureRandom.uuid}"
       f.puts '    end'
 
       f.puts ''
 
       f.puts metadata_method
 
-      f.puts submission_date_config_method
+      f.puts track_user_identity_method
 
       f.puts method_missing_method
 

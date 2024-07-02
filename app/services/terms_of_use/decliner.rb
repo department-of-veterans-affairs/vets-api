@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
 require 'terms_of_use/exceptions'
+require 'sidekiq/attr_package'
 
 module TermsOfUse
   class Decliner
     include ActiveModel::Validations
 
-    attr_reader :user_account, :icn, :common_name, :version
+    attr_reader :user_account, :icn, :version
 
-    validates :user_account, :icn, :common_name, :version, presence: true
+    validates :user_account, :icn, :version, presence: true
 
-    def initialize(user_account:, common_name:, version:)
+    def initialize(user_account:, version:)
       @user_account = user_account
       @icn = user_account&.icn
-      @common_name = common_name
       @version = version
 
       validate!
@@ -23,6 +23,7 @@ module TermsOfUse
 
     def perform!
       terms_of_use_agreement.declined!
+
       update_sign_up_service
       Logger.new(terms_of_use_agreement:).perform
 
@@ -38,16 +39,13 @@ module TermsOfUse
     end
 
     def update_sign_up_service
-      SignUpServiceUpdaterJob.perform_async(attr_package_key)
+      Rails.logger.info('[TermsOfUse] [Decliner] update_sign_up_service', { icn: })
+      SignUpServiceUpdaterJob.perform_async(user_account.id, version)
     end
 
     def log_and_raise_decliner_error(error)
       Rails.logger.error("[TermsOfUse] [Decliner] Error: #{error.message}", { user_account_id: user_account&.id })
       raise Errors::DeclinerError, error.message
-    end
-
-    def attr_package_key
-      Sidekiq::AttrPackage.create(icn:, signature_name: common_name, version:, expires_in: 2.days)
     end
   end
 end

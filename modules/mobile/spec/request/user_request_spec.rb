@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
+require_relative '../support/helpers/rails_helper'
 
 RSpec.describe 'user', type: :request do
   include JsonSchemaMatchers
@@ -29,7 +27,6 @@ RSpec.describe 'user', type: :request do
 
     before do
       Flipper.enable_actor(:mobile_v1_lighthouse_facilities, user)
-      Flipper.enable('va_online_scheduling')
       Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
       VCR.insert_cassette('sm_client/session')
     end

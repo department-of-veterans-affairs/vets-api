@@ -154,6 +154,11 @@
             },
             "vet360_contact_information": {
               "type": ["object", "null"]
+            },
+            "onboarding": {
+              "show": {
+                "type": ["boolean", "null"]
+              }
             }
           }
         }

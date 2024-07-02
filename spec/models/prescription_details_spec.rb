@@ -44,9 +44,21 @@ describe PrescriptionDetails do
   end
 
   context 'sorted_dispensed_date test cases with dispensed_date' do
-    subject { described_class.new(prescription_details_attributes) }
+    subject do
+      described_class.new(attributes_for(:prescription_details,
+                                         dispensed_date: Time.parse('Thu, 21 Apr 2016 00:00:00 EDT').in_time_zone,
+                                         rx_rf_records: nil))
+    end
 
     it 'sorted_dispensed_date should be same as dispensed_date' do
+      expect(subject).to have_attributes(sorted_dispensed_date: Date.parse('Thu, 21 Apr 2016'))
+    end
+  end
+
+  context 'sorted_dispensed_date test cases with sorted_dispensed_date' do
+    subject { described_class.new(prescription_details_attributes) }
+
+    it 'sorted_dispensed_date should be same as sorted_dispensed_date' do
       expect(subject).to have_attributes(sorted_dispensed_date: Date.parse('Thu, 21 Apr 2016'))
     end
   end
@@ -54,13 +66,15 @@ describe PrescriptionDetails do
   context 'sorted_dispensed_date test cases with nil' do
     subject do
       described_class.new(attributes_for(:prescription_details,
+                                         dispensed_date: nil,
                                          rx_rf_records: [['rf_record',
                                                           [{ refill_date: 'Sat, 15 Jul 2023 00:00:00 EDT',
                                                              dispensed_date: nil }]]]))
     end
 
-    it 'sorted_dispensed_date should be Date.new(0) because rx_rf_records is empty array' do
-      expect(subject).to have_attributes(sorted_dispensed_date: Date.new(0))
+    it 'sorted_dispensed_date should be nil' do
+      puts subject.rx_rf_records
+      expect(subject[:sorted_dispensed_date]).to be_nil
     end
   end
 end

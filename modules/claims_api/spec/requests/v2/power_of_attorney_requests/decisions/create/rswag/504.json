@@ -1,0 +1,32 @@
+{
+  "type": "object",
+  "required": [
+    "errors"
+  ],
+  "properties": {
+    "errors": {
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "detail"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "enum": [
+              "Gateway timeout"
+            ]
+          },
+          "detail": {
+            "type": "string",
+            "enum": [
+              "Did not receive a timely response from an upstream server"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

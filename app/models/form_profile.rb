@@ -102,13 +102,15 @@ class FormProfile
     coe: ['26-1880'],
     adapted_housing: ['26-4555'],
     intent_to_file: ['21-0966'],
-    ivc_champva: ['10-7959F-1']
+    ivc_champva: %w[10-7959F-1 10-7959C],
+    form_upload_flow: ['FORM-UPLOAD-FLOW']
   }.freeze
 
   FORM_ID_TO_CLASS = {
     '0873' => ::FormProfiles::VA0873,
     '1010EZ' => ::FormProfiles::VA1010ez,
     '10-10EZR' => ::FormProfiles::VA1010ezr,
+    '10-7959C' => ::FormProfiles::VHA107959c,
     '10182' => ::FormProfiles::VA10182,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,
@@ -140,7 +142,8 @@ class FormProfile
     '26-1880' => ::FormProfiles::VA261880,
     '26-4555' => ::FormProfiles::VA264555,
     '21-0966' => ::FormProfiles::VA210966,
-    '10-7959F-1' => ::FormProfiles::VA107959f1
+    '10-7959F-1' => ::FormProfiles::VA107959f1,
+    'FORM-UPLOAD-FLOW' => ::FormProfiles::FormUploadFlow
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i

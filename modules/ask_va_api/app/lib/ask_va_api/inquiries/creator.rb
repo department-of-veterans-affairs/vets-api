@@ -31,11 +31,12 @@ module AskVAApi
       end
 
       def handle_response_data(response)
-        if response[:Data].nil?
-          error = JSON.parse(response[:body], symbolize_names: true)
-          raise InquiriesCreatorError, error[:Message]
-        else
+        case response
+        when Hash
           response[:Data]
+        else
+          error = JSON.parse(response.body, symbolize_names: true)
+          raise(InquiriesCreatorError, error[:Message])
         end
       end
     end

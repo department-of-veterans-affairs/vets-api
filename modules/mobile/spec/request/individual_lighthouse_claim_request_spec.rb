@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
+require_relative '../support/helpers/rails_helper'
+
 require 'lighthouse/benefits_claims/configuration'
 require 'lighthouse/benefits_claims/service'
 
@@ -26,6 +25,7 @@ RSpec.describe 'lighthouse individual claim', type: :request do
         VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
           get '/mobile/v0/claim/600117255', headers: sis_headers
         end
+
         tracked_item_with_no_docs = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').select do |event|
           event['trackedItemId'] == 360_055
         end.first
@@ -43,13 +43,12 @@ RSpec.describe 'lighthouse individual claim', type: :request do
         expect(tracked_item_with_no_docs['uploaded']).to eq(false)
 
         uploaded_of_events = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').pluck('uploaded').compact
-        date_of_events = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').select do |event|
-          event['uploaded'] || !event.key?('uploaded')
-        end.pluck('date')
+        date_of_events = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').pluck('date')
 
         expect(uploaded_of_events).to eq([false, false, false, true, true, true, true, true])
-        expect(date_of_events).to eq(['2023-03-01', '2022-12-12', '2022-10-30', '2022-10-30', '2022-10-11',
-                                      '2022-09-30', '2022-09-30', '2022-09-27', nil, nil, nil, nil, nil, nil, nil, nil])
+        expect(date_of_events).to eq(['2022-10-30', '2022-10-30', '2022-09-30', '2023-03-01', '2022-12-12',
+                                      '2022-10-30', '2022-10-30', '2022-10-11', '2022-09-30', '2022-09-30',
+                                      '2022-09-27', nil, nil, nil, nil, nil, nil, nil, nil])
       end
     end
 

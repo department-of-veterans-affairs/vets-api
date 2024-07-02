@@ -17,12 +17,16 @@ module AccreditedRepresentativePortal
     attribute :last_signed_in
     attribute :loa
     attribute :logingov_uuid
-    attribute :ogc_number
+    attribute :ogc_registration_number
     attribute :poa_codes
     attribute :sign_in
     attribute :uuid
     alias_attribute :mhv_icn, :icn
 
     validates :uuid, :email, :first_name, :last_name, :icn, presence: true
+
+    def flipper_id
+      email&.downcase
+    end
   end
 end

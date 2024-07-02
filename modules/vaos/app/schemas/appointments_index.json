@@ -14,7 +14,6 @@
           "id",
           "identifier",
           "kind",
-          "location_id",
           "cancellable"
         ],
         "properties": {
@@ -111,10 +110,7 @@
           },
           "description": { "type": "string" },
           "priority": { "type": "number" },
-          "patient_icn": {
-            "type": "string",
-            "nullable": false
-          },
+          "patient_icn": { "type": "string" },
           "location_id": { "type": "string" },
           "clinic": { "type": "string" },
           "practitioner_ids": {
@@ -143,10 +139,7 @@
                     "required": ["system", "value"],
                     "properties": {
                       "system": { "type": "string" },
-                      "value": {
-                        "type": "string",
-                        "nullable": true
-                      }
+                      "value": { "type": ["string", "null"] }
                     }
                   }
                 },
@@ -223,13 +216,9 @@
                   "properties": {
                     "type": {
                       "type": "string",
-                      "nullable": false,
                       "enum": [ "email", "phone"]
                     },
-                    "value": {
-                      "type": "string",
-                      "nullable": false
-                    }
+                    "value": { "type": "string" }
                   }
                 }
               }
@@ -361,7 +350,7 @@
                 }
               },
               "cc_requested_cancellation": { "type": "boolean" },
-              "hsrm_tast_id": { "type": "string" },
+              "hsrm_task_id": { "type": "string" },
               "hsrm_consult_id": { "type": "string" },
               "vista_status": {
                 "type": "array",

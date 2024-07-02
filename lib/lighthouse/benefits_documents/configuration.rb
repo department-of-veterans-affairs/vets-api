@@ -73,7 +73,7 @@ module BenefitsDocuments
           systemName: SYSTEM_NAME,
           docType: document_data[:document_type],
           claimId: document_data[:claim_id],
-          fileNumber: document_data[:file_number],
+          participantId: document_data[:participant_id],
           fileName: document_data[:file_name],
           # In theory one document can correspond to multiple tracked items
           # To do that, add multiple query parameters
@@ -81,16 +81,17 @@ module BenefitsDocuments
         }
       }
 
-      payload[:parameters] = data
-      fn = Tempfile.new('params')
-      File.write(fn, data.to_json)
-      payload[:parameters] = Faraday::UploadIO.new(fn, 'application/json')
+      payload[:parameters] = Faraday::Multipart::ParamPart.new(
+        data.to_json,
+        'application/json'
+      )
 
       file = Tempfile.new(document_data[:file_name])
       File.write(file, file_body)
 
-      file_mime_type = MimeMagic.by_path(document_data[:file_name]).type
-      payload[:file] = Faraday::UploadIO.new(file, file_mime_type)
+      mime_type = MimeMagic.by_path(document_data[:file_name]).type
+      payload[:file] = Faraday::UploadIO.new(file, mime_type)
+
       payload
     end
 

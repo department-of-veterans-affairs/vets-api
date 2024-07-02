@@ -34,11 +34,9 @@ module ClaimsApi
             )
           end
 
-          render json: poa, serializer: ClaimsApi::PowerOfAttorneySerializer, key_transform: :camel_lower
-        end
-
-        def request_representative
-          render json: { data: { attributes: { success: true } } }, status: :created
+          serialized_response = ClaimsApi::PowerOfAttorneySerializer.new(poa).serializable_hash
+          serialized_response[:data][:type] = serialized_response[:data][:type].to_s.camelize(:lower)
+          render json: serialized_response.deep_transform_keys! { |key| key.to_s.camelize(:lower).to_sym }
         end
 
         private
@@ -124,7 +122,11 @@ module ClaimsApi
 
           individuals = ::Veteran::Service::Representative.where('? = ANY(poa_codes)',
                                                                  poa_code).order(created_at: :desc)
-          return {} if individuals.blank?
+          if individuals.blank?
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "Could not retrieve Power of Attorney with code: #{poa_code}"
+            )
+          end
 
           if individuals.pluck(:representative_id).uniq.count > 1
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(

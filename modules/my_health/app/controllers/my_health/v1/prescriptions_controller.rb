@@ -15,15 +15,8 @@ module MyHealth
       def index
         resource = collection_resource
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
-        sorting_key_primary = params[:sort]&.first
         resource.data = filter_non_va_meds(resource.data)
-        resource = if sorting_key_primary == 'prescription_name'
-                     sort_by_prescription_name(resource)
-                   elsif sorting_key_primary == '-dispensed_date'
-                     last_refill_date_filter(resource)
-                   else
-                     resource.sort(params[:sort])
-                   end
+        resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
@@ -46,6 +39,19 @@ module MyHealth
       def refill
         client.post_refill_rx(params[:id])
         head :no_content
+      end
+
+      def documentation
+        if Flipper.enabled?(:mhv_medications_display_documentation_content, @current_user)
+          begin
+            documentation = client.get_rx_documentation # TODO: add params[:id] once endpoint is ready
+            render json: documentation, status: response.code
+          rescue => e
+            render json: { error: "Unable to fetch documentation: #{e}" }, status: :service_unavailable
+          end
+        else
+          render json: { error: 'Documentation is not available' }, status: :not_found
+        end
       end
 
       def refill_prescriptions

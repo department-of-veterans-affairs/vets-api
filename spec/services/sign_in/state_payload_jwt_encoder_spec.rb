@@ -10,6 +10,7 @@ RSpec.describe SignIn::StatePayloadJwtEncoder do
                                          client_state:,
                                          type:,
                                          acr:,
+                                         scope:,
                                          client_config:).perform
     end
 
@@ -18,8 +19,11 @@ RSpec.describe SignIn::StatePayloadJwtEncoder do
     let(:client_state) { 'some-client-state' }
     let(:acr) { 'some-acr' }
     let(:type) { 'some-type' }
-    let(:client_config) { create(:client_config, pkce:) }
+    let(:scope) { nil }
+    let(:client_config) { create(:client_config, pkce:, shared_sessions:, authentication:) }
     let(:pkce) { true }
+    let(:shared_sessions) { false }
+    let(:authentication) { SignIn::Constants::Auth::API }
     let(:client_state_minimum_length) { SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }
 
     shared_context 'validated code challenge state payload jwt' do
@@ -51,6 +55,40 @@ RSpec.describe SignIn::StatePayloadJwtEncoder do
 
         it 'saves a StateCode in redis' do
           expect { subject }.to change { SignIn::StateCode.find(code) }.from(nil)
+        end
+      end
+
+      context 'and given scope is set to device_sso' do
+        let(:scope) { SignIn::Constants::Auth::DEVICE_SSO }
+
+        context 'and client config is set to API authentication' do
+          let(:authentication) { SignIn::Constants::Auth::API }
+
+          context 'and client config is set to enable shared sessions' do
+            let(:shared_sessions) { true }
+
+            it_behaves_like 'properly encoded state payload jwt'
+          end
+
+          context 'and client config is not set to enable shared sessions' do
+            let(:shared_sessions) { false }
+            let(:expected_error) { SignIn::Errors::InvalidScope }
+            let(:expected_error_message) { 'Scope is not valid for Client' }
+
+            it 'raises an invalid scope error' do
+              expect { subject }.to raise_exception(expected_error, expected_error_message)
+            end
+          end
+        end
+
+        context 'and client config is set to COOKIE authentication' do
+          let(:authentication) { SignIn::Constants::Auth::COOKIE }
+          let(:expected_error) { SignIn::Errors::InvalidScope }
+          let(:expected_error_message) { 'Scope is not valid for Client' }
+
+          it 'raises an invalid scope error' do
+            expect { subject }.to raise_exception(expected_error, expected_error_message)
+          end
         end
       end
 

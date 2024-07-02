@@ -2,8 +2,6 @@
 
 module Vye
   class Vye::DirectDepositChange < ApplicationRecord
-    self.ignored_columns += %i[rpo ben_type chk_digit]
-
     belongs_to :user_info
 
     ENUM_ACCT_TYPE = ActiveSupport::HashWithIndifferentAccess.new(checking: 'C', savings: 'S')

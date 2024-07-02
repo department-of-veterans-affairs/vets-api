@@ -12,6 +12,10 @@ module MyHealth
         MyHealth::UrlHelper.new.v1_prescription_trackings_url(object.prescription_id) if object.trackable?
       end
 
+      def facility_name
+        object.facility_api_name.presence || object.facility_name
+      end
+
       attribute :prescription_id
       attribute :prescription_number
       attribute :prescription_name

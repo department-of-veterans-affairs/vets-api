@@ -26,6 +26,9 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
 
       VCR.use_cassette('lighthouse/benefits_education/gi_bill_status/200_response') do
         expect(StatsD).to receive(:increment).with(V1::Post911GIBillStatusesController::STATSD_GI_BILL_TOTAL_KEY)
+        expect(StatsD).to receive(:increment).with(
+          "api.external_http_request.#{BenefitsEducation::Configuration.instance.service_name}.success", 1, anything
+        )
         get :show
       end
 

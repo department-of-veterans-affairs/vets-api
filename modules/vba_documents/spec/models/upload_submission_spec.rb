@@ -156,6 +156,33 @@ describe VBADocuments::UploadSubmission, type: :model do
     end
   end
 
+  describe 'clear_old_error' do
+    it 'clears error fields when moving out of error status' do
+      upload = FactoryBot.create(:upload_submission, status: 'error', code: 'MAV505', detail: 'Mav Error')
+      upload.status = 'received'
+      upload.save!
+      expect(upload.detail).to be_nil
+      expect(upload.code).to be_nil
+      expect(upload.status).to eq('received')
+    end
+  end
+
+  describe 'retains_error_fields' do
+    it 'retains error fields when saved after edit if status does not change from error' do
+      upload = FactoryBot.create(:upload_submission,
+                                 status: 'error',
+                                 code: 'MAV505',
+                                 detail: 'Mav Error',
+                                 s3_deleted: false)
+      upload.s3_deleted = true
+      upload.save!
+      expect(upload.detail).to eq('Mav Error')
+      expect(upload.code).to eq('MAV505')
+      expect(upload.status).to eq('error')
+      expect(upload.s3_deleted).to be true
+    end
+  end
+
   describe 'refresh_status!' do
     it 'updates received status from upstream' do
       expect(client_stub).to receive(:status).and_return(faraday_response)
@@ -352,21 +379,21 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload.status = 'uploaded'
       upload.save!
       elapsed = upload.metadata['status']['pending']['end'] - upload.metadata['status']['pending']['start']
-      expect(elapsed).to be == 60
+      expect(elapsed).to eq 60
     end
 
     it 'records status changes' do
       upload = VBADocuments::UploadSubmission.new
       upload.status = 'uploaded'
       upload.save!
-      expect(upload.metadata['status']['pending']['start'].class).to be == Integer
-      expect(upload.metadata['status']['pending']['end'].class).to be == Integer
-      expect(upload.metadata['status']['uploaded']['start'].class).to be == Integer
-      expect(upload.metadata['status']['uploaded']['end'].class).to be == NilClass
+      expect(upload.metadata['status']['pending']['start'].class).to eq Integer
+      expect(upload.metadata['status']['pending']['end'].class).to eq Integer
+      expect(upload.metadata['status']['uploaded']['start'].class).to eq Integer
+      expect(upload.metadata['status']['uploaded']['end'].class).to eq NilClass
       upload.status = 'error'
       upload.save!
-      expect(upload.metadata['status']['uploaded']['end'].class).to be == Integer
-      expect(upload.metadata['status']['error']['start'].class).to be == Integer
+      expect(upload.metadata['status']['uploaded']['end'].class).to eq Integer
+      expect(upload.metadata['status']['error']['start'].class).to eq Integer
     end
 
     it 'records status changes after being found' do
@@ -376,8 +403,8 @@ describe VBADocuments::UploadSubmission, type: :model do
       found = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       found.status = 'error'
       found.save!
-      expect(found.metadata['status']['uploaded']['end'].class).to be == Integer
-      expect(found.metadata['status']['error']['start'].class).to be == Integer
+      expect(found.metadata['status']['uploaded']['end'].class).to eq Integer
+      expect(found.metadata['status']['error']['start'].class).to eq Integer
     end
 
     it 'does not allow the same guid used twice' do

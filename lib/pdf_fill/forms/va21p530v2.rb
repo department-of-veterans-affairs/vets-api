@@ -448,8 +448,9 @@ module PdfFill
             limit: 32
           },
           'placeAndLocation' => {
-            limit: 75,
-            question_num: 16,
+            limit: 42,
+            question_num: 20,
+            question_suffix: 'B',
             question_text: "PLEASE PROVIDE VETERAN'S SPECIFIC PLACE OF DEATH INCLUDING THE NAME AND LOCATION OF THE NURSING HOME, VA MEDICAL CENTER OR STATE VETERAN FACILITY.",
             key: 'form1[0].#subform[37].DeathOccurredPlaceAndLocation[1]'
           }

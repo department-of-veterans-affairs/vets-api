@@ -12,9 +12,6 @@ staging:
   - decision_review_monthly_stats_report_enabled
 sandbox:
 production:
-  - decision_review_hlr_pii_expunge_enabled
-  - decision_review_nod_pii_expunge_enabled
-  - decision_review_sc_pii_expunge_enabled
   - decision_review_hlr_status_updater_enabled
   - decision_review_nod_status_updater_enabled
   - decision_review_sc_status_updater_enabled

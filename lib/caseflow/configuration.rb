@@ -2,7 +2,7 @@
 
 require 'common/client/middleware/response/caseflow_errors'
 require 'common/client/configuration/rest'
-require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/raise_custom_error'
 
 module Caseflow
   ##
@@ -42,7 +42,7 @@ module Caseflow
         faraday.use :breakers
         faraday.request :json
 
-        faraday.response :raise_error, error_prefix: service_name
+        faraday.response :raise_custom_error, error_prefix: service_name
         faraday.response :caseflow_errors
         faraday.response :betamocks if mock_enabled?
         faraday.response :json

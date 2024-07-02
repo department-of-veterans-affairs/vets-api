@@ -21,12 +21,6 @@ module AppealsApi
 
     before_create :assign_metadata, :assign_veteran_icn
 
-    scope :pii_expunge_policy, lambda {
-      timeframe = 7.days.ago
-      v1.where('updated_at < ? AND status IN (?)', timeframe, COMPLETE_STATUSES + ['success'])
-        .or(v2_or_v0.where('updated_at < ? AND status IN (?)', timeframe, COMPLETE_STATUSES))
-    }
-
     scope :stuck_unsubmitted, lambda {
       where('created_at < ? AND status IN (?)', 2.hours.ago, %w[pending submitting])
     }

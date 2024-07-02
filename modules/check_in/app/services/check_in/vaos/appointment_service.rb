@@ -8,9 +8,8 @@ require 'memoist'
 module CheckIn
   module VAOS
     class AppointmentService < CheckIn::VAOS::BaseService
-      def get_appointments(start_date, end_date, statuses = nil)
+      def get_appointments(start_date, end_date)
         params = date_params(start_date, end_date)
-                 .merge(status_params(statuses))
                  .compact
 
         with_monitoring do
@@ -27,10 +26,6 @@ module CheckIn
 
       def date_params(start_date, end_date)
         { start: date_format(start_date), end: date_format(end_date) }
-      end
-
-      def status_params(statuses)
-        { statuses: }
       end
 
       def date_format(date)

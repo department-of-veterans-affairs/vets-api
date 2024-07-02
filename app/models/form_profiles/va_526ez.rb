@@ -66,6 +66,14 @@ module VA526ez
 
     attribute :veteran, FormContactInformation
   end
+
+  # internal form prefill
+  # does not reach out to external services
+  class Form526Prefill
+    include Virtus.model
+
+    attribute :started_form_version, String
+  end
 end
 
 class FormProfiles::VA526ez < FormProfile
@@ -73,12 +81,34 @@ class FormProfiles::VA526ez < FormProfile
   attribute :rated_disabilities_information, VA526ez::FormRatedDisabilities
   attribute :veteran_contact_information, VA526ez::FormContactInformation
   attribute :payment_information, VA526ez::FormPaymentAccountInformation
+  attribute :prefill_526, VA526ez::Form526Prefill
 
   def prefill
-    @rated_disabilities_information = initialize_rated_disabilities_information
-    @veteran_contact_information = initialize_veteran_contact_information
-    @payment_information = initialize_payment_information
-    super
+    @prefill_526 = initialize_form526_prefill
+
+    begin
+      @rated_disabilities_information = initialize_rated_disabilities_information
+    rescue => e
+      Rails.logger.error("Form526 Prefill for rated disabilities failed. #{e.message}")
+    end
+
+    begin
+      @veteran_contact_information = initialize_veteran_contact_information
+    rescue => e
+      Rails.logger.error("Form526 Prefill for veteran contact information failed. #{e.message}")
+    end
+
+    begin
+      @payment_information = initialize_payment_information
+    rescue => e
+      Rails.logger.error("Form526 Prefill for payment information failed. #{e.message}")
+    end
+
+    prefill_base_class_methods
+
+    mappings = self.class.mappings_for_form(form_id)
+    form_data = generate_prefill(mappings)
+    { form_data:, metadata: }
   end
 
   def metadata
@@ -114,6 +144,34 @@ class FormProfiles::VA526ez < FormProfile
 
   private
 
+  def prefill_base_class_methods
+    begin
+      @identity_information = initialize_identity_information
+    rescue => e
+      Rails.logger.error("Form526 Prefill for identity information failed. #{e.message}")
+    end
+
+    begin
+      @contact_information = initialize_contact_information
+    rescue => e
+      Rails.logger.error("Form526 Prefill for contact information failed. #{e.message}")
+    end
+
+    begin
+      @military_information = initialize_military_information
+    rescue => e
+      Rails.logger.error("Form526 Prefill for military information failed. #{e.message}")
+    end
+  end
+
+  def initialize_form526_prefill
+    VA526ez::Form526Prefill.new(
+      # any form that has a startedFormVersion (whether it is '2019' or '2022') will go through the Toxic Exposure flow
+      # '2022' means the Toxic Exposure 1.0 flag.
+      started_form_version: Flipper.enabled?(:disability_526_toxic_exposure, user) ? '2022' : nil
+    )
+  end
+
   def initialize_vets360_contact_info
     return {} unless vet360_contact_info
 
@@ -144,9 +202,9 @@ class FormProfiles::VA526ez < FormProfile
     # from VA Profile alone versus VA Profile + PCIU. This logging will be removed when the Flipper flag is.
     Rails.logger.info("disability_compensation_remove_pciu=#{Flipper.enabled?(:disability_compensation_remove_pciu,
                                                                               user)}," \
-                      "mailing_address=#{contact_info[:mailing_address].present?}," \
-                      "email_address=#{contact_info[:email_address].present?}," \
-                      "primary_phone=#{contact_info[:primary_phone].present?}")
+                        "mailing_address=#{contact_info[:mailing_address].present?}," \
+                        "email_address=#{contact_info[:email_address].present?}," \
+                        "primary_phone=#{contact_info[:primary_phone].present?}")
 
     contact_info = VA526ez::FormContactInformation.new(contact_info)
 

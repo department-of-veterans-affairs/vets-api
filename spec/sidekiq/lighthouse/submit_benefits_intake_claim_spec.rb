@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, uploader_helpers: true do
+RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
   stub_virus_scan
   let(:job) { described_class.new }
   let(:pension_burial) { create(:pension_burial) }
@@ -17,8 +17,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, uploader_helpers: true do
     before do
       allow(BenefitsIntakeService::Service).to receive(:new).and_return(service)
       allow(service).to receive(:uuid)
-      allow(service).to receive(:location).and_return(location)
-      allow(service).to receive(:upload_doc).and_return(response)
+      allow(service).to receive_messages(location:, upload_doc: response)
     end
 
     it 'submits the saved claim successfully' do
@@ -33,8 +32,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, uploader_helpers: true do
     end
 
     it 'submits and gets a response error' do
-      allow(response).to receive(:success?).and_return(false)
-      allow(response).to receive(:body).and_return('There was an error submitting the claim')
+      allow(response).to receive_messages(success?: false, body: 'There was an error submitting the claim')
       expect(job).to receive(:create_form_submission_attempt)
       expect(job).to receive(:generate_metadata).once
       expect(service).to receive(:upload_doc)
@@ -54,7 +52,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, uploader_helpers: true do
 
       expect(record).to receive(:to_pdf).and_return('path1')
       expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
-      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5).and_return('path2')
+      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp: nil).and_return('path2')
       expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
       expect(datestamp_double2).to receive(:run).with(
         text: 'FDC Reviewed - va.gov Submission',
@@ -76,7 +74,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, uploader_helpers: true do
 
       expect(record).to receive(:to_pdf).and_return('path1')
       expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
-      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5).and_return('path2')
+      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp:).and_return('path2')
       expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
       expect(datestamp_double2).to receive(:run).with(
         text: 'FDC Reviewed - va.gov Submission',

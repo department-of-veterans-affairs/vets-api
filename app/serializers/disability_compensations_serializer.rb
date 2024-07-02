@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class DisabilityCompensationsSerializer < ActiveModel::Serializer
+  type 'direct_deposit/disability_compensations'
+
   attributes :control_information, :payment_account
 
   def control_information
@@ -23,9 +25,5 @@ class DisabilityCompensationsSerializer < ActiveModel::Serializer
 
   def id
     nil
-  end
-
-  def type
-    'direct_deposit/disability_compensations'
   end
 end

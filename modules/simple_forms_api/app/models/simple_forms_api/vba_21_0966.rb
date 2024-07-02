@@ -11,6 +11,12 @@ module SimpleFormsApi
       @data = data
     end
 
+    def words_to_remove
+      veteran_ssn + veteran_date_of_birth + veteran_address + veteran_home_phone + veteran_email +
+        surviving_dependent_ssn + surviving_dependent_address + surviving_dependent_phone +
+        surviving_dependent_email + surviving_dependent_date_of_birth
+    end
+
     def metadata
       {
         'veteranFirstName' => @data.dig('veteran_full_name', 'first'),
@@ -92,6 +98,82 @@ module SimpleFormsApi
     end
 
     private
+
+    def veteran_ssn
+      [
+        data.dig('veteran_id', 'ssn')&.[](0..2),
+        data.dig('veteran_id', 'ssn')&.[](3..4),
+        data.dig('veteran_id', 'ssn')&.[](5..8)
+      ]
+    end
+
+    def veteran_date_of_birth
+      [
+        data['veteran_date_of_birth']&.[](0..3),
+        data['veteran_date_of_birth']&.[](5..6),
+        data['veteran_date_of_birth']&.[](8..9)
+      ]
+    end
+
+    def veteran_address
+      [
+        data.dig('veteran_mailing_address', 'postal_code')&.[](0..4),
+        data.dig('veteran_mailing_address', 'postal_code')&.[](5..8)
+      ]
+    end
+
+    def veteran_home_phone
+      [
+        data['veteran_phone']&.gsub('-', '')&.[](0..2),
+        data['veteran_phone']&.gsub('-', '')&.[](3..5),
+        data['veteran_phone']&.gsub('-', '')&.[](6..9)
+      ]
+    end
+
+    def veteran_email
+      [
+        data['veteran_email']&.[](20..29),
+        data['veteran_email']&.[](0..19)
+      ]
+    end
+
+    def surviving_dependent_ssn
+      [
+        data.dig('surviving_dependent_id', 'ssn')&.[](0..2),
+        data.dig('surviving_dependent_id', 'ssn')&.[](3..4),
+        data.dig('surviving_dependent_id', 'ssn')&.[](5..8)
+      ]
+    end
+
+    def surviving_dependent_address
+      [
+        data.dig('surviving_dependent_mailing_address', 'postal_code')&.[](0..4),
+        data.dig('surviving_dependent_mailing_address', 'postal_code')&.[](5..8)
+      ]
+    end
+
+    def surviving_dependent_phone
+      [
+        data['surviving_dependent_phone']&.gsub('-', '')&.[](0..2),
+        data['surviving_dependent_phone']&.gsub('-', '')&.[](3..5),
+        data['surviving_dependent_phone']&.gsub('-', '')&.[](6..9)
+      ]
+    end
+
+    def surviving_dependent_email
+      [
+        data['surviving_dependent_email']&.[](20..29),
+        data['surviving_dependent_email']&.[](0..19)
+      ]
+    end
+
+    def surviving_dependent_date_of_birth
+      [
+        data['surviving_dependent_date_of_birth']&.[](0..3),
+        data['surviving_dependent_date_of_birth']&.[](5..6),
+        data['surviving_dependent_date_of_birth']&.[](8..9)
+      ]
+    end
 
     def roles
       {

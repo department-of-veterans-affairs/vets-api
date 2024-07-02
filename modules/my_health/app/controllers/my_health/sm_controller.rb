@@ -15,17 +15,7 @@ module MyHealth
     end
 
     def authorize
-      raise_access_denied unless mhv_messaging_authorized?
-    end
-
-    def mhv_messaging_authorized?
-      if Flipper.enabled?(:mhv_sm_session_policy, current_user)
-        Rails.logger.info('SMController Using new SM session policy')
-        current_user.authorize(:mhv_messaging, :access?)
-      else
-        Rails.logger.info('SMController Using Legacy SM session policy')
-        current_user.authorize(:legacy_mhv_messaging, :access?)
-      end
+      raise_access_denied unless current_user.authorize(:mhv_messaging, :access?)
     end
 
     def raise_access_denied

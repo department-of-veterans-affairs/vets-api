@@ -132,7 +132,7 @@ describe VAOS::Middleware::VAOSLogging do
         url: '(POST) https://veteran.apps.va.gov/vaos/v1/patients/' \
              '441ab560b8fc574c6bf84d6c6105318b79455321a931ef701d39f4ff91894c64/appointments'
       }
-      rails_log_msg = 'VAOS service call failed - timeout'                     
+      rails_log_msg = 'VAOS service call failed - timeout'
 
       allow_any_instance_of(Faraday::Adapter).to receive(:call).and_raise(Faraday::TimeoutError)
       allow(Rails.logger).to receive(:warn).with(rails_log_msg, anything).and_call_original

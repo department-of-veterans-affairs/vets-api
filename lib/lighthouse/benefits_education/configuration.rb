@@ -25,17 +25,10 @@ module BenefitsEducation
     end
 
     ##
-    # @return [String] Base path for benefits_education URLs.
-    #
-    def base_path
-      benefits_education_settings.host.to_s
-    end
-
-    ##
     # @return [String] API endpoint for benefits_education
     #
-    def base_api_path
-      "#{base_path}/#{API_PATH}"
+    def base_path
+      "#{benefits_education_settings.host}/#{API_PATH}"
     end
 
     ##
@@ -58,7 +51,7 @@ module BenefitsEducation
     # @return [Faraday::Connection] a Faraday connection instance.
     #
     def connection
-      @conn ||= Faraday.new(base_api_path, headers: base_request_headers, request: request_options) do |faraday|
+      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use :breakers
         faraday.use Faraday::Response::RaiseError
 
@@ -99,13 +92,14 @@ module BenefitsEducation
     def token_service
       lighthouse_client_id = benefits_education_settings.access_token.client_id
       lighthouse_rsa_key_path = benefits_education_settings.access_token.rsa_key
+      token_url = "#{benefits_education_settings.host}/#{TOKEN_PATH}"
 
       # aud_claim_url found here:
       # https://developer.va.gov/explore/api/education-benefits/client-credentials#:~:text=Description-,aud,-True
       aud_claim_url ||= benefits_education_settings.access_token.aud_claim_url
 
       @token_service ||= Auth::ClientCredentials::Service.new(
-        "#{base_path}/#{TOKEN_PATH}",
+        token_url,
         API_SCOPES,
         lighthouse_client_id,
         aud_claim_url,

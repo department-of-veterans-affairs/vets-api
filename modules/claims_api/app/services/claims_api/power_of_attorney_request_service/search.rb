@@ -4,36 +4,20 @@ module ClaimsApi
   module PowerOfAttorneyRequestService
     module Search
       class << self
-        def perform
-          # `Array.wrap` (the `ActiveSupport` core extension with nicer behavior
-          # than Ruby core) because upstream invocation of `Hash.from_xml` has
-          # different output depending on the cardinality of sibling XML
-          # elements for a given kind:
-          #    0 => Absent
-          #    1 => Object
-          #   >1 => Array
-          poa_requests = make_request['poaRequestRespondReturnVOList']
-          Array.wrap(poa_requests).map { |data| PoaRequest.new(data) }
-        end
+        def perform(params)
+          # This ensures that our data is totally valid. If not, it raises. If
+          # it is valid, it gives back a query object with defaults filled out
+          # that we can then show back to the client as helpful metadata.
+          query = Query.compile!(params)
+          total_count, data = PowerOfAttorneyRequest.search(query)
 
-        private
-
-        def make_request
-          bgs_client =
-            ClaimsApi::ManageRepresentativeService.new(
-              external_uid: 'xUid',
-              external_key: 'xKey'
-            )
-
-          bgs_client.read_poa_request(
-            poa_codes: ['012'],
-            statuses: %w[
-              new
-              pending
-              accepted
-              declined
-            ]
-          )
+          {
+            metadata: {
+              total_count:,
+              query:
+            },
+            data:
+          }
         end
       end
     end

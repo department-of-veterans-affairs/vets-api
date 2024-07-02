@@ -1,0 +1,415 @@
+{
+  "questions": {
+    "has_repayments": true,
+    "has_credit_card_bills": true,
+    "has_recreational_vehicle": true,
+    "has_vehicle": true,
+    "has_real_estate": true,
+    "spouse_has_benefits": true,
+    "is_married": true,
+    "has_dependents": "2",
+    "has_been_adjudicated_bankrupt": true,
+    "vet_is_employed": true,
+    "spouse_is_employed": true
+  },
+  "view:components": {
+    "view:contracts_additional_info": {},
+    "view:rec_vehicle_info": {},
+    "view:real_estate_additional_info": {},
+    "view:marital_status": {},
+    "view:veteran_info": {},
+    "view:dependents_additional_info": {},
+    "view:va_benefits_on_file": {}
+  },
+  "assets": {
+    "rec_vehicle_amount": "123",
+    "real_estate_value": "3212",
+    "monetary_assets": [
+      {
+        "name": "Cash on hand (not in bank)",
+        "amount": "125"
+      },
+      {
+        "name": "Cash in a bank (savings and checkings)",
+        "amount": "329.12"
+      }
+    ],
+    "other_assets": [
+      {
+        "name": "Collectibles, or collection(s)",
+        "amount": "12344"
+      },
+      {
+        "name": "Antiques",
+        "amount": "44"
+      },
+      {
+        "name": "Fine art",
+        "amount": "122"
+      }
+    ],
+    "automobiles": [
+      {
+        "make": "fdsa",
+        "model": "dfa",
+        "resale_value": "12"
+      }
+    ]
+  },
+  "benefits": {
+    "spouse_benefits": {
+      "compensation_and_pension": "2132",
+      "education": "4212"
+    }
+  },
+  "personal_data": {
+    "spouse_full_name": {
+      "first": "Rosemary",
+      "last": "Woodhouse"
+    },
+    "veteran_full_name": {
+      "first": "Travis",
+      "last": "Jones",
+      "middle": "D"
+    },
+    "date_of_birth": "1950-09-06",
+    "veteran_contact_information": {
+      "email": "test@user.com",
+      "mobile_phone": {
+        "area_code": "510",
+        "country_code": "1",
+        "created_at": "2020-06-12T16:56:37.000+00:00",
+        "extension": "",
+        "effective_end_date": null,
+        "effective_start_date": "2020-07-14T19:07:45.000+00:00",
+        "id": 146766,
+        "is_international": false,
+        "is_textable": null,
+        "is_text_permitted": null,
+        "is_tty": null,
+        "is_voicemailable": null,
+        "phone_number": "9224444",
+        "phone_type": "HOME",
+        "source_date": "2020-07-14T19:07:45.000+00:00",
+        "source_system_user": null,
+        "transaction_id": "92c49d39-22b2-4bd6-92b4-0b7e7c63c6a9",
+        "updated_at": "2020-07-14T19:07:46.000+00:00",
+        "vet360_id": "1273780"
+      },
+      "address": {
+        "address_line1": "1200 Park Ave",
+        "address_line2": "c/o Pixar",
+        "address_pou": "CORRESPONDENCE",
+        "address_type": "DOMESTIC",
+        "city": "Emeryville",
+        "country_name": "United States",
+        "country_code_iso2": "US",
+        "country_code_iso3": "USA",
+        "country_code_fips": null,
+        "county_code": null,
+        "county_name": null,
+        "created_at": "2020-05-30T03:57:20.000+00:00",
+        "effective_end_date": null,
+        "effective_start_date": "2020-07-10T20:10:45.000+00:00",
+        "id": 173917,
+        "province": null,
+        "source_date": "2020-07-10T20:10:45.000+00:00",
+        "source_system_user": null,
+        "state_code": "CA",
+        "transaction_id": "7139aa82-fd06-45ea-a217-9654869924bd",
+        "updated_at": "2020-07-10T20:10:46.000+00:00",
+        "validation_key": null,
+        "vet360_id": "1273780",
+        "zip_code": "94608",
+        "zip_code_suffix": null
+      }
+    },
+    "dependents": [
+      {
+        "dependent_age": "12"
+      },
+      {
+        "dependent_age": "13"
+      }
+    ],
+    "address": {
+      "street": "375 Mountainhigh Dr",
+      "city": "Antioch",
+      "state": "TN",
+      "country": "USA",
+      "postal_code": "37013"
+    },
+    "telephone_number": "4445551212",
+    "email_address": "test2@test1.net",
+    "employment_history": {
+      "veteran": {
+        "employment_records": [
+          {
+            "type": "Full time",
+            "from": "2020-3-XX",
+            "to": "",
+            "is_current": true,
+            "employer_name": "Veteran Current",
+            "gross_monthly_income": "102.55",
+            "deductions": [
+              {
+                "name": "State tax",
+                "amount": "5.45"
+              },
+              {
+                "name": "Retirement accounts (401k, IRAs, 403b, TSP)",
+                "amount": "6.78"
+              }
+            ]
+          },
+          {
+            "type": "Part time",
+            "from": "2017-1-XX",
+            "to": "2020-2-XX",
+            "is_current": false,
+            "employer_name": "Veteran Previous"
+          }
+        ]
+      },
+      "spouse": {
+        "sp_employment_records": [
+          {
+            "type": "Full time",
+            "from": "2018-6-XX",
+            "to": "",
+            "is_current": true,
+            "employer_name": "Spouse Current",
+            "gross_monthly_income": "100",
+            "deductions": [
+              {
+                "name": "State tax",
+                "amount": "10"
+              }
+            ]
+          },
+          {
+            "type": "Full time",
+            "from": "2015-3-XX",
+            "to": "2018-6-XX",
+            "employer_name": "Spouse Previous",
+            "is_current": false
+          }
+        ]
+      }
+    }
+  },
+  "personal_identification": {
+    "ssn": "3018",
+    "file_number": "3018"
+  },
+  "selected_debts_and_copays": [
+    {
+      "resolution_waiver_check": true,
+      "resolution_option": "waiver",
+      "file_number": "796121200",
+      "payee_number": "00",
+      "person_entitled": "AJHONS",
+      "deduction_code": "30",
+      "benefit_type": "Comp & Pen",
+      "diary_code": "080",
+      "diary_code_description": "Referred to the Department of the Treasury",
+      "amount_overpaid": 0,
+      "amount_withheld": 0,
+      "original_ar": 136.24,
+      "current_ar": 100,
+      "debt_history": [
+        {
+          "date": "02/25/2009",
+          "letter_code": "914",
+          "description": "Paid In Full - Account balance cleared via offset, not including TOP."
+        },
+        {
+          "date": "02/07/2009",
+          "letter_code": "905",
+          "description": "Administrative Write Off"
+        },
+        {
+          "date": "12/03/2008",
+          "letter_code": "487",
+          "description": "Death Case Pending Action"
+        }
+      ],
+      "id": 0,
+      "debt_type": "DEBT",
+      "resolution_comment": ""
+    },
+    {
+      "resolution_comment": "32",
+      "resolution_option": "monthly",
+      "file_number": "796121200",
+      "payee_number": "00",
+      "person_entitled": "STUB_M",
+      "deduction_code": "44",
+      "benefit_type": "CH35 EDU",
+      "diary_code": "100",
+      "diary_code_description": "Pending payment",
+      "amount_overpaid": 26000,
+      "amount_withheld": 0,
+      "original_ar": 100,
+      "current_ar": 80,
+      "debt_history": [
+        {
+          "date": "12/19/2014",
+          "letter_code": "681",
+          "description": "Account returned from Treasury Cross Servicing. Account is at TOP.  TOP offsets will be applied to account as Federal funds become available."
+        },
+        {
+          "date": "04/11/2013",
+          "letter_code": "080",
+          "description": "Debt referred to Treasury for Cross servicing"
+        },
+        {
+          "date": "12/11/2012",
+          "letter_code": "510",
+          "description": "Demand letters returned.  Unable to verify address with third party.  Account forced to TOP and/or CS."
+        },
+        {
+          "date": "10/17/2012",
+          "letter_code": "212",
+          "description": "Bad Address - Locator Request Sent"
+        },
+        {
+          "date": "09/28/2012",
+          "letter_code": "117",
+          "description": "Second Demand Letter"
+        },
+        {
+          "date": "09/18/2012",
+          "letter_code": "100",
+          "description": "First Demand Letter - Inactive Benefits - Due Process"
+        }
+      ],
+      "id": 1,
+      "debt_type": "DEBT",
+      "resolution_waiver_check": false
+    },
+    {
+      "resolution_comment": "33",
+      "resolution_option": "compromise",
+      "file_number": "796121200",
+      "payee_number": "00",
+      "person_entitled": "AJOHNS",
+      "deduction_code": "71",
+      "benefit_type": "CH33 Books, Supplies/MISC EDU",
+      "diary_code": "101",
+      "diary_code_description": "Pending automatic benefit offset",
+      "amount_overpaid": 0,
+      "amount_withheld": 0,
+      "original_ar": 166.67,
+      "current_ar": 120.4,
+      "debt_history": [
+        {
+          "date": "09/18/2012",
+          "letter_code": "100",
+          "description": "First Demand Letter - Inactive Benefits - Due Process"
+        }
+      ],
+      "id": 2,
+      "debt_type": "DEBT",
+      "resolution_waiver_check": false
+    }
+  ],
+  "additional_income": {
+    "addl_inc_records": [
+      {
+        "name": "Social Security",
+        "amount": "12"
+      },
+      {
+        "name": "Child support",
+        "amount": "22"
+      }
+    ],
+    "spouse": {
+      "sp_addl_income": [
+        {
+          "name": "Caretaker income",
+          "amount": "321"
+        },
+        {
+          "name": "Rental income",
+          "amount": "812"
+        }
+      ]
+    }
+  },
+  "expenses": {
+    "expense_records": [
+      {
+        "name": "Mortgage payment",
+        "amount": "33"
+      }
+    ],
+    "credit_card_bills": [
+      {
+        "purpose": "Credit card payment",
+        "creditor_name": "",
+        "original_amount": "",
+        "unpaid_balance": "21",
+        "amount_due_monthly": "22",
+        "date_started": "",
+        "amount_past_due": ""
+      }
+    ]
+  },
+  "utility_records": [
+    {
+      "name": "Electricity",
+      "amount": "402.35"
+    },
+    {
+      "name": "Gas",
+      "amount": "85.16"
+    }
+  ],
+  "other_expenses": [
+    {
+      "name": "Clothing",
+      "amount": "10"
+    },
+    {
+      "name": "Food",
+      "amount": "1000.54"
+    }
+  ],
+  "additional_data": {
+    "bankruptcy": {
+      "date_discharged": "2020-02-02",
+      "court_location": "fdas",
+      "docket_number": "dfasa"
+    },
+    "additional_comments": "dfsasfdas"
+  },
+  "view:enhanced_financial_status_report": true,
+  "view:streamlined_waiver": true,
+  "view:streamlined_waiver_asset_update": true,
+  "view:review_page_navigation_toggle": true,
+  "income": [
+    {
+      "veteran_or_spouse": "VETERAN"
+    }
+  ],
+  "gmt_data": {
+    "is_eligible_for_streamlined": false,
+    "gmt_threshold": null,
+    "error": {
+      "error": "Invalid zipcode"
+    }
+  },
+  "installment_contracts": [
+    {
+      "purpose": "fdas",
+      "creditor_name": "",
+      "original_amount": 0,
+      "unpaid_balance": 0,
+      "amount_due_monthly": "32",
+      "date_started": "2021-02-XX",
+      "amount_past_due": 0
+    }
+  ]
+}

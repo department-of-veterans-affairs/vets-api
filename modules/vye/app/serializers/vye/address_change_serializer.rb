@@ -9,7 +9,6 @@ module Vye
       :address3,
       :address4,
       :address5,
-      :address6,
       :city,
       :state,
       :zip_code,

@@ -25,7 +25,6 @@ module Vye
 
         # Define a class method for finding records by the digested value of the specified attribute
         finder = format('find_from_digested_%<name>s', name:)
-        # scope finder, ->(value) { find_by(digested_name => gen_digest(value)) }
         define_singleton_method(finder) do |value|
           find_by(digested_name => gen_digest(value))
         end

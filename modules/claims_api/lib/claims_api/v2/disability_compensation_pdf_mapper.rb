@@ -56,8 +56,16 @@ module ClaimsApi
         @pdf_data[:data][:attributes].delete(:claimantCertification)
         claim_date_and_signature
         claim_process_type
+        claim_notes
 
         @pdf_data
+      end
+
+      def claim_notes
+        if @auto_claim&.dig('claimNotes').present?
+          @pdf_data[:data][:attributes][:overflowText] = @auto_claim&.dig('claimNotes')
+          @pdf_data[:data][:attributes].delete(:claimNotes)
+        end
       end
 
       def claim_process_type
@@ -195,10 +203,8 @@ module ClaimsApi
       # rubocop:disable Layout/LineLength
       def gulfwar_hazard
         gulf = @pdf_data&.dig(:data, :attributes, :toxicExposure, :gulfWarHazardService)
-        if gulf.present?
-          served_gulf_loc = @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:servedInGulfWarHazardLocations]
-          served_gulf_loc == 'NO' || served_gulf_loc.blank? ? 'NO' : 'YES'
-        end
+        return if gulf.blank?
+
         if gulf[:serviceDates].present?
           gulfwar_service_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:gulfWarHazardService][:serviceDates][:beginDate]
           if gulfwar_service_dates_begin.present?
@@ -216,8 +222,10 @@ module ClaimsApi
       end
 
       def herbicide_hazard
-        herb = @pdf_data&.dig(:data, :attributes, :toxicExposure, :herbicideHazardService).present?
-        if herb
+        herb = @pdf_data&.dig(:data, :attributes, :toxicExposure, :herbicideHazardService)
+        return if herb.blank?
+
+        if herb[:serviceDates].present?
           herbicide_service_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:herbicideHazardService][:serviceDates][:beginDate]
           if herbicide_service_dates_begin.present?
             @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates][:start] =
@@ -230,15 +238,14 @@ module ClaimsApi
               make_date_object(herbicide_service_dates_end, herbicide_service_dates_end.length)
           end
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates].delete(:endDate)
-          served_in_herbicide_hazard_locations = @pdf_data[:data][:attributes][:toxicExposure][:herbicideHazardService][:servedInHerbicideHazardLocations]
-          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:servedInHerbicideHazardLocations] =
-            served_in_herbicide_hazard_locations ? 'YES' : 'NO'
         end
       end
 
       def additional_exposures
-        add = @pdf_data&.dig(:data, :attributes, :toxicExposure, :additionalHazardExposures).present?
-        if add
+        add = @pdf_data&.dig(:data, :attributes, :toxicExposure, :additionalHazardExposures)
+        return if add.blank?
+
+        if add[:exposureDates].present?
           additional_exposure_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:additionalHazardExposures][:exposureDates][:beginDate]
           if additional_exposure_dates_begin.present?
             @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:additionalHazardExposures][:exposureDates][:start] =
@@ -255,32 +262,44 @@ module ClaimsApi
       end
 
       def multiple_exposures # rubocop:disable Metrics/MethodLength
-        multi = @pdf_data&.dig(:data, :attributes, :toxicExposure, :multipleExposures).present?
-        if multi
+        if @pdf_data&.dig(:data, :attributes, :toxicExposure, :multipleExposures).present?
           @pdf_data[:data][:attributes][:toxicExposure][:multipleExposures].each_with_index do |exp, index|
-            deep_compact(exp)
-            if exp.empty?
-              @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures].delete_at(index)
-            else
+            if exp[:exposureDates].present?
               multiple_service_dates_begin = exp[:exposureDates][:beginDate]
               if multiple_service_dates_begin.present?
                 @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:start] =
                   make_date_object(multiple_service_dates_begin, multiple_service_dates_begin.length)
               end
               @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates].delete(:beginDate)
+
               multiple_service_dates_end = exp[:exposureDates][:endDate]
               if multiple_service_dates_end.present?
                 @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:end] =
                   make_date_object(multiple_service_dates_end, multiple_service_dates_end.length)
               end
               @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates].delete(:endDate)
+            else
+              @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index].delete(:exposureDates)
             end
+            clean_up_exposure(exp, index)
           end
           if @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures].empty?
             @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure].delete(:multipleExposures)
           end
         end
         @pdf_data
+      end
+
+      def clean_up_exposure(exp, idx)
+        deep_compact(exp)
+
+        if @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][idx][:exposureDates].empty?
+          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][idx].delete(:exposureDates)
+        end
+
+        if exp.empty?
+          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures].delete_at(idx)
+        end
       end
 
       def deep_compact(hash)
@@ -427,6 +446,7 @@ module ClaimsApi
           disability.delete('diagnosticCode')
           disability.delete('disabilityActionType')
           disability.delete('isRelatedToToxicExposure')
+          disability.delete('specialIssues')
           sec_dis = disability['secondaryDisabilities']&.map do |secondary_disability|
             # if secondary disability is present a name is required
             # so it is safe to assume both names are present
@@ -608,19 +628,20 @@ module ClaimsApi
       end
 
       def confinements
-        return if @pdf_data[:data][:attributes][:serviceInformation][:confinements].blank?
+        if @pdf_data[:data][:attributes][:serviceInformation][:confinements].blank?
+          return @pdf_data[:data][:attributes][:serviceInformation].delete(:confinements)
+        end
 
         si = []
         @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement] = { confinementDates: [] }
         @pdf_data[:data][:attributes][:serviceInformation][:confinements].map do |confinement|
           start_date =
-            make_date_object(confinement[:approximateBeginDate], confinement[:approximateBeginDate].length)
+            make_date_object(confinement[:approximateBeginDate], confinement[:approximateBeginDate]&.length)
           end_date =
-            make_date_object(confinement[:approximateEndDate], confinement[:approximateEndDate].length)
+            make_date_object(confinement[:approximateEndDate], confinement[:approximateEndDate]&.length)
 
-          si.push({
-                    start: start_date, end: end_date
-                  })
+          info = deep_compact({ start: start_date, end: end_date })
+          si.push(info)
           si
         end
         pow = si.present?
@@ -652,7 +673,8 @@ module ClaimsApi
 
           area_code = reserves&.dig(:unitPhone, :areaCode)
           phone_number = reserves&.dig(:unitPhone, :phoneNumber)
-          reserves[:unitPhoneNumber] = convert_phone(area_code + phone_number) if area_code && phone_number
+          phone_number&.delete! '-'
+          reserves[:unitPhoneNumber] = (area_code + phone_number) if area_code && phone_number
           reserves.delete(:unitPhone)
 
           reserves[:receivingInactiveDutyTrainingPay] = handle_yes_no(reserves[:receivingInactiveDutyTrainingPay])
@@ -840,7 +862,7 @@ module ClaimsApi
 
       def make_date_object(date, date_length)
         year, month, day = regex_date_conversion(date)
-        return if year.nil?
+        return if year.nil? || date_length.nil?
 
         if date_length == 4
           { year: }
@@ -853,7 +875,7 @@ module ClaimsApi
 
       def make_date_string_month_first(date, date_length)
         year, month, day = regex_date_conversion(date)
-        return if year.nil?
+        return if year.nil? || date_length.nil?
 
         if date_length == 4
           year.to_s

@@ -9,10 +9,10 @@ module AskVAApi
     class Retriever
       attr_reader :icn, :user_mock_data
 
-      def initialize(icn: @test_users['crm_test_user_icn'], user_mock_data: nil)
+      def initialize(icn:, user_mock_data: nil)
         @icn = icn
         @user_mock_data = user_mock_data
-        @test_users = YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']
+        @test_users = I18n.t('ask_va_api.test_users')
       end
 
       def call
@@ -26,7 +26,7 @@ module AskVAApi
       private
 
       def default_service
-        Crm::Service.new(icn: @test_users['crm_test_user_icn'])
+        Crm::Service.new(icn: @test_users[:crm_test_user_icn])
       end
 
       def fetch_data
@@ -39,7 +39,7 @@ module AskVAApi
       end
 
       def load_mock_data
-        data = if icn == @test_users['test_user_228_icn']
+        data = if icn == @test_users[:test_user_228_icn]
                  File.read('modules/ask_va_api/config/locales/get_profile_mock_data.json')
                else
                  generate_mock_error

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Mobile::V0::Adapters::LighthouseIndividualClaims, aggregate_failures: true do
+describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures do
   def claim_data
     JSON.parse(claims_fixture, symbolize_names: false)
   end
@@ -42,11 +42,10 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, aggregate_failures: t
   end
 
   it 'returns expected tracked items events in events_timeline field' do
-    tracked_items = gathering_of_evidence_claim[:events_timeline].select do |event|
-      %w[still_need_from_you_list received_from_you_list].include?(event[:type].to_s)
+    tracked_items = gathering_of_evidence_claim[:events_timeline].filter_map do |event|
+      event.to_h if %w[still_need_from_you_list received_from_you_list].include?(event[:type].to_s)
     end
 
-    tracked_items[3][:date] = tracked_items.dig(3, :date).to_s
     expect(tracked_items.size).to eq(8)
     expect(tracked_items[3]).to eq({ type: 'received_from_you_list',
                                      tracked_item_id: 360_052,
@@ -71,7 +70,10 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, aggregate_failures: t
                                                    filename: '7B434B58-477C-4379-816F-05E6D3A10487.pdf',
                                                    upload_date: '2023-03-01' }],
                                      upload_date: '2023-03-01',
-                                     date: '2023-03-01' })
+                                     date: Date.new(2023, 3, 1),
+                                     file_type: nil,
+                                     document_type: nil,
+                                     filename: nil })
   end
 
   context 'with claim in phase CLAIM_RECEIVED' do

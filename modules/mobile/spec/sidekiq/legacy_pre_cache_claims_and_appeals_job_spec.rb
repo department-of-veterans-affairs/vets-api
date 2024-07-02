@@ -97,7 +97,7 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
         )
         expect do
           subject.perform('iamtheuuidnow')
-        end.not_to raise_error(described_class::MissingUserError, 'iamtheuuidnow')
+        end.not_to raise_error
         expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
       end
     end

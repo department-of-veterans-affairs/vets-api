@@ -375,6 +375,13 @@ class User < Common::RedisStore
     @identity ||= UserIdentity.find(uuid)
   end
 
+  def onboarding
+    @onboarding ||= VeteranOnboarding.for_user(self)
+  end
+
+  # VeteranOnboarding attributes & methods
+  delegate :show_onboarding_flow_on_login, to: :onboarding, allow_nil: true
+
   def vet360_contact_info
     return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && vet360_id.present?
 

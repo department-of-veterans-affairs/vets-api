@@ -311,7 +311,7 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
     shared_examples 'unsuccessful acceptance and provisioning' do
       let(:expected_status) { :unprocessable_entity }
       let(:expected_log) do
-        '[TermsOfUseAgreementsController] accept_and_provision error: TermsOfUse::Errors::AcceptorError'
+        "[TermsOfUseAgreementsController] accept_and_provision error: #{expected_error}"
       end
 
       before do
@@ -355,9 +355,21 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
         it_behaves_like 'successful acceptance and provisioning'
       end
 
-      context 'when the acceptance and provisioning is not successful' do
+      context 'when the acceptance is not successful' do
+        let(:expected_error) { TermsOfUse::Errors::AcceptorError }
+
         before do
-          allow(acceptor).to receive(:perform!).and_raise(TermsOfUse::Errors::AcceptorError)
+          allow(acceptor).to receive(:perform!).and_raise(expected_error)
+        end
+
+        it_behaves_like 'unsuccessful acceptance and provisioning'
+      end
+
+      context 'when the provisioning is not successful' do
+        let(:expected_error) { TermsOfUse::Errors::ProvisionerError }
+
+        before do
+          allow(provisioner).to receive(:perform).and_raise(expected_error)
         end
 
         it_behaves_like 'unsuccessful acceptance and provisioning'
@@ -429,14 +441,6 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
 
       context 'when the provisioning is successful' do
         it_behaves_like 'successful provisioning'
-      end
-
-      context 'when the provisioning is not successful' do
-        let(:expected_status) { :unprocessable_entity }
-        let(:provisioned) { false }
-        let(:expected_log) { '[TermsOfUseAgreementsController] update_provisioning error: Failed to provision' }
-
-        it_behaves_like 'unsuccessful provisioning'
       end
 
       context 'when the provisioning raises an error' do

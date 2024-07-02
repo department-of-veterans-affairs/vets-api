@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'common/client/middleware/faraday_middleware_patch'
 require 'common/client/middleware/request/remove_cookies'
 require 'common/client/middleware/request/immutable_headers'
 require 'hca/soap_parser'
@@ -10,3 +11,5 @@ Rails.application.reloader.to_prepare do
 
   Faraday::Response.register_middleware hca_soap_parser: HCA::SOAPParser
 end
+
+Faraday::Response::RaiseError.default_options = { include_request: false }

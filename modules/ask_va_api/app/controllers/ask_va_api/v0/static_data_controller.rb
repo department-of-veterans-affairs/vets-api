@@ -1,25 +1,21 @@
 # frozen_string_literal: true
 
+require 'brd/brd'
+
 module AskVAApi
   module V0
     class StaticDataController < ApplicationController
       skip_before_action :authenticate
       around_action :handle_exceptions, except: %i[index]
 
-      def index
-        icn = YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']['crm_test_user_icn']
-        service = Crm::Service.new(icn:)
-        options = if params[:key]
-                    key = params[:key].to_sym
-                    { key => params[:value] }
-                  end
-        data = service.call(endpoint: params[:endpoint], payload: options)
-        render json: data.to_json, status: :ok
-      end
-
       def announcements
         get_resource('announcements', user_mock_data: params[:user_mock_data])
         render_result(@announcements)
+      end
+
+      def branch_of_service
+        get_resource('branch_of_service', user_mock_data: params[:user_mock_data])
+        render_result(@branch_of_service)
       end
 
       def categories
@@ -65,7 +61,6 @@ module AskVAApi
         data = retriever_class.new(**options).call
 
         serialized_data = serializer_class.new(data).serializable_hash
-
         instance_variable_set("@#{resource_type}", Result.new(payload: serialized_data, status: :ok))
       end
 

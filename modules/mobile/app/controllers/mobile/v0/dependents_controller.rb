@@ -5,8 +5,9 @@ module Mobile
     class DependentsController < ApplicationController
       def index
         dependents_response = dependent_service.get_dependents
+        persons = dependents_response[:persons].map { |person| Dependent.new(id: SecureRandom.uuid, **person) }
 
-        render json: DependentSerializer.new(dependents_response[:persons])
+        render json: DependentSerializer.new(persons)
       rescue => e
         raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
       end
@@ -21,8 +22,13 @@ module Mobile
 
         claim.process_attachments!
         response = dependent_service.submit_686c_form(claim)
+        new_dependent = NewDependentFormSubmission.new(
+          id: SecureRandom.uuid,
+          submit_form_job_id: response[:submit_form_job_id]
+        )
+        serialized = NewDependentFormSubmissionSerializer.new(new_dependent)
 
-        render json: { data: response }, status: :accepted
+        render json: serialized, status: :accepted
       end
 
       private

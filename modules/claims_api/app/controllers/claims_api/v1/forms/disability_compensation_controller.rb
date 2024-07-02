@@ -28,6 +28,7 @@ module ClaimsApi
         skip_before_action :validate_json_format, only: %i[upload_supporting_documents]
         before_action :verify_power_of_attorney!, if: :header_request?
         skip_before_action :validate_veteran_identifiers, only: %i[submit_form_526 validate_form_526]
+        before_action :edipi_check, only: %i[submit_form_526 upload_form_526 validate_form_526]
 
         # POST to submit disability claim.
         #
@@ -72,7 +73,7 @@ module ClaimsApi
             ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
           end
 
-          render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
+          render json: ClaimsApi::AutoEstablishedClaimSerializer.new(auto_claim)
         end
 
         # PUT to upload a wet-signed 526 form.
@@ -94,7 +95,8 @@ module ClaimsApi
             ClaimsApi::ClaimEstablisher.perform_async(pending_claim.id)
             ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
 
-            render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
+            render json: ClaimsApi::AutoEstablishedClaimSerializer.new(pending_claim)
+
           elsif pending_claim && (pending_claim.form_data['autoCestPDFGenerationDisabled'] == false)
             message = <<-MESSAGE
             Claim submission requires that the "autoCestPDFGenerationDisabled" field
@@ -129,7 +131,7 @@ module ClaimsApi
             ClaimsApi::ClaimUploader.perform_async(claim_document.id)
           end
 
-          render json: claim, serializer: ClaimsApi::ClaimDetailSerializer, uuid: claim.id
+          render json: ClaimsApi::ClaimDetailSerializer.new(claim, { params: { uuid: claim.id } })
         end
 
         # POST to validate 526 submission payload.

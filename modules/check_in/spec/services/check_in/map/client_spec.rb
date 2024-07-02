@@ -106,7 +106,6 @@ describe CheckIn::Map::Client do
         response = subject.appointments(token: jwt_token, patient_icn: icn, query_params:)
         response[:data].each do |appointment|
           appointment[:identifier].each do |identifier|
-            puts identifier[:system]
             expect(identifier[:system]).not_to start_with('https://va.gov')
           end
         end

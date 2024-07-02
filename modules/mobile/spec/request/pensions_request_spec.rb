@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
+require_relative '../support/helpers/rails_helper'
 
 RSpec.describe Mobile::V0::PensionsController, type: :request do
   before do

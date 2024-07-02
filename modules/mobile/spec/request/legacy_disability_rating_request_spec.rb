@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
+require_relative '../support/helpers/rails_helper'
+
 require 'evss/disability_compensation_form/service_unavailable_exception'
 
 RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do

@@ -39,7 +39,6 @@ class SimpleCovHelper
 
   def self.add_filters
     add_filter 'app/controllers/concerns/accountable.rb'
-    add_filter 'config/initializers/clamscan.rb'
     add_filter 'lib/apps/configuration.rb'
     add_filter 'lib/apps/responses/response.rb'
     add_filter 'lib/config_helper.rb'
@@ -89,5 +88,6 @@ class SimpleCovHelper
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
     add_group 'Vye', 'modules/vye/'
+    add_group 'Pensions', 'modules/pensions/'
   end
 end

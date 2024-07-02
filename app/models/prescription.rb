@@ -46,6 +46,7 @@ class Prescription < Common::Base
   attribute :refill_date, Common::UTCTime, sortable: { order: 'DESC' }
   attribute :refill_remaining, Integer
   attribute :facility_name, String, sortable: { order: 'ASC' }, filterable: %w[eq not_eq]
+  attribute :facility_api_name, String
   attribute :ordered_date, Common::UTCTime, sortable: { order: 'DESC' }
   attribute :quantity, Integer
   attribute :expiration_date, Common::UTCTime

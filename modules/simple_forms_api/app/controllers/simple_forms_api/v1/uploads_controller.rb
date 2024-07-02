@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 require 'ddtrace'
-require 'simple_forms_api_submission/service'
 require 'simple_forms_api_submission/metadata_validator'
-require 'simple_forms_api_submission/s3'
 require 'lgy/service'
 
 module SimpleFormsApi
@@ -18,6 +16,7 @@ module SimpleFormsApi
         '21-0972' => 'vba_21_0972',
         '21-0845' => 'vba_21_0845',
         '21-10210' => 'vba_21_10210',
+        '21-4138' => 'vba_21_4138',
         '21-4142' => 'vba_21_4142',
         '21P-0847' => 'vba_21p_0847',
         '26-4555' => 'vba_26_4555',
@@ -32,7 +31,7 @@ module SimpleFormsApi
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
-        response = if form_is210966 && icn && first_party?
+        response = if use_itf_api_for_210966_form?
                      handle_210966_authenticated
                    elsif form_is264555_and_should_use_lgy_api
                      handle264555
@@ -84,18 +83,23 @@ module SimpleFormsApi
 
       def handle_210966_authenticated
         intent_service = SimpleFormsApi::IntentToFile.new(icn, params)
-        form = SimpleFormsApi::VBA210966.new(JSON.parse(params.to_json))
+        parsed_form_data = JSON.parse(params.to_json)
+        form = SimpleFormsApi::VBA210966.new(parsed_form_data)
         existing_intents = intent_service.existing_intents
         confirmation_number, expiration_date = intent_service.submit
         form.track_user_identity(confirmation_number)
 
-        { json: {
-          confirmation_number:,
-          expiration_date:,
-          compensation_intent: existing_intents['compensation'],
-          pension_intent: existing_intents['pension'],
-          survivor_intent: existing_intents['survivor']
-        } }
+        if Flipper.enabled?(:simple_forms_email_confirmations)
+          SimpleFormsApi::ConfirmationEmail.new(
+            form_data: parsed_form_data, form_number: get_form_id, confirmation_number:, user: @current_user
+          ).send
+        end
+
+        json_for210966(confirmation_number, expiration_date, existing_intents)
+      rescue Common::Exceptions::UnprocessableEntity => e
+        # There is an authentication issue with the Intent to File API so we revert to sending a PDF to Central Mail
+        prepare_params_for_central_mail_and_log_error(e)
+        submit_form_to_central_mail
       end
 
       def handle264555
@@ -112,7 +116,8 @@ module SimpleFormsApi
         parsed_form_data = JSON.parse(params.to_json)
         file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
-        status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata, form_id)
+        status, confirmation_number = SimpleFormsApi::PdfUploader.new(file_path, metadata,
+                                                                      form_id).upload_to_benefits_intake(params)
         form.track_user_identity(confirmation_number)
 
         Rails.logger.info(
@@ -147,45 +152,12 @@ module SimpleFormsApi
         [file_path, metadata, form]
       end
 
-      def get_upload_location_and_uuid(lighthouse_service, form_id)
-        upload_location = lighthouse_service.get_upload_location.body
-        if form_id == 'vba_40_10007'
-          uuid = upload_location.dig('data', 'id')
-          SimpleFormsApi::PdfStamper.stamp4010007_uuid(uuid)
-        end
-        {
-          uuid: upload_location.dig('data', 'id'),
-          location: upload_location.dig('data', 'attributes', 'location')
-        }
-      end
-
-      def upload_pdf_to_benefits_intake(file_path, metadata, form_id)
-        lighthouse_service = SimpleFormsApiSubmission::Service.new
-        uuid_and_location = get_upload_location_and_uuid(lighthouse_service, form_id)
-        form_submission = FormSubmission.create(
-          form_type: params[:form_number],
-          benefits_intake_uuid: uuid_and_location[:uuid],
-          form_data: params.to_json,
-          user_account: @current_user&.user_account
-        )
-        FormSubmissionAttempt.create(form_submission:)
-
-        Datadog::Tracing.active_trace&.set_tag('uuid', uuid_and_location[:uuid])
-        Rails.logger.info(
-          'Simple forms api - preparing to upload PDF to benefits intake',
-          { location: uuid_and_location[:location], uuid: uuid_and_location[:uuid] }
-        )
-        response = lighthouse_service.upload_doc(
-          upload_url: uuid_and_location[:location],
-          file: file_path,
-          metadata: metadata.to_json
-        )
-
-        [response.status, uuid_and_location[:uuid]]
-      end
-
       def form_is210966
         params[:form_number] == '21-0966'
+      end
+
+      def use_itf_api_for_210966_form?
+        form_is210966 && icn && first_party?
       end
 
       def form_is264555_and_should_use_lgy_api
@@ -217,6 +189,34 @@ module SimpleFormsApi
         json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
 
         json
+      end
+
+      def prepare_params_for_central_mail_and_log_error(e)
+        params['veteran_full_name'] ||= {
+          'first' => params['full_name']['first'],
+          'last' => params['full_name']['last']
+        }
+        params['veteran_id'] ||= { 'ssn' => params['ssn'] }
+        params['veteran_mailing_address'] ||= { 'postal_code' => @current_user.address[:postal_code] || '00000' }
+        Rails.logger.info(
+          'Simple forms api - 21-0966 Benefits Claims Intent to File API error,' \
+          'reverting to filling a PDF and sending it to Benefits Intake API',
+          {
+            error: e,
+            is_current_user_participant_id_present: @current_user.participant_id ? true : false,
+            current_user_account_uuid: @current_user.user_account_uuid
+          }
+        )
+      end
+
+      def json_for210966(confirmation_number, expiration_date, existing_intents)
+        { json: {
+          confirmation_number:,
+          expiration_date:,
+          compensation_intent: existing_intents['compensation'],
+          pension_intent: existing_intents['pension'],
+          survivor_intent: existing_intents['survivor']
+        } }
       end
     end
   end
