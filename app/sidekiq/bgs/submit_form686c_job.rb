@@ -79,14 +79,10 @@ module BGS
     end
 
     def self.send_backup_submission(vet_info, saved_claim_id, user_uuid)
-      if Flipper.enabled?(:dependents_central_submission)
-        user = generate_user_struct(vet_info)
-        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
-                                                            KmsEncrypted::Box.new.encrypt(vet_info.to_json),
-                                                            KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
-      else
-        DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present? # rubocop:disable Style/IfInsideElse
-      end
+      user = generate_user_struct(vet_info)
+      CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
+                                                          KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+                                                          KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
       InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
     rescue => e
       Rails.logger.warn('BGS::SubmitForm686cJob backup submission failed...',
