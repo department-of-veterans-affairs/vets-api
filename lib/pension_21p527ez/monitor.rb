@@ -31,8 +31,8 @@ module Pension21p527ez
 
     def track_create_success(in_progress_form, claim, current_user)
       StatsD.increment("#{CLAIM_STATS_KEY}.success")
-      if claim.itf_datetime
-        StatsD.measure('saved_claim.time-to-file', claim.created_at - claim.itf_datetime,
+      if claim.form_start_date
+        StatsD.measure('saved_claim.time-to-file', claim.created_at - claim.form_start_date,
                        tags: ["form_id:#{claim.form_id}"])
       end
       Rails.logger.info('21P-527EZ submission to Sidekiq success',

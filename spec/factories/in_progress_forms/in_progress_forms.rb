@@ -284,6 +284,30 @@ FactoryBot.define do
       end
     end
 
+    factory :in_progress_527_form do
+      user_uuid { SecureRandom.uuid }
+      form_id { '21-527EZ' }
+      metadata do
+        {
+          version: 1,
+          returnUrl: 'foo.com'
+        }
+      end
+      form_data do
+        {
+          'veteran_full_name' => {
+            'first' => 'John',
+            'last' => 'Doe'
+          },
+          'veteran_social_security_number' => '333224444',
+          'veteran_date_of_birth' => '1960-01-01',
+          'service_branch' => {
+            'army' => true
+          }
+        }.to_json
+      end
+    end
+
     factory :in_progress_1880_form do
       user_account { create(:user_account) }
       form_id { '26-1880' }

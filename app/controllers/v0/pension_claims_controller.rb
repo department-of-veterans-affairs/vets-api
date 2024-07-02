@@ -42,7 +42,7 @@ module V0
       pension_monitor.track_create_attempt(claim, current_user)
 
       in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
-      claim.itf_datetime = in_progress_form.created_at if in_progress_form
+      claim.form_start_date = in_progress_form.created_at if in_progress_form
 
       unless claim.save
         pension_monitor.track_create_error(in_progress_form, claim, current_user)
