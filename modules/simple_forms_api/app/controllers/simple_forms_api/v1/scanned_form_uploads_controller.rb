@@ -37,9 +37,10 @@ module SimpleFormsApi
         raw_metadata = {
           'veteranFirstName' => @current_user.first_name,
           'veteranLastName' => @current_user.last_name,
-          'fileNumber' => params.dig(:options, :ssn) || @current_user.ssn,
+          'fileNumber' => params.dig(:options, :ssn) ||
+                          params.dig(:options, :va_file_number) ||
+                          @current_user.ssn,
           'zipCode' => params.dig(:options, :zip_code) ||
-                       params.dig(:options, :va_file_number) ||
                        @current_user.address[:postal_code],
           'source' => 'VA Platform Digital Forms',
           'docType' => params[:form_number],
