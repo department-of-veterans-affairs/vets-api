@@ -95,7 +95,6 @@ module ClaimsApi
           structure.merge!(errors: get_errors(lighthouse_claim))
           structure.merge!(supporting_documents: build_supporting_docs(bgs_claim))
           structure.merge!(tracked_items: map_bgs_tracked_items(bgs_claim))
-          structure.merge!(build_claim_phase_attributes(bgs_details, 'show'))
         end
 
         def map_claims(bgs_claims:, lighthouse_claims:)
