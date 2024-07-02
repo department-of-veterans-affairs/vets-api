@@ -256,5 +256,9 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
     context '526 section 8, direct deposit information' do
       it_behaves_like 'does not map any values', :directDeposit
     end
+
+    context '526 Overflow Text' do
+      it_behaves_like 'does not map any values', :claimNotes
+    end
   end
 end

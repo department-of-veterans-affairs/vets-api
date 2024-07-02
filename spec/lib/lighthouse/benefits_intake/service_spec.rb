@@ -148,7 +148,7 @@ RSpec.describe BenefitsIntake::Service do
     it 'requests a status report' do
       uuids = ['12345TEST', '6789FOO', 'BAR!']
       headers = { 'Content-Type' => mime_json, 'Accept' => mime_json }
-      data = { uuids: }.to_json
+      data = { ids: uuids }.to_json
 
       expect(service).to receive(:perform).with(:post, 'uploads/report', data, headers)
 

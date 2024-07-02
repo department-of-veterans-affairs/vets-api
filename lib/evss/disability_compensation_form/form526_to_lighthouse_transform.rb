@@ -53,8 +53,22 @@ module EVSS
 
       HAZARDS = {
         asbestos: 'Asbestos',
+        chemical: 'SHAD - Shipboard Hazard and Defense',
+        mos: 'Military Occupational Specialty-Related Toxin',
+        mustardgas: 'Mustard Gas',
         radiation: 'Radiation',
-        mustardgas: 'Mustard Gas'
+        water: 'Contaminated Water At Camp Lejeune',
+        none: 'None of these'
+      }.freeze
+
+      HAZARDS_LH_ENUM = {
+        asbestos: 'ASBESTOS',
+        chemical: 'SHIPBOARD_HAZARD_AND_DEFENSE',
+        mos: 'MILITARY_OCCUPATIONAL_SPECIALTY_RELATED_TOXIN',
+        mustardgas: 'MUSTARD_GAS',
+        radiation: 'RADIATION',
+        water: 'CONTAMINATED_WATER_AT_CAMP_LEJEUNE',
+        other: 'OTHER'
       }.freeze
 
       MULTIPLE_EXPOSURES_TYPE = {
@@ -74,7 +88,9 @@ module EVSS
         transform_veteran_section(form526, lh_request_body)
 
         service_information = form526['serviceInformation']
-        lh_request_body.service_information = transform_service_information(service_information)
+        if service_information.present?
+          lh_request_body.service_information = transform_service_information(service_information)
+        end
 
         transform_disabilities_section(form526, lh_request_body)
 
@@ -157,6 +173,7 @@ module EVSS
 
       def transform_service_information(service_information_source)
         service_information = Requests::ServiceInformation.new
+
         transform_service_periods(service_information_source, service_information)
         if service_information_source['confinements']
           transform_confinements(service_information_source, service_information)
@@ -168,11 +185,13 @@ module EVSS
           transform_reserves_national_guard_service(service_information_source, service_information)
           reserves_national_guard_service_source =
             service_information_source['reservesNationalGuardService']['title10Activation']
-          # Title10Activation == FederalActivation
-          service_information.federal_activation = Requests::FederalActivation.new(
-            anticipated_separation_date: reserves_national_guard_service_source['anticipatedSeparationDate'],
-            activation_date: reserves_national_guard_service_source['title10ActivationDate']
-          )
+          if reserves_national_guard_service_source.present?
+            # Title10Activation == FederalActivation
+            service_information.federal_activation = Requests::FederalActivation.new(
+              anticipated_separation_date: reserves_national_guard_service_source['anticipatedSeparationDate'],
+              activation_date: reserves_national_guard_service_source['title10ActivationDate']
+            )
+          end
         end
 
         service_information
@@ -183,16 +202,19 @@ module EVSS
       def transform_treatments(treatments_source)
         treatments_source.map do |treatment|
           center = treatment['center']
-          Requests::Treatment.new(
+          request_treatment = Requests::Treatment.new(
             treated_disability_names: treatment['treatedDisabilityNames'],
             center: Requests::Center.new(
               name: center['name'],
               state: center['state'],
               city: center['city']
-            ),
-            # LH spec says YYYY-DD or YYYY date format
-            begin_date: convert_approximate_date(treatment['startDate'], short: true)
+            )
           )
+          if treatment['startDate'].present?
+            # LH spec says YYYY-DD or YYYY date format
+            request_treatment.begin_date = convert_approximate_date(treatment['startDate'], short: true)
+          end
+          request_treatment
         end
       end
 
@@ -223,6 +245,8 @@ module EVSS
         gulf_war2001 = toxic_exposure_source['gulfWar2001']
         herbicide = toxic_exposure_source['herbicide']
         other_herbicide_locations = toxic_exposure_source['otherHerbicideLocations']
+        other_exposures = toxic_exposure_source['otherExposures']
+        specify_other_exposures = toxic_exposure_source['specifyOtherExposures']
 
         if gulf_war1990.present? || gulf_war2001.present?
           toxic_exposure_target.gulf_war_hazard_service =
@@ -232,6 +256,11 @@ module EVSS
         if herbicide.present? || other_herbicide_locations.present?
           toxic_exposure_target.herbicide_hazard_service = transform_herbicide(herbicide,
                                                                                other_herbicide_locations)
+        end
+
+        if other_exposures.present? || specify_other_exposures.present?
+          toxic_exposure_target.additional_hazard_exposures = transform_other_exposures(other_exposures,
+                                                                                        specify_other_exposures)
         end
 
         # create an Array[Requests::MultipleExposures]
@@ -248,8 +277,19 @@ module EVSS
         end
         if values_present(toxic_exposure_source['otherHerbicideLocations'])
           multiple_exposures +=
-            transform_multiple_exposures_other_herbicide(toxic_exposure_source['otherHerbicideLocations'])
+            transform_multiple_exposures_other_details(toxic_exposure_source['otherHerbicideLocations'],
+                                                       MULTIPLE_EXPOSURES_TYPE[:herbicide])
         end
+        if toxic_exposure_source['otherExposuresDetails'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['otherExposuresDetails'],
+                                                             MULTIPLE_EXPOSURES_TYPE[:hazard])
+        end
+        if values_present(toxic_exposure_source['specifyOtherExposures'])
+          multiple_exposures +=
+            transform_multiple_exposures_other_details(toxic_exposure_source['specifyOtherExposures'],
+                                                       MULTIPLE_EXPOSURES_TYPE[:hazard])
+        end
+
         toxic_exposure_target.multiple_exposures = multiple_exposures
 
         toxic_exposure_target
@@ -280,14 +320,20 @@ module EVSS
         end
       end
 
-      def transform_multiple_exposures_other_herbicide(details)
+      def transform_multiple_exposures_other_details(details, multiple_exposures_type)
         obj = Requests::MultipleExposures.new(
           exposure_dates: Requests::Dates.new
         )
 
         obj.exposure_dates.begin_date = convert_date_no_day(details['startDate']) if details['startDate'].present?
         obj.exposure_dates.end_date = convert_date_no_day(details['endDate']) if details['endDate'].present?
-        obj.exposure_location = details['description'] if details['description'].present?
+        if details['description'].present?
+          if multiple_exposures_type == MULTIPLE_EXPOSURES_TYPE[:hazard]
+            obj.hazard_exposed_to = details['description']
+          else
+            obj.exposure_location = details['description']
+          end
+        end
 
         [obj]
       end
@@ -315,6 +361,23 @@ module EVSS
         herbicide_service.served_in_herbicide_hazard_locations = herbicide_value ? 'YES' : 'NO'
 
         herbicide_service
+      end
+
+      def transform_other_exposures(other_exposures, specify_other_exposures)
+        return nil if none_of_these(other_exposures) && !values_present(specify_other_exposures)
+
+        filtered_results_other_exposures = other_exposures&.filter { |k, v| k != 'notsure' && v }
+        additional_hazard_exposures_service = Requests::AdditionalHazardExposures.new
+        unless none_of_these(filtered_results_other_exposures)
+          additional_hazard_exposures_service.additional_exposures = filtered_results_other_exposures&.map do |k, _v|
+            HAZARDS_LH_ENUM[k.to_sym]
+          end
+        end
+        other = HAZARDS_LH_ENUM[:other] if values_present(specify_other_exposures)
+        additional_hazard_exposures_service.additional_exposures << other if other.present?
+        return nil if additional_hazard_exposures_service.additional_exposures == []
+
+        additional_hazard_exposures_service
       end
 
       def values_present(obj)
@@ -353,10 +416,13 @@ module EVSS
         separation_pay_payment_source = separation_pay_source['payment'] if separation_pay_source.present?
         if separation_pay_payment_source.present?
           service_pay_target.separation_severance_pay = Requests::SeparationSeverancePay.new(
-            date_payment_received: convert_approximate_date(separation_pay_source['receivedDate']),
             branch_of_service: separation_pay_payment_source['serviceBranch'],
             pre_tax_amount_received: separation_pay_payment_source['amount']
           )
+          if separation_pay_source['receivedDate']
+            service_pay_target.separation_severance_pay.date_payment_received =
+              convert_approximate_date(separation_pay_source['receivedDate'])
+          end
         end
       end
 

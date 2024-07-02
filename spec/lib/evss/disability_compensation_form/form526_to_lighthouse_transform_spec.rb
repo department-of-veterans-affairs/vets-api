@@ -48,6 +48,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.service_pay.class).to eq(Requests::ServicePay)
       expect(result.toxic_exposure.class).to eq(Requests::ToxicExposure)
       expect(result.toxic_exposure.gulf_war_hazard_service.class).to eq(Requests::GulfWarHazardService)
+      expect(result.toxic_exposure.herbicide_hazard_service.class).to eq(Requests::HerbicideHazardService)
+      expect(result.toxic_exposure.additional_hazard_exposures.class).to eq(Requests::AdditionalHazardExposures)
       expect(result.toxic_exposure.multiple_exposures.class).to eq(Array)
     end
   end
@@ -354,17 +356,26 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result[0].exposure_dates.end_date).to eq('1992-01')
       expect(result[0].exposure_location).to eq('Cambodia at Mimot or Krek, Kampong Cham Province')
 
-      result = transformer.send(:transform_multiple_exposures_other_herbicide, data['otherHerbicideLocations'])
+      result = transformer.send(:transform_multiple_exposures_other_details, data['otherHerbicideLocations'],
+                                EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform::
+                                    MULTIPLE_EXPOSURES_TYPE[:herbicide])
       expect(result[0].exposure_dates.begin_date).to eq('1991-03')
       expect(result[0].exposure_dates.end_date).to eq('1992-01')
       expect(result[0].exposure_location).to eq('other location 1, other location 2 etc')
 
-      result = transformer.send(:transform_multiple_exposures, data['otherExposureDetails'],
+      result = transformer.send(:transform_multiple_exposures, data['otherExposuresDetails'],
                                 EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform::
                                     MULTIPLE_EXPOSURES_TYPE[:hazard])
       expect(result[0].exposure_dates.begin_date).to eq('1991-03')
       expect(result[0].exposure_dates.end_date).to eq('1992-01')
       expect(result[0].hazard_exposed_to).to eq('Asbestos')
+
+      result = transformer.send(:transform_multiple_exposures_other_details, data['specifyOtherExposures'],
+                                EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform::
+                                    MULTIPLE_EXPOSURES_TYPE[:hazard])
+      expect(result[0].exposure_dates.begin_date).to eq('1991-03')
+      expect(result[0].exposure_dates.end_date).to eq('1992-01')
+      expect(result[0].hazard_exposed_to).to eq('Lead, burn pits')
 
       no_location_dates = data.merge({
                                        'gulfWar1990Details' => {
@@ -453,6 +464,109 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.send(:transform_herbicide, other_herbicide_locations_has_blank_fields['herbicide'],
                                 other_herbicide_locations_has_blank_fields['otherHerbicideLocations'])
       expect(result.served_in_herbicide_hazard_locations).to eq('NO')
+    end
+
+    it 'set additional_hazard_exposures correctly' do
+      result = transformer.send(:transform_other_exposures, data['otherExposures'], data['specifyOtherExposures'])
+      expect(result.additional_exposures.length).to eq(3)
+      expect(result.additional_exposures[0]).to eq('ASBESTOS')
+      expect(result.additional_exposures[1]).to eq('RADIATION')
+      expect(result.additional_exposures[2]).to eq('OTHER')
+
+      some_options_set_to_false = data.merge({
+                                               'otherExposures' => {
+                                                 'asbestos' => true,
+                                                 'radiation' => false
+                                               },
+                                               'specifyOtherExposures' => {
+                                                 'description' => 'Lead, burn pits',
+                                                 'startDate' => '1991-03-01',
+                                                 'endDate' => '1992-01-01'
+                                               }
+                                             })
+      result = transformer.send(:transform_other_exposures, some_options_set_to_false['otherExposures'],
+                                some_options_set_to_false['specifyOtherExposures'])
+      expect(result.additional_exposures.length).to eq(2)
+      expect(result.additional_exposures[0]).to eq('ASBESTOS')
+      expect(result.additional_exposures[1]).to eq('OTHER')
+
+      all_options_set_to_false = data.merge({
+                                              'otherExposures' => {
+                                                'asbestos' => false,
+                                                'radiation' => false
+                                              },
+                                              'specifyOtherExposures' => {
+                                                'description' => 'Lead, burn pits',
+                                                'startDate' => '1991-03-01',
+                                                'endDate' => '1992-01-01'
+                                              }
+                                            })
+      result = transformer.send(:transform_other_exposures, all_options_set_to_false['otherExposures'],
+                                all_options_set_to_false['specifyOtherExposures'])
+      expect(result.additional_exposures.length).to eq(1)
+      expect(result.additional_exposures[0]).to eq('OTHER')
+
+      all_options_nil_and_other_partial = data.merge({
+                                                       'otherExposures' => nil,
+                                                       'specifyOtherExposures' => {
+                                                         'description' => 'Lead, burn pits',
+                                                         'startDate' => '',
+                                                         'endDate' => ''
+                                                       }
+                                                     })
+      result = transformer.send(:transform_other_exposures, all_options_nil_and_other_partial['otherExposures'],
+                                all_options_nil_and_other_partial['specifyOtherExposures'])
+      expect(result.additional_exposures.length).to eq(1)
+      expect(result.additional_exposures[0]).to eq('OTHER')
+
+      all_options_nil_and_other_blank = data.merge({
+                                                     'otherExposures' => nil,
+                                                     'specifyOtherExposures' => {
+                                                       'description' => '',
+                                                       'startDate' => '',
+                                                       'endDate' => ''
+                                                     }
+                                                   })
+      result = transformer.send(:transform_other_exposures, all_options_nil_and_other_blank['otherExposures'],
+                                all_options_nil_and_other_blank['specifyOtherExposures'])
+      expect(result).to eq(nil)
+
+      all_nil = data.merge({
+                             'otherExposures' => nil,
+                             'specifyOtherExposures' => nil
+                           })
+      result = transformer.send(:transform_other_exposures, all_nil['otherExposures'],
+                                all_nil['specifyOtherExposures'])
+      expect(result).to eq(nil)
+
+      none_option_with_other = data.merge({
+                                            'otherExposures' => {
+                                              'asbestos' => true,
+                                              'radiation' => true,
+                                              'none' => true
+                                            },
+                                            'specifyOtherExposures' => {
+                                              'description' => 'Lead, burn pits',
+                                              'startDate' => '1991-03-01',
+                                              'endDate' => '1992-01-01'
+                                            }
+                                          })
+      result = transformer.send(:transform_other_exposures, none_option_with_other['otherExposures'],
+                                none_option_with_other['specifyOtherExposures'])
+      expect(result.additional_exposures.length).to eq(1)
+      expect(result.additional_exposures[0]).to eq('OTHER')
+
+      none_option_with_no_other = data.merge({
+                                               'otherExposures' => {
+                                                 'asbestos' => true,
+                                                 'radiation' => true,
+                                                 'none' => true
+                                               },
+                                               'specifyOtherExposures' => {}
+                                             })
+      result = transformer.send(:transform_other_exposures, none_option_with_no_other['otherExposures'],
+                                none_option_with_no_other['specifyOtherExposures'])
+      expect(result).to eq(nil)
     end
   end
 end

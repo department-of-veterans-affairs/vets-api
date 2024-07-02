@@ -119,6 +119,7 @@ Rails.application.routes.draw do
     end
 
     resource :hca_attachments, only: :create
+    resource :form1010_ezr_attachments, only: :create
 
     resources :caregivers_assistance_claims, only: :create
     post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
@@ -371,6 +372,9 @@ Rails.application.routes.draw do
       post 'document_upload'
     end
 
+    unless Settings.vsp_environment == 'production'
+      get 'terms_of_use_agreements/:icn/current_status', to: 'terms_of_use_agreements#current_status'
+    end
     get 'terms_of_use_agreements/:version/latest', to: 'terms_of_use_agreements#latest'
     post 'terms_of_use_agreements/:version/accept', to: 'terms_of_use_agreements#accept'
     post 'terms_of_use_agreements/:version/accept_and_provision', to: 'terms_of_use_agreements#accept_and_provision'
@@ -474,6 +478,7 @@ Rails.application.routes.draw do
   mount TravelPay::Engine, at: '/travel_pay'
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
+  mount Pensions::Engine, at: '/pensions'
   # End Modules
 
   require 'sidekiq/web'

@@ -110,6 +110,10 @@ RSpec.describe V1::SupplementalClaimsController do
            headers:
     end
 
+    before do
+      Flipper.disable :decision_review_sc_use_lighthouse_api_for_form4142
+    end
+
     it 'creates a supplemental claim and queues a 4142 form when 4142 info is provided' do
       VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-4142-200_V1') do
         VCR.use_cassette('central_mail/submit_4142') do

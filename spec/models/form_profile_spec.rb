@@ -751,7 +751,7 @@ RSpec.describe FormProfile, type: :model do
       'bankAccountType' => 'Checking',
       'bankName' => 'Comerica',
       'bankRoutingNumber' => '*****2115',
-      'includeToxicExposure' => true
+      'startedFormVersion' => '2022'
     }
   end
 
@@ -904,7 +904,8 @@ RSpec.describe FormProfile, type: :model do
         character_of_discharge_code: nil,
         deployments: [],
         end_date: '2018-10-31',
-        personnel_category_type_code: 'N',
+        period_of_service_type_code: 'N',
+        period_of_service_type_text: 'National Guard member',
         service_type: 'Military Service',
         termination_reason_code: 'C',
         termination_reason_text: 'Completion of Active Service period'
@@ -916,7 +917,8 @@ RSpec.describe FormProfile, type: :model do
         character_of_discharge_code: nil,
         deployments: [],
         end_date: '2012-12-31',
-        personnel_category_type_code: 'N',
+        period_of_service_type_code: 'N',
+        period_of_service_type_text: 'National Guard member',
         service_type: 'Military Service',
         termination_reason_code: 'C',
         termination_reason_text: 'Completion of Active Service period'
@@ -928,7 +930,8 @@ RSpec.describe FormProfile, type: :model do
         character_of_discharge_code: nil,
         deployments: [],
         end_date: '2008-12-01',
-        personnel_category_type_code: 'N',
+        period_of_service_type_code: 'N',
+        period_of_service_type_text: 'National Guard member',
         service_type: 'Military Service',
         termination_reason_code: 'C',
         termination_reason_text: 'Completion of Active Service period'
@@ -979,7 +982,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  describe '#initialize_military_information', skip_va_profile: true do
+  describe '#initialize_military_information', :skip_va_profile do
     context 'with military_information vaprofile' do
       it 'prefills military data from va profile' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
@@ -1261,7 +1264,7 @@ RSpec.describe FormProfile, type: :model do
         expect(user.authorize(:mdot, :access?)).to eq(true)
       end
 
-      it 'returns a prefilled MDOT form', skip_va_profile: true do
+      it 'returns a prefilled MDOT form', :skip_va_profile do
         VCR.use_cassette('mdot/get_supplies_200') do
           expect_prefilled('MDOT')
         end
@@ -1347,7 +1350,7 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
-    context 'when VA Profile returns 404', skip_va_profile: true do
+    context 'when VA Profile returns 404', :skip_va_profile do
       it 'returns default values' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_404',
                          allow_playback_repeats: true, match_requests_on: %i[method body]) do
@@ -1372,7 +1375,7 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
-    context 'when VA Profile returns 500', skip_va_profile: true do
+    context 'when VA Profile returns 500', :skip_va_profile do
       it 'sends a BackendServiceException to Sentry and returns and empty hash' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_500',
                          allow_playback_repeats: true, match_requests_on: %i[method uri]) do
@@ -1399,7 +1402,7 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
-    context 'with military information data', skip_va_profile: true do
+    context 'with military information data', :skip_va_profile do
       context 'with va profile prefill on' do
         before do
           VAProfile::Configuration::SETTINGS.prefill = true

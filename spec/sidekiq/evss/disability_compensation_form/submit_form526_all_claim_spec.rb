@@ -13,10 +13,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
   before do
     Sidekiq::Job.clear_all
     Flipper.disable(:disability_526_classifier_new_claims)
-    Flipper.disable(:disability_compensation_lighthouse_submit_migration)
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
     Flipper.disable(:disability_526_classifier_multi_contention)
-    Flipper.disable(:disability_526_toxic_exposure)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -44,7 +42,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     let(:lh_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload_location' }
     let(:evss_get_pdf) { 'form526_backup/200_evss_get_pdf' }
     let(:lh_intake_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload' }
-    let(:lh_submission) { 'lighthouse/benefits_claims/submit526/200_response' }
+    let(:lh_submission) { 'lighthouse/benefits_claims/submit526/200_synchronous_response' }
     let(:cassettes) do
       [open_claims_cassette, caseflow_cassette, rated_disabilities_cassette,
        submit_form_cassette, lh_upload, evss_get_pdf,
@@ -452,45 +450,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                  :with_everything,
                  user_uuid: user.uuid,
                  auth_headers_json: auth_headers.to_json,
-                 saved_claim_id: saved_claim.id)
-        end
-
-        before do
-          Flipper.enable(:disability_compensation_lighthouse_submit_migration)
-          allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
-        end
-
-        after do
-          Flipper.disable(:disability_compensation_lighthouse_submit_migration)
-        end
-
-        it 'performs a successful submission' do
-          subject.perform_async(submission.id)
-          expect { described_class.drain }.not_to change(backup_klass.jobs, :size)
-          expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:success]
-          submission.reload
-          # TODO: re-visit when using lighthouse synchronous response endpoint
-          expect(submission.submitted_claim_id).to eq(Form526JobStatus.last.submission.submitted_claim_id)
-        end
-      end
-
-      context 'with toxic exposure Flipper enabled for user' do
-        let(:submission) do
-          create(:form526_submission,
-                 :with_everything,
-                 user_uuid: user.uuid,
-                 auth_headers_json: auth_headers.to_json,
                  saved_claim_id: saved_claim.id,
                  submit_endpoint: 'claims_api')
         end
 
         before do
-          Flipper.enable(:disability_526_toxic_exposure, user)
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
-        end
-
-        after do
-          Flipper.disable(:disability_526_toxic_exposure, user)
         end
 
         it 'performs a successful submission' do

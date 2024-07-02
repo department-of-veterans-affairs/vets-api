@@ -2,12 +2,13 @@
 
 module Mobile
   module V0
-    class CategorySerializer < ActiveModel::Serializer
-      def id
-        object.category_id
-      end
+    class CategorySerializer
+      include JSONAPI::Serializer
 
-      attribute(:message_category_type)
+      set_type :categories
+      set_id(&:category_id)
+
+      attribute :message_category_type
     end
   end
 end

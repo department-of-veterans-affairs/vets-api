@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_05_161809) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_01_192934) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -683,6 +683,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_05_161809) do
     t.index ["job_id"], name: "index_form526_job_statuses_on_job_id", unique: true
   end
 
+  create_table "form526_submission_remediations", force: :cascade do |t|
+    t.bigint "form526_submission_id", null: false
+    t.text "lifecycle", default: [], array: true
+    t.boolean "success", default: true
+    t.boolean "ignored_as_duplicate", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["form526_submission_id"], name: "index_form526_submission_remediations_on_form526_submission_id"
+  end
+
   create_table "form526_submissions", id: :serial, force: :cascade do |t|
     t.string "user_uuid", null: false
     t.integer "saved_claim_id", null: false
@@ -699,6 +709,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_05_161809) do
     t.string "backup_submitted_claim_id", comment: "*After* a SubmitForm526 Job has exhausted all attempts, a paper submission is generated and sent to Central Mail Portal.This column will be nil for all submissions where a backup submission is not generated.It will have the central mail id for submissions where a backup submission is submitted."
     t.string "aasm_state", default: "unprocessed"
     t.integer "submit_endpoint"
+    t.integer "backup_submitted_claim_status"
     t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
     t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
     t.index ["user_account_id"], name: "index_form526_submissions_on_user_account_id"
@@ -845,6 +856,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_05_161809) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_account_id"], name: "index_inherited_proof_verified_user_accounts_on_user_account_id", unique: true
+  end
+
+  create_table "intent_to_file_queue_exhaustions", force: :cascade do |t|
+    t.string "veteran_icn", null: false
+    t.string "form_type"
+    t.datetime "form_start_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["veteran_icn"], name: "index_intent_to_file_queue_exhaustions_on_veteran_icn"
   end
 
   create_table "invalid_letter_address_edipis", id: :serial, force: :cascade do |t|
@@ -1012,6 +1032,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_05_161809) do
     t.text "encrypted_kms_key"
     t.string "uploaded_forms", default: [], array: true
     t.datetime "itf_datetime"
+    t.datetime "form_start_date"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
@@ -1273,6 +1294,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_05_161809) do
     t.index ["created_at"], name: "index_vba_documents_upload_submissions_on_created_at"
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["s3_deleted"], name: "index_vba_documents_upload_submissions_on_s3_deleted"
+    t.index ["status", "created_at"], name: "index_vba_docs_upload_submissions_status_created_at", where: "(s3_deleted IS NOT TRUE)"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end
 
@@ -1558,6 +1580,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_05_161809) do
   add_foreign_key "deprecated_user_accounts", "user_verifications"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
   add_foreign_key "evss_claims", "user_accounts"
+  add_foreign_key "form526_submission_remediations", "form526_submissions"
   add_foreign_key "form526_submissions", "user_accounts"
   add_foreign_key "form5655_submissions", "user_accounts"
   add_foreign_key "form_submission_attempts", "form_submissions"

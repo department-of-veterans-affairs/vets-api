@@ -996,7 +996,7 @@ RSpec.describe 'Disability Claims ', type: :request do
                 VCR.use_cassette('claims_api/v1/disability_comp/invalid') do
                   post path, params: data, headers: headers.merge(auth_header)
                   parsed = JSON.parse(response.body)
-                  expect(parsed['errors'].size).to eq(2)
+                  expect(parsed['errors'][0]['title']).to eq('Internal server error')
                 end
               end
             end

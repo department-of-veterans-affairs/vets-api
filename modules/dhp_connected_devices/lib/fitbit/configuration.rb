@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/rest'
-require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/raise_custom_error'
 
 module DhpConnectedDevices
   module Fitbit
@@ -27,7 +27,7 @@ module DhpConnectedDevices
           # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
           # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
-          # conn.response :raise_error, error_prefix: service_name
+          # conn.response :raise_custom_error, error_prefix: service_name
 
           conn.adapter Faraday.default_adapter
         end

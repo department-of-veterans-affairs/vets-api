@@ -17,13 +17,8 @@ module BenefitsDocuments
       super()
     end
 
-    def file_number
-      BGS::People::Request.new.find_person_by_participant_id(user: @user).file_number
-    end
-
     def queue_document_upload(params, lighthouse_client_id = nil)
       loggable_params = params.except(:password)
-      loggable_params[:icn] = @user.icn
       Rails.logger.info('Parameters for document upload', loggable_params)
 
       start_timer = Time.zone.now
@@ -78,18 +73,13 @@ module BenefitsDocuments
     end
 
     def build_lh_doc(file, file_params)
-      # The reason a user wouldn't have a VBMS file number is either:
-      # 1. they're a rare case in production
-      # 2. they're a test user in va.gov staging/LH documents_service sandbox
-      file_num = file_number || @user.ssn
-      file_num = file_num.first if file_num.is_a? Array
-
       claim_id = file_params[:claimId] || file_params[:claim_id]
       tracked_item_ids = file_params[:trackedItemIds] || file_params[:tracked_item_ids]
       document_type = file_params[:documentType] || file_params[:document_type]
       password = file_params[:password]
+
       LighthouseDocument.new(
-        file_number: file_num,
+        participant_id: @user.participant_id,
         claim_id:,
         file_obj: file,
         uuid: SecureRandom.uuid,

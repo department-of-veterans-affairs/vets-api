@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/raise_custom_error'
 
 module Rx
   module Middleware
     module Response
-      class RxRaiseError < Common::Client::Middleware::Response::RaiseError
+      class RxRaiseError < Common::Client::Middleware::Response::RaiseCustomError
         private
 
         def service_i18n_key

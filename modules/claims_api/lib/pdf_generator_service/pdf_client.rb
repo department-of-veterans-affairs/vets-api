@@ -36,7 +36,7 @@ module ClaimsApi
                   ssl: { verify: !Rails.env.development? },
                   headers: { 'Content-Type': content_type.to_s }) do |f|
         f.request :json
-        f.response :raise_error
+        f.response :raise_custom_error
         f.response :logger,
                    Rails.logger,
                    headers: true,

@@ -4,7 +4,7 @@ module IvcChampva
   module V1
     class PegaController < SignIn::ServiceAccountApplicationController
       service_tag 'identity'
-      VALID_KEYS = %w[form_uuid file_names status].freeze
+      VALID_KEYS = %w[form_uuid file_names status case_id].freeze
 
       def update_status
         Datadog::Tracing.trace('Start PEGA Status Update') do
@@ -16,40 +16,38 @@ module IvcChampva
 
           response =
             if valid_keys?(data)
-              update_data(data['form_uuid'], data['file_names'], data['status'])
+              update_data(data['form_uuid'], data['file_names'], data['status'], data['case_id'])
             else
-              { status: 500, error: 'Invalid JSON keys' }
+              { json: { error_message: 'Invalid JSON keys' }, status: :bad_request }
             end
 
-          json_response = JSON.generate(response)
-
-          render json: json_response
+          render json: response[:json], status: response[:status]
         rescue JSON::ParserError => e
-          render json: JSON.generate({ status: 500, error: "JSON parsing error: #{e.message}" })
+          render json: { error_message: "JSON parsing error: #{e.message}" }, status: :internal_server_error
         end
       end
 
       private
 
-      def update_data(form_uuid, file_names, status)
+      def update_data(form_uuid, file_names, status, case_id)
         ivc_forms = forms_query(form_uuid, file_names)
 
         if ivc_forms.any?
           ivc_forms.each do |form|
             form.update!(
-              pega_status: status
+              pega_status: status,
+              case_id:
             )
           end
 
           ivc_forms_by_email = ivc_forms.select { |record| record.email.present? }.group_by(&:email)
           send_emails(ivc_forms_by_email) if ivc_forms_by_email.present?
 
-          { status: 200 }
+          { json: {}, status: :ok }
         else
-          {
-            status: 202,
-            error: "No form(s) found with the form_uuid: #{form_uuid} and/or the file_names: #{file_names}."
-          }
+          { json:
+          { error_message: "No form(s) found with the form_uuid: #{form_uuid} and/or the file_names: #{file_names}." },
+            status: :not_found }
         end
       end
 

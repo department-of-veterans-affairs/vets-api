@@ -51,7 +51,8 @@ RSpec.describe 'service_history' do
           expect(episode['branch_of_service']).to eq('Army')
           expect(episode['begin_date']).to eq('2002-02-02')
           expect(episode['end_date']).to eq('2008-12-01')
-          expect(episode['personnel_category_type_code']).to eq('N')
+          expect(episode['period_of_service_type_code']).to eq('N')
+          expect(episode['period_of_service_type_text']).to eq('National Guard member')
           expect(episode['termination_reason_code']).to eq('S')
           expect(episode['termination_reason_text']).to eq('Separation from personnel category or organization')
         end
@@ -86,7 +87,8 @@ RSpec.describe 'service_history' do
               expect(e['branch_of_service']).not_to be_nil
               expect(e['begin_date']).not_to be_nil
               expect(e['end_date']).not_to be_nil
-              expect(e['personnel_category_type_code']).not_to be_nil
+              expect(e['period_of_service_type_code']).not_to be_nil
+              expect(e['period_of_service_type_text']).not_to be_nil
               expect(e['termination_reason_code']).not_to be_nil
               expect(e['termination_reason_text']).not_to be_nil
             end

@@ -25,7 +25,6 @@ unless ENV['NOCOVERAGE']
 
     add_filter 'app/controllers/concerns/accountable.rb'
     add_filter 'app/models/in_progress_disability_compensation_form.rb'
-    add_filter 'app/serializers/appeal_serializer.rb'
     add_filter 'lib/apps/configuration.rb'
     add_filter 'lib/apps/responses/response.rb'
     add_filter 'lib/config_helper.rb'
@@ -82,6 +81,7 @@ unless ENV['NOCOVERAGE']
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
+    add_group 'Pensions', 'modules/pensions/'
     # End Modules
 
     if ENV['CI']

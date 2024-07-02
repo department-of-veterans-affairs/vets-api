@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'va_profile/person/service'
 
-describe VAProfile::Person::Service, skip_vet360: true do
+describe VAProfile::Person::Service, :skip_vet360 do
   before { Timecop.freeze('2018-04-09T17:52:03Z') }
 
   after  { Timecop.return }
