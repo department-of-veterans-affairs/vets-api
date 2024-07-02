@@ -24,11 +24,8 @@ module TermsOfUse
 
     def perform!
       terms_of_use_agreement.accepted!
-      if mpi_profile.sec_id
-        update_sign_up_service
-      else
-        Rails.logger.info('[TermsOfUse] [Acceptor] Sign Up Service not updated due to user missing sec_id', { icn: })
-      end
+
+      update_sign_up_service
       Logger.new(terms_of_use_agreement:).perform
 
       terms_of_use_agreement
@@ -43,26 +40,13 @@ module TermsOfUse
     end
 
     def update_sign_up_service
-      Rails.logger.info('[TermsOfUse] [Acceptor] attr_package key', { icn:, attr_package_key: })
-      SignUpServiceUpdaterJob.set(sync:).perform_async(attr_package_key)
+      Rails.logger.info('[TermsOfUse] [Acceptor] update_sign_up_service', { icn: })
+      SignUpServiceUpdaterJob.set(sync:).perform_async(user_account.id, version)
     end
 
     def log_and_raise_acceptor_error(error)
       Rails.logger.error("[TermsOfUse] [Acceptor] Error: #{error.message}", { user_account_id: user_account&.id })
       raise Errors::AcceptorError, error.message
-    end
-
-    def attr_package_key
-      @attr_package_key ||= Sidekiq::AttrPackage.create(icn:, signature_name:, version:, expires_in: 72.hours)
-    end
-
-    def signature_name
-      "#{mpi_profile.given_names.first} #{mpi_profile.family_name}"
-    end
-
-    def mpi_profile
-      @mpi_profile ||= MPI::Service.new.find_profile_by_identifier(identifier: icn,
-                                                                   identifier_type: MPI::Constants::ICN)&.profile
     end
   end
 end
