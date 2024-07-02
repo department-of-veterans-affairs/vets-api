@@ -2,6 +2,11 @@
 
 module CheckIn
   class TravelClaimStatusCheckWorker < TravelClaimBaseWorker
+    SUCCESSFUL_CLAIM_STATUSES = ['approved for payment', 'claim paid', 'claim submitted', 'in manual review',
+                                 'in-process', 'submitted for payment', 'saved'].freeze
+    FAILED_CLAIM_STATUSES = ['appeal', 'closed with no payment', 'denied', 'fiscal rescinded', 'incomplete', 'on hold',
+                             'partial payment', 'payment canceled'].freeze
+
     def perform(uuid, appointment_date)
       redis_client = TravelClaim::RedisClient.build
       mobile_phone = redis_client.patient_cell_phone(uuid:)
@@ -31,7 +36,7 @@ module CheckIn
         params: { appointment_date: opts[:appointment_date] }
       ).claim_status
 
-      handle_response(claim_status_resp:, facility_type: opts[:facility_type])
+      handle_response(claim_status_resp:, facility_type: opts[:facility_type], uuid: opts[:uuid])
     rescue => e
       logger.error({ message: "Error calling BTSSS Service: #{e.message}", method: 'claim_status' }.merge(opts))
       if 'oh'.casecmp?(opts[:facility_type])
@@ -46,36 +51,84 @@ module CheckIn
 
     # rubocop:disable Metrics/MethodLength
     def handle_response(opts = {})
-      # claim_response_body = opts[:claim_status_resp].body || []
+      claim_response_body = opts[:claim_status_resp].body || []
       claim_response_status = opts[:claim_status_resp].status
       facility_type = opts[:facility_type] || ''
       claim_number = nil
 
       statsd_metric, template_id = case claim_response_status
                                    when 200
-                                   # Log if more than one claim status
-                                   # Use the first claim status for processing
-                                   # Check for empty response
-                                   # Check if claim is successful
-                                   # Check if claim is failed
+                                     claim_response = begin
+                                       Oj.load(claim_response_body)
+                                     rescue
+                                       claim_response_body
+                                     end
+                                     if claim_response.size.zero?
+                                       logger.info({ message: 'Empty claim status response', uuid: "#{opts[:uuid]}" })
+                                       error_statsd_metric_and_template_id(facility_type:)
+                                     else
+                                       if claim_response.size > 1
+                                         logger.info({ message: 'Multiple claim statuses',
+                                                       uuid: "#{opts[:uuid]}" })
+                                       end
+                                       claim_number = claim_response.first.with_indifferent_access[:claimNum]&.last(4)
+                                       claim_status = claim_response.first.with_indifferent_access[:claimStatus]
+                                       if SUCCESSFUL_CLAIM_STATUSES.include?(claim_status.downcase)
+                                         success_statsd_metric_and_template_id(facility_type:)
+                                       elsif FAILED_CLAIM_STATUSES.include?(claim_status.downcase)
+                                         failure_statsd_metric_and_template_id(facility_type:)
+                                       else
+                                         logger.info({ message: 'Received non-matching claim status', claim_status:,
+                                                       uuid: "#{opts[:uuid]}" })
+                                         error_statsd_metric_and_template_id(facility_type:)
+                                       end
+                                     end
                                    when 408
-                                     case facility_type
-                                     when 'oh'
-                                       [Constants::OH_STATSD_BTSSS_TIMEOUT, Constants::OH_TIMEOUT_TEMPLATE_ID]
-                                     else
-                                       [Constants::CIE_STATSD_BTSSS_TIMEOUT, Constants::CIE_TIMEOUT_TEMPLATE_ID]
-                                     end
+                                     timeout_statsd_metric_and_template_id(facility_type:)
                                    else
-                                     case facility_type
-                                     when 'oh'
-                                       [Constants::OH_STATSD_BTSSS_ERROR, Constants::OH_ERROR_TEMPLATE_ID]
-                                     else
-                                       [Constants::CIE_STATSD_BTSSS_ERROR, Constants::CIE_ERROR_TEMPLATE_ID]
-                                     end
+                                     error_statsd_metric_and_template_id(facility_type:)
                                    end
       StatsD.increment(statsd_metric)
       [claim_number, template_id]
     end
     # rubocop:enable Metrics/MethodLength
+
+    private
+
+    def success_statsd_metric_and_template_id(facility_type:)
+      case facility_type
+      when 'oh'
+        [Constants::OH_STATSD_BTSSS_SUCCESS, Constants::OH_SUCCESS_TEMPLATE_ID]
+      else
+        [Constants::CIE_STATSD_BTSSS_SUCCESS, Constants::CIE_SUCCESS_TEMPLATE_ID]
+      end
+    end
+
+    def timeout_statsd_metric_and_template_id(facility_type:)
+      case facility_type
+      when 'oh'
+        [Constants::OH_STATSD_BTSSS_TIMEOUT, Constants::OH_TIMEOUT_TEMPLATE_ID]
+      else
+        [Constants::CIE_STATSD_BTSSS_TIMEOUT, Constants::CIE_TIMEOUT_TEMPLATE_ID]
+      end
+    end
+
+    def error_statsd_metric_and_template_id(facility_type:)
+      case facility_type
+      when 'oh'
+        [Constants::OH_STATSD_BTSSS_ERROR, Constants::OH_ERROR_TEMPLATE_ID]
+      else
+        [Constants::CIE_STATSD_BTSSS_ERROR, Constants::CIE_ERROR_TEMPLATE_ID]
+      end
+    end
+
+    def failure_statsd_metric_and_template_id(facility_type:)
+      case facility_type
+      when 'oh'
+        [Constants::OH_STATSD_BTSSS_CLAIM_FAILURE, Constants::OH_FAILURE_TEMPLATE_ID]
+      else
+        [Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE, Constants::CIE_FAILURE_TEMPLATE_ID]
+      end
+    end
   end
 end
