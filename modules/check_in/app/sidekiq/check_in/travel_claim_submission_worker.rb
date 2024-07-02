@@ -26,12 +26,10 @@ module CheckIn
     end
 
     def submit_claim(opts = {})
-      check_in_session = CheckIn::V2::Session.build(data: { uuid: opts[:uuid] })
+      uuid, appointment_date, facility_type = opts.values_at(:uuid, :appointment_date, :facility_type)
+      check_in_session = CheckIn::V2::Session.build(data: { uuid: })
 
-      claims_resp = TravelClaim::Service.build(
-        check_in: check_in_session,
-        params: { appointment_date: opts[:appointment_date] }
-      ).submit_claim
+      claims_resp = TravelClaim::Service.build(check_in: check_in_session, params: { appointment_date: }).submit_claim
 
       if should_handle_timeout(claims_resp)
         TravelClaimStatusCheckWorker.perform_in(5.minutes, uuid, appointment_date)
@@ -40,7 +38,7 @@ module CheckIn
       end
     rescue => e
       logger.error({ message: "Error calling BTSSS Service: #{e.message}" }.merge(opts))
-      if 'oh'.casecmp?(opts[:facility_type])
+      if 'oh'.casecmp?(facility_type)
         StatsD.increment(Constants::OH_STATSD_BTSSS_ERROR)
         template_id = Constants::OH_ERROR_TEMPLATE_ID
       else
