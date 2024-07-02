@@ -384,49 +384,47 @@ module Mobile
           location_template[:address][:state] = cc_location.dig(:address, :state)
           location_template[:address][:zip_code] = cc_location.dig(:address, :postal_code)
 
-          if cc_location[:telecom].present?
-            phone_number = cc_location[:telecom]&.find do |contact|
-              contact[:system] == CONTACT_TYPE[:phone]
-            end&.dig(:value)
+          return if cc_location[:telecom].blank?
 
-            location_template[:phone] = parse_phone(phone_number)
-          end
+          phone_number = cc_location[:telecom].find do |contact|
+            contact[:system] == CONTACT_TYPE[:phone]
+          end&.dig(:value)
+          location_template[:phone] = parse_phone(phone_number)
         end
 
         def set_telehealth_location
           location_template[:name] = appointment.dig(:location, :name)
           location_template[:phone] = parse_phone(appointment.dig(:location, :phone, :main))
           telehealth = appointment[:telehealth]
+          return if telehealth.blank?
 
-          if telehealth
-            address = telehealth.dig(:atlas, :address)
+          location_template[:url] = telehealth[:url]
+          location_template[:code] = telehealth.dig(:atlas, :confirmation_code)
 
-            if address
-              location_template[:address][:street] = address[:street_address]
-              location_template[:address][:city] = address[:city]
-              location_template[:address][:state] = address[:state]
-              location_template[:address][:zip_code] = address[:zip_code]
-              location_template[:address][:country] = address[:country]
-            end
-            location_template[:url] = telehealth[:url]
-            location_template[:code] = telehealth.dig(:atlas, :confirmation_code)
-          end
+          address = telehealth.dig(:atlas, :address)
+          return if address.blank?
+
+          location_template[:address][:street] = address[:street_address]
+          location_template[:address][:city] = address[:city]
+          location_template[:address][:state] = address[:state]
+          location_template[:address][:zip_code] = address[:zip_code]
+          location_template[:address][:country] = address[:country]
         end
 
         def set_va_appointment_location
           location_template[:id] = appointment.dig(:location, :id)
           location_template[:name] = appointment.dig(:location, :name)
-
-          address = appointment.dig(:location, :physical_address)
-          if address.present?
-            location_template[:address][:street] = address[:line]&.join(' ')&.strip
-            location_template[:address][:city] = address[:city]
-            location_template[:address][:state] = address[:state]
-            location_template[:address][:zip_code] = address[:postal_code]
-          end
           location_template[:lat] = appointment.dig(:location, :lat)
           location_template[:long] = appointment.dig(:location, :long)
           location_template[:phone] = parse_phone(appointment.dig(:location, :phone, :main))
+
+          address = appointment.dig(:location, :physical_address)
+          return if address.blank?
+
+          location_template[:address][:street] = address[:line]&.join(' ')&.strip
+          location_template[:address][:city] = address[:city]
+          location_template[:address][:state] = address[:state]
+          location_template[:address][:zip_code] = address[:postal_code]
         end
 
         def parse_phone(phone)
