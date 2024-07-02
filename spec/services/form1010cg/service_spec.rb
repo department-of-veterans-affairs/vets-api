@@ -487,8 +487,7 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
-  describe '#process_claim_v2!' do
-    skip 'Deactivate until we can figure out how to update the VCR Cassette'
+  describe '#process_claim_v2!', skip: 'Deactivate until we can figure out how to update the VCR Cassette' do
     it 'submits to mulesoft', run_at: 'Thu, 04 Aug 2022 20:44:29 GMT' do
       allow(SecureRandom).to receive(:uuid).and_return('884f6e51-027f-4cf1-a164-b95efbfb59f2')
       claim_with_mpi_veteran.save!
