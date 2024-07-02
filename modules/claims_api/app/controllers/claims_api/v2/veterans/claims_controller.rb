@@ -235,9 +235,11 @@ module ClaimsApi
         end
 
         def latest_phase_type(data)
-          return if data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status).nil?
-
-          latest = [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.first&.dig(:phase_type)
+          if data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status).present?
+            latest = [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.first&.dig(:phase_type)
+          elsif data&.dig(:bnft_claim_lc_status).present?
+            latest = [data&.dig(:bnft_claim_lc_status)].flatten.first&.dig(:phase_type)
+          end
           return bgs_phase_status_mapper.get_phase_type_from_dictionary(latest.downcase) unless latest.nil?
 
           indicator = latest_phase_type_change_indicator(data).split('')
@@ -264,8 +266,13 @@ module ClaimsApi
         end
 
         def get_bgs_phase_completed_dates(data)
-          lc_status_array =
-            [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten&.compact
+          if data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status).present?
+            lc_status_array =
+              [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten&.compact
+          elsif data&.dig(:bnft_claim_lc_status).present?
+            lc_status_array =
+              [data&.dig(:bnft_claim_lc_status)].flatten&.compact
+          end
           return {} if lc_status_array&.first&.nil?
 
           max_completed_phase = lc_status_array&.first&.[](:phase_type_change_ind)&.split('')&.last
@@ -575,13 +582,10 @@ module ClaimsApi
           case view
           when 'show'
             {
-              claim_phase_dates:
-                {
-                  phase_change_date: format_bgs_phase_chng_dates(bgs_claim),
-                  current_phase_back: current_phase_back(bgs_claim),
-                  latest_phase_type: latest_phase_type(bgs_claim),
-                  previous_phases: get_bgs_phase_completed_dates(bgs_claim)
-                }
+              phase_change_date: format_bgs_phase_chng_dates(bgs_claim),
+              current_phase_back: current_phase_back(bgs_claim),
+              latest_phase_type: latest_phase_type(bgs_claim),
+              previous_phases: get_bgs_phase_completed_dates(bgs_claim)
             }
           when 'index'
             {
