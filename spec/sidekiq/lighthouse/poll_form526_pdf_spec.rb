@@ -7,12 +7,6 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
 
   before do
     Sidekiq::Job.clear_all
-    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
-  end
-
-  let(:user) { FactoryBot.create(:user, :loa3) }
-  let(:auth_headers) do
-    EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
 
   describe '.perform_async' do
