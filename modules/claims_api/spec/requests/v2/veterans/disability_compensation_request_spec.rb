@@ -1040,6 +1040,35 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
+        context 'when a federalActivation date is invalid' do
+          let(:begin_date) { '2017-02-29' }
+
+          it 'returns a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['serviceDates']['beginDate'] =
+                begin_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when a federalActivation date is valid' do
+          let(:end_date) { '2017-02-28' }
+
+          it 'returns a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['serviceDates']['endDare'] = end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
         context 'when gulf war service is set to YES, and service dates are not formatted correctly' do
           let(:gulf_war_hazard_service) { 'YES' }
           let(:service_dates) do
@@ -2392,6 +2421,89 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
+        context 'when there are mutiple confinements that overlap' do
+          let(:confinements) do
+            [
+              {
+                approximateBeginDate: '2016-11-01',
+                approximateEndDate: '2017-12-01'
+              },
+              {
+                approximateBeginDate: '2017-11-01',
+                approximateEndDate: '2017-12-01'
+              }
+            ]
+          end
+
+          it 'responds with a 422 when the date ranges do overlap' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['confinements'] = confinements
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when there are 3 confinement periods' do
+          let(:confinements) do
+            [
+              {
+                approximateBeginDate: '2016-11-01',
+                approximateEndDate: '2017-12-01'
+              },
+              {
+                approximateBeginDate: '2018-02-01',
+                approximateEndDate: '2018-10-01'
+              },
+              {
+                approximateBeginDate: '2018-11-01',
+                approximateEndDate: '2018-12-01'
+              }
+            ]
+          end
+
+          it 'responds with a 422 when the date ranges do overlap' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['confinements'] = confinements
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when there are 3 confinement periods that overlap' do
+          let(:confinements) do
+            [
+              {
+                approximateBeginDate: '2016-11-01',
+                approximateEndDate: '2017-12-01'
+              },
+              {
+                approximateBeginDate: '2017-11-01',
+                approximateEndDate: '2017-12-01'
+              },
+              {
+                approximateBeginDate: '2018-11-01',
+                approximateEndDate: '2018-12-01'
+              }
+            ]
+          end
+
+          it 'responds with a 422 when the date ranges do overlap' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['confinements'] = confinements
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
         context 'when there are confinements with mixed date formatting and begin date is <= to end date' do
           let(:confinements) do
             [
@@ -3099,7 +3211,6 @@ RSpec.describe 'Disability Claims', type: :request do
                     disabilityActionType: 'NEW',
                     name: 'PTSD (post traumatic stress disorder)',
                     diagnosticCode: 9999,
-                    serviceRelevance: 'Heavy equipment operator in service.',
                     secondaryDisabilities: [
                       {
                         disabilityActionType: 'SECONDARY',
@@ -3111,12 +3222,15 @@ RSpec.describe 'Disability Claims', type: :request do
                     ]
                   }
                 ]
+                params['data']['attributes']['treatments'] =
+                  [{ 'beginDate' => '2009-03', 'treatedDisabilityNames' => ['PTSD (post traumatic stress disorder)'],
+                     'center' => { 'name' => 'Center One', 'city' => 'Decatur', 'state' => 'GA' } }]
                 params['data']['attributes']['disabilities'] = disabilities
                 post submit_path, params: params.to_json, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
                 expect(response_body['errors'][0]['detail']).to eq(
-                  'The service relevance is required for /disability/0/secondaryDisability/0/serviceRelevance.'
+                  "The serviceRelevance is required if disabilityActionType' is NEW."
                 )
               end
             end

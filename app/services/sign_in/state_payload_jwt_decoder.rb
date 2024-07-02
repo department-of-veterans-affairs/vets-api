@@ -32,7 +32,7 @@ module SignIn
         with_validation = true
         decoded_jwt = JWT.decode(
           state_payload_jwt,
-          private_key,
+          decode_key_array,
           with_validation,
           {
             algorithm: Constants::Auth::JWT_ENCODE_ALGORITHM
@@ -46,8 +46,18 @@ module SignIn
       raise Errors::StatePayloadMalformedJWTError.new message: 'State JWT is malformed'
     end
 
-    def private_key
-      OpenSSL::PKey::RSA.new(File.read(Settings.sign_in.jwt_encode_key))
+    def decode_key_array
+      [public_key, public_key_old].compact
+    end
+
+    def public_key
+      OpenSSL::PKey::RSA.new(File.read(Settings.sign_in.jwt_encode_key)).public_key
+    end
+
+    def public_key_old
+      return unless Settings.sign_in.jwt_old_encode_key
+
+      OpenSSL::PKey::RSA.new(File.read(Settings.sign_in.jwt_old_encode_key)).public_key
     end
   end
 end

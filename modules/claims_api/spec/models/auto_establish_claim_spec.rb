@@ -446,7 +446,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
           payload = JSON.parse(pending_record.to_internal)
           post_processed_disabilities = payload['form526']['disabilities']
 
-          expect(pre_processed_disabilities).eql?(post_processed_disabilities)
+          expect(pre_processed_disabilities).to eql(post_processed_disabilities)
         end
       end
 
@@ -458,7 +458,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
           payload = JSON.parse(pending_record.to_internal)
           post_processed_disabilities = payload['form526']['disabilities']
 
-          expect(pre_processed_disabilities).eql?(post_processed_disabilities)
+          expect(pre_processed_disabilities).to eql(post_processed_disabilities)
         end
       end
     end

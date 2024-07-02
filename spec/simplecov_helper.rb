@@ -88,5 +88,6 @@ class SimpleCovHelper
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
     add_group 'Vye', 'modules/vye/'
+    add_group 'Pensions', 'modules/pensions/'
   end
 end

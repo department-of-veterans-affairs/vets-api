@@ -3,8 +3,8 @@
 require 'rails_helper'
 require 'debt_management_center/statement_identifier_service'
 
-RSpec.describe DebtManagementCenter::StatementIdentifierService, skip_vet360: true,
-                                                                 type: :service do
+RSpec.describe DebtManagementCenter::StatementIdentifierService, :skip_vet360,
+               type: :service do
   describe '#get_mpi_data' do
     context 'given edipi statement' do
       edipi = '492031291'

@@ -135,17 +135,12 @@ module BenefitsClaims
     # @param [hash] options: options to override aud_claim_url, params, and auth_params
     # @option options [hash] :body_only only return the body from the request
     #
-    # NOTE: this method is similar to submit526.  The
-    # only difference is the path and endpoint values
+    # NOTE: This method is similar to submit526. The only difference is the path and endpoint values
     #
-    def validate526(body,
-                    lighthouse_client_id = nil,
-                    lighthouse_rsa_key_path = nil,
-                    options = {})
-
-      endpoint  = '{icn}/526/validate'
-      path      = "#{@icn}/526/validate"
-      body      = prepare_submission_body(body)
+    def validate526(body, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+      endpoint = '{icn}/526/validate'
+      path = "#{@icn}/526/validate"
+      body = prepare_submission_body(body)
 
       response = config.post(
         path,
@@ -161,7 +156,6 @@ module BenefitsClaims
       handle_error(e, lighthouse_client_id, endpoint)
     end
 
-    ######################################
     private
 
     def build_request_body(body)

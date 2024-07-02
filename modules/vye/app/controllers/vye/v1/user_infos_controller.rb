@@ -8,11 +8,11 @@ module Vye
       def show
         authorize user_info, policy_class: Vye::UserInfoPolicy
 
-        render json: user_info,
-               serializer: Vye::UserInfoSerializer,
-               adapter: :json,
-               api_key: api_key?,
-               include: %i[latest_address pending_documents verifications pending_verifications].freeze
+        options = {
+          params: { api_key: api_key? },
+          include: %i[latest_address pending_documents verifications pending_verifications]
+        }
+        render json: Vye::UserInfoSerializer.new(user_info, options)
       end
 
       private

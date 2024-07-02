@@ -13,7 +13,7 @@ module RepresentationManagement
         if @active_poa.blank? || record.blank?
           render json: { data: {} }, status: :ok
         else
-          render json: record, serializer:, status: :ok
+          render json: serializer.new(record), status: :ok
         end
       end
 

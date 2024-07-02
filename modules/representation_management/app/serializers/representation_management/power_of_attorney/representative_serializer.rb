@@ -3,21 +3,15 @@
 module RepresentationManagement
   module PowerOfAttorney
     class RepresentativeSerializer < BaseSerializer
-      attribute :type
-      attribute :name
-      attribute :email
+      include JSONAPI::Serializer
 
-      def type
+      attribute :type do
         'representative'
       end
 
-      def name
-        object.full_name
-      end
-
-      def phone
-        object.phone_number
-      end
+      attribute :email
+      attribute :name, &:full_name
+      attribute :phone, &:phone_number
     end
   end
 end

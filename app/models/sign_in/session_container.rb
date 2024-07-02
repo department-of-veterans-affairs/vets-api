@@ -41,5 +41,15 @@ module SignIn
     def persisted?
       false
     end
+
+    def context
+      {
+        user_uuid: access_token.to_s[:user_uuid],
+        session_handle: session.handle,
+        client_id: session.client_id,
+        type: session.user_verification.credential_type,
+        icn: session.user_account.icn
+      }
+    end
   end
 end

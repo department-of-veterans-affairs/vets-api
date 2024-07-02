@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
+RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
   stub_virus_scan
   subject(:job) { described_class.new }
 
