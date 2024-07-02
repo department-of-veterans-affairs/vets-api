@@ -15,6 +15,7 @@ RSpec.describe SignIn::UserCodeMapCreator do
       {
         logingov_uuid:,
         csp_email:,
+        all_csp_emails:,
         first_name:,
         last_name:
       }
@@ -35,6 +36,7 @@ RSpec.describe SignIn::UserCodeMapCreator do
     let(:logingov_uuid) { SecureRandom.hex }
     let(:icn) { 'some-icn' }
     let(:csp_email) { 'some-csp-email' }
+    let(:all_csp_emails) { [csp_email] }
     let(:service_name) { SignIn::Constants::Auth::LOGINGOV }
     let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
     let!(:user_verification) { create(:logingov_user_verification, logingov_uuid:) }
@@ -49,7 +51,7 @@ RSpec.describe SignIn::UserCodeMapCreator do
     let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
     let(:device_sso) { true }
     let(:scope) { SignIn::Constants::Auth::DEVICE_SSO }
-    let(:expected_user_attributes) { { first_name:, last_name:, email: csp_email } }
+    let(:expected_user_attributes) { { first_name:, last_name:, email: csp_email, all_emails: all_csp_emails } }
 
     before do
       allow(SecureRandom).to receive(:uuid).and_return(login_code)

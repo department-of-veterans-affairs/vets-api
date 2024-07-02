@@ -9,14 +9,34 @@ module SignIn
     class Service < Common::Client::Base
       configuration Configuration
 
-      SCOPE = 'profile profile:verified_at address email social_security_number openid'
+      DEFAULT_SCOPES = [
+        PROFILE_SCOPE = 'profile',
+        VERIFIED_AT_SCOPE = 'profile:verified_at',
+        ADDRESS_SCOPE = 'address',
+        EMAIL_SCOPE = 'email',
+        OPENID_SCOPE = 'openid',
+        SSN_SCOPE = 'social_security_number'
+      ].freeze
+
+      OPTIONAL_SCOPES = [ALL_EMAILS_SCOPE = 'all_emails'].freeze
+
+      attr_reader :optional_scopes
+
+      def initialize(optional_scopes: [])
+        @optional_scopes = valid_optional_scopes(optional_scopes)
+        super()
+      end
 
       def render_auth(state: SecureRandom.hex,
                       acr: Constants::Auth::LOGIN_GOV_IAL1,
                       operation: Constants::Auth::AUTHORIZE)
+
         Rails.logger.info('[SignIn][Logingov][Service] Rendering auth, ' \
-                          "state: #{state}, acr: #{acr}, operation: #{operation}")
-        RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(acr, state)).perform
+                          "state: #{state}, acr: #{acr}, operation: #{operation}, " \
+                          "optional_scopes: #{optional_scopes}")
+
+        scope = (DEFAULT_SCOPES + optional_scopes).join(' ')
+        RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(acr, state, scope)).perform
       end
 
       def render_logout(client_logout_redirect_uri)
@@ -43,6 +63,7 @@ module SignIn
       def user_info(token)
         response = perform(:get, config.userinfo_path, nil, { 'Authorization' => "Bearer #{token}" })
         log_credential(response.body) if config.log_credential
+
         OpenStruct.new(response.body)
       rescue Common::Client::Errors::ClientError => e
         raise_client_error(e, 'UserInfo')
@@ -59,6 +80,7 @@ module SignIn
           last_name: user_info.family_name,
           address: normalize_address(user_info.address),
           csp_email: user_info.email,
+          all_csp_emails: user_info.all_emails,
           multifactor: true,
           service_name: config.service_name,
           authn_context: get_authn_context(credential_level.current_ial),
@@ -68,7 +90,7 @@ module SignIn
 
       private
 
-      def auth_params(acr, state)
+      def auth_params(acr, state, scope)
         {
           acr_values: acr,
           client_id: config.client_id,
@@ -76,7 +98,7 @@ module SignIn
           prompt: config.prompt,
           redirect_uri: config.redirect_uri,
           response_type: config.response_type,
-          scope: SCOPE,
+          scope:,
           state:
         }
       end
@@ -207,6 +229,10 @@ module SignIn
 
       def random_seed
         @random_seed ||= SecureRandom.hex
+      end
+
+      def valid_optional_scopes(optional_scopes)
+        optional_scopes.to_a & OPTIONAL_SCOPES
       end
     end
   end
