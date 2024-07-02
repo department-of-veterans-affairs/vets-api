@@ -16,21 +16,13 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
   end
 
   describe '.perform_async' do
-    let(:saved_claim) { FactoryBot.create(:va526ez) }
-    let(:submission) do
-      create(:form526_submission,
-             user_uuid: user.uuid,
-             auth_headers_json: auth_headers.to_json,
-             saved_claim_id: saved_claim.id)
-    end
+    let(:form526_submission) { create(:form526_submission) }
 
     context 'when all retries are exhausted' do
-      let(:form526_job_status) do
-        create(:form526_job_status, :poll_form526_pdf, form526_submission: submission, job_id: 1)
-      end
+      let(:form526_job_status) { create(:form526_job_status, :poll_form526_pdf, form526_submission:, job_id: 1) }
 
       it 'transitions to the pdf_not_found status' do
-        job_params = { 'jid' => form526_job_status.job_id, 'args' => [submission.id] }
+        job_params = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
 
         subject.within_sidekiq_retries_exhausted_block(job_params) do
           # block is required to use this functionality.
