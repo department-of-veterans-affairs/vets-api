@@ -219,7 +219,7 @@ module ClaimsApi
         end
 
         def current_phase_back(data)
-          lc_status_array = [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten
+          lc_status_array = [data&.dig(:bnft_claim_lc_status)].flatten
           return false if lc_status_array.nil?
 
           return false if lc_status_array.first&.dig(:phase_type_change_ind).nil?
@@ -231,7 +231,7 @@ module ClaimsApi
         end
 
         def latest_phase_type_change_indicator(data)
-          [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.first&.dig(:phase_type_change_ind)
+          [data&.dig(:bnft_claim_lc_status)].flatten.first&.dig(:phase_type_change_ind)
         end
 
         def latest_phase_type(data)
