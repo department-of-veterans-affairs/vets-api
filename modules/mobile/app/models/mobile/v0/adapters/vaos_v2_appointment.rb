@@ -321,7 +321,6 @@ module Mobile
               APPOINTMENT_TYPES[:va_video_connect_onsite]
             else
               APPOINTMENT_TYPES[:va]
-
             end
           end
         end
@@ -329,10 +328,8 @@ module Mobile
         def location
           @location ||= begin
             case appointment_type
-            when APPOINTMENT_TYPES[:cc] && appointment_request?
-              set_cc_appointment_request_location
             when APPOINTMENT_TYPES[:cc]
-              set_cc_appointment_location
+              appointment_request? ? set_cc_appointment_request_location : set_cc_appointment_location
             when APPOINTMENT_TYPES[:va_video_connect_atlas],
               APPOINTMENT_TYPES[:va_video_connect_home],
               APPOINTMENT_TYPES[:va_video_connect_gfe]
@@ -346,34 +343,32 @@ module Mobile
         end
 
         def location_template
-          @location_template ||= begin
-            {
-              id: nil,
-              name: nil,
-              address: {
-                street: nil,
-                city: nil,
-                state: nil,
-                zip_code: nil
-              },
-              lat: nil,
-              long: nil,
-              phone: {
-                area_code: nil,
-                number: nil,
-                extension: nil
-              },
-              url: nil,
-              code: nil
-            }
-          end
+          @location_template ||= {
+            id: nil,
+            name: nil,
+            address: {
+              street: nil,
+              city: nil,
+              state: nil,
+              zip_code: nil
+            },
+            lat: nil,
+            long: nil,
+            phone: {
+              area_code: nil,
+              number: nil,
+              extension: nil
+            },
+            url: nil,
+            code: nil
+          }
         end
 
         def set_cc_appointment_request_location
           practitioners_address = appointment.dig(:practitioners, 0, :address)
           return if practitioners_address.blank?
 
-          location_template[:name] = practitioners_address[:practice_name] # this is not a real attribute. what should this be?
+          # location_template[:name] = practitioners_address[:practice_name]
           location_template[:address][:street] = practitioners_address.dig(:line, 0)
           location_template[:address][:city] = practitioners_address[:city]
           location_template[:address][:state] = practitioners_address[:state]
