@@ -67,14 +67,15 @@ module ClaimsApi
       auth_headers = claim.auth_headers
 
       veteran_name = "#{auth_headers['va_eauth_firstName']}_#{auth_headers['va_eauth_lastName']}"
-      file_name = generate_file_name(doc_type:, veteran_name:, claim_id: claim.evss_id, original_filename:)
+      file_name = generate_file_name(doc_type:, veteran_name:, claim_id: claim.id, original_filename:)
 
       # new method based on doc type
       data = if doc_type == 'L023'
                birls_file_num = auth_headers['va_eauth_birlsfilenumber'] || file_number
                build_body(doc_type:, file_name:, claim_id: claim.id, file_number: birls_file_num)
              elsif doc_type == 'L705'
-               build_body(doc_type:, file_name:, participant_id: nil, claim_id: claim.id, tracked_item_ids:,
+               build_body(doc_type:, file_name:, participant_id: nil, claim_id: claim.id,
+                          # tracked_item_ids:,
                           file_number: nil)
              end
 
@@ -88,6 +89,8 @@ module ClaimsApi
     def generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
       if doc_type == 'L122'
         "#{veteran_name}_#{claim_id}_526EZ.pdf"
+      elsif doc_type == 'L705'
+        "#{veteran_name}_#{claim_id}_5103.pdf"
       else
         filename = get_original_supporting_doc_file_name(original_filename)
         "#{veteran_name}_#{claim_id}_#{filename}.pdf"
