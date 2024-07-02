@@ -11,8 +11,7 @@ module Veteran
       def find_rep
         rep = Veteran::Service::Representative.for_user(first_name: params[:first_name], last_name: params[:last_name])
         if rep.present?
-          render json: rep,
-                 serializer: Veteran::Service::RepresentativeSerializer
+          render json: Veteran::Service::RepresentativeSerializer.new(rep)
         else
           render json: { errors: [{ detail: 'Representative not found' }] },
                  status: :not_found
