@@ -322,22 +322,22 @@ module V1
     end
 
     def callback_stats(status, saml_response = nil, failure_tag = nil)
+      tracker = url_service.tracker
+      tracker_tags = ["type:#{tracker.payload_attr(:type)}", "client_id:#{tracker.payload_attr(:application)}"]
       case status
       when :success
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:success',
-                                "context:#{saml_response&.authn_context}",
-                                VERSION_TAG])
+                         tags: ['status:success', "context:#{saml_response&.authn_context}",
+                                VERSION_TAG].concat(tracker_tags))
       when :failure
         tag = failure_tag.to_s.starts_with?('error:') ? failure_tag : "error:#{failure_tag}"
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:failure',
-                                "context:#{saml_response&.authn_context}",
-                                VERSION_TAG])
+                         tags: ['status:failure', "context:#{saml_response&.authn_context}",
+                                VERSION_TAG].concat(tracker_tags))
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [tag, VERSION_TAG])
       when :failed_unknown
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:failure', 'context:unknown', VERSION_TAG])
+                         tags: ['status:failure', 'context:unknown', VERSION_TAG].concat(tracker_tags))
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: ['error:unknown', VERSION_TAG])
       when :total
         StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY, tags: [VERSION_TAG])
