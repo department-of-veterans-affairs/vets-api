@@ -248,5 +248,14 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
         )
       end
     end
+
+    describe 'sidekiq_retries_exhausted block' do
+      it 'logs a distinct error when retries are exhausted' do
+        CentralMail::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block do
+          expect(Rails.logger).to receive(:error).exactly(:once)
+          expect(StatsD).to receive(:increment).with('worker.submit_686c_674_backup_submission.exhausted')
+        end
+      end
+    end
   end
 end
