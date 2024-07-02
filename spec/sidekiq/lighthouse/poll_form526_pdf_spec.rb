@@ -17,7 +17,6 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
 
   describe '.perform_async' do
     let(:saved_claim) { FactoryBot.create(:va526ez) }
-    let(:submitted_claim_id) { 600_130_094 }
     let(:submission) do
       create(:form526_submission,
              user_uuid: user.uuid,
