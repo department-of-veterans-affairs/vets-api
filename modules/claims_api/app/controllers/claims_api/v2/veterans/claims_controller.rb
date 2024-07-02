@@ -95,7 +95,7 @@ module ClaimsApi
           structure.merge!(errors: get_errors(lighthouse_claim))
           structure.merge!(supporting_documents: build_supporting_docs(bgs_claim))
           structure.merge!(tracked_items: map_bgs_tracked_items(bgs_claim))
-          structure.merge!(build_claim_phase_attributes(bgs_claim, 'show'))
+          structure.merge!(build_claim_phase_attributes(bgs_details, 'show'))
         end
 
         def map_claims(bgs_claims:, lighthouse_claims:)
@@ -180,6 +180,7 @@ module ClaimsApi
         end
 
         def build_claim_structure(view, data:, lighthouse_id:, upstream_id:) # rubocop:disable Metrics/MethodLength
+
           {
             base_end_prdct_type_cd: data[:base_end_prdct_type_cd],
             claim_date: date_present(data[:claim_dt]),
