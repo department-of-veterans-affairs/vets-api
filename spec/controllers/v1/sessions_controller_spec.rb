@@ -126,7 +126,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                                              **once)
                 .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
                                               tags: ["type:#{type}",
-                                                     "context:#{authn}",
+                                                     "context:_#{authn&.join('_')}",
                                                      'client_id:vaweb',
                                                      'version:v1'],
                                               **once)

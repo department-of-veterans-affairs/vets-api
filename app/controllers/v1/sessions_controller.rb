@@ -250,16 +250,18 @@ module V1
 
     def saml_request_stats
       tracker = url_service.tracker
+      authn_context = tracker&.payload_attr(:authn_context)
       values = {
         'id' => tracker&.uuid,
-        'authn' => tracker&.payload_attr(:authn_context),
+        'authn' => authn_context,
         'type' => tracker&.payload_attr(:type),
         'transaction_id' => tracker&.payload_attr(:transaction_id)
       }
       Rails.logger.info("SSOe: SAML Request => #{values}")
+      normalized_authn = authn_context&.class == Array ? authn_context.join('_') : authn_context
       StatsD.increment(STATSD_SSO_SAMLREQUEST_KEY,
                        tags: ["type:#{tracker&.payload_attr(:type)}",
-                              "context:#{tracker&.payload_attr(:authn_context)}",
+                              "context:_#{normalized_authn}",
                               "client_id:#{tracker&.payload_attr(:application)}",
                               VERSION_TAG])
     end
