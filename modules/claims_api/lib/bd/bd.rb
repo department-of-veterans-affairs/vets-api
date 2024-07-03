@@ -56,16 +56,10 @@ module ClaimsApi
 
       res = res.deep_symbolize_keys
       request_id = res&.dig(:data, :requestId)
-      ClaimsApi::Logger.log(
-        'benefits_documents',
-        detail: "Successfully uploaded #{doc_type == 'L122' ? 'claim' : 'supporting'} doc to BD",
-        claim_id: claim.id, request_id:
-      )
-      res
-    rescue ::Common::Exceptions::GatewayTimeout => e
       ClaimsApi::Logger.log('benefits_documents',
-                            detail: "/upload failure for claimId #{claim&.id}, #{e.message}")
-      raise
+                            detail: "Successfully uploaded #{doc_type == 'L122' ? 'claim' : 'supporting'} doc to BD",
+                            claim_id: claim.id, request_id:)
+      res
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "/upload failure for claimId #{claim&.id}, #{e.message}")
