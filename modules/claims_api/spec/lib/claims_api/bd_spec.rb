@@ -41,5 +41,19 @@ describe ClaimsApi::BD do
       expect(result).to be_a Hash
       expect(result[:data][:documents]).to be_truthy
     end
+
+    context 'when the upstream service is down' do
+      let(:client) { instance_double(Faraday::Connection) }
+      let(:response) { instance_double(Faraday::Response, body: 'failed to request: timeout') }
+
+      before do
+        allow(Faraday).to receive(:new).and_return(client)
+        allow(client).to receive(:post).and_return(response)
+      end
+
+      it 'raises a GatewayTimeout exception' do
+        expect { subject.search(claim_id, file_number) }.to raise_error(Common::Exceptions::GatewayTimeout)
+      end
+    end
   end
 end

@@ -22,7 +22,15 @@ module ClaimsApi
       body = { data: { claimId: claim_id, fileNumber: file_number } }
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "calling benefits documents search for claimId #{claim_id}")
-      client.post('documents/search', body)&.body&.deep_symbolize_keys
+      res = client.post('documents/search', body)&.body
+
+      raise ::Common::Exceptions::GatewayTimeout.new(detail: "Gateway timeout. #{res}") unless res.is_a?(Hash)
+
+      res.deep_symbolize_keys
+    rescue ::Common::Exceptions::GatewayTimeout => e
+      ClaimsApi::Logger.log('benefits_documents',
+                            detail: "/search failure for claimId #{claim_id}, #{e.message}")
+      raise
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "/search failure for claimId #{claim_id}, #{e.message}")
