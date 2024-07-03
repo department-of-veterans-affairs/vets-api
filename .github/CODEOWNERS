@@ -959,6 +959,7 @@ lib/rx @department-of-veterans-affairs/mobile-api-team @department-of-veterans-a
 lib/saml @department-of-veterans-affairs/octo-identity
 lib/salesforce @department-of-veterans-affairs/govcio-vfep-codereviewers
 lib/search @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+lib/search_typeahead @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/sentry @department-of-veterans-affairs/backend-review-group
 lib/sentry_logging.rb @department-of-veterans-affairs/backend-review-group
 lib/sftp_writer @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
