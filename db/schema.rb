@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_02_232312) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_03_001726) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -1032,12 +1032,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_02_232312) do
     t.string "uploaded_forms", array: true
     t.datetime "itf_datetime", precision: nil
     t.datetime "form_start_date"
-    t.bigint "user_accounts_id"
+    t.uuid "user_account_id"
     t.datetime "in_progress_form_creation"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
-    t.index ["user_accounts_id"], name: "index_saved_claims_on_user_accounts_id"
+    t.index ["user_account_id"], name: "index_saved_claims_on_user_account_id"
   end
 
   create_table "schema_contract_validations", force: :cascade do |t|
@@ -1595,6 +1595,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_02_232312) do
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
+  add_foreign_key "saved_claims", "user_accounts", validate: false
   add_foreign_key "terms_of_use_agreements", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
   add_foreign_key "user_credential_emails", "user_verifications"
