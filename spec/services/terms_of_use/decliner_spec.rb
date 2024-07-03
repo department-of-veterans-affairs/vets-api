@@ -59,16 +59,9 @@ RSpec.describe TermsOfUse::Decliner, type: :service do
     end
 
     describe '#perform!' do
-      let(:expected_attr_key) { SecureRandom.hex(32) }
-      let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
-      let(:mpi_profile) { build(:mpi_profile, icn:, sec_id:) }
-      let(:sec_id) { 'some-sec-id' }
-
       before do
         allow(TermsOfUse::SignUpServiceUpdaterJob).to receive(:perform_async)
-        allow(SecureRandom).to receive(:hex).and_return(expected_attr_key)
         allow(Rails.logger).to receive(:info)
-        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(find_profile_response)
       end
 
       it 'creates a new terms of use agreement with the given version' do
@@ -80,34 +73,15 @@ RSpec.describe TermsOfUse::Decliner, type: :service do
         expect(decliner.perform!).to be_declined
       end
 
-      context 'and sec_id exists for the user' do
-        let(:sec_id) { 'some-sec-id' }
-
-        it 'enqueues the SignUpServiceUpdaterJob with expected parameters' do
-          decliner.perform!
-          expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:perform_async).with(expected_attr_key)
-        end
-
-        it 'logs the attr_package key' do
-          decliner.perform!
-          expect(Rails.logger).to have_received(:info).with('[TermsOfUse] [Decliner] attr_package key',
-                                                            { icn:, attr_package_key: expected_attr_key })
-        end
+      it 'enqueues the SignUpServiceUpdaterJob with expected parameters' do
+        decliner.perform!
+        expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:perform_async).with(user_account.id, version)
       end
 
-      context 'and sec_id does not exist for the user' do
-        let(:sec_id) { nil }
-        let(:expected_log) { '[TermsOfUse] [Decliner] Sign Up Service not updated due to user missing sec_id' }
-
-        it 'does not enqueue the SignUpServiceUpdaterJob' do
-          decliner.perform!
-          expect(TermsOfUse::SignUpServiceUpdaterJob).not_to have_received(:perform_async)
-        end
-
-        it 'logs a sign up service not updated message' do
-          decliner.perform!
-          expect(Rails.logger).to have_received(:info).with(expected_log, { icn: })
-        end
+      it 'logs the update_sign_up_service' do
+        decliner.perform!
+        expect(Rails.logger).to have_received(:info).with('[TermsOfUse] [Decliner] update_sign_up_service',
+                                                          { icn: })
       end
     end
   end

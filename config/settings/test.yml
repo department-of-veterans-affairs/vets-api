@@ -246,6 +246,8 @@ lighthouse:
       access_token:
         client_id: ~
         rsa_key: ~
+  benefits_intake:
+      api_key: fake_api_key
 
 rrd:
   alerts:
@@ -434,7 +436,7 @@ travel_pay:
     resource: 'resource_id'
     tenant_id: 'tenant_id'
     auth_url: 'https://auth.veis.gov'
-  mock: true
+  mock: false
   subscription_key: 'api_key'
   base_url: 'https://btsss.gov'
   client_number: '12345'

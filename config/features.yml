@@ -308,6 +308,10 @@ features:
   decision_review_sc_status_updater_enabled:
     actor_type: user
     description: Enables the Supplemental Claim status update batch job
+  decision_review_sc_use_lighthouse_api_for_form4142:
+    actor_type: user
+    description: Use Lighthouse API to submit Form 21-4142 from Supplemental Claims
+    enable_in_development: true
   decision_review_icn_updater_enabled:
     actor_type: user
     description: Enables the ICN lookup job
@@ -632,6 +636,9 @@ features:
   form1010d:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
+  form107959f1:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program)
   form_upload_flow:
     actor_type: user
     description: If enabled shows the find-a-form widget for the Form Upload Flow
@@ -688,6 +695,10 @@ features:
   letters_check_discrepancies:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
+    enable_in_development: true
+  lighthouse_claims_v2_poa_requests_skip_bgs:
+    actor_type: user
+    description: Enable/disable skipping BGS calls for POA Requests
     enable_in_development: true
   loop_pages:
     actor_type: user
@@ -926,10 +937,6 @@ features:
     description: Use VA Forms System Core for forms instead of schema based forms
     actor_type: user
     enable_in_development: true
-  profile_contacts:
-    description: Enable the Personal Health Care Contacts feature. Data provided by the VA Profile Health Benefit Service.
-    actor_type: user
-    enable_in_development: true
   pw_ehr_cta_drupal_source_of_truth:
     actor_type: user
     description: Enabling Public Websites-managed EHR CTAs to use Drupal EHR data, including for Cerner cutovers
@@ -1081,6 +1088,10 @@ features:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
     enable_in_development: true
+  dgi_rudisill_hide_benefits_selection_step:
+    actor_type: user
+    description: Hides benefit selection page on original claims application.
+    enable_in_development: false
   show_forms_app:
     actor_type: user
     description: Enables the TOE form to be displayed.
@@ -1255,9 +1266,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for displaying the most recent facilities on the Choose your VA location page.
-  va_view_dependents_access:
-    actor_type: user
-    description: Allows us to gate the View/ Modify dependents content in a progressive rollout
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
@@ -1409,9 +1417,6 @@ features:
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
-  drupal_footer:
-    actor_type: user
-    description: If enabled, pulls Drupal data to populate most of the global footer
   virtual_agent_lighthouse_claims:
     actor_type: user
     description: Use lighthouse instead of EVSS to view benefit claims for virtual agent chatbot application
@@ -1436,6 +1441,10 @@ features:
   nod_confirmation_update:
     actor_type: user
     description: Show updated confirmation page with form data & downloadable PDF
+    enable_in_development: true
+  hlr_updateed_contnet:
+    actor_type: user
+    description: HLR show form content updates
     enable_in_development: true
   pension_ipf_callbacks_endpoint:
     actor_type: user
@@ -1537,4 +1546,3 @@ features:
   toggle_vye_application:
     actor_type: user
     description: Enable VYE
-    
