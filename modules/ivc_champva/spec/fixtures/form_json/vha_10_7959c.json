@@ -68,6 +68,7 @@
     "postal_code": "12345"
   },
   "certifier_role": "other",
+  "certification_date": "2010-01-01",
   "consent_to_mail_missing_required_files": true,
   "statement_of_truth_certified": true,
   "statement_of_truth_signature": "Certifier Jones"
