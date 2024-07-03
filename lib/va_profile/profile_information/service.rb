@@ -106,20 +106,20 @@ module VAProfile
         handle_error(e)
       end
 
-      # def get_transaction_status(transaction_id, model)
-      #   with_monitoring do
-      #     icn_with_aaid_present!
-      #     raw_response = perform(:post, model.transaction_status_path(@user, transaction_id), '')
-      #     VAProfile::Stats.increment_transaction_results(raw_response)
-      #     transaction_status = model.transaction_response_class.from(raw_response, @user)
-      #     return transaction_status unless model.send_change_notifcations?
+      def get_transaction_status(transaction_id, model)
+        with_monitoring do
+          icn_with_aaid_present!
+          raw_response = perform(:post, model.transaction_status_path(@user, transaction_id), '')
+          VAProfile::Stats.increment_transaction_results(raw_response)
+          transaction_status = model.transaction_response_class.from(raw_response, @user)
+          return transaction_status unless model.send_change_notifcations?
 
-      #     send_change_notifications(transaction_status)
-      #     transaction_status
-      #   end
-      # rescue => e
-      #   handle_error(e)
-      # end
+          send_change_notifications(transaction_status)
+          transaction_status
+        end
+      rescue => e
+        handle_error(e)
+      end
 
       private
 
@@ -159,29 +159,29 @@ module VAProfile
         { 'contact_info' => EMAIL_PERSONALISATIONS[type] }
       end
 
-      # def send_change_notifications(transaction_status)
-      #   transaction = transaction_status.transaction
-      #   transaction_id = transaction.id
-      #   return if transaction.completed_success? || TransactionNotification.find(transaction_id).present?
+      def send_change_notifications(transaction_status)
+        transaction = transaction_status.transaction
+        transaction_id = transaction.id
+        return if transaction.completed_success? || TransactionNotification.find(transaction_id).present?
 
-      #   email_transaction = transaction_status.new_email.present?
-      #   notify_email = email_transaction ? old_email(transaction_id) : old_email
-      #   return if notify_email.nil?
+        email_transaction = transaction_status.new_email.present?
+        notify_email = email_transaction ? old_email(transaction_id) : old_email
+        return if notify_email.nil?
 
-      #   personalisation = transaction_status.changed_field
-      #   notify_email_job(notify_email, personalisation)
-      #   TransactionNotification.create(transaction_id:)
-      #   return unless email_transaction
+        personalisation = transaction_status.changed_field
+        notify_email_job(notify_email, personalisation)
+        TransactionNotification.create(transaction_id:)
+        return unless email_transaction
 
-      #   # Send notification to new email
-      #   notify_email_job(transaction_status.new_email, personalisation)
-      #   OldEmail.find(transaction_id).destroy
-      # end
+        # Send notification to new email
+        notify_email_job(transaction_status.new_email, personalisation)
+        OldEmail.find(transaction_id).destroy
+      end
 
-      # def notify_email_job(notify_email, personalisation)
-      #   VANotifyEmailJob.perform_async(notify_email, CONTACT_INFO_CHANGE_TEMPLATE,
-      #                                  get_email_personalisation(personalisation))
-      # end
+      def notify_email_job(notify_email, personalisation)
+        VANotifyEmailJob.perform_async(notify_email, CONTACT_INFO_CHANGE_TEMPLATE,
+                                       get_email_personalisation(personalisation))
+      end
     end
   end
 end
