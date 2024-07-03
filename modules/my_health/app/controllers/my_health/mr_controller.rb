@@ -10,8 +10,8 @@ module MyHealth
     include MyHealth::MHVControllerConcerns
     service_tag 'mhv-medical-records'
 
-    skip_before_action :authenticate
-    # before_action :authenticate_bb_client
+    # skip_before_action :authenticate
+    before_action :authenticate_bb_client
 
     rescue_from ::MedicalRecords::PatientNotFound do |_exception|
       render body: nil, status: :accepted
@@ -20,27 +20,16 @@ module MyHealth
     protected
 
     def client
-      # @client ||= MedicalRecords::Client.new(session: { user_id: current_user.mhv_correlation_id,
-      #                                                   icn: current_user.icn })
-      @client ||= MedicalRecords::Client.new(session: { user_id: 1,
-                                                        icn: '1013069425V334698' })
+      @client ||= MedicalRecords::Client.new(session: { user_id: current_user.mhv_correlation_id,
+                                                        icn: current_user.icn })
     end
 
     def phrmgr_client
-      # @phrmgr_client ||= PHRMgr::Client.new(current_user.icn)
-      # 1014045870V412012
-      # 1013069425V334698
-      # 1013704789V992505
-
-      @phrmgr_client ||= PHRMgr::Client.new('1013069425V334698')
+      @phrmgr_client ||= PHRMgr::Client.new(current_user.icn)
     end
 
     def bb_client
-      # @bb_client ||= BBInternal::Client.new(current_user.mhv_correlation_id)
-      @bb_client ||= BBInternal::Client.new(session: { user_id: '15176497', icn: '1013069425V334698' })
-      p "@bb_client #{@bb_client.inspect}"
-
-      @bb_client
+      @bb_client ||= BBInternal::Client.new(current_user.mhv_correlation_id)
     end
 
     def authenticate_bb_client
@@ -48,7 +37,7 @@ module MyHealth
     end
 
     def authorize
-      # raise_access_denied unless current_user.authorize(:mhv_medical_records, :access?)
+      raise_access_denied unless current_user.authorize(:mhv_medical_records, :access?)
     end
 
     def raise_access_denied
