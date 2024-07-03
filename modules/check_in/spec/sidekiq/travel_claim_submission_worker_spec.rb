@@ -190,7 +190,7 @@ shared_examples 'travel claims worker #perform' do |facility_type|
                                                   .and_return(notify_client)
         expect(notify_client).to receive(:send_sms).with(
           phone_number: patient_cell_phone,
-          template_id: @error_template_id,
+          template_id: @timeout_template_id,
           sms_sender_id: @sms_sender_id,
           personalisation: { claim_number: nil, appt_date: notify_appt_date }
         )
@@ -199,7 +199,7 @@ shared_examples 'travel claims worker #perform' do |facility_type|
           worker.perform(uuid, appt_date)
         end.not_to change(CheckIn::TravelClaimStatusCheckWorker.jobs, :size)
 
-        expect(StatsD).to have_received(:increment).with(@statsd_error)
+        expect(StatsD).to have_received(:increment).with(@statsd_timeout)
         expect(StatsD).to have_received(:increment).with(@statsd_notify_success)
       end
     end

@@ -61,6 +61,10 @@ module CheckIn
                                        [Constants::OH_STATSD_BTSSS_SUCCESS, Constants::OH_SUCCESS_TEMPLATE_ID]
                                      when TravelClaim::Response::CODE_CLAIM_EXISTS
                                        [Constants::OH_STATSD_BTSSS_DUPLICATE, Constants::OH_DUPLICATE_TEMPLATE_ID]
+                                     when TravelClaim::Response::CODE_BTSSS_TIMEOUT
+                                       unless Flipper.enabled?(:check_in_experience_check_claim_status_on_timeout_enabled)
+                                         [Constants::OH_STATSD_BTSSS_TIMEOUT, Constants::OH_TIMEOUT_TEMPLATE_ID]
+                                       end
                                      else
                                        [Constants::OH_STATSD_BTSSS_ERROR, Constants::OH_ERROR_TEMPLATE_ID]
                                      end
@@ -70,6 +74,10 @@ module CheckIn
                                        [Constants::CIE_STATSD_BTSSS_SUCCESS, Constants::CIE_SUCCESS_TEMPLATE_ID]
                                      when TravelClaim::Response::CODE_CLAIM_EXISTS
                                        [Constants::CIE_STATSD_BTSSS_DUPLICATE, Constants::CIE_DUPLICATE_TEMPLATE_ID]
+                                     when TravelClaim::Response::CODE_BTSSS_TIMEOUT
+                                       unless Flipper.enabled?(:check_in_experience_check_claim_status_on_timeout_enabled)
+                                         [Constants::CIE_STATSD_BTSSS_TIMEOUT, Constants::CIE_TIMEOUT_TEMPLATE_ID]
+                                       end
                                      else
                                        [Constants::CIE_STATSD_BTSSS_ERROR, Constants::CIE_ERROR_TEMPLATE_ID]
                                      end
