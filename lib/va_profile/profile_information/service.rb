@@ -147,8 +147,7 @@ module VAProfile
         transaction = transaction_status.transaction
         transaction_id = transaction.id
         return if transaction.completed_success? || TransactionNotification.find(transaction_id).present?
-
-        email_transaction = transaction_status.new_email.present?
+        email_transaction = transaction_status.try(:new_email).present?
         notify_email = email_transaction ? old_email(transaction_id) : old_email
         return if notify_email.nil?
 
