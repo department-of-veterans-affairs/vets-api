@@ -12,7 +12,11 @@ module VAProfileRedis
     # @param user [User] The current user
     #
     def self.invalidate(user)
-      contact_info = VAProfileRedis::ContactInformation.find(user.uuid)
+      contact_info = if Flipper.enabled?(:va_profile_information_v3_redis, user)
+                       VAProfileRedis::ProfileInformation.find(user.uuid)
+                     else
+                       VAProfileRedis::ContactInformation.find(user.uuid)
+                     end
 
       contact_info.destroy if contact_info.present?
     end

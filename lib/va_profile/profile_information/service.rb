@@ -45,37 +45,22 @@ module VAProfile
         super()
       end
 
-      # def get_response(type)
-      #   with_monitoring do
-      #     icn_with_aaid_present!
-      #     model = "VAProfile::Models::#{type.capitalize}".constantize
-      #     raw_response = perform(:post, path, { bios: [{ bioPath: 'bio' }] })
-      #     response = model.response_class(raw_response)
-      #     Sentry.set_extras(response.debug_data) unless response.ok?
-      #     response
-      #   end
-      # rescue Common::Client::Errors::ClientError => e
-      #   if e.status == 404
-      #     log_exception_to_sentry(
-      #       e,
-      #       { vet360_id: @user.vet360_id },
-      #       { va_profile: :person_not_found },
-      #       :warning
-      #     )
-      #     return PersonResponse.new(404, person: nil)
+      def get_response(type)
+        with_monitoring do
+          icn_with_aaid_present!
+          model = "VAProfile::Models::#{type.capitalize}".constantize
+          raw_response = perform(:post, path, '')
+          response = model.response_class(raw_response)
+          response
+        end
+      rescue => e
+        handle_error(e)
+      end
 
-      #   elsif e.status >= 400 && e.status < 500
-      #     return PersonResponse.new(e.status, person: nil)
-      #   end
-      #   handle_error(e)
-      # rescue => e
-      #   handle_error(e)
-      # end
-
-      # def self.get_person(vet360_id)
-      #   stub_user = OpenStruct.new(vet360_id:)
-      #   new(stub_user).get_response('person')
-      # end
+      def self.get_person(vet360_id)
+        stub_user = OpenStruct.new(vet360_id:)
+        new(stub_user).get_response('person')
+      end
 
       # def submit(params)
       #   config.submit(path(@user.edipi), params)
@@ -147,7 +132,11 @@ module VAProfile
       # create_or_update cannot determine if record exists
       # Reassign :update to either :put or :post
       def reassign_http_verb(record)
-        contact_info = VAProfileRedis::ContactInformation.for_user(@user)
+        contact_info = if Flipper.enabled?(:va_profile_information_v3_redis, user)
+                         VAProfileRedis::ProfileInformation.for_user(@user)
+                       else
+                         VAProfileRedis::ContactInformation.for_user(@user)
+                       end
         attr = record.contact_info_attr
         raise "invalid #{record.model} VAProfile::ProfileInformation" if attr.nil?
 

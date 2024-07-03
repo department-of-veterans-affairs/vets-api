@@ -17,18 +17,17 @@ module VAProfile
         super(response.status, { person:, messages:, va_profile_tx_audit_id: })
       end
 
-      # def self.from(raw_response = nil)
-      #   @response_body = raw_response&.body
+      def self.from(raw_response = nil)
+        @response_body = raw_response&.body
+        new(
+          raw_response&.status,
+          person: VAProfile::Models::Person.build_from(@response_body&.dig('bio'))
+        )
+      end
 
-      #   new(
-      #     raw_response&.status,
-      #     person: VAProfile::Models::Person.build_from(@response_body&.dig('bio'))
-      #   )
-      # end
-
-      # def cache?
-      #   super || (status >= 400 && status < 500)
-      # end
+      def cache?
+        super || (status >= 400 && status < 500)
+      end
 
       private
 
