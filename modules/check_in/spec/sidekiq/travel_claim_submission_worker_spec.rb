@@ -178,7 +178,7 @@ shared_examples 'travel claims worker #perform' do |facility_type|
 
     context 'when feature flag is off' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:check_in_experience_check_claim_status_on_timeout_enabled)
+        allow(Flipper).to receive(:enabled?).with(:check_in_experience_check_claim_status_on_timeout)
                                             .and_return(false)
       end
 
@@ -223,7 +223,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
     allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_travel_btsss_ssm_urls_enabled').and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:check_in_experience_check_claim_status_on_timeout_enabled)
+    allow(Flipper).to receive(:enabled?).with(:check_in_experience_check_claim_status_on_timeout)
                                         .and_return(true)
 
     allow(redis_client).to receive_messages(patient_cell_phone:, token: redis_token, icn:,

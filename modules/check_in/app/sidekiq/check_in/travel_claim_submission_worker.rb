@@ -62,7 +62,7 @@ module CheckIn
                                      when TravelClaim::Response::CODE_CLAIM_EXISTS
                                        [Constants::OH_STATSD_BTSSS_DUPLICATE, Constants::OH_DUPLICATE_TEMPLATE_ID]
                                      when TravelClaim::Response::CODE_BTSSS_TIMEOUT
-                                       unless Flipper.enabled?(:check_in_experience_check_claim_status_on_timeout_enabled)
+                                       unless Flipper.enabled?(:check_in_experience_check_claim_status_on_timeout)
                                          [Constants::OH_STATSD_BTSSS_TIMEOUT, Constants::OH_TIMEOUT_TEMPLATE_ID]
                                        end
                                      else
@@ -75,7 +75,7 @@ module CheckIn
                                      when TravelClaim::Response::CODE_CLAIM_EXISTS
                                        [Constants::CIE_STATSD_BTSSS_DUPLICATE, Constants::CIE_DUPLICATE_TEMPLATE_ID]
                                      when TravelClaim::Response::CODE_BTSSS_TIMEOUT
-                                       unless Flipper.enabled?(:check_in_experience_check_claim_status_on_timeout_enabled)
+                                       unless Flipper.enabled?(:check_in_experience_check_claim_status_on_timeout)
                                          [Constants::CIE_STATSD_BTSSS_TIMEOUT, Constants::CIE_TIMEOUT_TEMPLATE_ID]
                                        end
                                      else
@@ -89,7 +89,7 @@ module CheckIn
     # rubocop:enable Metrics/MethodLength
 
     def should_handle_timeout(claims_resp)
-      Flipper.enabled?(:check_in_experience_check_claim_status_on_timeout_enabled) &&
+      Flipper.enabled?(:check_in_experience_check_claim_status_on_timeout) &&
         claims_resp&.dig(:data, :code) == TravelClaim::Response::CODE_BTSSS_TIMEOUT
     end
   end
