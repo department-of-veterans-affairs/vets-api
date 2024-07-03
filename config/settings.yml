@@ -275,10 +275,10 @@ vet360:
   health_benefit:
     mock: true
   profile_information:
-    cache_enabled: false
+    cache_enabled: true
     enabled: true
     timeout: 30
-    mock: false
+    use_mocks: false
 
 # Settings for IHub
 ihub:
