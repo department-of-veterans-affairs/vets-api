@@ -60,6 +60,7 @@ describe PdfFill::Filler, type: :model do
         use_vets_json_schema: true
       },
       # Removing these test cases temporarily until we can resolve the fixture issues
+      # Ticket to update these here: https://github.com/department-of-veterans-affairs/va.gov-team/issues/86927
       # {
       #   form_id: '10-10CG',
       #   factory: :caregivers_assistance_claim,
