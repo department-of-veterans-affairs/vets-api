@@ -86,21 +86,21 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
 
   context 'when Breakers::OutageException is raised' do
     let(:mock_service) do
-       instance_double(
+      instance_double(
         Breakers::Service,
-        name: 'Test Service',
-       )
+        name: 'Test Service'
+      )
     end
     let(:mock_outage) do
       instance_double(
         Breakers::Outage,
-        start_time: Time.now,
+        start_time: Time.zone.now,
         end_time: nil,
         service: mock_service
       )
     end
 
-    let(:mock_exception) { Breakers::OutageException.new(mock_outage, mock_service)}
+    let(:mock_exception) { Breakers::OutageException.new(mock_outage, mock_service) }
 
     before do
       allow_any_instance_of(BenefitsEducation::Configuration).to receive(:get).and_raise(mock_exception)
@@ -112,13 +112,14 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
 
       json = JSON.parse(response.body)
       expect(json['errors']).to eq([
-        {
-          'title' => 'Service unavailable',
-          'detail' => "An outage has been reported on the Test Service since #{mock_outage.start_time}",
-          'code' => '503',
-          'status' => '503'
-        }
-      ])
+                                     {
+                                       'title' => 'Service unavailable',
+                                       'detail' => 'An outage has been reported on the Test Service ' \
+                                                   "since #{mock_outage.start_time}",
+                                       'code' => '503',
+                                       'status' => '503'
+                                     }
+                                   ])
     end
   end
 end
