@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'lighthouse/benefits_intake/service'
 
 module Pensions

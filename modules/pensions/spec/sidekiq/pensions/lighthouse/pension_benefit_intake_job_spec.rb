@@ -122,7 +122,8 @@ RSpec.describe Pensions::Lighthouse::PensionBenefitIntakeJob, uploader_helpers: 
       end
 
       it 'logs a distinct error when only claim_id provided' do
-        Pensions::Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
+        Pensions::Lighthouse::PensionBenefitIntakeJob
+          .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
           expect(Rails.logger).to receive(:error).exactly(:once).with(
             'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
             hash_including(:message, confirmation_number: claim.confirmation_number,
@@ -133,7 +134,8 @@ RSpec.describe Pensions::Lighthouse::PensionBenefitIntakeJob, uploader_helpers: 
       end
 
       it 'logs a distinct error when claim_id and user_uuid provided' do
-        Pensions::Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
+        Pensions::Lighthouse::PensionBenefitIntakeJob
+          .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
           expect(Rails.logger).to receive(:error).exactly(:once).with(
             'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
             hash_including(:message, confirmation_number: claim.confirmation_number, user_uuid: 2, claim_id: claim.id)
@@ -143,7 +145,8 @@ RSpec.describe Pensions::Lighthouse::PensionBenefitIntakeJob, uploader_helpers: 
       end
 
       it 'logs a distinct error when claim is not found' do
-        Pensions::Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
+        Pensions::Lighthouse::PensionBenefitIntakeJob
+          .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
           expect(Rails.logger).to receive(:error).exactly(:once).with(
             'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
             hash_including(:message, confirmation_number: nil, user_uuid: 2, claim_id: claim.id - 1)
