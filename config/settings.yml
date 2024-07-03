@@ -250,7 +250,7 @@ bip:
 vet360:
   url: "https://int.vet360.va.gov"
   contact_information:
-    cache_enabled: false
+    cache_enabled: true
     enabled: true
     timeout: 30
     mock: false
