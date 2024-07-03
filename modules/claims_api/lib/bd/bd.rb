@@ -50,7 +50,11 @@ module ClaimsApi
 
       @multipart = true
       body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:)
-      res = client.post('documents', body)&.body&.deep_symbolize_keys
+      res = client.post('documents', body)&.body
+
+      raise ::Common::Exceptions::GatewayTimeout.new(detail: 'Upstream service error.') unless res.is_a?(Hash)
+
+      res = res.deep_symbolize_keys
       request_id = res&.dig(:data, :requestId)
       ClaimsApi::Logger.log(
         'benefits_documents',
@@ -58,6 +62,10 @@ module ClaimsApi
         claim_id: claim.id, request_id:
       )
       res
+    rescue ::Common::Exceptions::GatewayTimeout => e
+      ClaimsApi::Logger.log('benefits_documents',
+                            detail: "/upload failure for claimId #{claim&.id}, #{e.message}")
+      raise
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "/upload failure for claimId #{claim&.id}, #{e.message}")

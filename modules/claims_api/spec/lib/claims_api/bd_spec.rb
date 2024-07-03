@@ -29,6 +29,20 @@ describe ClaimsApi::BD do
       js = JSON.parse(result[:parameters].read)
       expect(js['data']['docType']).to eq 'L023'
     end
+
+    context 'when the upstream service is down' do
+      let(:client) { instance_double(Faraday::Connection) }
+      let(:response) { instance_double(Faraday::Response, body: 'failed to request: timeout') }
+
+      before do
+        allow(Faraday).to receive(:new).and_return(client)
+        allow(client).to receive(:post).and_return(response)
+      end
+
+      it 'raises a GatewayTimeout exception' do
+        expect { subject.upload(claim:, pdf_path:) }.to raise_error(Common::Exceptions::GatewayTimeout)
+      end
+    end
   end
 
   describe '#search', vcr: 'claims_api/v2/claims_show' do
