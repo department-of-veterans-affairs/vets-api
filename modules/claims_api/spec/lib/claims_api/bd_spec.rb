@@ -16,7 +16,7 @@ describe ClaimsApi::BD do
       .to receive(:get_auth_token).and_return('some-value-here')
   end
 
-  describe 'disability comp (L122), and other attachments (L023)' do
+  describe 'disability comp (doc_type: L122), and other attachments (doc_type: L023)' do
     let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-526EZ.pdf' }
 
     describe '#upload' do
@@ -74,7 +74,7 @@ describe ClaimsApi::BD do
     end
   end
 
-  describe 'evidence waiver submissions' do
+  describe 'evidence waiver submissions (doc_type: L705)' do
     let(:pdf_path) { 'modules/claims_api/spec/fixtures/5103.pdf' }
 
     describe '#generate_upload_body' do
