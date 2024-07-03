@@ -147,7 +147,7 @@ module VAProfile
       # create_or_update cannot determine if record exists
       # Reassign :update to either :put or :post
       def reassign_http_verb(record)
-        contact_info = VAProfileRedis::ProfileInformation.for_user(@user)
+        contact_info = VAProfileRedis::ContactInformation.for_user(@user)
         attr = record.contact_info_attr
         raise "invalid #{record.model} VAProfile::ProfileInformation" if attr.nil?
 

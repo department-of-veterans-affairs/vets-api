@@ -73,7 +73,7 @@ module AsyncTransaction
       # @param service [VAProfile::ContactInformation::Service] an initialized VAProfile client
       # @return [VAProfile::Models::Transaction]
       def self.fetch_transaction(transaction_record, service, user)
-        if Flipper.enabled?(:va_profile_information_v3_service, user)
+        if Flipper.enabled?(:va_profile_information_v3_transactions, user)
           service.get_transaction_status(transaction_record.transaction_id, transaction_record.model_class)
         else
           case transaction_record

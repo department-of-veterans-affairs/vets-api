@@ -23,7 +23,7 @@ module Vet360
     private
 
     def service
-      if Flipper.enabled?(:va_profile_information_v3_service, @current_user)
+      if Flipper.enabled?(:va_profile_information_v3_transactions, @current_user)
         VAProfile::ProfileInformation::Service.new @current_user
       else
         VAProfile::ContactInformation::Service.new @current_user
