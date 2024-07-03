@@ -15,7 +15,7 @@ module BBInternal
     configuration BBInternal::Configuration
     client_session BBInternal::ClientSession
 
-    def get_radiology
+    def list_radiology
       response = perform(:get, "bluebutton/radiology/phrList/#{session.patient_id}", nil, token_headers)
       response.body
     end
@@ -46,10 +46,11 @@ module BBInternal
     def get_patient_id
       response = perform(:get, "usermgmt/patient/uid/#{@session.user_id}", nil, token_headers)
 
-      response.body['ipas']&.first&.dig('patientId')
+      patient_id = response.body['ipas']&.first&.dig('patientId')
 
-      # TODO: Raise an error if patient_id is nil
-      # raise NoPatientIdError, 'No patientId found' if patient_id.nil?
+      raise Common::Exceptions::ServiceError.new(detail: 'Patient ID not found for user') if patient_id.blank?
+
+      patient_id
     end
 
     ##
