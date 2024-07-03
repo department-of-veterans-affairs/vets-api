@@ -137,6 +137,7 @@ Layout/LineContinuationSpacing:
     - 'spec/sidekiq/cypress_viewport_updater/viewport_preset_js_file_spec.rb'
     - 'spec/support/saml/response_builder.rb'
 
+
 # Offense count: 40
 # This cop supports safe autocorrection (--autocorrect).
 Lint/AmbiguousOperatorPrecedence:
@@ -1459,4 +1460,6 @@ ThreadSafety/InstanceVariableInClassMethod:
     - 'lib/va_profile/contact_information/person_response.rb'
     - 'lib/va_profile/contact_information/transaction_response.rb'
     - 'lib/vic/url_helper.rb'
+    - 'lib/va_profile/profile_information/person_response.rb'
+    - 'lib/va_profile/profile_information/transaction_response.rb'
     - 'modules/mobile/app/models/mobile/v0/concerns/redis_caching.rb'

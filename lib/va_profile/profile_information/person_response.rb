@@ -11,7 +11,7 @@ module VAProfile
 
       def initialize(response)
         body = response.body
-        person =  body.dig('profile', 'bio')
+        person = body.dig('profile', 'bio')
         messages = body['messages']
         va_profile_tx_audit_id = response.response_headers['vaprofiletxauditid']
         super(response.status, { person:, messages:, va_profile_tx_audit_id: })
