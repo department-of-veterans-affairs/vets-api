@@ -20,7 +20,7 @@ class Form526StatusPollingJob
     submissions.each_slice(max_batch_size) do |batch|
       batch_ids = batch.pluck(:backup_submitted_claim_id).flatten
       response = api_to_poll.get_bulk_status_of_uploads(batch_ids)
-      handle_response(response, batch)
+      handle_response(response)
     end
     Rails.logger.info('Form 526 Intake Status polling complete', total_handled: @total_handled)
   rescue => e
@@ -37,19 +37,19 @@ class Form526StatusPollingJob
     @submissions ||= Form526Submission.pending_backup_submissions
   end
 
-  def handle_response(response, batch_subs)
+  def handle_response(response)
     response.body['data']&.each do |submission|
       status = submission.dig('attributes', 'status')
-      form_submission = batch_subs.find { |sub| sub.backup_submitted_claim_id == submission['id'] }
+      form_submission = submissions.find_by(backup_submitted_claim_id: submission['id'])
 
       if %w[error expired].include? status
         log_result('failure')
-        form_submission.reject_from_backup!
+        form_submission.rejected!
       elsif status == 'success'
         Rails.logger.info('Form526StatusPollingJob', status: 'pending', submission_id: form_submission.id)
       elsif status == 'vbms'
         log_result('success')
-        form_submission.finalize_success!
+        form_submission.accepted!
       else
         Rails.logger.warn(
           'Unknown status returned from Benefits Intake API for 526 submission',

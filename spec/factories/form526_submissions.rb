@@ -260,7 +260,7 @@ FactoryBot.define do
   end
 
   trait :with_submitted_claim_id do
-    submitted_claim_id { 1 }
+    submitted_claim_id { SecureRandom.rand(900_000_000) }
   end
 
   trait :with_accepted_backup_status do
