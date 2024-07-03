@@ -65,22 +65,17 @@ module ClaimsApi
     def generate_upload_body(claim:, doc_type:, pdf_path:, file_number: nil, original_filename: nil)
       payload = {}
       auth_headers = claim.auth_headers
-
       veteran_name = "#{auth_headers['va_eauth_firstName']}_#{auth_headers['va_eauth_lastName']}"
-      file_name = generate_file_name(doc_type:, veteran_name:, claim_id: claim.id, original_filename:)
-
-      data = if doc_type == 'L705'
-               build_body(doc_type:, file_name:, participant_id: nil, claim_id: claim.id,
-                          tracked_item_ids: nil, file_number: nil)
-             else
-               birls_file_num = auth_headers['va_eauth_birlsfilenumber'] || file_number
-               build_body(doc_type:, file_name:, claim_id: claim.id, file_number: birls_file_num)
-             end
+      birls_file_num = auth_headers['va_eauth_birlsfilenumber'] || file_number
+      claim_id = doc_type == 'L705' ? claim.claim_id : claim.evss_id
+      file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
+      data = build_body(doc_type:, file_name:, participant_id: nil, claim_id:,
+                        file_number: birls_file_num)
 
       fn = Tempfile.new('params')
       File.write(fn, data.to_json)
       payload[:parameters] = Faraday::UploadIO.new(fn, 'application/json')
-      payload[:file] = Faraday::UploadIO.new(pdf_path, 'application/pdf')
+      payload[:file] = Faraday::UploadIO.new(pdf_path.to_s, 'application/pdf')
       payload
     end
 
@@ -130,7 +125,7 @@ module ClaimsApi
       end
     end
 
-    def build_body(doc_type:, file_name:, claim_id:, participant_id: nil, tracked_item_ids: nil, file_number: nil) # rubocop:disable Metrics/ParameterLists
+    def build_body(doc_type:, file_name:, claim_id:, participant_id: nil, tracked_item_ids: [], file_number: nil) # rubocop:disable Metrics/ParameterLists
       data = {
         data: {
           systemName: 'VA.gov',
