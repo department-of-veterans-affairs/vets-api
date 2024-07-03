@@ -49,7 +49,11 @@ module Vet360
     end
 
     def service
-      VAProfile::ContactInformation::Service.new @current_user
+      if Flipper.enabled?(:va_profile_information_v3_service, @current_user)
+        service.send('create_or_update_info', http_verb.to_sym, record)
+      else
+        service.send("#{http_verb}_#{type.downcase}", record)
+      end
     end
 
     def write_valid_record!(http_verb, type, record)
