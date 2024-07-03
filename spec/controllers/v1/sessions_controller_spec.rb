@@ -166,7 +166,12 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect { call_endpoint }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ['type:custom', 'version:v1', 'client_id:vaweb'], **once)
-
+                .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
+                                              tags: ['type:custom',
+                                                     "context:#{IAL::LOGIN_GOV_IAL2}",
+                                                     'client_id:vaweb',
+                                                     'version:v1'],
+                                              **once)
               expect(response).to have_http_status(:ok)
               expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
                                     'originating_request_id' => nil, 'type' => 'custom')
