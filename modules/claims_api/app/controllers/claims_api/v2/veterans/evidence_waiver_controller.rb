@@ -16,11 +16,6 @@ module ClaimsApi
 
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if bgs_claim.blank?
 
-          if dependent_service(bgs_claim).dependent_type_claim? && params[:sponsorIcn].blank?
-            claim_type = bgs_claim&.dig(:benefit_claim_details_dto, :bnft_claim_type_cd)
-            detail = "SponsorICN is required for claim type #{claim_type}"
-            raise ::Common::Exceptions::ResourceNotFound.new(detail:)
-          end
           file_number_check(icn: params[:sponsorIcn])
 
           if @file_number.nil?
