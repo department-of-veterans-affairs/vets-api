@@ -32,8 +32,8 @@ require 'support/request_helper'
 require 'support/uploader_helpers'
 require 'support/sign_in/certifiable_shared_examples'
 require 'support/sign_in/service_account_authorization_context'
-require 'super_diff/rspec-rails'
-require 'super_diff/active_support'
+# require 'super_diff/rspec-rails'
+# require 'super_diff/active_support'
 require './spec/support/default_configuration_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)

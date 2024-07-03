@@ -99,6 +99,7 @@ module Common
       end
 
       def request(method, path, params = {}, headers = {}, options = {}) # rubocop:disable Metrics/MethodLength
+        puts "path #{path}"
         sanitize_headers!(method, path, params, headers)
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) do |request|
