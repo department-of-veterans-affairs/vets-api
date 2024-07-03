@@ -24,7 +24,7 @@ module ClaimsApi
                             detail: "calling benefits documents search for claimId #{claim_id}")
       res = client.post('documents/search', body)&.body
 
-      raise ::Common::Exceptions::GatewayTimeout.new(detail: "Gateway timeout. #{res}") unless res.is_a?(Hash)
+      raise ::Common::Exceptions::GatewayTimeout.new(detail: 'Upstream service error.') unless res.is_a?(Hash)
 
       res.deep_symbolize_keys
     rescue ::Common::Exceptions::GatewayTimeout => e
