@@ -1277,6 +1277,14 @@ features:
     actor_type: user
     description: When enabled, the VAProfile::V3::Service will be enabled for VaProfile::ProfileInformation
     enable_in_development: false
+  va_profile_information_v3_redis:
+    actor_type: user
+    description: When enabled, the VAProfileRedis::ProfileInformation will be enabled for VaProfile::ProfileInformation
+    enable_in_development: false
+  va_profile_information_v3_transactions:
+    actor_type: user
+    description: When enabled, the transactions will be enabled for VAProfile::ProfileInformation
+    enable_in_development: false
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
@@ -1486,6 +1494,10 @@ features:
   pension_claim_submission_to_lighthouse:
     actor_type: user
     description: Pension claim submission uses Lighthouse API
+  pension_multiple_page_response:
+    actor_type: user
+    description: Implement multiple page response pattern
+    enable_in_development: true
   pension_module_enabled:
     actor_type: user
     description: Enable the pension module routes
