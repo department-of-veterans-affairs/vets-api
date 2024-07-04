@@ -48,45 +48,36 @@ module CheckIn
       [nil, template_id]
     end
 
-    # rubocop:disable Metrics/MethodLength
     def handle_response(opts = {})
       claim_number = opts[:claims_resp]&.dig(:data, :claimNumber)&.last(4)
       code = opts[:claims_resp]&.dig(:data, :code)
       facility_type = opts[:facility_type] || ''
 
-      statsd_metric, template_id = case facility_type.downcase
-                                   when 'oh'
-                                     case code
-                                     when TravelClaim::Response::CODE_SUCCESS
-                                       [Constants::OH_STATSD_BTSSS_SUCCESS, Constants::OH_SUCCESS_TEMPLATE_ID]
-                                     when TravelClaim::Response::CODE_CLAIM_EXISTS
-                                       [Constants::OH_STATSD_BTSSS_DUPLICATE, Constants::OH_DUPLICATE_TEMPLATE_ID]
-                                     when TravelClaim::Response::CODE_BTSSS_TIMEOUT
-                                       unless Flipper.enabled?(:check_in_experience_check_claim_status_on_timeout)
-                                         [Constants::OH_STATSD_BTSSS_TIMEOUT, Constants::OH_TIMEOUT_TEMPLATE_ID]
-                                       end
-                                     else
-                                       [Constants::OH_STATSD_BTSSS_ERROR, Constants::OH_ERROR_TEMPLATE_ID]
-                                     end
-                                   else
-                                     case code
-                                     when TravelClaim::Response::CODE_SUCCESS
-                                       [Constants::CIE_STATSD_BTSSS_SUCCESS, Constants::CIE_SUCCESS_TEMPLATE_ID]
-                                     when TravelClaim::Response::CODE_CLAIM_EXISTS
-                                       [Constants::CIE_STATSD_BTSSS_DUPLICATE, Constants::CIE_DUPLICATE_TEMPLATE_ID]
-                                     when TravelClaim::Response::CODE_BTSSS_TIMEOUT
-                                       unless Flipper.enabled?(:check_in_experience_check_claim_status_on_timeout)
-                                         [Constants::CIE_STATSD_BTSSS_TIMEOUT, Constants::CIE_TIMEOUT_TEMPLATE_ID]
-                                       end
-                                     else
-                                       [Constants::CIE_STATSD_BTSSS_ERROR, Constants::CIE_ERROR_TEMPLATE_ID]
-                                     end
-                                   end
+      statsd_metric, template_id = get_metric_and_template_id(code, facility_type)
 
       StatsD.increment(statsd_metric)
       [claim_number, template_id]
     end
-    # rubocop:enable Metrics/MethodLength
+
+    def get_metric_and_template_id(code, facility_type)
+      oh_responses = Hash.new([Constants::OH_STATSD_BTSSS_ERROR, Constants::OH_ERROR_TEMPLATE_ID]).merge(
+        TravelClaim::Response::CODE_SUCCESS => [Constants::OH_STATSD_BTSSS_SUCCESS, Constants::OH_SUCCESS_TEMPLATE_ID],
+        TravelClaim::Response::CODE_CLAIM_EXISTS => [Constants::OH_STATSD_BTSSS_DUPLICATE,
+                                                     Constants::OH_DUPLICATE_TEMPLATE_ID],
+        TravelClaim::Response::CODE_BTSSS_TIMEOUT => [Constants::OH_STATSD_BTSSS_TIMEOUT,
+                                                      Constants::OH_TIMEOUT_TEMPLATE_ID]
+      )
+      cie_responses = Hash.new([Constants::CIE_STATSD_BTSSS_ERROR, Constants::CIE_ERROR_TEMPLATE_ID]).merge(
+        TravelClaim::Response::CODE_SUCCESS => [Constants::CIE_STATSD_BTSSS_SUCCESS,
+                                                Constants::CIE_SUCCESS_TEMPLATE_ID],
+        TravelClaim::Response::CODE_CLAIM_EXISTS => [Constants::CIE_STATSD_BTSSS_DUPLICATE,
+                                                     Constants::CIE_DUPLICATE_TEMPLATE_ID],
+        TravelClaim::Response::CODE_BTSSS_TIMEOUT => [Constants::CIE_STATSD_BTSSS_TIMEOUT,
+                                                      Constants::CIE_TIMEOUT_TEMPLATE_ID]
+      )
+
+      facility_type.downcase == 'oh' ? oh_responses[code] : cie_responses[code]
+    end
 
     def should_handle_timeout(claims_resp)
       Flipper.enabled?(:check_in_experience_check_claim_status_on_timeout) &&
