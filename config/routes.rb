@@ -417,6 +417,8 @@ Rails.application.routes.draw do
 
       resources :calculator_constants, only: :index, defaults: { format: :json }
 
+      resources :staging_daily_spool_run, only: :index, defaults: { format: :json }
+
       resources :yellow_ribbon_programs, only: :index, defaults: { format: :json }
 
       resources :zipcode_rates, only: :show, defaults: { format: :json }
