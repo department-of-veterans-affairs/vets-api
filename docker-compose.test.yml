@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   redis:
-    image: redis:6.2-alpine
+    image: public.ecr.aws/docker/library/redis:6.2-alpine
   postgres:
     image: mdillon/postgis:11-alpine
     command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c max_connections=200

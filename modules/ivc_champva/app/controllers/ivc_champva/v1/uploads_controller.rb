@@ -27,7 +27,7 @@ module IvcChampva
         rescue => e
           Rails.logger.error "Error: #{e.message}"
           Rails.logger.error e.backtrace.join("\n")
-          render json: { error_message: 'An unknown error occurred while uploading document(s).' },
+          render json: { error_message: "Error: #{e.message}" },
                  status: :internal_server_error
         end
       end

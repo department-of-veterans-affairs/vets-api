@@ -8,14 +8,14 @@ module TestUserDashboard
 
     def index
       tud_accounts = TudAccount.all
-      render json: tud_accounts
+      render json: TudAccountSerializer.new(tud_accounts)
     end
 
     def update
       tud_account = TudAccount.find(params[:id])
       sanitized_notes = sanitize params[:notes]
       tud_account.update!(notes: sanitized_notes)
-      render json: tud_account
+      render json: TudAccountSerializer.new(tud_account)
     rescue ActiveRecord::RecordNotFound => e
       render json: { error: e }
     end

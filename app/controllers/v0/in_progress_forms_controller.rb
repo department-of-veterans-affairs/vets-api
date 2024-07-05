@@ -24,6 +24,12 @@ module V0
       ClaimFastTracking::MaxCfiMetrics.log_form_update(form, params)
 
       form.update!(form_data: params[:form_data] || params[:formData], metadata: params[:metadata])
+
+      if Flipper.enabled?(:intent_to_file_lighthouse_enabled) && form.id_previously_changed? &&
+         Lighthouse::CreateIntentToFileJob::ITF_FORMS.include?(form.form_id)
+        Lighthouse::CreateIntentToFileJob.perform_async(form.form_id, form.created_at, @current_user.icn)
+      end
+
       render json: form, key_transform: :unaltered
     end
 

@@ -4,6 +4,7 @@ require 'decision_review_v1/utilities/form_4142_processor'
 require 'decision_review_v1/utilities/helpers'
 require 'decision_review_v1/utilities/constants'
 require 'decision_review_v1/utilities/logging_utils'
+require 'lighthouse/benefits_intake/service'
 
 module DecisionReviewV1
   module Appeals
@@ -67,11 +68,12 @@ module DecisionReviewV1
       #
       def process_form4142_submission(appeal_submission_id:, rejiggered_payload:)
         with_monitoring_and_error_handling do
-          form4142_response, bm = run_and_benchmark_if_enabled do
+          response_container, bm = run_and_benchmark_if_enabled do
             submit_form4142(form_data: rejiggered_payload)
           end
+          form4142_response, uuid = response_container
           form4142_submission_info_message = parse_form412_response_to_log_msg(
-            appeal_submission_id:, data: form4142_response, bm:
+            appeal_submission_id:, data: form4142_response, uuid:, bm:
           )
           ::Rails.logger.info(form4142_submission_info_message)
           form4142_response
@@ -246,7 +248,24 @@ module DecisionReviewV1
 
       def submit_form4142(form_data:)
         processor = DecisionReviewV1::Processor::Form4142Processor.new(form_data:)
-        CentralMail::Service.new.upload(processor.request_body)
+
+        if Flipper.enabled? :decision_review_sc_use_lighthouse_api_for_form4142
+          service = BenefitsIntake::Service.new
+          service.request_upload
+
+          payload = {
+            metadata: processor.request_body['metadata'],
+            document: processor.request_body['document'],
+            upload_url: service.location
+          }
+
+          response = service.perform_upload(**payload)
+
+          [response, service.uuid]
+        else
+          response = CentralMail::Service.new.upload(processor.request_body)
+          [response, nil]
+        end
       end
     end
     # rubocop:enable Metrics/ModuleLength

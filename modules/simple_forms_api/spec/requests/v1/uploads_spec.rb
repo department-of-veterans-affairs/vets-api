@@ -92,7 +92,7 @@ RSpec.describe 'Forms uploader', type: :request do
       end
 
       context 'request with intent to file' do
-        context 'authenticated' do
+        context 'authenticated but without participant_id' do
           before do
             sign_in
             allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
@@ -278,6 +278,7 @@ RSpec.describe 'Forms uploader', type: :request do
         before do
           sign_in
           allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+          allow_any_instance_of(User).to receive(:participant_id).and_return('fake-participant-id')
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
         end
 
@@ -731,6 +732,7 @@ RSpec.describe 'Forms uploader', type: :request do
           user = create(:user)
           sign_in_as(user)
           allow_any_instance_of(User).to receive(:va_profile_email).and_return('abraham.lincoln@vets.gov')
+          allow_any_instance_of(User).to receive(:participant_id).and_return('fake-participant-id')
           allow(VANotify::EmailJob).to receive(:perform_async)
         end
 
