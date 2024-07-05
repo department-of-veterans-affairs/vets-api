@@ -14,13 +14,16 @@ RSpec.describe 'Medical Records Session', type: :request do
   let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
   before do
+    bb_internal_client = BBInternal::Client.new(
+      session: {
+        user_id: 15_176_497,
+        patient_id: '15176498',
+        expires_at: 1.hour.from_now,
+        token: 'SESSION_TOKEN'
+      }
+    )
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
-    allow(BBInternal::Client).to receive(:new).and_return(BBInternal::Client.new(
-                                                            session: { user_id: 15_176_497,
-                                                                       patient_id: '15176498',
-                                                                       expires_at: Time.current + (60 * 60),
-                                                                       token: 'SESSION_TOKEN' }
-                                                          ))
+    allow(BBInternal::Client).to receive(:new).and_return(bb_internal_client)
     sign_in_as(current_user)
   end
 
