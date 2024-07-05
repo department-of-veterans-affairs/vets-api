@@ -11,6 +11,21 @@ module SimpleFormsApi
       @data = data
     end
 
+    def populate_veteran_data(user)
+      @data['veteran_full_name'] ||= {
+        'first' => user.first_name,
+        'last' => user.last_name
+      }
+      @data['veteran_mailing_address'] ||= {
+        'postal_code' => user.address['postal_code']
+      }
+      @data['veteran_id'] ||= {
+        'ssn' => user.ssn
+      }
+
+      self
+    end
+
     def words_to_remove
       veteran_ssn + veteran_date_of_birth + veteran_address + veteran_home_phone + veteran_email +
         surviving_dependent_ssn + surviving_dependent_address + surviving_dependent_phone +
