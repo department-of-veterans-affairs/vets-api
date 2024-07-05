@@ -64,12 +64,12 @@ module CheckIn
                                        claim_response_body
                                      end
                                      if claim_response.size.zero?
-                                       logger.info({ message: 'Empty claim status response', uuid: "#{opts[:uuid]}" })
+                                       logger.info({ message: 'Empty claim status response', uuid: opts[:uuid] })
                                        error_statsd_metric_and_template_id(facility_type:)
                                      else
                                        if claim_response.size > 1
                                          logger.info({ message: 'Multiple claim statuses',
-                                                       uuid: "#{opts[:uuid]}" })
+                                                       uuid: opts[:uuid] })
                                        end
                                        claim_number = claim_response.first.with_indifferent_access[:claimNum]&.last(4)
                                        claim_status = claim_response.first.with_indifferent_access[:claimStatus]
@@ -79,7 +79,7 @@ module CheckIn
                                          failure_statsd_metric_and_template_id(facility_type:)
                                        else
                                          logger.info({ message: 'Received non-matching claim status', claim_status:,
-                                                       uuid: "#{opts[:uuid]}" })
+                                                       uuid: opts[:uuid] })
                                          error_statsd_metric_and_template_id(facility_type:)
                                        end
                                      end
