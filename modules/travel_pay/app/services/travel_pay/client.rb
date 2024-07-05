@@ -47,15 +47,9 @@ module TravelPay
     #
     # @return [Faraday::Response]
     #
-    def ping(veis_token)
-      btsss_url = Settings.travel_pay.base_url
-      api_key = Settings.travel_pay.subscription_key
-
-      connection(server_url: btsss_url).get('api/v1/Sample/ping') do |req|
-        req.headers['Authorization'] = "Bearer #{veis_token}"
-        req.headers['Ocp-Apim-Subscription-Key'] = api_key
-        req.headers['X-Correlation-ID'] = SecureRandom.uuid
-      end
+    def ping
+      veis_token = request_veis_token
+      request_ping(veis_token)
     end
 
     ##
@@ -63,16 +57,12 @@ module TravelPay
     #
     # @return [Faraday::Response]
     #
-    def authorized_ping(veis_token, btsss_token)
-      btsss_url = Settings.travel_pay.base_url
-      api_key = Settings.travel_pay.subscription_key
+    def authorized_ping(current_user)
+      sts_token = request_sts_token(current_user)
+      veis_token = request_veis_token
+      btsss_token = request_btsss_token(veis_token, sts_token)
 
-      connection(server_url: btsss_url).get('api/v1/Sample/authorized-ping') do |req|
-        req.headers['Authorization'] = "Bearer #{veis_token}"
-        req.headers['BTSSS-Access-Token'] = btsss_token
-        req.headers['Ocp-Apim-Subscription-Key'] = api_key
-        req.headers['X-Correlation-ID'] = SecureRandom.uuid
-      end
+      request_authorized_ping(veis_token, btsss_token)
     end
 
     ##
@@ -81,28 +71,13 @@ module TravelPay
     #
     # @return [TravelPay::Claim]
     #
-    def get_claims(veis_token, btsss_token)
-      btsss_url = Settings.travel_pay.base_url
-      api_key = Settings.travel_pay.subscription_key
+    def get_claims(current_user)
+      veis_token = request_veis_token
 
-      response = connection(server_url: btsss_url).get('api/v1/claims') do |req|
-        req.headers['Authorization'] = "Bearer #{veis_token}"
-        req.headers['BTSSS-Access-Token'] = btsss_token
-        req.headers['Ocp-Apim-Subscription-Key'] = api_key
-        req.headers['X-Correlation-ID'] = SecureRandom.uuid
-      end
+      sts_token = request_sts_token(current_user)
+      btsss_token = request_btsss_token(veis_token, sts_token)
 
-      symbolized_body = response.body.deep_symbolize_keys
-      parse_claim_date = ->(c) { Date.parse(c[:appointmentDateTime]) }
-
-      sorted_claims = symbolized_body[:data].sort_by(&parse_claim_date).reverse
-
-      {
-        data: sorted_claims.map do |sc|
-          sc[:claimStatus] = sc[:claimStatus].underscore.titleize
-          sc
-        end
-      }
+      request_claims(veis_token, btsss_token)
     end
 
     def request_sts_token(user)
@@ -171,6 +146,41 @@ module TravelPay
         grant_type: 'client_credentials',
         resource: Settings.travel_pay.veis.resource
       }
+    end
+
+    def request_ping(veis_token)
+      btsss_url = Settings.travel_pay.base_url
+      api_key = Settings.travel_pay.subscription_key
+
+      connection(server_url: btsss_url).get('api/v1/Sample/ping') do |req|
+        req.headers['Authorization'] = "Bearer #{veis_token}"
+        req.headers['Ocp-Apim-Subscription-Key'] = api_key
+        req.headers['X-Correlation-ID'] = SecureRandom.uuid
+      end
+    end
+
+    def request_authorized_ping(veis_token, btsss_token)
+      btsss_url = Settings.travel_pay.base_url
+      api_key = Settings.travel_pay.subscription_key
+
+      connection(server_url: btsss_url).get('api/v1/Sample/authorized-ping') do |req|
+        req.headers['Authorization'] = "Bearer #{veis_token}"
+        req.headers['BTSSS-Access-Token'] = btsss_token
+        req.headers['Ocp-Apim-Subscription-Key'] = api_key
+        req.headers['X-Correlation-ID'] = SecureRandom.uuid
+      end
+    end
+
+    def request_claims(veis_token, btsss_token)
+      btsss_url = Settings.travel_pay.base_url
+      api_key = Settings.travel_pay.subscription_key
+
+      connection(server_url: btsss_url).get('api/v1/claims') do |req|
+        req.headers['Authorization'] = "Bearer #{veis_token}"
+        req.headers['BTSSS-Access-Token'] = btsss_token
+        req.headers['Ocp-Apim-Subscription-Key'] = api_key
+        req.headers['X-Correlation-ID'] = SecureRandom.uuid
+      end
     end
 
     ##
