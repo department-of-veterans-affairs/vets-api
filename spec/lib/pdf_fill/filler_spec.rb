@@ -61,15 +61,17 @@ describe PdfFill::Filler, type: :model do
       },
       # Removing these test cases temporarily until we can resolve the fixture issues
       # Ticket to update these here: https://github.com/department-of-veterans-affairs/va.gov-team/issues/86927
-      # {
-      #   form_id: '10-10CG',
-      #   factory: :caregivers_assistance_claim,
-      #   input_data_fixture_dir: 'pdf_fill/10-10CG',
-      #   output_pdf_fixture_dir: 'pdf_fill/10-10CG/unsigned',
-      #   fill_options: {
-      #     sign: false
-      #   }
-      # },
+      {
+        form_id: '10-10CG',
+        factory: :caregivers_assistance_claim,
+        input_data_fixture_dir: 'pdf_fill/10-10CG',
+        output_pdf_fixture_dir: 'pdf_fill/10-10CG/unsigned',
+        fill_options: {
+          sign: false
+        }
+      },
+      # TODO: Overflow needs updated
+      # TODO: Signature is not showing up right now. The date is but not the signature on the new form.
       # {
       #   form_id: '10-10CG',
       #   factory: :caregivers_assistance_claim,

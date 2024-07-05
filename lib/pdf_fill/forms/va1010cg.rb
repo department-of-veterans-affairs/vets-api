@@ -10,103 +10,127 @@ module PdfFill
       PDF_INPUT_LOCATIONS = OpenStruct.new(
         veteran: {
           name: {
-            first: 'form1[0].#subform[14].TextField3[1]',
-            middle: 'form1[0].#subform[14].TextField3[2]',
-            last: 'form1[0].#subform[14].TextField3[0]'
+            last: 'form1[0].#subform[15].LastName[0]',
+            first: 'form1[0].#subform[15].FirstName[0]',
+            middle: 'form1[0].#subform[15].MiddleName[0]',
+            suffix: 'form1[0].#subform[15].Suffix[0]'
           },
-          ssn: 'form1[0].#subform[14].TextField3[3]',
-          dob: 'form1[0].#subform[14].Date[0]',
-          gender: 'form1[0].#subform[14].RadioButtonList[0]', # "2" | "3" | "Off"
+          ssn: 'form1[0].#subform[15].SSN_TaxID[0]',
+          dob: 'form1[0].#subform[15].DateOfBirth[0]',
+          gender: 'form1[0].#subform[15].RadioButtonList[0]', # "2" | "3" | "Off"
           address: {
-            street: 'form1[0].#subform[14].TextField3[4]',
-            city: 'form1[0].#subform[14].TextField3[5]',
-            state: 'form1[0].#subform[14].TextField3[6]',
-            zip: 'form1[0].#subform[14].TextField3[7]'
+            street: 'form1[0].#subform[15].StreetAddress[0]',
+            city: 'form1[0].#subform[15].City[0]',
+            county: 'form1[0].#subform[15].County[0]',
+            state: 'form1[0].#subform[15].State[0]',
+            zip: 'form1[0].#subform[15].Zip[0]'
           },
-          primary_phone: 'form1[0].#subform[14].TextField3[8]',
-          alternative_phone: 'form1[0].#subform[14].TextField3[9]',
-          email: 'form1[0].#subform[14].TextField3[11]',
-          planned_clinic: 'form1[0].#subform[14].TextField3[10]',
-          last_treatment_facility: {
-            name: 'form1[0].#subform[14].TextField3[12]',
-            type: 'form1[0].#subform[14].RadioButtonList[1]' # "1" | "2" | "Off"
-          },
+          primary_phone: 'form1[0].#subform[15].PrimaryPhone[0]',
+          alternative_phone: 'form1[0].#subform[15].AltPhone[0]',
+          email: 'form1[0].#subform[15].Email[0]',
+          planned_clinic: 'form1[0].#subform[15].NameVAMedicalCenter[0]',
           signature: {
-            name: 'form1[0].#subform[14].SignatureTextField1[0]',
-            date: 'form1[0].#subform[14].Date[2]'
+            name: 'form1[0].#subform[15].SignatureField1[0]',
+            date: 'form1[0].#subform[15].DateSigned[0]'
           }
         },
         primaryCaregiver: {
           name: {
-            first: 'form1[0].#subform[14].TextField3[14]',
-            middle: 'form1[0].#subform[14].TextField3[13]',
-            last: 'form1[0].#subform[14].TextField3[15]'
+            last: 'form1[0].#subform[16].LastName[1]',
+            first: 'form1[0].#subform[16].FirstName[1]',
+            middle: 'form1[0].#subform[16].MiddleName[1]',
+            suffix: 'form1[0].#subform[16].Suffix[1]'
           },
-          ssn: 'form1[0].#subform[14].TextField3[16]',
-          dob: 'form1[0].#subform[14].Date[1]',
-          gender: 'form1[0].#subform[14].RadioButtonList[3]', # "2" | "3" | "Off"
+          ssn: 'form1[0].#subform[16].SSN_TaxID[1]',
+          dob: 'form1[0].#subform[16].DateOfBirth[1]',
+          gender: 'form1[0].#subform[16].RadioButtonList[1]', # "2" | "3" | "Off"
           address: {
-            street: 'form1[0].#subform[14].TextField3[17]',
-            city: 'form1[0].#subform[14].TextField3[18]',
-            state: 'form1[0].#subform[14].TextField3[19]',
-            zip: 'form1[0].#subform[14].TextField3[20]'
+            street: 'form1[0].#subform[16].StreetAddress[1]',
+            city: 'form1[0].#subform[16].City[1]',
+            county: 'form1[0].#subform[16].County[1]',
+            state: 'form1[0].#subform[16].State[1]',
+            zip: 'form1[0].#subform[16].Zip[1]'
           },
-          primary_phone: 'form1[0].#subform[14].TextField3[21]',
-          alternative_phone: 'form1[0].#subform[14].TextField3[22]',
-          email: 'form1[0].#subform[14].TextField3[24]',
-          vet_relationship: 'form1[0].#subform[14].TextField3[23]',
-          has_health_insurance: 'form1[0].#subform[14].RadioButtonList[2]', # "1" | "2" | "Off"
+          mailingAddress: {
+            street: 'form1[0].#subform[16].MailingStreetAddress[0]',
+            city: 'form1[0].#subform[16].City[2]',
+            county: 'form1[0].#subform[16].County[2]',
+            state: 'form1[0].#subform[16].State[2]',
+            zip: 'form1[0].#subform[16].Zip[2]'
+          },
+          primary_phone: 'form1[0].#subform[16].PrimaryPhone[1]',
+          alternative_phone: 'form1[0].#subform[16].AltPhone[1]',
+          email: 'form1[0].#subform[16].Email[1]',
+          vet_relationship: 'form1[0].#subform[16].Relationship[0]',
           signature: {
-            name: 'form1[0].#subform[15].SignatureTextField2[0]',
-            date: 'form1[0].#subform[15].Date[3]'
+            name: 'form1[0].#subform[16].SignatureField2[0]',
+            date: 'form1[0].#subform[16].DateSigned[1]'
           }
         },
         secondaryCaregiverOne: {
           name: {
-            first: 'form1[0].#subform[15].TextField3[26]',
-            middle: 'form1[0].#subform[15].TextField3[27]',
-            last: 'form1[0].#subform[15].TextField3[25]'
+            last: 'form1[0].#subform[17].LastName[2]',
+            first: 'form1[0].#subform[17].FirstName[2]',
+            middle: 'form1[0].#subform[17].MiddleName[2]',
+            suffix: 'form1[0].#subform[17].Suffix[2]'
           },
-          ssn: 'form1[0].#subform[15].TextField3[34]',
-          dob: 'form1[0].#subform[15].Date[5]',
-          gender: 'form1[0].#subform[15].RadioButtonList[4]', # "2" | "3" | "Off"
+          ssn: 'form1[0].#subform[17].SSN_TaxID[2]',
+          dob: 'form1[0].#subform[17].DateOfBirth[2]',
+          gender: 'form1[0].#subform[17].RadioButtonList[2]', # "2" | "3" | "Off"
           address: {
-            street: 'form1[0].#subform[15].TextField3[28]',
-            city: 'form1[0].#subform[15].TextField3[29]',
-            state: 'form1[0].#subform[15].TextField3[30]',
-            zip: 'form1[0].#subform[15].TextField3[31]'
+            street: 'form1[0].#subform[17].StreetAddress[2]',
+            city: 'form1[0].#subform[17].City[3]',
+            county: 'form1[0].#subform[17].County[3]',
+            state: 'form1[0].#subform[17].State[3]',
+            zip: 'form1[0].#subform[17].Zip[3]'
           },
-          primary_phone: 'form1[0].#subform[15].TextField3[36]',
-          alternative_phone: 'form1[0].#subform[15].TextField3[35]',
-          email: 'form1[0].#subform[15].TextField3[33]',
-          vet_relationship: 'form1[0].#subform[15].TextField3[32]',
+          mailingAddress: {
+            street: 'form1[0].#subform[17].MailingStreetAddress[1]',
+            city: 'form1[0].#subform[17].City[4]',
+            county: 'form1[0].#subform[17].County[4]',
+            state: 'form1[0].#subform[17].State[4]',
+            zip: 'form1[0].#subform[17].Zip[4]'
+          },
+          primary_phone: 'form1[0].#subform[17].PrimaryPhone[2]',
+          alternative_phone: 'form1[0].#subform[17].AltPhone[2]',
+          email: 'form1[0].#subform[17].Email[2]',
+          vet_relationship: 'form1[0].#subform[17].Relationship[1]',
           signature: {
-            name: 'form1[0].#subform[15].SignatureTextField3[0]',
-            date: 'form1[0].#subform[15].Date[4]'
+            name: 'form1[0].#subform[17].SignatureField2[1]',
+            date: 'form1[0].#subform[17].DateSigned[2]'
           }
         },
         secondaryCaregiverTwo: {
           name: {
-            first: 'form1[0].#subform[16].TextField3[38]',
-            middle: 'form1[0].#subform[16].TextField3[39]',
-            last: 'form1[0].#subform[16].TextField3[37]'
+            last: 'form1[0].#subform[18].LastName[3]',
+            first: 'form1[0].#subform[18].FirstName[3]',
+            middle: 'form1[0].#subform[18].MiddleName[3]',
+            suffix: 'form1[0].#subform[18].Suffix[3]'
           },
-          ssn: 'form1[0].#subform[16].TextField3[46]',
-          dob: 'form1[0].#subform[16].Date[7]',
-          gender: 'form1[0].#subform[16].RadioButtonList[5]', # "2" | "3" | "Off"
+          ssn: 'form1[0].#subform[18].SSN_TaxID[3]',
+          dob: 'form1[0].#subform[18].DateOfBirth[3]',
+          gender: 'form1[0].#subform[18].RadioButtonList[3]', # "2" | "3" | "Off"
           address: {
-            street: 'form1[0].#subform[16].TextField3[40]',
-            city: 'form1[0].#subform[16].TextField3[41]',
-            state: 'form1[0].#subform[16].TextField3[42]',
-            zip: 'form1[0].#subform[16].TextField3[43]'
+            street: 'form1[0].#subform[18].StreetAddress[3]',
+            city: 'form1[0].#subform[18].City[5]',
+            county: 'form1[0].#subform[18].County[5]',
+            state: 'form1[0].#subform[18].State[5]',
+            zip: 'form1[0].#subform[18].Zip[5]'
           },
-          primary_phone: 'form1[0].#subform[16].TextField3[48]',
-          alternative_phone: 'form1[0].#subform[16].TextField3[47]',
-          email: 'form1[0].#subform[16].TextField3[45]',
-          vet_relationship: 'form1[0].#subform[16].TextField3[44]',
+          mailingAddress: {
+            street: 'form1[0].#subform[18].MailingStreetAddress[2]',
+            city: 'form1[0].#subform[18].City[6]',
+            county: 'form1[0].#subform[18].County[6]',
+            state: 'form1[0].#subform[18].State[6]',
+            zip: 'form1[0].#subform[18].Zip[6]'
+          },
+          primary_phone: 'form1[0].#subform[18].PrimaryPhone[3]',
+          alternative_phone: 'form1[0].#subform[18].AltPhone[3]',
+          email: 'form1[0].#subform[18].Email[3]',
+          vet_relationship: 'form1[0].#subform[18].Relationship[2]',
           signature: {
-            name: 'form1[0].#subform[16].SignatureTextField4[0]',
-            date: 'form1[0].#subform[16].Date[6]'
+            name: 'form1[0].#subform[18].SignatureField2[2]',
+            date: 'form1[0].#subform[18].DateSigned[3]'
           }
         }
       )
@@ -125,11 +149,6 @@ module PdfFill
             },
             'gender' => {
               key: PDF_INPUT_LOCATIONS.veteran[:gender]
-            },
-            'lastTreatmentFacility' => {
-              'type' => {
-                key: PDF_INPUT_LOCATIONS.veteran[:last_treatment_facility][:type]
-              }
             },
             'signature' => {
               'name' => {
@@ -153,11 +172,15 @@ module PdfFill
                 question_text: 'PRIMARY FAMILY CAREGIVER > Address > Street'
               }
             },
+            'mailingAddress' => {
+              'street' => {
+                key: PDF_INPUT_LOCATIONS.primaryCaregiver[:mailingAddress][:street],
+                limit: 80,
+                question_text: 'PRIMARY FAMILY CAREGIVER > Address > Street'
+              }
+            },
             'gender' => {
               key: PDF_INPUT_LOCATIONS.primaryCaregiver[:gender]
-            },
-            'hasHealthInsurance' => {
-              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:has_health_insurance]
             },
             'signature' => {
               'name' => {
@@ -175,6 +198,13 @@ module PdfFill
                 key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:address][:street],
                 limit: 80,
                 question_num: 48,
+                question_text: 'SECONDARY FAMILY CAREGIVER (1) > Address > Street'
+              }
+            },
+            'mailingAddress' => {
+              'street' => {
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:mailingAddress][:street],
+                limit: 80,
                 question_text: 'SECONDARY FAMILY CAREGIVER (1) > Address > Street'
               }
             },
@@ -197,6 +227,13 @@ module PdfFill
                 key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:address][:street],
                 limit: 80,
                 question_num: 65,
+                question_text: 'SECONDARY FAMILY CAREGIVER (2) > Address > Street'
+              }
+            },
+            'mailingAddress' => {
+              'street' => {
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:mailingAddress][:street],
+                limit: 80,
                 question_text: 'SECONDARY FAMILY CAREGIVER (2) > Address > Street'
               }
             },
@@ -234,6 +271,12 @@ module PdfFill
               limit: 29,
               question_num: 3,
               question_text: 'VETERAN/SERVICEMEMBER > Middle Name'
+            },
+            'suffix' => {
+              key: PDF_INPUT_LOCATIONS.veteran[:name][:suffix],
+              limit: 29,
+              question_num: 4,
+              question_text: 'VETERAN/SERVICEMEMBER > Suffix'
             }
           },
           'ssnOrTin' => {
@@ -261,6 +304,11 @@ module PdfFill
               limit: 29,
               question_num: 10,
               question_text: 'VETERAN/SERVICEMEMBER > Address > Zip Code'
+            },
+            'county' => {
+              key: PDF_INPUT_LOCATIONS.veteran[:address][:county],
+              limit: 29,
+              question_text: 'VETERAN/SERVICEMEMBER > Address > County'
             }
           },
           'primaryPhoneNumber' => {
@@ -274,14 +322,6 @@ module PdfFill
             limit: 79,
             question_num: 13,
             question_text: 'VETERAN/SERVICEMEMBER > Email'
-          },
-          'lastTreatmentFacility' => {
-            'name' => {
-              key: PDF_INPUT_LOCATIONS.veteran[:last_treatment_facility][:name],
-              limit: 72,
-              question_num: 16,
-              question_text: 'VETERAN/SERVICEMEMBER > Last Treatment Facility > Name'
-            }
           }
         },
         'primaryCaregiver' => {
@@ -303,6 +343,12 @@ module PdfFill
               limit: 29,
               question_num: 21,
               question_text: 'PRIMARY FAMILY CAREGIVER > Middle Name'
+            },
+            'suffix' => {
+              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:name][:suffix],
+              limit: 29,
+              question_num: 4,
+              question_text: 'VETERAN/SERVICEMEMBER > Suffix'
             }
           },
           'ssnOrTin' => {
@@ -330,6 +376,32 @@ module PdfFill
               limit: 29,
               question_num: 28,
               question_text: 'PRIMARY FAMILY CAREGIVER > Address > Zip Code'
+            },
+            'county' => {
+              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:address][:county],
+              limit: 29,
+              question_text: 'PRIMARY FAMILY CAREGIVER > Address > County'
+            }
+          },
+          'mailingAddress' => {
+            'city' => {
+              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:mailingAddress][:city],
+              limit: 29,
+              question_text: 'PRIMARY FAMILY CAREGIVER > Mailing Address > City'
+            },
+            'state' => {
+              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:mailingAddress][:state],
+              limit: 29,
+              question_text: 'PRIMARY FAMILY CAREGIVER > Mailing Address > State'
+            },
+            'postalCode' => {
+              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:mailingAddress][:zip],
+              limit: 29,
+              question_text: 'PRIMARY FAMILY CAREGIVER > Mailing Address > Zip Code'
+            },
+            'county' => {
+              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:mailingAddress][:county],
+              question_text: 'PRIMARY FAMILY CAREGIVER > Mailing Address > County'
             }
           },
           'primaryPhoneNumber' => {
@@ -367,6 +439,12 @@ module PdfFill
               limit: 29,
               question_num: 44,
               question_text: 'SECONDARY FAMILY CAREGIVER (1) > Middle Name'
+            },
+            'suffix' => {
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:name][:suffix],
+              limit: 29,
+              question_num: 4,
+              question_text: 'SECONDARY FAMILY CAREGIVER (1) > Suffix'
             }
           },
           'ssnOrTin' => {
@@ -394,6 +472,32 @@ module PdfFill
               limit: 29,
               question_num: 51,
               question_text: 'SECONDARY FAMILY CAREGIVER (1) > Address > Zip Code'
+            },
+            'county' => {
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:address][:county],
+              limit: 29,
+              question_text: 'SECONDARY FAMILY CAREGIVER (1) > Address > County'
+            }
+          },
+          'mailingAddress' => {
+            'city' => {
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:mailingAddress][:city],
+              limit: 29,
+              question_text: 'SECONDARY FAMILY CAREGIVER (1) > Mailing Address > City'
+            },
+            'state' => {
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:mailingAddress][:state],
+              limit: 29,
+              question_text: 'SECONDARY FAMILY CAREGIVER (1) > Mailing Address > State'
+            },
+            'postalCode' => {
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:mailingAddress][:zip],
+              limit: 29,
+              question_text: 'SECONDARY FAMILY CAREGIVER (1) > Mailing Address > Zip Code'
+            },
+            'county' => {
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:mailingAddress][:county],
+              question_text: 'SECONDARY FAMILY CAREGIVER (1) > Mailing Address > County'
             }
           },
           'primaryPhoneNumber' => {
@@ -431,6 +535,12 @@ module PdfFill
               limit: 29,
               question_num: 61,
               question_text: 'SECONDARY FAMILY CAREGIVER (2) > Middle Name'
+            },
+            'suffix' => {
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:name][:suffix],
+              limit: 29,
+              question_num: 4,
+              question_text: 'SECONDARY FAMILY CAREGIVER (2) > Suffix'
             }
           },
           'ssnOrTin' => {
@@ -458,6 +568,32 @@ module PdfFill
               limit: 29,
               question_num: 68,
               question_text: 'SECONDARY FAMILY CAREGIVER (2) > Address > Zip'
+            },
+            'county' => {
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:address][:county],
+              limit: 29,
+              question_text: 'SECONDARY FAMILY CAREGIVER (2) > Address > County'
+            }
+          },
+          'mailingAddress' => {
+            'city' => {
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:mailingAddress][:city],
+              limit: 29,
+              question_text: 'SECONDARY FAMILY CAREGIVER (2) > Mailing Address > City'
+            },
+            'state' => {
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:mailingAddress][:state],
+              limit: 29,
+              question_text: 'SECONDARY FAMILY CAREGIVER (2) > Mailing Address > State'
+            },
+            'postalCode' => {
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:mailingAddress][:zip],
+              limit: 29,
+              question_text: 'SECONDARY FAMILY CAREGIVER (2) > Mailing Address > Zip Code'
+            },
+            'county' => {
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:mailingAddress][:county],
+              question_text: 'SECONDARY FAMILY CAREGIVER (2) > Mailing Address > County'
             }
           },
           'primaryPhoneNumber' => {
@@ -487,11 +623,9 @@ module PdfFill
         }
 
         merge_address_helpers
+        merge_mailing_address_helpers
         merge_sex_helpers
         merge_signature_helpers if options[:sign]
-
-        merge_primary_caregiver_has_health_insurance_helper
-        merge_veteran_last_treatment_facility_helper
         merge_planned_facility_label_helper
 
         @form_data
@@ -503,6 +637,14 @@ module PdfFill
         subjects.each do |subject|
           @form_data['helpers'][subject]['address'] = {
             'street' => combine_hash(@form_data.dig(subject, 'address'), %w[street street2])
+          }
+        end
+      end
+
+      def merge_mailing_address_helpers
+        %w[primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |subject|
+          @form_data['helpers'][subject]['mailingAddress'] = {
+            'street' => combine_hash(@form_data.dig(subject, 'mailingAddress'), %w[street street2])
           }
         end
       end
@@ -538,36 +680,6 @@ module PdfFill
 
       def subjects
         %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo]
-      end
-
-      def merge_primary_caregiver_has_health_insurance_helper
-        value = @form_data.dig('primaryCaregiver', 'hasHealthInsurance')
-        selection = case value
-                    when true
-                      '2'
-                    when false
-                      '1'
-                    else
-                      'Off'
-                    end
-
-        @form_data['helpers']['primaryCaregiver']['hasHealthInsurance'] = selection
-      end
-
-      def merge_veteran_last_treatment_facility_helper
-        value = @form_data.dig('veteran', 'lastTreatmentFacility', 'type')
-        selection = case value
-                    when 'hospital'
-                      '2'
-                    when 'clinic'
-                      '1'
-                    else
-                      'Off'
-                    end
-
-        @form_data['helpers']['veteran']['lastTreatmentFacility'] = {
-          'type' => selection
-        }
       end
 
       def merge_planned_facility_label_helper
