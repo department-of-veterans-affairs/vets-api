@@ -1119,7 +1119,6 @@ Rails/RedundantPresenceValidationOnBelongsTo:
     - 'app/models/central_mail_submission.rb'
     - 'app/models/deprecated_user_account.rb'
     - 'app/models/education_benefits_submission.rb'
-    - 'app/models/inherited_proof_verified_user_account.rb'
     - 'app/models/mhv_opt_in_flag.rb'
     - 'modules/claims_api/app/models/claims_api/supporting_document.rb'
     - 'modules/dhp_connected_devices/app/models/veteran_device_record.rb'
