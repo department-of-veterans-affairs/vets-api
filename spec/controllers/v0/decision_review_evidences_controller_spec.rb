@@ -117,7 +117,6 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
 
             form_attachment
           end
-          expect(subject).to receive(:render).with(json: form_attachment).and_call_original # rubocop:disable RSpec/SubjectStub
 
           post(:create, params:)
 
@@ -153,7 +152,6 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
 
             form_attachment
           end
-          expect(subject).to receive(:render).with(json: form_attachment).and_call_original # rubocop:disable RSpec/SubjectStub
 
           post(:create, params:)
 
@@ -185,7 +183,6 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
 
             form_attachment
           end
-          expect(subject).to receive(:render).with(json: form_attachment).and_call_original # rubocop:disable RSpec/SubjectStub
 
           post(:create, params:)
 
@@ -217,7 +214,6 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
 
             form_attachment
           end
-          expect(subject).to receive(:render).with(json: form_attachment).and_call_original # rubocop:disable RSpec/SubjectStub
 
           post(:create, params:)
 

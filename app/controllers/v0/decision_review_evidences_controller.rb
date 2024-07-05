@@ -14,6 +14,10 @@ module V0
 
     private
 
+    def serializer_klass
+      DecisionReviewEvidenceAttachmentSerializer
+    end
+
     # This method, declared in `FormAttachmentCreate`, is responsible for uploading file data to S3.
     def save_attachment_to_cloud! # rubocop:disable Metrics/MethodLength
       # `form_attachment` is declared in `FormAttachmentCreate`, included above.
