@@ -16,7 +16,7 @@ RSpec.describe SimpleFormsApi::VBA210966 do
       let(:user) { create(:user, first_name: expected_first_name, last_name: expected_last_name, ssn: expected_ssn) }
       let(:data) { {} }
 
-      it 'pulls the name from the user' do
+      it 'pulls the data from the user' do
         allow(user).to receive(:address).and_return(expected_address)
 
         form = SimpleFormsApi::VBA210966.new(data).populate_veteran_data(user)
@@ -41,7 +41,7 @@ RSpec.describe SimpleFormsApi::VBA210966 do
           'veteran_id' => { 'ssn' => expected_ssn } }
       end
 
-      it 'pulls the name from the user' do
+      it 'pulls the data from the form' do
         form = SimpleFormsApi::VBA210966.new(data).populate_veteran_data(user)
 
         expect(form.data['veteran_full_name']).to eq(expected_full_name)
