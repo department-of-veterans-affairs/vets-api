@@ -26,20 +26,8 @@ module RepresentationManagement
           :relationship,
           :phone,
           :email,
-          { name: %i[
-              first
-              middle
-              last
-            ],
-            address: %i[
-              address_line1
-              address_line2
-              city
-              state_code
-              country
-              zip_code
-              zip_code_suffix
-            ] }
+          { name: name_params_permitted,
+            address: address_params_permitted }
         ]
       end
 
@@ -55,20 +43,8 @@ module RepresentationManagement
           :phone,
           :email,
           { insurance_numbers: [],
-            name: %i[
-              first
-              middle
-              last
-            ],
-            address: %i[
-              address_line1
-              address_line2
-              city
-              state_code
-              country
-              zip_code
-              zip_code_suffix
-            ] }
+            name: name_params_permitted,
+            address: address_params_permitted }
         ]
       end
 
@@ -111,6 +87,22 @@ module RepresentationManagement
           veteran_phone: veteran_params.dig(:veteran, :phone),
           veteran_email: veteran_params.dig(:veteran, :email)
         }
+      end
+
+      def name_params_permitted
+        %i[first middle last]
+      end
+      
+      def address_params_permitted
+        %i[
+          address_line1
+          address_line2
+          city
+          state_code
+          country
+          zip_code
+          zip_code_suffix
+        ]
       end
 
       def feature_enabled

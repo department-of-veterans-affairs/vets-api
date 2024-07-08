@@ -26,20 +26,8 @@ module RepresentationManagement
           :type,
           :phone,
           :email,
-          { name: %i[
-              first
-              middle
-              last
-            ],
-            address: %i[
-              address_line1
-              address_line2
-              city
-              state_code
-              country
-              zip_code
-              zip_code_suffix
-            ] }
+          { name: name_params_permitted,
+            address: address_params_permitted }
         ]
       end
 
