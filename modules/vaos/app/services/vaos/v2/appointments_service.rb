@@ -11,7 +11,6 @@ module VAOS
       extend Memoist
 
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
-      VAOS_SERVICE_DATA_KEY = 'VAOSServiceTypesAndCategory'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
       AVS_APPT_TEST_ID = '192308'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
@@ -264,8 +263,7 @@ module VAOS
       end
 
       def avs_service
-        @avs_service ||=
-          Avs::V0::AvsService.new
+        @avs_service ||= Avs::V0::AvsService.new
       end
 
       def reason_code_service

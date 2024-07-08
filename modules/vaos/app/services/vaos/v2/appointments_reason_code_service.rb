@@ -4,7 +4,6 @@ module VAOS
   module V2
     # Finds the first provider npi id found in provider list and uses that id to request provider name.
     class AppointmentsReasonCodeService
-
       # Modifies the appointment, extracting individual fields from the reason code text whenever possible.
       #
       # @param appointment [Hash] the appointment to modify
