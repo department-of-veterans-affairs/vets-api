@@ -70,7 +70,6 @@ describe PdfFill::Filler, type: :model do
           sign: false
         }
       },
-      # TODO: Overflow needs updated
       # TODO: Signature is not showing up right now. The date is but not the signature on the new form.
       # {
       #   form_id: '10-10CG',
