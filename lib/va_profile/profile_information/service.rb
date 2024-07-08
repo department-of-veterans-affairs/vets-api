@@ -31,27 +31,6 @@ module VAProfile
         work_phone: 'Work phone number'
       }.freeze
 
-      def get_response(type)
-        with_monitoring do
-          vet360_id_present!
-          model = "VAProfile::Models::#{type.capitalize}".constantize
-          raw_response = perform(:get, @user.vet360_id)
-          model.response_class(raw_response)
-        end
-      rescue Common::Client::Errors::ClientError => e
-        if e.status == 404
-          log_exception_to_sentry(
-            e,
-            { vet360_id: @user.vet360_id },
-            { va_profile: :person_not_found },
-            :warning
-          )
-          PersonResponse.new(404, person: nil)
-        end
-      rescue => e
-        handle_error(e)
-      end
-
       def get_person
         with_monitoring do
           vet360_id_present!
@@ -82,10 +61,6 @@ module VAProfile
         stub_user = OpenStruct.new(vet360_id:)
         new(stub_user).get_person
       end
-
-      # def submit(params)
-      #   config.submit(path(@user.edipi), params)
-      # end
 
       # Record is not defined when requesting an #update
       # Determine if the record needs to be created or updated with reassign_http_verb
