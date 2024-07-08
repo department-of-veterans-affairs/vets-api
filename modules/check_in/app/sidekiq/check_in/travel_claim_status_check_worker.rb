@@ -54,22 +54,22 @@ module CheckIn
       claim_response_status = opts[:claim_status_resp].status
       facility_type = opts[:facility_type] || ''
 
-      process_claim_response(claim_response_status:, claim_response_body:, facility_type:)
+      process_claim_response(claim_response_status:, claim_response_body:, facility_type:, uuid: opts[:uuid])
     end
 
     private
 
-    def process_claim_response(claim_response_status:, claim_response_body:, facility_type:)
+    def process_claim_response(claim_response_status:, claim_response_body:, facility_type:, uuid:)
       claim_number = nil
       statsd_metric, template_id = case claim_response_status
                                    when 200
                                      claim_response = load_claim_response(claim_response_body:)
                                      if claim_response.size.zero?
-                                       logger.info({ message: 'Empty claim status response', uuid: opts[:uuid] })
+                                       logger.info({ message: 'Empty claim status response', uuid: })
                                        error_statsd_metric_and_template_id(facility_type:)
                                      else
                                        claim_number = claim_response.first.with_indifferent_access[:claimNum]&.last(4)
-                                       validate_claim_status(claim_response:, facility_type:)
+                                       validate_claim_status(claim_response:, facility_type:, uuid:)
                                      end
                                    when 408
                                      timeout_statsd_metric_and_template_id(facility_type:)
@@ -86,15 +86,15 @@ module CheckIn
       claim_response_body
     end
 
-    def validate_claim_status(claim_response:, facility_type:)
-      logger.info({ message: 'Multiple claim statuses', uuid: opts[:uuid] }) if claim_response.size > 1
+    def validate_claim_status(claim_response:, facility_type:, uuid:)
+      logger.info({ message: 'Multiple claim statuses', uuid: }) if claim_response.size > 1
       claim_status = claim_response.first.with_indifferent_access[:claimStatus]
       if SUCCESSFUL_CLAIM_STATUSES.include?(claim_status.downcase)
         success_statsd_metric_and_template_id(facility_type:)
       elsif FAILED_CLAIM_STATUSES.include?(claim_status.downcase)
         failure_statsd_metric_and_template_id(facility_type:)
       else
-        logger.info({ message: 'Received non-matching claim status', claim_status:, uuid: opts[:uuid] })
+        logger.info({ message: 'Received non-matching claim status', claim_status:, uuid: })
         error_statsd_metric_and_template_id(facility_type:)
       end
     end
