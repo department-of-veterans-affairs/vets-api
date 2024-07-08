@@ -83,7 +83,7 @@ RSpec.describe 'Forms uploader', type: :request do
           before do
             Flipper.enable(:simple_forms_lighthouse_benefits_intake_service)
           end
-        
+
           after do
             Flipper.disable(:simple_forms_lighthouse_benefits_intake_service)
           end
