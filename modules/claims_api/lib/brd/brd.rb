@@ -1,18 +1,20 @@
 # frozen_string_literal: true
 
+require 'library_base'
+
 module ClaimsApi
   ##
   # Class to interact with the BRD API
   #
   # Takes an optional request parameter
   # @param [] rails request object (used to determine environment)
-  class BRD
+  class BRD < LibraryBase
     ##
     # List of valid countries
     #
     # @return [Array<String>] list of countries
     def countries
-      client.get('countries').body[:items]
+      handle_transaction('countries')
     end
 
     ##
@@ -21,15 +23,15 @@ module ClaimsApi
     # @return [Array<Hash>] list of intake sites
     # as {id: <number> and description: <string>}
     def intake_sites
-      client.get('intake-sites').body[:items]
+      handle_transaction('intake-sites')
     end
 
     def disabilities
-      client.get('disabilities').body[:items]
+      handle_transaction('disabilities')
     end
 
     def service_branches
-      client.get('service-branches').body[:items]
+      handle_transaction('service-branches')
     end
 
     private
