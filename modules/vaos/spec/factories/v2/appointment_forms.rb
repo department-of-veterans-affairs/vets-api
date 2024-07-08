@@ -187,7 +187,7 @@ FactoryBot.define do
     trait :va_booked_invalid_reason_code_text do
       va_booked_base
       reason_code do
-        { 'text': 'invalidpair|:::||' }
+        { 'text': 'invalidkeyvaluepair|invalid:key:value:pair||' }
       end
     end
 

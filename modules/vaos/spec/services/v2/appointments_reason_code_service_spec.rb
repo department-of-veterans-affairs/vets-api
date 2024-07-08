@@ -19,8 +19,8 @@ describe VAOS::V2::AppointmentsReasonCodeService do
     it 'extracts valid reason code text fields if possible' do
       appt = FactoryBot.build(:appointment_form_v2, :va_booked_valid_reason_code_text).attributes
       subject.send(:extract_reason_code_fields, appt)
-      expect(appt[:contact][0]).to eq({ system: 'phone', value: '6195551234' })
-      expect(appt[:contact][1]).to eq({ system: 'email', value: 'myemail72585885@unattended.com' })
+      expect(appt[:contact][:telecom][0]).to eq({ system: 'phone', value: '6195551234' })
+      expect(appt[:contact][:telecom][1]).to eq({ system: 'email', value: 'myemail72585885@unattended.com' })
     end
   end
 end

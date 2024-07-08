@@ -23,7 +23,7 @@ module VAOS
           contact_info = []
           contact_info.push({ system: 'phone', value: reason_code_hash['phone number'] })
           contact_info.push({ system: 'email', value: reason_code_hash['email'] })
-          appointment[:contact] = contact_info
+          appointment[:contact] = { telecom: contact_info }
         end
       end
     end
