@@ -49,39 +49,27 @@ module CheckIn
       [nil, template_id]
     end
 
-    # rubocop:disable Metrics/MethodLength
     def handle_response(opts = {})
       claim_response_body = opts[:claim_status_resp].body || []
       claim_response_status = opts[:claim_status_resp].status
       facility_type = opts[:facility_type] || ''
-      claim_number = nil
 
+      process_claim_response(claim_response_status:, claim_response_body:, facility_type:)
+    end
+
+    private
+
+    def process_claim_response(claim_response_status:, claim_response_body:, facility_type:)
+      claim_number = nil
       statsd_metric, template_id = case claim_response_status
                                    when 200
-                                     claim_response = begin
-                                       Oj.load(claim_response_body)
-                                     rescue
-                                       claim_response_body
-                                     end
+                                     claim_response = load_claim_response(claim_response_body:)
                                      if claim_response.size.zero?
                                        logger.info({ message: 'Empty claim status response', uuid: opts[:uuid] })
                                        error_statsd_metric_and_template_id(facility_type:)
                                      else
-                                       if claim_response.size > 1
-                                         logger.info({ message: 'Multiple claim statuses',
-                                                       uuid: opts[:uuid] })
-                                       end
                                        claim_number = claim_response.first.with_indifferent_access[:claimNum]&.last(4)
-                                       claim_status = claim_response.first.with_indifferent_access[:claimStatus]
-                                       if SUCCESSFUL_CLAIM_STATUSES.include?(claim_status.downcase)
-                                         success_statsd_metric_and_template_id(facility_type:)
-                                       elsif FAILED_CLAIM_STATUSES.include?(claim_status.downcase)
-                                         failure_statsd_metric_and_template_id(facility_type:)
-                                       else
-                                         logger.info({ message: 'Received non-matching claim status', claim_status:,
-                                                       uuid: opts[:uuid] })
-                                         error_statsd_metric_and_template_id(facility_type:)
-                                       end
+                                       validate_claim_status(claim_response:, facility_type:)
                                      end
                                    when 408
                                      timeout_statsd_metric_and_template_id(facility_type:)
@@ -91,9 +79,25 @@ module CheckIn
       StatsD.increment(statsd_metric)
       [claim_number, template_id]
     end
-    # rubocop:enable Metrics/MethodLength
 
-    private
+    def load_claim_response(claim_response_body:)
+      Oj.load(claim_response_body)
+    rescue
+      claim_response_body
+    end
+
+    def validate_claim_status(claim_response:, facility_type:)
+      logger.info({ message: 'Multiple claim statuses', uuid: opts[:uuid] }) if claim_response.size > 1
+      claim_status = claim_response.first.with_indifferent_access[:claimStatus]
+      if SUCCESSFUL_CLAIM_STATUSES.include?(claim_status.downcase)
+        success_statsd_metric_and_template_id(facility_type:)
+      elsif FAILED_CLAIM_STATUSES.include?(claim_status.downcase)
+        failure_statsd_metric_and_template_id(facility_type:)
+      else
+        logger.info({ message: 'Received non-matching claim status', claim_status:, uuid: opts[:uuid] })
+        error_statsd_metric_and_template_id(facility_type:)
+      end
+    end
 
     def success_statsd_metric_and_template_id(facility_type:)
       case facility_type
