@@ -294,7 +294,12 @@ module ClaimsApi
             namespace = ClaimsApi::LocalBGSRefactored::FindDefinition
                         .for_service(endpoint)
                         .bean.namespaces.target
-          rescue
+          rescue => e
+            unless e.is_a? ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
+              ClaimsApi::Logger.log('local_bgs',
+                                    detail: "local BGS FindDefinition Error: #{e.message}")
+            end
+
             wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
               connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
             end

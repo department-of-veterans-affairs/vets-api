@@ -86,7 +86,8 @@ module ClaimsApi
           Bean.new(
             path: 'EBenefitsBnftClaimStatusWebServiceBean',
             namespaces: Namespaces.new(
-              target: 'http://services.share.benefits.vba.va.gov/',
+              # target: 'http://services.share.benefits.vba.va.gov/',
+              target: 'http://claimstatus.services.ebenefits.vba.va.gov/',
               data: nil
             )
           )
