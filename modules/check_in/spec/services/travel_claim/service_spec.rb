@@ -110,7 +110,9 @@ describe TravelClaim::Service do
 
   describe '#claim_status' do
     context 'when token does not exist in redis and endpoint fails' do
-      let(:resp) { Faraday::Response.new(response_body: { message: 'Unauthorized' }, status: 401) }
+      let(:response) do
+        { data: { error: true, code: 'CLM_020_INVALID_AUTH', message: 'Unauthorized' }, status: 401 }
+      end
 
       before do
         allow_any_instance_of(TravelClaim::RedisClient).to receive(:token).and_return(nil)
@@ -118,9 +120,7 @@ describe TravelClaim::Service do
       end
 
       it 'returns 401 error response' do
-        response = subject.build.claim_status
-        expect(response.status).to eq(resp.status)
-        expect(response.body).to eq(resp.body)
+        expect(subject.build.submit_claim).to eq(response)
       end
     end
 
@@ -151,6 +151,8 @@ describe TravelClaim::Service do
       end
       let(:resp) { Faraday::Response.new(response_body: status_json, status: 200) }
 
+      let(:status_response) { { data: { code: 'CLM_000_SUCCESS', body: status_json }, status: 200 } }
+
       before do
         Rails.cache.write(
           "check_in_lorota_v2_appointment_identifiers_#{uuid}",
@@ -162,11 +164,10 @@ describe TravelClaim::Service do
         allow_any_instance_of(TravelClaim::Client).to receive(:claim_status).and_return(resp)
       end
 
-      it 'returns response from claim api' do
+      it 'returns response' do
         response = subject.build(check_in:,
                                  params: { appointment_date: '2020-10-16' }).claim_status
-        expect(response.status).to eq(resp.status)
-        expect(response.body).to eq(resp.body)
+        expect(response).to eq status_response
       end
     end
   end
