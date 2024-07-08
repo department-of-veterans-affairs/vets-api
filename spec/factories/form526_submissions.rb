@@ -19,10 +19,11 @@ FactoryBot.define do
   end
 
   trait :backup_path do
-    lighthouse_format_guid = "#{SecureRandom.hex(8)}-#{SecureRandom.hex(4)}-" \
-                             "#{SecureRandom.hex(4)}-#{SecureRandom.hex(4)}-" \
-                             "#{SecureRandom.hex(12)}"
-    backup_submitted_claim_id { lighthouse_format_guid }
+    backup_submitted_claim_id {
+      "#{SecureRandom.hex(8)}-#{SecureRandom.hex(4)}-" \
+        "#{SecureRandom.hex(4)}-#{SecureRandom.hex(4)}-" \
+        "#{SecureRandom.hex(12)}"
+    }
   end
 
   trait :with_everything do
@@ -259,7 +260,7 @@ FactoryBot.define do
   end
 
   trait :with_submitted_claim_id do
-    submitted_claim_id { 1 }
+    submitted_claim_id { SecureRandom.rand(900_000_000) }
   end
 
   trait :with_accepted_backup_status do
