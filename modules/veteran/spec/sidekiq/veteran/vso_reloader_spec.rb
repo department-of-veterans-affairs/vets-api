@@ -139,5 +139,17 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         subject.new.perform
       end
     end
+
+    context 'with multiple first names' do
+      it 'handles it correctly' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data') do
+          Veteran::VSOReloader.new.reload_vso_reps
+
+          veteran_rep = Veteran::Service::Representative.find_by!(representative_id: '82390')
+          expect(veteran_rep.first_name).to eq('Anna Mae')
+          expect(veteran_rep.middle_initial).to eq('B')
+        end
+      end
+    end
   end
 end
