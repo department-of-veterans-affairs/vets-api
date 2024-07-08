@@ -26,6 +26,14 @@ RSpec.describe 'Forms uploader', type: :request do
                                    vba_40_10007.json]
 
   describe '#submit' do
+    before do
+      Flipper.disable(:simple_forms_lighthouse_benefits_intake_service)
+    end
+
+    after do
+      Flipper.enable(:simple_forms_lighthouse_benefits_intake_service)
+    end
+
     context 'going to Lighthouse Benefits Intake API' do
       let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
       let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }

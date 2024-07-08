@@ -3,6 +3,7 @@
 require 'ddtrace'
 require 'simple_forms_api_submission/metadata_validator'
 require 'lgy/service'
+require 'lighthouse/benefits_intake/service'
 
 module SimpleFormsApi
   module V1
@@ -117,7 +118,7 @@ module SimpleFormsApi
         parsed_form_data = JSON.parse(params.to_json)
         file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
-        if Flipper.enabled?(:simple_forms_lighthouse_benefits_intake_service, @current_user)
+        if Flipper.enabled?(:simple_forms_lighthouse_benefits_intake_service)
           status, confirmation_number = upload_pdf(file_path, metadata, form_id)
         else
           status, confirmation_number = SimpleFormsApi::PdfUploader.new(file_path, metadata,
