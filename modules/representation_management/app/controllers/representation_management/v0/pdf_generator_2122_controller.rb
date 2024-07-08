@@ -17,12 +17,7 @@ module RepresentationManagement
 
       def form_params
         params.require(:pdf_generator2122).permit(
-          :organization_name,
-          :record_consent,
-          :consent_address_change,
-          consent_limits: [],
-          claimant: claimant_params_permitted,
-          veteran: veteran_params_permitted
+          params_permitted.unshift(:organization_name)
         )
       end
 

@@ -15,37 +15,11 @@ module RepresentationManagement
 
       private
 
-      # rubocop:disable Metrics/MethodLength
       def form_params
         params.require(:pdf_generator2122a).permit(
-          :record_consent,
-          :consent_address_change,
-          consent_limits: [],
-          conditions_of_appointment: [],
-          claimant: claimant_params_permitted,
-          veteran: veteran_params_permitted,
-          representative: [
-            :type,
-            :phone,
-            :email,
-            { name: %i[
-                first
-                middle
-                last
-              ],
-              address: %i[
-                address_line1
-                address_line2
-                city
-                state_code
-                country
-                zip_code
-                zip_code_suffix
-              ] }
-          ]
+          params_permitted << { representative: representative_params_permitted }
         )
       end
-      # rubocop:enable Metrics/MethodLength
 
       def flatten_form_params(params)
         {

@@ -102,33 +102,16 @@ module RepresentationManagement
       end
       # rubocop:enable Metrics/MethodLength
 
-      # def params_permitted
-      #   :record_consent,
-      #     :consent_address_change,
-      #     consent_limits: [],
-      #     conditions_of_appointment: [],
-      #     claimant: claimant_params_permitted,
-      #     veteran: veteran_params_permitted,
-      #     representative: [
-      #       :type,
-      #       :phone,
-      #       :email,
-      #       { name: %i[
-      #           first
-      #           middle
-      #           last
-      #         ],
-      #         address: %i[
-      #           address_line1
-      #           address_line2
-      #           city
-      #           state_code
-      #           country
-      #           zip_code
-      #           zip_code_suffix
-      #         ] }
-      #     ]
-      #   end
+      def params_permitted
+        [
+          :record_consent,
+          :consent_address_change,
+          { consent_limits: [],
+            conditions_of_appointment: [],
+            claimant: claimant_params_permitted,
+            veteran: veteran_params_permitted }
+        ]
+      end
 
       def feature_enabled
         routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
