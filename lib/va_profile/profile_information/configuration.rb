@@ -7,10 +7,8 @@ module VAProfile
     class Configuration < VAProfile::Configuration
       self.read_timeout = VAProfile::Configuration::SETTINGS.profile_information.timeout || 30
 
-      PROFILE_INFORMATION_PATH = 'profile-service/profile/v3'
-
       def base_path
-        "#{VAProfile::Configuration::SETTINGS.url}/#{PROFILE_INFORMATION_PATH}"
+        "#{VAProfile::Configuration::SETTINGS.url}/contact-information-hub/cuf/contact-information/v2"
       end
 
       def service_name

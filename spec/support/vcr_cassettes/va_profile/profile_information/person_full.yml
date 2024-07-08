@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://int.vet360.va.gov/profile-service/profile/v3/
+    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v2/
     body:
       encoding: US-ASCII
       string: ''
