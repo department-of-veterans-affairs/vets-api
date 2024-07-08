@@ -148,6 +148,8 @@ describe TravelClaim::Service do
 
       let(:status_response) { { data: { code: 'CLM_000_SUCCESS', body: Oj.load(resp_str) }, status: 200 } }
 
+      let(:status_response) { { data: { code: 'CLM_000_SUCCESS', body: status_json }, status: 200 } }
+
       before do
         Rails.cache.write(
           "check_in_lorota_v2_appointment_identifiers_#{uuid}",
