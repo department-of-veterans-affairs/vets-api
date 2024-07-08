@@ -246,7 +246,7 @@ class AppealsApi::RswagConfig
     when 'appeals_status'
       merge_schemas(
         appeals_status_response_schemas,
-        generic_schemas.slice(*(version == 'v0' ? %i[errorModel X-VA-SSN X-VA-User] : %i[errorModel X-VA-User])),
+        generic_schemas.slice(*(version == 'v0' ? %i[errorModel X-VA-SSN X-VA-User] : %i[errorModel])),
         shared_schemas.slice(*(version == 'v0' ? nil : %w[icn]))
       )
     when 'decision_reviews'
