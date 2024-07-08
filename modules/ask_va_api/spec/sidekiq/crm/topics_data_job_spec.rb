@@ -31,7 +31,7 @@ RSpec.describe Crm::TopicsDataJob, type: :job do
       end
 
       it 'logs the error' do
-        described_class.new.perform
+        expect { described_class.new.perform }.not_to raise_error
 
         expect(logger).to have_received(:error).with(include(error_message))
       end
