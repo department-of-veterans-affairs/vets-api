@@ -636,6 +636,9 @@ features:
   form1010d:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
+  form107959f1:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program)
   form_upload_flow:
     actor_type: user
     description: If enabled shows the find-a-form widget for the Form Upload Flow
@@ -693,6 +696,10 @@ features:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
     enable_in_development: true
+  lighthouse_claims_v2_poa_requests_skip_bgs:
+    actor_type: user
+    description: Enable/disable skipping BGS calls for POA Requests
+    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
@@ -715,10 +722,6 @@ features:
   medical_copay_notifications:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
-    enable_in_development: true
-  mhv_landing_page_enabled:
-    actor_type: user
-    description: Enables the My HealtheVet landing page on VA.gov
     enable_in_development: true
   mhv_landing_page_show_priority_group:
     actor_type: user
@@ -930,10 +933,6 @@ features:
     description: Use VA Forms System Core for forms instead of schema based forms
     actor_type: user
     enable_in_development: true
-  profile_contacts:
-    description: Enable the Personal Health Care Contacts feature. Data provided by the VA Profile Health Benefit Service.
-    actor_type: user
-    enable_in_development: true
   pw_ehr_cta_drupal_source_of_truth:
     actor_type: user
     description: Enabling Public Websites-managed EHR CTAs to use Drupal EHR data, including for Cerner cutovers
@@ -1085,6 +1084,10 @@ features:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
     enable_in_development: true
+  dgi_rudisill_hide_benefits_selection_step:
+    actor_type: user
+    description: Hides benefit selection page on original claims application.
+    enable_in_development: false
   show_forms_app:
     actor_type: user
     description: Enables the TOE form to be displayed.
@@ -1266,6 +1269,14 @@ features:
     actor_type: user
     description: When enabled, the VAProfile::V3::Service will be enabled for VaProfile::ProfileInformation
     enable_in_development: false
+  va_profile_information_v3_redis:
+    actor_type: user
+    description: When enabled, the VAProfileRedis::ProfileInformation will be enabled for VaProfile::ProfileInformation
+    enable_in_development: false
+  va_profile_information_v3_transactions:
+    actor_type: user
+    description: When enabled, the transactions will be enabled for VAProfile::ProfileInformation
+    enable_in_development: false
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
@@ -1435,6 +1446,10 @@ features:
     actor_type: user
     description: Show updated confirmation page with form data & downloadable PDF
     enable_in_development: true
+  hlr_updateed_contnet:
+    actor_type: user
+    description: HLR show form content updates
+    enable_in_development: true
   pension_ipf_callbacks_endpoint:
     actor_type: user
     description: Pension IPF VANotify notification callbacks endpoint
@@ -1471,6 +1486,10 @@ features:
   pension_claim_submission_to_lighthouse:
     actor_type: user
     description: Pension claim submission uses Lighthouse API
+  pension_multiple_page_response:
+    actor_type: user
+    description: Implement multiple page response pattern
+    enable_in_development: true
   pension_module_enabled:
     actor_type: user
     description: Enable the pension module routes

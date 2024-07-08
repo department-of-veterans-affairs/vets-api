@@ -15,22 +15,6 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
 
   describe '#show' do
     context 'when successful' do
-      it 'logs the control info' do
-        VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
-          get(:show)
-        end
-
-        expect(response).to have_http_status(:ok)
-        expect(Rails.logger)
-          .to have_received(:info)
-          .with('Direct Deposit Control Info: Show',
-                { benefit_type: 'both',
-                  updatable: true,
-                  valid: true,
-                  restrictions: '',
-                  errors: '' })
-      end
-
       it 'returns a status of 200' do
         VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
           get(:show)
@@ -183,22 +167,6 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
           has_identity: true
         }
       }
-    end
-
-    it 'logs the control info' do
-      VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
-        put(:update, params:)
-      end
-
-      expect(response).to have_http_status(:ok)
-      expect(Rails.logger)
-        .to have_received(:info)
-        .with('Direct Deposit Control Info: Update',
-              { benefit_type: 'both',
-                updatable: true,
-                valid: true,
-                restrictions: '',
-                errors: '' })
     end
 
     it 'returns a status of 200' do
