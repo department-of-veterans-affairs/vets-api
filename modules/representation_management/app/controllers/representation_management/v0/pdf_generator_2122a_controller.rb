@@ -21,6 +21,28 @@ module RepresentationManagement
         )
       end
 
+      def representative_params_permitted
+        [
+          :type,
+          :phone,
+          :email,
+          { name: %i[
+              first
+              middle
+              last
+            ],
+            address: %i[
+              address_line1
+              address_line2
+              city
+              state_code
+              country
+              zip_code
+              zip_code_suffix
+            ] }
+        ]
+      end
+
       def flatten_form_params(params)
         {
           record_consent: params[:record_consent],
@@ -53,28 +75,6 @@ module RepresentationManagement
           representative_phone: params.dig(:representative, :phone),
           representative_email_address: params.dig(:representative, :email)
         }
-      end
-
-      def representative_params_permitted
-        [
-          :type,
-          :phone,
-          :email,
-          { name: %i[
-              first
-              middle
-              last
-            ],
-            address: %i[
-              address_line1
-              address_line2
-              city
-              state_code
-              country
-              zip_code
-              zip_code_suffix
-            ] }
-        ]
       end
     end
   end
