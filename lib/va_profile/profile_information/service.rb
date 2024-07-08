@@ -118,6 +118,11 @@ module VAProfile
         raise 'User does not have a icn' if icn_with_aaid.blank?
       end
 
+
+      def vet360_id_present!
+        raise 'User does not have a vet360_id' if @user&.vet360_id.blank?
+      end
+
       def path
         "#{OID}/#{ERB::Util.url_encode(icn_with_aaid)}"
       end
