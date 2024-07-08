@@ -179,9 +179,7 @@ module VAProfileRedis
     end
 
     def response_from_redis_or_service
-      unless VAProfile::Configuration::SETTINGS.profile_information.cache_enabled
-        return profile_information_service.get_person
-      end
+      return profile_information_service.get_person unless VAProfile::Configuration::SETTINGS.profile_information.cache_enabled
 
       do_cached_with(key: @user.uuid) do
         profile_information_service.get_person

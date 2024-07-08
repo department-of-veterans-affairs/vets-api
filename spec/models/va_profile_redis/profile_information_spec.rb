@@ -37,39 +37,39 @@ describe VAProfileRedis::ProfileInformation do
     Flipper.disable(:va_profile_information_v3_service)
   end
 
-  # [404, 400].each do |status|
-  #   context "with a #{status} from get_person", skip_vet360: true do
-  #     let(:get_person_calls) { 'once' }
+  [404, 400].each do |status|
+    context "with a #{status} from get_person", skip_vet360: true do
+      let(:get_person_calls) { 'once' }
 
-  #     before do
-  #       allow(VAProfile::Configuration::SETTINGS.profile_information).to receive(:cache_enabled).and_return(true)
+      before do
+        allow(VAProfile::Configuration::SETTINGS.profile_information).to receive(:cache_enabled).and_return(true)
 
-  #       service = double
-  #       allow(VAProfile::ProfileInformation::Service).to receive(:new).with(user).and_return(service)
-  #       expect(service).to receive("get_person").public_send(
-  #         get_person_calls
-  #       ).and_return(
-  #         VAProfile::ProfileInformation::PersonResponse.new(status, person: nil)
-  #       )
-  #     end
+        service = double
+        allow(VAProfile::ProfileInformation::Service).to receive(:new).with(user).and_return(service)
+        expect(service).to receive("get_person").public_send(
+          get_person_calls
+        ).and_return(
+          VAProfile::ProfileInformation::PersonResponse.new(status, person: nil)
+        )
+      end
 
-  #     it 'caches the empty response' do
-  #       expect(contact_info.email).to eq(nil)
-  #       expect(contact_info.home_phone).to eq(nil)
-  #     end
+      it 'caches the empty response' do
+        expect(contact_info.email).to eq(nil)
+        expect(contact_info.home_phone).to eq(nil)
+      end
 
-  #     context 'when the cache is destroyed' do
-  #       let(:get_person_calls) { 'twice' }
+      context 'when the cache is destroyed' do
+        let(:get_person_calls) { 'twice' }
 
-  #       it 'makes a new request' do
-  #         expect(contact_info.email).to eq(nil)
-  #         VAProfileRedis::Cache.invalidate(user)
+        it 'makes a new request' do
+          expect(contact_info.email).to eq(nil)
+          VAProfileRedis::Cache.invalidate(user)
 
-  #         expect(VAProfileRedis::ProfileInformation.for_user(user).email).to eq(nil)
-  #       end
-  #     end
-  #   end
-  # end
+          expect(VAProfileRedis::ProfileInformation.for_user(user).email).to eq(nil)
+        end
+      end
+    end
+  end
 
   # describe '.new' do
   #   it 'creates an instance with user attributes' do
@@ -77,270 +77,271 @@ describe VAProfileRedis::ProfileInformation do
   #   end
   # end
 
-  # describe '#response' do
-  #   context 'when the cache is empty' do
-  #     it 'caches and return the response', :aggregate_failures do
-  #       allow_any_instance_of(
-  #         VAProfile::ProfileInformation::Service
-  #       ).to receive("get_person").and_return(person_response)
+  describe '#response' do
+    context 'when the cache is empty' do
+      it 'caches and return the response', :aggregate_failures do
+        allow_any_instance_of(
+          VAProfile::ProfileInformation::Service
+        ).to receive("get_person").and_return(person_response)
 
-  #       if VAProfile::Configuration::SETTINGS.profile_information.cache_enabled
-  #         expect(contact_info.redis_namespace).to receive(:set).once
-  #       end
-  #       expect_any_instance_of(VAProfile::ProfileInformation::Service).to receive("get_person").twice
-  #       expect(contact_info.status).to eq 200
-  #       expect(contact_info.response.person).to have_deep_attributes(person)
-  #     end
-  #   end
+        if VAProfile::Configuration::SETTINGS.profile_information.cache_enabled
+          expect(contact_info.redis_namespace).to receive(:set).once
+        end
+        expect_any_instance_of(VAProfile::ProfileInformation::Service).to receive("get_person").twice
+        expect(contact_info.status).to eq 200
+        expect(contact_info.response.person).to have_deep_attributes(person)
+      end
+    end
 
-  # context 'when there is cached data' do
-  #   it 'returns the cached data', :aggregate_failures do
-  #     contact_info.cache(user.uuid, person_response)
+    context 'when there is cached data' do
+      it 'returns the cached data', :aggregate_failures do
+        binding.pry
+        contact_info.cache(user.uuid, person_response)
 
-  #     expect_any_instance_of(VAProfile::ProfileInformation::Service).not_to receive("get_person")
-  #     expect(contact_info.response.person).to have_deep_attributes(person)
-  #   end
-  # end
-  # end
+        expect_any_instance_of(VAProfile::ProfileInformation::Service).not_to receive("get_person")
+        expect(contact_info.response.person).to have_deep_attributes(person)
+      end
+    end
+  end
 
-  # describe 'contact information attributes' do
-  #   context 'with a successful response' do
-  #     before do
-  #       allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
-  #       allow_any_instance_of(
-  #         VAProfile::ProfileInformation::Service
-  #       ).to receive("get_person").and_return(person_response)
-  #     end
+  describe 'contact information attributes' do
+    context 'with a successful response' do
+      before do
+        allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
+        allow_any_instance_of(
+          VAProfile::ProfileInformation::Service
+        ).to receive("get_person").and_return(person_response)
+      end
 
-  #     describe '#email' do
-  #       it 'returns the users email address object', :aggregate_failures do
-  #         expect(contact_info.email).to eq person.emails.first
-  #         expect(contact_info.email.class).to eq VAProfile::Models::Email
-  #       end
-  #     end
+      describe '#email' do
+        it 'returns the users email address object', :aggregate_failures do
+          expect(contact_info.email).to eq person.emails.first
+          expect(contact_info.email.class).to eq VAProfile::Models::Email
+        end
+      end
 
-  #     describe '#residential_address' do
-  #       it 'returns the users residential address object', :aggregate_failures do
-  #         residence = address_for VAProfile::Models::Address::RESIDENCE
+      describe '#residential_address' do
+        it 'returns the users residential address object', :aggregate_failures do
+          residence = address_for VAProfile::Models::Address::RESIDENCE
 
-  #         expect(contact_info.residential_address).to eq residence
-  #         expect(contact_info.residential_address.class).to eq VAProfile::Models::Address
-  #       end
-  #     end
+          expect(contact_info.residential_address).to eq residence
+          expect(contact_info.residential_address.class).to eq VAProfile::Models::Address
+        end
+      end
 
-  #     describe '#mailing_address' do
-  #       it 'returns the users mailing address object', :aggregate_failures do
-  #         residence = address_for VAProfile::Models::Address::CORRESPONDENCE
+      describe '#mailing_address' do
+        it 'returns the users mailing address object', :aggregate_failures do
+          residence = address_for VAProfile::Models::Address::CORRESPONDENCE
 
-  #         expect(contact_info.mailing_address).to eq residence
-  #         expect(contact_info.mailing_address.class).to eq VAProfile::Models::Address
-  #       end
-  #     end
+          expect(contact_info.mailing_address).to eq residence
+          expect(contact_info.mailing_address.class).to eq VAProfile::Models::Address
+        end
+      end
 
-  #     describe '#home_phone' do
-  #       it 'returns the users home phone object', :aggregate_failures do
-  #         phone = phone_for VAProfile::Models::Telephone::HOME
+      describe '#home_phone' do
+        it 'returns the users home phone object', :aggregate_failures do
+          phone = phone_for VAProfile::Models::Telephone::HOME
 
-  #         expect(contact_info.home_phone).to eq phone
-  #         expect(contact_info.home_phone.class).to eq VAProfile::Models::Telephone
-  #       end
-  #     end
+          expect(contact_info.home_phone).to eq phone
+          expect(contact_info.home_phone.class).to eq VAProfile::Models::Telephone
+        end
+      end
 
-  #     describe '#mobile_phone' do
-  #       it 'returns the users mobile phone object', :aggregate_failures do
-  #         phone = phone_for VAProfile::Models::Telephone::MOBILE
+      describe '#mobile_phone' do
+        it 'returns the users mobile phone object', :aggregate_failures do
+          phone = phone_for VAProfile::Models::Telephone::MOBILE
 
-  #         expect(contact_info.mobile_phone).to eq phone
-  #         expect(contact_info.mobile_phone.class).to eq VAProfile::Models::Telephone
-  #       end
-  #     end
+          expect(contact_info.mobile_phone).to eq phone
+          expect(contact_info.mobile_phone.class).to eq VAProfile::Models::Telephone
+        end
+      end
 
-  #     describe '#work_phone' do
-  #       it 'returns the users work phone object', :aggregate_failures do
-  #         phone = phone_for VAProfile::Models::Telephone::WORK
+      describe '#work_phone' do
+        it 'returns the users work phone object', :aggregate_failures do
+          phone = phone_for VAProfile::Models::Telephone::WORK
 
-  #         expect(contact_info.work_phone).to eq phone
-  #         expect(contact_info.work_phone.class).to eq VAProfile::Models::Telephone
-  #       end
-  #     end
+          expect(contact_info.work_phone).to eq phone
+          expect(contact_info.work_phone.class).to eq VAProfile::Models::Telephone
+        end
+      end
 
-  #     describe '#temporary_phone' do
-  #       it 'returns the users temporary phone object', :aggregate_failures do
-  #         phone = phone_for VAProfile::Models::Telephone::TEMPORARY
+      describe '#temporary_phone' do
+        it 'returns the users temporary phone object', :aggregate_failures do
+          phone = phone_for VAProfile::Models::Telephone::TEMPORARY
 
-  #         expect(contact_info.temporary_phone).to eq phone
-  #         expect(contact_info.temporary_phone.class).to eq VAProfile::Models::Telephone
-  #       end
-  #     end
+          expect(contact_info.temporary_phone).to eq phone
+          expect(contact_info.temporary_phone.class).to eq VAProfile::Models::Telephone
+        end
+      end
 
-  #     describe '#fax_number' do
-  #       it 'returns the users FAX object', :aggregate_failures do
-  #         phone = phone_for VAProfile::Models::Telephone::FAX
+      describe '#fax_number' do
+        it 'returns the users FAX object', :aggregate_failures do
+          phone = phone_for VAProfile::Models::Telephone::FAX
 
-  #         expect(contact_info.fax_number).to eq phone
-  #         expect(contact_info.fax_number.class).to eq VAProfile::Models::Telephone
-  #       end
-  #     end
+          expect(contact_info.fax_number).to eq phone
+          expect(contact_info.fax_number.class).to eq VAProfile::Models::Telephone
+        end
+      end
 
-  #     describe '#text_permission' do
-  #       it 'returns the users text permission object', :aggregate_failures do
-  #         permission = permission_for VAProfile::Models::Permission::TEXT
+      describe '#text_permission' do
+        it 'returns the users text permission object', :aggregate_failures do
+          permission = permission_for VAProfile::Models::Permission::TEXT
 
-  #         expect(contact_info.text_permission).to eq permission
-  #         expect(contact_info.text_permission.class).to eq VAProfile::Models::Permission
-  #       end
-  #     end
-  #   end
+          expect(contact_info.text_permission).to eq permission
+          expect(contact_info.text_permission.class).to eq VAProfile::Models::Permission
+        end
+      end
+    end
 
-  #   context 'with an error response' do
-  #     before do
-  #       allow_any_instance_of(VAProfile::ProfileInformation::Service).to receive("get_person").and_raise(
-  #         Common::Exceptions::BackendServiceException
-  #       )
-  #     end
+    context 'with an error response' do
+      before do
+        allow_any_instance_of(VAProfile::ProfileInformation::Service).to receive("get_person").and_raise(
+          Common::Exceptions::BackendServiceException
+        )
+      end
 
-  #     describe '#email' do
-  #       it 'raises a Common::Exceptions::BackendServiceException error' do
-  #         expect { contact_info.email }.to raise_error(
-  #           Common::Exceptions::BackendServiceException
-  #         )
-  #       end
-  #     end
+      describe '#email' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.email }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
 
-  #     describe '#residential_address' do
-  #       it 'raises a Common::Exceptions::BackendServiceException error' do
-  #         expect { contact_info.residential_address }.to raise_error(
-  #           Common::Exceptions::BackendServiceException
-  #         )
-  #       end
-  #     end
+      describe '#residential_address' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.residential_address }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
 
-  #     describe '#mailing_address' do
-  #       it 'raises a Common::Exceptions::BackendServiceException error' do
-  #         expect { contact_info.mailing_address }.to raise_error(
-  #           Common::Exceptions::BackendServiceException
-  #         )
-  #       end
-  #     end
+      describe '#mailing_address' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.mailing_address }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
 
-  #     describe '#home_phone' do
-  #       it 'raises a Common::Exceptions::BackendServiceException error' do
-  #         expect { contact_info.home_phone }.to raise_error(
-  #           Common::Exceptions::BackendServiceException
-  #         )
-  #       end
-  #     end
+      describe '#home_phone' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.home_phone }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
 
-  #     describe '#mobile_phone' do
-  #       it 'raises a Common::Exceptions::BackendServiceException error' do
-  #         expect { contact_info.mobile_phone }.to raise_error(
-  #           Common::Exceptions::BackendServiceException
-  #         )
-  #       end
-  #     end
+      describe '#mobile_phone' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.mobile_phone }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
 
-  #     describe '#work_phone' do
-  #       it 'raises a Common::Exceptions::BackendServiceException error' do
-  #         expect { contact_info.work_phone }.to raise_error(
-  #           Common::Exceptions::BackendServiceException
-  #         )
-  #       end
-  #     end
+      describe '#work_phone' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.work_phone }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
 
-  #     describe '#temporary_phone' do
-  #       it 'raises a Common::Exceptions::BackendServiceException error' do
-  #         expect { contact_info.temporary_phone }.to raise_error(
-  #           Common::Exceptions::BackendServiceException
-  #         )
-  #       end
-  #     end
+      describe '#temporary_phone' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.temporary_phone }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
 
-  #     describe '#fax_number' do
-  #       it 'raises a Common::Exceptions::BackendServiceException error' do
-  #         expect { contact_info.fax_number }.to raise_error(
-  #           Common::Exceptions::BackendServiceException
-  #         )
-  #       end
-  #     end
+      describe '#fax_number' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.fax_number }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
 
-  #     describe '#text_permission' do
-  #       it 'raises a Common::Exceptions::BackendServiceException error' do
-  #         expect { contact_info.text_permission }.to raise_error(
-  #           Common::Exceptions::BackendServiceException
-  #         )
-  #       end
-  #     end
-  #   end
+      describe '#text_permission' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.text_permission }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
 
-  #   context 'with an empty respose body' do
-  #     let(:empty_response) do
-  #       raw_response = OpenStruct.new(status: 500, body: nil)
+    context 'with an empty respose body' do
+      let(:empty_response) do
+        raw_response = OpenStruct.new(status: 500, body: nil)
 
-  #       VAProfile::ProfileInformation::PersonResponse.from(raw_response)
-  #     end
+        VAProfile::ProfileInformation::PersonResponse.from(raw_response)
+      end
 
-  #     before do
-  #       allow(VAProfile::Models::Person).to receive(:build_from).and_return(nil)
-  #       allow_any_instance_of(
-  #         VAProfile::ProfileInformation::Service
-  #       ).to receive("get_person").and_return(empty_response)
-  #     end
+      before do
+        allow(VAProfile::Models::Person).to receive(:build_from).and_return(nil)
+        allow_any_instance_of(
+          VAProfile::ProfileInformation::Service
+        ).to receive("get_person").and_return(empty_response)
+      end
 
-  #     describe '#email' do
-  #       it 'returns nil' do
-  #         expect(contact_info.email).to be_nil
-  #       end
-  #     end
+      describe '#email' do
+        it 'returns nil' do
+          expect(contact_info.email).to be_nil
+        end
+      end
 
-  #     describe '#residential_address' do
-  #       it 'returns nil' do
-  #         expect(contact_info.residential_address).to be_nil
-  #       end
-  #     end
+      describe '#residential_address' do
+        it 'returns nil' do
+          expect(contact_info.residential_address).to be_nil
+        end
+      end
 
-  #     describe '#mailing_address' do
-  #       it 'returns nil' do
-  #         expect(contact_info.mailing_address).to be_nil
-  #       end
-  #     end
+      describe '#mailing_address' do
+        it 'returns nil' do
+          expect(contact_info.mailing_address).to be_nil
+        end
+      end
 
-  #     describe '#home_phone' do
-  #       it 'returns nil' do
-  #         expect(contact_info.home_phone).to be_nil
-  #       end
-  #     end
+      describe '#home_phone' do
+        it 'returns nil' do
+          expect(contact_info.home_phone).to be_nil
+        end
+      end
 
-  #     describe '#mobile_phone' do
-  #       it 'returns nil' do
-  #         expect(contact_info.mobile_phone).to be_nil
-  #       end
-  #     end
+      describe '#mobile_phone' do
+        it 'returns nil' do
+          expect(contact_info.mobile_phone).to be_nil
+        end
+      end
 
-  #     describe '#work_phone' do
-  #       it 'returns nil' do
-  #         expect(contact_info.work_phone).to be_nil
-  #       end
-  #     end
+      describe '#work_phone' do
+        it 'returns nil' do
+          expect(contact_info.work_phone).to be_nil
+        end
+      end
 
-  #     describe '#temporary_phone' do
-  #       it 'returns nil' do
-  #         expect(contact_info.temporary_phone).to be_nil
-  #       end
-  #     end
+      describe '#temporary_phone' do
+        it 'returns nil' do
+          expect(contact_info.temporary_phone).to be_nil
+        end
+      end
 
-  #     describe '#fax_number' do
-  #       it 'returns nil' do
-  #         expect(contact_info.fax_number).to be_nil
-  #       end
-  #     end
+      describe '#fax_number' do
+        it 'returns nil' do
+          expect(contact_info.fax_number).to be_nil
+        end
+      end
 
-  #     describe '#text_permission' do
-  #       it 'returns nil' do
-  #         expect(contact_info.text_permission).to be_nil
-  #       end
-  #     end
-  #   end
-  # end
+      describe '#text_permission' do
+        it 'returns nil' do
+          expect(contact_info.text_permission).to be_nil
+        end
+      end
+    end
+  end
 end
 
 def address_for(address_type)

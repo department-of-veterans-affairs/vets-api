@@ -228,13 +228,7 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
         end
       end
 
-      # it 'returns a status of 200' do
-      #   VCR.use_cassette('va_profile/profile_information/put_email_success', VCR::MATCH_EVERYTHING) do
-      #     response = subject.create_or_update_info(:put, email)
-      #     expect(response.transaction_id).to eq('7d1667a5-df5f-4559-be35-b36042c61187')
-      #     expect(response).to be_ok
-      #   end
-      # end
+
     end
   end
 
