@@ -38,6 +38,11 @@ jobs:
         with:
           mask-password: true
 
+      - name: Make sure we have docker credentials
+        run: |
+          grep -q '008577686731.dkr.ecr.us-gov-west-1.amazonaws.com' ~/.docker/config.json
+        shell: bash
+
       - name: Setup Environment
         run: |
           echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
@@ -74,4 +79,3 @@ jobs:
         run: |
              docker-compose -f docker-compose.test.yml run -e CHANGED_FILES=${{ env.CHANGED_FILES }} web bash \
              -c "CI=true DISABLE_BOOTSNAP=true bundle exec rake service_tags:audit_controllers_ci"
-
