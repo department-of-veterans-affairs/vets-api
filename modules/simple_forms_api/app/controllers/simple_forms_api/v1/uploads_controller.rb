@@ -158,7 +158,7 @@ module SimpleFormsApi
       end
 
       def use_itf_api_for_210966_form?
-        form_is210966 && icn && first_party?
+        form_is210966 && participant_id && icn && first_party?
       end
 
       def form_is264555_and_should_use_lgy_api
@@ -168,6 +168,10 @@ module SimpleFormsApi
 
       def should_authenticate
         true unless UNAUTHENTICATED_FORMS.include? params[:form_number]
+      end
+
+      def participant_id
+        @current_user&.participant_id
       end
 
       def icn
