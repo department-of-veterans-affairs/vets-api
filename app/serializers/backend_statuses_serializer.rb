@@ -9,9 +9,11 @@ class BackendStatusesSerializer
 
   attribute :maintenance_windows do |_object, params|
     maintenance_windows = params[:maintenance_windows]
-    return [] unless maintenance_windows
-
-    serializer = MaintenanceWindowSerializer.new(maintenance_windows)
-    serializer.serializable_hash[:data].pluck(:attributes)
+    if maintenance_windows
+      serializer = MaintenanceWindowSerializer.new(maintenance_windows)
+      serializer.serializable_hash[:data].pluck(:attributes)
+    else
+      []
+    end
   end
 end
