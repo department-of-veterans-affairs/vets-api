@@ -12,38 +12,40 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
   before do
     allow(user).to receive_messages(vet360_id:, icn: '1234')
     Flipper.enable(:va_profile_information_v3_service)
+    Flipper.enable(:va_profile_information_v3_redis)
   end
 
   after do
     Flipper.disable(:va_profile_information_v3_service)
+    Flipper.disable(:va_profile_information_v3_redis)
   end
 
-  # describe '#get_person' do
-  # context 'when successful' do
-  #   it 'returns a status of 200' do
-  #     VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
-  #       response = subject.get_response('person')
-  #       expect(response).to be_ok
-  #       expect(response.person).to be_a(VAProfile::Models::Person)
-  #     end
-  #   end
+  describe '#get_person' do
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
+          response = subject.get_response('person')
+          expect(response).to be_ok
+          expect(response.person).to be_a(VAProfile::Models::Person)
+        end
+      end
 
-  # it 'supports international provinces' do
-  #   VCR.use_cassette('va_profile/profile_information/person_intl_addr', VCR::MATCH_EVERYTHING) do
-  #     response = subject.get_response('person')
+    # it 'supports international provinces' do
+    #   VCR.use_cassette('va_profile/profile_information/person_intl_addr', VCR::MATCH_EVERYTHING) do
+    #     response = subject.get_response('person')
 
-  #     expect(response.person.addresses[0].province).to eq('province')
-  #   end
-  # end
+    #     expect(response.person.addresses[0].province).to eq('province')
+    #   end
+    # end
 
-  # it 'has a bad address' do
-  #   VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
-  #     response = subject.get_response('person')
+    # it 'has a bad address' do
+    #   VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
+    #     response = subject.get_response('person')
 
-  #     expect(response.person.addresses[0].bad_address).to eq(true)
-  #   end
-  # end
-  # end
+    #     expect(response.person.addresses[0].bad_address).to eq(true)
+    #   end
+    end
+  end
 
   #   context 'when not successful' do
   #     let(:vet360_id) { '6767671' }
@@ -189,19 +191,19 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
       end
     end
 
-    # context 'when an ID is included' do
-    #   it 'raises an exception' do
-    #     VCR.use_cassette('va_profile/profile_information/post_email_w_id_error', VCR::MATCH_EVERYTHING) do
-    #       email.id = 42
-    #       email.email_address = 'person42@example.com'
-    #       expect { subject.create_or_update_info(:post, email) }.to raise_error do |e|
-    #         expect(e).to be_a(Common::Exceptions::BackendServiceException)
-    #         expect(e.status_code).to eq(400)
-    #         expect(e.errors.first.code).to eq('VET360_EMAIL200')
-    #       end
-    #     end
-    #   end
-    # end
+    context 'when an ID is included' do
+      it 'raises an exception' do
+        VCR.use_cassette('va_profile/profile_information/post_email_w_id_error', VCR::MATCH_EVERYTHING) do
+          email.id = 42
+          email.email_address = 'person42@example.com'
+          expect { subject.create_or_update_info(:post, email) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_EMAIL200')
+          end
+        end
+      end
+    end
   end
 
   describe '#put_email' do
@@ -226,13 +228,13 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
       #   end
       # end
 
-      # it 'returns a status of 200' do
-      #   VCR.use_cassette('va_profile/profile_information/put_email_success', VCR::MATCH_EVERYTHING) do
-      #     response = subject.create_or_update_info(:put, email)
-      #     expect(response.transaction.id).to eq('7d1667a5-df5f-4559-be35-b36042c61187')
-      #     expect(response).to be_ok
-      #   end
-      # end
+      it 'returns a status of 200' do
+        VCR.use_cassette('va_profile/profile_information/put_email_success', VCR::MATCH_EVERYTHING) do
+          response = subject.create_or_update_info(:put, email)
+          expect(response.transaction.id).to eq('7d1667a5-df5f-4559-be35-b36042c61187')
+          expect(response).to be_ok
+        end
+      end
     end
   end
 
@@ -253,22 +255,22 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
       end
     end
 
-    # context 'when an ID is included' do
-    #   it 'raises an exception' do
-    #     VCR.use_cassette('va_profile/profile_information/post_address_w_id_error', VCR::MATCH_EVERYTHING) do
-    #       address.id = 42
-    #       address.address_line1 = '1493 Martin Luther King Rd'
-    #       address.city = 'Fulton'
-    #       address.state_code = 'MS'
-    #       address.zip_code = '38843'
-    #       expect { subject.create_or_update_info(:post, address) }.to raise_error do |e|
-    #         expect(e).to be_a(Common::Exceptions::BackendServiceException)
-    #         expect(e.status_code).to eq(400)
-    #         expect(e.errors.first.code).to eq('VET360_ADDR200')
-    #       end
-    #     end
-    #   end
-    # end
+    context 'when an ID is included' do
+      it 'raises an exception' do
+        VCR.use_cassette('va_profile/profile_information/post_address_w_id_error', VCR::MATCH_EVERYTHING) do
+          address.id = 42
+          address.address_line1 = '1493 Martin Luther King Rd'
+          address.city = 'Fulton'
+          address.state_code = 'MS'
+          address.zip_code = '38843'
+          expect { subject.create_or_update_info(:post, address) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_ADDR200')
+          end
+        end
+      end
+    end
   end
 
   describe '#put_address' do
@@ -336,18 +338,18 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
       end
     end
 
-    #   context 'when an ID is included' do
-    #     it 'raises an exception' do
-    #       VCR.use_cassette('va_profile/profile_information/post_telephone_w_id_error', VCR::MATCH_EVERYTHING) do
-    #         telephone.id = 42
-    #         expect { subject.create_or_update_info(:post, telephone) }.to raise_error do |e|
-    #           expect(e).to be_a(Common::Exceptions::BackendServiceException)
-    #           expect(e.status_code).to eq(400)
-    #           expect(e.errors.first.code).to eq('VET360_PHON124')
-    #         end
-    #       end
-    #     end
-    #   end
+    context 'when an ID is included' do
+      it 'raises an exception' do
+        VCR.use_cassette('va_profile/profile_information/post_telephone_w_id_error', VCR::MATCH_EVERYTHING) do
+          telephone.id = 42
+          expect { subject.create_or_update_info(:post, telephone) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_PHON124')
+          end
+        end
+      end
+    end
   end
 
   describe '#put_permission' do
@@ -378,18 +380,18 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
       end
     end
 
-    # context 'when an ID is included' do
-    #   it 'raises an exception' do
-    #     VCR.use_cassette('va_profile/profile_information/post_permission_w_id_error', VCR::MATCH_EVERYTHING) do
-    #       permission.id = 401
-    #       expect { subject.create_or_update_info(:post, permission) }.to raise_error do |e|
-    #         expect(e).to be_a(Common::Exceptions::BackendServiceException)
-    #         expect(e.status_code).to eq(502)
-    #         expect(e.errors.first.code).to eq('VET360_502')
-    #       end
-    #     end
-    #   end
-    # end
+    context 'when an ID is included' do
+      it 'raises an exception' do
+        VCR.use_cassette('va_profile/profile_information/post_permission_w_id_error', VCR::MATCH_EVERYTHING) do
+          permission.id = 401
+          expect { subject.create_or_update_info(:post, permission) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(502)
+            expect(e.errors.first.code).to eq('VET360_502')
+          end
+        end
+      end
+    end
   end
   # rubocop:disable Layout/LineLength
   # describe '#get_telephone_transaction_status' do

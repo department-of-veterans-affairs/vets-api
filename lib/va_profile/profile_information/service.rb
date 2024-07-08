@@ -2,23 +2,16 @@
 
 require 'common/client/concerns/monitoring'
 require 'common/client/errors'
-require 'common/exceptions/backend_service_exception'
 require 'va_profile/service'
 require 'va_profile/stats'
-require 'va_profile/models/address'
-require 'va_profile/models/email'
-require 'va_profile/models/permission'
-require 'va_profile/models/person'
-require 'va_profile/models/telephone'
 require_relative 'configuration'
 require_relative 'transaction_response'
 require_relative 'person_response'
 
 module VAProfile
   module ProfileInformation
-    class Service < Common::Client::Base
+    class Service < VAProfile::Service
       include Common::Client::Concerns::Monitoring
-      include ERB::Util
 
       STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.profile_information".freeze
       configuration VAProfile::ProfileInformation::Configuration
@@ -38,20 +31,25 @@ module VAProfile
         work_phone: 'Work phone number'
       }.freeze
 
-      attr_reader :user
-
-      def initialize(user)
-        @user = user
-        super()
-      end
-
       def get_response(type)
         with_monitoring do
           icn_with_aaid_present!
           model = "VAProfile::Models::#{type.capitalize}".constantize
-          raw_response = perform(:post, path, '')
+          binding.pry
+          raw_response = perform(:post, path, { bios: [{ bioPath: 'bio' }] })
           response = model.response_class(raw_response)
+          Sentry.set_extras(response.debug_data) unless response.ok?
           response
+        end
+      rescue Common::Client::Errors::ClientError => e
+        if e.status == 404
+          log_exception_to_sentry(
+            e,
+            { vet360_id: @user.vet360_id },
+            { va_profile: :person_not_found },
+            :warning
+          )
+          return PersonResponse.new(404, person: nil)
         end
       rescue => e
         handle_error(e)
@@ -77,15 +75,13 @@ module VAProfile
           update_path = record.try(:permission_type).present? ? 'permissions' : record.contact_info_attr.pluralize
           raw_response = perform(http_verb, update_path, record.in_json)
           response = model.transaction_response_class.from(raw_response)
-          if http_verb == :put && record.contact_info_attr == 'email' && old_email.present?
+          return response unless http_verb == :put && record.contact_info_attr == 'email' && old_email.present?
 
-            transaction = response.transaction
-            return response unless transaction.received?
+          transaction = response.transaction
+          return response unless transaction.received?
 
-            # Create OldEmail to send notification to user's previous email
-            OldEmail.create(transaction_id: transaction.id, email: old_email)
-          end
-          response
+          # Create OldEmail to send notification to user's previous email
+          OldEmail.create(transaction_id: transaction.id, email: old_email)
         end
       rescue => e
         handle_error(e)

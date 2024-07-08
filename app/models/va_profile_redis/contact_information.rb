@@ -182,7 +182,7 @@ module VAProfileRedis
       return contact_info_service.get_person unless VAProfile::Configuration::SETTINGS.contact_information.cache_enabled
 
       do_cached_with(key: @user.uuid) do
-        contact_info_service.get_person
+        contact_info_service.get_response('person')
       end
     end
 
