@@ -4,7 +4,7 @@ module RepresentationManagement
   module V0
     class PdfGenerator2122aController < RepresentationManagement::V0::PdfGeneratorBaseController
       def create
-        form = RepresentationManagement::Form2122aData.new(flatten_form_params(form_params))
+        form = RepresentationManagement::Form2122aData.new(flatten_form_params)
 
         if form.valid?
           render json: { message: 'Form is valid' }, status: :created
@@ -43,15 +43,15 @@ module RepresentationManagement
         ]
       end
 
-      def flatten_form_params(all_params)
+      def flatten_form_params
         {
-          record_consent: all_params[:record_consent],
-          consent_limits: all_params[:consent_limits],
-          consent_address_change: all_params[:consent_address_change],
-          conditions_of_appointment: all_params[:conditions_of_appointment]
-        }.merge(flatten_veteran_params(all_params))
-          .merge(flatten_claimant_params(all_params))
-          .merge(flatten_representative_params(all_params))
+          record_consent: form_params[:record_consent],
+          consent_limits: form_params[:consent_limits],
+          consent_address_change: form_params[:consent_address_change],
+          conditions_of_appointment: form_params[:conditions_of_appointment]
+        }.merge(flatten_veteran_params(form_params))
+          .merge(flatten_claimant_params(form_params))
+          .merge(flatten_representative_params(form_params))
       end
 
       def flatten_veteran_params(veteran_params)
