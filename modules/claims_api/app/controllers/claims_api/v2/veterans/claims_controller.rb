@@ -74,6 +74,7 @@ module ClaimsApi
           if lighthouse_claim.present? && bgs_claim.present?
             bgs_details = bgs_claim[:benefit_claim_details_dto]
             structure = build_claim_structure(
+              'show',
               data: bgs_details,
               lighthouse_id: lighthouse_claim.id,
               upstream_id: bgs_details[:benefit_claim_id]
@@ -86,14 +87,14 @@ module ClaimsApi
             }
           else
             bgs_details = bgs_claim[:benefit_claim_details_dto]
-            structure = build_claim_structure(data: bgs_details,
+            structure = build_claim_structure('show',
+                                              data: bgs_details,
                                               lighthouse_id: nil,
                                               upstream_id: bgs_details[:benefit_claim_id])
           end
           structure.merge!(errors: get_errors(lighthouse_claim))
           structure.merge!(supporting_documents: build_supporting_docs(bgs_claim))
           structure.merge!(tracked_items: map_bgs_tracked_items(bgs_claim))
-          structure.merge!(build_claim_phase_attributes(bgs_claim, 'show'))
         end
 
         def map_claims(bgs_claims:, lighthouse_claims:)
@@ -116,8 +117,8 @@ module ClaimsApi
           @unmatched_lighthouse_claims = @unmatched_lighthouse_claims.where.not(id: matching_claim.id) if matching_claim
 
           # We either want the ID or nil for the lighthouse_id
-          build_claim_structure(data: bgs_claim, lighthouse_id: matching_claim&.id,
-                                upstream_id: bgs_claim[:benefit_claim_id])
+          build_claim_structure('index', data: bgs_claim, lighthouse_id: matching_claim&.id,
+                                         upstream_id: bgs_claim[:benefit_claim_id])
         end
 
         def handle_remaining_lh_claims(mapped_claims, lighthouse_claims)
@@ -177,12 +178,12 @@ module ClaimsApi
           claim_id.to_s.include?('-')
         end
 
-        def build_claim_structure(data:, lighthouse_id:, upstream_id:) # rubocop:disable Metrics/MethodLength
+        def build_claim_structure(view, data:, lighthouse_id:, upstream_id:) # rubocop:disable Metrics/MethodLength
           {
             base_end_prdct_type_cd: data[:base_end_prdct_type_cd],
             claim_date: date_present(data[:claim_dt]),
             claim_id: upstream_id,
-            claim_phase_dates: build_claim_phase_attributes(data, 'index'),
+            claim_phase_dates: build_claim_phase_attributes(data, view),
             claim_type_code: data[:bnft_claim_type_cd],
             claim_type: data[:claim_status_type],
             close_date: data[:claim_complete_dt].present? ? format_bgs_date(data[:claim_complete_dt]) : nil,
@@ -216,7 +217,7 @@ module ClaimsApi
         end
 
         def current_phase_back(data)
-          lc_status_array = [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten
+          lc_status_array = [data&.dig(:bnft_claim_lc_status)].flatten
           return false if lc_status_array.nil?
 
           return false if lc_status_array.first&.dig(:phase_type_change_ind).nil?
@@ -228,13 +229,15 @@ module ClaimsApi
         end
 
         def latest_phase_type_change_indicator(data)
-          [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.first&.dig(:phase_type_change_ind)
+          [data&.dig(:bnft_claim_lc_status)].flatten.first&.dig(:phase_type_change_ind)
         end
 
         def latest_phase_type(data)
-          return if data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status).nil?
-
-          latest = [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.first&.dig(:phase_type)
+          if data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status).present?
+            latest = [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.first&.dig(:phase_type)
+          elsif data&.dig(:bnft_claim_lc_status).present?
+            latest = [data&.dig(:bnft_claim_lc_status)].flatten.first&.dig(:phase_type)
+          end
           return bgs_phase_status_mapper.get_phase_type_from_dictionary(latest.downcase) unless latest.nil?
 
           indicator = latest_phase_type_change_indicator(data).split('')
@@ -261,8 +264,13 @@ module ClaimsApi
         end
 
         def get_bgs_phase_completed_dates(data)
-          lc_status_array =
-            [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten&.compact
+          if data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status).present?
+            lc_status_array =
+              [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten&.compact
+          elsif data&.dig(:bnft_claim_lc_status).present?
+            lc_status_array =
+              [data&.dig(:bnft_claim_lc_status)].flatten&.compact
+          end
           return {} if lc_status_array&.first&.nil?
 
           max_completed_phase = lc_status_array&.first&.[](:phase_type_change_ind)&.split('')&.last
@@ -572,17 +580,15 @@ module ClaimsApi
           case view
           when 'show'
             {
-              claim_phase_dates:
-                {
-                  phase_change_date: format_bgs_phase_chng_dates(bgs_claim[:benefit_claim_details_dto]),
-                  current_phase_back: current_phase_back(bgs_claim),
-                  latest_phase_type: latest_phase_type(bgs_claim),
-                  previous_phases: get_bgs_phase_completed_dates(bgs_claim)
-                }
+              phase_change_date: format_bgs_phase_chng_dates(bgs_claim),
+              current_phase_back: current_phase_back(bgs_claim),
+              latest_phase_type: latest_phase_type(bgs_claim),
+              previous_phases: get_bgs_phase_completed_dates(bgs_claim)
             }
           when 'index'
             {
-              phase_change_date: format_bgs_phase_chng_dates(bgs_claim)
+              phase_change_date: format_bgs_phase_chng_dates(bgs_claim),
+              phase_type: bgs_phase_status_mapper.get_phase_type_from_dictionary(bgs_claim[:phase_type].downcase)
             }
           end
         end
