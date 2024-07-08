@@ -48,7 +48,7 @@ RSpec.describe 'Folders Integration', type: :request do
     describe '#index' do
       it 'responds to GET #index' do
         VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders') do
-          get '/my_health/v1/messaging/folders'
+          get '/my_health/v1/messaging/folders', params: { page: 3, per_page: 5 }
         end
 
         expect(response).to be_successful
@@ -58,7 +58,7 @@ RSpec.describe 'Folders Integration', type: :request do
 
       it 'responds to GET #index when camel-inflected' do
         VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders') do
-          get '/my_health/v1/messaging/folders', headers: inflection_header
+          get '/my_health/v1/messaging/folders', headers: inflection_header, params: { page: 3, per_page: 5 }
         end
 
         expect(response).to be_successful

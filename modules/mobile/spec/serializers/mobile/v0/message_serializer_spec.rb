@@ -2,15 +2,15 @@
 
 require 'rails_helper'
 
-describe Mobile::V0::MessageSerializer do
-  let(:message) { build_stubbed(:message, :with_attachments) }
+describe Mobile::V0::MessageSerializer, type: :serializer do
+  subject { serialize(message, serializer_class: described_class) }
 
-  let(:rendered_hash) do
-    ActiveModelSerializers::SerializableResource.new(message, { serializer: described_class }).as_json
-  end
-  let(:rendered_relationships) { rendered_hash[:data][:relationships] }
+  let(:message) { build_stubbed(:message, :with_attachments) }
+  let(:data) { JSON.parse(subject)['data'] }
+  let(:attributes) { data['attributes'] }
+  let(:relationships) { data['relationships'] }
 
   it 'includes :attachments' do
-    expect(rendered_relationships[:attachments][:data].size).to eq message.attachments.size
+    expect(relationships['attachments']['data'].size).to eq message.attachments.size
   end
 end
