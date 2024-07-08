@@ -59,8 +59,6 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
   end
 
   def load_user(skip_terms_check: false)
-    skip_terms_check = true if Settings.vsp_environment == 'production'
-
     if cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME]
       super()
     else
