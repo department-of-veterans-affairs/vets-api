@@ -15,24 +15,8 @@ module V0
     private
 
     # This method, declared in `FormAttachmentCreate`, is responsible for uploading file data to S3.
-    def save_attachment_to_cloud! # rubocop:disable Metrics/MethodLength
-      # `form_attachment` is declared in `FormAttachmentCreate`, included above.
-      form_attachment_guid = form_attachment&.guid
-      password = filtered_params[:password]
-
+    def save_attachment_to_cloud!
       save_validation_data(form_attachment_guid:, password:)
-
-      common_log_params = {
-        key: :evidence_upload_to_s3,
-        form_id: get_form_id_from_request_headers,
-        user_uuid: current_user.uuid,
-        downstream_system: 'AWS S3',
-        params: {
-          form_attachment_guid:,
-          encrypted: password.present?
-        }
-      }
-
       # Unlock pdf with hexapdf instead of using pdftk
       if password.present? && Flipper.enabled?(:decision_review_use_hexapdf_for_encrypted_attachments)
         unlocked_pdf = unlock_pdf(filtered_params[:file_data], password)
@@ -45,6 +29,28 @@ module V0
     rescue => e
       log_formatted(**common_log_params.merge(is_success: false, response_error: e))
       raise e
+    end
+
+    def common_log_params
+      {
+        key: :evidence_upload_to_s3,
+        form_id: get_form_id_from_request_headers,
+        user_uuid: current_user.uuid,
+        downstream_system: 'AWS S3',
+        params: {
+          form_attachment_guid:,
+          encrypted: password.present?
+        }
+      }
+    end
+
+    def password
+      filtered_params[:password]
+    end
+
+    # `form_attachment` is declared in `FormAttachmentCreate`, included above.
+    def form_attachment_guid
+      form_attachment&.guid
     end
 
     def unlock_pdf(file, password)
