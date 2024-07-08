@@ -7,7 +7,8 @@ module V0
     # skip_before_action :load_user
 
     def create
-      claim = SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form], user_accounts_id: current_user.user_account_uuid)
+      claim = SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form],
+                                                              user_account_id: current_user&.user_account_uuid)
 
       if claim.save
         VRE::Submit1900Job.perform_async(claim.id, current_user.uuid)
