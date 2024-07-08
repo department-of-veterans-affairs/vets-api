@@ -84,13 +84,9 @@ spec:
             failureThreshold: {{ $root.Values.web.startupProbe.failureThreshold }}
             successThreshold: {{ $root.Values.web.startupProbe.successThreshold }}
           {{- end }}
-          readinessProbe: #ensure container is ready to start accepting traffic
-            httpGet:
-              path: {{ $root.Values.web.readinessProbe.requestPath }}
-              port: {{ $root.Values.web.readinessProbe.port }}
-              httpHeaders:
-                - name: Host
-                  value: {{ $service.healthCheck.host | default $root.Values.web.healthCheck.host }}
+          readinessProbe: # ensure container is ready to accept traffic
+            exec:
+              command: {{ $root.Values.web.readinessProbe.command }}
             initialDelaySeconds: {{ $root.Values.web.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ $root.Values.web.readinessProbe.periodSeconds }}
             successThreshold: {{ $root.Values.web.readinessProbe.successThreshold }}
