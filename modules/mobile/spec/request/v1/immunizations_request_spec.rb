@@ -2,7 +2,7 @@
 
 require_relative '../../support/helpers/rails_helper'
 
-RSpec.describe 'immunizations', skip_json_api_validation: true, type: :request do
+RSpec.describe 'immunizations', :skip_json_api_validation, type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '9000682') }
@@ -109,6 +109,24 @@ RSpec.describe 'immunizations', skip_json_api_validation: true, type: :request d
         expect(response.parsed_body['data'][0]['attributes']['note']).to eq(
           'Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.'
         )
+      end
+    end
+
+    context 'when token service returns an error' do
+      before do
+        VCR.use_cassette('mobile/lighthouse_health/get_immunizations_token_too_many_error',
+                         match_requests_on: %i[method uri]) do
+          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 12, number: 1 } }
+        end
+      end
+
+      it 'returns a 502' do
+        expect(response).to have_http_status(:bad_gateway)
+        error = { 'errors' => [{ 'title' => 'Bad Gateway',
+                                 'detail' => 'Received an an invalid response from the upstream server',
+                                 'code' => 'MOBL_502_upstream_error',
+                                 'status' => '502' }] }
+        expect(response.parsed_body).to eq(error)
       end
     end
 
@@ -263,17 +281,10 @@ RSpec.describe 'immunizations', skip_json_api_validation: true, type: :request d
         end
 
         dates = response.parsed_body['data'].collect { |i| i['attributes']['date'] }
-        expect(dates).to match_array(['2022-03-13T09:59:25Z',
-                                      '2021-05-09T09:59:25Z',
-                                      '2021-04-18T09:59:25Z',
-                                      '2020-03-01T09:59:25Z',
-                                      '2020-03-01T09:59:25Z',
-                                      '2019-02-24T09:59:25Z',
-                                      '2018-02-18T09:59:25Z',
-                                      '2017-02-12T09:59:25Z',
-                                      '2016-02-07T09:59:25Z',
-                                      '2015-02-01T09:59:25Z',
-                                      '2014-01-26T09:59:25Z'])
+        expect(dates).to contain_exactly('2022-03-13T09:59:25Z', '2021-05-09T09:59:25Z', '2021-04-18T09:59:25Z',
+                                         '2020-03-01T09:59:25Z', '2020-03-01T09:59:25Z', '2019-02-24T09:59:25Z',
+                                         '2018-02-18T09:59:25Z', '2017-02-12T09:59:25Z', '2016-02-07T09:59:25Z',
+                                         '2015-02-01T09:59:25Z', '2014-01-26T09:59:25Z')
       end
     end
 

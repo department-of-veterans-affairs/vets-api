@@ -153,14 +153,32 @@ class Form526Submission < ApplicationRecord
              inverse_of: false
 
   has_many :form526_job_statuses, dependent: :destroy
+  has_many :form526_submission_remediations, dependent: :destroy
   belongs_to :user_account, dependent: nil, optional: true
 
   validates(:auth_headers_json, presence: true)
+  enum backup_submitted_claim_status: { accepted: 0, rejected: 1 }
   enum submit_endpoint: { evss: 0, claims_api: 1, benefits_intake_api: 2 }
 
   scope :pending_backup_submissions, lambda {
     where(aasm_state: 'delivered_to_backup')
       .where.not(backup_submitted_claim_id: nil)
+  }
+  scope :in_process, lambda {
+    where(submitted_claim_id: nil, backup_submitted_claim_status: nil)
+      .where('created_at >= ?', MAX_PENDING_TIME.ago)
+  }
+  scope :success_type, lambda {
+    left_joins(:form526_submission_remediations)
+      .where.not(submitted_claim_id: nil)
+      .where(backup_submitted_claim_status: nil)
+      .or(where.not(backup_submitted_claim_id: nil)
+        .where(backup_submitted_claim_status: backup_submitted_claim_statuses[:accepted]))
+      .or(where(form526_submission_remediations: { success: true }))
+  }
+  scope :failure_type, lambda {
+    where.not(id: in_process.select(:id))
+         .where.not(id: success_type.select(:id))
   }
 
   def log_status_change
@@ -181,6 +199,7 @@ class Form526Submission < ApplicationRecord
   FLASHES = 'flashes'
   BIRLS_KEY = 'va_eauth_birlsfilenumber'
   SUBMIT_FORM_526_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
+  MAX_PENDING_TIME = 3.days
 
   # Called when the DisabilityCompensation form controller is ready to hand off to the backend
   # submission process. Currently this passes directly to the retryable EVSS workflow, but if any
@@ -517,6 +536,26 @@ class Form526Submission < ApplicationRecord
     end
   end
 
+  def duplicate?
+    last_remediation&.ignored_as_duplicate || false
+  end
+
+  def remediated?
+    last_remediation&.success || false
+  end
+
+  def failure_type?
+    !success_type? && !in_process?
+  end
+
+  def success_type?
+    self.class.success_type.exists?(id:)
+  end
+
+  def in_process?
+    self.class.in_process.exists?(id:)
+  end
+
   private
 
   attr_accessor :lighthouse_validation_response
@@ -525,7 +564,9 @@ class Form526Submission < ApplicationRecord
   # Lighthouse calls the user_account.icn the "ID of Veteran"
   #
   def lighthouse_service
-    BenefitsClaims::Service.new(user_account.icn)
+    account = user_account ||
+              Account.lookup_by_user_uuid(user_uuid)
+    BenefitsClaims::Service.new(account.icn)
   end
 
   def handle_validation_error(e)
@@ -616,5 +657,9 @@ class Form526Submission < ApplicationRecord
 
   def cleanup
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
+  end
+
+  def last_remediation
+    form526_submission_remediations&.order(:created_at)&.last
   end
 end

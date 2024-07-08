@@ -74,6 +74,21 @@ RSpec.describe 'V0::Avs', type: :request do
       expect(response).to have_http_status(:bad_request)
     end
 
+    it 'returns error when sid is too short' do
+      get '/avs/v0/avs/3e8535e743ce63ed333ebbbb67626'
+      expect(response).to have_http_status(:bad_request)
+    end
+
+    it 'returns error when sid is too long' do
+      get '/avs/v0/avs/5e68a88a158a70da31e48c0bf02243545e68a88a1'
+      expect(response).to have_http_status(:bad_request)
+    end
+
+    it 'returns error when sid is not in hex format' do
+      get '/avs/v0/avs/5e68a88a158a70da31e48c0bf0224354z'
+      expect(response).to have_http_status(:bad_request)
+    end
+
     it 'returns empty response found when AVS not found for sid' do
       VCR.use_cassette('avs/show/not_found') do
         get '/avs/v0/avs/9A7AF40B2BC2471EA116891839113253'

@@ -20,7 +20,7 @@ module SearchTypeahead
     attr_reader :query
 
     def initialize(query)
-      @query = query
+      @query = query || ''
     end
 
     # GETs suggestion data from search.gov
