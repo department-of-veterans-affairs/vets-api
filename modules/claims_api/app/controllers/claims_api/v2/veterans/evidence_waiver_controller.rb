@@ -46,6 +46,7 @@ module ClaimsApi
 
         def validate_file_number!
           claimant_id = params[:sponsorIcn] || params[:veteranId]
+
           file_number_check(icn: claimant_id)
 
           if @file_number.nil?
@@ -67,7 +68,7 @@ module ClaimsApi
 
           pctpnt_clmant_id = @bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_clmant_id)
           if target_veteran.participant_id != pctpnt_vet_id && target_veteran.participant_id != pctpnt_clmant_id
-            raise ::Common::Exceptions::ResourceNotFound.new(detail:
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail:
               'Claim does not belong to this veteran')
           end
 
