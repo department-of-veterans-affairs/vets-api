@@ -49,22 +49,76 @@ describe SignIn::Logingov::Service do
   let(:state) { 'some-state' }
   let(:acr) { 'some-acr' }
   let(:operation) { 'some-operation' }
+  let(:optional_scopes) { ['all_emails'] }
   let(:current_time) { 1_692_663_038 }
   let(:expiration_time) { 1_692_663_938 }
 
   describe '#render_auth' do
     let(:response) { subject.render_auth(state:, acr:, operation:).to_s }
+    let(:expected_scopes) { ['profile', 'profile:verified_at', 'address', 'email', 'openid', 'social_security_number'] }
+    let(:expected_scope_query) { "scope=#{CGI.escape(expected_scopes.join(' '))}" }
+    let(:expected_optional_scopes) { described_class::OPTIONAL_SCOPES & optional_scopes }
+
     let(:expected_log) do
-      "[SignIn][Logingov][Service] Rendering auth, state: #{state}, acr: #{acr}, operation: #{operation}"
+      "[SignIn][Logingov][Service] Rendering auth, state: #{state}, acr: #{acr}, operation: #{operation}, " \
+        "optional_scopes: #{expected_optional_scopes}"
     end
 
-    it 'logs information to rails logger' do
-      expect(Rails.logger).to receive(:info).with(expected_log)
-      response
+    context 'when the optional scopes are not provided' do
+      let(:optional_scopes) { [] }
+
+      it 'logs information to rails logger' do
+        expect(Rails.logger).to receive(:info).with(expected_log)
+        response
+      end
+
+      it 'renders the expected redirect uri' do
+        expect(response).to include(expected_authorization_page)
+      end
+
+      it 'contains the expected scopes' do
+        expect(response).to include(expected_scope_query)
+      end
     end
 
-    it 'renders the expected redirect uri' do
-      expect(response).to include(expected_authorization_page)
+    context 'when the optional scopes are provided' do
+      subject { described_class.new(optional_scopes:) }
+
+      let(:expected_scopes) do
+        ['profile', 'profile:verified_at', 'address', 'email', 'openid', 'social_security_number', 'all_emails']
+      end
+
+      context 'when it is a valid scope' do
+        it 'logs information to rails logger' do
+          expect(Rails.logger).to receive(:info).with(expected_log)
+          response
+        end
+
+        it 'renders the expected redirect uri' do
+          expect(response).to include(expected_authorization_page)
+        end
+
+        it 'contains the expected scopes' do
+          expect(response).to include(expected_scope_query)
+        end
+      end
+
+      context 'when it is an invalid scope' do
+        let(:optional_scopes) { ['invalid_scope'] }
+        let(:expected_scopes) do
+          ['profile', 'profile:verified_at', 'address', 'email', 'openid', 'social_security_number']
+        end
+
+        it 'logs information to rails logger' do
+          expect(Rails.logger).to receive(:info).with(expected_log)
+
+          response
+        end
+
+        it 'contains the expected scopes' do
+          expect(response).to include(expected_scope_query)
+        end
+      end
     end
   end
 
