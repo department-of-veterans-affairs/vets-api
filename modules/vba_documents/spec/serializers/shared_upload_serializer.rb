@@ -56,7 +56,9 @@ RSpec.shared_examples 'VBADocuments::UploadSerializer' do
       allow(upload_submission).to receive(:get_location).and_return('http://another.fakesite.com/rewrittenpath')
     end
 
-    let(:response) { serialize(upload_submission, { serializer_class: described_class, render_location: true }) }
+    let(:response) do
+      serialize(upload_submission, { serializer_class: described_class, params: { render_location: true } })
+    end
     let(:attributes_location) { JSON.parse(response)['data']['attributes'] }
 
     it 'includes :location' do
@@ -76,7 +78,7 @@ RSpec.shared_examples 'VBADocuments::UploadSerializer' do
     end
 
     it 'raises an internal server error' do
-      expect { serialize(upload_submission, { serializer_class: described_class, render_location: true }) }
+      expect { serialize(upload_submission, { serializer_class: described_class, params: { render_location: true } }) }
         .to raise_error(Common::Exceptions::InternalServerError, 'Internal server error')
     end
   end
