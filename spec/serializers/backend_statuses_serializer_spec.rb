@@ -24,8 +24,9 @@ describe BackendStatusesSerializer do
   end
 
   context 'when maintence_windows is present' do
-    let(:maintenance_windows) { [build_stubbed(:maintenance_window)] }
     subject { serialize(pagerduty_response, { serializer_class: described_class, params: { maintenance_windows: } }) }
+
+    let(:maintenance_windows) { [build_stubbed(:maintenance_window)] }
 
     it 'includes :maintence_windows' do
       expect(attributes['maintenance_windows'].size).to eq maintenance_windows.size
