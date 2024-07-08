@@ -150,7 +150,7 @@ FactoryBot.define do
       end
     end
 
-    trait :va_booked do
+    trait :va_booked_base do
       kind { 'clinic' }
       status { 'booked' }
       location_id { '983' }
@@ -165,11 +165,29 @@ FactoryBot.define do
           'desired_date': DateTime.new(2022, 11, 30)
         }
       end
+    end
+
+    trait :va_booked do
+      va_booked_base
       reason_code do
         { 'coding' => [
             'code': 'Routine Follow-up'
           ],
           'text': 'testing' }
+      end
+    end
+
+    trait :va_booked_valid_reason_code_text do
+      va_booked_base
+      reason_code do
+        { 'text': 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code:ROUTINEVISIT|comments:test' } # rubocop:disable Layout/LineLength
+      end
+    end
+
+    trait :va_booked_invalid_reason_code_text do
+      va_booked_base
+      reason_code do
+        { 'text': 'invalidpair|:::||' }
       end
     end
 

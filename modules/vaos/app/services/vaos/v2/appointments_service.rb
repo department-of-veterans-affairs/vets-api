@@ -41,6 +41,7 @@ module VAOS
           appointments = response.body[:data]
           appointments.each do |appt|
             prepare_appointment(appt)
+            extract_reason_code_fields(appt)
             merge_clinic(appt) if include[:clinics]
             merge_facility(appt) if include[:facilities]
             cnp_count += 1 if cnp?(appt)
@@ -68,6 +69,7 @@ module VAOS
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
           appointment = response.body[:data]
           prepare_appointment(appointment)
+          extract_reason_code_fields(appointment)
           OpenStruct.new(appointment)
         end
       end
@@ -95,6 +97,7 @@ module VAOS
           new_appointment = response.body
           convert_appointment_time(new_appointment)
           find_and_merge_provider_name(new_appointment) if new_appointment[:kind] == 'cc'
+          extract_reason_code_fields(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if params[:status] == 'booked'
@@ -113,6 +116,7 @@ module VAOS
           else
             response = update_appointment_vaos(appt_id, status)
             convert_appointment_time(response.body)
+            extract_reason_code_fields(response.body)
             OpenStruct.new(response.body)
           end
         end
@@ -165,6 +169,29 @@ module VAOS
       memoize :get_facility_timezone_memoized
 
       private
+
+      # Modifies the appointment, extracting individual fields from the reason code text whenever possible.
+      #
+      # @param appointment [Hash] the appointment to modify
+      def extract_reason_code_fields(appointment)
+        # Retrieve the reason code text, or return if it is not present
+        reason_code_text = appointment&.dig(:reason_code, :text)
+        return if reason_code_text.nil?
+
+        # Convert the text to a hash for querying, or return if no valid key value pairs are found
+        reason_code_hash = reason_code_text.split('|')
+                                           .select { |pair| pair.count(':') == 1 }
+                                           .to_h { |pair| pair.split(':').map!(&:strip) }
+        return if reason_code_hash.empty?
+
+        # Extract contact fields from hash
+        if reason_code_hash.key?('phone number') || reason_code_hash.key?('email')
+          contact_info = []
+          contact_info.push({ system: 'phone', value: reason_code_hash['phone number'] })
+          contact_info.push({ system: 'email', value: reason_code_hash['email'] })
+          appointment[:contact] = contact_info
+        end
+      end
 
       # Modifies params so that the facility timezone offset is included in the desired date.
       # The desired date is sent in this format: 2019-12-31T00:00:00-00:00
