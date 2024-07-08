@@ -33,13 +33,10 @@ module VAProfile
 
       def get_response(type)
         with_monitoring do
-          icn_with_aaid_present!
+          vet360_id_present!
           model = "VAProfile::Models::#{type.capitalize}".constantize
-          binding.pry
-          raw_response = perform(:post, path, { bios: [{ bioPath: 'bio' }] })
-          response = model.response_class(raw_response)
-          Sentry.set_extras(response.debug_data) unless response.ok?
-          response
+          raw_response = perform(:get, @user.vet360_id)
+          model.response_class(raw_response)
         end
       rescue Common::Client::Errors::ClientError => e
         if e.status == 404
@@ -49,15 +46,41 @@ module VAProfile
             { va_profile: :person_not_found },
             :warning
           )
-          return PersonResponse.new(404, person: nil)
+          PersonResponse.new(404, person: nil)
         end
+      rescue => e
+        handle_error(e)
+      end
+
+      def get_person
+        with_monitoring do
+          vet360_id_present!
+          raw_response = perform(:get, @user.vet360_id)
+
+          PersonResponse.from(raw_response)
+        end
+      rescue Common::Client::Errors::ClientError => e
+        if e.status == 404
+          log_exception_to_sentry(
+            e,
+            { vet360_id: @user.vet360_id },
+            { va_profile: :person_not_found },
+            :warning
+          )
+
+          return PersonResponse.new(404, person: nil)
+        elsif e.status >= 400 && e.status < 500
+          return PersonResponse.new(e.status, person: nil)
+        end
+
+        handle_error(e)
       rescue => e
         handle_error(e)
       end
 
       def self.get_person(vet360_id)
         stub_user = OpenStruct.new(vet360_id:)
-        new(stub_user).get_response('person')
+        new(stub_user).get_person
       end
 
       # def submit(params)
@@ -113,6 +136,10 @@ module VAProfile
 
       def icn_with_aaid_present!
         raise 'User does not have a icn' if icn_with_aaid.blank?
+      end
+
+      def vet360_id_present!
+        raise 'User does not have a vet360_id' if @user&.vet360_id.blank?
       end
 
       def path

@@ -7,15 +7,15 @@ module VAProfile
   module ProfileInformation
     class PersonResponse < VAProfile::Response
       attribute :person, VAProfile::Models::Person
-      attribute :messages, Array[VAProfile::Models::Message]
+      # attribute :messages, Array[VAProfile::Models::Message]
 
-      def initialize(response)
-        body = response.body
-        person = body.dig('profile', 'bio')
-        messages = body['messages']
-        va_profile_tx_audit_id = response.response_headers['vaprofiletxauditid']
-        super(response.status, { person:, messages:, va_profile_tx_audit_id: })
-      end
+      # def initialize(response)
+      #   body = response.body
+      #   person = body.dig('profile', 'bio')
+      #   messages = body['messages']
+      #   va_profile_tx_audit_id = response.response_headers['vaprofiletxauditid']
+      #   super(response.status, { person:, messages:, va_profile_tx_audit_id: })
+      # end
 
       def self.from(raw_response = nil)
         @response_body = raw_response&.body
@@ -29,14 +29,14 @@ module VAProfile
         super || (status >= 400 && status < 500)
       end
 
-      private
+      # private
 
-      def message
-        m = messages&.first
-        return '' unless m
+      # def message
+      #   m = messages&.first
+      #   return '' unless m
 
-        "#{m.code} #{m.key} #{m.text}"
-      end
+      #   "#{m.code} #{m.key} #{m.text}"
+      # end
     end
   end
 end

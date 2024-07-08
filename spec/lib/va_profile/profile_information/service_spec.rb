@@ -24,159 +24,159 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
-          response = subject.get_response('person')
+          response = subject.get_person
           expect(response).to be_ok
           expect(response.person).to be_a(VAProfile::Models::Person)
         end
       end
 
-    # it 'supports international provinces' do
-    #   VCR.use_cassette('va_profile/profile_information/person_intl_addr', VCR::MATCH_EVERYTHING) do
-    #     response = subject.get_response('person')
+      it 'supports international provinces' do
+        VCR.use_cassette('va_profile/profile_information/person_intl_addr', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person
 
-    #     expect(response.person.addresses[0].province).to eq('province')
-    #   end
-    # end
+          expect(response.person.addresses[0].province).to eq('province')
+        end
+      end
 
-    # it 'has a bad address' do
-    #   VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
-    #     response = subject.get_response('person')
+      it 'has a bad address' do
+        VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person
 
-    #     expect(response.person.addresses[0].bad_address).to eq(true)
-    #   end
+          expect(response.person.addresses[0].bad_address).to eq(true)
+        end
+      end
+    end
+
+    context 'when not successful' do
+      let(:vet360_id) { '6767671' }
+
+      context 'with a 400 error' do
+        it 'returns nil person' do
+          VCR.use_cassette('va_profile/profile_information/person_error_400', VCR::MATCH_EVERYTHING) do
+            response = subject.get_person
+            expect(response).not_to be_ok
+            expect(response.person).to be_nil
+          end
+        end
+      end
+
+      it 'returns a status of 404' do
+        VCR.use_cassette('va_profile/profile_information/person_error', VCR::MATCH_EVERYTHING) do
+          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
+            instance_of(Common::Client::Errors::ClientError),
+            { vet360_id: user.vet360_id },
+            { va_profile: :person_not_found },
+            :warning
+          )
+
+          response = subject.get_person
+          expect(response).not_to be_ok
+          expect(response.person).to be_nil
+        end
+      end
+    end
+
+    context 'when service returns a 503 error code' do
+      it 'raises a BackendServiceException error' do
+        VCR.use_cassette('va_profile/profile_information/person_status_503', VCR::MATCH_EVERYTHING) do
+          expect { subject.get_person }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(502)
+            expect(e.errors.first.code).to eq('VET360_502')
+          end
+        end
+      end
+    end
+
+    context 'when person response has no body data' do
+      it 'returns 200' do
+        VCR.use_cassette('va_profile/profile_information/person_without_data', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person
+          expect(response).to be_ok
+          expect(response.person).to be_a(VAProfile::Models::Person)
+        end
+      end
     end
   end
 
-  #   context 'when not successful' do
-  #     let(:vet360_id) { '6767671' }
+  describe '.get_person' do
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
+          response = described_class.get_person(vet360_id)
+          expect(response).to be_ok
+          expect(response.person).to be_a(VAProfile::Models::Person)
+        end
+      end
 
-  #     context 'with a 400 error' do
-  #       it 'returns nil person' do
-  #         VCR.use_cassette('va_profile/profile_information/person_error_400', VCR::MATCH_EVERYTHING) do
-  #           response = subject.get_response('person')
-  #           expect(response).not_to be_ok
-  #           expect(response.person).to be_nil
-  #         end
-  #       end
-  #     end
+      it 'supports international provinces' do
+        VCR.use_cassette('va_profile/profile_information/person_intl_addr', VCR::MATCH_EVERYTHING) do
+          response = described_class.get_person(vet360_id)
 
-  #     it 'returns a status of 404' do
-  #       VCR.use_cassette('va_profile/profile_information/person_error', VCR::MATCH_EVERYTHING) do
-  #         expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
-  #           instance_of(Common::Client::Errors::ClientError),
-  #           { vet360_id: user.vet360_id },
-  #           { va_profile: :person_not_found },
-  #           :warning
-  #         )
+          expect(response.person.addresses[0].province).to eq('province')
+        end
+      end
 
-  #         response = subject.get_response('person')
-  #         expect(response).not_to be_ok
-  #         expect(response.person).to be_nil
-  #       end
-  #     end
-  #   end
+      it 'has a bad address' do
+        VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
+          response = described_class.get_person(vet360_id)
 
-  #   context 'when service returns a 503 error code' do
-  #     it 'raises a BackendServiceException error' do
-  #       VCR.use_cassette('va_profile/profile_information/person_status_503', VCR::MATCH_EVERYTHING) do
-  #         expect { subject.get_response('person') }.to raise_error do |e|
-  #           expect(e).to be_a(Common::Exceptions::BackendServiceException)
-  #           expect(e.status_code).to eq(502)
-  #           expect(e.errors.first.code).to eq('VET360_502')
-  #         end
-  #       end
-  #     end
-  #   end
+          expect(response.person.addresses[0].bad_address).to eq(true)
+        end
+      end
+    end
 
-  #   context 'when person response has no body data' do
-  #     it 'returns 200' do
-  #       VCR.use_cassette('va_profile/profile_information/person_without_data', VCR::MATCH_EVERYTHING) do
-  #         response = subject.get_response('person')
-  #         expect(response).to be_ok
-  #         expect(response.person).to be_a(VAProfile::Models::Person)
-  #       end
-  #     end
-  #   end
-  # end
+    context 'when not successful' do
+      let(:vet360_id) { '6767671' }
 
-  # describe '.get_person' do
-  #   context 'when successful' do
-  #     it 'returns a status of 200' do
-  #       VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
-  #         response = described_class.get_person(vet360_id)
-  #         expect(response).to be_ok
-  #         expect(response.person).to be_a(VAProfile::Models::Person)
-  #       end
-  #     end
+      context 'with a 400 error' do
+        it 'returns nil person' do
+          VCR.use_cassette('va_profile/profile_information/person_error_400', VCR::MATCH_EVERYTHING) do
+            response = described_class.get_person(vet360_id)
+            expect(response).not_to be_ok
+            expect(response.person).to be_nil
+          end
+        end
+      end
 
-  #     it 'supports international provinces' do
-  #       VCR.use_cassette('va_profile/profile_information/person_intl_addr', VCR::MATCH_EVERYTHING) do
-  #         response = described_class.get_person(vet360_id)
+      it 'returns a status of 404' do
+        VCR.use_cassette('va_profile/profile_information/person_error', VCR::MATCH_EVERYTHING) do
+          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
+            instance_of(Common::Client::Errors::ClientError),
+            { vet360_id: user.vet360_id },
+            { va_profile: :person_not_found },
+            :warning
+          )
 
-  #         expect(response.person.addresses[0].province).to eq('province')
-  #       end
-  #     end
+          response = described_class.get_person(vet360_id)
+          expect(response).not_to be_ok
+          expect(response.person).to be_nil
+        end
+      end
+    end
 
-  #     it 'has a bad address' do
-  #       VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
-  #         response = described_class.get_person(vet360_id)
+    context 'when service returns a 503 error code' do
+      it 'raises a BackendServiceException error' do
+        VCR.use_cassette('va_profile/profile_information/person_status_503', VCR::MATCH_EVERYTHING) do
+          expect { described_class.get_person(vet360_id) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(502)
+            expect(e.errors.first.code).to eq('VET360_502')
+          end
+        end
+      end
+    end
 
-  #         expect(response.person.addresses[0].bad_address).to eq(true)
-  #       end
-  #     end
-  #   end
-
-  #   context 'when not successful' do
-  #     let(:vet360_id) { '6767671' }
-
-  #     context 'with a 400 error' do
-  #       it 'returns nil person' do
-  #         VCR.use_cassette('va_profile/profile_information/person_error_400', VCR::MATCH_EVERYTHING) do
-  #           response = described_class.get_person(vet360_id)
-  #           expect(response).not_to be_ok
-  #           expect(response.person).to be_nil
-  #         end
-  #       end
-  #     end
-
-  #     it 'returns a status of 404' do
-  #       VCR.use_cassette('va_profile/profile_information/person_error', VCR::MATCH_EVERYTHING) do
-  #         expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
-  #           instance_of(Common::Client::Errors::ClientError),
-  #           { vet360_id: user.vet360_id },
-  #           { va_profile: :person_not_found },
-  #           :warning
-  #         )
-
-  #         response = described_class.get_person(vet360_id)
-  #         expect(response).not_to be_ok
-  #         expect(response.person).to be_nil
-  #       end
-  #     end
-  #   end
-
-  #   context 'when service returns a 503 error code' do
-  #     it 'raises a BackendServiceException error' do
-  #       VCR.use_cassette('va_profile/profile_information/person_status_503', VCR::MATCH_EVERYTHING) do
-  #         expect { described_class.get_person(vet360_id) }.to raise_error do |e|
-  #           expect(e).to be_a(Common::Exceptions::BackendServiceException)
-  #           expect(e.status_code).to eq(502)
-  #           expect(e.errors.first.code).to eq('VET360_502')
-  #         end
-  #       end
-  #     end
-  #   end
-
-  #   context 'when person response has no body data' do
-  #     it 'returns 200' do
-  #       VCR.use_cassette('va_profile/profile_information/person_without_data', VCR::MATCH_EVERYTHING) do
-  #         response = described_class.get_person(vet360_id)
-  #         expect(response).to be_ok
-  #         expect(response.person).to be_a(VAProfile::Models::Person)
-  #       end
-  #     end
-  #   end
-  # end
+    context 'when person response has no body data' do
+      it 'returns 200' do
+        VCR.use_cassette('va_profile/profile_information/person_without_data', VCR::MATCH_EVERYTHING) do
+          response = described_class.get_person(vet360_id)
+          expect(response).to be_ok
+          expect(response.person).to be_a(VAProfile::Models::Person)
+        end
+      end
+    end
+  end
 
   describe '#post_email' do
     let(:email) { build(:email, vet360_id: user.vet360_id, source_system_user: user.icn) }
@@ -228,13 +228,13 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
       #   end
       # end
 
-      it 'returns a status of 200' do
-        VCR.use_cassette('va_profile/profile_information/put_email_success', VCR::MATCH_EVERYTHING) do
-          response = subject.create_or_update_info(:put, email)
-          expect(response.transaction.id).to eq('7d1667a5-df5f-4559-be35-b36042c61187')
-          expect(response).to be_ok
-        end
-      end
+      # it 'returns a status of 200' do
+      #   VCR.use_cassette('va_profile/profile_information/put_email_success', VCR::MATCH_EVERYTHING) do
+      #     response = subject.create_or_update_info(:put, email)
+      #     expect(response.transaction.id).to eq('7d1667a5-df5f-4559-be35-b36042c61187')
+      #     expect(response).to be_ok
+      #   end
+      # end
     end
   end
 
@@ -732,7 +732,7 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
 
   #   context 'when calling #get_person' do
   #     it 'raises an error', :aggregate_failures do
-  #       expect { subject.get_response('person') }.to raise_error do |e|
+  #       expect { subject.get_person }.to raise_error do |e|
   #         expect(e).to be_a(RuntimeError)
   #         expect(e.message).to eq(error_message)
   #       end
