@@ -8,7 +8,7 @@ module BenefitsDocuments
       # Encapsulates convenience methods for understanding if the document has completed all steps in Lighthouse or
       # if there was a failure, to avoid having code elsewhere know the schema of Lighthouse's status data structure
       #
-      # Additionally, updates the state of the LighthouseDocumentUpload in vets-api to reflect
+      # Additionally, updates the state of the Lighthouse526DocumentUpload in vets-api to reflect
       # the current status of the document as it makes its way from Lighthouse > VBMS > BGS
       #
       # Documentation on the Lighthouse '/uploads/status' endpoint is available here:
