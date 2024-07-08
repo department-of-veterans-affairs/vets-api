@@ -93,7 +93,8 @@ type: application
 # 0.12.28 - HPA settings to scale up quickly, and down slowly for web apps
 # 0.12.29 - Parameterize HPA settings for scaling up and scaling down
 # 0.12.30 - Correct HPA references
-version: 0.12.30
+# 0.13.0  - New readinessProbe: is_ready command
+version: 0.13.0
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
