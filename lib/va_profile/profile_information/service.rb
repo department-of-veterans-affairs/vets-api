@@ -93,7 +93,7 @@ module VAProfile
       def get_transaction_status(transaction_id, model)
         with_monitoring do
           icn_with_aaid_present!
-          raw_response = perform(:post, model.transaction_status_path(@user, transaction_id), '')
+          raw_response = perform(:get, model.transaction_status_path(@user, transaction_id))
           VAProfile::Stats.increment_transaction_results(raw_response)
           transaction_status = model.transaction_response_class.from(raw_response, @user)
           return transaction_status unless model.send_change_notifcations?
@@ -146,7 +146,7 @@ module VAProfile
       def send_change_notifications(transaction_status)
         transaction = transaction_status.transaction
         transaction_id = transaction.id
-        return if transaction.completed_success? || TransactionNotification.find(transaction_id).present?
+        return if !transaction.completed_success? || TransactionNotification.find(transaction_id).present?
         email_transaction = transaction_status.try(:new_email).present?
         notify_email = email_transaction ? old_email(transaction_id) : old_email
         return if notify_email.nil?

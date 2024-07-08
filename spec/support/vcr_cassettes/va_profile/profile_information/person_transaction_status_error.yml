@@ -1,8 +1,8 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: https://int.vet360.va.gov/profile-service/profile/v3/status/d47b3d96-9ddd-42be-ac57-8e564aa38029
+    method: get
+    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v2/status/d47b3d96-9ddd-42be-ac57-8e564aa38029
     body:
       encoding: US-ASCII
       string: ''
