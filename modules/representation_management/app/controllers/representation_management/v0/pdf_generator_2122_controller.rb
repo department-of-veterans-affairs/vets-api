@@ -21,18 +21,18 @@ module RepresentationManagement
         )
       end
 
-      def flatten_form_params(params)
+      def flatten_form_params(all_params)
         {
-          organization_name: params[:organization_name],
-          record_consent: params[:record_consent],
-          consent_limits: params[:consent_limits],
-          consent_address_change: params[:consent_address_change]
-        }.merge(flatten_veteran_params(params))
-          .merge(flatten_claimant_params(params))
+          organization_name: all_params[:organization_name],
+          record_consent: all_params[:record_consent],
+          consent_limits: all_params[:consent_limits],
+          consent_address_change: all_params[:consent_address_change]
+        }.merge(flatten_veteran_params(all_params))
+          .merge(flatten_claimant_params(all_params))
       end
 
-      def flatten_veteran_params(params)
-        super.merge(veteran_insurance_numbers: params.dig(:veteran, :insurance_numbers))
+      def flatten_veteran_params(veteran_params)
+        super.merge(veteran_insurance_numbers: veteran_params.dig(:veteran, :insurance_numbers))
       end
     end
   end

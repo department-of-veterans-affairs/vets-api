@@ -43,37 +43,37 @@ module RepresentationManagement
         ]
       end
 
-      def flatten_form_params(params)
+      def flatten_form_params(all_params)
         {
-          record_consent: params[:record_consent],
-          consent_limits: params[:consent_limits],
-          consent_address_change: params[:consent_address_change],
-          conditions_of_appointment: params[:conditions_of_appointment]
-        }.merge(flatten_veteran_params(params))
-          .merge(flatten_claimant_params(params))
-          .merge(flatten_representative_params(params))
+          record_consent: all_params[:record_consent],
+          consent_limits: all_params[:consent_limits],
+          consent_address_change: all_params[:consent_address_change],
+          conditions_of_appointment: all_params[:conditions_of_appointment]
+        }.merge(flatten_veteran_params(all_params))
+          .merge(flatten_claimant_params(all_params))
+          .merge(flatten_representative_params(all_params))
       end
 
-      def flatten_veteran_params(params)
-        super.merge(veteran_service_number: params.dig(:veteran, :service_number),
-                    veteran_service_branch: params.dig(:veteran, :service_branch))
+      def flatten_veteran_params(veteran_params)
+        super.merge(veteran_service_number: veteran_params.dig(:veteran, :service_number),
+                    veteran_service_branch: veteran_params.dig(:veteran, :service_branch))
       end
 
-      def flatten_representative_params(params)
+      def flatten_representative_params(representative_params)
         {
-          representative_first_name: params.dig(:representative, :name, :first),
-          representative_middle_initial: params.dig(:representative, :name, :middle),
-          representative_last_name: params.dig(:representative, :name, :last),
-          representative_type: params.dig(:representative, :type),
-          representative_address_line1: params.dig(:representative, :address, :address_line1),
-          representative_address_line2: params.dig(:representative, :address, :address_line2),
-          representative_city: params.dig(:representative, :address, :city),
-          representative_state_code: params.dig(:representative, :address, :state_code),
-          representative_country: params.dig(:representative, :address, :country),
-          representative_zip_code: params.dig(:representative, :address, :zip_code),
-          representative_zip_code_suffix: params.dig(:representative, :address, :zip_code_suffix),
-          representative_phone: params.dig(:representative, :phone),
-          representative_email_address: params.dig(:representative, :email)
+          representative_first_name: representative_params.dig(:representative, :name, :first),
+          representative_middle_initial: representative_params.dig(:representative, :name, :middle),
+          representative_last_name: representative_params.dig(:representative, :name, :last),
+          representative_type: representative_params.dig(:representative, :type),
+          representative_address_line1: representative_params.dig(:representative, :address, :address_line1),
+          representative_address_line2: representative_params.dig(:representative, :address, :address_line2),
+          representative_city: representative_params.dig(:representative, :address, :city),
+          representative_state_code: representative_params.dig(:representative, :address, :state_code),
+          representative_country: representative_params.dig(:representative, :address, :country),
+          representative_zip_code: representative_params.dig(:representative, :address, :zip_code),
+          representative_zip_code_suffix: representative_params.dig(:representative, :address, :zip_code_suffix),
+          representative_phone: representative_params.dig(:representative, :phone),
+          representative_email_address: representative_params.dig(:representative, :email)
         }
       end
     end

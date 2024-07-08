@@ -73,43 +73,43 @@ module RepresentationManagement
       end
 
       # rubocop:enable Metrics/MethodLength
-      def flatten_claimant_params(params)
+      def flatten_claimant_params(claimant_params)
         {
-          claimant_first_name: params.dig(:claimant, :name, :first),
-          claimant_middle_initial: params.dig(:claimant, :name, :middle),
-          claimant_last_name: params.dig(:claimant, :name, :last),
-          claimant_date_of_birth: params.dig(:claimant, :date_of_birth),
-          claimant_relationship: params.dig(:claimant, :relationship),
-          claimant_address_line1: params.dig(:claimant, :address, :address_line1),
-          claimant_address_line2: params.dig(:claimant, :address, :address_line2),
-          claimant_city: params.dig(:claimant, :address, :city),
-          claimant_state_code: params.dig(:claimant, :address, :state_code),
-          claimant_country: params.dig(:claimant, :address, :country),
-          claimant_zip_code: params.dig(:claimant, :address, :zip_code),
-          claimant_zip_code_suffix: params.dig(:claimant, :address, :zip_code_suffix),
-          claimant_phone: params.dig(:claimant, :phone),
-          claimant_email: params.dig(:claimant, :email)
+          claimant_first_name: claimant_params.dig(:claimant, :name, :first),
+          claimant_middle_initial: claimant_params.dig(:claimant, :name, :middle),
+          claimant_last_name: claimant_params.dig(:claimant, :name, :last),
+          claimant_date_of_birth: claimant_params.dig(:claimant, :date_of_birth),
+          claimant_relationship: claimant_params.dig(:claimant, :relationship),
+          claimant_address_line1: claimant_params.dig(:claimant, :address, :address_line1),
+          claimant_address_line2: claimant_params.dig(:claimant, :address, :address_line2),
+          claimant_city: claimant_params.dig(:claimant, :address, :city),
+          claimant_state_code: claimant_params.dig(:claimant, :address, :state_code),
+          claimant_country: claimant_params.dig(:claimant, :address, :country),
+          claimant_zip_code: claimant_params.dig(:claimant, :address, :zip_code),
+          claimant_zip_code_suffix: claimant_params.dig(:claimant, :address, :zip_code_suffix),
+          claimant_phone: claimant_params.dig(:claimant, :phone),
+          claimant_email: claimant_params.dig(:claimant, :email)
         }
       end
 
-      def flatten_veteran_params(params)
+      def flatten_veteran_params(veteran_params)
         {
-          veteran_first_name: params.dig(:veteran, :name, :first),
-          veteran_middle_initial: params.dig(:veteran, :name, :middle),
-          veteran_last_name: params.dig(:veteran, :name, :last),
-          veteran_social_security_number: params.dig(:veteran, :ssn),
-          veteran_va_file_number: params.dig(:veteran, :va_file_number),
-          veteran_date_of_birth: params.dig(:veteran, :date_of_birth),
-          veteran_service_number: params.dig(:veteran, :service_number),
-          veteran_address_line1: params.dig(:veteran, :address, :address_line1),
-          veteran_address_line2: params.dig(:veteran, :address, :address_line2),
-          veteran_city: params.dig(:veteran, :address, :city),
-          veteran_state_code: params.dig(:veteran, :address, :state_code),
-          veteran_country: params.dig(:veteran, :address, :country),
-          veteran_zip_code: params.dig(:veteran, :address, :zip_code),
-          veteran_zip_code_suffix: params.dig(:veteran, :address, :zip_code_suffix),
-          veteran_phone: params.dig(:veteran, :phone),
-          veteran_email: params.dig(:veteran, :email)
+          veteran_first_name: veteran_params.dig(:veteran, :name, :first),
+          veteran_middle_initial: veteran_params.dig(:veteran, :name, :middle),
+          veteran_last_name: veteran_params.dig(:veteran, :name, :last),
+          veteran_social_security_number: veteran_params.dig(:veteran, :ssn),
+          veteran_va_file_number: veteran_params.dig(:veteran, :va_file_number),
+          veteran_date_of_birth: veteran_params.dig(:veteran, :date_of_birth),
+          veteran_service_number: veteran_params.dig(:veteran, :service_number),
+          veteran_address_line1: veteran_params.dig(:veteran, :address, :address_line1),
+          veteran_address_line2: veteran_params.dig(:veteran, :address, :address_line2),
+          veteran_city: veteran_params.dig(:veteran, :address, :city),
+          veteran_state_code: veteran_params.dig(:veteran, :address, :state_code),
+          veteran_country: veteran_params.dig(:veteran, :address, :country),
+          veteran_zip_code: veteran_params.dig(:veteran, :address, :zip_code),
+          veteran_zip_code_suffix: veteran_params.dig(:veteran, :address, :zip_code_suffix),
+          veteran_phone: veteran_params.dig(:veteran, :phone),
+          veteran_email: veteran_params.dig(:veteran, :email)
         }
       end
 
