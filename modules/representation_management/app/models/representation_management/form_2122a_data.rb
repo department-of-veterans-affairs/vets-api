@@ -27,6 +27,8 @@ module RepresentationManagement
       veteran_service_branch_other
     ]
 
+    attr_accessor(*[representative_attrs, representative_consent_attrs, veteran_attrs].flatten)
+
     validates :representative_type, presence: true
     validates :representative_first_name, presence: true, length: { maximum: 12 }
     validates :representative_middle_initial, length: { maximum: 1 }
@@ -39,7 +41,5 @@ module RepresentationManagement
     validates :representative_zip_code, presence: true, length: { is: 5 }, format: { with: FIVE_DIGIT_NUMBER }
     validates :representative_zip_code_suffix, length: { is: 4 }, format: { with: FOUR_DIGIT_NUMBER }
     validates :representative_phone, presence: true, length: { is: 10 }, format: { with: TEN_DIGIT_NUMBER }
-
-    attr_accessor(*[representative_attrs, representative_consent_attrs, veteran_attrs].flatten)
   end
 end
