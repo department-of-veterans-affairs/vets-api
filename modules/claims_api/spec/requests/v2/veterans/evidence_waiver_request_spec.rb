@@ -172,7 +172,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request do
 
                   post sub_path, headers: auth_header
 
-                  expect(response.status).to eq(404)
+                  expect(response.status).to eq(422)
                   json = JSON.parse(response.body)
                   expect_res = json['errors'][0]['detail']
 
