@@ -16,6 +16,14 @@ if [ $? -ne 0 ] || [ -z "$data" ]; then
 	exit 1
 fi
 
+# Check if BACKLOG_POD is set to true and exit 0 if it is. A BACKLOG_POD will
+# accumulate a backlog intentinally so that it's not possible for all pods to
+# be unavailable in a traffic surge.
+if [ "$BACKLOG_POD" = "true" ]; then
+	echo "BACKLOG_POD is set to true. Exiting with success."
+	exit 0
+fi
+
 pool_capacity=$(echo "$data" | grep -oE '"pool_capacity":[0-9]+' | cut -f2 -d: | awk '{sum+=$1} END {print sum}')
 max_threads=$(echo "$data" | grep -oE '"max_threads":[0-9]+' | cut -f2 -d: | awk '{sum+=$1} END {print sum}')
 
