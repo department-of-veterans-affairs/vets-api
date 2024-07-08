@@ -16,12 +16,12 @@ module SimpleFormsApi
         'first' => user.first_name,
         'last' => user.last_name
       }
-      @data['veteran_mailing_address'] ||= {
-        'postal_code' => user.address['postal_code']
-      }
+      @data['veteran_mailing_address'] ||= user.address
       @data['veteran_id'] ||= {
         'ssn' => user.ssn
       }
+      @data['veteran_date_of_birth'] ||= user.birth_date
+      @data['veteran_phone'] ||= user.home_phone
 
       self
     end

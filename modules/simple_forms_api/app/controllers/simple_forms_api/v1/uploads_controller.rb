@@ -137,7 +137,7 @@ module SimpleFormsApi
       def get_file_paths_and_metadata(parsed_form_data)
         form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
-        form = form.populate_veteran_data(@current_user) if form_id == '21-0966'
+        form = form.populate_veteran_data(@current_user) if form_id == '21-0966' && first_party?
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
 
         file_path = if @current_user
