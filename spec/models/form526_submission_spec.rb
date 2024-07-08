@@ -1285,6 +1285,7 @@ RSpec.describe Form526Submission do
 
       context 'when multi-contention claims are eligible' do
         before { Flipper.enable(:disability_526_ep_merge_multi_contention) }
+
         it { is_expected.to be_truthy }
       end
     end
