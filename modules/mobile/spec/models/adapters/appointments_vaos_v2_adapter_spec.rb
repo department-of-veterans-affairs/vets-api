@@ -13,14 +13,20 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     raw_data.find { |appt| appt[:id] == id }
   end
 
+  def parse_appointment(appt)
+    subject.parse(Array.wrap(appt)).first
+  end
+
   let(:raw_data) { JSON.parse(appointment_fixtures, symbolize_names: true) }
   let(:appointment_fixtures) do
     File.read(Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'VAOS_v2_appointments.json'))
   end
-  let(:adapted_appointment) { ->(index) { subject.parse(appointment_data(index)).first } }
+  let(:adapted_appointment) { ->(index) { parse_appointment(appointment_data(index)) } }
+  let(:adapted_appointment_by_id) { ->(id) { parse_appointment(appointment_by_id(id)) } }
   let(:adapted_appointments) do
     subject.parse(appointment_data)
   end
+  let(:parsed_appointment) { parse_appointment(appointment) }
 
   before do
     Timecop.freeze(Time.zone.parse('2022-08-25T19:25:00Z'))
@@ -277,7 +283,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
                                           'best_time_to_call' => [
                                             'Morning'
                                           ],
-                                          'friendly_location_name' => nil,
+                                          'friendly_location_name' => 'Cheyenne VA Medical Center',
                                           'service_category_name' => nil
                                         })
     end
@@ -1083,6 +1089,47 @@ preferred dates:12/13/2022 PM|pager number:8675309"
             code: nil
           }
         )
+      end
+    end
+  end
+
+  describe 'friendly_location_name' do
+    context 'with VA appointment' do
+      let(:appointment) { appointment_by_id('121134') }
+
+      it 'is set to location name' do
+        expect(parsed_appointment.friendly_location_name).to eq('Cheyenne VA Medical Center')
+      end
+
+      it 'is set to nil when location name is absent' do
+        appointment[:location].delete(:name)
+        expect(parsed_appointment.friendly_location_name).to eq(nil)
+      end
+    end
+
+    context 'with CC appointment request' do
+      let(:appointment) { appointment_by_id('72105') }
+
+      it 'is set to location name' do
+        expect(parsed_appointment.friendly_location_name).to eq('Cheyenne VA Medical Center')
+      end
+
+      it 'is set to nil when location name is absent' do
+        appointment[:location].delete(:name)
+        expect(parsed_appointment.friendly_location_name).to eq(nil)
+      end
+    end
+
+    context 'with CC appointment' do
+      let(:appointment) { appointment_by_id('72106') }
+
+      it 'is set to cc location practice name' do
+        expect(parsed_appointment.friendly_location_name).to eq('CC practice name')
+      end
+
+      it 'is set to nil when cc locatino practice name is absent' do
+        appointment[:extension][:cc_location].delete(:practice_name)
+        expect(parsed_appointment.friendly_location_name).to eq(nil)
       end
     end
   end
