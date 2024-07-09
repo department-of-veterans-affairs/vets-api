@@ -37,7 +37,7 @@ module Pensions
       # Creates and validates an instance of the class, removing any copies of
       # the form that had been previously saved by the user.
       def create
-        Pension21p527ez::TagSentry.tag_sentry
+        Pensions::Pension21p527ez::TagSentry.tag_sentry
 
         claim = claim_class.new(form: filtered_params[:form])
         pension_monitor.track_create_attempt(claim, current_user)
@@ -90,7 +90,7 @@ module Pensions
       end
 
       def pension_monitor
-        Pension21p527ez::Monitor.new
+        Pensions::Pension21p527ez::Monitor.new
       end
     end
   end

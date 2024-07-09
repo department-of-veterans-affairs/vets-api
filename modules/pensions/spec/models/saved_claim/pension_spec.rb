@@ -14,8 +14,8 @@ RSpec.describe Pensions::SavedClaim::Pension, uploader_helpers: true do
   context 'saved claims w/ attachments' do
     stub_virus_scan
 
-    let!(:attachment1) { FactoryBot.create(:pensions_module_pension_burial) }
-    let!(:attachment2) { FactoryBot.create(:pensions_module_pension_burial) }
+    let!(:attachment1) { FactoryBot.create(:pension_burial) }
+    let!(:attachment2) { FactoryBot.create(:pension_burial) }
 
     let(:claim) do
       FactoryBot.create(
@@ -51,7 +51,7 @@ RSpec.describe Pensions::SavedClaim::Pension, uploader_helpers: true do
 
     describe '#process_attachments!' do
       it 'sets the attachments saved_claim_id' do
-        expect(Pensions::Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(claim.id)
+        expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(claim.id)
         claim.process_attachments!
         expect(claim.persistent_attachments.size).to eq(2)
       end
@@ -60,7 +60,7 @@ RSpec.describe Pensions::SavedClaim::Pension, uploader_helpers: true do
     describe '#destroy' do
       it 'also destroys the persistent_attachments' do
         claim.process_attachments!
-        expect { claim.destroy }.to change(Pensions::PersistentAttachment, :count).by(-2)
+        expect { claim.destroy }.to change(PersistentAttachment, :count).by(-2)
       end
     end
 

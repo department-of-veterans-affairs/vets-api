@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'pensions/lighthouse/benefits_intake/service'
-require 'pensions/lighthouse/benefits_intake/metadata'
+require 'lighthouse/benefits_intake/service'
+require 'lighthouse/benefits_intake/metadata'
 require 'pensions/pension_21p527ez/tag_sentry'
 require 'pensions/pension_21p527ez/monitor'
 require 'central_mail/datestamp_pdf'
@@ -88,7 +88,7 @@ module Pensions
       @claim = Pensions::SavedClaim::Pension.find(saved_claim_id)
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
-      @intake_service = Pensions::Lighthouse::BenefitsIntake::Service.new
+      @intake_service = BenefitsIntake::Service.new
     end
 
     ##

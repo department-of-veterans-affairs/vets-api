@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Pensions
-  class SavedClaim::Pension < SavedClaim
+  class SavedClaim::Pension < ::SavedClaim
     self.inheritance_column = :_type_disabled
 
     FORM = '21P-527EZ'

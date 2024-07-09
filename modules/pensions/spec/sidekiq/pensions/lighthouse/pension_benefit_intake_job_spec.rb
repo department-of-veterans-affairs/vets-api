@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'lighthouse/benefits_intake/service'
+require 'lighthouse/benefits_intake/metadata'
 
 RSpec.describe Pensions::Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
   stub_virus_scan
@@ -22,7 +24,7 @@ RSpec.describe Pensions::Lighthouse::PensionBenefitIntakeJob, uploader_helpers: 
       allow(claim).to receive(:persistent_attachments).and_return([])
 
       job.instance_variable_set(:@intake_service, service)
-      allow(Pensions::Lighthouse::BenefitsIntake::Service).to receive(:new).and_return(service)
+      allow(BenefitsIntake::Service).to receive(:new).and_return(service)
       allow(service).to receive(:uuid)
       allow(service).to receive(:location).and_return(location)
       allow(service).to receive(:request_upload)
@@ -39,8 +41,8 @@ RSpec.describe Pensions::Lighthouse::PensionBenefitIntakeJob, uploader_helpers: 
     it 'submits the saved claim successfully' do
       allow(job).to receive(:process_document).and_return(pdf_path)
 
-      expect(Pensions::FormSubmission).to receive(:create)
-      expect(Pensions::FormSubmissionAttempt).to receive(:create)
+      expect(FormSubmission).to receive(:create)
+      expect(FormSubmissionAttempt).to receive(:create)
       expect(Datadog::Tracing).to receive(:active_trace)
 
       expect(service).to receive(:perform_upload).with(
@@ -54,7 +56,7 @@ RSpec.describe Pensions::Lighthouse::PensionBenefitIntakeJob, uploader_helpers: 
     it 'is unable to find saved_claim_id' do
       allow(Pensions::SavedClaim::Pension).to receive(:find).and_return(nil)
 
-      expect(Pensions::Lighthouse::BenefitsIntake::Service).not_to receive(:new)
+      expect(BenefitsIntake::Service).not_to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
       expect(job).to receive(:cleanup_file_paths)

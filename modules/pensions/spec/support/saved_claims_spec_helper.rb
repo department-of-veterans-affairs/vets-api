@@ -14,12 +14,12 @@ shared_examples_for 'saved_claim' do
   end
 
   it 'descends from saved_claim' do
-    expect(described_class.ancestors).to include(Pensions::SavedClaim)
+    expect(described_class.ancestors).to include(Pensions::SavedClaim::Pension)
   end
 
   describe '#process_attachments!' do
     it 'starts a job to submit the saved claim' do
-      expect(Pensions::Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(instance.id)
+      expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(instance.id)
 
       instance.process_attachments!
     end
