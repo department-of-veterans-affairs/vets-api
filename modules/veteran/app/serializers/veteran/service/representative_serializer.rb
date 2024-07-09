@@ -2,10 +2,10 @@
 
 module Veteran
   module Service
-    class RepresentativeSerializer < ActiveModel::Serializer
-      attribute :first_name
-      attribute :last_name
-      attribute :poa_codes, array: true
+    class RepresentativeSerializer
+      include JSONAPI::Serializer
+
+      attributes :first_name, :last_name, :poa_codes
     end
   end
 end

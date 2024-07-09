@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'medical_records/client'
+require 'medical_records/bb_internal/client'
 require 'medical_records/phr_mgr/client'
 
 module MyHealth
@@ -10,6 +11,7 @@ module MyHealth
     service_tag 'mhv-medical-records'
 
     # skip_before_action :authenticate
+    before_action :authenticate_bb_client
 
     rescue_from ::MedicalRecords::PatientNotFound do |_exception|
       render body: nil, status: :accepted
@@ -24,6 +26,14 @@ module MyHealth
 
     def phrmgr_client
       @phrmgr_client ||= PHRMgr::Client.new(current_user.icn)
+    end
+
+    def bb_client
+      @bb_client ||= BBInternal::Client.new(session: { user_id: current_user.mhv_correlation_id })
+    end
+
+    def authenticate_bb_client
+      bb_client.authenticate
     end
 
     def authorize
