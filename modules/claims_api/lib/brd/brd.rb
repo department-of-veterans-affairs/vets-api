@@ -14,7 +14,7 @@ module ClaimsApi
     #
     # @return [Array<String>] list of countries
     def countries
-      handle_transaction('countries')
+      handle_transaction('countries', :get)
     end
 
     ##
@@ -23,15 +23,15 @@ module ClaimsApi
     # @return [Array<Hash>] list of intake sites
     # as {id: <number> and description: <string>}
     def intake_sites
-      handle_transaction('intake-sites')
+      handle_transaction('intake-sites', :get)
     end
 
     def disabilities
-      handle_transaction('disabilities')
+      handle_transaction('disabilities', :get)
     end
 
     def service_branches
-      handle_transaction('service-branches')
+      handle_transaction('service-branches', :get)
     end
 
     private
