@@ -155,6 +155,10 @@ features:
     actor_type: user
     description: Enables the 45 minute reminder
     enable_in_development: true
+  check_in_experience_check_claim_status_on_timeout:
+    actor_type: user
+    description: Uses a background worker to check travel claim status when the submission times out
+    enable_in_development: true
   check_in_experience_browser_monitoring:
     actor_type: user
     description: Enables browser monitoring for check-in applications.
@@ -722,10 +726,6 @@ features:
   medical_copay_notifications:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
-    enable_in_development: true
-  mhv_landing_page_enabled:
-    actor_type: user
-    description: Enables the My HealtheVet landing page on VA.gov
     enable_in_development: true
   mhv_landing_page_show_priority_group:
     actor_type: user
