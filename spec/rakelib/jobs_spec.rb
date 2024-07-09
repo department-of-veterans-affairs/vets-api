@@ -24,5 +24,13 @@ describe 'jobs rake tasks', type: :request do
       allow(Settings).to receive(:vsp_environment).and_return('production')
       expect { run_rake_task }.to raise_error Common::Exceptions::Unauthorized
     end
+
+    it 'deletes spool file event rows created today' do
+      rpo = EducationForm::EducationFacility::FACILITY_IDS[:western]
+      yday = Time.zone.yesterday
+      create(:spool_file_event, filename: "#{rpo}_#{yday.strftime('%m%d%Y_%H%M%S')}_vetsgov.spl", created_at: yday)
+      create(:spool_file_event, :successful)
+      expect { run_rake_task }.to change(SpoolFileEvent, :count).by(-1)
+    end
   end
 end
