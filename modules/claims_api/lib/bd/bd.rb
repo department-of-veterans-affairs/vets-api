@@ -66,10 +66,10 @@ module ClaimsApi
       payload = {}
       auth_headers = claim.auth_headers
       veteran_name = "#{auth_headers['va_eauth_firstName']}_#{auth_headers['va_eauth_lastName']}"
-      birls_file_num = auth_headers['va_eauth_birlsfilenumber'] || file_number
+      birls_file_num = auth_headers['va_eauth_birlsfilenumber'] || file_number if doc_type != 'L705'
       claim_id = doc_type == 'L705' ? claim.claim_id : claim.evss_id
       file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
-      participant_id = auth_headers['va_eauth_pid']
+      participant_id = auth_headers['va_eauth_pid'] if doc_type == 'L705'
       data = build_body(doc_type:, file_name:, participant_id:, claim_id:,
                         file_number: birls_file_num)
 

@@ -7,7 +7,6 @@ require 'bd/bd'
 module ClaimsApi
   class EvidenceWaiverBuilderJob < ClaimsApi::ServiceBase
     include ::Common::FileHelpers
-    include ClaimsApi::EwsVBMSSidekiq
     sidekiq_options expires_in: 48.hours, retry: true
 
     # Generate a 5103 "form" for a given veteran.
@@ -23,8 +22,6 @@ module ClaimsApi
                               doc_type: 'L705')
       ClaimsApi::EwsUpdater.perform_async(evidence_waiver_id)
       ::Common::FileHelpers.delete_file_if_exists(output_path)
-    rescue => e
-      error_handler(e)
     end
 
     def benefits_doc_api

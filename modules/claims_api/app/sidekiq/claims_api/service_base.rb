@@ -160,9 +160,5 @@ module ClaimsApi
         poa_form_data['representative']['poaCode']
       end
     end
-
-    def error_handler(e)
-      ClaimsApi::CustomError.new(e).build_error
-    end
   end
 end
