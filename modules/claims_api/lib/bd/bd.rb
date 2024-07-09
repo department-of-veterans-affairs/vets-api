@@ -51,7 +51,7 @@ module ClaimsApi
       raise ::Common::Exceptions::GatewayTimeout.new(detail: 'Upstream service error.') unless res.is_a?(Hash)
 
       res = res.deep_symbolize_keys
-      request_id = res&.dig(:data, :requestId)
+      request_id = res.dig(:data, :requestId)
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "Successfully uploaded #{doc_type == 'L122' ? 'claim' : 'supporting'} doc to BD",
                             claim_id: claim.id, request_id:)
