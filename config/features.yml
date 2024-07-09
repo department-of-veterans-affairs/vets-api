@@ -388,6 +388,9 @@ features:
   disability_526_ep_merge_new_claims:
     actor_type: user
     description: enables EP Merge for single-contention 526 claims for a new condition
+  disability_526_ep_merge_multi_contention:
+    actor_type: user
+    description: enables EP Merge for multi-contention 526 claims
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
