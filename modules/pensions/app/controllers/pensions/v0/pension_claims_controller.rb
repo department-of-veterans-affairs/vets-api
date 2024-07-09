@@ -1,7 +1,6 @@
 # frozen_string_literal: true
-
-require 'pension_21p527ez/tag_sentry'
-require 'pension_21p527ez/monitor'
+require 'pensions/tag_sentry'
+require 'pensions/monitor'
 
 module Pensions
   module V0
@@ -13,7 +12,7 @@ module Pensions
       end
 
       def claim_class
-        SavedClaim::Pension
+        Pensions::SavedClaim
       end
 
       def show
