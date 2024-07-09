@@ -31,7 +31,6 @@ module RepresentationManagement
         ]
       end
 
-      # rubocop:disable Metrics/MethodLength
       def veteran_params_permitted
         [
           :ssn,
@@ -48,7 +47,6 @@ module RepresentationManagement
         ]
       end
 
-      # rubocop:enable Metrics/MethodLength
       def flatten_claimant_params(claimant_params)
         {
           claimant_first_name: claimant_params.dig(:claimant, :name, :first),
@@ -92,7 +90,7 @@ module RepresentationManagement
       def name_params_permitted
         %i[first middle last]
       end
-      
+
       def address_params_permitted
         %i[
           address_line1

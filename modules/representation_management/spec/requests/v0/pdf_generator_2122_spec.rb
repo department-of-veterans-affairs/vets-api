@@ -64,6 +64,11 @@ RSpec.describe 'PdfGenerator2122Controller', type: :request do
         post(base_path, params:)
         expect(response).to have_http_status(:created)
       end
+
+      it 'responds with the expected body' do
+        post(base_path, params:)
+        expect(response.body).to eq({ message: 'Form is valid' }.to_json)
+      end
     end
 
     context 'when submitting incomplete data' do
@@ -71,6 +76,12 @@ RSpec.describe 'PdfGenerator2122Controller', type: :request do
         params[:pdf_generator2122][:organization_name] = nil
         post(base_path, params:)
         expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'responds with the expected body' do
+        params[:pdf_generator2122][:organization_name] = nil
+        post(base_path, params:)
+        expect(response.body).to eq({ errors: ['Organization name can\'t be blank'] }.to_json)
       end
     end
   end
