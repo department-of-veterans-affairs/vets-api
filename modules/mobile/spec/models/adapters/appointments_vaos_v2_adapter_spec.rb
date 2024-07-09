@@ -1102,7 +1102,7 @@ preferred dates:12/13/2022 PM|pager number:8675309"
       end
 
       it 'is set to nil when location name is absent' do
-        appointment[:location].delete(:name)
+        appointment.delete(:location)
         expect(parsed_appointment.friendly_location_name).to eq(nil)
       end
     end
@@ -1115,7 +1115,7 @@ preferred dates:12/13/2022 PM|pager number:8675309"
       end
 
       it 'is set to nil when location name is absent' do
-        appointment[:location].delete(:name)
+        appointment.delete(:location)
         expect(parsed_appointment.friendly_location_name).to eq(nil)
       end
     end
@@ -1128,7 +1128,7 @@ preferred dates:12/13/2022 PM|pager number:8675309"
       end
 
       it 'is set to nil when cc locatino practice name is absent' do
-        appointment[:extension][:cc_location].delete(:practice_name)
+        appointment.delete(:extension)
         expect(parsed_appointment.friendly_location_name).to eq(nil)
       end
     end
