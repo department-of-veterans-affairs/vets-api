@@ -23,7 +23,7 @@ RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job, use_cassette: 'c
       allow_any_instance_of(ClaimsApi::EwsUpdater).to receive(:update_bgs_claim).with(ews, bgs_claim)
       allow_any_instance_of(Common::FileHelpers).to receive(:delete_file_if_exists).with(output_path)
 
-      subject.new.perform(ews.id, bgs_claim)
+      subject.new.perform(ews.id)
     end
   end
 

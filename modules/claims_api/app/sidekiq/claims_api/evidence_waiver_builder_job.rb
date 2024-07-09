@@ -11,7 +11,7 @@ module ClaimsApi
     # Generate a 5103 "form" for a given veteran.
     #
     # @param evidence_waiver_id [String] Unique identifier of the submitted EWS
-    def perform(evidence_waiver_id, _claim)
+    def perform(evidence_waiver_id)
       lighthouse_claim = ClaimsApi::EvidenceWaiverSubmission.find(evidence_waiver_id)
       auth_headers = lighthouse_claim.auth_headers
       output_path = ClaimsApi::EvidenceWaiver.new(auth_headers:).construct
