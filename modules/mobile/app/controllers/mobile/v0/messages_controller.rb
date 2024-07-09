@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
+require_relative '../concerns/json_api_pagination_links'
+
 module Mobile
   module V0
     class MessagesController < MessagingController
       include Filterable
+      include Mobile::Concerns::JsonApiPaginationLinks
 
       def index
         resource = client.get_folder_messages(@current_user.uuid, params[:folder_id].to_s, use_cache?)
@@ -11,13 +14,13 @@ module Mobile
 
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
         resource = resource.sort(params[:sort])
+
+        links = pagination_links(resource)
         resource = resource.paginate(**pagination_params)
         resource.metadata.merge!(message_counts(resource))
 
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: Mobile::V0::MessagesSerializer,
-               meta: resource.metadata
+        options = { meta: resource.metadata, links: }
+        render json: Mobile::V0::MessagesSerializer.new(resource.data, options)
       end
 
       def show
@@ -29,12 +32,8 @@ module Mobile
         user_triage_teams = client.get_triage_teams(@current_user.uuid, use_cache?)
         user_in_triage_team = user_triage_teams.data.any? { |team| team.name == response.triage_group_name }
 
-        render json: response,
-               serializer: Mobile::V0::MessageSerializer,
-               include: {
-                 attachments: { serializer: Mobile::V0::AttachmentSerializer }
-               },
-               meta: response.metadata.merge(user_in_triage_team?: user_in_triage_team)
+        meta = response.metadata.merge(user_in_triage_team?: user_in_triage_team)
+        render json: Mobile::V0::MessageSerializer.new(response, { meta: })
       end
 
       def create
@@ -46,15 +45,21 @@ module Mobile
         Rails.logger.info('Mobile SM Category Tracking', category: create_message_params.dig(:message, :category))
 
         client_response = if message.uploads.present?
-                            client.post_create_message_with_attachment(create_message_params)
+                            begin
+                              client.post_create_message_with_attachment(create_message_params)
+                            rescue Common::Client::Errors::Serialization => e
+                              Rails.logger.info('Mobile SM create with attachment error', status: e&.status,
+                                                                                          error_body: e&.body,
+                                                                                          message: e&.message)
+                              raise e
+                            end
                           else
                             client.post_create_message(message_params.to_h)
                           end
 
-        render json: client_response,
-               serializer: Mobile::V0::MessageSerializer,
-               include: 'attachments',
-               meta: {}
+        options = { meta: {} }
+        options[:include] = [:attachments] if client_response.attachment
+        render json: Mobile::V0::MessageSerializer.new(client_response, options)
       end
 
       def destroy
@@ -69,10 +74,7 @@ module Mobile
 
         resource.metadata.merge!(message_counts(resource))
 
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: Mobile::V0::MessagesSerializer,
-               meta: resource.metadata
+        render json: Mobile::V0::MessagesSerializer.new(resource.data, { meta: resource.metadata })
       end
 
       def reply
@@ -88,17 +90,15 @@ module Mobile
                             client.post_create_message_reply(params[:id], message_params.to_h)
                           end
 
-        render json: client_response,
-               serializer: Mobile::V0::MessageSerializer,
-               include: 'attachments',
-               status: :created
+        options = {}
+        options[:include] = [:attachments] if client_response.attachment
+        render json: Mobile::V0::MessageSerializer.new(client_response, options), status: :created
       end
 
       def categories
         resource = client.get_categories
 
-        render json: resource,
-               serializer: Mobile::V0::CategorySerializer
+        render json: Mobile::V0::CategorySerializer.new(resource)
       end
 
       def move

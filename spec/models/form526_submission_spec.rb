@@ -10,7 +10,8 @@ RSpec.describe Form526Submission do
       saved_claim_id: saved_claim.id,
       auth_headers_json: auth_headers.to_json,
       form_json:,
-      submit_endpoint:
+      submit_endpoint:,
+      backup_submitted_claim_status:
     )
   end
 
@@ -24,6 +25,11 @@ RSpec.describe Form526Submission do
     File.read('spec/support/disability_compensation_form/submissions/only_526.json')
   end
   let(:submit_endpoint) { nil }
+  let(:backup_submitted_claim_status) { nil }
+
+  describe 'associations' do
+    it { is_expected.to have_many(:form526_submission_remediations) }
+  end
 
   describe 'submit_endpoint enum' do
     context 'when submit_endpoint is evss' do
@@ -59,42 +65,105 @@ RSpec.describe Form526Submission do
     end
   end
 
+  describe 'backup_submitted_claim_status enum' do
+    context 'when backup_submitted_claim_status is nil' do
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'when backup_submitted_claim_status is accepted' do
+      let(:backup_submitted_claim_status) { 'accepted' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'when backup_submitted_claim_status is rejected' do
+      let(:backup_submitted_claim_status) { 'rejected' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'when backup_submitted_claim_status is neither accepted, rejected nor nil' do
+      it 'is invalid' do
+        expect do
+          subject.backup_submitted_claim_status = 'other_value'
+        end.to raise_error(ArgumentError, "'other_value' is not a valid backup_submitted_claim_status")
+      end
+    end
+  end
+
   describe 'scopes' do
     describe 'pending_backup_submissions' do
-      let!(:new_submission) { create(:form526_submission, aasm_state: 'unprocessed') }
-      let!(:failed_primary_submission) do
-        create(:form526_submission, aasm_state: 'failed_primary_delivery')
-      end
-      let!(:rejected_primary_submission) do
-        create(:form526_submission, aasm_state: 'rejected_by_primary')
-      end
-      let!(:complete_primary_submission) do
-        create(:form526_submission, aasm_state: 'delivered_to_primary')
-      end
-      let!(:failed_backup_submission) do
-        create(:form526_submission, aasm_state: 'failed_backup_delivery')
-      end
+      let!(:new_submission) { create(:form526_submission) }
       let!(:rejected_backup_submission) do
-        create(:form526_submission, aasm_state: 'rejected_by_backup')
+        create(:form526_submission, :backup_path, backup_submitted_claim_status: 'rejected')
       end
-      let!(:in_remediation_submission) do
-        create(:form526_submission, :backup_path, aasm_state: 'in_remediation')
+      let!(:accepted_backup_submission) do
+        create(:form526_submission, :backup_path, backup_submitted_claim_status: 'accepted')
       end
-      let!(:complete_submission) do
-        create(:form526_submission, :backup_path, aasm_state: 'finalized_as_successful')
-      end
-      let!(:delivered_backup_submission_a) do
-        create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
-      end
-      let!(:delivered_backup_submission_b) do
-        create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
-      end
+      let!(:backup_submission_a) { create(:form526_submission, :backup_path) }
+      let!(:backup_submission_b) { create(:form526_submission, :backup_path) }
 
       it 'returns records submitted to the backup path but lacking a decisive state' do
         expect(Form526Submission.pending_backup_submissions).to contain_exactly(
-          delivered_backup_submission_a,
-          delivered_backup_submission_b
+          backup_submission_a,
+          backup_submission_b
         )
+      end
+    end
+
+    describe 'in_process' do
+      let!(:in_process_submission1) { create(:form526_submission) }
+      let!(:in_process_submission2) { create(:form526_submission, :backup_path) }
+      let!(:expired_submission) { create(:form526_submission, :backup_path, :created_more_than_3_days_ago) }
+      let!(:backup_accepted_submission) { create(:form526_submission, :backup_path, :with_accepted_backup_status) }
+      let!(:successful_submission) { create(:form526_submission, :with_submitted_claim_id) }
+
+      it 'only returns submissions that are in process' do
+        result = Form526Submission.in_process
+
+        expect(result).to include(in_process_submission1, in_process_submission2)
+        expect(result).not_to include(expired_submission, backup_accepted_submission, successful_submission)
+      end
+    end
+
+    describe 'success_type' do
+      let!(:successful_submission) { create(:form526_submission, :with_submitted_claim_id) }
+      let!(:backup_accepted_submission) { create(:form526_submission, :backup_path, :with_accepted_backup_status) }
+      let!(:in_process_submission) { create(:form526_submission) }
+      let!(:remediated_submission) do
+        create(:form526_submission_remediation, form526_submission: subject)
+        subject
+      end
+
+      it 'only returns submissions that are successful types' do
+        result = Form526Submission.success_type
+
+        expect(result).to include(successful_submission, backup_accepted_submission, remediated_submission)
+        expect(result).not_to include(in_process_submission)
+      end
+    end
+
+    describe 'failure_type' do
+      let!(:in_process_submission) { create(:form526_submission) }
+      let!(:successful_submission) { create(:form526_submission, :with_submitted_claim_id) }
+      let!(:rejected_submission) { create(:form526_submission, :backup_path, backup_submitted_claim_status: :rejected) }
+      let!(:expired_submission) { create(:form526_submission, :backup_path, :created_more_than_3_days_ago) }
+      let!(:remediated_submission) do
+        create(:form526_submission_remediation, form526_submission: subject)
+        subject
+      end
+
+      it 'only returns submissions that are failure types' do
+        result = Form526Submission.failure_type
+
+        expect(result).to include(rejected_submission, expired_submission)
+        expect(result).not_to include(successful_submission, in_process_submission, remediated_submission)
       end
     end
   end
@@ -106,43 +175,6 @@ RSpec.describe Form526Submission do
           subject.start_evss_submission_job
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size).by(1)
       end
-    end
-  end
-
-  describe 'state' do
-    let(:submission) { create(:form526_submission) }
-
-    it 'transitions states' do
-      expect(submission).to transition_from(:unprocessed)
-        .to(:delivered_to_primary).on_event(:deliver_to_primary)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:failed_primary_delivery).on_event(:fail_primary_delivery)
-      expect(submission).to transition_from(:failed_primary_delivery)
-        .to(:delivered_to_backup).on_event(:deliver_to_backup)
-      expect(submission).to transition_from(:rejected_by_primary)
-        .to(:delivered_to_backup).on_event(:deliver_to_backup)
-      expect(submission).to transition_from(:failed_primary_delivery)
-        .to(:failed_backup_delivery).on_event(:fail_backup_delivery)
-      expect(submission).to transition_from(:rejected_by_primary)
-        .to(:rejected_by_backup).on_event(:reject_from_backup)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:rejected_by_primary).on_event(:reject_from_primary)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:delivered_to_backup).on_event(:deliver_to_backup)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:failed_backup_delivery).on_event(:fail_backup_delivery)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:rejected_by_backup).on_event(:reject_from_backup)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:finalized_as_successful).on_event(:finalize_success)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:unprocessable).on_event(:mark_as_unprocessable)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:in_remediation).on_event(:begin_remediation)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:processed_in_batch_remediation).on_event(:process_in_batch_remediation)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:ignorable_duplicate).on_event(:ignore_as_duplicate)
     end
   end
 
@@ -637,10 +669,10 @@ RSpec.describe Form526Submission do
       it 'adds the current BIRLS ID to birls_ids_tried array (turns birls_ids_tried into an array if nil)' do
         expect(JSON.parse(subject.birls_ids_tried)).to eq birls_ids_tried
         subject.mark_birls_id_as_tried
-        expect(subject.birls_ids_tried_hash.keys).to match_array [birls_id, *birls_ids_tried.keys]
+        expect(subject.birls_ids_tried_hash.keys).to contain_exactly(birls_id, *birls_ids_tried.keys)
         subject.save
         subject.reload
-        expect(subject.birls_ids_tried_hash.keys).to match_array [birls_id, *birls_ids_tried.keys]
+        expect(subject.birls_ids_tried_hash.keys).to contain_exactly(birls_id, *birls_ids_tried.keys)
       end
     end
   end
@@ -1263,6 +1295,148 @@ RSpec.describe Form526Submission do
         after { Flipper.enable(:disability_526_ep_merge_new_claims) }
 
         it { is_expected.to be_falsey }
+      end
+    end
+  end
+
+  describe '#remediated?' do
+    context 'when there are no form526_submission_remediations' do
+      it 'returns false' do
+        expect(subject).not_to be_remediated
+      end
+    end
+
+    context 'when there are form526_submission_remediations' do
+      let(:remediation) do
+        FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
+      end
+
+      it 'returns true if the most recent remediation was successful' do
+        remediation.update(success: true)
+        expect(subject).to be_remediated
+      end
+
+      it 'returns false if the most recent remediation was not successful' do
+        remediation.update(success: false)
+        expect(subject).not_to be_remediated
+      end
+    end
+  end
+
+  describe '#duplicate?' do
+    context 'when there are no form526_submission_remediations' do
+      it 'returns false' do
+        expect(subject).not_to be_duplicate
+      end
+    end
+
+    context 'when there are form526_submission_remediations' do
+      let(:remediation) do
+        FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
+      end
+
+      it 'returns true if the most recent remediation ignored_as_duplicate value is true' do
+        remediation.update(ignored_as_duplicate: true)
+        expect(subject).to be_duplicate
+      end
+
+      it 'returns false if the most recent remediation ignored_as_duplicate value is false' do
+        remediation.update(ignored_as_duplicate: false)
+        expect(subject).not_to be_duplicate
+      end
+    end
+  end
+
+  describe '#success_type?' do
+    let(:remediation) do
+      FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
+    end
+
+    context 'when submitted_claim_id is present and backup_submitted_claim_status is nil' do
+      subject { create(:form526_submission, :with_submitted_claim_id) }
+
+      it 'returns true' do
+        expect(subject).to be_success_type
+      end
+    end
+
+    context 'when backup_submitted_claim_id is present and backup_submitted_claim_status is accepted' do
+      subject { create(:form526_submission, :backup_path, :with_accepted_backup_status) }
+
+      it 'returns true' do
+        expect(subject).to be_success_type
+      end
+    end
+
+    context 'when the most recent remediation is successful' do
+      it 'returns true' do
+        remediation.update(success: true)
+        expect(subject).to be_success_type
+      end
+    end
+
+    context 'when none of the success conditions are met' do
+      it 'returns false' do
+        remediation.update(success: false)
+        expect(subject).not_to be_success_type
+      end
+    end
+  end
+
+  describe '#in_process?' do
+    context 'when submitted_claim_id and backup_submitted_claim_status are both nil' do
+      context 'and the record was created within the last 3 days' do
+        it 'returns true' do
+          expect(subject).to be_in_process
+        end
+      end
+
+      context 'and the record was created more than 3 days ago' do
+        subject { create(:form526_submission, :created_more_than_3_days_ago) }
+
+        it 'returns false' do
+          expect(subject).not_to be_in_process
+        end
+      end
+    end
+
+    context 'when submitted_claim_id is not nil' do
+      subject { create(:form526_submission, :with_submitted_claim_id) }
+
+      it 'returns false' do
+        expect(subject).not_to be_in_process
+      end
+    end
+
+    context 'when backup_submitted_claim_status is not nil' do
+      subject { create(:form526_submission, :backup_path, :with_accepted_backup_status) }
+
+      it 'returns false' do
+        expect(subject).not_to be_in_process
+      end
+    end
+  end
+
+  describe '#failure_type?' do
+    context 'when the submission is a success type' do
+      subject { create(:form526_submission, :with_submitted_claim_id) }
+
+      it 'returns true' do
+        expect(subject).not_to be_failure_type
+      end
+    end
+
+    context 'when the submission is in process' do
+      it 'returns false' do
+        expect(subject).not_to be_failure_type
+      end
+    end
+
+    context 'when the submission is neither a success type nor in process' do
+      subject { create(:form526_submission, :created_more_than_3_days_ago) }
+
+      it 'returns true' do
+        expect(subject).to be_failure_type
       end
     end
   end

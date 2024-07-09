@@ -31,7 +31,7 @@ module SimpleFormsApi
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
-        response = if form_is210966 && icn && first_party?
+        response = if use_itf_api_for_210966_form?
                      handle_210966_authenticated
                    elsif form_is264555_and_should_use_lgy_api
                      handle264555
@@ -95,13 +95,11 @@ module SimpleFormsApi
           ).send
         end
 
-        { json: {
-          confirmation_number:,
-          expiration_date:,
-          compensation_intent: existing_intents['compensation'],
-          pension_intent: existing_intents['pension'],
-          survivor_intent: existing_intents['survivor']
-        } }
+        json_for210966(confirmation_number, expiration_date, existing_intents)
+      rescue Common::Exceptions::UnprocessableEntity => e
+        # There is an authentication issue with the Intent to File API so we revert to sending a PDF to Central Mail
+        prepare_params_for_central_mail_and_log_error(e)
+        submit_form_to_central_mail
       end
 
       def handle264555
@@ -139,6 +137,7 @@ module SimpleFormsApi
       def get_file_paths_and_metadata(parsed_form_data)
         form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
+        form = form.populate_veteran_data(@current_user) if form_id == '21-0966' && first_party?
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
 
         file_path = if @current_user
@@ -158,6 +157,10 @@ module SimpleFormsApi
         params[:form_number] == '21-0966'
       end
 
+      def use_itf_api_for_210966_form?
+        form_is210966 && participant_id && icn && first_party?
+      end
+
       def form_is264555_and_should_use_lgy_api
         # TODO: Remove comment octothorpe and ALWAYS require icn
         params[:form_number] == '26-4555' # && icn
@@ -165,6 +168,10 @@ module SimpleFormsApi
 
       def should_authenticate
         true unless UNAUTHENTICATED_FORMS.include? params[:form_number]
+      end
+
+      def participant_id
+        @current_user&.participant_id
       end
 
       def icn
@@ -187,6 +194,34 @@ module SimpleFormsApi
         json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
 
         json
+      end
+
+      def prepare_params_for_central_mail_and_log_error(e)
+        params['veteran_full_name'] ||= {
+          'first' => params['full_name']['first'],
+          'last' => params['full_name']['last']
+        }
+        params['veteran_id'] ||= { 'ssn' => params['ssn'] }
+        params['veteran_mailing_address'] ||= { 'postal_code' => @current_user.address[:postal_code] || '00000' }
+        Rails.logger.info(
+          'Simple forms api - 21-0966 Benefits Claims Intent to File API error,' \
+          'reverting to filling a PDF and sending it to Benefits Intake API',
+          {
+            error: e,
+            is_current_user_participant_id_present: @current_user.participant_id ? true : false,
+            current_user_account_uuid: @current_user.user_account_uuid
+          }
+        )
+      end
+
+      def json_for210966(confirmation_number, expiration_date, existing_intents)
+        { json: {
+          confirmation_number:,
+          expiration_date:,
+          compensation_intent: existing_intents['compensation'],
+          pension_intent: existing_intents['pension'],
+          survivor_intent: existing_intents['survivor']
+        } }
       end
     end
   end

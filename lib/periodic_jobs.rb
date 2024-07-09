@@ -99,10 +99,8 @@ PERIODIC_JOBS = lambda { |mgr|
   # Updates Cypress files in vets-website with data from Google Analytics.
   mgr.register('0 13 * * 1', 'Mobile::V0::WeeklyMaintenanceWindowLogger')
   # Weekly logs of maintenance windows
-  mgr.register('0 20 * * *', 'ClaimsApi::ClaimAuditor')
-  # Hourly slack alert of errored claim submissions
   mgr.register('0 * * * *', 'ClaimsApi::ReportHourlyUnsuccessfulSubmissions')
-  # Daily alert of pending claims longer than acceptable threshold
+  # Hourly slack alert of errored claim submissions
   mgr.register('15 23 * * *', 'ClaimsApi::ReportUnsuccessfulSubmissions')
   # Weekly report of unsuccessful claims submissions
   mgr.register('00 00 1 * *', 'ClaimsApi::ReportMonthlySubmissions')

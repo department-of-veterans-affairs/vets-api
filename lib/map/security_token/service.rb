@@ -17,8 +17,15 @@ module MAP
         end
         Rails.logger.info("#{config.logging_prefix} token success", { application:, icn:, cached_response: })
         token
+      rescue Common::Client::Errors::ParsingError => e
+        Rails.logger.error("#{config.logging_prefix} token failed, parsing error", application:, icn:,
+                                                                                   context: e.message)
+        raise e
       rescue Common::Client::Errors::ClientError => e
         parse_and_raise_error(e, icn, application)
+      rescue Common::Exceptions::GatewayTimeout => e
+        Rails.logger.error("#{config.logging_prefix} token failed, gateway timeout", application:, icn:)
+        raise e
       rescue Errors::ApplicationMismatchError => e
         Rails.logger.error(e.message, application:, icn:)
         raise e
@@ -39,7 +46,7 @@ module MAP
 
       def parse_and_raise_error(e, icn, application)
         status = e.status
-        parse_body = e.body.present? ? JSON.parse(e.body) : {}
+        parse_body = e.body.presence || {}
         context = { error: parse_body['error'] }
         message = "#{config.logging_prefix} token failed, client error"
 
@@ -48,7 +55,7 @@ module MAP
       end
 
       def parse_response(response, application, icn)
-        response_body = JSON.parse(response.body)
+        response_body = response.body
 
         {
           access_token: response_body['access_token'],

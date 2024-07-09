@@ -26,6 +26,10 @@ module SimpleFormsApi
         expiration_date = response.dig('data', 'attributes', 'expirationDate')
       end
 
+      Rails.logger.info(
+        'Simple forms api - sent to benefits claims, intent to file',
+        { benefit_selections:, confirmation_number: }
+      )
       [confirmation_number, expiration_date]
     end
 

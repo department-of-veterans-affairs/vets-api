@@ -92,7 +92,7 @@ RSpec.describe 'Forms uploader', type: :request do
       end
 
       context 'request with intent to file' do
-        context 'authenticated' do
+        context 'authenticated but without participant_id' do
           before do
             sign_in
             allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
@@ -119,6 +119,36 @@ RSpec.describe 'Forms uploader', type: :request do
                 parsed_expiration_date = Time.zone.parse(parsed_response_body['expiration_date'])
                 expect(parsed_expiration_date.to_s).to eq (expiration_date + 1.year).to_s
               end
+            end
+          end
+
+          context 'fails to go to Lighthouse Benefits Claims API because of UnprocessableEntity error' do
+            before do
+              VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/422_response')
+            end
+
+            after do
+              VCR.eject_cassette('lighthouse/benefits_claims/intent_to_file/422_response')
+            end
+
+            it 'catches the exception and sends a PDF to Central Mail instead' do
+              expect_any_instance_of(SimpleFormsApi::PdfUploader).to receive(
+                :upload_to_benefits_intake
+              ).and_return([:ok, 'confirmation number'])
+              fixture_path = Rails.root.join(
+                'modules',
+                'simple_forms_api',
+                'spec',
+                'fixtures',
+                'form_json',
+                'vba_21_0966-min.json'
+              )
+              data = JSON.parse(fixture_path.read)
+              data['preparer_identification'] = 'VETERAN'
+
+              post '/simple_forms_api/v1/simple_forms', params: data
+
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -248,6 +278,7 @@ RSpec.describe 'Forms uploader', type: :request do
         before do
           sign_in
           allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+          allow_any_instance_of(User).to receive(:participant_id).and_return('fake-participant-id')
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
         end
 
@@ -701,6 +732,7 @@ RSpec.describe 'Forms uploader', type: :request do
           user = create(:user)
           sign_in_as(user)
           allow_any_instance_of(User).to receive(:va_profile_email).and_return('abraham.lincoln@vets.gov')
+          allow_any_instance_of(User).to receive(:participant_id).and_return('fake-participant-id')
           allow(VANotify::EmailJob).to receive(:perform_async)
         end
 

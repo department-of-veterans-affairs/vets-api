@@ -96,7 +96,7 @@ RSpec.describe Users::Profile do
         it 'includes sign_in' do
           expect(profile[:sign_in]).to eq(service_name: SAML::User::IDME_CSID,
                                           auth_broker: SAML::URLService::BROKER_CODE,
-                                          client_id: SAML::URLService::WEB_CLIENT_ID)
+                                          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first)
         end
 
         context 'multifactor' do
@@ -119,7 +119,7 @@ RSpec.describe Users::Profile do
         it 'includes sign_in' do
           expect(profile[:sign_in]).to eq(service_name: SAML::User::MHV_ORIGINAL_CSID,
                                           auth_broker: SAML::URLService::BROKER_CODE,
-                                          client_id: SAML::URLService::WEB_CLIENT_ID)
+                                          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first)
         end
       end
 
@@ -130,7 +130,7 @@ RSpec.describe Users::Profile do
         it 'includes sign_in' do
           expect(profile[:sign_in]).to eq(service_name: SAML::User::DSLOGON_CSID,
                                           auth_broker: SAML::URLService::BROKER_CODE,
-                                          client_id: SAML::URLService::WEB_CLIENT_ID)
+                                          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first)
         end
       end
 

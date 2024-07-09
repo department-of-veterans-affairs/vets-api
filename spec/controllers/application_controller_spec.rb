@@ -531,7 +531,7 @@ RSpec.describe ApplicationController, type: :controller do
         'signIn' => {
           'serviceName' => 'idme',
           'authBroker' => 'iam',
-          'clientId' => 'web'
+          'clientId' => 'vaweb'
         },
         'credential_used' => 'idme',
         'session_uuid' => token,
