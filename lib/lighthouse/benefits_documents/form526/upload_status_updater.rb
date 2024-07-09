@@ -70,19 +70,6 @@ module BenefitsDocuments
         @lighthouse526_document_upload.update!(status_last_polled_at: DateTime.now.utc)
       end
 
-      def get_failure_step
-        return unless failed? && @lighthouse526_document_status['error']
-
-        @lighthouse526_document_status['error']['step']
-      end
-
-      # Returns true if document is still processing in Lighthouse, and initiated more than a set number of hours ago
-      def processing_timeout?
-        return false if @lighthouse526_document_status.dig('time', 'endTime')
-
-        start_time < PROCESSING_TIMEOUT_WINDOW_IN_HOURS.hours.ago.utc
-      end
-
       private
 
       def status_changed?
