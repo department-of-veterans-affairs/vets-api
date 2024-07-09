@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'pensions/tag_sentry'
 require 'pensions/monitor'
 
