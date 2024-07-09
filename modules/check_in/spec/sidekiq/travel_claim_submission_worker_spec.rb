@@ -15,6 +15,7 @@ shared_examples 'travel claims worker #perform' do |facility_type|
       @statsd_duplicate = CheckIn::Constants::OH_STATSD_BTSSS_DUPLICATE
       @statsd_timeout = CheckIn::Constants::OH_STATSD_BTSSS_TIMEOUT
       @statsd_error = CheckIn::Constants::OH_STATSD_BTSSS_ERROR
+      @statsd_notify_success = CheckIn::Constants::STATSD_NOTIFY_SUCCESS
 
       allow(redis_client).to receive(:facility_type).and_return('oh')
     else
@@ -28,6 +29,7 @@ shared_examples 'travel claims worker #perform' do |facility_type|
       @statsd_duplicate = CheckIn::Constants::CIE_STATSD_BTSSS_DUPLICATE
       @statsd_timeout = CheckIn::Constants::CIE_STATSD_BTSSS_TIMEOUT
       @statsd_error = CheckIn::Constants::CIE_STATSD_BTSSS_ERROR
+      @statsd_notify_success = CheckIn::Constants::STATSD_NOTIFY_SUCCESS
 
       allow(redis_client).to receive(:facility_type).and_return(nil)
     end
@@ -48,10 +50,8 @@ shared_examples 'travel claims worker #perform' do |facility_type|
       )
       expect(worker).not_to receive(:log_exception_to_sentry)
 
-      Sidekiq::Testing.inline! do
-        VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_200', match_requests_on: [:host]) do
-          worker.perform(uuid, appt_date)
-        end
+      VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_200', match_requests_on: [:host]) do
+        worker.perform(uuid, appt_date)
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_success).exactly(1).time
@@ -74,10 +74,8 @@ shared_examples 'travel claims worker #perform' do |facility_type|
       )
       expect(worker).not_to receive(:log_exception_to_sentry)
 
-      Sidekiq::Testing.inline! do
-        VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_400_exists', match_requests_on: [:host]) do
-          worker.perform(uuid, appt_date)
-        end
+      VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_400_exists', match_requests_on: [:host]) do
+        worker.perform(uuid, appt_date)
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_duplicate).exactly(1).time
@@ -100,10 +98,8 @@ shared_examples 'travel claims worker #perform' do |facility_type|
       )
       expect(worker).not_to receive(:log_exception_to_sentry)
 
-      Sidekiq::Testing.inline! do
-        VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_500', match_requests_on: [:host]) do
-          worker.perform(uuid, appt_date)
-        end
+      VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_500', match_requests_on: [:host]) do
+        worker.perform(uuid, appt_date)
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
@@ -130,10 +126,8 @@ shared_examples 'travel claims worker #perform' do |facility_type|
       )
       expect(worker).not_to receive(:log_exception_to_sentry)
 
-      Sidekiq::Testing.inline! do
-        VCR.use_cassette('check_in/btsss/token/token_500', match_requests_on: [:host]) do
-          worker.perform(uuid, appt_date)
-        end
+      VCR.use_cassette('check_in/btsss/token/token_500', match_requests_on: [:host]) do
+        worker.perform(uuid, appt_date)
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
@@ -156,12 +150,57 @@ shared_examples 'travel claims worker #perform' do |facility_type|
       expect(StatsD).to receive(:increment)
         .with(CheckIn::Constants::STATSD_NOTIFY_ERROR).exactly(1).time
 
-      Sidekiq::Testing.inline! do
-        VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host]) do
-          VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_200', match_requests_on: [:host]) do
-            expect { worker.perform(uuid, appt_date) }.to raise_error(Common::Exceptions::BackendServiceException)
-          end
+      VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host]) do
+        VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_200', match_requests_on: [:host]) do
+          expect { worker.perform(uuid, appt_date) }.to raise_error(Common::Exceptions::BackendServiceException)
         end
+      end
+    end
+  end
+
+  context "when #{facility_type} facility and submit claim times out" do
+    before do
+      allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+    end
+
+    context 'when feature flag is on' do
+      it 'enqueues claim status job' do
+        worker = described_class.new
+
+        expect do
+          worker.perform(uuid, appt_date)
+        end.to change(CheckIn::TravelClaimStatusCheckWorker.jobs, :size).by(1)
+
+        expect(StatsD).not_to have_received(:increment).with(@statsd_timeout)
+        expect(StatsD).not_to have_received(:increment).with(@statsd_notify_success)
+      end
+    end
+
+    context 'when feature flag is off' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:check_in_experience_check_claim_status_on_timeout)
+                                            .and_return(false)
+      end
+
+      it 'sends notification with error message' do
+        worker = described_class.new
+        notify_client = double
+
+        expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
+                                                  .and_return(notify_client)
+        expect(notify_client).to receive(:send_sms).with(
+          phone_number: patient_cell_phone,
+          template_id: @timeout_template_id,
+          sms_sender_id: @sms_sender_id,
+          personalisation: { claim_number: nil, appt_date: notify_appt_date }
+        )
+
+        expect do
+          worker.perform(uuid, appt_date)
+        end.not_to change(CheckIn::TravelClaimStatusCheckWorker.jobs, :size)
+
+        expect(StatsD).to have_received(:increment).with(@statsd_timeout)
+        expect(StatsD).to have_received(:increment).with(@statsd_notify_success)
       end
     end
   end
@@ -184,12 +223,11 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
     allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_travel_btsss_ssm_urls_enabled').and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:check_in_experience_check_claim_status_on_timeout)
+                                        .and_return(true)
 
-    allow(redis_client).to receive(:patient_cell_phone).and_return(patient_cell_phone)
-    allow(redis_client).to receive(:token).and_return(redis_token)
-    allow(redis_client).to receive(:icn).and_return(icn)
-    allow(redis_client).to receive(:station_number).and_return(station_number)
-    allow(redis_client).to receive(:facility_type).and_return(nil)
+    allow(redis_client).to receive_messages(patient_cell_phone:, token: redis_token, icn:,
+                                            station_number:, facility_type: nil)
 
     allow(StatsD).to receive(:increment)
   end
@@ -200,61 +238,5 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
 
   describe '#perform for oracle health sites' do
     include_examples 'travel claims worker #perform', 'oracle_health'
-  end
-
-  context 'travel claim throws timeout error' do
-    before do
-      allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-    end
-
-    it 'throws timeout exception and sends notification with cie error message' do
-      worker = described_class.new
-      notify_client = double
-
-      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
-                                                .and_return(notify_client)
-
-      expect(notify_client).to receive(:send_sms).with(
-        phone_number: patient_cell_phone,
-        template_id: 'cie_fake_timeout_template_id',
-        sms_sender_id: 'cie_fake_sms_sender_id',
-        personalisation: { claim_number: nil, appt_date: notify_appt_date }
-      )
-
-      Sidekiq::Testing.inline! do
-        worker.perform(uuid, appt_date)
-      end
-
-      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_TIMEOUT)
-                                                 .exactly(1).time
-      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
-                                                 .exactly(1).time
-    end
-
-    it 'throws timeout exception and sends notification with oh error message' do
-      allow(redis_client).to receive(:facility_type).and_return('oh')
-
-      worker = described_class.new
-      notify_client = double
-
-      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
-                                                .and_return(notify_client)
-
-      expect(notify_client).to receive(:send_sms).with(
-        phone_number: patient_cell_phone,
-        template_id: 'oh_fake_timeout_template_id',
-        sms_sender_id: 'oh_fake_sms_sender_id',
-        personalisation: { claim_number: nil, appt_date: notify_appt_date }
-      )
-
-      Sidekiq::Testing.inline! do
-        worker.perform(uuid, appt_date)
-      end
-
-      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_TIMEOUT)
-                                                 .exactly(1).time
-      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
-                                                 .exactly(1).time
-    end
   end
 end

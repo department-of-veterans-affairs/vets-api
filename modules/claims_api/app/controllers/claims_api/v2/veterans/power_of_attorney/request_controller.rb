@@ -23,15 +23,15 @@ module ClaimsApi
                   @claims_api_forms_validation_errors
           end
 
-          bgs_form_attributes = form_attributes.deep_merge(veteran_data)
-          bgs_form_attributes.deep_merge!(claimant_data) if user_profile&.status == :ok
-          bgs_form_attributes.deep_merge!(representative_data)
-          bgs_form_attributes.deep_merge!(organization_data) if @organization
+          bgs_form_attributes = build_bgs_attributes(form_attributes)
 
-          ClaimsApi::PowerOfAttorneyRequestService::Orchestrator.new(target_veteran.participant_id,
-                                                                     bgs_form_attributes.deep_symbolize_keys,
-                                                                     user_profile&.profile&.participant_id,
-                                                                     :poa).submit_request
+          # skip the BGS API calls in lower environments to prevent 3rd parties from creating data in external systems
+          unless Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
+            ClaimsApi::PowerOfAttorneyRequestService::Orchestrator.new(target_veteran.participant_id,
+                                                                       bgs_form_attributes.deep_symbolize_keys,
+                                                                       user_profile&.profile&.participant_id,
+                                                                       :poa).submit_request
+          end
 
           # return only the form information consumers provided
           render json: { data: { attributes: form_attributes } }, status: :created
@@ -57,6 +57,15 @@ module ClaimsApi
           # organization is not required. An attorney or claims agent appointment request would not have an accredited
           #   organization to associate with.
           @organization = ::Veteran::Service::Organization.find_by(poa: poa_code)
+        end
+
+        def build_bgs_attributes(form_attributes)
+          bgs_form_attributes = form_attributes.deep_merge(veteran_data)
+          bgs_form_attributes.deep_merge!(claimant_data) if user_profile&.status == :ok
+          bgs_form_attributes.deep_merge!(representative_data)
+          bgs_form_attributes.deep_merge!(organization_data) if @organization
+
+          bgs_form_attributes
         end
 
         def veteran_data

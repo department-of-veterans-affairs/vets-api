@@ -1,5 +1,6 @@
 {
   "form_number": "10-10D",
+  "certifier_role": "applicant",
   "primary_contact_info": {
     "name": {
       "first": "Veteran",
@@ -142,10 +143,10 @@
     }
   ],
   "certification": {
-    "lastName": "Joe",
-    "firstName": "GI",
-    "middleInitial": "Canceled",
-    "streetAddress": "Hasbro",
+    "last_name": "Joe",
+    "first_name": "GI",
+    "middle_initial": "Canceled",
+    "street_address": "Hasbro",
     "city": "Burbank",
     "postal_code": "90041",
     "state": "CA",

@@ -42,9 +42,7 @@ RSpec.describe Webhooks::CallbackUrlJob, type: :job do
 
   def mock_faraday(status, body, success)
     allow(Faraday).to receive(:post).and_return(faraday_response)
-    allow(faraday_response).to receive(:status).and_return(status)
-    allow(faraday_response).to receive(:body).and_return(body)
-    allow(faraday_response).to receive(:success?).and_return(success)
+    allow(faraday_response).to receive_messages(status:, body:, success?: success)
   end
 
   it 'notifies the callback urls' do

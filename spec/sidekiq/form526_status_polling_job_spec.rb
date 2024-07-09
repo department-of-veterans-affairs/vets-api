@@ -4,39 +4,16 @@ require 'rails_helper'
 
 RSpec.describe Form526StatusPollingJob, type: :job do
   describe '#perform' do
-    let!(:new_submission) { create(:form526_submission, aasm_state: 'unprocessed') }
-    let!(:failed_primary_submission) do
-      create(:form526_submission, aasm_state: 'failed_primary_delivery')
-    end
-    let!(:rejected_primary_submission) do
-      create(:form526_submission, aasm_state: 'rejected_by_primary')
-    end
-    let!(:complete_primary_submission) do
-      create(:form526_submission, aasm_state: 'delivered_to_primary')
-    end
-    let!(:failed_backup_submission) do
-      create(:form526_submission, aasm_state: 'failed_backup_delivery')
+    let!(:new_submission) { create(:form526_submission) }
+    let!(:backup_submission_a) { create(:form526_submission, :backup_path) }
+    let!(:backup_submission_b) { create(:form526_submission, :backup_path) }
+    let!(:backup_submission_c) { create(:form526_submission, :backup_path) }
+    let!(:backup_submission_d) { create(:form526_submission, :backup_path) }
+    let!(:accepted_backup_submission) do
+      create(:form526_submission, :backup_path, backup_submitted_claim_status: 'accepted')
     end
     let!(:rejected_backup_submission) do
-      create(:form526_submission, aasm_state: 'rejected_by_backup')
-    end
-    let!(:in_remediation_submission) do
-      create(:form526_submission, :backup_path, aasm_state: 'in_remediation')
-    end
-    let!(:complete_submission) do
-      create(:form526_submission, :backup_path, aasm_state: 'finalized_as_successful')
-    end
-    let!(:delivered_backup_submission_a) do
-      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
-    end
-    let!(:delivered_backup_submission_b) do
-      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
-    end
-    let!(:delivered_backup_submission_c) do
-      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
-    end
-    let!(:delivered_backup_submission_d) do
-      create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
+      create(:form526_submission, :backup_path, backup_submitted_claim_status: 'rejected')
     end
 
     describe 'submission to the bulk status report endpoint' do
@@ -46,10 +23,10 @@ RSpec.describe Form526StatusPollingJob, type: :job do
         allow(response).to receive(:body).and_return({ 'data' => [] })
 
         expect(pending_claim_ids).to contain_exactly(
-          delivered_backup_submission_a.backup_submitted_claim_id,
-          delivered_backup_submission_b.backup_submitted_claim_id,
-          delivered_backup_submission_c.backup_submitted_claim_id,
-          delivered_backup_submission_d.backup_submitted_claim_id
+          backup_submission_a.backup_submitted_claim_id,
+          backup_submission_b.backup_submitted_claim_id,
+          backup_submission_c.backup_submitted_claim_id,
+          backup_submission_d.backup_submitted_claim_id
         )
 
         expect_any_instance_of(BenefitsIntakeService::Service)
@@ -96,30 +73,30 @@ RSpec.describe Form526StatusPollingJob, type: :job do
         {
           'data' => [
             {
-              'id' => delivered_backup_submission_a.backup_submitted_claim_id,
+              'id' => backup_submission_a.backup_submitted_claim_id,
               'attributes' => {
-                'guid' => delivered_backup_submission_a.backup_submitted_claim_id,
+                'guid' => backup_submission_a.backup_submitted_claim_id,
                 'status' => 'vbms'
               }
             },
             {
-              'id' => delivered_backup_submission_b.backup_submitted_claim_id,
+              'id' => backup_submission_b.backup_submitted_claim_id,
               'attributes' => {
-                'guid' => delivered_backup_submission_b.backup_submitted_claim_id,
+                'guid' => backup_submission_b.backup_submitted_claim_id,
                 'status' => 'success'
               }
             },
             {
-              'id' => delivered_backup_submission_c.backup_submitted_claim_id,
+              'id' => backup_submission_c.backup_submitted_claim_id,
               'attributes' => {
-                'guid' => delivered_backup_submission_c.backup_submitted_claim_id,
+                'guid' => backup_submission_c.backup_submitted_claim_id,
                 'status' => 'error'
               }
             },
             {
-              'id' => delivered_backup_submission_d.backup_submitted_claim_id,
+              'id' => backup_submission_d.backup_submitted_claim_id,
               'attributes' => {
-                'guid' => delivered_backup_submission_d.backup_submitted_claim_id,
+                'guid' => backup_submission_d.backup_submitted_claim_id,
                 'status' => 'expired'
               }
             }
@@ -130,6 +107,7 @@ RSpec.describe Form526StatusPollingJob, type: :job do
       it 'updates local state to reflect the returned statuses' do
         pending_claim_ids = Form526Submission.pending_backup_submissions.pluck(:backup_submitted_claim_id)
         response = double
+
         allow(response).to receive(:body).and_return(api_response)
         allow_any_instance_of(BenefitsIntakeService::Service)
           .to receive(:get_bulk_status_of_uploads)
@@ -138,10 +116,10 @@ RSpec.describe Form526StatusPollingJob, type: :job do
 
         Form526StatusPollingJob.new.perform
 
-        expect(delivered_backup_submission_a.reload.aasm_state).to eq 'finalized_as_successful'
-        expect(delivered_backup_submission_b.reload.aasm_state).to eq 'finalized_as_successful'
-        expect(delivered_backup_submission_c.reload.aasm_state).to eq 'rejected_by_backup'
-        expect(delivered_backup_submission_d.reload.aasm_state).to eq 'rejected_by_backup'
+        expect(backup_submission_a.reload.backup_submitted_claim_status).to eq 'accepted'
+        expect(backup_submission_b.reload.backup_submitted_claim_status).to eq nil
+        expect(backup_submission_c.reload.backup_submitted_claim_status).to eq 'rejected'
+        expect(backup_submission_d.reload.backup_submitted_claim_status).to eq 'rejected'
       end
     end
   end

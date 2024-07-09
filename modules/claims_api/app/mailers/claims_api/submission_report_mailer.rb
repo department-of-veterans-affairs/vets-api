@@ -13,7 +13,7 @@ module ClaimsApi
       tyler.coleman@oddball.io
     ].freeze
 
-    def build(date_from, date_to, pact_act_data, data)
+    def build(date_from, date_to, data)
       @date_from = date_from.in_time_zone('Eastern Time (US & Canada)').strftime('%a %D %I:%M %p')
       @date_to = date_to.in_time_zone('Eastern Time (US & Canada)').strftime('%a %D %I:%M %p')
       @data = { month: {} }
@@ -23,7 +23,6 @@ module ClaimsApi
       @itf_totals = data[:itf_totals]
       @ews_totals = data[:ews_totals]
 
-      pact_act_submissions(pact_act_data)
       @data.deep_symbolize_keys!
 
       template = File.read(path)
@@ -47,18 +46,6 @@ module ClaimsApi
         'submission_report_mailer',
         'submission_report.html.erb'
       )
-    end
-
-    def pact_act_submissions(pact_act_data)
-      return if pact_act_data.blank?
-
-      pact_act_data.pluck(:claim_type).uniq.sort.each do |kind|
-        @data[:month][kind] = {}
-        subs = pact_act_data.select { |sub| sub[:claim_type] == kind }
-        subs.pluck(:consumer_label).uniq.sort.each do |label|
-          @data[:month][kind][label] = subs.select { |sub| sub[:consumer_label] == label }.size
-        end
-      end
     end
   end
 end

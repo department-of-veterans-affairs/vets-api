@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_13_175759) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_08_210311) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -683,6 +683,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_13_175759) do
     t.index ["job_id"], name: "index_form526_job_statuses_on_job_id", unique: true
   end
 
+  create_table "form526_submission_remediations", force: :cascade do |t|
+    t.bigint "form526_submission_id", null: false
+    t.text "lifecycle", default: [], array: true
+    t.boolean "success", default: true
+    t.boolean "ignored_as_duplicate", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["form526_submission_id"], name: "index_form526_submission_remediations_on_form526_submission_id"
+  end
+
   create_table "form526_submissions", id: :serial, force: :cascade do |t|
     t.string "user_uuid", null: false
     t.integer "saved_claim_id", null: false
@@ -699,6 +709,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_13_175759) do
     t.string "backup_submitted_claim_id", comment: "*After* a SubmitForm526 Job has exhausted all attempts, a paper submission is generated and sent to Central Mail Portal.This column will be nil for all submissions where a backup submission is not generated.It will have the central mail id for submissions where a backup submission is submitted."
     t.string "aasm_state", default: "unprocessed"
     t.integer "submit_endpoint"
+    t.integer "backup_submitted_claim_status"
     t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
     t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
     t.index ["user_account_id"], name: "index_form526_submissions_on_user_account_id"
@@ -876,6 +887,25 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_13_175759) do
     t.datetime "updated_at", null: false
     t.string "case_id"
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
+  end
+
+  create_table "lighthouse526_document_uploads", force: :cascade do |t|
+    t.bigint "form526_submission_id", null: false
+    t.bigint "form_attachment_id"
+    t.string "lighthouse_document_request_id", null: false
+    t.string "aasm_state"
+    t.string "document_type"
+    t.datetime "lighthouse_processing_started_at"
+    t.datetime "lighthouse_processing_ended_at"
+    t.datetime "status_last_polled_at"
+    t.jsonb "error_message"
+    t.jsonb "last_status_response"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["aasm_state"], name: "index_lighthouse526_document_uploads_on_aasm_state"
+    t.index ["form526_submission_id"], name: "index_lighthouse526_document_uploads_on_form526_submission_id"
+    t.index ["form_attachment_id"], name: "index_lighthouse526_document_uploads_on_form_attachment_id"
+    t.index ["status_last_polled_at"], name: "index_lighthouse526_document_uploads_on_status_last_polled_at"
   end
 
   create_table "maintenance_windows", id: :serial, force: :cascade do |t|
@@ -1283,6 +1313,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_13_175759) do
     t.index ["created_at"], name: "index_vba_documents_upload_submissions_on_created_at"
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["s3_deleted"], name: "index_vba_documents_upload_submissions_on_s3_deleted"
+    t.index ["status", "created_at"], name: "index_vba_docs_upload_submissions_status_created_at", where: "(s3_deleted IS NOT TRUE)"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end
 
@@ -1568,6 +1599,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_13_175759) do
   add_foreign_key "deprecated_user_accounts", "user_verifications"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
   add_foreign_key "evss_claims", "user_accounts"
+  add_foreign_key "form526_submission_remediations", "form526_submissions"
   add_foreign_key "form526_submissions", "user_accounts"
   add_foreign_key "form5655_submissions", "user_accounts"
   add_foreign_key "form_submission_attempts", "form_submissions"
@@ -1577,6 +1609,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_13_175759) do
   add_foreign_key "health_quest_questionnaire_responses", "user_accounts"
   add_foreign_key "in_progress_forms", "user_accounts"
   add_foreign_key "inherited_proof_verified_user_accounts", "user_accounts"
+  add_foreign_key "lighthouse526_document_uploads", "form526_submissions"
+  add_foreign_key "lighthouse526_document_uploads", "form_attachments"
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"

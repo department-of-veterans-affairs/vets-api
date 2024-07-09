@@ -45,6 +45,12 @@ module VAOS
             merge_facility(appt) if include[:facilities]
             cnp_count += 1 if cnp?(appt)
           end
+
+          if Flipper.enabled?(:appointments_consolidation, user)
+            filterer = AppointmentsPresentationFilter.new
+            appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
+          end
+
           # log count of C&P appointments in the appointments list, per GH#78141
           log_cnp_appt_count(cnp_count) if cnp_count.positive?
           {
@@ -53,6 +59,7 @@ module VAOS
           }
         end
       end
+
       # rubocop:enable Metrics/MethodLength
 
       def get_appointment(appointment_id)
@@ -94,6 +101,7 @@ module VAOS
           raise e
         end
       end
+
       # rubocop:enable Metrics/MethodLength
 
       def update_appointment(appt_id, status)
@@ -153,6 +161,7 @@ module VAOS
 
         facility_info[:timezone]&.[](:time_zone_id)
       end
+
       memoize :get_facility_timezone_memoized
 
       private
@@ -192,9 +201,7 @@ module VAOS
 
       def prepare_appointment(appointment)
         # for CnP, covid, CC and telehealth appointments set cancellable to false per GH#57824, GH#58690, ZH#326
-        if cnp?(appointment) || covid?(appointment) || cc?(appointment) || telehealth?(appointment)
-          set_cancellable_false(appointment)
-        end
+        set_cancellable_false(appointment) if cannot_be_cancelled?(appointment)
 
         # remove service type(s) for non-medical non-CnP appointments per GH#56197
         unless medical?(appointment) || cnp?(appointment) || no_service_cat?(appointment)
@@ -208,7 +215,9 @@ module VAOS
         if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
           fetch_avs_and_update_appt_body(appointment)
         end
-        find_and_merge_provider_name(appointment) if appointment[:kind] == 'cc' && appointment[:status] == 'proposed'
+        if appointment[:kind] == 'cc' && %w[proposed cancelled].include?(appointment[:status])
+          find_and_merge_provider_name(appointment)
+        end
       end
 
       def find_and_merge_provider_name(appointment)
@@ -352,6 +361,11 @@ module VAOS
         err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
         Rails.logger.error("VAOS: Error retrieving AVS link: #{e.class}, #{e.message} \n   #{err_stack}")
         appt[:avs_path] = AVS_ERROR_MESSAGE
+      end
+
+      def cannot_be_cancelled?(appointment)
+        cnp?(appointment) || covid?(appointment) ||
+          (cc?(appointment) && booked?(appointment)) || telehealth?(appointment)
       end
 
       # Checks if appointment is eligible for receiving an AVS link, i.e.
