@@ -280,40 +280,9 @@ module ClaimsApi
     end
 
     def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
-      connection = log_duration event: 'establish_ssl_connection' do
-        Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
-          f.use :breakers
-          f.adapter Faraday.default_adapter
-        end
-      end
-      connection.options.timeout = @timeout
-
       begin
-        if Flipper.enabled? :claims_api_hardcode_wsdl
-          begin
-            namespace = ClaimsApi::LocalBGSRefactored::FindDefinition
-                        .for_service(endpoint)
-                        .bean.namespaces.target
-          rescue => e
-            unless e.is_a? ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
-              ClaimsApi::Logger.log('local_bgs',
-                                    detail: "local BGS FindDefinition Error: #{e.message}")
-            end
-
-            wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
-              connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
-            end
-            namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace').to_s
-          end
-        else
-          wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
-            connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
-          end
-          namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace').to_s
-        end
-
         url = "#{Settings.bgs.url}/#{endpoint}"
-        body = full_body(action:, body:, namespace:, namespaces:)
+        body = full_body(action:, body:, namespace: namespace(endpoint), namespaces:)
         headers = {
           'Content-Type' => 'text/xml;charset=UTF-8',
           'Host' => "#{@env}.vba.va.gov",
@@ -334,6 +303,45 @@ module ClaimsApi
       log_duration(event: 'parsed_response', key:) do
         parsed_response(response, action:, key:, transform: transform_response)
       end
+    end
+
+    def namespace(endpoint)
+      if Flipper.enabled? :claims_api_hardcode_wsdl
+        begin
+          ClaimsApi::LocalBGSRefactored::FindDefinition
+            .for_service(endpoint)
+            .bean.namespaces.target
+        rescue => e
+          unless e.is_a? ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
+            ClaimsApi::Logger.log('local_bgs', level: :error,
+                                               detail: "local BGS FindDefinition Error: #{e.message}")
+          end
+
+          fetch_namespace(endpoint)
+        end
+      else
+        fetch_namespace(endpoint)
+      end
+    end
+
+    def fetch_namespace(endpoint)
+      wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
+        connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
+      end
+      Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace').to_s
+    end
+
+    def connection
+      return @connection if @connection
+
+      conn = log_duration event: 'establish_ssl_connection' do
+        Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
+          f.use :breakers
+          f.adapter Faraday.default_adapter
+        end
+      end
+      conn.options.timeout = @timeout
+      conn
     end
 
     def construct_itf_body(options)
