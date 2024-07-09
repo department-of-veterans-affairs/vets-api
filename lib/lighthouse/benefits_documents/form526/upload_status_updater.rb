@@ -3,13 +3,13 @@
 module BenefitsDocuments
   module Form526
     class UploadStatusUpdater
-      # Parses the current status of a Lighthouse526DocumentUpload that has been submitted to Lighthouse,
-      # using metadata returned from the Lighthouse Benefits Documents API '/uploads/status' endpoint
-      # Encapsulates convenience methods for understanding if the document has completed all steps in Lighthouse or
-      # if there was a failure, to avoid having code elsewhere know the schema of Lighthouse's status data structure
+      # Parses the status of a Lighthouse526DocumentUpload submitted to Lighthouse
+      # using metadata from the Lighthouse Benefits Documents API '/uploads/status' endpoint.
+      # Provides methods to determine if a document has completed all steps or failed,
+      # abstracting away the details of the Lighthouse status data structure.
       #
-      # Additionally, updates the state of the Lighthouse526DocumentUpload in vets-api to reflect
-      # the current status of the document as it makes its way from Lighthouse > VBMS > BGS
+      # Additionally, updates the state of a Lighthouse526DocumentUpload in vets-api to reflect
+      # the current status of a document as it transitions from Lighthouse > VBMS > BGS
       #
       # Documentation on the Lighthouse '/uploads/status' endpoint is available here:
       # https://dev-developer.va.gov/explore/api/benefits-documents/docs?version=current
@@ -20,7 +20,7 @@ module BenefitsDocuments
 
       # @param lighthouse526_document_status [Hash] includes a single document's status progress
       # after it has been submitted to Lighthouse, while Lighthouse attempts to pass it on to
-      # VBMS and then BGS. This data comes from Lighthouse's 'uploads/status' endpoint
+      # VBMS and then BGS. These data come from Lighthouse's '/uploads/status' endpoint.
       #
       # @param lighthouse526_document_upload [Lighthouse526DocumentUpload] the VA.gov record of the document
       # submitted to Lighthouse for tracking.
@@ -119,6 +119,7 @@ module BenefitsDocuments
 
       def finalize_upload
         @lighthouse526_document_upload.update!(lighthouse_processing_ended_at: end_time)
+
         if completed?
           @lighthouse526_document_upload.complete!
         else
