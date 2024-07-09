@@ -25,8 +25,8 @@ RSpec.describe ClaimsApi::EwsUpdater, type: :job do
     end
   end
 
-  describe 'when an errored job has a time limitation' do
-    it 'logs to the ClaimsApi Logger' do
+  describe 'when an errored job has a 48 time limitation' do
+    it 'expires in 48 hours' do
       described_class.within_sidekiq_retries_exhausted_block do
         expect(subject).to be_expired_in 48.hours
       end
