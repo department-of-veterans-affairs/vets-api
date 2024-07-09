@@ -4,7 +4,7 @@ require_relative '../support/helpers/rails_helper'
 
 require 'lighthouse/benefits_documents/service'
 
-RSpec.describe 'claims document upload', skip_json_api_validation: true, type: :request do
+RSpec.describe 'claims document upload', :skip_json_api_validation, type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '24811694708759028') }

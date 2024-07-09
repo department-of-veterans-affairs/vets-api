@@ -144,7 +144,7 @@
         ]
       }
     ],
-    "includeToxicExposure": true,
+    "startedFormVersion": "2022",
     "toxicExposure": {
       "conditions": {
         "arthritis": true
@@ -219,7 +219,7 @@
         "radiation": true,
         "water": true
       },
-      "otherExposureDetails": {
+      "otherExposuresDetails": {
         "asbestos": {
           "startDate": "1991-03-01",
           "endDate": "1992-01-01"

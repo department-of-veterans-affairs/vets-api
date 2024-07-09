@@ -30,10 +30,10 @@ module DebtsApi
         end
 
         def amount_can_be_paid_toward_debt
-          debts_and_copays = @form['selectedDebtsAndCopays']
+          debts_and_copays = @form['selected_debts_and_copays']
           amount_paid = debts_and_copays
-                        .select { |item| item['resolutionComment'].present? }
-                        .reduce(0) { |acc, item| acc + str_to_num(item['resolutionComment']) }
+                        .select { |item| item['resolution_comment'].present? }
+                        .reduce(0) { |acc, item| acc + str_to_num(item['resolution_comment']) }
 
           format_number(amount_paid)
         end

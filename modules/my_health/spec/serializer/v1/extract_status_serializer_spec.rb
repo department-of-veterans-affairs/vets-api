@@ -3,35 +3,34 @@
 require 'rails_helper'
 require 'bb/generate_report_request_form'
 
-describe MyHealth::V1::ExtractStatusSerializer do
-  let(:extract_status) { build(:extract_status) }
+describe MyHealth::V1::ExtractStatusSerializer, type: :serializer do
+  subject { serialize(extract_status, serializer_class: described_class) }
 
-  let(:rendered_hash) do
-    ActiveModelSerializers::SerializableResource.new(extract_status, { serializer: described_class }).as_json
-  end
-  let(:rendered_attributes) { rendered_hash[:data][:attributes] }
+  let(:extract_status) { build(:extract_status) }
+  let(:data) { JSON.parse(subject)['data'] }
+  let(:attributes) { data['attributes'] }
 
   it 'includes :id' do
-    expect(rendered_hash[:data][:id]).to eq extract_status.id
+    expect(data['id']).to eq extract_status.id.to_s
   end
 
   it 'includes :extract_type' do
-    expect(rendered_attributes[:extract_type]).to eq extract_status.extract_type
+    expect(attributes['extract_type']).to eq extract_status.extract_type
   end
 
   it 'includes :last_updated' do
-    expect(rendered_attributes[:last_updated]).to eq extract_status.last_updated
+    expect_time_eq(attributes['last_updated'], extract_status.last_updated)
   end
 
   it 'includes :status' do
-    expect(rendered_attributes[:status]).to eq extract_status.status
+    expect(attributes['status']).to eq extract_status.status
   end
 
   it 'includes :created_on' do
-    expect(rendered_attributes[:created_on]).to eq extract_status.created_on
+    expect_time_eq(attributes['created_on'], extract_status.created_on)
   end
 
   it 'includes :station_number' do
-    expect(rendered_attributes[:station_number]).to eq extract_status.station_number
+    expect(attributes['station_number']).to eq extract_status.station_number
   end
 end

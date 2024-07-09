@@ -23,6 +23,9 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal
     enable_in_development: true
+  appointments_consolidation:
+    actor_type: user
+    description: For features being tested while merging logic for appointments between web and mobile
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
@@ -136,10 +139,6 @@ features:
     actor_type: user
     description: Enables telephone appointments for check-in
     enable_in_development: false
-  check_in_experience_pre_check_in_action_link_top_placement:
-    actor_type: cookie_id
-    description: Changes pre-check-in action link placement to the top of the page
-    enable_in_development: true
   check_in_experience_travel_reimbursement:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
@@ -152,13 +151,13 @@ features:
     actor_type: user
     description: Enables travel claims filing for Oracle Health (Cerner) sites
     enable_in_development: true
-  check_in_experience_travel_logic:
-    actor_type: user
-    description: Enables the travel reimbursement logic
-    enable_in_development: true
   check_in_experience_45_minute_reminder:
     actor_type: user
     description: Enables the 45 minute reminder
+    enable_in_development: true
+  check_in_experience_check_claim_status_on_timeout:
+    actor_type: user
+    description: Uses a background worker to check travel claim status when the submission times out
     enable_in_development: true
   check_in_experience_browser_monitoring:
     actor_type: user
@@ -223,10 +222,6 @@ features:
   combined_financial_status_report:
     actor_type: user
     description: Enables users to submit FSR forms for VHA and VBA debts
-    enable_in_development: true
-  combined_financial_status_report_enhancements:
-    actor_type: user
-    description: Enables users to interact with the new cFSR enhancements and avoid list loops
     enable_in_development: true
   communication_preferences:
     actor_type: user
@@ -317,6 +312,10 @@ features:
   decision_review_sc_status_updater_enabled:
     actor_type: user
     description: Enables the Supplemental Claim status update batch job
+  decision_review_sc_use_lighthouse_api_for_form4142:
+    actor_type: user
+    description: Use Lighthouse API to submit Form 21-4142 from Supplemental Claims
+    enable_in_development: true
   decision_review_icn_updater_enabled:
     actor_type: user
     description: Enables the ICN lookup job
@@ -392,6 +391,9 @@ features:
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
+  disability_526_toxic_exposure_ipf:
+    actor_type: user
+    description: enables new pages, processing, and submission of toxic exposure claims for in progress forms (ipf)
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
@@ -483,14 +485,6 @@ features:
   financial_status_report_expenses_update:
     actor_type: user
     description: Update expense lists in the Financial Status Report (FSR - 5655) form
-    enable_in_development: true
-  financial_status_report_streamlined_waiver:
-    actor_type: user
-    description: Enables streamlined waiver flow for qualifying users completing the Financial Status Report (FSR) form
-    enable_in_development: true
-  financial_status_report_streamlined_waiver_assets:
-    actor_type: user
-    description: Enables a simplified asset calculation flow, including Cash in Bank, for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
   financial_status_report_review_page_navigation:
     actor_type: user
@@ -613,6 +607,9 @@ features:
     actor_type: user
     description: Enables form email submission confirmations (for allowed email types via VaNotify)
     enable_in_development: true
+  simple_forms_lighthouse_benefits_intake_service:
+    actor_type: user
+    description: Enables use of the Lighthouse BenefitsIntake::Service instead of the SimpleFormsApiSubmission::Service
   form2010206:
     actor_type: user
     description: If enabled shows the digital form experience for form 20-10206
@@ -643,6 +640,12 @@ features:
   form400247:
     actor_type: user
     description: If enabled shows the digital form experience for form 40-0247
+  form1010d:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
+  form107959f1:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program)
   form_upload_flow:
     actor_type: user
     description: If enabled shows the find-a-form widget for the Form Upload Flow
@@ -700,6 +703,10 @@ features:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
     enable_in_development: true
+  lighthouse_claims_v2_poa_requests_skip_bgs:
+    actor_type: user
+    description: Enable/disable skipping BGS calls for POA Requests
+    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
@@ -722,10 +729,6 @@ features:
   medical_copay_notifications:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
-    enable_in_development: true
-  mhv_landing_page_enabled:
-    actor_type: user
-    description: Enables the My HealtheVet landing page on VA.gov
     enable_in_development: true
   mhv_landing_page_show_priority_group:
     actor_type: user
@@ -816,6 +819,10 @@ features:
   mhv_medications_display_refill_content:
     actor_type: user
     description: Enables/disables refill-related content for Medications on VA.gov
+    enable_in_development: true
+  mhv_medications_display_documentation_content:
+    actor_type: user
+    description: Enables/disables documentation-related content for Medications on VA.gov
     enable_in_development: true
   mhv_landing_page_enable_va_gov_health_tools_links:
     actor_type: user
@@ -931,10 +938,6 @@ features:
     actor_type: user
   profile_use_vafsc:
     description: Use VA Forms System Core for forms instead of schema based forms
-    actor_type: user
-    enable_in_development: true
-  profile_contacts:
-    description: Enable the Personal Health Care Contacts feature. Data provided by the VA Profile Health Benefit Service.
     actor_type: user
     enable_in_development: true
   pw_ehr_cta_drupal_source_of_truth:
@@ -1088,6 +1091,10 @@ features:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
     enable_in_development: true
+  dgi_rudisill_hide_benefits_selection_step:
+    actor_type: user
+    description: Hides benefit selection page on original claims application.
+    enable_in_development: false
   show_forms_app:
     actor_type: user
     description: Enables the TOE form to be displayed.
@@ -1187,10 +1194,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for display of clinic location on appointment detail page
-  va_online_scheduling_status_improvement:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for homepage status improvement
   va_online_scheduling_status_improvement_canceled:
     actor_type: user
     enable_in_development: true
@@ -1266,15 +1269,27 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for displaying the most recent facilities on the Choose your VA location page.
-  va_view_dependents_access:
-    actor_type: user
-    description: Allows us to gate the View/ Modify dependents content in a progressive rollout
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
+  va_profile_information_v3_service:
+    actor_type: user
+    description: When enabled, the VAProfile::V3::Service will be enabled for VaProfile::ProfileInformation
+    enable_in_development: false
+  va_profile_information_v3_redis:
+    actor_type: user
+    description: When enabled, the VAProfileRedis::ProfileInformation will be enabled for VaProfile::ProfileInformation
+    enable_in_development: false
+  va_profile_information_v3_transactions:
+    actor_type: user
+    description: When enabled, the transactions will be enabled for VAProfile::ProfileInformation
+    enable_in_development: false
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
+  veteran_onboarding_show_to_newly_onboarded:
+    actor_type: user
+    description: Conditionally display the new veteran onboarding flow to user, based upon number of days since verified
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
@@ -1294,6 +1309,10 @@ features:
   payment_history:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
+    enable_in_development: true
+  cdp_payment_history_vba:
+    actor_type: user
+    description: Enables showing the overpayment and summary pages for the CDP Payment History
     enable_in_development: true
   show_digital_form_1095b:
     actor_type: user
@@ -1409,9 +1428,6 @@ features:
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
-  drupal_footer:
-    actor_type: user
-    description: If enabled, pulls Drupal data to populate most of the global footer
   virtual_agent_lighthouse_claims:
     actor_type: user
     description: Use lighthouse instead of EVSS to view benefit claims for virtual agent chatbot application
@@ -1436,6 +1452,10 @@ features:
   nod_confirmation_update:
     actor_type: user
     description: Show updated confirmation page with form data & downloadable PDF
+    enable_in_development: true
+  hlr_updateed_contnet:
+    actor_type: user
+    description: HLR show form content updates
     enable_in_development: true
   pension_ipf_callbacks_endpoint:
     actor_type: user
@@ -1473,6 +1493,13 @@ features:
   pension_claim_submission_to_lighthouse:
     actor_type: user
     description: Pension claim submission uses Lighthouse API
+  pension_multiple_page_response:
+    actor_type: user
+    description: Implement multiple page response pattern
+    enable_in_development: true
+  pension_module_enabled:
+    actor_type: user
+    description: Enable the pension module routes
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
@@ -1531,3 +1558,6 @@ features:
     actor_type: user
     description: Use the new facilities API v2 for the Cerner CTA. Estimated time of removal June 18, 2024 after testing of deployment on staging of authenticated user.
     enable_in_development: true
+  toggle_vye_application:
+    actor_type: user
+    description: Enable VYE

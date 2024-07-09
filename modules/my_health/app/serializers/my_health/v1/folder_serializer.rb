@@ -2,18 +2,17 @@
 
 module MyHealth
   module V1
-    class FolderSerializer < ActiveModel::Serializer
-      # include MyHealth::Engine.routes.url_helpers
+    class FolderSerializer
+      include JSONAPI::Serializer
 
-      attribute :id
+      set_type :folders
+      attributes :name, :count, :unread_count, :system_folder
 
-      attribute(:folder_id) { object.id }
-      attribute :name
-      attribute :count
-      attribute :unread_count
-      attribute :system_folder
+      attribute :folder_id, &:id
 
-      link(:self) { MyHealth::UrlHelper.new.v1_folder_url(object.id) }
+      link :self do |object|
+        MyHealth::UrlHelper.new.v1_folder_url(object.id)
+      end
     end
   end
 end

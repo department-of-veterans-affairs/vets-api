@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Form1010cg::PoaUploader, uploader_helpers: true do
+describe Form1010cg::PoaUploader, :uploader_helpers do
   let(:form_attachment_guid) { 'cdbaedd7-e268-49ed-b714-ec543fbb1fb8' }
   let(:subject) { described_class.new(form_attachment_guid) }
   let(:source_file_name) { 'doctors-note.jpg' }

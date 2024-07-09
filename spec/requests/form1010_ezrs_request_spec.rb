@@ -36,7 +36,7 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
       end
     end
 
-    context 'while authenticated', skip_mvi: true do
+    context 'while authenticated', :skip_mvi do
       let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534') }
 
       before do

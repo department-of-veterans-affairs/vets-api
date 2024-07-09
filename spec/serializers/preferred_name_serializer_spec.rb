@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe PreferredNameSerializer do
+describe PreferredNameSerializer, type: :serializer do
   subject { serialize(preferred_name_response, serializer_class: described_class) }
 
   let(:preferred_name_response) { build(:preferred_name_response) }
