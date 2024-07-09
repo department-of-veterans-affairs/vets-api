@@ -11,13 +11,11 @@ module ClaimsApi
       class EvidenceWaiverController < ClaimsApi::V2::ApplicationController
         before_action :set_lighthouse_claim
         before_action :set_bgs_claim!
-        before_action :validate_sponsor!
-        before_action :validate_file_number!
         before_action :verify_if_dependent_claim!
 
         def submit
           ews = create_ews(params[:id])
-          ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id)
+          ClaimsApi::EvidenceWaiverBuilderJob.new.perform(ews.id)
 
           render json: { success: true }
         end
@@ -33,28 +31,6 @@ module ClaimsApi
           @bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
 
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if @bgs_claim.blank?
-        end
-
-        def validate_sponsor!
-          if dependent_service(@bgs_claim).dependent_type_claim? && params[:sponsorIcn].blank?
-            claim_type = @bgs_claim&.dig(:benefit_claim_details_dto, :bnft_claim_type_cd)
-            detail = "SponsorICN is required for claim type #{claim_type}"
-
-            raise ::Common::Exceptions::ResourceNotFound.new(detail:)
-          end
-        end
-
-        def validate_file_number!
-          file_number_check(icn: params[:veteranId])
-
-          if @file_number.nil?
-            claims_v2_logging('EWS_submit', level: :error,
-                                            message: "EWS no file number error, claim_id: #{params[:id]}")
-
-            raise ::Common::Exceptions::ResourceNotFound.new(detail:
-              "Unable to locate Veteran's File Number. " \
-              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
-          end
         end
 
         def verify_if_dependent_claim!

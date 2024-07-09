@@ -83,26 +83,6 @@ RSpec.describe 'Evidence Waiver 5103', type: :request do
             end
           end
 
-          context 'when a veteran does not have a file number' do
-            it 'returns an error message' do
-              mock_ccg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
-                  allow_any_instance_of(ClaimsApi::V2::Veterans::EvidenceWaiverController)
-                    .to receive(:file_number_check).and_return(@file_number = nil)
-
-                  post sub_path, headers: auth_header
-                  json = JSON.parse(response.body)
-                  expect_res = json['errors'][0]['detail']
-
-                  expect(expect_res).to eq(
-                    "Unable to locate Veteran's File Number. " \
-                    'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
-                  )
-                end
-              end
-            end
-          end
-
           context 'when the submit is from a dependent' do
             it 'returns a 200 when the target_veteran.participant_id matches the pctpnt_clmant_id' do
               bgs_claim_response = build(:bgs_response_with_one_lc_status).to_h
