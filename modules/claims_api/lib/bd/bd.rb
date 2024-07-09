@@ -27,10 +27,6 @@ module ClaimsApi
       raise ::Common::Exceptions::GatewayTimeout.new(detail: 'Upstream service error.') unless res.is_a?(Hash)
 
       res.deep_symbolize_keys
-    rescue ::Common::Exceptions::GatewayTimeout => e
-      ClaimsApi::Logger.log('benefits_documents',
-                            detail: "/search failure for claimId #{claim_id}, #{e.message}")
-      raise
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "/search failure for claimId #{claim_id}, #{e.message}")
