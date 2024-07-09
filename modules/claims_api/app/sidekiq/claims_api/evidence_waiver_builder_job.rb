@@ -6,6 +6,7 @@ require 'claims_api/evidence_waiver_pdf/pdf'
 module ClaimsApi
   class EvidenceWaiverBuilderJob < ClaimsApi::ServiceBase
     include ClaimsApi::EwsVBMSSidekiq
+    sidekiq_options expires_in: 48.hours, retry: true
 
     # Generate a 5103 "form" for a given veteran.
     #
