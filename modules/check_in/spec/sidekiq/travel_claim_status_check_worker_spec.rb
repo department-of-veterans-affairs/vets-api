@@ -287,6 +287,7 @@ describe CheckIn::TravelClaimStatusCheckWorker, type: :worker do
 
     allow(StatsD).to receive(:increment)
     allow(Sidekiq.logger).to receive(:info)
+    allow(SemanticLogger::Logger).to receive(:new).and_return(Sidekiq.logger)
   end
 
   describe '#perform for vista sites' do
