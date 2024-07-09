@@ -16,7 +16,6 @@ module BenefitsDocuments
 
       LIGHTHOUSE_DOCUMENT_COMPLETE_STATUS = 'SUCCESS'
       LIGHTHOUSE_DOCUMENT_FAILED_STATUS = 'FAILED'
-      PROCESSING_TIMEOUT_WINDOW_IN_HOURS = 24
 
       # @param lighthouse526_document_status [Hash] includes a single document's status progress
       # after it has been submitted to Lighthouse, while Lighthouse attempts to pass it on to
