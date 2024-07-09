@@ -73,7 +73,6 @@ class Form526Submission < ApplicationRecord
   scope :success_type, lambda {
     left_joins(:form526_submission_remediations)
       .where.not(submitted_claim_id: nil)
-      .where(backup_submitted_claim_status: nil)
       .or(where.not(backup_submitted_claim_id: nil)
         .where(backup_submitted_claim_status: backup_submitted_claim_statuses[:accepted]))
       .or(where(form526_submission_remediations: { success: true }))
