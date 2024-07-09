@@ -21,11 +21,7 @@ module Veteran
       def index
         collection = Common::Collection.new(Veteran::Service::Representative, data: representative_query)
         resource = collection.paginate(**pagination_params)
-
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: serializer_class,
-               meta: resource.metadata
+        render json: serializer_class.new(resource.data, { meta: resource.metadata })
       end
 
       private
