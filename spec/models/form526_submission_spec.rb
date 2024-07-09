@@ -88,7 +88,7 @@ RSpec.describe Form526Submission do
       end
     end
 
-    context 'when backup_submitted_claim_status is not accepted, rejected or nil' do
+    context 'when backup_submitted_claim_status is neither accepted, rejected nor nil' do
       it 'is invalid' do
         expect do
           subject.backup_submitted_claim_status = 'other_value'
@@ -99,39 +99,20 @@ RSpec.describe Form526Submission do
 
   describe 'scopes' do
     describe 'pending_backup_submissions' do
-      let!(:new_submission) { create(:form526_submission, aasm_state: 'unprocessed') }
-      let!(:failed_primary_submission) do
-        create(:form526_submission, aasm_state: 'failed_primary_delivery')
-      end
-      let!(:rejected_primary_submission) do
-        create(:form526_submission, aasm_state: 'rejected_by_primary')
-      end
-      let!(:complete_primary_submission) do
-        create(:form526_submission, aasm_state: 'delivered_to_primary')
-      end
-      let!(:failed_backup_submission) do
-        create(:form526_submission, aasm_state: 'failed_backup_delivery')
-      end
+      let!(:new_submission) { create(:form526_submission) }
       let!(:rejected_backup_submission) do
-        create(:form526_submission, aasm_state: 'rejected_by_backup')
+        create(:form526_submission, :backup_path, backup_submitted_claim_status: 'rejected')
       end
-      let!(:in_remediation_submission) do
-        create(:form526_submission, :backup_path, aasm_state: 'in_remediation')
+      let!(:accepted_backup_submission) do
+        create(:form526_submission, :backup_path, backup_submitted_claim_status: 'accepted')
       end
-      let!(:complete_submission) do
-        create(:form526_submission, :backup_path, aasm_state: 'finalized_as_successful')
-      end
-      let!(:delivered_backup_submission_a) do
-        create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
-      end
-      let!(:delivered_backup_submission_b) do
-        create(:form526_submission, :backup_path, aasm_state: 'delivered_to_backup')
-      end
+      let!(:backup_submission_a) { create(:form526_submission, :backup_path) }
+      let!(:backup_submission_b) { create(:form526_submission, :backup_path) }
 
       it 'returns records submitted to the backup path but lacking a decisive state' do
         expect(Form526Submission.pending_backup_submissions).to contain_exactly(
-          delivered_backup_submission_a,
-          delivered_backup_submission_b
+          backup_submission_a,
+          backup_submission_b
         )
       end
     end
@@ -194,43 +175,6 @@ RSpec.describe Form526Submission do
           subject.start_evss_submission_job
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size).by(1)
       end
-    end
-  end
-
-  describe 'state' do
-    let(:submission) { create(:form526_submission) }
-
-    it 'transitions states' do
-      expect(submission).to transition_from(:unprocessed)
-        .to(:delivered_to_primary).on_event(:deliver_to_primary)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:failed_primary_delivery).on_event(:fail_primary_delivery)
-      expect(submission).to transition_from(:failed_primary_delivery)
-        .to(:delivered_to_backup).on_event(:deliver_to_backup)
-      expect(submission).to transition_from(:rejected_by_primary)
-        .to(:delivered_to_backup).on_event(:deliver_to_backup)
-      expect(submission).to transition_from(:failed_primary_delivery)
-        .to(:failed_backup_delivery).on_event(:fail_backup_delivery)
-      expect(submission).to transition_from(:rejected_by_primary)
-        .to(:rejected_by_backup).on_event(:reject_from_backup)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:rejected_by_primary).on_event(:reject_from_primary)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:delivered_to_backup).on_event(:deliver_to_backup)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:failed_backup_delivery).on_event(:fail_backup_delivery)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:rejected_by_backup).on_event(:reject_from_backup)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:finalized_as_successful).on_event(:finalize_success)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:unprocessable).on_event(:mark_as_unprocessable)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:in_remediation).on_event(:begin_remediation)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:processed_in_batch_remediation).on_event(:process_in_batch_remediation)
-      expect(submission).to transition_from(:unprocessed)
-        .to(:ignorable_duplicate).on_event(:ignore_as_duplicate)
     end
   end
 
@@ -1330,10 +1274,20 @@ RSpec.describe Form526Submission do
   describe '#eligible_for_ep_merge?' do
     subject { Form526Submission.create(form_json: File.read(path)).eligible_for_ep_merge? }
 
+    before { Flipper.disable(:disability_526_ep_merge_multi_contention) }
+
     context 'when there are multiple contentions' do
       let(:path) { 'spec/support/disability_compensation_form/submissions/only_526_mixed_action_disabilities.json' }
 
-      it { is_expected.to be_falsey }
+      context 'when multi-contention claims are not eligible' do
+        it { is_expected.to be_falsey }
+      end
+
+      context 'when multi-contention claims are eligible' do
+        before { Flipper.enable(:disability_526_ep_merge_multi_contention) }
+
+        it { is_expected.to be_truthy }
+      end
     end
 
     context 'when there is a single new contention' do

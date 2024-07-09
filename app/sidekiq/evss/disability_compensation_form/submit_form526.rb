@@ -59,7 +59,6 @@ module EVSS
 
         # if no more unused birls to attempt submit with, give up, let vet know
         begin
-          submission.fail_primary_delivery!
           notify_enabled = Flipper.enabled?(:disability_compensation_pif_fail_notification)
           if submission && next_birls_jid.nil? && msg['error_message'] == 'PIF in use' && notify_enabled
             first_name = submission.get_first_name&.capitalize || 'Sir or Madam'
@@ -151,7 +150,6 @@ module EVSS
 
       def response_handler(response)
         submission.submitted_claim_id = response.claim_id
-        submission.deliver_to_primary!
         submission.save
       end
 
@@ -172,7 +170,6 @@ module EVSS
         # retry submitting the form for specific upstream errors
         retry_form526_error_handler!(submission, e)
       rescue => e
-        submission.fail_primary_delivery!
         non_retryable_error_handler(submission, e)
       end
 
