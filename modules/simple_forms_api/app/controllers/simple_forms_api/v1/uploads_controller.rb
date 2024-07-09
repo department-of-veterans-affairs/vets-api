@@ -3,6 +3,7 @@
 require 'ddtrace'
 require 'simple_forms_api_submission/metadata_validator'
 require 'lgy/service'
+require 'lighthouse/benefits_intake/service'
 
 module SimpleFormsApi
   module V1
@@ -36,7 +37,7 @@ module SimpleFormsApi
                    elsif form_is264555_and_should_use_lgy_api
                      handle264555
                    else
-                     submit_form_to_central_mail
+                     submit_form_to_benefits_intake
                    end
 
         clear_saved_form(params[:form_number])
@@ -98,8 +99,9 @@ module SimpleFormsApi
         json_for210966(confirmation_number, expiration_date, existing_intents)
       rescue Common::Exceptions::UnprocessableEntity => e
         # There is an authentication issue with the Intent to File API so we revert to sending a PDF to Central Mail
-        prepare_params_for_central_mail_and_log_error(e)
-        submit_form_to_central_mail
+        # through the Benefits Intake API
+        prepare_params_for_benefits_intake_and_log_error(e)
+        submit_form_to_benefits_intake
       end
 
       def handle264555
@@ -111,13 +113,18 @@ module SimpleFormsApi
         { json: { reference_number:, status: }, status: lgy_response.status }
       end
 
-      def submit_form_to_central_mail
+      def submit_form_to_benefits_intake
         form_id = get_form_id
         parsed_form_data = JSON.parse(params.to_json)
         file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
-        status, confirmation_number = SimpleFormsApi::PdfUploader.new(file_path, metadata,
-                                                                      form_id).upload_to_benefits_intake(params)
+        if Flipper.enabled?(:simple_forms_lighthouse_benefits_intake_service)
+          status, confirmation_number = upload_pdf(file_path, metadata, form_id)
+        else
+          status, confirmation_number = SimpleFormsApi::PdfUploader.new(file_path, metadata,
+                                                                        form_id).upload_to_benefits_intake(params)
+        end
+
         form.track_user_identity(confirmation_number)
 
         Rails.logger.info(
@@ -137,6 +144,7 @@ module SimpleFormsApi
       def get_file_paths_and_metadata(parsed_form_data)
         form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
+        form = form.populate_veteran_data(@current_user) if form_id == '21-0966' && first_party?
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
 
         file_path = if @current_user
@@ -150,6 +158,29 @@ module SimpleFormsApi
         form.handle_attachments(file_path) if %w[vba_40_0247 vba_20_10207 vba_40_10007].include? form_id
 
         [file_path, metadata, form]
+      end
+
+      def upload_pdf(file_path, metadata, form_id)
+        lighthouse_service = BenefitsIntake::Service.new
+        location, uuid = lighthouse_service.request_upload
+        SimpleFormsApi::PdfStamper.stamp4010007_uuid(uuid) if form_id == 'vba_40_10007'
+        form_submission = FormSubmission.create(
+          form_type: params[:form_number],
+          benefits_intake_uuid: uuid,
+          form_data: params.to_json,
+          user_account: @current_user&.user_account
+        )
+        FormSubmissionAttempt.create(form_submission:)
+
+        Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
+        Rails.logger.info(
+          'Simple forms api - preparing to upload PDF to benefits intake',
+          { location:, uuid: }
+        )
+        response = lighthouse_service.perform_upload(metadata: metadata.to_json, document: file_path,
+                                                     upload_url: location)
+
+        [response.status, uuid]
       end
 
       def form_is210966
@@ -195,7 +226,7 @@ module SimpleFormsApi
         json
       end
 
-      def prepare_params_for_central_mail_and_log_error(e)
+      def prepare_params_for_benefits_intake_and_log_error(e)
         params['veteran_full_name'] ||= {
           'first' => params['full_name']['first'],
           'last' => params['full_name']['last']

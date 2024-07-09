@@ -45,9 +45,7 @@ module ClaimsApi
         end
 
         def validate_file_number!
-          claimant_id = params[:sponsorIcn] || params[:veteranId]
-
-          file_number_check(icn: claimant_id)
+          file_number_check(icn: params[:veteranId])
 
           if @file_number.nil?
             claims_v2_logging('EWS_submit', level: :error,
