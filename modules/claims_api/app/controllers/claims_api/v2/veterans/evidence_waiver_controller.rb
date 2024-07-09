@@ -16,7 +16,7 @@ module ClaimsApi
 
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if bgs_claim.blank?
 
-          file_number_check(icn: params[:sponsorIcn])
+          file_number_check(icn: params[:veteranId])
 
           if @file_number.nil?
             claims_v2_logging('EWS_submit', level: :error,
