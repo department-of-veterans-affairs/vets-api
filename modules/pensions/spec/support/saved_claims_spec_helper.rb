@@ -14,7 +14,7 @@ shared_examples_for 'saved_claim' do
   end
 
   it 'descends from saved_claim' do
-    expect(described_class.ancestors).to include(Pensions::SavedClaim::Pension)
+    expect(described_class.ancestors).to include(Pensions::SavedClaim)
   end
 
   describe '#process_attachments!' do

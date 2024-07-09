@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Pensions
-  class SavedClaim::Pension < ::SavedClaim
-    self.inheritance_column = :_type_disabled
+  class SavedClaim < ::SavedClaim
+    self.inheritance_column = 'SavedClaim::Pension'
 
     FORM = '21P-527EZ'
 
@@ -44,10 +44,10 @@ module Pensions
     # @see Lighthouse::PensionBenefitIntakeJob
     def upload_to_lighthouse(current_user = nil)
       refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
-      files = Pensions::PersistentAttachment.where(guid: refs.map(&:confirmationCode))
+      files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
       files.find_each { |f| f.update(saved_claim_id: id) }
 
-      Pensions::Lighthouse::PensionBenefitIntakeJob.perform_async(id, current_user&.uuid)
+      Pensions::PensionBenefitIntakeJob.perform_async(id, current_user&.uuid)
     end
   end
 end

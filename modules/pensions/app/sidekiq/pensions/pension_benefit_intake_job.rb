@@ -2,12 +2,12 @@
 
 require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
-require 'pensions/pension_21p527ez/tag_sentry'
-require 'pensions/pension_21p527ez/monitor'
+require 'pensions/tag_sentry'
+require 'pensions/monitor'
 require 'central_mail/datestamp_pdf'
 
 module Pensions
-  class Lighthouse::PensionBenefitIntakeJob
+  class PensionBenefitIntakeJob
     include Sidekiq::Job
     include SentryLogging
 
@@ -19,9 +19,9 @@ module Pensions
     # retry for one day
     sidekiq_options retry: 14, queue: 'low'
     sidekiq_retries_exhausted do |msg|
-      pension_monitor = Pensions::Pension21p527ez::Monitor.new
+      pension_monitor = Pensions::Monitor.new
       begin
-        claim = Pensions::SavedClaim::Pension.find(msg['args'].first)
+        claim = Pensions::SavedClaim.find(msg['args'].first)
       rescue
         claim = nil
       end
@@ -81,11 +81,11 @@ module Pensions
     # Instantiate instance variables for _this_ job
     #
     def init(saved_claim_id, user_uuid)
-      Pensions::Pension21p527ez::TagSentry.tag_sentry
-      @pension_monitor = Pensions::Pension21p527ez::Monitor.new
+      Pensions::TagSentry.tag_sentry
+      @pension_monitor = Pensions::Monitor.new
 
       @user_uuid = user_uuid
-      @claim = Pensions::SavedClaim::Pension.find(saved_claim_id)
+      @claim = Pensions::SavedClaim.find(saved_claim_id)
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
       @intake_service = BenefitsIntake::Service.new

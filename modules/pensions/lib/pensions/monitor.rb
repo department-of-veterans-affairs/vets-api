@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Pensions
-  class Pension21p527ez::Monitor
+  class Monitor
     CLAIM_STATS_KEY = 'api.pension_claim'
     SUBMISSION_STATS_KEY = 'worker.lighthouse.pension_benefit_intake_job'
 
