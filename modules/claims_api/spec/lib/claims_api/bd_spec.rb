@@ -61,12 +61,16 @@ describe ClaimsApi::BD do
       let(:response) { instance_double(Faraday::Response, body: 'failed to request: timeout') }
 
       before do
+        allow(Rails).to receive(:logger).and_return(double('Logger', info: true))
         allow(Faraday).to receive(:new).and_return(client)
         allow(client).to receive(:post).and_return(response)
       end
 
-      it 'raises a GatewayTimeout exception' do
-        expect { subject.search(claim_id, file_number) }.to raise_error(Common::Exceptions::GatewayTimeout)
+      it 'logs the error and returns an empty hash' do
+        result = subject.search(claim_id, file_number)
+        expect(Rails.logger).to have_received(:info)
+          .with(%r{benefits_documents :: {"detail":"/search failure for claimId #{claim_id}, Gateway timeout"}})
+        expect(result).to eq({})
       end
     end
   end
