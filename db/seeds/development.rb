@@ -128,6 +128,16 @@ arp.update!(authentication: SignIn::Constants::Auth::COOKIE,
             credential_service_providers: [SignIn::Constants::Auth::IDME, SignIn::Constants::Auth::LOGINGOV],
             service_levels: [SignIn::Constants::Auth::LOA3, SignIn::Constants::Auth::IAL2])
 
+# Create VerifiedRepresentative and AccreditedInvidial for logging into accredited_representative_portal
+ogc_registration_number = '12345'
+
+accredited_individual = AccreditedIndividual.find_or_initialize_by(registration_number: ogc_registration_number)
+accredited_individual.poa_code = 678
+accredited_individual.save(validate: false)
+
+verified_rep = VerifiedRepresentative.find_or_initialize_by(email: 'vets.gov.user+1@gmail.com')
+verified_rep.save(validate: false)
+
 # Create Service Account Config for BTSSS
 btsss = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: 'bbb5830ecebdef04556e9c430e374972')
 btsss.update!(
