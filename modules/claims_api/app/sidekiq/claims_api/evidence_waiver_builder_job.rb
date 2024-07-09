@@ -7,6 +7,8 @@ require 'bd/bd'
 module ClaimsApi
   class EvidenceWaiverBuilderJob < ClaimsApi::ServiceBase
     include ::Common::FileHelpers
+    include ClaimsApi::EwsVBMSSidekiq
+    sidekiq_options expires_in: 48.hours, retry: true
 
     # Generate a 5103 "form" for a given veteran.
     #
