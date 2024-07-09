@@ -14,7 +14,12 @@ module ClaimsApi
     #
     # @return [Array<String>] list of countries
     def countries
-      handle_transaction('countries', :get)
+      client.get('countries').body[:items]
+    rescue => e
+      detail = e.respond_to?(:original_body) ? e.original_body : e
+      log_outcome_for_claims_api(service, 'error', detail)
+
+      error_handler(e)
     end
 
     ##
@@ -23,15 +28,26 @@ module ClaimsApi
     # @return [Array<Hash>] list of intake sites
     # as {id: <number> and description: <string>}
     def intake_sites
-      handle_transaction('intake-sites', :get)
+      client.get('intake-sites').body[:items]
+    rescue => e
+      detail = e.respond_to?(:original_body) ? e.original_body : e
+      log_outcome_for_claims_api(service, 'error', detail)
+
+      error_handler(e)
     end
 
     def disabilities
-      handle_transaction('disabilities', :get)
+      client.get('disabilities').body[:items]
+    rescue => e
+      detail = e.respond_to?(:original_body) ? e.original_body : e
+      log_outcome_for_claims_api(service, 'error', detail)
     end
 
     def service_branches
-      handle_transaction('service-branches', :get)
+      client.get('service-branches').body[:items]
+    rescue => e
+      detail = e.respond_to?(:original_body) ? e.original_body : e
+      log_outcome_for_claims_api(service, 'error', detail)
     end
 
     private
