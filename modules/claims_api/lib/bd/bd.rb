@@ -69,7 +69,8 @@ module ClaimsApi
       birls_file_num = auth_headers['va_eauth_birlsfilenumber'] || file_number
       claim_id = doc_type == 'L705' ? claim.claim_id : claim.evss_id
       file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
-      data = build_body(doc_type:, file_name:, participant_id: nil, claim_id:,
+      participant_id = auth_headers['va_eauth_pid']
+      data = build_body(doc_type:, file_name:, participant_id:, claim_id:,
                         file_number: birls_file_num)
 
       fn = Tempfile.new('params')
@@ -127,17 +128,15 @@ module ClaimsApi
 
     def build_body(doc_type:, file_name:, claim_id:, participant_id: nil, tracked_item_ids: [], file_number: nil) # rubocop:disable Metrics/ParameterLists
       data = {
-        data: {
-          systemName: 'VA.gov',
-          docType: doc_type,
-          claimId: claim_id,
-          fileName: file_name,
-          trackedItemIds: tracked_item_ids
-        }
+        systemName: 'VA.gov',
+        docType: doc_type,
+        claimId: claim_id,
+        fileName: file_name,
+        trackedItemIds: tracked_item_ids
       }
-      data[:data][:participantId] = participant_id unless participant_id.nil?
-      data[:data][:fileNumber] = file_number unless file_number.nil?
-      data
+      data[:participantId] = participant_id unless participant_id.nil?
+      data[:fileNumber] = file_number unless file_number.nil?
+      { data: }
     end
   end
 end
