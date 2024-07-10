@@ -32,12 +32,16 @@ module Pensions
     def track_create_success(in_progress_form, claim, current_user)
       StatsD.increment("#{CLAIM_STATS_KEY}.success")
       if claim.form_start_date
-        StatsD.measure('saved_claim.time-to-file', claim.created_at - claim.form_start_date,
-                       tags: ["form_id:#{claim.form_id}"])
+        claim_duration = claim.created_at - claim.form_start_date # not sure what to call this variable
+        tags = ["form_id:#{claim.form_id}"]
+        StatsD.measure('saved_claim.time-to-file', claim_duration, tags:)
       end
-      Rails.logger.info('21P-527EZ submission to Sidekiq success',
-                        { confirmation_number: claim&.confirmation_number, user_uuid: current_user&.uuid,
-                          in_progress_form_id: in_progress_form&.id })
+      context = {
+        confirmation_number: claim&.confirmation_number,
+        user_uuid: current_user&.uuid,
+        in_progress_form_id: in_progress_form&.id
+      }
+      Rails.logger.info('21P-527EZ submission to Sidekiq success', context)
     end
 
     def track_submission_begun(claim, lighthouse_service, user_uuid)
