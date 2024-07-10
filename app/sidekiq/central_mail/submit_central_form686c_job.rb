@@ -14,6 +14,7 @@ module CentralMail
     FORM_ID = '686C-674'
     FORM_ID_674 = '21-674'
     STATSD_KEY_PREFIX = 'worker.submit_686c_674_backup_submission'
+    RETRY = 14
 
     sidekiq_options retry: false
 
@@ -24,8 +25,6 @@ module CentralMail
     def extract_uuid_from_central_mail_message(data)
       data.body[/(?<=\[).*?(?=\])/].split(': ').last if data.body.present?
     end
-
-    RETRY = 14
 
     sidekiq_options retry: RETRY
 
