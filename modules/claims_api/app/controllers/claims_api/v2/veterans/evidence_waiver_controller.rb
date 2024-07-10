@@ -15,7 +15,7 @@ module ClaimsApi
 
         def submit
           ews = create_ews(params[:id])
-          ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id)
+          ClaimsApi::EvidenceWaiverBuilderJob.new.perform(ews.id, @pctpnt_vet_id)
 
           render json: { success: true }
         end
@@ -34,19 +34,19 @@ module ClaimsApi
         end
 
         def verify_if_dependent_claim!
-          pctpnt_vet_id = @bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_vet_id)
-          if pctpnt_vet_id.blank?
+          @pctpnt_vet_id = @bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_vet_id)
+          if @pctpnt_vet_id.blank?
             raise ::Common::Exceptions::ResourceNotFound.new(detail:
               'Veteran participant id is required for uploading to Benefits Documents')
           end
 
           pctpnt_clmant_id = @bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_clmant_id)
-          if target_veteran.participant_id != pctpnt_vet_id && target_veteran.participant_id != pctpnt_clmant_id
+          if target_veteran.participant_id != @pctpnt_vet_id && target_veteran.participant_id != pctpnt_clmant_id
             raise ::Common::Exceptions::UnprocessableEntity.new(detail:
               'Claim does not belong to this veteran')
           end
 
-          if pctpnt_vet_id != pctpnt_clmant_id && target_veteran.participant_id == pctpnt_clmant_id
+          if @pctpnt_vet_id != pctpnt_clmant_id && target_veteran.participant_id == pctpnt_clmant_id
             claims_v2_logging('EWS_submit', level: :info,
                                             message: '5103 filed by dependent claimant')
           end

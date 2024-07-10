@@ -11,12 +11,12 @@ module ClaimsApi
     # Generate a 5103 "form" for a given veteran.
     #
     # @param evidence_waiver_id [String] Unique identifier of the submitted EWS
-    def perform(evidence_waiver_id)
+    def perform(evidence_waiver_id, pctpnt_vet_id)
       evidence_waiver_submission = ClaimsApi::EvidenceWaiverSubmission.find(evidence_waiver_id)
       auth_headers = evidence_waiver_submission.auth_headers
       output_path = ClaimsApi::EvidenceWaiver.new(auth_headers:).construct
 
-      upload_to_vbms(evidence_waiver_submission, output_path)
+      upload_to_vbms(evidence_waiver_submission, output_path, pctpnt_vet_id)
       ClaimsApi::EwsUpdater.perform_async(evidence_waiver_id)
 
       ::Common::FileHelpers.delete_file_if_exists(output_path)
