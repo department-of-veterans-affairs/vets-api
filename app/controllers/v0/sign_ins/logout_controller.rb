@@ -34,8 +34,8 @@ module V0
                                                               client_config: client_config(client_id)).perform
         logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
       rescue SignIn::Errors::LogoutAuthorizationError,
-            SignIn::Errors::SessionNotAuthorizedError,
-            SignIn::Errors::SessionNotFoundError => e
+             SignIn::Errors::SessionNotAuthorizedError,
+             SignIn::Errors::SessionNotFoundError => e
         sign_in_logger.info('logout error', { errors: e.message })
         StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
         logout_redirect = SignIn::LogoutRedirectGenerator.new(client_config: client_config(client_id)).perform
@@ -54,7 +54,7 @@ module V0
         raise SignIn::Errors::MalformedParamsError.new message: 'State is not defined' unless state
 
         render body: auth_service(SignIn::Constants::Auth::LOGINGOV).render_logout_redirect(state),
-              content_type: 'text/html'
+               content_type: 'text/html'
       rescue => e
         sign_in_logger.info('logingov_logout_proxy error', { errors: e.message })
 

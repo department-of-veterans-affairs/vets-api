@@ -15,7 +15,7 @@ module V0
 
         decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
         session_container = SignIn::SessionRefresher.new(refresh_token: decrypted_refresh_token,
-                                                        anti_csrf_token:).perform
+                                                         anti_csrf_token:).perform
         serializer_response = SignIn::TokenSerializer.new(session_container:,
                                                           cookies: token_cookies).perform
 
@@ -32,7 +32,6 @@ module V0
         StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_FAILURE)
         render json: { errors: e }, status: :unauthorized
       end
-
 
       private
 

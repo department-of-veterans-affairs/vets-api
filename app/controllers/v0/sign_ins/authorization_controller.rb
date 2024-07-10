@@ -23,20 +23,20 @@ module V0
 
         acr_for_type = SignIn::AcrTranslator.new(acr:, type:).perform
         state = SignIn::StatePayloadJwtEncoder.new(code_challenge:,
-                                                  code_challenge_method:,
-                                                  acr:,
-                                                  client_config: client_config(client_id),
-                                                  type:,
-                                                  client_state:,
-                                                  scope:).perform
+                                                   code_challenge_method:,
+                                                   acr:,
+                                                   client_config: client_config(client_id),
+                                                   type:,
+                                                   client_state:,
+                                                   scope:).perform
         context = { type:, client_id:, acr:, operation: }
 
         sign_in_logger.info('authorize', context)
         StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SUCCESS,
-                        tags: ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}", "operation:#{operation}"])
+                         tags: ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}", "operation:#{operation}"])
 
         render body: auth_service(type, client_id).render_auth(state:, acr: acr_for_type, operation:),
-              content_type: 'text/html'
+               content_type: 'text/html'
       rescue SignIn::Errors::StandardError => e
         sign_in_logger.info('authorize error', { errors: e.message, client_id:, type:, acr: })
         StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE)
@@ -70,7 +70,7 @@ module V0
           params_hash = { auth: 'fail', code: error_code, request_id: request.request_id }
           render body: SignIn::RedirectUrlGenerator.new(redirect_uri: client_config(client_id).redirect_uri,
                                                         params_hash:).perform,
-                content_type: 'text/html'
+                 content_type: 'text/html'
         else
           render json: { errors: error }, status: :bad_request
         end
