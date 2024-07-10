@@ -133,6 +133,7 @@ RSpec.describe 'Forms uploader', type: :request do
           before do
             sign_in
             allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+            allow_any_instance_of(User).to receive(:participant_id).and_return(nil)
             allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
           end
 
