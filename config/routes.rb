@@ -13,14 +13,14 @@ Rails.application.routes.draw do
       constraints: ->(request) { V1::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
 
-  get '/v0/sign_in/authorize', to: 'v0/sign_in#authorize'
-  get '/v0/sign_in/callback', to: 'v0/sign_in#callback'
-  post '/v0/sign_in/refresh', to: 'v0/sign_in#refresh'
-  post '/v0/sign_in/revoke', to: 'v0/sign_in#revoke'
-  post '/v0/sign_in/token', to: 'v0/sign_in#token'
-  get '/v0/sign_in/logout', to: 'v0/sign_in#logout'
-  get '/v0/sign_in/logingov_logout_proxy', to: 'v0/sign_in#logingov_logout_proxy'
-  get '/v0/sign_in/revoke_all_sessions', to: 'v0/sign_in#revoke_all_sessions'
+  get '/v0/sign_in/authorize', to: 'v0/sign_ins/authorization#authorize'
+  get '/v0/sign_in/callback', to: 'v0/sign_ins/callback#callback'
+  post '/v0/sign_in/refresh', to: 'v0/sign_ins/refresh#refresh'
+  post '/v0/sign_in/revoke', to: 'v0/sign_ins/revoke#revoke'
+  post '/v0/sign_in/token', to: 'v0/sign_ins/token#token'
+  get '/v0/sign_in/logout', to: 'v0/sign_ins/logout#logout'
+  get '/v0/sign_in/logingov_logout_proxy', to: 'v0/sign_ins/logout#logingov_logout_proxy'
+  get '/v0/sign_in/revoke_all_sessions', to: 'v0/sign_ins/revoke#revoke_all_sessions'
 
   get '/sign_in/openid_connect/certs' => 'sign_in/openid_connect_certificates#index'
 
