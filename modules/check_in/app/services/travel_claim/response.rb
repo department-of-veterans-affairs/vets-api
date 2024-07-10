@@ -44,7 +44,7 @@ module TravelClaim
 
     def handle_claim_status_response
       response_body = begin
-        Oj.load(body).with_indifferent_access
+        Oj.load(body)
       rescue
         body
       end

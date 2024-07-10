@@ -126,19 +126,14 @@ describe TravelClaim::Service do
 
     context 'when valid token exists' do
       let(:access_token) { 'test-token-123' }
-      let(:status_json) do
-        [
-          {
-            aptDateTime: '2024-06-06T09:30:00Z',
-            aptId: '7d53a0cf-f916-ef11-9f8a-001dd83064a6',
-            aptSourceSystem: 'VISTA',
-            aptSourceSystemId: 'A;3240606.093;4204',
-            claimNum: 'TC202406023768400',
-            claimStatus: 'ClaimSubmitted',
-            claimLastModDateTime: '2024-06-06T16:17:33Z',
-            facilityStationNum: '679'
-          }
-        ]
+      let(:resp_str) do
+        '[
+            {
+              "aptDateTime": "2024-05-30T18:44:22.733Z",
+              "aptId": "test-apt-id-1",
+              "aptSourceSystem": "test-apt-source"
+            }
+        ]'
       end
       let(:appointment_identifiers) do
         {
@@ -149,9 +144,9 @@ describe TravelClaim::Service do
           }
         }
       end
-      let(:resp) { Faraday::Response.new(response_body: status_json, status: 200) }
+      let(:resp) { Faraday::Response.new(response_body: resp_str, status: 200) }
 
-      let(:status_response) { { data: { code: 'CLM_000_SUCCESS', body: status_json }, status: 200 } }
+      let(:status_response) { { data: { code: 'CLM_000_SUCCESS', body: Oj.load(resp_str) }, status: 200 } }
 
       before do
         Rails.cache.write(
