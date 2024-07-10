@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_03_201622) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_09_171552) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -60,7 +60,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_03_201622) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["accredited_individual_id", "accredited_organization_id"], name: "index_accreditations_on_indi_and_org_ids", unique: true
-    t.index ["accredited_individual_id"], name: "index_accreditations_on_accredited_individual_id"
     t.index ["accredited_organization_id"], name: "index_accreditations_on_accredited_organization_id"
   end
 
@@ -287,7 +286,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_03_201622) do
     t.index ["id", "type"], name: "index_async_transactions_on_id_and_type"
     t.index ["source_id"], name: "index_async_transactions_on_source_id"
     t.index ["transaction_id", "source"], name: "index_async_transactions_on_transaction_id_and_source", unique: true
-    t.index ["transaction_id"], name: "index_async_transactions_on_transaction_id"
     t.index ["user_account_id"], name: "index_async_transactions_on_user_account_id"
     t.index ["user_uuid"], name: "index_async_transactions_on_user_uuid"
   end
@@ -1285,7 +1283,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_03_201622) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_account_id", "form_id"], name: "index_in_progress_reminders_sent_user_account_form_id", unique: true
-    t.index ["user_account_id"], name: "index_va_notify_in_progress_reminders_sent_on_user_account_id"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|

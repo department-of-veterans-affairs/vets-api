@@ -13,6 +13,8 @@ module CentralMail
     FOREIGN_POSTALCODE = '00000'
     FORM_ID = '686C-674'
     FORM_ID_674 = '21-674'
+    STATSD_KEY_PREFIX = 'worker.submit_686c_674_backup_submission'
+    RETRY = 14
 
     sidekiq_options retry: false
 
@@ -22,6 +24,15 @@ module CentralMail
 
     def extract_uuid_from_central_mail_message(data)
       data.body[/(?<=\[).*?(?=\])/].split(': ').last if data.body.present?
+    end
+
+    sidekiq_options retry: RETRY
+
+    sidekiq_retries_exhausted do |msg, _ex|
+      Rails.logger.error(
+        "Failed all retries on CentralMail::SubmitCentralForm686cJob, last error: #{msg['error_message']}"
+      )
+      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
     end
 
     def perform(saved_claim_id, encrypted_vet_info, encrypted_user_struct)
@@ -42,7 +53,6 @@ module CentralMail
       Rails.logger.warn('CentralMail::SubmitCentralForm686cJob failed!',
                         { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'], error: e.message })
       update_submission('failed')
-      DependentsApplicationFailureMailer.build(OpenStruct.new(user_struct)).deliver_now if user_struct['email'].present?
       raise
     ensure
       cleanup_file_paths
