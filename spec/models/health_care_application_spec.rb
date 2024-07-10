@@ -596,6 +596,10 @@ RSpec.describe HealthCareApplication, type: :model do
                 expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params_no_name)
               end
             end
+
+            it 'increments statsd' do
+              expect { subject }.to trigger_statsd_increment('api.1010ez.submission_failure_email_sent')
+            end
           end
         end
 
