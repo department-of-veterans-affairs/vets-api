@@ -53,7 +53,7 @@ module ClaimsApi
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "/upload failure for claimId #{claim&.id}, #{e.message}")
-      error_handler(e)
+      raise e
     end
 
     private

@@ -41,6 +41,8 @@ module ClaimsApi
     rescue => e
       detail = e.respond_to?(:original_body) ? e.original_body : e
       log_outcome_for_claims_api(service, 'error', detail)
+
+      error_handler(e)
     end
 
     def service_branches
@@ -48,6 +50,8 @@ module ClaimsApi
     rescue => e
       detail = e.respond_to?(:original_body) ? e.original_body : e
       log_outcome_for_claims_api(service, 'error', detail)
+
+      error_handler(e)
     end
 
     private
