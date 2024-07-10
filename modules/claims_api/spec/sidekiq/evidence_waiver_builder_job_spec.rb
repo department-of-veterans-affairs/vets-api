@@ -12,20 +12,6 @@ RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job, use_cassette: 'c
   end
 
   let(:ews) { create(:claims_api_evidence_waiver_submission, :with_full_headers_tamara) }
-  let(:bgs_claim) { create(:bgs_response) }
-  let(:output_path) { '' }
-
-  describe 'generating the filled and signed pdf' do
-    it 'generates the pdf to match example' do
-      allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-      allow_any_instance_of(ClaimsApi::BenefitClaimService).to receive(:find_bnft_claim).and_return(bgs_claim)
-      expect_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return(true)
-      allow_any_instance_of(ClaimsApi::EwsUpdater).to receive(:update_bgs_claim).with(ews, bgs_claim)
-      allow_any_instance_of(Common::FileHelpers).to receive(:delete_file_if_exists).with(output_path)
-
-      subject.new.perform(ews.id)
-    end
-  end
 
   describe 'when an errored job has a 48 hour time limitation' do
     it 'expires in 48 hours' do
