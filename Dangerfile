@@ -11,11 +11,11 @@ module VSPDanger
       prepare_git
 
       [
-        # SidekiqEnterpriseGaurantor.new.run,
+        SidekiqEnterpriseGaurantor.new.run,
         ChangeLimiter.new.run,
-        # MigrationIsolator.new.run,
-        # CodeownersCheck.new.run,
-        # GemfileLockPlatformChecker.new.run
+        MigrationIsolator.new.run,
+        CodeownersCheck.new.run,
+        GemfileLockPlatformChecker.new.run
       ]
     end
 
