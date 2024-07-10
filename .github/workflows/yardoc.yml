@@ -22,5 +22,5 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Run Danger
+      - name: Run Yardoc
         run: bundle exec rake yardoc
