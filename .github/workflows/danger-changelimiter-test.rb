@@ -5,32 +5,32 @@
 #
 # - all comments should be excluded from the count
 # - all blank lines should be excluded from the count
-#
+# - file total = 510, blank = 6, actual = 10
 #
 ############
+
 
 a = 1
 b = 2
 c = 3
 d = 4
 e = 5
+
 # half way there
+
 f = 6
 g = 7
-h = 8
+h = 8 # this should not be ignored
 i = 9
 j = 0
+
 
 ############
 #
 #
-# NO FOR FILLER TO TRIGGER A WARNING
+# NOW FOR FILLER TO TRIGGER A WARNING
 #
 #
-############
-############
-############
-############
 ############
 ############
 ############
@@ -199,6 +199,9 @@ j = 0
 ############
 ############
 # HERE THERE BE A WARNING
+############
+############
+############
 ############
 #
 #
@@ -495,10 +498,9 @@ j = 0
 ############
 ############
 ############
-############
-############
-############
 # HERE IS THE ERROR LINE
+############
+############
 ############
 ############
 ############

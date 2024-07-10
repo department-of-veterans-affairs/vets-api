@@ -125,7 +125,7 @@ module VSPDanger
         deletions = deletions.to_i
 
         next if insertions.zero? && deletions.zero?   # Skip unchanged files
-        next if insertions == '-' && deletions == '-' # Skip Binary files
+        next if insertions == '-' && deletions == '-' # Skip Binary files (should be caught by `to_i` and `zero?`)
 
         OpenStruct.new(
           total_changes: insertions + deletions,
