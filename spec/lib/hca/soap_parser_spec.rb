@@ -11,8 +11,7 @@ describe HCA::SOAPParser do
       env = double
       allow(env).to receive(:url)
       allow(env).to receive(:body=).and_raise(Common::Client::Errors::HTTPError)
-      allow(env).to receive(:body).and_return(body)
-      allow(env).to receive(:status).and_return(status)
+      allow(env).to receive_messages(body:, status:)
 
       expect { parser.on_complete(env) }.to raise_error(reraised_error)
     end

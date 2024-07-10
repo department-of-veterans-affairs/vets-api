@@ -373,7 +373,8 @@
                         "baseEndProductCode": "400",
                         "claimDate": "2017-05-02",
                         "claimPhaseDates": {
-                          "phaseChangeDate": "2017-10-18"
+                          "phaseChangeDate": "2017-10-18",
+                          "phaseType": "COMPLETE"
                         },
                         "claimType": "Compensation",
                         "claimTypeCode": "400PREDSCHRG",
@@ -458,6 +459,21 @@
                                     "type": "string",
                                     "description": "The date that the claim changed to its current phase",
                                     "example": "2017-10-18"
+                                  },
+                                  "phaseType": {
+                                    "type": "string",
+                                    "enum": [
+                                      "CLAIM_RECEIVED",
+                                      "UNDER_REVIEW",
+                                      "GATHERING_OF_EVIDENCE",
+                                      "REVIEW_OF_EVIDENCE",
+                                      "PREPARATION_FOR_DECISION",
+                                      "PENDING_DECISION_APPROVAL",
+                                      "PREPARATION_FOR_NOTIFICATION",
+                                      "COMPLETE"
+                                    ],
+                                    "description": "The most current phase for the claim",
+                                    "example": "UNDER_REVIEW"
                                   }
                                 }
                               },
@@ -4295,7 +4311,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "85af9033-e9df-4203-b7a3-ecdab4e683d3",
+                    "id": "9afa3d94-f0f1-4f02-9b91-afeb90f79a21",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -4478,7 +4494,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-06-27"
+                          "anticipatedSeparationDate": "2024-07-04"
                         },
                         "confinements": [
                           {
@@ -9167,7 +9183,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "31f114e6-0bf9-4125-8d8d-7f06fac761c2",
+                    "id": "b5d8b4d2-772c-44d1-9f2f-e47df7353cd3",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12050,8 +12066,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-06-25",
-                      "expirationDate": "2025-06-25",
+                      "creationDate": "2024-07-02",
+                      "expirationDate": "2025-07-02",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -12603,13 +12619,13 @@
           {
             "productionOauth": [
               "system/claim.read",
-              "system/system/claim.write"
+              "system/claim.write"
             ]
           },
           {
             "sandboxOauth": [
               "system/claim.read",
-              "system/system/claim.write"
+              "system/claim.write"
             ]
           },
           {
@@ -12927,7 +12943,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9c4edea8-8afc-4a34-b418-04bb84648f98",
+                    "id": "c25a319c-68f1-4b73-a908-c723e2fc115a",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13620,7 +13636,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1ac0409e-0686-4a71-a7ac-7822f3caffb6",
+                    "id": "6ac66764-0e44-40e3-a8ca-80cf3e4f59ed",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15571,10 +15587,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6f0a7698-7599-4f0c-aed4-8531effa9266",
+                    "id": "8a3abbba-3195-4025-8a49-a810fdf4aced",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-06-25",
+                      "dateRequestAccepted": "2024-07-02",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

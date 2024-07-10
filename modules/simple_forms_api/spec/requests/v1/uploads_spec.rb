@@ -5,6 +5,14 @@ require 'simple_forms_api_submission/metadata_validator'
 require 'common/file_helpers'
 
 RSpec.describe 'Forms uploader', type: :request do
+  before do
+    Flipper.disable(:simple_forms_lighthouse_benefits_intake_service)
+  end
+
+  after do
+    Flipper.enable(:simple_forms_lighthouse_benefits_intake_service)
+  end
+
   forms = [
     # TODO: Restore this test when we release 26-4555 to production.
     # 'vba_26_4555.json',
@@ -30,10 +38,8 @@ RSpec.describe 'Forms uploader', type: :request do
       let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
       let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
       let(:random_string) { 'some-unique-simple-forms-file-seed' }
-      let(:user) { build(:user_with_no_ids) }
 
       before do
-        sign_in_as(user)
         VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
         VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
         allow(Common::FileHelpers).to receive(:random_file_path).and_return(file_seed)
@@ -54,21 +60,50 @@ RSpec.describe 'Forms uploader', type: :request do
         fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
         data = JSON.parse(fixture_path.read)
 
-        it 'makes the request' do
-          allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+        context 'through the SimpleFormsApiSubmission::Service' do
+          it 'makes the request' do
+            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
 
-          post '/simple_forms_api/v1/simple_forms', params: data
+            post '/simple_forms_api/v1/simple_forms', params: data
 
-          expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
-          expect(response).to have_http_status(:ok)
+            expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
+            expect(response).to have_http_status(:ok)
+          end
+
+          it 'saves a FormSubmissionAttempt' do
+            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+
+            expect do
+              post '/simple_forms_api/v1/simple_forms', params: data
+            end.to change(FormSubmissionAttempt, :count).by(1)
+          end
         end
 
-        it 'saves a FormSubmissionAttempt' do
-          allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+        context 'through the Lighthouse BenefitsIntake::Service' do
+          before do
+            Flipper.enable(:simple_forms_lighthouse_benefits_intake_service)
+          end
 
-          expect do
+          after do
+            Flipper.disable(:simple_forms_lighthouse_benefits_intake_service)
+          end
+
+          it 'makes the request' do
+            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+
             post '/simple_forms_api/v1/simple_forms', params: data
-          end.to change(FormSubmissionAttempt, :count).by(1)
+
+            expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
+            expect(response).to have_http_status(:ok)
+          end
+
+          it 'saves a FormSubmissionAttempt' do
+            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+
+            expect do
+              post '/simple_forms_api/v1/simple_forms', params: data
+            end.to change(FormSubmissionAttempt, :count).by(1)
+          end
         end
       end
 
@@ -78,7 +113,7 @@ RSpec.describe 'Forms uploader', type: :request do
 
         context 'authenticated user' do
           before do
-            user = build(:user_with_no_ids)
+            user = create(:user)
             sign_in_as(user)
             create(:in_progress_form, user_uuid: user.uuid, form_id: data['form_number'])
           end
@@ -94,9 +129,9 @@ RSpec.describe 'Forms uploader', type: :request do
       end
 
       context 'request with intent to file' do
-        context 'authenticated' do
+        context 'authenticated but without participant_id' do
           before do
-            sign_in_as(build(:user_with_no_ids))
+            sign_in
             allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
             allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
           end
@@ -121,6 +156,36 @@ RSpec.describe 'Forms uploader', type: :request do
                 parsed_expiration_date = Time.zone.parse(parsed_response_body['expiration_date'])
                 expect(parsed_expiration_date.to_s).to eq (expiration_date + 1.year).to_s
               end
+            end
+          end
+
+          context 'fails to go to Lighthouse Benefits Claims API because of UnprocessableEntity error' do
+            before do
+              VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/422_response')
+            end
+
+            after do
+              VCR.eject_cassette('lighthouse/benefits_claims/intent_to_file/422_response')
+            end
+
+            it 'catches the exception and sends a PDF to Central Mail instead' do
+              expect_any_instance_of(SimpleFormsApi::PdfUploader).to receive(
+                :upload_to_benefits_intake
+              ).and_return([:ok, 'confirmation number'])
+              fixture_path = Rails.root.join(
+                'modules',
+                'simple_forms_api',
+                'spec',
+                'fixtures',
+                'form_json',
+                'vba_21_0966-min.json'
+              )
+              data = JSON.parse(fixture_path.read)
+              data['preparer_identification'] = 'VETERAN'
+
+              post '/simple_forms_api/v1/simple_forms', params: data
+
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -248,8 +313,9 @@ RSpec.describe 'Forms uploader', type: :request do
 
       context 'authenticated' do
         before do
-          sign_in_as(build(:user_with_no_ids))
+          sign_in
           allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+          allow_any_instance_of(User).to receive(:participant_id).and_return('fake-participant-id')
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
         end
 
@@ -700,9 +766,10 @@ RSpec.describe 'Forms uploader', type: :request do
         end
 
         before do
-          user = build(:user_with_no_ids)
+          user = create(:user)
           sign_in_as(user)
           allow_any_instance_of(User).to receive(:va_profile_email).and_return('abraham.lincoln@vets.gov')
+          allow_any_instance_of(User).to receive(:participant_id).and_return('fake-participant-id')
           allow(VANotify::EmailJob).to receive(:perform_async)
         end
 

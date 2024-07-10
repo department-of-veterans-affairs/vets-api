@@ -18,8 +18,7 @@ describe SimpleFormsApi::PdfUploader do
       params = { form_number: form_id }
       expected_response = double(status: expected_status)
       allow(upload_location).to receive(:body).and_return body
-      allow(lighthouse_service).to receive(:get_upload_location).and_return upload_location
-      allow(lighthouse_service).to receive(:upload_doc).and_return expected_response
+      allow(lighthouse_service).to receive_messages(get_upload_location: upload_location, upload_doc: expected_response)
       allow(SimpleFormsApiSubmission::Service).to receive(:new).and_return lighthouse_service
 
       pdf_uploader = SimpleFormsApi::PdfUploader.new(file_path, metadata, form_id)

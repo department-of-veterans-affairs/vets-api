@@ -11,8 +11,8 @@ RSpec.describe 'Pega callback', type: :request do
     let(:valid_payload) do
       {
         form_uuid: '12345678-1234-5678-1234-567812345678',
-        file_names: ['12345678-1234-5678-1234-567812345678_vha_10_10d-tmp.pdf',
-                     '12345678-1234-5678-1234-567812345678_vha_10_10d-tmp-1.pdf'],
+        file_names: ['12345678-1234-5678-1234-567812345678_vha_10_10d.pdf',
+                     '12345678-1234-5678-1234-567812345678_vha_10_10d1.pdf'],
         case_id: 'ABC-1234',
         status: 'Processed'
       }
@@ -27,7 +27,7 @@ RSpec.describe 'Pega callback', type: :request do
           first_name: 'Veteran',
           last_name: 'Surname',
           form_number: '10-10D',
-          file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d-tmp.pdf',
+          file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d.pdf',
           s3_status: 'Submitted',
           pega_status: nil,
           case_id: nil
@@ -39,7 +39,7 @@ RSpec.describe 'Pega callback', type: :request do
           first_name: 'Veteran',
           last_name: 'Surname',
           form_number: '10-10D',
-          file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d-tmp-1.pdf',
+          file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d1.pdf',
           s3_status: 'Submitted',
           pega_status: nil,
           case_id: nil
@@ -51,7 +51,7 @@ RSpec.describe 'Pega callback', type: :request do
           first_name: 'Veteran',
           last_name: 'Surname',
           form_number: '10-10D',
-          file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d-tmp-2.pdf',
+          file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d2.pdf',
           s3_status: 'Submitted',
           pega_status: nil,
           case_id: nil
@@ -77,7 +77,7 @@ RSpec.describe 'Pega callback', type: :request do
           first_name: 'Veteran',
           last_name: 'Surname',
           form_number: '10-10D',
-          file_name: 'd8f2902b-0b6e-4b8e-88d4-5f7a4a5b7f6d_vha_10_10d-tmp.pdf',
+          file_name: 'd8f2902b-0b6e-4b8e-88d4-5f7a4a5b7f6d_vha_10_10d.pdf',
           s3_status: 'Submitted',
           pega_status: nil,
           case_id: nil
@@ -89,7 +89,7 @@ RSpec.describe 'Pega callback', type: :request do
           first_name: 'Veteran',
           last_name: 'Surname',
           form_number: '10-10D',
-          file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d-tmp.pdf',
+          file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d.pdf',
           s3_status: 'Submitted',
           pega_status: nil,
           case_id: nil
@@ -112,7 +112,7 @@ RSpec.describe 'Pega callback', type: :request do
 
       it 'returns HTTP status 200' do
         post '/ivc_champva/v1/forms/status_updates', params: invalid_payload
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:bad_request)
       end
 
       it 'returns an error message' do

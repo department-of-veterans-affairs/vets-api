@@ -23,7 +23,7 @@ describe ClaimsApi::ClaimDetailSerializer, type: :serializer do
   let(:claim_data) { claim.data }
 
   context 'when uuid is passed in' do
-    subject { serialize(claim, { serializer_class: described_class, uuid: }) }
+    subject { serialize(claim, { serializer_class: described_class, params: { uuid: } }) }
 
     it 'includes :id from :uuid' do
       expect(data['id']).to eq uuid

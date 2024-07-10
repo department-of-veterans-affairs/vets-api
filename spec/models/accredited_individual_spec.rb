@@ -60,14 +60,14 @@ RSpec.describe AccreditedIndividual, type: :model do
         # check within 50 miles of Washington, D.C.
         results = described_class.find_within_max_distance(-77.0369, 38.9072)
 
-        expect(results.pluck(:id)).to match_array([ai1.id, ai2.id, ai3.id])
+        expect(results.pluck(:id)).to contain_exactly(ai1.id, ai2.id, ai3.id)
       end
 
       it 'returns all individuals located within the specified max distance' do
         # check within 40 miles of Washington, D.C.
         results = described_class.find_within_max_distance(-77.0369, 38.9072, 64_373.8)
 
-        expect(results.pluck(:id)).to match_array([ai1.id, ai2.id])
+        expect(results.pluck(:id)).to contain_exactly(ai1.id, ai2.id)
       end
     end
 

@@ -1,19 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/1010_forms/shared_examples/attachment_serializer'
 
 describe HCAAttachmentSerializer, type: :serializer do
-  subject { serialize(attachment, serializer_class: described_class) }
-
-  let(:attachment) { build_stubbed(:hca_attachment) }
-  let(:data) { JSON.parse(subject)['data'] }
-  let(:attributes) { data['attributes'] }
-
-  it 'includes :id' do
-    expect(data['id']).to eq attachment.id.to_s
-  end
-
-  it 'includes :guid' do
-    expect(attributes['guid']).to eq attachment.guid
+  it_behaves_like '1010 forms attachment serializer' do
+    let(:resource_name) { 'hca_attachment' }
   end
 end

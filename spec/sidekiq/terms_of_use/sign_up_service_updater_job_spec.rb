@@ -7,7 +7,6 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
   before do
     Timecop.freeze(Time.zone.now)
     allow(MAP::SignUp::Service).to receive(:new).and_return(service_instance)
-    allow(SecureRandom).to receive(:hex).with(32).and_return(attr_package_key)
   end
 
   after do
@@ -18,17 +17,24 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
     subject(:job) { described_class.new }
 
     let(:user_account) { create(:user_account) }
+    let(:user_account_uuid) { user_account.id }
     let(:icn) { user_account.icn }
     let(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:, response:) }
     let(:response) { 'accepted' }
     let(:response_time) { terms_of_use_agreement.created_at.iso8601 }
-    let(:common_name) { 'some-common-name' }
+    let(:given_names) { %w[given_name] }
+    let(:family_name) { 'family_name' }
+    let(:common_name) { "#{given_names.first} #{family_name}" }
+    let(:sec_id) { 'some-sec-id' }
     let(:service_instance) { instance_double(MAP::SignUp::Service) }
     let(:version) { terms_of_use_agreement&.agreement_version }
-    let(:attr_package_key) { 'some-key' }
     let(:expires_in) { 72.hours }
-    let!(:attr_package) do
-      Sidekiq::AttrPackage.create(icn:, signature_name: common_name, version:, expires_in:)
+    let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+    let(:mpi_profile) { build(:mpi_profile, icn:, sec_id:, given_names:, family_name:) }
+    let(:mpi_service) { instance_double(MPI::Service, find_profile_by_identifier: find_profile_response) }
+
+    before do
+      allow(MPI::Service).to receive(:new).and_return(mpi_service)
     end
 
     it 'retries for 47 hours after failure' do
@@ -36,7 +42,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
     end
 
     context 'when retries have been exhausted' do
-      let(:job) { { args: [attr_package_key] }.as_json }
+      let(:job) { { args: [user_account_uuid, version] }.as_json }
       let(:exception_message) { 'some-error' }
       let(:exception) { StandardError.new(exception_message) }
       let(:expected_log_message) { '[TermsOfUse][SignUpServiceUpdaterJob] retries exhausted' }
@@ -48,20 +54,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
 
       context 'when the attr_package is found' do
         let(:expected_log_payload) do
-          { icn:, response:, response_time:, version:, exception_message:, attr_package_key: }
-        end
-
-        it 'logs a warning message with the expected payload' do
-          described_class.sidekiq_retries_exhausted_block.call(job, exception)
-
-          expect(Rails.logger).to have_received(:warn).with(expected_log_message, expected_log_payload)
-        end
-      end
-
-      context 'when the attr_package is expired' do
-        let(:expires_in) { 45.hours }
-        let(:expected_log_payload) do
-          { icn: nil, response: nil, response_time: nil, version: nil, exception_message:, attr_package_key: }
+          { icn:, response:, response_time:, version:, exception_message: }
         end
 
         it 'logs a warning message with the expected payload' do
@@ -74,7 +67,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       context 'when the agreement is not found' do
         let(:terms_of_use_agreement) { nil }
         let(:expected_log_payload) do
-          { icn:, response: nil, response_time: nil, version: nil, exception_message:, attr_package_key: }
+          { icn:, response: nil, response_time: nil, version: nil, exception_message: }
         end
 
         it 'logs a warning message with the expected payload' do
@@ -85,56 +78,53 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       end
     end
 
-    context 'when the terms of use agreement is accepted' do
-      before do
-        allow(service_instance).to receive(:agreements_accept)
+    context 'when sec_id is present' do
+      context 'when the terms of use agreement is accepted' do
+        before do
+          allow(service_instance).to receive(:agreements_accept)
+        end
+
+        it 'updates the terms of use agreement in sign up service' do
+          job.perform(user_account_uuid, version)
+
+          expect(MAP::SignUp::Service).to have_received(:new)
+          expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
+                                                                             signature_name: common_name,
+                                                                             version:)
+        end
       end
 
-      it 'updates the terms of use agreement in sign up service' do
-        job.perform(attr_package_key)
+      context 'when the terms of use agreement is declined' do
+        let(:response) { 'declined' }
 
-        expect(MAP::SignUp::Service).to have_received(:new)
-        expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
-                                                                           signature_name: common_name,
-                                                                           version:)
-      end
+        before do
+          allow(service_instance).to receive(:agreements_decline)
+        end
 
-      it 'deletes the attribute package' do
-        expect(Sidekiq::AttrPackage).to receive(:delete).with(attr_package_key)
-        job.perform(attr_package_key)
-      end
-    end
+        it 'updates the terms of use agreement in sign up service' do
+          job.perform(user_account_uuid, version)
 
-    context 'when the terms of use agreement is declined' do
-      let(:response) { 'declined' }
-
-      before do
-        allow(service_instance).to receive(:agreements_decline)
-      end
-
-      it 'updates the terms of use agreement in sign up service' do
-        job.perform(attr_package_key)
-
-        expect(MAP::SignUp::Service).to have_received(:new)
-        expect(service_instance).to have_received(:agreements_decline).with(icn: user_account.icn)
-      end
-
-      it 'deletes the attribute package' do
-        expect(Sidekiq::AttrPackage).to receive(:delete).with(attr_package_key)
-
-        job.perform(attr_package_key)
+          expect(MAP::SignUp::Service).to have_received(:new)
+          expect(service_instance).to have_received(:agreements_decline).with(icn: user_account.icn)
+        end
       end
     end
 
-    context 'when MAP::SignUp::Service service fails' do
-      before do
-        allow(service_instance).to receive(:agreements_accept).and_raise(StandardError)
+    context 'when sec_id is not present' do
+      let(:sec_id) { nil }
+      let(:expected_log) do
+        '[TermsOfUse][SignUpServiceUpdaterJob] Sign Up Service not updated due to user missing sec_id'
       end
 
-      it 'does not delete the attribute package' do
-        expect(Sidekiq::AttrPackage).not_to receive(:delete).with(attr_package_key)
+      before do
+        allow(Rails.logger).to receive(:info)
+      end
 
-        expect { job.perform(attr_package_key) }.to raise_error(StandardError)
+      it 'does not update the terms of use agreement in sign up service and logs expected message' do
+        job.perform(user_account_uuid, version)
+
+        expect(MAP::SignUp::Service).not_to have_received(:new)
+        expect(Rails.logger).to have_received(:info).with(expected_log, icn:)
       end
     end
   end

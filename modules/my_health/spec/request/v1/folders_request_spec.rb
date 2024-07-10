@@ -38,6 +38,7 @@ RSpec.describe 'Folders Integration', type: :request do
 
   context 'when authorized' do
     before do
+      allow(SM::Client).to receive(:new).and_return(authenticated_client)
       VCR.insert_cassette('sm_client/session')
     end
 
@@ -48,7 +49,7 @@ RSpec.describe 'Folders Integration', type: :request do
     describe '#index' do
       it 'responds to GET #index' do
         VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders') do
-          get '/my_health/v1/messaging/folders'
+          get '/my_health/v1/messaging/folders', params: { page: 3, per_page: 5 }
         end
 
         expect(response).to be_successful
@@ -58,7 +59,17 @@ RSpec.describe 'Folders Integration', type: :request do
 
       it 'responds to GET #index when camel-inflected' do
         VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders') do
-          get '/my_health/v1/messaging/folders', headers: inflection_header
+          get '/my_health/v1/messaging/folders', headers: inflection_header, params: { page: 3, per_page: 5 }
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_camelized_response_schema('folders')
+      end
+
+      it 'responds to GET #index when requires_oh_messages param is provided' do
+        VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders_with_oh_messages') do
+          get '/my_health/v1/messaging/folders?requires_oh_messages=1', headers: inflection_header
         end
 
         expect(response).to be_successful
@@ -87,6 +98,16 @@ RSpec.describe 'Folders Integration', type: :request do
           expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(response).to match_camelized_response_schema('folder')
+        end
+
+        it 'response to GET #show when requires_oh_messages parameter is provided' do
+          VCR.use_cassette('sm_client/folders/gets_a_single_folder_oh_messages') do
+            get "/my_health/v1/messaging/folders/#{inbox_id}?requires_oh_messages=1"
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('folder')
         end
       end
     end
@@ -156,6 +177,16 @@ RSpec.describe 'Folders Integration', type: :request do
         it 'responds to POST #search' do
           VCR.use_cassette('sm_client/folders/searches_a_folder') do
             post "/my_health/v1/messaging/folders/#{id}/search", params: { subject: 'test' }
+          end
+
+          expect(response).to be_successful
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('folder_search')
+        end
+
+        it 'responds to POST #search when requires_oh_messages parameter is provided' do
+          VCR.use_cassette('sm_client/folders/searches_a_folder_oh_messages') do
+            post "/my_health/v1/messaging/folders/#{id}/search?requires_oh_messages=1", params: { subject: 'THREAD' }
           end
 
           expect(response).to be_successful

@@ -22,9 +22,8 @@ describe CARMA::Client::MuleSoftClient do
 
     before do
       allow(client).to receive(:config).and_return(config)
-      allow(config).to receive(:base_request_headers).and_return(exp_headers)
-      allow(config).to receive(:timeout).and_return(10)
-      allow(config).to receive(:settings).and_return(OpenStruct.new(async_timeout: 60))
+      allow(config).to receive_messages(base_request_headers: exp_headers, timeout: 10,
+                                        settings: OpenStruct.new(async_timeout: 60))
     end
 
     describe '#create_submission_v2' do
