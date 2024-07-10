@@ -1,0 +1,59 @@
+---
+http_interactions:
+  - request:
+      method: post
+      uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/0/searchMessage/page/1/pageSize/250?requiresOHMessages=1"
+      body:
+        encoding: UTF-8
+        string: '{"exactMatch":null,"sender":null,"subject":"THREAD","category":null,"recipient":null,"fromDate":null,"toDate":null,"messageId":null}'
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Token: "<SESSION_TOKEN>"
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Fri, 28 Jun 2024 13:30:24 GMT
+        Content-Type:
+          - application/json
+        Content-Length:
+          - "350"
+        X-Amzn-Requestid:
+          - 3fd8eb62-daa9-4ebc-a544-782c9fa29c5c
+        X-Xss-Protection:
+          - 1; mode=block
+        X-Frame-Options:
+          - DENY
+        X-Amzn-Remapped-Connection:
+          - keep-alive
+        X-Amz-Apigw-Id:
+          - aFIlkG61PHMFWlA=
+        Cache-Control:
+          - no-cache, no-store, max-age=0, must-revalidate
+        Expires:
+          - "0"
+        X-Content-Type-Options:
+          - nosniff
+        Pragma:
+          - no-cache
+        X-Amzn-Remapped-Date:
+          - Fri, 28 Jun 2024 13:30:24 GMT
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: ASCII-8BIT
+        string:
+          '{"message":[{"id":3719187,"category":"OTHER","subject":"OH THREAD 001","body":null,"attachment":true,"attachments":null,"sentDate":"Tue,
+          25 Jun 2024 14:14:51 GMT","senderId":2444644,"senderName":"DOE, JOHN","recipientId":2570050,"recipientName":"MHVTP,
+          GREEN G","readReceipt":"READ","triageGroupName":"Doctor Triage","proxySenderName":null}]}'
+    recorded_at: Fri, 28 Jun 2024 13:30:24 GMT
+recorded_with: VCR 6.2.0

@@ -38,6 +38,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
   context 'when authorized' do
     before do
+      allow(SM::Client).to receive(:new).and_return(authenticated_client)
       VCR.insert_cassette('sm_client/session')
     end
 
@@ -297,6 +298,14 @@ RSpec.describe 'Messages Integration', type: :request do
         expect(first_message['messageId']).to eq(3_207_476)
         expect(first_message['threadId']).to eq(3_188_781)
         expect(first_message['senderId']).to eq(251_391)
+      end
+
+      it 'responds to GET #thread when requires_oh_messages param is provided' do
+        VCR.use_cassette('sm_client/messages/gets_a_message_thread_oh_messages') do
+          get "/my_health/v1/messaging/messages/#{thread_id}/thread?requires_oh_messages=1"
+        end
+
+        expect(response).to be_successful
       end
     end
 
