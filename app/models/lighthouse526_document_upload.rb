@@ -24,6 +24,11 @@ class Lighthouse526DocumentUpload < ApplicationRecord
   # Veteran Uploads must reference a FormAttachment record, where a Veteran-submitted file is stored
   validates :form_attachment, presence: true, if: :veteran_upload?
 
+  # Window for polling Lighthouse for the status of an upload
+  scope :status_update_required, lambda {
+                                   where('status_last_polled_at < ?', 1.hour.ago.utc).or(where(status_last_polled_at: nil))
+                                 }
+
   aasm do
     state :pending, initial: true
     state :completed, :failed
