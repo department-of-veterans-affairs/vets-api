@@ -8,6 +8,7 @@ module ClaimsApi
   class EwsUpdater < ClaimsApi::ServiceBase
     FILE_5103 = 'Y'
     OMITTED_FIELDS = %w[contentions dvlpmt_items letters name status_messages station_profile stn_suspns_prfil].freeze
+    sidekiq_options expires_in: 48.hours, retry: true
 
     def perform(ews_id)
       ews = ClaimsApi::EvidenceWaiverSubmission.find(ews_id)
