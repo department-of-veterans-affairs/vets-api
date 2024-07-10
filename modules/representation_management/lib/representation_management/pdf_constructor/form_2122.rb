@@ -47,9 +47,9 @@ module RepresentationManagement
         {
           # Section I
           # Item 1
-          "#{base_form}.VeteransLastName[0]": data.dig('veteran', 'lastName'),
-          "#{base_form}.VeteransMiddleInitial1[0]": data.dig('veteran', 'middleInitial'),
-          "#{base_form}.VeteransFirstName[0]": data.dig('veteran', 'firstName')
+          "#{base_form}.VeteransLastName[0]": 'Fake',
+          "#{base_form}.VeteransMiddleInitial1[0]": 'M',
+          "#{base_form}.VeteransFirstName[0]": 'Faker'
           # Item 2
           # "#{base_form}.SocialSecurityNumber_FirstThreeNumbers[0]": data.dig('veteran', 'ssn')[0..2],
           # "#{base_form}.SocialSecurityNumber_SecondTwoNumbers[0]": data.dig('veteran', 'ssn')[3..4],
