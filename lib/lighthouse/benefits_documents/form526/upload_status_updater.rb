@@ -16,6 +16,7 @@ module BenefitsDocuments
 
       LIGHTHOUSE_DOCUMENT_COMPLETE_STATUS = 'SUCCESS'
       LIGHTHOUSE_DOCUMENT_FAILED_STATUS = 'FAILED'
+      PROCESSING_TIMEOUT_WINDOW_IN_HOURS = 24
 
       # @param lighthouse526_document_status [Hash] includes a single document's status progress
       # after it has been submitted to Lighthouse, while Lighthouse attempts to pass it on to
@@ -67,6 +68,19 @@ module BenefitsDocuments
         finalize_upload if completed? || failed?
 
         @lighthouse526_document_upload.update!(status_last_polled_at: DateTime.now.utc)
+      end
+
+      def get_failure_step
+        return unless failed? && @lighthouse526_document_status['error']
+
+        @lighthouse526_document_status['error']['step']
+      end
+
+      # Returns true if document is still processing in Lighthouse, and initiated more than a set number of hours ago
+      def processing_timeout?
+        return false if @lighthouse526_document_status.dig('time', 'endTime')
+
+        start_time < PROCESSING_TIMEOUT_WINDOW_IN_HOURS.hours.ago.utc
       end
 
       private
