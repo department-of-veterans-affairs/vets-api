@@ -1,0 +1,55 @@
+{
+  "form_number": "10-7959A",
+  "veteran": {
+    "full_name": {
+      "first": "Veteran",
+      "middle": "B",
+      "last": "Surname"
+    },
+    "ssn_or_tin": "222554444",
+    "address": {
+      "country": "USA",
+      "street": "1 First Ln",
+      "city": "Place",
+      "state": "AL",
+      "zip_code": "12345"
+    },
+    "phone_number": "5555555555",
+    "dob": "1980-01-01",
+    "checkifnew": true
+  },
+  "sponsor": {
+    "full_name": {
+      "first": "Sponsor",
+      "middle": "B",
+      "last": "Surname"
+    }
+  },
+  "insurance_1": "Insurance 1",
+  "insurance_2": "Insurance 2",
+  "insurance_1_policy": "123456789",
+  "insurance_2_policy": "987654321",
+  "insurance_1_phone": "5555555555",
+  "insurance_2_phone": "5555555555",
+  "WorkRelatedTreat": true,
+  "OutsdWrkAccdnt": true,
+  "RadioButtonList": false,
+  "SpecifyOtherPrimaryHealthInsurance": "Other Primary Health Insurance",
+  "PtntCverage": true,
+  "signatureperson": {
+    "full_name": {
+      "first": "Veteran",
+      "last": "Surname",
+      "middle": "B"
+    },
+    "relationshipToApplicant": "Self",
+    "address": {
+      "country": "USA",
+      "street": "1 First Ln",
+      "city": "Place",
+      "state": "AL",
+      "zip_code": "12345"
+    },
+    "phone_number": "5555555555"
+  }
+}

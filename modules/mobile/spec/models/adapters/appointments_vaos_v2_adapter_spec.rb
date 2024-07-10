@@ -2,14 +2,18 @@
 
 require 'rails_helper'
 
-describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
+describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   # while hashes will work for these tests, this better reflects the data returned from the VAOS service
   def appointment_data(index = nil)
-    parsed = JSON.parse(appointment_fixtures, symbolize_names: true)
-    appts = index ? parsed[index] : parsed
+    appts = index ? raw_data[index] : raw_data
     Array.wrap(appts).map { |appt| OpenStruct.new(appt) }
   end
 
+  def appointment_by_id(id)
+    raw_data.find { |appt| appt[:id] == id }
+  end
+
+  let(:raw_data) { JSON.parse(appointment_fixtures, symbolize_names: true) }
   let(:appointment_fixtures) do
     File.read(Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'VAOS_v2_appointments.json'))
   end
@@ -99,7 +103,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(booked_va[:status]).to eq('BOOKED')
       expect(booked_va[:appointment_type]).to eq('VA')
       expect(booked_va.as_json).to eq({
-                                        'id' => '121133',
+                                        'id' => '121134',
                                         'appointment_type' => 'VA',
                                         'appointment_ien' => nil,
                                         'cancel_id' => nil,
@@ -469,7 +473,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(atlas_va[:location][:url]).to eq('http://www.meeting.com')
       expect(atlas_va[:location][:code]).to eq('420835')
 
-      expect(atlas_va.as_json).to eq({ 'id' => '50094',
+      expect(atlas_va.as_json).to eq({ 'id' => '50095',
                                        'appointment_type' => 'VA_VIDEO_CONNECT_ATLAS',
                                        'appointment_ien' => nil,
                                        'cancel_id' => nil,
@@ -931,7 +935,30 @@ preferred dates:12/13/2022 PM|pager number:8675309"
   end
 
   describe 'healthcare provider' do
-    it 'uses the preferred_provider_name' do
+    let(:practitioner_list) do
+      [
+        {
+          "identifier": [{ "system": 'dfn-983', "value": '520647609' }],
+          "name": { "family": 'ENGHAUSER', "given": ['MATTHEW'] },
+          "practice_name": 'Site #983'
+        },
+        {
+          "identifier": [{ "system": 'dfn-983', "value": '520647609' }],
+          "name": { "family": 'FORTH', "given": ['SALLY'] },
+          "practice_name": 'Site #983'
+        }
+      ]
+    end
+
+    it 'uses the first practitioner name in the list' do
+      appointment = appointment_data[0]
+      appointment[:preferred_provider_name] = 'Dr. Hauser'
+      appointment[:practitioners] = practitioner_list
+      result = subject.parse([appointment]).first
+      expect(result.healthcare_provider).to eq('MATTHEW ENGHAUSER')
+    end
+
+    it 'uses the preferred_provider_name if no practitioner list exists' do
       appointment = appointment_data[0]
       appointment[:preferred_provider_name] = 'Dr. Hauser'
       result = subject.parse([appointment]).first
@@ -945,6 +972,118 @@ preferred dates:12/13/2022 PM|pager number:8675309"
       result = subject.parse([appointment]).first
 
       expect(result.healthcare_provider).to eq(nil)
+    end
+
+    it 'uses the practitioners list in favor of the not found message' do
+      appointment = appointment_data[0]
+      appointment[:preferred_provider_name] = VAOS::V2::AppointmentProviderName::NPI_NOT_FOUND_MSG
+      appointment[:practitioners] = practitioner_list
+      result = subject.parse([appointment]).first
+      expect(result.healthcare_provider).to eq('MATTHEW ENGHAUSER')
+    end
+  end
+
+  describe 'location' do
+    context 'with a cc appointment request' do
+      let(:practitioner_list) do
+        [
+          {
+            "identifier": [
+              {
+                "system": 'http://hl7.org/fhir/sid/us-npi',
+                "value": '1780671644'
+              }
+            ],
+            "address": {
+              "type": 'physical',
+              "line": [
+                '161 MADISON AVE STE 7SW'
+              ],
+              "city": 'NEW YORK',
+              "state": 'NY',
+              "postal_code": '10016-5448',
+              "text": '161 MADISON AVE STE 7SW,NEW YORK,NY,10016-5448'
+            }
+          }
+        ]
+      end
+
+      it 'sets location from practitioners list' do
+        proposed_cc = appointment_by_id('72105')
+        proposed_cc[:practitioners] = practitioner_list
+        result = subject.parse([proposed_cc]).first
+        expect(result[:location].to_h).to eq({
+                                               id: nil,
+                                               name: nil,
+                                               address: { street: '161 MADISON AVE STE 7SW', city: 'NEW YORK',
+                                                          state: 'NY', zip_code: '10016-5448' },
+                                               lat: nil,
+                                               long: nil,
+                                               phone: { area_code: nil, number: nil, extension: nil },
+                                               url: nil,
+                                               code: nil
+                                             })
+      end
+    end
+
+    context 'with a cc appointment' do
+      it 'sets location from cc_location' do
+        booked_cc = appointment_by_id('72106')
+        result = subject.parse([booked_cc]).first
+        expect(result[:location].to_h).to eq(
+          {
+            id: nil,
+            name: 'CC practice name',
+            address: { street: '1601 Needmore Rd Ste 1', city: 'Dayton', state: 'OH',
+                       zip_code: '45414' },
+            lat: nil,
+            long: nil,
+            phone: { area_code: '321', number: '417-0822', extension: nil },
+            url: nil,
+            code: nil
+          }
+        )
+      end
+    end
+
+    context 'with telehealth appointment' do
+      it 'sets location from appointment location attributes' do
+        telehealth_appointment = appointment_by_id('50095')
+        result = subject.parse([telehealth_appointment]).first
+
+        expect(result[:location].to_h).to eq(
+          {
+            id: nil,
+            name: 'Cheyenne VA Medical Center',
+            address: { street: '114 Dewey Ave', city: 'Eureka', state: 'MT', zip_code: '59917' },
+            lat: nil,
+            long: nil,
+            phone: { area_code: '307', number: '778-7550', extension: nil },
+            url: 'http://www.meeting.com',
+            code: '420835'
+          }
+        )
+      end
+    end
+
+    context 'with a VA appointment' do
+      it 'sets location from appointment location attributes' do
+        va_appointment = appointment_by_id('121134')
+        result = subject.parse([va_appointment]).first
+        expect(result[:location].to_h).to eq(
+          {
+            id: '442',
+            name: 'Cheyenne VA Medical Center',
+            address: { street: '2360 East Pershing Boulevard', city: 'Cheyenne', state: 'WY',
+                       zip_code: '82001-5356' },
+            lat: 41.148026,
+            long: -104.786255,
+            phone: { area_code: '307', number: '778-7550', extension: nil },
+            url: nil,
+            code: nil
+          }
+        )
+      end
     end
   end
 end

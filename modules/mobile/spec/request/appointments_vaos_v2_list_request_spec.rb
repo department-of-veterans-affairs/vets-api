@@ -7,6 +7,10 @@ RSpec.describe 'vaos v2 appointments', type: :request do
 
   let!(:user) { sis_user(icn: '1012846043V576341') }
 
+  before do
+    Flipper.enable_actor(:appointments_consolidation, user)
+  end
+
   context 'with VAOS' do
     before do
       Flipper.disable(:va_online_scheduling_use_vpg)
@@ -244,30 +248,28 @@ RSpec.describe 'vaos v2 appointments', type: :request do
       describe 'healthcare provider names' do
         let(:erb_template_params) { { start_date: '2021-01-01T00:00:00Z', end_date: '2023-01-26T23:59:59Z' } }
 
-        context 'with a proposed, cc appointment that has a us-npi provider id' do
-          it 'fetches the provider name from upstream' do
-            VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
-                VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
-                                 erb: erb_template_params,
-                                 match_requests_on: %i[method uri]) do
-                  VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri],
-                                                                        tag: :force_utf8) do
-                    get '/mobile/v0/appointments', headers: sis_headers
-                  end
+        it 'is set as expected' do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
+                               erb: erb_template_params,
+                               match_requests_on: %i[method uri]) do
+                VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri],
+                                                                      tag: :force_utf8) do
+                  get '/mobile/v0/appointments', headers: sis_headers
                 end
               end
             end
-
-            appointments = response.parsed_body['data']
-            appointment_without_provider_info = appointments.find { |appt| appt['id'] == '76131' }
-            proposed_cc_appointment_with_provider = appointments.find { |appt| appt['id'] == '76132' }
-            booked_clinic_appointment_without_us_npi_id = appointments.find { |appt| appt['id'] == '76133' }
-
-            expect(appointment_without_provider_info['attributes']['healthcareProvider']).to be_nil
-            expect(proposed_cc_appointment_with_provider['attributes']['healthcareProvider']).to eq('DEHGHAN, AMIR')
-            expect(booked_clinic_appointment_without_us_npi_id['attributes']['healthcareProvider']).to be_nil
           end
+
+          appointments = response.parsed_body['data']
+          appointment_without_provider = appointments.find { |appt| appt['id'] == '76131' }
+          proposed_cc_appointment_with_provider = appointments.find { |appt| appt['id'] == '76132' }
+          appointment_with_practitioner_list = appointments.find { |appt| appt['id'] == '76133' }
+
+          expect(appointment_without_provider['attributes']['healthcareProvider']).to be_nil
+          expect(proposed_cc_appointment_with_provider['attributes']['healthcareProvider']).to eq('DEHGHAN, AMIR')
+          expect(appointment_with_practitioner_list['attributes']['healthcareProvider']).to eq('MATTHEW ENGHAUSER')
         end
       end
 
@@ -591,31 +593,29 @@ RSpec.describe 'vaos v2 appointments', type: :request do
       describe 'healthcare provider names' do
         let(:erb_template_params) { { start_date: '2021-01-01T00:00:00Z', end_date: '2023-01-26T23:59:59Z' } }
 
-        context 'with a proposed, cc appointment that has a us-npi provider id' do
-          it 'fetches the provider name from upstream' do
-            VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
-                VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types_vpg',
-                                 erb: erb_template_params,
-                                 match_requests_on: %i[method uri]) do
-                  VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri],
-                                                                        tag: :force_utf8) do
-                    get '/mobile/v0/appointments', headers: sis_headers
-                  end
+        it 'is set as expected' do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types_vpg',
+                               erb: erb_template_params,
+                               match_requests_on: %i[method uri]) do
+                VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri],
+                                                                      tag: :force_utf8) do
+                  get '/mobile/v0/appointments', headers: sis_headers
                 end
               end
             end
-
-            appointments = response.parsed_body['data']
-
-            appointment_without_provider_info = appointments.find { |appt| appt['id'] == '76131' }
-            proposed_cc_appointment_with_provider = appointments.find { |appt| appt['id'] == '76132' }
-            booked_clinic_appointment_without_us_npi_id = appointments.find { |appt| appt['id'] == '76133' }
-
-            expect(appointment_without_provider_info['attributes']['healthcareProvider']).to be_nil
-            expect(proposed_cc_appointment_with_provider['attributes']['healthcareProvider']).to eq('DEHGHAN, AMIR')
-            expect(booked_clinic_appointment_without_us_npi_id['attributes']['healthcareProvider']).to be_nil
           end
+
+          appointments = response.parsed_body['data']
+
+          appointment_without_provider = appointments.find { |appt| appt['id'] == '76131' }
+          proposed_cc_appointment_with_provider = appointments.find { |appt| appt['id'] == '76132' }
+          appointment_with_practitioner_list = appointments.find { |appt| appt['id'] == '76133' }
+
+          expect(appointment_without_provider['attributes']['healthcareProvider']).to be_nil
+          expect(proposed_cc_appointment_with_provider['attributes']['healthcareProvider']).to eq('DEHGHAN, AMIR')
+          expect(appointment_with_practitioner_list['attributes']['healthcareProvider']).to eq('MATTHEW ENGHAUSER')
         end
       end
 

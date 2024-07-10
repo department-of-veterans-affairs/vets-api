@@ -59,7 +59,6 @@ module EVSS
 
         # if no more unused birls to attempt submit with, give up, let vet know
         begin
-          submission.fail_primary_delivery!
           notify_enabled = Flipper.enabled?(:disability_compensation_pif_fail_notification)
           if submission && next_birls_jid.nil? && msg['error_message'] == 'PIF in use' && notify_enabled
             first_name = submission.get_first_name&.capitalize || 'Sir or Madam'
@@ -101,7 +100,7 @@ module EVSS
           end
 
           user_account = UserAccount.find_by(id: submission.user_account_id) ||
-                         Account.find_by(idme_uuid: submission.user_uuid)
+                         Account.lookup_by_user_uuid(submission.user_uuid)
 
           begin
             # send submission data to either EVSS or Lighthouse (LH)
@@ -115,9 +114,14 @@ module EVSS
                          # 3. send transformed submission data to LH endpoint
                          service = BenefitsClaims::Service.new(icn)
                          raw_response = service.submit526(body)
+                         raw_response_body = if raw_response.body.is_a? String
+                                               JSON.parse(raw_response.body)
+                                             else
+                                               raw_response.body
+                                             end
                          # 4. convert LH raw response to a FormSubmitResponse for further processing (claim_id, status)
                          # parse claimId from LH response
-                         submitted_claim_id = JSON.parse(raw_response.body).dig('data', 'attributes', 'claimId').to_i
+                         submitted_claim_id = raw_response_body.dig('data', 'attributes', 'claimId').to_i
                          raw_response_struct = OpenStruct.new({
                                                                 body: { claim_id: submitted_claim_id },
                                                                 status: raw_response.status
@@ -146,7 +150,6 @@ module EVSS
 
       def response_handler(response)
         submission.submitted_claim_id = response.claim_id
-        submission.deliver_to_primary!
         submission.save
       end
 
@@ -167,7 +170,6 @@ module EVSS
         # retry submitting the form for specific upstream errors
         retry_form526_error_handler!(submission, e)
       rescue => e
-        submission.fail_primary_delivery!
         non_retryable_error_handler(submission, e)
       end
 
