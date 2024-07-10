@@ -136,6 +136,19 @@ RSpec.describe 'Forms uploader', type: :request do
             allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
           end
 
+          context 'veteran' do
+            it 'calls #populate_veteran_data' do
+              expect_any_instance_of(SimpleFormsApi::VBA210966).to receive(:populate_veteran_data).and_call_original
+
+              fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                             'vba_21_0966-prefill.json')
+              data = JSON.parse(fixture_path.read)
+              data['preparer_identification'] = 'VETERAN'
+
+              post '/simple_forms_api/v1/simple_forms', params: data
+            end
+          end
+
           context 'third party' do
             let(:expiration_date) { Time.zone.now }
 
