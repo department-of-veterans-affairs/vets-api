@@ -8,8 +8,8 @@ module VAOS
       #
       # @param appointment [Hash] the appointment to modify
       def extract_reason_code_fields(appointment)
-        # Return if the appointment is not a request or is a CC request
-        return if archetype_service.booked?(appointment) || archetype_service.cc?(appointment)
+        # Return if the appointment is a CC request or not a request
+        return if appointment[:kind] == 'cc' || appointment[:status] != 'proposed'
 
         # Retrieve the reason code text, or return if it is not present
         reason_code_text = appointment&.dig(:reason_code, :text)
@@ -28,10 +28,6 @@ module VAOS
           contact_info.push({ system: 'email', value: reason_code_hash['email'] })
           appointment[:contact] = { telecom: contact_info }
         end
-      end
-
-      def archetype_service
-        @archetype_service ||= VAOS::V2::AppointmentsArchetypeService.new
       end
     end
   end

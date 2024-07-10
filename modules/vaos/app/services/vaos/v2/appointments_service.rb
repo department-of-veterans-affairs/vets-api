@@ -43,7 +43,7 @@ module VAOS
             reason_code_service.extract_reason_code_fields(appt)
             merge_clinic(appt) if include[:clinics]
             merge_facility(appt) if include[:facilities]
-            cnp_count += 1 if archetype_service.cnp?(appt)
+            cnp_count += 1 if cnp?(appt)
           end
 
           if Flipper.enabled?(:appointments_consolidation, user)
@@ -89,17 +89,17 @@ module VAOS
                      end
 
           if request_object_body[:kind] == 'clinic' &&
-             archetype_service.booked?(request_object_body) # a direct scheduled appointment
+             booked?(request_object_body) # a direct scheduled appointment
             modify_desired_date(request_object_body, get_facility_timezone(request_object_body[:location_id]))
           end
 
           new_appointment = response.body
           convert_appointment_time(new_appointment)
-          find_and_merge_provider_name(new_appointment) if archetype_service.cc?(new_appointment)
+          find_and_merge_provider_name(new_appointment) if cc?(new_appointment)
           reason_code_service.extract_reason_code_fields(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
-          log_direct_schedule_submission_errors(e) if archetype_service.booked?(params)
+          log_direct_schedule_submission_errors(e) if booked?(params)
           raise e
         end
       end
@@ -204,25 +204,21 @@ module VAOS
 
       def prepare_appointment(appointment)
         # for CnP, covid, CC and telehealth appointments set cancellable to false per GH#57824, GH#58690, ZH#326
-        set_cancellable_false(appointment) if archetype_service.cannot_be_cancelled?(appointment)
+        set_cancellable_false(appointment) if cannot_be_cancelled?(appointment)
 
         # remove service type(s) for non-medical non-CnP appointments per GH#56197
-        unless archetype_service.medical?(appointment) ||
-               archetype_service.cnp?(appointment) ||
-               archetype_service.no_service_cat?(appointment)
+        unless medical?(appointment) || cnp?(appointment) || no_service_cat?(appointment)
           remove_service_type(appointment)
         end
 
         # set requestedPeriods to nil if the appointment is a booked cerner appointment per GH#62912
-        if archetype_service.booked?(appointment) && VAOS::AppointmentsHelper.cerner?(appointment)
-          appointment[:requested_periods] = nil
-        end
+        appointment[:requested_periods] = nil if booked?(appointment) && VAOS::AppointmentsHelper.cerner?(appointment)
 
         convert_appointment_time(appointment)
-        if archetype_service.avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
+        if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
           fetch_avs_and_update_appt_body(appointment)
         end
-        if archetype_service.cc?(appointment) && %w[proposed cancelled].include?(appointment[:status])
+        if cc?(appointment) && %w[proposed cancelled].include?(appointment[:status])
           find_and_merge_provider_name(appointment)
         end
       end
@@ -272,10 +268,6 @@ module VAOS
 
       def reason_code_service
         @reason_code_service ||= VAOS::V2::AppointmentsReasonCodeService.new
-      end
-
-      def archetype_service
-        @archetype_service ||= VAOS::V2::AppointmentsArchetypeService.new
       end
 
       def log_cnp_appt_count(cnp_count)
@@ -377,6 +369,27 @@ module VAOS
         appt[:avs_path] = AVS_ERROR_MESSAGE
       end
 
+      # Determines if the appointment cannot be cancelled.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment cannot be cancelled
+      def cannot_be_cancelled?(appointment)
+        cnp?(appointment) || covid?(appointment) ||
+          (cc?(appointment) && booked?(appointment)) || telehealth?(appointment)
+      end
+
+      # Checks if appointment is eligible for receiving an AVS link, i.e.
+      # the appointment is booked and in the past
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is eligible, false otherwise
+      #
+      def avs_applicable?(appt)
+        return false if appt.nil? || appt[:status].nil? || appt[:start].nil?
+
+        appt[:status] == 'booked' && appt[:start].to_datetime.past?
+      end
+
       # Filters out non-ASCII characters from the reason code text field in the request object body.
       #
       # @param request_object_body [Hash, ActionController::Parameters] The request object body containing
@@ -387,6 +400,108 @@ module VAOS
       def filter_reason_code_text(request_object_body)
         text = request_object_body&.dig(:reason_code, :text)
         VAOS::Strings.filter_ascii_characters(text) if text.present?
+      end
+
+      # Checks if the appointment is booked.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is booked, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def booked?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt[:status] == 'booked'
+      end
+
+      # Get codes from a list of codeable concepts.
+      #
+      # @param input [Array<Hash>] An array of codeable concepts.
+      # @return [Array<String>] An array of codes.
+      #
+      def codes(input)
+        return [] if input.nil?
+
+        input.flat_map { |codeable_concept| codeable_concept[:coding]&.pluck(:code) }.compact
+      end
+
+      # Determines if the appointment is for community care.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is for community care, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def cc?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt[:kind] == 'cc'
+      end
+
+      # Determines if the appointment is for telehealth.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is for telehealth, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def telehealth?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt[:kind] == 'telehealth'
+      end
+
+      # Determines if the appointment is for compensation and pension.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is for compensation and pension, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def cnp?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        codes(appt[:service_category]).include? 'COMPENSATION & PENSION'
+      end
+
+      # Determines if the appointment is for covid.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is for covid, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def covid?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        codes(appt[:service_types]).include?('covid') || appt[:service_type] == 'covid'
+      end
+
+      # Determines if the appointment is a medical appointment.
+      #
+      # @param appt [Hash] The hash object containing appointment details.
+      # @return [Boolean] true if the appointment is a medical appointment, false otherwise.
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def medical?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        codes(appt[:service_category]).include?('REGULAR')
+      end
+
+      # Determines if the appointment does not have a service category.
+      #
+      # @param appt [Hash] The hash object containing appointment details.
+      # @return [Boolean] true if the appointment does not have a service category, false otherwise.
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def no_service_cat?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        codes(appt[:service_category]).empty?
       end
 
       # Modifies the appointment removing the service types and service type elements.
