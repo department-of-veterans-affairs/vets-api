@@ -94,6 +94,68 @@ RSpec.describe 'Disability Claims', type: :request do
         end
       end
 
+      describe 'with missing first_name' do
+        let(:no_first_name_target_veteran) do
+          OpenStruct.new(
+            icn: '1012832025V743496',
+            first_name: '',
+            last_name: 'Ford',
+            birth_date: '19630211',
+            loa: { current: 3, highest: 3 },
+            edipi: nil,
+            ssn: '796043735',
+            participant_id: '600061742',
+            mpi: OpenStruct.new(
+              icn: '1012832025V743496',
+              profile: OpenStruct.new(ssn: '796043735')
+            )
+          )
+        end
+
+        context 'without the first name present' do
+          it 'does not allow the submit to occur' do
+            mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:target_veteran).and_return(no_first_name_target_veteran)
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response.parsed_body['errors'][0]['detail']).to eq('Missing first name')
+            end
+          end
+        end
+      end
+
+      describe 'with missing last_name' do
+        let(:no_last_name_target_veteran) do
+          OpenStruct.new(
+            icn: '1012832025V743496',
+            first_name: 'Wesley',
+            last_name: '',
+            birth_date: '19630211',
+            loa: { current: 3, highest: 3 },
+            edipi: nil,
+            ssn: '796043735',
+            participant_id: '600061742',
+            mpi: OpenStruct.new(
+              icn: '1012832025V743496',
+              profile: OpenStruct.new(ssn: '796043735')
+            )
+          )
+        end
+
+        context 'without the last name present' do
+          it 'does not allow the submit to occur' do
+            mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:target_veteran).and_return(no_last_name_target_veteran)
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response.parsed_body['errors'][0]['detail']).to eq('Missing last name')
+            end
+          end
+        end
+      end
+
       describe 'schema catches claimProcessType error' do
         context 'when something other than an enum option is used' do
           let(:claim_process_type) { 'claim_test' }
@@ -4339,6 +4401,40 @@ RSpec.describe 'Disability Claims', type: :request do
         end
       end
 
+      describe 'with missing first_name' do
+        let(:no_first_last_name_target_veteran) do
+          OpenStruct.new(
+            icn: '1012832025V743496',
+            first_name: '',
+            last_name: '',
+            birth_date: '19630211',
+            loa: { current: 3, highest: 3 },
+            edipi: nil,
+            ssn: '796043735',
+            participant_id: '600061742',
+            mpi: OpenStruct.new(
+              icn: '1012832025V743496',
+              profile: OpenStruct.new(ssn: '796043735')
+            )
+          )
+        end
+
+        context 'without the first and last name present' do
+          it 'does not allow the submit to occur' do
+            mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)
+              allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
+                .to receive(:veteran_middle_initial).and_return('')
+
+              post generate_pdf_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response.parsed_body['errors'][0]['detail']).to eq('Must have either first or last name')
+            end
+          end
+        end
+      end
+
       context 'when the PDF string is not generated' do
         it 'returns a 422 response when empty object is returned' do
           allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
@@ -4434,6 +4530,39 @@ RSpec.describe 'Disability Claims', type: :request do
               post synchronous_path, params: data, headers: auth_header
 
               expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+      end
+    end
+
+    describe 'with missing first and last name' do
+      let(:no_first_last_name_target_veteran) do
+        OpenStruct.new(
+          icn: '1012832025V743496',
+          first_name: '',
+          last_name: '',
+          birth_date: '19630211',
+          loa: { current: 3, highest: 3 },
+          edipi: nil,
+          ssn: '796043735',
+          participant_id: '600061742',
+          mpi: OpenStruct.new(
+            icn: '1012832025V743496',
+            profile: OpenStruct.new(ssn: '796043735')
+          )
+        )
+      end
+
+      context 'without the first and last name present' do
+        it 'does not allow the submit to occur' do
+          mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+            VCR.use_cassette('claims_api/disability_comp') do
+              allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)
+              post synchronous_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response.parsed_body['errors'][0]['detail']).to eq('Missing first and last name')
             end
           end
         end
