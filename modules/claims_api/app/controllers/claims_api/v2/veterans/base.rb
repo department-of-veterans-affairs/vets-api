@@ -22,6 +22,24 @@ module ClaimsApi
         def form_attributes
           @json_body&.dig('data', 'attributes') || {}
         end
+
+        def validate_veteran_name(require_first_and_last)
+          if require_first_and_last
+            if @target_veteran[:first_name].blank? && @target_veteran[:last_name].blank?
+              raise_exception_name_error('Missing first and last name')
+            elsif @target_veteran[:first_name].blank?
+              raise_exception_name_error('Missing first name')
+            elsif @target_veteran[:last_name].blank?
+              raise_exception_name_error('Missing last name')
+            end
+          elsif @target_veteran[:first_name].blank? && @target_veteran[:last_name].blank?
+            raise_exception_name_error('Must have either first or last name')
+          end
+        end
+
+        def raise_exception_name_error(message)
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)
+        end
       end
     end
   end
