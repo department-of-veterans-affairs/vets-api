@@ -7,7 +7,7 @@ module RepresentationManagement
     class Form2122 < RepresentationManagement::PdfConstructor::Base
       protected
 
-      def page1_template_path
+      def template_path
         Rails.root.join('modules',
                         'representation_management',
                         'lib',
@@ -15,41 +15,6 @@ module RepresentationManagement
                         'pdf_constructor',
                         'pdf_templates',
                         '21-22A', '1.pdf')
-      end
-
-      def page2_template_path
-        Rails.root.join('modules',
-                        'representation_management',
-                        'lib',
-                        'representation_management',
-                        'pdf_constructor',
-                        'pdf_templates',
-                        '21-22A', '2.pdf')
-      end
-
-      def page3_template_path
-        Rails.root.join('modules',
-                        'representation_management',
-                        'lib',
-                        'representation_management',
-                        'pdf_constructor',
-                        'pdf_templates',
-                        '21-22A', '3.pdf')
-      end
-
-      def page4_template_path
-        nil
-      end
-
-      #
-      # Add text signature to pdf page .
-      #
-      # @param data [Hash] Hash of data to add to the pdf
-      def sign_pdf_text(data)
-        @page1_path = page1_template_path
-        @page2_path = insert_text_signatures(page2_template_path, data['text_signatures']['page2'])
-        @page3_path = page3_template_path
-        @page4_path = page4_template_path
       end
 
       def page2_options(data)
@@ -78,7 +43,7 @@ module RepresentationManagement
 
       # rubocop:disable Metrics/MethodLength
       # rubocop:disable Layout/LineLength
-      def page1_options(data)
+      def template_options(data)
         base_form = 'form1[0].#subform[0]'
         {
           # Section !

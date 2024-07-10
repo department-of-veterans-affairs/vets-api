@@ -13,7 +13,6 @@ module RepresentationManagement
       end
 
       def construct(data, id: SecureRandom.uuid)
-        sign_pdf_text(data)
         fill_pdf(data)
         combine_pdf(id, @page1_path, @page2_path, @page3_path, @page4_path)
       end
@@ -21,29 +20,14 @@ module RepresentationManagement
       protected
 
       # @return [String] Path to page 1 pdf template file
-      def page1_template_path
-        raise 'NotImplemented' # Extend this class and implement
-      end
-
-      # @return [String] Path to page 2 pdf template file
-      def page2_template_path
-        raise 'NotImplemented' # Extend this class and implement
-      end
-
-      # @return [String] Path to page 3 pdf template file
-      def page3_template_path
-        raise 'NotImplemented' # Extend this class and implement
-      end
-
-      # @return [String] Path to page 4 pdf template file
-      def page4_template_path
+      def template_path
         raise 'NotImplemented' # Extend this class and implement
       end
 
       # @param data [Hash] Data to fill in pdf form
       #
       # @return [Hash] Data to fill in first page of pdf form
-      def page1_options(_data)
+      def template_options(_data)
         raise 'NotImplemented' # Extend this class and implement
       end
 
@@ -51,20 +35,6 @@ module RepresentationManagement
       #
       # @return [Hash] Data to fill in second page of pdf form
       def page2_options(_data)
-        raise 'NotImplemented' # Extend this class and implement
-      end
-
-      # @param data [Hash] Data to fill in pdf form
-      #
-      # @return [Hash] Data to fill in second page of pdf form
-      def page3_options(_data)
-        raise 'NotImplemented' # Extend this class and implement
-      end
-
-      # @param data [Hash] Data to fill in pdf form
-      #
-      # @return [Hash] Data to fill in second page of pdf form
-      def page4_options(_data)
         raise 'NotImplemented' # Extend this class and implement
       end
 
@@ -114,7 +84,7 @@ module RepresentationManagement
         pdftk.fill_form(
           @page1_path,
           temp_path,
-          page1_options(data),
+          template_options(data),
           flatten: true
         )
         @page1_path = temp_path
@@ -127,20 +97,6 @@ module RepresentationManagement
           flatten: true
         )
         @page2_path = temp_path
-      end
-
-      def insert_text_signatures(page_template, signatures)
-        return if signatures.nil?
-
-        stamp_path = "#{::Common::FileHelpers.random_file_path}.pdf"
-
-        Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
-          signatures.each do |signature|
-            pdf.draw_text signature['signature'], at: [signature['x'], signature['y']]
-          end
-        end
-
-        stamp(page_template, stamp_path, delete_source: false)
       end
 
       def stamp(file_path, stamp_path, delete_source: true)
