@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs_service/benefit_claim_service'
-require 'common/file_helpers'
 
-RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job, use_cassette: 'claims_api/bd/upload' do
+RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job do
   subject { described_class }
 
   before do
