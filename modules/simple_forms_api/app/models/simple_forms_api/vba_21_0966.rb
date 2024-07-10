@@ -22,6 +22,7 @@ module SimpleFormsApi
       }
       @data['veteran_date_of_birth'] ||= user.birth_date
       @data['veteran_phone'] ||= user.home_phone
+      @data['veteran_email'] ||= user.email
 
       self
     end
