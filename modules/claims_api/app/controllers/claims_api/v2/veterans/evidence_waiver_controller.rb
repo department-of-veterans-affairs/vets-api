@@ -15,9 +15,9 @@ module ClaimsApi
 
         def submit
           ews = create_ews(params[:id])
-          ClaimsApi::EvidenceWaiverBuilderJob.new.perform(ews.id, @pctpnt_vet_id)
+          ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id, @pctpnt_vet_id)
 
-          render json: { success: true }
+          render json: { success: true }, status: :accepted
         end
 
         private
