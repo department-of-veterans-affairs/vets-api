@@ -129,17 +129,18 @@ arp.update!(authentication: SignIn::Constants::Auth::COOKIE,
             service_levels: [SignIn::Constants::Auth::LOA3, SignIn::Constants::Auth::IAL2])
 
 # Create VerifiedRepresentative and AccreditedInvidial for logging into accredited_representative_portal
-# Skip validations on save because not all required fields are needed for testing purposes.
-ogc_registration_number = '12345'
-poa_code = 678
+ogc_registration_number = '123'
+poa_code = '678'
 test_rep_email = 'vets.gov.user+1@gmail.com'
+individual_type = 'representative'
 
 accredited_individual = AccreditedIndividual.find_or_initialize_by(registration_number: ogc_registration_number)
-accredited_individual.poa_code = poa_code
-accredited_individual.save!(validate: false)
+accredited_individual.update!(ogc_id: SecureRandom.uuid,
+                              poa_code: poa_code,
+                              individual_type: individual_type)
 
-verified_rep = VerifiedRepresentative.find_or_initialize_by(email: test_rep_email)
-verified_rep.save!(validate: false)
+verified_rep = AccreditedRepresentativePortal::VerifiedRepresentative.find_or_initialize_by(email: test_rep_email)
+verified_rep.update!(ogc_registration_number: ogc_registration_number)
 
 # Create Service Account Config for BTSSS
 btsss = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: 'bbb5830ecebdef04556e9c430e374972')
