@@ -3,16 +3,19 @@
 namespace :arp do
   desc 'Seed VerifiedRepresentative data for staging'
   task :seed_representative, [:rep_email] => [:environment] do |_, args|
-    raise 'No representative email provided' unless args[:rep_email]
+    raise 'No representative email provided' unless args[:test_rep_email]
 
     # Create VerifiedRepresentative and AccreditedInvidial for logging into accredited_representative_portal
-    ogc_registration_number = '12345'
-
+    ogc_registration_number = '123'
+    poa_code = '678'
+    individual_type = 'representative'
+    
     accredited_individual = AccreditedIndividual.find_or_initialize_by(registration_number: ogc_registration_number)
-    accredited_individual.poa_code = 678
-    accredited_individual.save(validate: false)
-
-    verified_rep = VerifiedRepresentative.find_or_initialize_by(email: rep_email)
-    verified_rep.save(validate: false)
+    accredited_individual.update!(ogc_id: SecureRandom.uuid,
+                                  poa_code: poa_code,
+                                  individual_type: individual_type)
+    
+    verified_rep = AccreditedRepresentativePortal::VerifiedRepresentative.find_or_initialize_by(email: test_rep_email)
+    verified_rep.update!(ogc_registration_number: ogc_registration_number)
   end
 end
