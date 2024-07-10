@@ -22,7 +22,7 @@ module ClaimsApi
                               doc_type: 'L705')
       ClaimsApi::EwsUpdater.perform_async(evidence_waiver_id)
       ::Common::FileHelpers.delete_file_if_exists(output_path)
-    rescue e
+    rescue => e
       ClaimsApi::Logger.log('EWS_builder', retry: true, detail: 'failed to upload to BD')
       raise e
     end
