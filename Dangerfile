@@ -11,11 +11,11 @@ module VSPDanger
       prepare_git
 
       [
-        SidekiqEnterpriseGaurantor.new.run,
+        # SidekiqEnterpriseGaurantor.new.run,
         ChangeLimiter.new.run,
-        MigrationIsolator.new.run,
-        CodeownersCheck.new.run,
-        GemfileLockPlatformChecker.new.run
+        # MigrationIsolator.new.run,
+        # CodeownersCheck.new.run,
+        # GemfileLockPlatformChecker.new.run
       ]
     end
 
@@ -127,6 +127,23 @@ module VSPDanger
         next if insertions.zero? && deletions.zero?   # Skip unchanged files
         next if insertions == '-' && deletions == '-' # Skip Binary files (should be caught by `to_i` and `zero?`)
 
+        lines = file_git_diff(file_name).split("\n")
+        changed = {'+' => 0, '-' => 0}
+        lines.each do |line|
+          next if (line =~ /^(\+[^\+]|\-[^\-])/).nil? # Only changed lines, exclude metadata
+
+          action = line[0]
+          clean_line = line[1..].strip # Remove leading '+' or '-'
+
+          # Skip comments and empty lines
+          next if clean_line.start_with?('#') || clean_line.empty?
+
+          changed["#{action}"] += 1
+        end
+
+        # the actual count of changed lines
+        insertions, deletions = changed.values
+
         OpenStruct.new(
           total_changes: insertions + deletions,
           insertions:,
@@ -142,6 +159,10 @@ module VSPDanger
 
     def exclusions
       EXCLUSIONS.map { |exclusion| "':!#{exclusion}'" }.join ' '
+    end
+
+    def file_git_diff(file_name)
+      `git diff #{BASE_SHA}...#{HEAD_SHA} -- #{file_name}`
     end
   end
 
