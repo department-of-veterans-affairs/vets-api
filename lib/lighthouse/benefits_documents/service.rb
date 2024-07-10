@@ -70,6 +70,7 @@ module BenefitsDocuments
       Lighthouse::DocumentUpload.perform_async(@user.icn, document_data.to_serializable_hash)
     rescue CarrierWave::IntegrityError => e
       handle_error(e, lighthouse_client_id, uploader.store_dir)
+      raise e
     end
 
     def build_lh_doc(file, file_params)
