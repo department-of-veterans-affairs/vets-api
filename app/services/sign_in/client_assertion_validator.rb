@@ -48,8 +48,9 @@ module SignIn
     end
 
     def hostname
-      scheme = Settings.vsp_environment == 'localhost' ? 'http://' : 'https://'
-      "#{scheme}#{Settings.hostname}"
+      return localhost_hostname if Settings.vsp_environment == 'localhost'
+
+      "https://#{Settings.hostname}"
     end
 
     def decoded_client_assertion
@@ -73,6 +74,12 @@ module SignIn
       raise Errors::ClientAssertionExpiredError.new message: 'Client assertion has expired'
     rescue JWT::DecodeError
       raise Errors::ClientAssertionMalformedJWTError.new message: 'Client assertion is malformed'
+    end
+
+    def localhost_hostname
+      port = URI.parse("http://#{Settings.hostname}").port
+
+      "http://localhost:#{port}"
     end
   end
 end
