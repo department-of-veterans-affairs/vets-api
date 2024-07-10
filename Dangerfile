@@ -119,8 +119,8 @@ module VSPDanger
     end
 
     def changes
-      @changes ||= `#{files_command}`.split("\n").map do |line|
-        insertions, deletions, file_name = line.split "\t"
+      @changes ||= `#{files_command}`.split("\n").map do |file_changes|
+        insertions, deletions, file_name = file_changes.split "\t"
         insertions = insertions.to_i
         deletions = deletions.to_i
 
@@ -128,17 +128,17 @@ module VSPDanger
         next if insertions == '-' && deletions == '-' # Skip Binary files (should be caught by `to_i` and `zero?`)
 
         lines = file_git_diff(file_name).split("\n")
-        changed = {'+' => 0, '-' => 0}
+        changed = { '+' => 0, '-' => 0 }
         lines.each do |line|
-          next if (line =~ /^(\+[^\+]|\-[^\-])/).nil? # Only changed lines, exclude metadata
+          next if (line =~ /^(\+[^\+]|-[^\-])/).nil? # Only changed lines, exclude metadata
 
-          action = line[0]
+          action = line[0].to_s
           clean_line = line[1..].strip # Remove leading '+' or '-'
 
           # Skip comments and empty lines
           next if clean_line.start_with?('#') || clean_line.empty?
 
-          changed["#{action}"] += 1
+          changed[action] += 1
         end
 
         # the actual count of changed lines
