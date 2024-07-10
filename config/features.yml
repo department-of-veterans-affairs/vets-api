@@ -827,9 +827,6 @@ features:
     actor_type: user
     description: Enables/disables documentation-related content for Medications on VA.gov
     enable_in_development: true
-  mhv_landing_page_enable_va_gov_health_tools_links:
-    actor_type: user
-    description: Enables VA.gov Health Tools links (Appts, SM, Rx, Records) on MHV-on-VA.gov Landing Page
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer experience (Identity)
@@ -1392,6 +1389,9 @@ features:
   mobile_lighthouse_disability_ratings:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our disability ratings endpoints upstream service
+  mobile_military_indicator_logger:
+    actor_type: user
+    description: For mobile app, enables logging of military discharge codes
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
