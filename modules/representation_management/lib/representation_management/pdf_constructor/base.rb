@@ -6,7 +6,7 @@ module RepresentationManagement
   module PdfConstructor
     class Base
       def initialize
-        @page1_path = nil
+        @template_path = nil
         @page2_path = nil
         @page3_path = nil
         @page4_path = nil
@@ -14,7 +14,7 @@ module RepresentationManagement
 
       def construct(data, id: SecureRandom.uuid)
         fill_pdf(data)
-        combine_pdf(id, @page1_path, @page2_path, @page3_path, @page4_path)
+        combine_pdf(id, @template_path, @page2_path, @page3_path, @page4_path)
       end
 
       protected
@@ -56,15 +56,15 @@ module RepresentationManagement
       # Produce final pdf with all pages combined.
       #
       # @param id [type] [description]
-      # @param page1_path [String] Path to page 1 of pdf
+      # @param template_path [String] Path to page 1 of pdf
       # @param page2_path [String] Path to page 2 of pdf
       #
       # @return [String] Path to final pdf
-      def combine_pdf(id, page1_path, page2_path, page3_path, page4_path)
+      def combine_pdf(id, template_path, page2_path, page3_path, page4_path)
         output_path = "/tmp/#{id}_final.pdf"
 
         pdf = CombinePDF.new
-        pdf << CombinePDF.load(page1_path)
+        pdf << CombinePDF.load(template_path)
         pdf << CombinePDF.load(page2_path)
         pdf << CombinePDF.load(page3_path) unless page3_path.nil?
         pdf << CombinePDF.load(page4_path) unless page4_path.nil?
@@ -82,12 +82,12 @@ module RepresentationManagement
 
         temp_path = Rails.root.join('tmp', "poa_#{Time.now.to_i}_page_1.pdf")
         pdftk.fill_form(
-          @page1_path,
+          @template_path,
           temp_path,
           template_options(data),
           flatten: true
         )
-        @page1_path = temp_path
+        @template_path = temp_path
 
         temp_path = Rails.root.join('tmp', "poa_#{Time.now.to_i}_page_2.pdf")
         pdftk.fill_form(
