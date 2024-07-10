@@ -151,5 +151,16 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         end
       end
     end
+
+    context 'invalid name' do
+      it 'handles it correctly' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data') do
+          Veteran::VSOReloader.new.reload_vso_reps
+
+          veteran_rep = Veteran::Service::Representative.find_by(representative_id: '82391')
+          expect(veteran_rep).to be_nil
+        end
+      end
+    end
   end
 end
