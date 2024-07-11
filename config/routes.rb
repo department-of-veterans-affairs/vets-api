@@ -477,7 +477,6 @@ Rails.application.routes.draw do
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
   mount TravelPay::Engine, at: '/travel_pay'
   mount VAOS::Engine, at: '/vaos'
-  mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'
   # End Modules
 
