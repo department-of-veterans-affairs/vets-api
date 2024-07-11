@@ -8,8 +8,9 @@ module VAOS
       #
       # @param appointment [Hash] the appointment to modify
       def extract_reason_code_fields(appointment)
-        # Return if the appointment is a CC request or not a request
-        return if appointment[:kind] == 'cc' || appointment[:status] != 'proposed'
+        # Return if the appointment is a CC request or not a request.
+        # We consider appointments with requested_periods as requests.
+        return if appointment[:kind] == 'cc' || appointment[:requested_periods].blank?
 
         # Retrieve the reason code text, or return if it is not present
         reason_code_text = appointment&.dig(:reason_code, :text)
