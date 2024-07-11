@@ -8,20 +8,9 @@ module V0
       skip_before_action :authenticate, only: %i[refresh]
 
       def refresh
-        refresh_token = refresh_token_param.presence
-        anti_csrf_token = anti_csrf_token_param.presence
-
         raise SignIn::Errors::MalformedParamsError.new message: 'Refresh token is not defined' unless refresh_token
-
-        decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
-        session_container = SignIn::SessionRefresher.new(refresh_token: decrypted_refresh_token,
-                                                         anti_csrf_token:).perform
-        serializer_response = SignIn::TokenSerializer.new(session_container:,
-                                                          cookies: token_cookies).perform
-
         sign_in_logger.info('refresh', session_container.context)
         StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS)
-
         render json: serializer_response, status: :ok
       rescue SignIn::Errors::MalformedParamsError => e
         sign_in_logger.info('refresh error', { errors: e.message })
@@ -35,12 +24,24 @@ module V0
 
       private
 
-      def refresh_token_param
+      def refresh_token
         params[:refresh_token] || token_cookies[SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME]
       end
 
-      def anti_csrf_token_param
+      def anti_csrf_token
         params[:anti_csrf_token] || token_cookies[SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME]
+      end
+
+      def session_container
+        SignIn::SessionRefresher.new(refresh_token: decrypted_refresh_token, anti_csrf_token:).perform
+      end
+
+      def decrypted_refresh_token
+        SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
+      end
+
+      def serializer_response
+        SignIn::TokenSerializer.new(session_container:, cookies: token_cookies).perform
       end
 
       def token_cookies
