@@ -1749,6 +1749,11 @@ vye:
     r: 8
     p: 1
     length: 16
+  s3:
+    access_key_id: ~
+    secret_access_key: ~
+    region: ~
+    bucket: ~
 
 schema_contract:
   appointments_index: 'modules/vaos/app/schemas/appointments_index.json'
