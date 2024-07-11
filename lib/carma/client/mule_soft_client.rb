@@ -80,7 +80,7 @@ module CARMA
 
       def get_new_bearer_token
         response = perform(:post,
-                           'dtc-va.okta-gov.com/oauth2/default/v1',
+                           config.settings.v2.token_url,
                            encoded_params,
                            token_headers)
         response.body[:access_token]
@@ -101,7 +101,7 @@ module CARMA
       end
 
       def basic_auth
-        Base64.urlsafe_encode64("#{config.settings.client_id}:#{config.settings.client_secret}")
+        Base64.urlsafe_encode64("#{config.settings.v2.client_id}:#{config.settings.v2.client_secret}")
       end
     end
   end
