@@ -7,7 +7,8 @@ module RepresentationManagement
         form = RepresentationManagement::Form2122Data.new(flatten_form_params)
 
         if form.valid?
-          output_path = RepresentationManagement::V1::PdfConstructor::Form2122.new.construct(form)
+          p 'Form ' * 10, form.inspect
+          output_path = RepresentationManagement::V0::PdfConstructor::Form2122.new.construct(form)
           file_contents = File.read(output_path)
           send_data file_contents, filename: 'test', type: 'application/pdf', disposition: 'attachment'
 

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'representation_management/pdf_constructor/base'
-
 module RepresentationManagement
   module V0
     module PdfConstructor
