@@ -25,7 +25,10 @@ module Mobile
               date_filed: date(attributes['claimDate']),
               updated_at: date(attributes['claimPhaseDates']['phaseChangeDate']),
               display_title: attributes['claimType'],
-              decision_letter_sent: attributes['decisionLetterSent']
+              decision_letter_sent: attributes['decisionLetterSent'],
+              phase: phase_to_number(attributes['claimPhaseDates']['phaseType']),
+              documentsNeeded: attributes['documentsNeeded'],
+              developmentLetterSent: attributes['developmentLetterSent']
             }
           )
         end
@@ -34,6 +37,10 @@ module Mobile
           return nil unless attribute
 
           Date.strptime(attribute, '%Y-%m-%d').iso8601
+        end
+
+        def phase_to_number(phase)
+          Mobile::ClaimsHelper::PHASE_TYPE_TO_NUMBER[phase.to_sym]
         end
       end
     end
