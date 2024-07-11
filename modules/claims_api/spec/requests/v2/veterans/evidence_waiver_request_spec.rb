@@ -145,7 +145,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
                       .to receive(:target_veteran).and_return(no_first_name_target_veteran)
 
                     post sub_path, headers: auth_header
-                    expect(response).to have_http_status(:ok)
+                    expect(response).to have_http_status(:accepted)
                   end
                 end
               end
