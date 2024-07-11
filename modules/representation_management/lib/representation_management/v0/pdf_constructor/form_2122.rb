@@ -11,9 +11,18 @@ module RepresentationManagement
                           'representation_management',
                           'lib',
                           'representation_management',
+                          'v0',
                           'pdf_constructor',
                           'pdf_templates',
                           '21-22.pdf')
+        end
+
+        #
+        # Add text signature to pdf page .
+        #
+        # @param data [Hash] Hash of data to add to the pdf
+        def set_template_path
+          @template_path = template_path
         end
 
         # rubocop:disable Layout/LineLength

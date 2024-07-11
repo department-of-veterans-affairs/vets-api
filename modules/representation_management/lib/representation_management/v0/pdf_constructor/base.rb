@@ -14,6 +14,7 @@ module RepresentationManagement
         end
 
         def construct(data, id: SecureRandom.uuid)
+          set_template_path
           fill_pdf(data)
           combine_pdf(id, @template_path, @page2_path, @page3_path, @page4_path)
         end
@@ -66,9 +67,9 @@ module RepresentationManagement
 
           pdf = CombinePDF.new
           pdf << CombinePDF.load(template_path)
-          pdf << CombinePDF.load(page2_path)
-          pdf << CombinePDF.load(page3_path) unless page3_path.nil?
-          pdf << CombinePDF.load(page4_path) unless page4_path.nil?
+          # pdf << CombinePDF.load(page2_path)
+          # pdf << CombinePDF.load(page3_path) unless page3_path.nil?
+          # pdf << CombinePDF.load(page4_path) unless page4_path.nil?
           pdf.save(output_path)
 
           output_path
@@ -82,6 +83,8 @@ module RepresentationManagement
           pdftk = PdfForms.new(Settings.binaries.pdftk)
 
           temp_path = Rails.root.join('tmp', "poa_#{Time.now.to_i}_page_1.pdf")
+          p "template_options(data): #{template_options(data)}", "temp_path: #{temp_path}",
+            "template_path: #{@template_path}"
           pdftk.fill_form(
             @template_path,
             temp_path,
@@ -90,14 +93,14 @@ module RepresentationManagement
           )
           @template_path = temp_path
 
-          temp_path = Rails.root.join('tmp', "poa_#{Time.now.to_i}_page_2.pdf")
-          pdftk.fill_form(
-            @page2_path,
-            temp_path,
-            page2_options(data),
-            flatten: true
-          )
-          @page2_path = temp_path
+          # temp_path = Rails.root.join('tmp', "poa_#{Time.now.to_i}_page_2.pdf")
+          # pdftk.fill_form(
+          #   @page2_path,
+          #   temp_path,
+          #   page2_options(data),
+          #   flatten: true
+          # )
+          # @page2_path = temp_path
         end
 
         def stamp(file_path, stamp_path, delete_source: true)
