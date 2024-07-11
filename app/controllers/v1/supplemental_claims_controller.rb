@@ -45,7 +45,7 @@ module V1
       end
     rescue => e
       Rails.logger.error(
-        "Exception occurred while submitting Supplemental Claim: #{e.message}"
+        "Exception occurred while submitting Supplemental Claim: #{e.message}", backtrace: e.backtrace
       )
       handle_personal_info_error(e)
     end
