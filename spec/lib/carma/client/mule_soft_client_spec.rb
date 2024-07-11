@@ -16,11 +16,23 @@ describe CARMA::Client::MuleSoftClient do
   let(:client) { described_class.new }
 
   describe '#raise_error_unless_success' do
-    context 'with a 202 status code' do
-      it 'returns nil' do
-        expect(
-          client.send(:raise_error_unless_success, '', 202)
-        ).to eq(nil)
+    before do
+      allow(Rails.logger).to receive(:info)
+    end
+
+    [200, 201, 202].each do |status_code|
+      context "with a #{status_code} status code" do
+        subject { client.send(:raise_error_unless_success, 'my/url', status_code) }
+
+        it 'returns nil' do
+          expect(subject).to eq(nil)
+        end
+
+        it 'logs submission and response code' do
+          expect(Rails.logger).to receive(:info)
+            .with("[Form 10-10CG] Submission to 'my/url' resource resulted in response code #{status_code}")
+          subject
+        end
       end
     end
   end
