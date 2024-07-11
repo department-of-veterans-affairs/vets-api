@@ -9,9 +9,7 @@ module ClaimsApi
   module V2
     module Veterans
       class EvidenceWaiverController < ClaimsApi::V2::ApplicationController
-        before_action :set_lighthouse_claim
-        before_action :set_bgs_claim!
-        before_action :verify_if_dependent_claim!
+        before_action :set_lighthouse_claim, :set_bgs_claim!, :verify_if_dependent_claim!
 
         def submit
           ews = create_ews(params[:id])
@@ -42,7 +40,7 @@ module ClaimsApi
 
           pctpnt_clmant_id = @bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_clmant_id)
           if target_veteran.participant_id != @pctpnt_vet_id && target_veteran.participant_id != pctpnt_clmant_id
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail:
+            raise ::Common::Exceptions::Unauthorized.new(detail:
               'Claim does not belong to this veteran')
           end
 

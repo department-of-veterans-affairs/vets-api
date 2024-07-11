@@ -104,7 +104,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request do
               end
             end
 
-            it 'returns a 404 when the target_veteran.participant_id does not match the pctpnt_clmant_id' do
+            it 'returns a 401 when the target_veteran.participant_id does not match the pctpnt_clmant_id' do
               bgs_claim_response = build(:bgs_response_with_one_lc_status).to_h
               bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_vet_id] = '867530910'
               bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_clmant_id] = '867530910'
@@ -119,7 +119,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request do
 
                   post sub_path, headers: auth_header
 
-                  expect(response.status).to eq(422)
+                  expect(response.status).to eq(401)
                   json = JSON.parse(response.body)
                   expect_res = json['errors'][0]['detail']
 
