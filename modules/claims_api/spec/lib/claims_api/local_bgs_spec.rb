@@ -32,6 +32,29 @@ describe ClaimsApi::LocalBGS do
           expect(result[:end_date]).to eq '08/26/2020'
         end
       end
+
+      context 'invalid cached value' do
+        it 'raises an error' do
+          allow(Flipper).to receive(:enabled?).with(:claims_api_hardcode_wsdl).and_return true
+          service = ClaimsApi::BGSClient::Definitions::Service.new(
+            bean: ClaimsApi::BGSClient::Definitions::Bean.new(
+              path: 'PersonWebServiceBean',
+              namespaces: ClaimsApi::BGSClient::Definitions::Namespaces.new(
+                target: 'http://services.share.benefits.vba.va.gov/',
+                data: nil
+              )
+            ),
+            path: 'PersonWebService'
+          )
+          allow(ClaimsApi::LocalBGSRefactored::FindDefinition).to receive(:for_service).and_return(service)
+
+          VCR.use_cassette('claims_api/bgs/bad_namespace') do
+            expect do
+              subject.find_poa_by_participant_id('does-not-matter')
+            end.to raise_error Common::Exceptions::ServiceError
+          end
+        end
+      end
     end
 
     it 'responds as expected, with extra ClaimsApi::Logger logging' do
@@ -54,6 +77,7 @@ describe ClaimsApi::LocalBGS do
     describe 'breakers' do
       it 'returns a Bad Gateway' do
         stub_request(:any, "#{Settings.bgs.url}/ClaimantServiceBean/ClaimantWebService").to_timeout
+        stub_request(:any, "#{Settings.bgs.url}/ClaimantServiceBean/ClaimantWebService?WSDL").to_timeout
         expect do
           subject.find_poa_by_participant_id('also-does-not-matter')
         end.to raise_error(Common::Exceptions::BadGateway)
