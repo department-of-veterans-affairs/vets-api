@@ -3,6 +3,7 @@
 class Lighthouse526DocumentUpload < ApplicationRecord
   include AASM
 
+  POLLING_WINDOW = 1.hour
   VETERAN_UPLOAD_DOCUMENT_TYPE = 'Veteran Upload'
   BDD_INSTRUCTIONS_DOCUMENT_TYPE = 'BDD Instructions'
   FORM_0781_DOCUMENT_TYPE = 'Form 0781'
@@ -26,7 +27,7 @@ class Lighthouse526DocumentUpload < ApplicationRecord
 
   # Window for polling Lighthouse for the status of an upload
   scope :status_update_required, lambda {
-                                   where('status_last_polled_at < ?', 1.hour.ago.utc)
+                                   where(arel_table[:status_last_polled_at].lt(POLLING_WINDOW.ago.utc))
                                      .or(where(status_last_polled_at: nil))
                                  }
 
