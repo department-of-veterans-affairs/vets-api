@@ -11,27 +11,27 @@ module IvcChampva
     end
 
     def handle_uploads
-      pdf_results = @attachment_ids.zip(@file_paths).map do |attachment_id, file_path|
+      results = @attachment_ids.zip(@file_paths).map do |attachment_id, file_path|
         next unless attachment_id != 'Form ID'
 
-        response_status = upload_pdf(attachment_id, file_path)
-        insert_form(file_path.sub(%r{^tmp/}, ''), response_status.to_s) if @insert_db_row
+        response_status = upload_file(attachment_id, file_path)
+        insert_form(file_path.gsub('tmp/', '').gsub('-tmp', ''), response_status.to_s) if @insert_db_row
 
         response_status
       end.compact
 
-      all_pdf_success = pdf_results.all? { |(status, _)| status == 200 }
+      all_success = results.all? { |(status, _)| status == 200 }
 
-      if all_pdf_success
+      if all_success
         generate_and_upload_meta_json
       else
-        pdf_results
+        results
       end
     end
 
     private
 
-    def insert_form(pdf_file_path, response_status)
+    def insert_form(file_path, response_status)
       pega_status = response_status.first == 200 ? 'Submitted' : nil
       IvcChampvaForm.create!(
         form_uuid: @metadata['uuid'],
@@ -39,7 +39,7 @@ module IvcChampva
         first_name: @metadata&.dig('primaryContactInfo', 'name', 'first'),
         last_name: @metadata&.dig('primaryContactInfo', 'name', 'last'),
         form_number: @metadata['docType'],
-        file_name: pdf_file_path,
+        file_name: file_path,
         s3_status: response_status,
         pega_status:
       )
@@ -47,13 +47,13 @@ module IvcChampva
       Rails.logger.error("Database Insertion Error for #{@metadata['uuid']}: #{e.message}")
     end
 
-    def upload_pdf(attachment_id, file_path)
+    def upload_file(attachment_id, file_path)
       file_name = file_path.gsub('tmp/', '').gsub('-tmp', '')
       upload(file_name, file_path, attachment_ids: [attachment_id])
     end
 
     def generate_and_upload_meta_json
-      meta_file_name = "#{@form_id}_metadata.json"
+      meta_file_name = "#{@metadata['uuid']}_#{@form_id}_metadata.json"
       meta_file_path = "tmp/#{meta_file_name}"
       File.write(meta_file_path, @metadata.to_json)
       meta_upload_status, meta_upload_error_message = upload(meta_file_name,

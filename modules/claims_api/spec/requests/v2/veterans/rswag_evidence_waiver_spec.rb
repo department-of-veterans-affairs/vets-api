@@ -33,18 +33,13 @@ describe 'EvidenceWaiver5103',
                 type: :string,
                 example: '1012667145V762142',
                 description: 'ID of Veteran'
-      parameter name: 'sponsorIcn',
-                in: :query,
-                required: false,
-                type: :string,
-                example: '1012861229V078999',
-                description: 'ICN of the veteran affiliated with the dependent'
+
       let(:id) { '256803' }
       let(:Authorization) { 'Bearer token' }
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
 
       describe 'Getting a successful response' do
-        response '200', 'Successful response' do
+        response '202', 'Successful response' do
           schema JSON.parse(File.read(Rails.root.join('spec',
                                                       'support',
                                                       'schemas',
@@ -75,7 +70,7 @@ describe 'EvidenceWaiver5103',
             }
           end
 
-          it 'returns a valid 200 response' do |example|
+          it 'returns a valid 202 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end

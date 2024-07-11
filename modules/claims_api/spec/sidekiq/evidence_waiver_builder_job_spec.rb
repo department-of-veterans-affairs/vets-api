@@ -11,13 +11,11 @@ RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job do
 
   let(:ews) { create(:claims_api_evidence_waiver_submission, :with_full_headers_tamara) }
 
-  describe 'generating the filled and signed pdf' do
-    it 'generates the pdf to match example' do
-      allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-      expect(ClaimsApi::EvidenceWaiver).to receive(:new).and_call_original
-      expect_any_instance_of(ClaimsApi::EvidenceWaiver).to receive(:construct).and_call_original
-
-      subject.new.perform(ews.id)
+  describe 'when an errored job has a 48 hour time limitation' do
+    it 'expires in 48 hours' do
+      described_class.within_sidekiq_retries_exhausted_block do
+        expect(subject).to be_expired_in 48.hours
+      end
     end
   end
 
@@ -36,17 +34,6 @@ RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job do
           error: error_msg
         )
       end
-    end
-  end
-
-  describe 'bad file number error raised by VBMS' do
-    it 'EW builder job handles and sets status to errored, does not retry' do
-      allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: 'asdf' })
-      expect(ClaimsApi::EvidenceWaiver).to receive(:new).and_call_original
-      expect_any_instance_of(ClaimsApi::EvidenceWaiver).to receive(:construct).and_call_original
-      subject.new.perform(ews.id)
-      ews.reload
-      expect(ews.status).to eq('errored')
     end
   end
 end

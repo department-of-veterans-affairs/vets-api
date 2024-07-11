@@ -388,6 +388,9 @@ features:
   disability_526_ep_merge_new_claims:
     actor_type: user
     description: enables EP Merge for single-contention 526 claims for a new condition
+  disability_526_ep_merge_multi_contention:
+    actor_type: user
+    description: enables EP Merge for multi-contention 526 claims
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
@@ -607,6 +610,9 @@ features:
     actor_type: user
     description: Enables form email submission confirmations (for allowed email types via VaNotify)
     enable_in_development: true
+  simple_forms_lighthouse_benefits_intake_service:
+    actor_type: user
+    description: Enables use of the Lighthouse BenefitsIntake::Service instead of the SimpleFormsApiSubmission::Service
   form2010206:
     actor_type: user
     description: If enabled shows the digital form experience for form 20-10206
@@ -821,9 +827,6 @@ features:
     actor_type: user
     description: Enables/disables documentation-related content for Medications on VA.gov
     enable_in_development: true
-  mhv_landing_page_enable_va_gov_health_tools_links:
-    actor_type: user
-    description: Enables VA.gov Health Tools links (Appts, SM, Rx, Records) on MHV-on-VA.gov Landing Page
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer experience (Identity)
@@ -1386,6 +1389,9 @@ features:
   mobile_lighthouse_disability_ratings:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our disability ratings endpoints upstream service
+  mobile_military_indicator_logger:
+    actor_type: user
+    description: For mobile app, enables logging of military discharge codes
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
