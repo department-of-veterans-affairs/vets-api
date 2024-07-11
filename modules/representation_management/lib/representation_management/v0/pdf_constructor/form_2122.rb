@@ -51,23 +51,28 @@ module RepresentationManagement
         end
 
         def template_options(data)
+          p "data: #{data}", "data.veteran_date_of_birth: #{data.veteran_date_of_birth}", "data.veteran_date_of_birth.split('/'): #{data.veteran_date_of_birth.split('/')}"
           base_form = 'form1[0].#subform[0]'
           {
             # Section I
-            # Item 1
-            "#{base_form}.VeteransLastName[0]": 'Fake',
-            "#{base_form}.VeteransMiddleInitial1[0]": 'M',
-            "#{base_form}.VeteransFirstName[0]": 'Faker'
-            # Item 2
-            # "#{base_form}.SocialSecurityNumber_FirstThreeNumbers[0]": data.dig('veteran', 'ssn')[0..2],
-            # "#{base_form}.SocialSecurityNumber_SecondTwoNumbers[0]": data.dig('veteran', 'ssn')[3..4],
-            # "#{base_form}.SocialSecurityNumber_LastFourNumbers[0]": data.dig('veteran', 'ssn')[5..8],
-            # # Item 4
-            # "#{base_form}.DOBmonth[0]": data.dig('veteran', 'birthdate').split('-').second,
-            # "#{base_form}.DOBday[0]": data.dig('veteran', 'birthdate').split('-').last.first(2),
-            # "#{base_form}.DOByear[0]": data.dig('veteran', 'birthdate').split('-').first,
-            # # Item 5
-            # "#{base_form}.InsuranceNumber_s[0]": data.dig('veteran', 'insuranceNumber'),
+            # Veteran Name
+            "#{base_form}.VeteransLastName[0]": data.veteran_last_name,
+            "#{base_form}.VeteransMiddleInitial1[0]": data.veteran_middle_initial,
+            "#{base_form}.VeteransFirstName[0]": data.veteran_first_name,
+            # Veteran SSN
+            "#{base_form}.SocialSecurityNumber_FirstThreeNumbers[0]": data.veteran_social_security_number[0..2],
+            "#{base_form}.SocialSecurityNumber_SecondTwoNumbers[0]": data.veteran_social_security_number[3..4],
+            "#{base_form}.SocialSecurityNumber_LastFourNumbers[0]": data.veteran_social_security_number[5..8],
+            # Veteran File Number
+            "#{base_form}.VAFileNumber[0]": data.veteran_va_file_number,
+            # Veteran DOB
+            "#{base_form}.DOBmonth[0]": data.veteran_date_of_birth.split('/').first,
+            "#{base_form}.DOBday[0]": data.veteran_date_of_birth.split('/').second,
+            "#{base_form}.DOByear[0]": data.veteran_date_of_birth.split('/').last,
+            # Veteran Service Number
+            "#{base_form}.VeteransServiceNumber_If_Applicable[0]": data.veteran_service_number,
+            # Veteran Insurance Number
+            "#{base_form}.InsuranceNumber_s[0]": data.veteran_insurance_numbers
             # # Item 7
             # "#{base_form}.Veterans_MailingAddress_NumberAndStreet[0]": data.dig('veteran', 'address', 'addressLine1'),
             # "#{base_form}.Claimants_MailingAddress_ApartmentOrUnitNumber[1]": data.dig('veteran', 'address', 'addressLine2'),
