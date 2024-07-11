@@ -52,7 +52,7 @@ describe 'PowerOfAttorney', metadata do
         },
         'page' => {
           'number' => 2,
-          'size' => 5
+          'size' => 3
         },
         'sort' => {
           'field' => 'createdAt',
