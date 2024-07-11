@@ -51,7 +51,18 @@ module VA1010Forms
 
     def log_payload_info(formatted_form, submission_body)
       form_name = formatted_form.dig('va:form', 'va:formIdentifier', 'va:value')
-      attachment_count = formatted_form.dig('va:form', 'va:attachments')&.length || 0
+      attachments = formatted_form.dig('va:form', 'va:attachments')
+      attachment_count = attachments&.length || 0
+      # Log the attachment sizes in descending order
+      if attachment_count > 0
+        attachment_sizes = "Attachment sizes in descending order - "
+        # Convert the attachments into xml format so they resemble what will be sent to VES
+        attachments.sort_by { |a| a.to_xml.size }.reverse.each_with_index do |attachment, index|
+          attachment_sizes += "#{index + 1}: #{number_to_human_size(attachment.to_xml.size)}#{', ' unless index + 1 == attachment_count}"
+        end
+
+        Rails.logger.info(attachment_sizes)
+      end
 
       Rails.logger.info("Payload for submitted #{form_name}: " \
                         "Body size of #{number_to_human_size(submission_body.bytesize)} " \
