@@ -15,7 +15,12 @@ module CARMA
 
       def create_submission_v2(payload)
         with_monitoring do
-          res = do_post('v2/application/1010CG/submit', payload, config.settings.async_timeout)
+          res = if Flipper.enabled?(:cg_OAuth_2_enabled)
+                  perform_post('v2/application/1010CG/submit', payload)
+                else
+                  do_post('v2/application/1010CG/submit', payload, config.settings.async_timeout)
+                end
+
           raise RecordParseError if res.dig('record', 'hasErrors')
 
           res
@@ -32,6 +37,7 @@ module CARMA
           Rails.logger.info "[Form 10-10CG] Submitting to '#{resource}'"
           args = post_args(resource, payload, timeout)
           resp = perform(*args)
+
           Sentry.set_extras(response_body: resp.body)
           raise_error_unless_success(resource, resp.status)
           JSON.parse(resp.body)
@@ -40,10 +46,13 @@ module CARMA
 
       # @return [Array]
       def post_args(resource, payload, timeout)
-        body = payload.is_a?(String) ? payload : payload.to_json
         headers = config.base_request_headers
         opts = { timeout: }
-        [:post, resource, body, headers, opts]
+        [:post, resource, get_body(payload), headers, opts]
+      end
+
+      def get_body(payload)
+        payload.is_a?(String) ? payload : payload.to_json
       end
 
       def raise_error_unless_success(resource, status)
@@ -51,6 +60,48 @@ module CARMA
         return if [200, 201, 202].include? status
 
         raise Common::Exceptions::SchemaValidationErrors, ["Expecting 200 status but received #{status}"]
+      end
+
+      # Call Mulesoft with bearer token
+      def perform_post(resource, payload)
+        Rails.logger.info "[Form 10-10CG] Submitting to '#{resource}' using bearer token"
+
+        resp = perform(:post, resource, get_body(payload), { Authorization: "Bearer #{bearer_token}" })
+
+        Sentry.set_extras(response_body: resp.body)
+        raise_error_unless_success(resource, resp.status)
+        JSON.parse(resp.body)
+      end
+
+      # get token
+      def bearer_token
+        @bearer_token ||= get_new_bearer_token
+      end
+
+      def get_new_bearer_token
+        response = perform(:post,
+                           'dtc-va.okta-gov.com/oauth2/default/v1',
+                           encoded_params,
+                           token_headers)
+        response.body[:access_token]
+      end
+
+      def encoded_params
+        URI.encode_www_form({
+                              grant_type: 'client_credentials',
+                              scope: 'read'
+                            })
+      end
+
+      def token_headers
+        {
+          'Authorization' => "Basic #{basic_auth}",
+          'Content-Type' => 'application/x-www-form-urlencoded'
+        }
+      end
+
+      def basic_auth
+        Base64.urlsafe_encode64("#{config.settings.client_id}:#{config.settings.client_secret}")
       end
     end
   end
