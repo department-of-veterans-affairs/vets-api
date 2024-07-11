@@ -4,7 +4,6 @@ module Mobile
   module V0
     module Adapters
       class LighthouseIndividualClaims
-
         # Order of EVENT_DATE_FIELDS determines which date trumps in timeline sorting.
         EVENT_DATE_FIELDS = %i[
           closed_date
