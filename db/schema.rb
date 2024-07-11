@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_09_171552) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_11_193208) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -763,6 +763,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_09_171552) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.jsonb "form_data_ciphertext"
+    t.string "benefits_claims_id"
+    t.index ["benefits_claims_id"], name: "index_form_submissions_on_benefits_claims_id"
     t.index ["benefits_intake_uuid"], name: "index_form_submissions_on_benefits_intake_uuid"
     t.index ["in_progress_form_id"], name: "index_form_submissions_on_in_progress_form_id"
     t.index ["saved_claim_id"], name: "index_form_submissions_on_saved_claim_id"
