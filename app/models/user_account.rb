@@ -7,7 +7,7 @@ class UserAccount < ApplicationRecord
   has_one :user_acceptable_verified_credential, dependent: :destroy
   has_one :veteran_onboarding, primary_key: :uuid, foreign_key: :user_account_uuid, inverse_of: :user_account,
                                dependent: :destroy
-  has_many :saved_claims, dependent: :nullify
+  has_many :saved_claims, dependent: :nullify, primary_key: :uuid, inverse_of: :user_account
   validates :icn, uniqueness: true, allow_nil: true
 
   def verified?
