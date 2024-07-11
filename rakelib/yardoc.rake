@@ -4,12 +4,32 @@ require 'open3'
 require './rakelib/support/shell_command'
 
 desc 'run yardoc against changed files, or supplied file list'
-task :yardoc, [:files] => [:environment] do |_, args|
+task :yardoc do
   require 'rainbow'
 
-  files = args[:files]
+  # dynamically create dummy tasks to prevent rake error
+  ARGV.each { |a| task a.to_sym do ; end }
+
+  HEAD_SHA = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
+  BASE_SHA = 'origin/master'
+
+  # get the glob list
+  globs = ARGV[1..]
+  globs = ["*.rb"] if globs.empty?
+
+  # git diff the glob list - only want to check the changed files
+  globs = globs.map { |g| "'#{g}'" }.join(" ")
+  files = `git diff #{BASE_SHA}...#{HEAD_SHA} --name-only -- #{globs}`.split("\n")
+
+  # filter to only ruby files (lots of issues if yardoc is run on other files)
+  files = files.select { |f| File.extname(f) == 'rb' }
+  if files.empty?
+    puts Rainbow('Finished. No `*.rb` files changed.').yellow
+    exit!
+  end
 
   puts 'running yardoc ...'
+  puts files = files.join(" ")
   yardoc_result = ShellCommand.run("yardoc #{files}")
 
   puts "\n"
