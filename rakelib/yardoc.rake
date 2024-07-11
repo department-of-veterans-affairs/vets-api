@@ -19,18 +19,18 @@ task :yardoc do
 
   # git diff the glob list - only want to check the changed files
   globs = globs.map { |g| "'#{g}'" }.join(" ")
-  files = `git diff #{BASE_SHA}...#{HEAD_SHA} --name-only -- #{globs}`.split("\n")
+  cmd = "git diff #{BASE_SHA}...#{HEAD_SHA} --name-only -- #{globs}"
+  puts "\n#{cmd}"
 
   # filter to only ruby files (lots of issues if yardoc is run on other files)
-  files = files.select { |f| File.extname(f) == 'rb' }
+  files = `#{cmd}`.split("\n").select { |f| File.extname(f) == '.rb' }
   if files.empty?
     puts Rainbow('Finished. No `*.rb` files changed.').yellow
     exit!
   end
 
   puts 'running yardoc ...'
-  puts files = files.join(" ")
-  yardoc_result = ShellCommand.run("yardoc #{files}")
+  yardoc_result = ShellCommand.run("yardoc #{files.join(" ")}")
 
   puts "\n"
   if yardoc_result
