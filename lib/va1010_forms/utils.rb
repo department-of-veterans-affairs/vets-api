@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'benchmark'
 require 'hca/configuration'
 require 'hca/overrides_parser'
 
@@ -55,14 +56,10 @@ module VA1010Forms
       attachment_count = attachments&.length || 0
       # Log the attachment sizes in descending order
       if attachment_count.positive?
-        attachment_sizes = 'Attachment sizes in descending order: '
         # Convert the attachments into xml format so they resemble what will be sent to VES
-        attachments.sort_by { |a| a.to_xml.size }.reverse.each_with_index do |attachment, index|
-          attachment_sizes +=
-            "#{number_to_human_size(attachment.to_xml.size)}#{', ' unless index + 1 == attachment_count}"
-        end
+        attachment_sizes = attachments.map { |a| a.to_xml.size }.sort.reverse!.map { |size| number_to_human_size(size) }.join(', ')
 
-        Rails.logger.info(attachment_sizes)
+        Rails.logger.info("Attachment sizes in descending order: #{attachment_sizes}")
       end
 
       Rails.logger.info("Payload for submitted #{form_name}: " \
