@@ -57,7 +57,8 @@ module VA1010Forms
       # Log the attachment sizes in descending order
       if attachment_count.positive?
         # Convert the attachments into xml format so they resemble what will be sent to VES
-        attachment_sizes = attachments.map { |a| a.to_xml.size }.sort.reverse!.map { |size| number_to_human_size(size) }.join(', ')
+        attachment_sizes =
+          attachments.map { |a| a.to_xml.size }.sort.reverse!.map { |size| number_to_human_size(size) }.join(', ')
 
         Rails.logger.info("Attachment sizes in descending order: #{attachment_sizes}")
       end
