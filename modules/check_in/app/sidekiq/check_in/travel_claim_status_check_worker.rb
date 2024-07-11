@@ -50,45 +50,31 @@ module CheckIn
     end
 
     def handle_response(opts = {})
-      claim_response_body = opts[:claim_status_resp].body || []
-      claim_response_status = opts[:claim_status_resp].status
+      claim_response_body = opts[:claim_status_resp]&.dig(:data, :body)
+      claim_response_code = opts[:claim_status_resp]&.dig(:data, :code)
       facility_type = opts[:facility_type] || ''
 
-      process_claim_response(claim_response_status:, claim_response_body:, facility_type:, uuid: opts[:uuid])
+      process_claim_response(claim_response_body:, claim_response_code:, facility_type:, uuid: opts[:uuid])
     end
 
     private
 
-    def process_claim_response(claim_response_status:, claim_response_body:, facility_type:, uuid:)
-      claim_number = nil
-      statsd_metric, template_id = case claim_response_status
-                                   when 200
-                                     claim_response = load_claim_response(claim_response_body:)
-                                     if claim_response.size.zero?
-                                       logger.info({ message: 'Empty claim status response', uuid: })
-                                       error_statsd_metric_and_template_id(facility_type:)
-                                     else
-                                       claim_number = claim_response.first.with_indifferent_access[:claimNum]&.last(4)
-                                       validate_claim_status(claim_response:, facility_type:, uuid:)
-                                     end
-                                   when 408
-                                     timeout_statsd_metric_and_template_id(facility_type:)
-                                   else
-                                     error_statsd_metric_and_template_id(facility_type:)
-                                   end
+    def process_claim_response(claim_response_body:, claim_response_code:, facility_type:, uuid:)
+      claim_number = if claim_response_body&.empty?
+                       nil
+                     else
+                       claim_response_body&.first&.with_indifferent_access&.[](:claimNum)&.last(4)
+                     end
+
+      statsd_metric, template_id = get_metric_and_template_id(claim_response_body, claim_response_code, facility_type,
+                                                              uuid)
       StatsD.increment(statsd_metric)
       [claim_number, template_id]
     end
 
-    def load_claim_response(claim_response_body:)
-      Oj.load(claim_response_body)
-    rescue
-      claim_response_body
-    end
+    def validate_claim_status(claim_response_body:, facility_type:, uuid:)
+      claim_status = claim_response_body.first.with_indifferent_access[:claimStatus]
 
-    def validate_claim_status(claim_response:, facility_type:, uuid:)
-      logger.info({ message: 'Multiple claim statuses', uuid: }) if claim_response.size > 1
-      claim_status = claim_response.first.with_indifferent_access[:claimStatus]
       if SUCCESSFUL_CLAIM_STATUSES.include?(claim_status.downcase)
         success_statsd_metric_and_template_id(facility_type:)
       elsif FAILED_CLAIM_STATUSES.include?(claim_status.downcase)
@@ -99,21 +85,63 @@ module CheckIn
       end
     end
 
+    def get_metric_and_template_id(claim_response_body, code, facility_type, uuid)
+      if facility_type.downcase == 'oh'
+        oh_responses(claim_response_body, facility_type, uuid).fetch(code).call
+      else
+        cie_responses(claim_response_body, facility_type, uuid).fetch(code).call
+      end
+    end
+
+    def oh_responses(claim_response_body, facility_type, uuid)
+      Hash.new([Constants::OH_STATSD_BTSSS_ERROR, Constants::OH_ERROR_TEMPLATE_ID]).merge(
+        TravelClaim::Response::CODE_EMPTY_STATUS => proc do
+          logger.info({ message: 'Empty claim status response', uuid: })
+          [Constants::OH_STATSD_BTSSS_ERROR, Constants::OH_ERROR_TEMPLATE_ID]
+        end,
+        TravelClaim::Response::CODE_MULTIPLE_STATUSES => proc do
+          logger.info({ message: 'Multiple claim statuses', uuid: })
+          validate_claim_status(claim_response_body:, facility_type:,
+                                uuid:)
+        end,
+        TravelClaim::Response::CODE_SUCCESS => proc do
+          validate_claim_status(claim_response_body:, facility_type:, uuid:)
+        end,
+        TravelClaim::Response::CODE_BTSSS_TIMEOUT => proc do
+          [Constants::OH_STATSD_BTSSS_TIMEOUT,
+           Constants::OH_TIMEOUT_TEMPLATE_ID]
+        end
+      )
+    end
+
+    def cie_responses(claim_response_body, facility_type, uuid)
+      Hash.new([Constants::CIE_STATSD_BTSSS_ERROR, Constants::CIE_ERROR_TEMPLATE_ID]).merge(
+        TravelClaim::Response::CODE_EMPTY_STATUS => proc do
+          logger.info({ message: 'Empty claim status response', uuid: })
+          [Constants::CIE_STATSD_BTSSS_ERROR,
+           Constants::CIE_ERROR_TEMPLATE_ID]
+        end,
+        TravelClaim::Response::CODE_MULTIPLE_STATUSES => proc do
+          logger.info({ message: 'Multiple claim statuses', uuid: })
+          validate_claim_status(claim_response_body:, facility_type:,
+                                uuid:)
+        end,
+        TravelClaim::Response::CODE_SUCCESS => proc do
+          validate_claim_status(claim_response_body:, facility_type:, uuid:)
+        end,
+        TravelClaim::Response::CODE_BTSSS_TIMEOUT => proc do
+          [Constants::CIE_STATSD_BTSSS_TIMEOUT,
+           Constants::CIE_TIMEOUT_TEMPLATE_ID]
+        end
+      )
+    end
+
     def success_statsd_metric_and_template_id(facility_type:)
       case facility_type
       when 'oh'
         [Constants::OH_STATSD_BTSSS_SUCCESS, Constants::OH_SUCCESS_TEMPLATE_ID]
       else
         [Constants::CIE_STATSD_BTSSS_SUCCESS, Constants::CIE_SUCCESS_TEMPLATE_ID]
-      end
-    end
-
-    def timeout_statsd_metric_and_template_id(facility_type:)
-      case facility_type
-      when 'oh'
-        [Constants::OH_STATSD_BTSSS_TIMEOUT, Constants::OH_TIMEOUT_TEMPLATE_ID]
-      else
-        [Constants::CIE_STATSD_BTSSS_TIMEOUT, Constants::CIE_TIMEOUT_TEMPLATE_ID]
       end
     end
 
