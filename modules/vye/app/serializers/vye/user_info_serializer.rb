@@ -8,10 +8,9 @@ module Vye
       :del_date,
       :date_last_certified,
       :payment_amt,
-      :indicator
+      :indicator,
+      :zip_code
     )
-
-    attribute :zip_code, if: -> { instance_options[:api_key] }
 
     has_one :latest_address, serializer: Vye::AddressChangeSerializer
     has_many :pending_documents, serializer: Vye::PendingDocumentSerializer
