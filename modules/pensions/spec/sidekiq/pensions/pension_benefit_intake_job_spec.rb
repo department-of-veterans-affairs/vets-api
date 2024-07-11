@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
 
-RSpec.describe Pensions::PensionBenefitIntakeJob, uploader_helpers: true do
+RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
   stub_virus_scan
   let(:job) { described_class.new }
   let(:claim) { create(:pensions_module_pension_claim) }
@@ -20,15 +20,15 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, uploader_helpers: true do
     before do
       job.instance_variable_set(:@claim, claim)
       allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
-      allow(claim).to receive(:to_pdf).and_return(pdf_path)
-      allow(claim).to receive(:persistent_attachments).and_return([])
+      allow(claim).to receive_messages(to_pdf: [])
+      allow(claim).to receive_messages(persist_attachments: [])
 
       job.instance_variable_set(:@intake_service, service)
       allow(BenefitsIntake::Service).to receive(:new).and_return(service)
       allow(service).to receive(:uuid)
-      allow(service).to receive(:location).and_return(location)
+      allow(service).to receive_messages(location: [])
       allow(service).to receive(:request_upload)
-      allow(service).to receive(:perform_upload).and_return(response)
+      allow(service).to receive_messages(perform_upload: [])
       allow(response).to receive(:success?).and_return true
 
       job.instance_variable_set(:@pension_monitor, monitor)
