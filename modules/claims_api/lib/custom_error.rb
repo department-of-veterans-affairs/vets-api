@@ -19,7 +19,8 @@ module ClaimsApi
       when ::Common::Exceptions::GatewayTimeout,
         Timeout::Error,
         Faraday::TimeoutError,
-        Breakers::OutageException
+        Breakers::OutageException,
+        Net::HTTPGatewayTimeout
         raise_timeout_exception
 
       when ::Common::Exceptions::BackendServiceException
