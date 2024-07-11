@@ -82,7 +82,7 @@ module Veteran
     def find_or_create_vso(vso)
       unless vso['Representative'].match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/)
         ClaimsApi::Logger.log('VSO',
-                              detail: "Rep name not in expected format: #{vso['Representative']}")
+                              detail: "Rep name not in expected format: #{vso['Registration Num']}")
         return
       end
 
