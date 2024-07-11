@@ -22,25 +22,21 @@ module V0
         render_pre_login_error(e)
       rescue => e
         log_message_to_sentry(e.message, :error)
-        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE)
         render_pre_login_error(e)
       end
 
       private
 
       def validate_callback_params
-        unless params[:code] || params[:error]
-          render_invalid_params('Code is not defined')
-        end
-        unless params[:state]
-          render_invalid_params('State is not defined')
-        end
+        render_invalid_params('Code is not defined') unless params[:code] || params[:error]
+        render_invalid_params('State is not defined') unless params[:state]
       end
 
       def validate_jwt
         state_payload
       rescue SignIn::Errors::StandardError => error
         log_callback_failure(error)
+        increment_statsd_failure_metric
         render json: { errors: error }, status: :bad_request
       end
 
@@ -82,10 +78,12 @@ module V0
       def render_invalid_params(message)
         error = SignIn::Errors::MalformedParamsError.new(message: message)
         log_callback_failure(error)
+        increment_statsd_failure_metric
         render json: { errors: error }, status: :bad_request
       end
 
       def render_pre_login_error(error)
+        increment_statsd_failure_metric
         if cookie_authentication?
           render body: error_redirect_url(error), content_type: 'text/html'
         else
@@ -98,6 +96,7 @@ module V0
           auth_service.render_auth(state: response_state, acr: acr_for_type)
         else
           log_callback_success
+          increment_statsd_success_metric
           login_code_redirect_url
         end
       end
@@ -117,6 +116,20 @@ module V0
         ).perform
       end
 
+      def increment_statsd_success_metric
+        tags = [
+          "type:#{state_payload.type}",
+          "client_id:#{state_payload.client_id}",
+          "ial:#{credential_level.current_ial}",
+          "acr:#{state_payload.acr}"
+        ]
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS, tags:)
+      end
+
+      def increment_statsd_failure_metric
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE)
+      end
+
       def log_callback_success
         context = {
           type: state_payload.type,
@@ -128,14 +141,6 @@ module V0
           authentication_time: Time.zone.now.to_i - state_payload.created_at
         }
         sign_in_logger.info('callback', context)
-
-        tags = [
-          "type:#{state_payload.type}",
-          "client_id:#{state_payload.client_id}",
-          "ial:#{credential_level.current_ial}",
-          "acr:#{state_payload.acr}"
-        ]
-        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS, tags:)
       end
 
       def log_callback_failure(error, payload = nil)
@@ -146,7 +151,6 @@ module V0
           acr: payload&.acr
         }
         sign_in_logger.info('callback error', context)
-        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE)
       end
 
       def login_code_redirect_url
