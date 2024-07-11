@@ -12,9 +12,10 @@ module V0
         sign_in_logger.info('refresh', session_container.context)
         StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS)
         render json: serializer_response, status: :ok
+      rescue SignIn::Errors::MalformedParamsError => e
+        render_error(e, :bad_request)
       rescue SignIn::Errors::StandardError => e
-        status = e.is_a?(MalformedParamsError) ? :bad_request : :unauthorized
-        render_error(e, status)
+        render_error(e, :unauthorized)
       end
 
       private
@@ -22,7 +23,7 @@ module V0
       def validate_refresh_token
         unless refresh_token
           error = SignIn::Errors::MalformedParamsError.new message: 'Refresh token is not defined'
-          render_error(error, :unauthorized)
+          render_error(error, :bad_request)
         end
       end
 
