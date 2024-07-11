@@ -36,6 +36,10 @@ RSpec.describe V1::SupplementalClaimsController do
       }
     }
   end
+  let(:extra_error_log_message) do
+    "BackendServiceException: "\
+    "{:source=>\"Common::Client::Errors::ClientError raised in DecisionReviewV1::Service\", :code=>\"DR_422\"}"
+  end
 
   before { sign_in_as(user) }
 
@@ -81,6 +85,11 @@ RSpec.describe V1::SupplementalClaimsController do
         expect(personal_information_logs.count).to be 0
         allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(error_log_args)
+        expect(Rails.logger).to receive(:error).with(
+          message: "Exception occurred while submitting Supplemental Claim: #{extra_error_log_message}", 
+          backtrace: anything
+        )
+        expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_995.overall_claim_submission.failure')
 

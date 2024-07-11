@@ -44,8 +44,9 @@ module V1
         render json: sc_response.body, status: sc_response.status
       end
     rescue => e
-      Rails.logger.error(
-        "Exception occurred while submitting Supplemental Claim: #{e.message}", backtrace: e.backtrace
+      ::Rails.logger.error(
+        message: "Exception occurred while submitting Supplemental Claim: #{e.message}",
+        backtrace: e.backtrace
       )
       handle_personal_info_error(e)
     end
