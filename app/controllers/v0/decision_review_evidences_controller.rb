@@ -20,6 +20,11 @@ module V0
       form_attachment_guid = form_attachment&.guid
       password = filtered_params[:password]
 
+      params = {
+        form_attachment_guid:,
+        encrypted: password.present?
+      }
+
       # Unlock pdf with hexapdf instead of using pdftk
       if password.present?
         unlocked_pdf = unlock_pdf(filtered_params[:file_data], password)
@@ -27,11 +32,6 @@ module V0
       else
         super
       end
-
-      params = {
-        form_attachment_guid:,
-        encrypted: password.present?
-      }
 
       log_formatted(**common_log_params.merge(params:, is_success: true))
     rescue => e
