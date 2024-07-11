@@ -44,6 +44,9 @@ module V1
         render json: sc_response.body, status: sc_response.status
       end
     rescue => e
+      Rails.logger.error(
+        "Exception occurred while submitting Supplemental Claim: #{e.message}"
+      )
       handle_personal_info_error(e)
     end
     # rubocop:enable Metrics/MethodLength
