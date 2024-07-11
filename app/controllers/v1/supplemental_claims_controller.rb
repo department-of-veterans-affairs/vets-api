@@ -17,6 +17,7 @@ module V1
       raise
     end
 
+    # rubocop:disable Metrics/MethodLength
     def create
       req_body_obj = request_body_hash.is_a?(String) ? JSON.parse(request_body_hash) : request_body_hash
       form4142 = req_body_obj.delete('form4142')
@@ -45,6 +46,7 @@ module V1
     rescue => e
       handle_personal_info_error(e)
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
