@@ -202,7 +202,7 @@ RSpec.describe Form1010Ezr::Service do
           expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZR: ' \
                                                             'Body size of 15.6 KB with 2 attachment(s)')
           expect(Rails.logger).to have_received(:info).with(
-            "Attachment sizes in descending order - 1: 1.8 KB, 2: 1.8 KB"
+            'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
           )
         end
       end

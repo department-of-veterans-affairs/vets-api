@@ -54,11 +54,12 @@ module VA1010Forms
       attachments = formatted_form.dig('va:form', 'va:attachments')
       attachment_count = attachments&.length || 0
       # Log the attachment sizes in descending order
-      if attachment_count > 0
-        attachment_sizes = "Attachment sizes in descending order - "
+      if attachment_count.positive?
+        attachment_sizes = 'Attachment sizes in descending order: '
         # Convert the attachments into xml format so they resemble what will be sent to VES
         attachments.sort_by { |a| a.to_xml.size }.reverse.each_with_index do |attachment, index|
-          attachment_sizes += "#{index + 1}: #{number_to_human_size(attachment.to_xml.size)}#{', ' unless index + 1 == attachment_count}"
+          attachment_sizes +=
+            "#{number_to_human_size(attachment.to_xml.size)}#{', ' unless index + 1 == attachment_count}"
         end
 
         Rails.logger.info(attachment_sizes)
