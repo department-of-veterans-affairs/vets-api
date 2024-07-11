@@ -62,26 +62,6 @@ describe CARMA::Client::MuleSoftClient do
     describe '#create_submission_v2' do
       subject { client.create_submission_v2(payload) }
 
-      let(:token_params) do
-        URI.encode_www_form({
-                              grant_type: 'client_credentials',
-                              scope: 'read'
-                            })
-      end
-
-      let(:token_headers) do
-        {
-          'Authorization' => "Basic #{basic_auth}",
-          'Content-Type' => 'application/x-www-form-urlencoded'
-        }
-      end
-
-      let(:basic_auth) do
-        Base64.urlsafe_encode64("#{config.settings.v2.client_id}:#{config.settings.v2.client_secret}")
-      end
-
-      let(:token) { 'my-token' }
-
       let(:resource) { 'v2/application/1010CG/submit' }
       let(:has_errors) { false }
       let(:response_body) do
@@ -98,10 +78,30 @@ describe CARMA::Client::MuleSoftClient do
         }.to_json
       end
       let(:mock_success_response) { MockFaradayResponse.new(response_body, 201) }
-      let(:mock_token_response) { MockFaradayResponse.new({ access_token: token }, 201) }
       let(:payload) { {} }
 
       context 'OAuth 2.0 flipper enabled' do
+        let(:token_params) do
+          URI.encode_www_form({
+                                grant_type: 'client_credentials',
+                                scope: 'read'
+                              })
+        end
+
+        let(:basic_auth) do
+          Base64.urlsafe_encode64("#{config.settings.v2.client_id}:#{config.settings.v2.client_secret}")
+        end
+
+        let(:token_headers) do
+          {
+            'Authorization' => "Basic #{basic_auth}",
+            'Content-Type' => 'application/x-www-form-urlencoded'
+          }
+        end
+
+        let(:access_token) { 'my-token' }
+        let(:mock_token_response) { MockFaradayResponse.new({ access_token: }, 201) }
+
         before do
           allow(client).to receive(:perform)
             .with(:post, v2[:token_url], token_params, token_headers)
@@ -115,7 +115,7 @@ describe CARMA::Client::MuleSoftClient do
 
         it 'calls perform with expected params' do
           expect(client).to receive(:perform)
-            .with(:post, resource, payload.to_json, { Authorization: "Bearer #{token}" })
+            .with(:post, resource, payload.to_json, { Authorization: "Bearer #{access_token}" })
             .and_return(mock_success_response)
 
           expect(Rails.logger).to receive(:info).with("[Form 10-10CG] Submitting to '#{resource}' using bearer token")
@@ -132,7 +132,7 @@ describe CARMA::Client::MuleSoftClient do
 
           it 'raises SchemaValidationError' do
             expect(client).to receive(:perform)
-              .with(:post, resource, payload.to_json, { Authorization: "Bearer #{token}" })
+              .with(:post, resource, payload.to_json, { Authorization: "Bearer #{access_token}" })
               .and_return(mock_error_response)
 
             expect(Rails.logger).to receive(:info).with("[Form 10-10CG] Submitting to '#{resource}' using bearer token")
