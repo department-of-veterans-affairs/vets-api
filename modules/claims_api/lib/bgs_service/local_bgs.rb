@@ -308,7 +308,7 @@ module ClaimsApi
     end
 
     def namespace(endpoint)
-      if CACHED_SERVICES.include?(endpoint) && Flipper.enabled?(:claims_api_hardcode_wsdl)
+      if CACHED_SERVICES.include?(endpoint) && Flipper.enabled?(:lighthouse_claims_api_hardcode_wsdl)
         begin
           ClaimsApi::LocalBGSRefactored::FindDefinition
             .for_service(endpoint)
