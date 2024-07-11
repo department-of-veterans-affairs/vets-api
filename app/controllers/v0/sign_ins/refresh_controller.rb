@@ -6,23 +6,31 @@ module V0
   module SignIns
     class RefreshController < SignIn::ApplicationController
       skip_before_action :authenticate, only: %i[refresh]
+      before_action :validate_refresh_token
 
       def refresh
-        raise SignIn::Errors::MalformedParamsError.new message: 'Refresh token is not defined' unless refresh_token
         sign_in_logger.info('refresh', session_container.context)
         StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS)
         render json: serializer_response, status: :ok
-      rescue SignIn::Errors::MalformedParamsError => e
-        sign_in_logger.info('refresh error', { errors: e.message })
-        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_FAILURE)
-        render json: { errors: e }, status: :bad_request
       rescue SignIn::Errors::StandardError => e
-        sign_in_logger.info('refresh error', { errors: e.message })
-        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_FAILURE)
-        render json: { errors: e }, status: :unauthorized
+        status = e.is_a?(MalformedParamsError) ? :bad_request : :unauthorized
+        render_error(e, status)
       end
 
       private
+
+      def validate_refresh_token
+        unless refresh_token
+          error = SignIn::Errors::MalformedParamsError.new message: 'Refresh token is not defined'
+          render_error(error, :unauthorized)
+        end
+      end
+
+      def render_error(error, status)
+        sign_in_logger.info('refresh error', { errors: error.message })
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_FAILURE)
+        render json: { errors: error }, status:
+      end
 
       def refresh_token
         params[:refresh_token] || token_cookies[SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME]
