@@ -72,7 +72,7 @@ describe 'EvidenceWaiver5103',
 
             bgs_claim_response = build(:bgs_response_with_one_lc_status).to_h
             bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_vet_id] = '600043201'
-            bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_clmant_id] = '600043201'
+            bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_clmant_id] = target_veteran[:participant_id]
 
             expect_any_instance_of(ClaimsApi::LocalBGS)
               .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
