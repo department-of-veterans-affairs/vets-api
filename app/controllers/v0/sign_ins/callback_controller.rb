@@ -10,15 +10,12 @@ module V0
       before_action :validate_jwt
 
       def callback
-        # verification
         SignIn::StatePayloadVerifier.new(state_payload:).perform
 
-        # error handling
         raise_access_denied_error if access_denied?
         raise_credential_provider_error if params[:error]
         raise_code_invalid_error unless service_token_response
 
-        # render success
         render body: success_response_body, content_type: 'text/html'
       rescue SignIn::Errors::StandardError => e
         log_callback_failure(e, state_payload)
@@ -33,17 +30,11 @@ module V0
 
       def validate_callback_params
         unless params[:code] || params[:error]
-          handle_invalid_params('Code is not defined')
+          render_invalid_params('Code is not defined')
         end
         unless params[:state]
-          handle_invalid_params('State is not defined')
+          render_invalid_params('State is not defined')
         end
-      end
-
-      def handle_invalid_params(message)
-        error = SignIn::Errors::MalformedParamsError.new(message: message)
-        log_callback_failure(error)
-        render json: { errors: error }, status: :bad_request
       end
 
       def validate_jwt
@@ -51,14 +42,6 @@ module V0
       rescue SignIn::Errors::StandardError => error
         log_callback_failure(error)
         render json: { errors: error }, status: :bad_request
-      end
-
-      def render_pre_login_error(error)
-        if cookie_authentication?
-          render body: error_redirect_url(error), content_type: 'text/html'
-        else
-          render json: { errors: error }, status: :bad_request
-        end
       end
 
       def error_redirect_url(error)
@@ -76,14 +59,6 @@ module V0
         raise SignIn::Errors::AccessDeniedError.new message: error_message, code: verification_error_code
       end
 
-      def raise_credential_provider_error
-        unless access_denied?
-          error_message = 'Unknown Credential Provider Issue'
-          error_code = SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE
-          raise SignIn::Errors::CredentialProviderError.new message: error_message, code: error_code
-        end
-      end
-
       def verification_error_code
         if state_payload.type == SignIn::Constants::Auth::LOGINGOV
           SignIn::Constants::ErrorCode::LOGINGOV_VERIFICATION_DENIED
@@ -92,8 +67,30 @@ module V0
         end
       end
 
+      def raise_credential_provider_error
+        unless access_denied?
+          error_message = 'Unknown Credential Provider Issue'
+          error_code = SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE
+          raise SignIn::Errors::CredentialProviderError.new message: error_message, code: error_code
+        end
+      end
+
       def raise_code_invalid_error
         raise SignIn::Errors::CodeInvalidError.new message: 'Code is not valid'
+      end
+
+      def render_invalid_params(message)
+        error = SignIn::Errors::MalformedParamsError.new(message: message)
+        log_callback_failure(error)
+        render json: { errors: error }, status: :bad_request
+      end
+
+      def render_pre_login_error(error)
+        if cookie_authentication?
+          render body: error_redirect_url(error), content_type: 'text/html'
+        else
+          render json: { errors: error }, status: :bad_request
+        end
       end
 
       def success_response_body
