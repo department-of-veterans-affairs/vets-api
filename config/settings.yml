@@ -175,13 +175,11 @@ form_10_10cg:
       client_secret: ~
       timeout: 30
       async_timeout: 600
-    v2_mulesoft: 
-      mock: false
-      token_url: ~
-      client_id: ~
-      client_secret: ~
-      timeout: 30
-      async_timeout: 600
+      v2: 
+        mock: false
+        token_url: ~
+        client_id: ~
+        client_secret: ~
   poa:
     s3:
       aws_access_key_id: my-aws-key-id

@@ -41,6 +41,13 @@ describe CARMA::Client::MuleSoftClient do
     let(:config) { double('config') }
     let(:exp_headers) { { client_id: '1234', client_secret: 'abcd' } }
     let(:timeout) { 60 }
+    let(:v2) do
+      OpenStruct.new(
+        token_url: 'my/token/url',
+        client_id: 'id',
+        client_secret: 'secret'
+      )
+    end
 
     before do
       allow(Rails.logger).to receive(:info)
@@ -48,8 +55,7 @@ describe CARMA::Client::MuleSoftClient do
       allow(config).to receive_messages(base_request_headers: exp_headers, timeout: 10,
                                         settings: OpenStruct.new(
                                           async_timeout: timeout,
-                                          client_id: 'id',
-                                          client_secret: 'secret'
+                                          v2:
                                         ))
     end
 
@@ -69,8 +75,9 @@ describe CARMA::Client::MuleSoftClient do
           'Content-Type' => 'application/x-www-form-urlencoded'
         }
       end
+
       let(:basic_auth) do
-        Base64.urlsafe_encode64("#{config.settings.client_id}:#{config.settings.client_secret}")
+        Base64.urlsafe_encode64("#{config.settings.v2.client_id}:#{config.settings.v2.client_secret}")
       end
 
       let(:token) { 'my-token' }
@@ -97,7 +104,7 @@ describe CARMA::Client::MuleSoftClient do
       context 'OAuth 2.0 flipper enabled' do
         before do
           allow(client).to receive(:perform)
-            .with(:post, 'dtc-va.okta-gov.com/oauth2/default/v1', token_params, token_headers)
+            .with(:post, v2[:token_url], token_params, token_headers)
             .and_return(mock_token_response)
           Flipper.enable(:cg_OAuth_2_enabled)
         end
