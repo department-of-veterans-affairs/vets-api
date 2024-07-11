@@ -539,6 +539,6 @@ end
 RSpec.describe 'claims and appeals overview', type: :request do
   include JsonSchemaMatchers
 
-  #it_behaves_like 'claims and appeals overview', false
+  it_behaves_like 'claims and appeals overview', false
   it_behaves_like 'claims and appeals overview', true
 end
