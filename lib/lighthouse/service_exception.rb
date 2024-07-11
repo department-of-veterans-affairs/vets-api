@@ -27,9 +27,9 @@ module Lighthouse
     # formats the Lighthouse exception for the controller ExceptionHandling to report out to the consumer
     def self.send_error(error, service_name, lighthouse_client_id, url)
       send_error_logs(error, service_name, lighthouse_client_id, url)
+      return error unless error.respond_to?(:response)
 
       response = error.response
-
       status_code = get_status_code(response)
       return error unless status_code
 
@@ -90,9 +90,8 @@ module Lighthouse
     # log errors
     def self.send_error_logs(error, service_name, lighthouse_client_id, url)
       logging_options = { url:, lighthouse_client_id: }
-      if error.response.present?
-        # Faraday error may contain request data
-        error.response.delete(:request)
+
+      if error.respond_to?(:response) && error.response.present?
         logging_options[:status] = error.response[:status]
         logging_options[:body] = error.response[:body]
       else
