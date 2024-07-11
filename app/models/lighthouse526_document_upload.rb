@@ -26,7 +26,8 @@ class Lighthouse526DocumentUpload < ApplicationRecord
 
   # Window for polling Lighthouse for the status of an upload
   scope :status_update_required, lambda {
-                                   where('status_last_polled_at < ?', 1.hour.ago.utc).or(where(status_last_polled_at: nil))
+                                   where('status_last_polled_at < ?', 1.hour.ago.utc)
+                                     .or(where(status_last_polled_at: nil))
                                  }
 
   aasm do
