@@ -72,19 +72,19 @@ module RepresentationManagement
             # Veteran Service Number
             "#{base_form}.VeteransServiceNumber_If_Applicable[0]": data.veteran_service_number,
             # Veteran Insurance Number
-            "#{base_form}.InsuranceNumber_s[0]": data.veteran_insurance_numbers
-            # # Item 7
-            # "#{base_form}.Veterans_MailingAddress_NumberAndStreet[0]": data.dig('veteran', 'address', 'addressLine1'),
-            # "#{base_form}.Claimants_MailingAddress_ApartmentOrUnitNumber[1]": data.dig('veteran', 'address', 'addressLine2'),
-            # "#{base_form}.Claimants_MailingAddress_City[1]": data.dig('veteran', 'address', 'city'),
-            # "#{base_form}.Claimants_MailingAddress_StateOrProvince[1]": data.dig('veteran', 'address', 'stateCode'),
-            # "#{base_form}.Claimants_MailingAddress_Country[1]": data.dig('veteran', 'address', 'country'),
-            # "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]": data.dig('veteran', 'address', 'zipCode'),
-            # "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_LastFourNumbers[1]": data.dig('veteran', 'address', 'zipCodeSuffix'),
-            # # Item 8
-            # "#{base_form}.TelephoneNumber_IncludeAreaCode[1]": "#{data.dig('veteran', 'phone', 'areaCode')} #{data.dig('veteran', 'phone', 'phoneNumber')}",
-            # # Item 9
-            # "#{base_form}.EmailAddress_Optional[0]": data.dig('veteran', 'email'),
+            "#{base_form}.InsuranceNumber_s[0]": data.veteran_insurance_numbers,
+            # Veteran Address
+            "#{base_form}.Claimants_MailingAddress_NumberAndStreet[1]": data.veteran_address_line1,
+            "#{base_form}.Claimants_MailingAddress_ApartmentOrUnitNumber[1]": data.veteran_address_line2,
+            "#{base_form}.Claimants_MailingAddress_City[1]": data.veteran_city,
+            "#{base_form}.Claimants_MailingAddress_StateOrProvince[1]": data.veteran_state_code,
+            "#{base_form}.Claimants_MailingAddress_Country[1]": data.veteran_country,
+            "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]": data.veteran_zip_code,
+            "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_LastFourNumbers[1]": data.veteran_zip_code_suffix,
+            # Veteran Phone Number
+            "#{base_form}.TelephoneNumber_IncludeAreaCode[1]": data.veteran_phone,
+            # # Veteran Email
+            "#{base_form}.EmailAddress_Optional[0]": data.veteran_email
 
             # # Section II
             # # Item 10
