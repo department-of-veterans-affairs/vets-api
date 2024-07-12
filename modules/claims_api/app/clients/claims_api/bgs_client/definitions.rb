@@ -167,7 +167,7 @@ module ClaimsApi
             path: 'PersonWebServiceBean',
             namespaces: Namespaces.new(
               target: 'http://person.services.vetsnet.vba.va.gov/',
-              data: 'http://person.services.vetsnet.vba.va.gov/'
+              data: nil
             )
           )
       end

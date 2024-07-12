@@ -67,7 +67,7 @@ describe ClaimsApi::LocalBGS do
         # 2: connection_wsdl_get - duration of WSDL request cycle
         # 3: connection_post - how long does the post itself take for the request cycle
         # 4: parsed_response - how long to parse the response
-        expect(ClaimsApi::Logger).to receive(:log).exactly(5).times
+        expect(ClaimsApi::Logger).to receive(:log).exactly(4).times
         result = subject.find_poa_by_participant_id('does-not-matter')
         expect(result).to be_a Hash
         expect(result[:end_date]).to eq '08/26/2020'
