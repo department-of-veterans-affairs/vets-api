@@ -34,10 +34,10 @@ module V0
 
       def validate_jwt
         state_payload
-      rescue SignIn::Errors::StandardError => error
-        log_callback_failure(error)
+      rescue SignIn::Errors::StandardError => e
+        log_callback_failure(e)
         increment_statsd_failure_metric
-        render json: { errors: error }, status: :bad_request
+        render json: { errors: e }, status: :bad_request
       end
 
       def error_redirect_url(error)
@@ -76,7 +76,7 @@ module V0
       end
 
       def render_invalid_params(message)
-        error = SignIn::Errors::MalformedParamsError.new(message: message)
+        error = SignIn::Errors::MalformedParamsError.new(message:)
         log_callback_failure(error)
         increment_statsd_failure_metric
         render json: { errors: error }, status: :bad_request
@@ -110,7 +110,7 @@ module V0
           code_challenge: state_payload.code_challenge,
           code_challenge_method: SignIn::Constants::Auth::CODE_CHALLENGE_METHOD,
           acr: state_payload.acr,
-          client_config: client_config,
+          client_config:,
           type: state_payload.type,
           client_state: state_payload.client_state
         ).perform
@@ -157,7 +157,7 @@ module V0
         SignIn::RedirectUrlGenerator.new(
           redirect_uri: user_code_map.client_config.redirect_uri,
           terms_code: user_code_map.terms_code,
-          terms_redirect_uri:  user_code_map.client_config.terms_of_use_url,
+          terms_redirect_uri: user_code_map.client_config.terms_of_use_url,
           params_hash: login_code_redirect_params
         ).perform
       end
@@ -214,7 +214,7 @@ module V0
       def client_config
         client_id = state_payload.client_id
         @client_config ||= {}
-        @client_config[client_id] ||= SignIn::ClientConfig.find_by(client_id: )
+        @client_config[client_id] ||= SignIn::ClientConfig.find_by(client_id:)
       end
 
       def sign_in_logger

@@ -15,8 +15,6 @@ module V0
       rescue SignIn::Errors::StandardError => e
         increment_statsd_failure_metric(e)
         render json: { errors: e }, status: :bad_request
-      rescue => e
-        binding.pry
       end
 
       private
@@ -32,6 +30,7 @@ module V0
 
       def token_response
         return @token_response if defined?(@token_response)
+
         @token_response = SignIn::TokenResponseGenerator.new(params: token_params, cookies: token_cookies).perform
       end
 

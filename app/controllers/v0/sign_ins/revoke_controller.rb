@@ -51,12 +51,13 @@ module V0
 
       def session
         return @session if defined?(@session)
+
         @session ||= SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
       end
 
       def decrypted_refresh_token
         encrypted_refresh_token = params[:refresh_token]
-        @decrypted_refresh_token ||= SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: ).perform
+        @decrypted_refresh_token ||= SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token:).perform
       end
 
       def sign_in_logger

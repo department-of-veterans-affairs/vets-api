@@ -70,7 +70,7 @@ module V0
         url ? redirect_to(url) : render(status: :ok)
       end
 
-      def logout_redirect_url(credential_type=nil)
+      def logout_redirect_url(credential_type = nil)
         SignIn::LogoutRedirectGenerator.new(credential_type:, client_config:).perform
       end
 
@@ -80,11 +80,12 @@ module V0
 
       def session
         return @session if defined?(@session)
+
         @session ||= SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
       end
 
       def credential_type
-        credential_type ||= session.user_verification.credential_type
+        @credential_type ||= session.user_verification.credential_type
       end
 
       def anti_csrf_token
@@ -109,7 +110,7 @@ module V0
       def client_config
         client_id = params[:client_id]
         @client_config ||= {}
-        @client_config[client_id] ||= SignIn::ClientConfig.find_by(client_id: )
+        @client_config[client_id] ||= SignIn::ClientConfig.find_by(client_id:)
       end
 
       def sign_in_logger
