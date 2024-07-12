@@ -60,7 +60,7 @@ module Mobile
               documents_needed: attributes['documentsNeeded'],
               development_letter_sent: attributes['developmentLetterSent'],
               decision_letter_sent: attributes['decisionLetterSent'],
-              phase: phase(attributes.dig('claimPhaseDates', 'latestPhaseType')),
+              phase: Mobile::ClaimsHelper.phase_to_number(attributes.dig('claimPhaseDates', 'latestPhaseType')),
               ever_phase_back: nil,
               current_phase_back: attributes.dig('claimPhaseDates', 'currentPhaseBack'),
               requested_decision: attributes['evidenceWaiverSubmitted5103'],
@@ -75,10 +75,6 @@ module Mobile
         # rubocop:enable Metrics/MethodLength
 
         private
-
-        def phase(latest_phase)
-          Mobile::ClaimsHelper::PHASE_TYPE_TO_NUMBER[latest_phase.to_sym]
-        end
 
         def events_timeline(attributes)
           events = [
