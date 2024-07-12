@@ -38,24 +38,40 @@ module Vye
       end
 
       def bdn_import(path)
+        counts = { success: 0, failure: 0 }
         bdn_clone = BdnClone.create!
         source = :bdn_feed
         path.each_line.with_index do |line, index|
           locator = index + 1
           line.chomp!
           records = BdnLineExtraction.new(line:).attributes
-          Vye::LoadData.new(source:, locator:, bdn_clone:, records:)
+          ld = Vye::LoadData.new(source:, locator:, bdn_clone:, records:)
+          if ld.valid?
+            counts[:success] += 1
+          else
+            counts[:failure] += 1
+          end
         end
+        Rails.logger.info "BDN Import completed: success: #{counts[:success]}, failure: #{counts[:failure]}"
+        bdn_clone.update!(is_active: false)
       end
 
       def tims_import(path)
+        Vye::PendingDocument.delete_all
+        counts = { success: 0, failure: 0 }
         data = CSV.open(path, 'r', headers: %i[ssn file_number doc_type queue_date rpo])
         source = :tims_feed
         data.each.with_index do |row, index|
           locator = index + 1
           records = TimsLineExtraction.new(row:).records
-          Vye::LoadData.new(source:, locator:, records:)
+          ld = Vye::LoadData.new(source:, locator:, records:)
+          if ld.valid?
+            counts[:success] += 1
+          else
+            counts[:failure] += 1
+          end
         end
+        Rails.logger.info "TIMS Import completed: success: #{counts[:success]}, failure: #{counts[:failure]}"
       end
 
       public
