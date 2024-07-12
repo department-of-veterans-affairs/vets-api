@@ -505,12 +505,13 @@ RSpec.describe HealthCareApplication, type: :model do
             let(:email_address) { health_care_application.parsed_form['email'] }
             let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
             let(:template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email }
-
             let(:template_params) do
               [
                 email_address,
                 template_id,
-                nil,
+                {
+                  'salutation' => "Dear #{health_care_application.parsed_form['veteranFullName']['first']},"
+                },
                 api_key
               ]
             end
@@ -526,6 +527,33 @@ RSpec.describe HealthCareApplication, type: :model do
               allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
               expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
               expect { subject }.not_to raise_error
+            end
+
+            it 'increments statsd' do
+              expect { subject }.to trigger_statsd_increment('api.1010ez.submission_failure_email_sent')
+            end
+
+            context 'without first name' do
+              subject do
+                health_care_application.parsed_form['veteranFullName'] = nil
+                super()
+              end
+
+              let(:template_params_no_name) do
+                [
+                  email_address,
+                  template_id,
+                  {
+                    'salutation' => ''
+                  },
+                  api_key
+                ]
+              end
+
+              it 'sends email without personalisations' do
+                subject
+                expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params_no_name)
+              end
             end
           end
 
@@ -666,19 +694,52 @@ RSpec.describe HealthCareApplication, type: :model do
         end
       end
 
-      context 'form is not present' do
+      context '@parsed_form is nil' do
         before do
-          health_care_application.form = nil
+          health_care_application.instance_variable_set(:@parsed_form, nil)
         end
 
-        it 'does not log form to PersonalInformationLog' do
-          subject
-          expect(PersonalInformationLog.count).to eq 0
+        context 'form is empty' do
+          before do
+            health_care_application.form = {}.to_json
+          end
+
+          it 'does not log form to PersonalInformationLog' do
+            subject
+            expect(PersonalInformationLog.count).to eq 0
+          end
+
+          it 'does not log message to sentry' do
+            expect(health_care_application).not_to receive(:log_message_to_sentry)
+            subject
+          end
         end
 
-        it 'does not log message to sentry' do
-          expect(health_care_application).not_to receive(:log_message_to_sentry)
-          subject
+        context 'form does not have veteranFullName' do
+          before do
+            health_care_application.form = { email: 'my_email@email.com' }.to_json
+          end
+
+          it 'logs form to PersonalInformationLog' do
+            subject
+            pii_log = PersonalInformationLog.last
+            expect(pii_log.error_class).to eq('HealthCareApplication FailedWontRetry')
+            expect(pii_log.data).to eq(health_care_application.parsed_form)
+          end
+
+          it 'logs message to sentry' do
+            expect(health_care_application).to receive(:log_message_to_sentry).with(
+              'HCA total failure',
+              :error,
+              {
+                first_initial: 'no initial provided',
+                middle_initial: 'no initial provided',
+                last_initial: 'no initial provided'
+              },
+              hca: :total_failure
+            )
+            subject
+          end
         end
       end
     end
@@ -700,6 +761,48 @@ RSpec.describe HealthCareApplication, type: :model do
       expect(health_care_application.success?).to eq(true)
       expect(health_care_application.form_submission_id).to eq(result[:formSubmissionId])
       expect(health_care_application.timestamp).to eq(result[:timestamp])
+    end
+  end
+
+  describe '#parsed_form' do
+    subject { health_care_application.parsed_form }
+
+    let(:form) { Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json').read }
+
+    context '@parsed_form is already set' do
+      it 'returns parsed_form' do
+        expect(subject).to eq JSON.parse(form)
+      end
+
+      context 'form is nil' do
+        before do
+          health_care_application.form = nil
+        end
+
+        it 'returns parsed_form' do
+          expect(subject).to eq JSON.parse(form)
+        end
+      end
+    end
+
+    context '@parsed_form is nil' do
+      before do
+        health_care_application.instance_variable_set(:@parsed_form, nil)
+      end
+
+      it 'returns parsed form' do
+        expect(subject).to eq JSON.parse(form)
+      end
+
+      context 'form is nil' do
+        before do
+          health_care_application.form = nil
+        end
+
+        it 'returns nil' do
+          expect(subject).to eq nil
+        end
+      end
     end
   end
 end

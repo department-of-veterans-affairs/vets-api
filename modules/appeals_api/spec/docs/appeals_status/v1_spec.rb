@@ -26,8 +26,6 @@ describe 'Appeals Status', openapi_spec:, type: :request do
       consumes 'application/json'
       produces 'application/json'
 
-      example_va_user = 'va.api.user+idme.025@gmail.com'
-
       parameter(
         parameter_from_schema('shared/v0/icn.json', 'properties', 'icn').merge(
           {
@@ -38,15 +36,6 @@ describe 'Appeals Status', openapi_spec:, type: :request do
           }
         )
       )
-
-      parameter name: 'X-VA-User',
-                in: :header,
-                required: true,
-                example: example_va_user,
-                schema: { type: 'string' },
-                description: 'VA username of the person making the request'
-
-      let(:'X-VA-User') { example_va_user }
 
       cassette = %w[caseflow/appeals mpi/find_candidate/valid]
       expected_icn = '1012832025V743496'
