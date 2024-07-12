@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_09_171552) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_12_172822) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -764,18 +764,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_09_171552) do
   create_table "form_submissions", force: :cascade do |t|
     t.string "form_type", null: false
     t.uuid "benefits_intake_uuid"
-    t.uuid "submitted_claim_uuid"
     t.uuid "user_account_id"
     t.bigint "saved_claim_id"
-    t.bigint "in_progress_form_id"
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.jsonb "form_data_ciphertext"
     t.index ["benefits_intake_uuid"], name: "index_form_submissions_on_benefits_intake_uuid"
-    t.index ["in_progress_form_id"], name: "index_form_submissions_on_in_progress_form_id"
     t.index ["saved_claim_id"], name: "index_form_submissions_on_saved_claim_id"
-    t.index ["submitted_claim_uuid"], name: "index_form_submissions_on_submitted_claim_uuid"
     t.index ["user_account_id"], name: "index_form_submissions_on_user_account_id"
   end
 
@@ -1609,7 +1605,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_09_171552) do
   add_foreign_key "form526_submissions", "user_accounts"
   add_foreign_key "form5655_submissions", "user_accounts"
   add_foreign_key "form_submission_attempts", "form_submissions"
-  add_foreign_key "form_submissions", "in_progress_forms"
   add_foreign_key "form_submissions", "saved_claims"
   add_foreign_key "form_submissions", "user_accounts"
   add_foreign_key "health_quest_questionnaire_responses", "user_accounts"
