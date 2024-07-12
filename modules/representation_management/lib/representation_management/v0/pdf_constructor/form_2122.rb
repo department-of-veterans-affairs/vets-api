@@ -72,7 +72,7 @@ module RepresentationManagement
             # Veteran Service Number
             "#{base_form}.VeteransServiceNumber_If_Applicable[0]": data.veteran_service_number,
             # Veteran Insurance Number
-            "#{base_form}.InsuranceNumber_s[0]": data.veteran_insurance_numbers,
+            "#{base_form}.InsuranceNumber_s[0]": data.veteran_insurance_numbers.join(', '),
             # Veteran Address
             "#{base_form}.Claimants_MailingAddress_NumberAndStreet[1]": data.veteran_address_line1,
             "#{base_form}.Claimants_MailingAddress_ApartmentOrUnitNumber[1]": data.veteran_address_line2,
@@ -84,25 +84,31 @@ module RepresentationManagement
             # Veteran Phone Number
             "#{base_form}.TelephoneNumber_IncludeAreaCode[1]": data.veteran_phone,
             # # Veteran Email
-            "#{base_form}.EmailAddress_Optional[0]": data.veteran_email
+            "#{base_form}.EmailAddress_Optional[0]": data.veteran_email,
 
             # # Section II
-            # # Item 10
-            # "#{base_form}.Claimants_FirstName[0]": data.dig('claimant', 'firstName'),
-            # "#{base_form}.Claimants_MiddleInitial1[0]": data.dig('claimant', 'middleInitial'),
-            # "#{base_form}.Claimants_LastName[0]": data.dig('claimant', 'lastName'),
-            # # Item 11
-            # "#{base_form}.Claimants_MailingAddress_NumberAndStreet[0]": data.dig('claimant', 'address', 'addressLine1'),
-            # "#{base_form}.Claimants_MailingAddress_ApartmentOrUnitNumber[0]": data.dig('claimant', 'address', 'addressLine2'),
-            # "#{base_form}.Claimants_MailingAddress_City[0]": data.dig('claimant', 'address', 'city'),
-            # "#{base_form}.Claimants_MailingAddress_StateOrProvince[0]": data.dig('claimant', 'address', 'stateCode'),
-            # "#{base_form}.Claimants_MailingAddress_Country[0]": data.dig('claimant', 'address', 'country'),
-            # "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": data.dig('claimant', 'address', 'zipCode'),
-            # "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": data.dig('address', 'zipCodeSuffix'),
-            # # Item 12
-            # "#{base_form}.TelephoneNumber_IncludeAreaCode[0]": "#{data.dig('claimant', 'phone', 'areaCode')} #{data.dig('claimant', 'phone', 'phoneNumber')}",
-            # # Item 13
-            # "#{base_form}.Claimants_EmailAddress_Optional[0]": data.dig('claimant', 'email'),
+            # # Claimant Name
+            "#{base_form}.Claimants_FirstName[0]": data.claimant_first_name,
+            "#{base_form}.Claimants_MiddleInitial1[0]": data.claimant_middle_initial,
+            "#{base_form}.Claimants_LastName[0]": data.claimant_last_name,
+            # Claimant DOB
+            "#{base_form}.DOBmonth[1]": data.claimant_date_of_birth.split('/').first,
+            "#{base_form}.DOBday[1]": data.claimant_date_of_birth.split('/').second,
+            "#{base_form}.DOByear[1]": data.claimant_date_of_birth.split('/').last,
+            # Claimant Relationship
+            "#{base_form}.Relationship_To_Veteran[0]": data.claimant_relationship,
+            # Claimant Address
+            "#{base_form}.Claimants_MailingAddress_NumberAndStreet[0]": data.claimant_address_line1,
+            "#{base_form}.Claimants_MailingAddress_ApartmentOrUnitNumber[0]": data.claimant_address_line2,
+            "#{base_form}.Claimants_MailingAddress_City[0]": data.claimant_city,
+            "#{base_form}.Claimants_MailingAddress_StateOrProvince[0]": data.claimant_state_code,
+            "#{base_form}.Claimants_MailingAddress_Country[0]": data.claimant_country,
+            "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": data.claimant_zip_code,
+            "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": data.claimant_zip_code_suffix,
+            # Claimant Phone Number
+            "#{base_form}.TelephoneNumber_IncludeAreaCode[0]": data.claimant_phone,
+            # Claimant Email
+            "#{base_form}.Claimants_EmailAddress_Optional[0]": data.claimant_email
             # # Item 14
             # "#{base_form}.Relationship_To_Veteran[0]": data.dig('claimant', 'relationship'),
 
