@@ -6,10 +6,12 @@ require 'rake'
 describe 'user_credential rake tasks' do # rubocop:disable RSpec/DescribeClass
   let(:user_account) { create(:user_account) }
   let(:icn) { user_account.icn }
-  let(:type) { 'logingov' }
   let(:user_verification) { create(:logingov_user_verification, user_account:) }
-  let(:linked_user_verification) { create(:idme_user_verification, user_account:) }
+  let(:type) { user_verification.credential_type }
   let(:credential_id) { user_verification.credential_identifier }
+  let(:linked_user_verification) { create(:idme_user_verification, user_account:) }
+  let(:linked_type) { linked_user_verification.credential_type }
+  let(:linked_credential_id) { linked_user_verification.credential_identifier }
   let(:requested_by) { 'some-name' }
 
   before :all do
@@ -17,65 +19,95 @@ describe 'user_credential rake tasks' do # rubocop:disable RSpec/DescribeClass
     Rake::Task.define_task(:environment)
   end
 
-  describe 'user_credential:lock' do
-    let(:task) { Rake::Task['user_credential:lock'] }
+  context 'single credential changes' do
+    let(:expected_output) do
+      "#{namespace} rake task start, context: {\"type\":\"#{type}\",\"credential_id\":\"#{credential_id}\"," \
+        "\"requested_by\":\"#{requested_by}\"}\n" \
+        "#{namespace} credential #{action}, context: {\"type\":\"#{type}\",\"credential_id\":\"#{credential_id}\"," \
+        "\"requested_by\":\"#{requested_by}\",\"locked\":#{locked}}\n" \
+        "#{namespace} rake task complete, context: {\"type\":\"#{type}\",\"credential_id\":\"#{credential_id}\"," \
+        "\"requested_by\":\"#{requested_by}\"}\n"
+    end
 
-    before { user_verification.unlock! }
+    describe 'user_credential:lock' do
+      let(:task) { Rake::Task['user_credential:lock'] }
+      let(:namespace) { '[UserCredential::Lock]' }
+      let(:action) { 'lock' }
+      let(:locked) { true }
 
-    it 'locks the credential & return the credential type & uuid when successful' do
-      expect(user_verification.locked).to be_falsey
-      expect { task.invoke(type, credential_id, requested_by) }
-        .to output(/UserCredential::Lock complete - #{type}_uuid: #{credential_id}/).to_stdout
-      expect(user_verification.reload.locked).to be_truthy
+      before { user_verification.unlock! }
+
+      it 'locks the credential & return the credential type & uuid when successful' do
+        expect(user_verification.locked).to be_falsey
+        expect { task.invoke(type, credential_id, requested_by) }.to output(expected_output).to_stdout
+        expect(user_verification.reload.locked).to be_truthy
+      end
+    end
+
+    describe 'user_credential:unlock' do
+      let(:task) { Rake::Task['user_credential:unlock'] }
+      let(:namespace) { '[UserCredential::Unlock]' }
+      let(:action) { 'unlock' }
+      let(:locked) { false }
+
+      before { user_verification.lock! }
+
+      it 'unlocks the credential & return the credential type & uuid when successful' do
+        expect(user_verification.locked).to be_truthy
+        expect { task.invoke(type, credential_id, requested_by) }.to output(expected_output).to_stdout
+        expect(user_verification.reload.locked).to be_falsey
+      end
     end
   end
 
-  describe 'user_credential:unlock' do
-    let(:task) { Rake::Task['user_credential:unlock'] }
-
-    before { user_verification.lock! }
-
-    it 'unlocks the credential & return the credential type & uuid when successful' do
-      expect(user_verification.locked).to be_truthy
-      expect { task.invoke(type, credential_id, requested_by) }
-        .to output(/UserCredential::Unlock complete - #{type}_uuid: #{credential_id}/).to_stdout
-      expect(user_verification.reload.locked).to be_falsey
-    end
-  end
-
-  describe 'user_credential:lock_all' do
-    let(:task) { Rake::Task['user_credential:lock_all'] }
-
-    before do
-      user_verification.unlock!
-      linked_user_verification.unlock!
+  context 'account-wide credential changes' do
+    let(:expected_output) do
+      "#{namespace} rake task start, context: {\"icn\":\"#{icn}\",\"requested_by\":\"#{requested_by}\"}\n" \
+        "#{namespace} credential #{action}, context: {\"icn\":\"#{icn}\",\"requested_by\":\"#{requested_by}\"," \
+        "\"type\":\"#{type}\",\"credential_id\":\"#{credential_id}\",\"locked\":#{locked}}\n" \
+        "#{namespace} credential #{action}, context: {\"icn\":\"#{icn}\",\"requested_by\":\"#{requested_by}\"," \
+        "\"type\":\"#{linked_type}\",\"credential_id\":\"#{linked_credential_id}\",\"locked\":#{locked}}\n" \
+        "#{namespace} rake task complete, context: {\"icn\":\"#{icn}\",\"requested_by\":\"#{requested_by}\"}\n"
     end
 
-    it 'locks all credentials for a user account & return the ICN when successful' do
-      expect(user_verification.locked).to be_falsey
-      expect(linked_user_verification.locked).to be_falsey
-      expect { task.invoke(icn, requested_by) }
-        .to output(/UserCredential::LockAll complete - ICN: #{icn}/).to_stdout
-      expect(user_verification.reload.locked).to be_truthy
-      expect(linked_user_verification.reload.locked).to be_truthy
+    describe 'user_credential:lock_all' do
+      let(:task) { Rake::Task['user_credential:lock_all'] }
+      let(:namespace) { '[UserCredential::LockAll]' }
+      let(:action) { 'lock' }
+      let(:locked) { true }
+
+      before do
+        user_verification.unlock!
+        linked_user_verification.unlock!
+      end
+
+      it 'locks all credentials for a user account & return the ICN when successful' do
+        expect(user_verification.locked).to be_falsey
+        expect(linked_user_verification.locked).to be_falsey
+        expect { task.invoke(icn, requested_by) }.to output(expected_output).to_stdout
+        expect(user_verification.reload.locked).to be_truthy
+        expect(linked_user_verification.reload.locked).to be_truthy
+      end
     end
-  end
 
-  describe 'user_credential:unlock_all' do
-    let(:task) { Rake::Task['user_credential:unlock_all'] }
+    describe 'user_credential:unlock_all' do
+      let(:task) { Rake::Task['user_credential:unlock_all'] }
+      let(:namespace) { '[UserCredential::UnlockAll]' }
+      let(:action) { 'unlock' }
+      let(:locked) { false }
 
-    before do
-      user_verification.lock!
-      linked_user_verification.lock!
-    end
+      before do
+        user_verification.lock!
+        linked_user_verification.lock!
+      end
 
-    it 'unlocks all credentials for a user account & return the ICN when successful' do
-      expect(user_verification.locked).to be_truthy
-      expect(linked_user_verification.locked).to be_truthy
-      expect { task.invoke(icn, requested_by) }
-        .to output(/UserCredential::UnlockAll complete - ICN: #{icn}/).to_stdout
-      expect(user_verification.reload.locked).to be_falsey
-      expect(linked_user_verification.reload.locked).to be_falsey
+      it 'unlocks all credentials for a user account & return the ICN when successful' do
+        expect(user_verification.locked).to be_truthy
+        expect(linked_user_verification.locked).to be_truthy
+        expect { task.invoke(icn, requested_by) }.to output(expected_output).to_stdout
+        expect(user_verification.reload.locked).to be_falsey
+        expect(linked_user_verification.reload.locked).to be_falsey
+      end
     end
   end
 end
