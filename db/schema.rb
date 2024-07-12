@@ -335,18 +335,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_12_154910) do
   create_table "benefits_intake_form_submissions", force: :cascade do |t|
     t.string "form_type", null: false
     t.uuid "benefits_intake_uuid"
-    t.uuid "submitted_claim_uuid"
     t.jsonb "form_data", default: {}
     t.uuid "user_account_id"
     t.bigint "saved_claim_id"
-    t.bigint "in_progress_form_id"
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["benefits_intake_uuid"], name: "index_benefits_intake_form_submissions_on_benefits_intake_uuid"
-    t.index ["in_progress_form_id"], name: "index_benefits_intake_form_submissions_on_in_progress_form_id"
     t.index ["saved_claim_id"], name: "index_benefits_intake_form_submissions_on_saved_claim_id"
-    t.index ["submitted_claim_uuid"], name: "index_benefits_intake_form_submissions_on_submitted_claim_uuid"
     t.index ["user_account_id"], name: "index_benefits_intake_form_submissions_on_user_account_id"
   end
 
@@ -1618,7 +1614,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_12_154910) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"
   add_foreign_key "async_transactions", "user_accounts"
-  add_foreign_key "benefits_intake_form_submissions", "in_progress_forms"
   add_foreign_key "benefits_intake_form_submissions", "saved_claims"
   add_foreign_key "benefits_intake_form_submissions", "user_accounts"
   add_foreign_key "claims_api_claim_submissions", "claims_api_auto_established_claims", column: "claim_id"
