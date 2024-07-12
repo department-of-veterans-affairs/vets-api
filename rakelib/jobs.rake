@@ -66,4 +66,11 @@ namespace :jobs do
   task process_10203_submissions: :environment do
     EducationForm::Process10203Submissions.perform_async
   end
+
+  desc 'Remove SpoolFileEvent rows for today so the create_daily_spool_files rake task can rerun'
+  task reset_daily_spool_files_for_today: :environment do
+    raise Common::Exceptions::Unauthorized if Settings.vsp_environment.eql?('production') # only allowed for test envs
+
+    SpoolFileEvent.where('DATE(successful_at) = ?', Date.current).delete_all
+  end
 end
