@@ -15,26 +15,8 @@ end
 describe CARMA::Client::MuleSoftClient do
   let(:client) { described_class.new }
 
-  describe '#raise_error_unless_success' do
-    before do
-      allow(Rails.logger).to receive(:info)
-    end
-
-    [200, 201, 202].each do |status_code|
-      context "with a #{status_code} status code" do
-        subject { client.send(:raise_error_unless_success, 'my/url', status_code) }
-
-        it 'returns nil' do
-          expect(subject).to eq(nil)
-        end
-
-        it 'logs submission and response code' do
-          expect(Rails.logger).to receive(:info)
-            .with("[Form 10-10CG] Submission to 'my/url' resource resulted in response code #{status_code}")
-          subject
-        end
-      end
-    end
+  before do
+    allow(Rails.logger).to receive(:info)
   end
 
   describe 'submitting 10-10CG' do
@@ -50,7 +32,6 @@ describe CARMA::Client::MuleSoftClient do
     end
 
     before do
-      allow(Rails.logger).to receive(:info)
       allow(client).to receive(:config).and_return(config)
       allow(config).to receive_messages(base_request_headers: exp_headers, timeout: 10,
                                         settings: OpenStruct.new(
@@ -103,10 +84,10 @@ describe CARMA::Client::MuleSoftClient do
         let(:mock_token_response) { MockFaradayResponse.new({ access_token: }, 201) }
 
         before do
+          Flipper.enable(:cg_OAuth_2_enabled)
           allow(client).to receive(:perform)
             .with(:post, v2[:token_url], token_params, token_headers)
             .and_return(mock_token_response)
-          Flipper.enable(:cg_OAuth_2_enabled)
         end
 
         after do
@@ -190,6 +171,24 @@ describe CARMA::Client::MuleSoftClient do
               subject
             end.to raise_error(CARMA::Client::MuleSoftClient::RecordParseError)
           end
+        end
+      end
+    end
+  end
+
+  describe '#raise_error_unless_success' do
+    [200, 201, 202].each do |status_code|
+      context "with a #{status_code} status code" do
+        subject { client.send(:raise_error_unless_success, 'my/url', status_code) }
+
+        it 'returns nil' do
+          expect(subject).to eq(nil)
+        end
+
+        it 'logs submission and response code' do
+          expect(Rails.logger).to receive(:info)
+            .with("[Form 10-10CG] Submission to 'my/url' resource resulted in response code #{status_code}")
+          subject
         end
       end
     end
