@@ -187,7 +187,7 @@ module V0
 
       def auth_service
         type = state_payload.type
-        SignIn::AuthenticationServiceRetriever.new(type:, client_config:).perform
+        @auth_service ||= SignIn::AuthenticationServiceRetriever.new(type:, client_config:).perform
       end
 
       def service_token_response
