@@ -288,6 +288,10 @@ Rails.application.routes.draw do
 
     resources :gi_bill_feedbacks, only: %i[create show]
 
+    namespace :my_va do
+      resource :submission_statuses, only: :show
+    end
+
     namespace :profile do
       resource :full_name, only: :show
       resource :personal_information, only: :show
