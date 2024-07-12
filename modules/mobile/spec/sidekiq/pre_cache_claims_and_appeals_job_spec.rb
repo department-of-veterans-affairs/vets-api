@@ -31,7 +31,11 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
               date_filed: '2022-09-27',
               updated_at: '2022-09-30',
               display_title: 'Compensation',
-              decision_letter_sent: false
+              decision_letter_sent: false,
+              phase: 4,
+              documentsNeeded: false,
+              developmentLetterSent: true
+
             }
           )
         end
@@ -54,7 +58,10 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
               date_filed: '2022-09-27',
               updated_at: '2022-09-30',
               display_title: 'Compensation',
-              decision_letter_sent: false }
+              decision_letter_sent: false,
+              phase: 4,
+              documentsNeeded: false,
+              developmentLetterSent: true }
           )
         end
       end
@@ -74,7 +81,10 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
               date_filed: '2020-09-23',
               updated_at: '2020-09-23',
               display_title: 'supplemental claim for disability compensation',
-              decision_letter_sent: false }
+              decision_letter_sent: false,
+              phase: nil,
+              documentsNeeded: nil,
+              developmentLetterSent: nil }
           )
         end
       end

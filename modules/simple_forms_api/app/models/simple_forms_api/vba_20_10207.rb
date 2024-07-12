@@ -81,7 +81,7 @@ module SimpleFormsApi
         combined_pdf = CombinePDF.new
         combined_pdf << CombinePDF.load(file_path)
         attachments.each do |attachment|
-          combined_pdf << CombinePDF.load(attachment)
+          combined_pdf << CombinePDF.load(attachment, allow_optional_content: true)
         end
 
         combined_pdf.save file_path

@@ -72,6 +72,27 @@ RSpec.describe V0::MapServicesController, type: :request do
           end
         end
 
+        context 'when MAP STS client raises a gateway timeout error' do
+          before do
+            stub_request(:post, 'https://veteran.apps-staging.va.gov/sts/oauth/v1/token').to_raise(Net::ReadTimeout)
+          end
+
+          it 'responds with error details in response body' do
+            call_endpoint
+            expect(JSON.parse(response.body)).to eq(
+              {
+                'error' => 'server_error',
+                'error_description' => 'STS failed to return a valid token.'
+              }
+            )
+          end
+
+          it 'returns HTTP status bad_gateway' do
+            call_endpoint
+            expect(response).to have_http_status(:bad_gateway)
+          end
+        end
+
         context 'when MAP STS client returns an access token',
                 vcr: { cassette_name: 'map/security_token_service_200_response' } do
           it 'responds with STS-issued token in response body' do

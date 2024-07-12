@@ -9,6 +9,8 @@ module ClaimFastTracking
     def self.annotate_disabilities(rated_disabilities_response)
       return if rated_disabilities_response.rated_disabilities.blank?
 
+      log_hyphenated_diagnostic_codes(rated_disabilities_response.rated_disabilities)
+
       diagnostic_codes = rated_disabilities_response.rated_disabilities
                                                     .compact # filter out nil entries in rated_disabilities
                                                     .map(&:diagnostic_code) # map to diagnostic_code field in rating
@@ -25,6 +27,32 @@ module ClaimFastTracking
         rated_disability.maximum_rating_percentage = max_rating if max_rating
       end
       rated_disabilities_response
+    end
+
+    def self.log_hyphenated_diagnostic_codes(rated_disabilities)
+      rated_disabilities.each do |dis|
+        Rails.logger.info('Max CFI rated disability',
+                          diagnostic_code: dis&.diagnostic_code,
+                          diagnostic_code_type: diagnostic_code_type(dis),
+                          hyphenated_diagnostic_code: dis&.hyphenated_diagnostic_code)
+      end
+    end
+
+    def self.diagnostic_code_type(rated_disability)
+      case rated_disability&.diagnostic_code
+      when nil
+        :missing_diagnostic_code
+      when 7200..7399
+        :digestive_system
+      when 6300..6399
+        :infectious_disease
+      else
+        if (rated_disability&.hyphenated_diagnostic_code || 0) % 100 == 99
+          :analogous_code
+        else
+          :primary_max_rating
+        end
+      end
     end
 
     def self.get_ratings(diagnostic_codes)

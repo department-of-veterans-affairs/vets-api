@@ -7,10 +7,13 @@ RSpec.describe Crm::TopicsDataJob, type: :job do
 
   describe '#perform' do
     let(:static_data_instance) { instance_double(Crm::CacheData) }
+    let(:logger) { instance_double(SemanticLogger::Logger) }
 
     before do
       allow(Crm::CacheData).to receive(:new).and_return(static_data_instance)
       allow(static_data_instance).to receive(:fetch_api_data)
+      allow(SemanticLogger).to receive(:[]).and_return(logger)
+      allow(logger).to receive(:error)
     end
 
     it 'creates an instance of Crm::CacheData and calls it' do
@@ -25,12 +28,12 @@ RSpec.describe Crm::TopicsDataJob, type: :job do
 
       before do
         allow(static_data_instance).to receive(:fetch_api_data).and_raise(StandardError.new(error_message))
-        allow_any_instance_of(Sidekiq::Job).to receive(:logger).and_return(double('Logger').as_null_object)
       end
 
       it 'logs the error' do
-        expect_any_instance_of(Sidekiq::Job).to receive(:logger).and_return(double('Logger', error: true))
         expect { described_class.new.perform }.not_to raise_error
+
+        expect(logger).to have_received(:error).with(include(error_message))
       end
     end
   end
