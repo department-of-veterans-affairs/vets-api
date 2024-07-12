@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'open3'
-require './rakelib/support/shell_command'
-
 desc 'run yardoc against changed files, or supplied file list'
 task yardoc: :environment do
   require 'rainbow'
@@ -20,7 +17,7 @@ task yardoc: :environment do
   # git diff the glob list - only want to check the changed files
   globs = globs.map { |g| "'#{g}'" }.join(' ')
   cmd = "git diff #{base_sha}...#{head_sha} --name-only -- #{globs}"
-  puts "\n#{cmd}"
+  puts "\n#{cmd}\n"
 
   # filter to only ruby files
   # lots of false positives if yardoc is run on other files
@@ -31,13 +28,20 @@ task yardoc: :environment do
   end
 
   puts 'running yardoc ...'
-  yardoc_result = ShellCommand.run("yardoc #{files.join(' ')}")
-
+  puts yardoc_output = `yardoc #{files.join(' ')}`.strip.split("\n")
   puts "\n"
-  if yardoc_result
-    puts Rainbow('Passed. Everything looks documented!').green
-  else
+
+  # non zero exit == parsing error
+  if (yardoc_result = $?.exitstatus) > 0
     puts Rainbow('Failed. Documentation issues were found.').red
-    exit!(1)
+    exit!(yardoc_result)
   end
+
+  percentage = yardoc_output.last.strip[/\d+\.\d+/].to_f
+  if percentage < 100
+    puts Rainbow('Warning. Documentation is missing.').yellow
+    exit!
+  end
+
+  puts Rainbow('Passed. Everything looks documented!').green
 end
