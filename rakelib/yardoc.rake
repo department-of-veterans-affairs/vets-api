@@ -37,10 +37,11 @@ task yardoc: :environment do
     exit!(yardoc_result)
   end
 
+  # 'fail' if not 100% - mark this task as required in github to block merging
   percentage = yardoc_output.last.strip[/\d+\.\d+/].to_f
   if percentage < 100
     puts Rainbow('Warning. Documentation is missing.').yellow
-    exit!
+    exit!(1)
   end
 
   puts Rainbow('Passed. Everything looks documented!').green
