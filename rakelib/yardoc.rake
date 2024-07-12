@@ -32,7 +32,7 @@ task yardoc: :environment do
   puts "\n"
 
   # non zero exit == parsing error
-  if (yardoc_result = $?.exitstatus) > 0
+  if (yardoc_result = $CHILD_STATUS.exitstatus).positive?
     puts Rainbow('Failed. Documentation issues were found.').red
     exit!(yardoc_result)
   end
