@@ -1581,12 +1581,13 @@ module PdfFill
         expand_phone_number(veteran_contact_information)
 
         # extract postal code and country
-        veteran_contact_information['veteran_address']['zip_code'] =
-          split_postal_code(veteran_contact_information['veteran_address'])
-        veteran_contact_information['veteran_address']['country_name'] =
-          extract_country(veteran_contact_information['veteran_address'])
+        zip_code = split_postal_code(veteran_contact_information['veteran_address'])
+        veteran_country = extract_country(veteran_contact_information['veteran_address'])
+        electronic_correspondence = select_checkbox(veteran_contact_information['electronic_correspondence'])
 
-        veteran_contact_information['electronic_correspondence'] = select_checkbox(veteran_contact_information['electronic_correspondence']) # rubocop:disable Layout/LineLength
+        veteran_contact_information['veteran_address']['zip_code'] = zip_code
+        veteran_contact_information['veteran_address']['country_name'] = veteran_country
+        veteran_contact_information['electronic_correspondence'] = electronic_correspondence
       end
 
       def merge_spouse_helpers
