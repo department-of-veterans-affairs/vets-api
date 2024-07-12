@@ -105,7 +105,7 @@ RSpec.describe Form526Submission do
     let!(:accepted_backup) { create(:form526_submission, :backup_path, :backup_accepted) }
     let!(:rejected_backup) { create(:form526_submission, :backup_path, :backup_rejected) }
     let!(:remediated) { create(:form526_submission, :remediated) }
-    let!(:remediated_and_expired) { create(:form526_submission, :remediated) }
+    let!(:remediated_and_expired) { create(:form526_submission, :remediated, :created_more_than_3_days_ago) }
     let!(:remediated_and_rejected) { create(:form526_submission, :remediated, :backup_path) }
     let!(:no_longer_remediated) { create(:form526_submission, :no_longer_remediated) }
 
@@ -135,7 +135,7 @@ RSpec.describe Form526Submission do
     end
 
     describe 'accepted_to_backup_path' do
-      it 'returns submissions with a backup_submitted_claim_id that have been explicitly rejected' do
+      it 'returns submissions with a backup_submitted_claim_id that have been explicitly accepted' do
         expect(Form526Submission.accepted_to_backup_path).to contain_exactly(
           accepted_backup
         )
