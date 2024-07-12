@@ -17,32 +17,8 @@ module V1
       raise
     end
 
-    # rubocop:disable Metrics/MethodLength
     def create
-      req_body_obj = request_body_hash.is_a?(String) ? JSON.parse(request_body_hash) : request_body_hash
-      form4142 = req_body_obj.delete('form4142')
-      sc_evidence = req_body_obj.delete('additionalDocuments')
-      zip_from_frontend = req_body_obj.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')
-      sc_response = decision_review_service.create_supplemental_claim(request_body: req_body_obj, user: @current_user)
-      submitted_appeal_uuid = sc_response.body.dig('data', 'id')
-      unless submitted_appeal_uuid.nil?
-        ActiveRecord::Base.transaction do
-          appeal_submission = create_appeal_submission(submitted_appeal_uuid, zip_from_frontend)
-
-          appeal_submission_id = appeal_submission.id
-          ::Rails.logger.info(post_create_log_msg(appeal_submission_id:, submitted_appeal_uuid:))
-          if form4142.present?
-            handle_4142(request_body: req_body_obj,
-                        form4142:,
-                        appeal_submission_id:, submitted_appeal_uuid:)
-          end
-          submit_evidence(sc_evidence, appeal_submission_id, submitted_appeal_uuid) if sc_evidence.present?
-          # Only destroy InProgressForm after evidence upload step
-          # so that we still have references if a fatal error occurs before this step
-          clear_in_progress_form
-        end
-        render json: sc_response.body, status: sc_response.status
-      end
+      process_submission
     rescue => e
       ::Rails.logger.error(
         message: "Exception occurred while submitting Supplemental Claim: #{e.message}",
@@ -50,7 +26,6 @@ module V1
       )
       handle_personal_info_error(e)
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
@@ -110,14 +85,45 @@ module V1
       raise
     end
 
+    def process_submission
+      req_body_obj = request_body_hash.is_a?(String) ? JSON.parse(request_body_hash) : request_body_hash
+      form4142 = req_body_obj.delete('form4142')
+      sc_evidence = req_body_obj.delete('additionalDocuments')
+      zip_from_frontend = req_body_obj.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')
+      sc_response = decision_review_service.create_supplemental_claim(request_body: req_body_obj, user: @current_user)
+      submitted_appeal_uuid = sc_response.body.dig('data', 'id')
+      unless submitted_appeal_uuid.nil?
+        ActiveRecord::Base.transaction do
+          appeal_submission_id = create_appeal_submission(submitted_appeal_uuid, zip_from_frontend)
+
+          ::Rails.logger.info(post_create_log_msg(appeal_submission_id:, submitted_appeal_uuid:))
+          if form4142.present?
+            handle_4142(request_body: req_body_obj,
+                        form4142:,
+                        appeal_submission_id:, submitted_appeal_uuid:)
+          end
+          submit_evidence(sc_evidence, appeal_submission_id, submitted_appeal_uuid) if sc_evidence.present?
+          # Only destroy InProgressForm after evidence upload step
+          # so that we still have references if a fatal error occurs before this step
+          clear_in_progress_form
+        end
+        render json: sc_response.body, status: sc_response.status
+      end
+    end
+
     def create_appeal_submission(submitted_appeal_uuid, backup_zip)
-      AppealSubmission.create! user_uuid: @current_user.uuid,
-                               user_account: @current_user.user_account,
-                               type_of_appeal: 'SC',
-                               submitted_appeal_uuid:,
-                               upload_metadata: DecisionReviewV1::Service.file_upload_metadata(
-                                 @current_user, backup_zip
-                               )
+      upload_metadata = DecisionReviewV1::Service.file_upload_metadata(
+        @current_user, backup_zip
+      )
+      create_params = {
+        user_uuid: @current_user.uuid,
+        user_account: @current_user.user_account,
+        type_of_appeal: 'SC',
+        submitted_appeal_uuid:,
+        upload_metadata:
+      }
+      appeal_submission = AppealSubmission.create!(create_params)
+      appeal_submission.id
     end
 
     def clear_in_progress_form
