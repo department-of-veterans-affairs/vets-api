@@ -20,7 +20,7 @@ module V0
       form_attachment_guid = form_attachment&.guid
       password = filtered_params[:password]
 
-      params = {
+      log_params = {
         form_attachment_guid:,
         encrypted: password.present?
       }
@@ -33,9 +33,9 @@ module V0
         super
       end
 
-      log_formatted(**common_log_params.merge(params:, is_success: true))
+      log_formatted(**common_log_params.merge(params: log_params, is_success: true))
     rescue => e
-      log_formatted(**common_log_params.merge(params:, is_success: false, response_error: e))
+      log_formatted(**common_log_params.merge(params: log_params, is_success: false, response_error: e))
       raise e
     end
 
