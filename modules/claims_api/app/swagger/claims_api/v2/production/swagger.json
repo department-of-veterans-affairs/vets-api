@@ -2045,7 +2045,7 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                        "pattern": "^$|^([a-zA-Z0-9'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
@@ -3394,7 +3394,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -4311,7 +4311,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9afa3d94-f0f1-4f02-9b91-afeb90f79a21",
+                    "id": "46e4a0c1-7cdd-4152-9785-3e92a496e5fa",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -4494,7 +4494,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-07-04"
+                          "anticipatedSeparationDate": "2024-07-14"
                         },
                         "confinements": [
                           {
@@ -5276,7 +5276,7 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                        "pattern": "^$|^([a-zA-Z0-9'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
@@ -6625,7 +6625,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -8517,7 +8517,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -9183,7 +9183,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b5d8b4d2-772c-44d1-9f2f-e47df7353cd3",
+                    "id": "0ac89b77-a206-40d3-a5bc-97c3e0a15f29",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -11641,20 +11641,10 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "sponsorIcn",
-            "in": "query",
-            "required": false,
-            "example": "1012861229V078999",
-            "description": "ICN of the veteran affiliated with the dependent",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
-          "200": {
+          "202": {
             "description": "Successful response",
             "content": {
               "application/json": {
@@ -12066,8 +12056,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-07-02",
-                      "expirationDate": "2025-07-02",
+                      "creationDate": "2024-07-12",
+                      "expirationDate": "2025-07-12",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -12943,7 +12933,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c25a319c-68f1-4b73-a908-c723e2fc115a",
+                    "id": "4e353a62-c7ef-4c41-b657-0b6064eb7d6b",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13636,7 +13626,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6ac66764-0e44-40e3-a8ca-80cf3e4f59ed",
+                    "id": "7194cc02-73b0-43eb-b88c-8d96f17dff6a",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15587,10 +15577,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8a3abbba-3195-4025-8a49-a810fdf4aced",
+                    "id": "baa90a1e-e50d-4135-aa03-b772b94eb129",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-07-02",
+                      "dateRequestAccepted": "2024-07-12",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
