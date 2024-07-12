@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_12_154910) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_09_171552) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -330,20 +330,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_12_154910) do
     t.index ["location"], name: "index_base_facilities_on_location", using: :gist
     t.index ["name"], name: "index_base_facilities_on_name", opclass: :gin_trgm_ops, using: :gin
     t.index ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true
-  end
-
-  create_table "benefits_intake_form_submissions", force: :cascade do |t|
-    t.string "form_type", null: false
-    t.uuid "benefits_intake_uuid"
-    t.jsonb "form_data", default: {}
-    t.uuid "user_account_id"
-    t.bigint "saved_claim_id"
-    t.text "encrypted_kms_key"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["benefits_intake_uuid"], name: "index_benefits_intake_form_submissions_on_benefits_intake_uuid"
-    t.index ["saved_claim_id"], name: "index_benefits_intake_form_submissions_on_saved_claim_id"
-    t.index ["user_account_id"], name: "index_benefits_intake_form_submissions_on_user_account_id"
   end
 
   create_table "central_mail_submissions", id: :serial, force: :cascade do |t|
@@ -1614,8 +1600,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_12_154910) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"
   add_foreign_key "async_transactions", "user_accounts"
-  add_foreign_key "benefits_intake_form_submissions", "saved_claims"
-  add_foreign_key "benefits_intake_form_submissions", "user_accounts"
   add_foreign_key "claims_api_claim_submissions", "claims_api_auto_established_claims", column: "claim_id"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
