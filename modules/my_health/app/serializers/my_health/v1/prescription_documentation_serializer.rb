@@ -4,10 +4,14 @@ require 'digest'
 module MyHealth
   module V1
     class PrescriptionDocumentationSerializer < ActiveModel::Serializer
-      attributes :data
+      attributes :html
+
+      def html
+        object.html[:html]
+      end
 
       def id
-        Digest::SHA256.hexdigest(object.data.to_s)
+        nil
       end
     end
   end

@@ -77,11 +77,7 @@ module Rx
     # @return [Common::Collection[PrescriptionDocumentation]]
     #
     def get_rx_documentation(ndc)
-      # TODO: Fully implement this when the endpoint is available
-      Common::Collection.fetch(::PrescriptionDocumentation, cache_key: cache_key("rxdoc-#{ndc}"), ttl: CACHE_TTL) do
-        contents = File.read('spec/fixtures/prescriptions/documentation.json') # This is temporary
-        { data: JSON.parse(contents)['body'] }
-      end
+      perform(:get, "prescription/getrxdoc/#{ndc}", nil, token_headers).body
     end
 
     ##
