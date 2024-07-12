@@ -1,0 +1,62 @@
+name: Redis Connectivity Test
+
+on:
+  push:
+    branches:
+      - vets-api-redis-connectivity
+  workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *'  # Runs every hour
+
+jobs:
+  test-redis-connectivity:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.2.4
+
+    - name: Install dependencies
+      run: |
+        gem install bundler
+        bundle install
+
+    - name: Run Redis connectivity test
+      env:
+        REDIS_TEST_URL: ${{ secrets.REDIS_TEST_URL }}
+        REDIS_TIMEOUT: 30
+      run: |
+        cat << EOF > redis_test.rb
+        require 'redis'
+        require 'timeout'
+
+        puts "Testing Redis connectivity..."
+        puts "REDIS_TEST_URL: #{ENV['REDIS_TEST_URL']}"
+        puts "Timeout: #{ENV['REDIS_TIMEOUT']} seconds"
+
+        begin
+          Timeout.timeout(ENV['REDIS_TIMEOUT'].to_i) do
+            redis = Redis.new(url: ENV['REDIS_TEST_URL'])
+            response = redis.ping
+            if response == 'PONG'
+              puts "Successfully connected to Redis!"
+            else
+              puts "Unexpected response from Redis: #{response}"
+              exit 1
+            end
+          end
+        rescue Timeout::Error
+          puts "Connection to Redis timed out"
+          exit 1
+        rescue => e
+          puts "Error connecting to Redis: #{e.message}"
+          puts e.backtrace.join("\n")
+          exit 1
+        end
+        EOF
+
+        ruby redis_test.rb
