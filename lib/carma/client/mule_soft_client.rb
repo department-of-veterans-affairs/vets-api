@@ -12,6 +12,7 @@ module CARMA
       STATSD_KEY_PREFIX = 'api.carma.mulesoft'
 
       class RecordParseError < StandardError; end
+      class GetAuthTokenError < StandardError; end
 
       def create_submission_v2(payload)
         with_monitoring do
@@ -99,7 +100,10 @@ module CARMA
                            config.settings.v2.token_url,
                            encoded_params,
                            token_headers)
-        response.body[:access_token]
+
+        return response.body[:access_token] if response.status == 201
+
+        raise GetAuthTokenError
       end
     end
   end

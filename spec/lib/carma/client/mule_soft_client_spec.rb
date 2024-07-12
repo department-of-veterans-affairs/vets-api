@@ -85,43 +85,63 @@ describe CARMA::Client::MuleSoftClient do
 
         before do
           Flipper.enable(:cg_OAuth_2_enabled)
-          allow(client).to receive(:perform)
-            .with(:post, v2[:token_url], token_params, token_headers)
-            .and_return(mock_token_response)
         end
 
         after do
           Flipper.disable(:cg_OAuth_2_enabled)
         end
 
-        it 'calls perform with expected params' do
-          expect(client).to receive(:perform)
-            .with(:post, resource, payload.to_json, { Authorization: "Bearer #{access_token}" })
-            .and_return(mock_success_response)
+        context 'successfully gets token' do
+          before do
+            allow(client).to receive(:perform)
+              .with(:post, v2[:token_url], token_params, token_headers)
+              .and_return(mock_token_response)
+          end
 
-          expect(Rails.logger).to receive(:info).with("[Form 10-10CG] Submitting to '#{resource}' using bearer token")
-          expect(Rails.logger).to receive(:info)
-            .with("[Form 10-10CG] Submission to '#{resource}' resource resulted in response code 201")
-          expect(Sentry).to receive(:set_extras).with(response_body: mock_success_response.body)
-
-          subject
-        end
-
-        context 'with errors' do
-          let(:has_errors) { true }
-          let(:mock_error_response) { MockFaradayResponse.new(response_body, 500) }
-
-          it 'raises SchemaValidationError' do
+          it 'calls perform with expected params' do
             expect(client).to receive(:perform)
               .with(:post, resource, payload.to_json, { Authorization: "Bearer #{access_token}" })
-              .and_return(mock_error_response)
+              .and_return(mock_success_response)
 
             expect(Rails.logger).to receive(:info).with("[Form 10-10CG] Submitting to '#{resource}' using bearer token")
             expect(Rails.logger).to receive(:info)
-              .with("[Form 10-10CG] Submission to '#{resource}' resource resulted in response code 500")
+              .with("[Form 10-10CG] Submission to '#{resource}' resource resulted in response code 201")
             expect(Sentry).to receive(:set_extras).with(response_body: mock_success_response.body)
 
-            expect { subject }.to raise_error(Common::Exceptions::SchemaValidationErrors)
+            subject
+          end
+
+          context 'with errors' do
+            let(:has_errors) { true }
+            let(:mock_error_response) { MockFaradayResponse.new(response_body, 500) }
+
+            it 'raises SchemaValidationError' do
+              expect(client).to receive(:perform)
+                .with(:post, resource, payload.to_json, { Authorization: "Bearer #{access_token}" })
+                .and_return(mock_error_response)
+
+              expect(Rails.logger).to receive(:info)
+                .with("[Form 10-10CG] Submitting to '#{resource}' using bearer token")
+              expect(Rails.logger).to receive(:info)
+                .with("[Form 10-10CG] Submission to '#{resource}' resource resulted in response code 500")
+              expect(Sentry).to receive(:set_extras).with(response_body: mock_success_response.body)
+
+              expect { subject }.to raise_error(Common::Exceptions::SchemaValidationErrors)
+            end
+          end
+        end
+
+        context 'error getting token' do
+          let(:mock_error_token_response) { MockFaradayResponse.new({ sad: true }, 500) }
+
+          it 'logs error' do
+            expect(client).to receive(:perform)
+              .with(:post, v2[:token_url], token_params, token_headers)
+              .and_return(mock_error_token_response)
+
+            expect do
+              subject
+            end.to raise_error(CARMA::Client::MuleSoftClient::GetAuthTokenError)
           end
         end
       end
