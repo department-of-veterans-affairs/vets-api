@@ -9,16 +9,14 @@ module V0
 
       def token
         SignIn::TokenParamsValidator.new(params: token_params).perform
-        response_body = SignIn::TokenResponseGenerator.new(params: token_params, cookies: token_cookies).perform
+        increment_statsd_success_metric
 
-        sign_in_logger.info('token')
-        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
-
-        render json: response_body, status: :ok
+        render json: token_response, status: :ok
       rescue SignIn::Errors::StandardError => e
-        sign_in_logger.info('token error', { errors: e.message })
-        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_FAILURE)
+        increment_statsd_failure_metric(e)
         render json: { errors: e }, status: :bad_request
+      rescue => e
+        binding.pry
       end
 
       private
@@ -32,8 +30,23 @@ module V0
         @token_cookies ||= defined?(cookies) ? cookies : nil
       end
 
+      def token_response
+        return @token_response if defined?(@token_response)
+        @token_response = SignIn::TokenResponseGenerator.new(params: token_params, cookies: token_cookies).perform
+      end
+
       def sign_in_logger
         @sign_in_logger = SignIn::Logger.new(prefix: self.class)
+      end
+
+      def increment_statsd_success_metric
+        sign_in_logger.info('token')
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
+      end
+
+      def increment_statsd_failure_metric(error)
+        sign_in_logger.info('token error', { errors: error.message })
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_FAILURE)
       end
     end
   end
