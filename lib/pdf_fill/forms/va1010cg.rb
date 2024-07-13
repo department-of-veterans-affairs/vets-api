@@ -30,7 +30,7 @@ module PdfFill
           email: 'form1[0].#subform[15].Email[0]',
           planned_clinic: 'form1[0].#subform[15].NameVAMedicalCenter[0]',
           signature: {
-            name: 'form1[0].#subform[15].SignatureField1[0]',
+            name: 'form1[0].#subform[15].Signature[0]',
             date: 'form1[0].#subform[15].DateSigned[0]'
           }
         },
@@ -63,7 +63,7 @@ module PdfFill
           email: 'form1[0].#subform[16].Email[1]',
           vet_relationship: 'form1[0].#subform[16].Relationship[0]',
           signature: {
-            name: 'form1[0].#subform[16].SignatureField2[0]',
+            name: 'form1[0].#subform[16].Signature[1]',
             date: 'form1[0].#subform[16].DateSigned[1]'
           }
         },
@@ -96,7 +96,7 @@ module PdfFill
           email: 'form1[0].#subform[17].Email[2]',
           vet_relationship: 'form1[0].#subform[17].Relationship[1]',
           signature: {
-            name: 'form1[0].#subform[17].SignatureField2[1]',
+            name: 'form1[0].#subform[17].Signature[2]',
             date: 'form1[0].#subform[17].DateSigned[2]'
           }
         },
@@ -129,7 +129,7 @@ module PdfFill
           email: 'form1[0].#subform[18].Email[3]',
           vet_relationship: 'form1[0].#subform[18].Relationship[2]',
           signature: {
-            name: 'form1[0].#subform[18].SignatureField2[2]',
+            name: 'form1[0].#subform[18].Signature[3]',
             date: 'form1[0].#subform[18].DateSigned[3]'
           }
         }
