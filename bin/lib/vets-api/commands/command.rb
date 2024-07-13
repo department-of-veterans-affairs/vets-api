@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require './rakelib/support/shell_command'
-require 'pry'
+
 module VetsApi
   module Commands
     class Command

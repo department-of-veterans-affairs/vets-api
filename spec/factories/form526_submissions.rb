@@ -19,10 +19,19 @@ FactoryBot.define do
   end
 
   trait :backup_path do
-    lighthouse_format_guid = "#{SecureRandom.hex(8)}-#{SecureRandom.hex(4)}-" \
-                             "#{SecureRandom.hex(4)}-#{SecureRandom.hex(4)}-" \
-                             "#{SecureRandom.hex(12)}"
-    backup_submitted_claim_id { lighthouse_format_guid }
+    backup_submitted_claim_id {
+      "#{SecureRandom.hex(8)}-#{SecureRandom.hex(4)}-" \
+        "#{SecureRandom.hex(4)}-#{SecureRandom.hex(4)}-" \
+        "#{SecureRandom.hex(12)}"
+    }
+  end
+
+  trait :backup_accepted do
+    backup_submitted_claim_status { 'accepted' }
+  end
+
+  trait :backup_rejected do
+    backup_submitted_claim_status { 'rejected' }
   end
 
   trait :with_everything do
@@ -259,14 +268,25 @@ FactoryBot.define do
   end
 
   trait :with_submitted_claim_id do
-    submitted_claim_id { 1 }
-  end
-
-  trait :with_accepted_backup_status do
-    backup_submitted_claim_status { :accepted }
+    submitted_claim_id { SecureRandom.rand(900_000_000) }
   end
 
   trait :created_more_than_3_days_ago do
     created_at { 4.days.ago }
+  end
+
+  trait :remediated do
+    after(:create) do |submission|
+      create(:form526_submission_remediation, form526_submission: submission, lifecycle: ['i have been remediated'])
+    end
+  end
+
+  trait :no_longer_remediated do
+    after(:create) do |submission|
+      create(:form526_submission_remediation,
+             form526_submission: submission,
+             lifecycle: ['i am no longer remediated'],
+             success: false)
+    end
   end
 end

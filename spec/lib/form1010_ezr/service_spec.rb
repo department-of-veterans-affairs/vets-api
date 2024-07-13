@@ -45,6 +45,19 @@ RSpec.describe Form1010Ezr::Service do
     described_class.new(current_user).submit_form(form)
   end
 
+  def ezr_form_with_attachments
+    form.merge(
+      'attachments' => [
+        {
+          'confirmationCode' => create(:form1010_ezr_attachment).guid
+        },
+        {
+          'confirmationCode' => create(:form1010_ezr_attachment).guid
+        }
+      ]
+    )
+  end
+
   describe '#add_financial_flag' do
     context 'when the form has veteran gross income' do
       let(:parsed_form) do
@@ -177,16 +190,20 @@ RSpec.describe Form1010Ezr::Service do
         end
       end
 
-      it 'logs the submission id and payload size', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+      it 'logs the submission id, payload size, and individual attachment sizes in descending order (if applicable)',
+         run_at: 'Tue, 18 Jun 2024 18:17:40 GMT' do
         VCR.use_cassette(
-          'form1010_ezr/authorized_submit',
+          'form1010_ezr/authorized_submit_with_attachments',
           { match_requests_on: %i[method uri body], erb: true }
         ) do
-          submission_response = submit_form(form)
+          submission_response = submit_form(ezr_form_with_attachments)
 
           expect(Rails.logger).to have_received(:info).with("SubmissionID=#{submission_response[:formSubmissionId]}")
           expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZR: ' \
-                                                            'Body size of 12.1 KB with 0 attachment(s)')
+                                                            'Body size of 15.6 KB with 2 attachment(s)')
+          expect(Rails.logger).to have_received(:info).with(
+            'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
+          )
         end
       end
 
@@ -251,27 +268,16 @@ RSpec.describe Form1010Ezr::Service do
         end
       end
 
-      context 'submitting with attachment' do
+      context 'submitting with attachments' do
         let(:form) { get_fixture('form1010_ezr/valid_form') }
 
-        context 'with a pdf attachment' do
+        context 'with pdf attachments' do
           it 'returns a success object', run_at: 'Tue, 18 Jun 2024 18:17:40 GMT' do
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_with_attachments',
               { match_requests_on: %i[method uri body], erb: true }
             ) do
-              form_with_attachments = form.merge(
-                'attachments' => [
-                  {
-                    'confirmationCode' => create(:form1010_ezr_attachment).guid
-                  },
-                  {
-                    'confirmationCode' => create(:form1010_ezr_attachment).guid
-                  }
-                ]
-              )
-
-              expect(submit_form(form_with_attachments)).to eq(
+              expect(submit_form(ezr_form_with_attachments)).to eq(
                 {
                   success: true,
                   formSubmissionId: 435_240_209,

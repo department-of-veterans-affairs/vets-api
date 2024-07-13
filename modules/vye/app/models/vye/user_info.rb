@@ -3,42 +3,21 @@
 module Vye
   class Vye::UserInfo < ApplicationRecord
     include NeedsEnrollmentVerification
-    # include CanDecodeAttribute
-
     belongs_to :user_profile
     belongs_to :bdn_clone
 
     has_many :address_changes, dependent: :destroy
-
-    has_one(
-      :backend_address,
-      -> { where(origin: 'backend') },
-      class_name: 'AddressChange',
-      inverse_of: :user_info,
-      dependent: :restrict_with_exception
-    )
-
-    has_one(
-      :latest_address,
-      -> { order(created_at: :desc) },
-      class_name: 'AddressChange',
-      inverse_of: :user_info,
-      dependent: :restrict_with_exception
-    )
-
     has_many :awards, dependent: :destroy
     has_many :direct_deposit_changes, dependent: :destroy
+    has_many :queued_verifications, class_name: 'Verification', inverse_of: :user_info, dependent: :nullify
 
     scope :with_bdn_clone_active, -> { where(bdn_clone_active: true) }
-
-    # decode_attribute :mr_status, with: { active: 'A', expired: 'E' }
-
-    # decode_attribute :indicator, with: { chapter1606: 'A', chapter1607: 'E', chapter30: 'B', D: 'D' }
 
     delegate :icn, to: :user_profile, allow_nil: true
     delegate :ssn, to: :mpi_profile, allow_nil: true
     delegate :pending_documents, to: :user_profile
     delegate :verifications, to: :user_profile
+    delegate :veteran_name, to: :backend_address
 
     has_kms_key
 
@@ -52,19 +31,10 @@ module Vye
       presence: true
     )
 
-    delegate :veteran_name, to: :backend_address
-
-    def zip_code
-      backend_address&.zip_code&.slice(0, 5)
-    end
-
-    def queued_verifications
-      awards.map(&:verifications).flatten
-    end
-
-    def queued_verifications?
-      queued_verifications.any?
-    end
+    def backend_address = address_changes.backend.first
+    def latest_address = address_changes.latest.first
+    def zip_code = backend_address&.zip_code&.slice(0, 5)
+    def queued_verifications? = queued_verifications.exists?
 
     private
 

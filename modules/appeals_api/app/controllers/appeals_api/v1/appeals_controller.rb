@@ -31,16 +31,8 @@ module AppealsApi
         @ssn ||= icn_to_ssn!(veteran_icn)
       end
 
-      def va_user
-        required_header('X-VA-User')
-      end
-
-      def caseflow_request_headers
-        { 'Consumer' => request.headers['X-Consumer-Username'], 'VA-User' => required_header('X-VA-User') }
-      end
-
       def get_caseflow_response
-        Caseflow::Service.new.get_appeals(OpenStruct.new(ssn:), caseflow_request_headers)
+        Caseflow::Service.new.get_appeals(OpenStruct.new(ssn:))
       end
 
       def token_validation_api_key

@@ -47,42 +47,5 @@ RSpec.describe Vye::V1::UserInfosController, type: :request do
         end
       end
     end
-
-    describe 'when the request is from IVR' do
-      let(:api_key) { described_class.api_key }
-      let(:file_number) { '111223333' }
-
-      let(:cur_award_ind) { Vye::Award.cur_award_inds[:future] }
-      let(:now) { Time.parse('2024-03-31T12:00:00-00:00') }
-      let(:date_last_certified) { Date.new(2024, 2, 15) }
-      let(:last_day_of_previous_month) { Date.new(2024, 2, 29) } # This is not used only for documentation
-      let(:award_begin_date) { Date.new(2024, 3, 30) }
-      let(:today) { Date.new(2024, 3, 31) } # This is not used only for documentation
-      let(:award_end_date) { Date.new(2024, 4, 1) }
-
-      let!(:user_profile) { FactoryBot.create(:vye_user_profile, file_number:) }
-      let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:, date_last_certified:) }
-      let!(:address_changes) { FactoryBot.create_list(:vye_address_change, 1, user_info:) }
-      let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
-      let!(:pending_documents) { FactoryBot.create_list(:vye_pending_document, 1, user_profile:) }
-
-      let(:headers) { { 'Content-Type' => 'application/json', 'X-Key-Inflection' => 'camel' } }
-
-      let(:params) do
-        { api_key:, file_number: }
-          .deep_transform_keys! { |key| key.to_s.camelize(:lower) }
-          .slice('apiKey', 'fileNumber')
-      end
-
-      before do
-        Flipper.enable :vye_request_allowed
-      end
-
-      it 'returns the user_info' do
-        get('/vye/v1', headers:, params:)
-
-        expect(response).to have_http_status(:ok)
-      end
-    end
   end
 end

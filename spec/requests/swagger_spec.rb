@@ -3216,9 +3216,16 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
             inquiry: {
               form: JSON.generate(
                 {
-                  fullName: {
+                  personalInformation: {
                     first: 'Obi Wan',
                     last: 'Kenobi'
+                  },
+                  contactInformation: {
+                    email: 'obi1kenobi@gmail.com',
+                    address: {
+                      country: 'USA'
+                    },
+                    phone: '1234567890'
                   },
                   topic: {
                     levelOne: 'Caregiver Support Program',
@@ -3229,11 +3236,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
                   veteranStatus: {
                     veteranStatus: 'general'
                   },
-                  preferredContactMethod: 'email',
-                  email: 'obi1kenobi@gmail.com',
-                  address: {
-                    country: 'USA'
-                  }
+                  preferredContactMethod: 'email'
                 }
               )
             }
