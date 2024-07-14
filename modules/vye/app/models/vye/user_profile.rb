@@ -45,29 +45,31 @@ class Vye::UserProfile < ApplicationRecord
     end
   end
 
-  def assign_digested_changes(attributes)
-    attributes.slice(:ssn, :file_number).each do |key, value|
-      next if self[format('%<key>s_digest', key:)] == gen_digest(value)
-
-      Rails.logger.info format('Vye::UserProfile(%<id>u) updating with new %<key>s', id:, key:)
-      send(format('%<key>s=', key), value)
+  def confirm_no_conflict(attributes)
+    if new_record?
+      return { conflict: false }
+    elsif gen_digest(attributes[:ssn]) != self.attributes['ssn_digest']
+      return { conflict: true, attribute_name: 'ssn' }
+    elsif gen_digest(attributes[:file_number]) != self.attributes['file_number_digest']
+      return { conflict: true, attribute_name: 'file_number' }
     end
+
+    { conflict: false }
   end
 
-  def self.produce(attributes)
-    attributes = attributes.slice(:ssn, :file_number, :icn)
+  def self.find_or_build(attributes)
+    ssn, file_number, icn = attributes.values_at(:ssn, :file_number, :icn)
 
-    %i[ssn file_number].each do |key|
-      record = send("find_from_digested_#{key}", attributes[key])
+    record = find_from_digested_ssn(ssn) || find_from_digested_file_number(file_number)
 
-      next if record.blank?
-
-      record.assign_digested_changes(attributes)
-
-      return record
+    if record.blank?
+      record = build(attributes)
+    else
+      record.ssn = ssn if record.ssn_digest.blank?
+      record.file_number = file_number if record.file_number_digest.blank?
+      record.icn = icn if icn.present? && record.icn.blank?
     end
 
-    Rails.logger.info format('Vye::UserProfile, new record with %<attribute_keys>p', attribute_keys: attributes.keys)
-    build(attributes)
+    record
   end
 end
