@@ -55,6 +55,7 @@ module Mobile
                        else
                          evss_claims_proxy.get_claim(params[:id])
                        end
+
         render json: Mobile::V0::ClaimSerializer.new(claim_detail)
       end
 
