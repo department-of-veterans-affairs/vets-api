@@ -94,6 +94,11 @@ module FsrFormTransform
       "#{month}/#{year}"
     end
 
+    def exclude_expenses_by(expenses, names)
+      expenses.filter { |expense| names.exclude?(expense['name']) }
+    end
+
+
     def str_to_num(str)
       return str if str.is_a? Numeric
       return 0 unless str.instance_of?(String)

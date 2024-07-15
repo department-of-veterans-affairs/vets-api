@@ -28,8 +28,8 @@ module DebtsApi
           @utility_records = @form['utilityRecords'] || []
 
           @filtered_expenses = [].concat(
-            exclude_by(@other_expenses, [FOOD]),
-            exclude_by(@expense_records, [RENT, MORTGAGE_PAYMENT])
+            exclude_expenses_by(@other_expenses, [FOOD]),
+            exclude_expenses_by(@expense_records, [RENT, MORTGAGE_PAYMENT])
           )
           @all_expenses ||= get_all_expenses
         end
@@ -126,10 +126,6 @@ module DebtsApi
           installment_monthly_due = @installment_contracts.pluck('amountDueMonthly')
           credit_card_monthly_due = @credit_card_bills.pluck('amountDueMonthly')
           safe_sum([installment_monthly_due, credit_card_monthly_due].flatten)
-        end
-
-        def exclude_by(expenses, names)
-          expenses.filter { |expense| names.exclude?(expense['name']) }
         end
 
         def safe_number(str)
