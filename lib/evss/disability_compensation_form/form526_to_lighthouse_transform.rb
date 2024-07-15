@@ -494,7 +494,7 @@ module EVSS
 
       def transform_mailing_address(veteran, veteran_identification)
         veteran_identification.mailing_address = Requests::MailingAddress.new
-        veteran_identification.mailing_address.address_line_1 = veteran['currentMailingAddress']['addressLine1']
+        veteran_identification.mailing_address.address_line_1 = veteran['currentMailingAddress']['addressLine1']&.strip
         veteran_identification.mailing_address.address_line_2 = veteran['currentMailingAddress']['addressLine2']
         veteran_identification.mailing_address.address_line_3 = veteran['currentMailingAddress']['addressLine3']
 
