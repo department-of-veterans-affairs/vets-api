@@ -14,42 +14,34 @@ namespace :redis do
     end
 
     def test_connection(name, redis_instance)
+      return [false, "#{name}: Skipped (Redis not configured)"] unless redis_instance
+
       start_time = Time.now
       response = redis_instance.ping
       end_time = Time.now
 
       if response == 'PONG'
-        puts "#{name}: Connected"
-        puts "  URL: #{safe_connection_info(redis_instance)}"
-        puts "  Response time: #{(end_time - start_time) * 1000} ms"
-        true
+        [true, "#{name}: Connected\n  URL: #{safe_connection_info(redis_instance)}\n  Response time: #{(end_time - start_time) * 1000} ms"]
       else
-        puts "#{name}: Failed (unexpected response)"
-        false
+        [false, "#{name}: Failed (unexpected response)"]
       end
     rescue Redis::CannotConnectError => e
-      puts "#{name}: Failed (connection error)"
-      puts "  Error: #{e.message}"
-      false
+      [false, "#{name}: Failed (connection error)\n  Error: #{e.message}"]
     rescue => e
-      puts "#{name}: Failed (unexpected error)"
-      puts "  Error: #{e.message}"
-      puts "  Backtrace:"
-      puts e.backtrace.join("\n")
-      false
+      [false, "#{name}: Failed (unexpected error)\n  Error: #{e.message}\n  Backtrace:\n#{e.backtrace.join("\n")}"]
     end
 
     results = {
       redis_store: test_connection('Redis Store', Redis.new(url: Settings.redis.app_data.url)),
-      rails_cache: test_connection('Rails Cache', Rails.cache.redis),
+      rails_cache: test_connection('Rails Cache', Rails.cache.is_a?(ActiveSupport::Cache::RedisCacheStore) ? Rails.cache.redis : nil),
       sidekiq: Sidekiq.redis { |conn| test_connection('Sidekiq', conn) }
     }
 
-    puts "\nOverall Results:"
-    results.each do |service, result|
-      puts "#{service}: #{result ? 'Connected' : 'Failed'}"
+    puts "\nResults:"
+    results.each do |service, (success, message)|
+      puts message
     end
 
-    exit 1 unless results.values.all?
+    exit 1 unless results.values.all? { |success, _| success }
   end
 end
