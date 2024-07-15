@@ -21,20 +21,15 @@ module DebtsApi
         end
 
         def get_streamlined_data
-          value = false
-          type = 'none'
-
-          if streamlined_short_form?
-            value = true
-            type = 'short'
-          elsif streamlined_long_form?
-            value = true
-            type = 'long'
-          end
-
           {
-            'value' => value,
-            'type' => type
+            'value' => streamlined_short_form? || streamlined_long_form?,
+            'type' => if streamlined_short_form?
+                        'short'
+                      elsif streamlined_long_form?
+                        'long'
+                      else
+                        'none'
+                      end
           }
         end
 
