@@ -29,6 +29,9 @@ module VAOS
           contact_info.push({ system: 'email', value: reason_code_hash['email'] })
           appointment[:contact] = { telecom: contact_info }
         end
+
+        # Extract additionalAppointmentDetails from hash
+        appointment[:additional_appointment_details] = reason_code_hash['comments'] if reason_code_hash.key?('comments')
       end
     end
   end
