@@ -47,7 +47,8 @@ module VAProfile
 
       def aaid
         return ID_ME_AAID if user&.idme_uuid.present?
-        return LOGIN_GOV_AAID if user&.logingov_uuid.present?
+
+        LOGIN_GOV_AAID if user&.logingov_uuid.present?
       end
 
       def id_with_aaid
