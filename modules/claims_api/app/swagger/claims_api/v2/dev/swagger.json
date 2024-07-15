@@ -3413,7 +3413,7 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                        "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
@@ -4764,7 +4764,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -5681,7 +5681,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "624fe012-db16-4b35-a9eb-2de3d6550c25",
+                    "id": "79150c60-0eaa-4b13-95a1-4653f3396b43",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -5864,7 +5864,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-07-14"
+                          "anticipatedSeparationDate": "2024-07-17"
                         },
                         "confinements": [
                           {
@@ -6648,7 +6648,7 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                        "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
@@ -7999,7 +7999,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -9893,7 +9893,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -10559,7 +10559,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e537474f-3e77-4ddf-86a5-7d547e644da4",
+                    "id": "3cb33906-2a37-4c22-a73a-8553fec74fe4",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -13434,8 +13434,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-07-12",
-                      "expirationDate": "2025-07-12",
+                      "creationDate": "2024-07-15",
+                      "expirationDate": "2025-07-15",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -14311,7 +14311,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "33e9423e-c98d-4ad2-81f1-c873262ac93c",
+                    "id": "722216eb-4991-42ac-9059-cc5a8aa85a8b",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15004,7 +15004,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "85ba2151-8672-4696-8d20-1a4da95fa48d",
+                    "id": "42954b3c-7aad-4d1c-9a54-c793b03d6a29",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16955,10 +16955,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "453ea161-d350-4ff0-b74b-0e91f06fcf13",
+                    "id": "10044dd9-11b6-4c21-9ac4-b15f54393731",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-07-12",
+                      "dateRequestAccepted": "2024-07-15",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
