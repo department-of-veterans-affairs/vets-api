@@ -61,8 +61,12 @@ module SimpleFormsApi
       end
 
       def get_intents_to_file
-        intent_service = SimpleFormsApi::IntentToFile.new(icn)
-        existing_intents = intent_service.existing_intents
+        existing_intents = {}
+
+        if icn && participant_id
+          intent_service = SimpleFormsApi::IntentToFile.new(icn)
+          existing_intents = intent_service.existing_intents
+        end
 
         render json: {
           compensation_intent: existing_intents['compensation'],
