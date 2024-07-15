@@ -99,6 +99,15 @@ module Common
       redis_namespace.del(redis_key)
     end
 
+    def self.test_connectivity
+      begin
+        redis_namespace.ping == 'PONG'
+      rescue Redis::CannotConnectError => e
+        Rails.logger.error "Redis connection failed: #{e.message}"
+        false
+      end
+    end
+
     def save
       return false unless valid?
 
