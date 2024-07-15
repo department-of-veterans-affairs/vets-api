@@ -22,7 +22,11 @@ module ClaimsApi
       body = { data: { claimId: claim_id, fileNumber: file_number } }
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "calling benefits documents search for claimId #{claim_id}")
-      client.post('documents/search', body)&.body&.deep_symbolize_keys
+      res = client.post('documents/search', body)&.body
+
+      raise ::Common::Exceptions::GatewayTimeout.new(detail: 'Upstream service error.') unless res.is_a?(Hash)
+
+      res.deep_symbolize_keys
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "/search failure for claimId #{claim_id}, #{e.message}")
@@ -42,13 +46,15 @@ module ClaimsApi
 
       @multipart = true
       body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:)
-      res = client.post('documents', body)&.body&.deep_symbolize_keys
-      request_id = res&.dig(:data, :requestId)
-      ClaimsApi::Logger.log(
-        'benefits_documents',
-        detail: "Successfully uploaded #{doc_type == 'L122' ? 'claim' : 'supporting'} doc to BD",
-        claim_id: claim.id, request_id:
-      )
+      res = client.post('documents', body)&.body
+
+      raise ::Common::Exceptions::GatewayTimeout.new(detail: 'Upstream service error.') unless res.is_a?(Hash)
+
+      res = res.deep_symbolize_keys
+      request_id = res.dig(:data, :requestId)
+      ClaimsApi::Logger.log('benefits_documents',
+                            detail: "Successfully uploaded #{doc_type == 'L122' ? 'claim' : 'supporting'} doc to BD",
+                            claim_id: claim.id, request_id:)
       res
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
