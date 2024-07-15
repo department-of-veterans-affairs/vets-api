@@ -13,7 +13,7 @@ module DebtsApi
 
         def initialize(form)
           @form = form
-          @gmt_data = @form['gmt_data'] # get_gmt_data
+          @gmt_data = @form['gmt_data']
           @income_data = DebtsApi::V0::FsrFormTransform::IncomeCalculator.new(form).get_monthly_income
           @asset_data = DebtsApi::V0::FsrFormTransform::AssetCalculator.new(form).transform_assets
           @enhanced_expense_calculator =
@@ -39,6 +39,30 @@ module DebtsApi
         end
 
         private
+
+        def total_annual_income
+          vet_income = @income_data.dig(:vetIncome, :totalMonthlyNetIncome).to_f
+          spouse_income = @income_data.dig(:spIncome, :totalMonthlyNetIncome).to_f
+          total_income = (vet_income + spouse_income)
+          total_income * 12
+        end
+
+        def total_discretionary_income
+          monthly_net_income = @income_data[:totalMonthlyNetIncome]
+          monthly_expenses = @enhanced_expense_calculator['totalMonthlyExpenses']
+
+          monthly_net_income - monthly_expenses
+        end
+
+        def total_waiver_and_copay_debts
+          all_debt_types_copay = @form['selected_debts_and_copays'].all? { |debt| debt['debt_type'] == 'COPAY' }
+          @form['view:streamlined_waiver'] && all_debt_types_copay
+        end
+
+        def total_debt
+          @form['selected_debts_and_copays'].reduce(0) { |total_debt, debt| total_debt + (debt['current_ar'] || 0.0) }
+          # TODO: check if current_ar is eq to pHAmtDue
+        end
 
         def streamlined_short_form?
           return false unless eligible_for_streamlined? && income_below_gmt_threshold?
@@ -89,37 +113,6 @@ module DebtsApi
 
         def debt_below_vha_limit?
           total_debt < VHA_LIMIT
-        end
-
-        def total_annual_income
-          vet_income = @income_data.dig(:vetIncome, :totalMonthlyNetIncome).to_f
-          spouse_income = @income_data.dig(:spIncome, :totalMonthlyNetIncome).to_f
-          total_income = (vet_income + spouse_income)
-          total_income * 12
-        end
-
-        def total_discretionary_income
-          monthly_net_income = @income_data[:totalMonthlyNetIncome]
-          monthly_expenses = @enhanced_expense_calculator['totalMonthlyExpenses']
-
-          monthly_net_income - monthly_expenses
-        end
-
-        def total_waiver_and_copay_debts
-          all_debt_types_copay = @form['selected_debts_and_copays'].all? { |debt| debt['debt_type'] == 'COPAY' }
-          @form['view:streamlined_waiver'] && all_debt_types_copay
-        end
-
-        def total_debt
-          @form['selected_debts_and_copays'].reduce(0) { |total_debt, debt| total_debt + (debt['current_ar'] || 0.0) }
-          # TODO: check if current_ar is eq to pHAmtDue
-        end
-
-        def get_gmt_data
-          dependents = @form['questions']['has_dependents']
-          zipcode = @form['personal_data']['veteran_contact_information']['address']['zip_code']
-          year = @form['personal_data']['veteran_contact_information']['address']['created_at'].to_datetime.year
-          DebtsApi::V0::FsrFormTransform::GmtCalculator.new(year:, dependents:, zipcode:)
         end
       end
     end
