@@ -12,18 +12,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ruby/setup-ruby@1198b074305f9356bd56dd4b311757cc0dab2f1c
+      - uses: ruby/setup-ruby@1d0e911f615a112e322369596f10ee0b95b010ae # v1.183.0
         with:
           bundler-cache: true
 
       - name: Run bundle-audit (checks gems for CVE issues)
-        run:  bundle exec bundle-audit check --update --ignore CVE-2024-27456
+        run: bundle exec bundle-audit check --update --ignore CVE-2024-27456
 
       - name: Run Rubocop
         run: bundle exec rubocop --parallel --format github
 
       - name: Run Brakeman
-        run:  bundle exec brakeman --ensure-latest --confidence-level=2 --format github
+        run: bundle exec brakeman --ensure-latest --confidence-level=2 --format github
 
   tests:
     name: Test
@@ -42,6 +42,19 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-gov-west-1
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2.0.1
+        with:
+          mask-password: true
 
       - name: Setup Environment
         run: |
@@ -65,14 +78,14 @@ jobs:
 
       - name: Setup Database
         run: |
-             docker-compose -f docker-compose.test.yml run web bash \
-             -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 13 -e 'bin/rails db:reset'"
+          docker-compose -f docker-compose.test.yml run web bash \
+          -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 13 -e 'bin/rails db:reset'"
 
       - name: Run Specs
         timeout-minutes: 20
         run: |
-             docker-compose -f docker-compose.test.yml run web bash \
-             -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 13 -o '--color --tty'"
+          docker-compose -f docker-compose.test.yml run web bash \
+          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 13 -o '--color --tty'"
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4

@@ -155,6 +155,10 @@ features:
     actor_type: user
     description: Enables the 45 minute reminder
     enable_in_development: true
+  check_in_experience_check_claim_status_on_timeout:
+    actor_type: user
+    description: Uses a background worker to check travel claim status when the submission times out
+    enable_in_development: true
   check_in_experience_browser_monitoring:
     actor_type: user
     description: Enables browser monitoring for check-in applications.
@@ -387,6 +391,9 @@ features:
   disability_526_ep_merge_new_claims:
     actor_type: user
     description: enables EP Merge for single-contention 526 claims for a new condition
+  disability_526_ep_merge_multi_contention:
+    actor_type: user
+    description: enables EP Merge for multi-contention 526 claims
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
@@ -606,6 +613,9 @@ features:
     actor_type: user
     description: Enables form email submission confirmations (for allowed email types via VaNotify)
     enable_in_development: true
+  simple_forms_lighthouse_benefits_intake_service:
+    actor_type: user
+    description: Enables use of the Lighthouse BenefitsIntake::Service instead of the SimpleFormsApiSubmission::Service
   form2010206:
     actor_type: user
     description: If enabled shows the digital form experience for form 20-10206
@@ -639,6 +649,9 @@ features:
   form1010d:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
+  form107959f1:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program)
   form_upload_flow:
     actor_type: user
     description: If enabled shows the find-a-form widget for the Form Upload Flow
@@ -696,6 +709,10 @@ features:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
     enable_in_development: true
+  lighthouse_claims_v2_poa_requests_skip_bgs:
+    actor_type: user
+    description: Enable/disable skipping BGS calls for POA Requests
+    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
@@ -718,10 +735,6 @@ features:
   medical_copay_notifications:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
-    enable_in_development: true
-  mhv_landing_page_enabled:
-    actor_type: user
-    description: Enables the My HealtheVet landing page on VA.gov
     enable_in_development: true
   mhv_landing_page_show_priority_group:
     actor_type: user
@@ -817,9 +830,6 @@ features:
     actor_type: user
     description: Enables/disables documentation-related content for Medications on VA.gov
     enable_in_development: true
-  mhv_landing_page_enable_va_gov_health_tools_links:
-    actor_type: user
-    description: Enables VA.gov Health Tools links (Appts, SM, Rx, Records) on MHV-on-VA.gov Landing Page
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer experience (Identity)
@@ -931,10 +941,6 @@ features:
     actor_type: user
   profile_use_vafsc:
     description: Use VA Forms System Core for forms instead of schema based forms
-    actor_type: user
-    enable_in_development: true
-  profile_contacts:
-    description: Enable the Personal Health Care Contacts feature. Data provided by the VA Profile Health Benefit Service.
     actor_type: user
     enable_in_development: true
   pw_ehr_cta_drupal_source_of_truth:
@@ -1088,6 +1094,10 @@ features:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
     enable_in_development: true
+  dgi_rudisill_hide_benefits_selection_step:
+    actor_type: user
+    description: Hides benefit selection page on original claims application.
+    enable_in_development: false
   show_forms_app:
     actor_type: user
     description: Enables the TOE form to be displayed.
@@ -1269,6 +1279,14 @@ features:
     actor_type: user
     description: When enabled, the VAProfile::V3::Service will be enabled for VaProfile::ProfileInformation
     enable_in_development: false
+  va_profile_information_v3_redis:
+    actor_type: user
+    description: When enabled, the VAProfileRedis::ProfileInformation will be enabled for VaProfile::ProfileInformation
+    enable_in_development: false
+  va_profile_information_v3_transactions:
+    actor_type: user
+    description: When enabled, the transactions will be enabled for VAProfile::ProfileInformation
+    enable_in_development: false
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
@@ -1374,6 +1392,9 @@ features:
   mobile_lighthouse_disability_ratings:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our disability ratings endpoints upstream service
+  mobile_military_indicator_logger:
+    actor_type: user
+    description: For mobile app, enables logging of military discharge codes
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
@@ -1438,6 +1459,10 @@ features:
     actor_type: user
     description: Show updated confirmation page with form data & downloadable PDF
     enable_in_development: true
+  hlr_updateed_contnet:
+    actor_type: user
+    description: HLR show form content updates
+    enable_in_development: true
   pension_ipf_callbacks_endpoint:
     actor_type: user
     description: Pension IPF VANotify notification callbacks endpoint
@@ -1474,6 +1499,10 @@ features:
   pension_claim_submission_to_lighthouse:
     actor_type: user
     description: Pension claim submission uses Lighthouse API
+  pension_multiple_page_response:
+    actor_type: user
+    description: Implement multiple page response pattern
+    enable_in_development: true
   pension_module_enabled:
     actor_type: user
     description: Enable the pension module routes

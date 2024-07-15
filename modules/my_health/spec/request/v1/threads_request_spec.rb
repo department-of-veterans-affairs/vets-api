@@ -39,6 +39,7 @@ RSpec.describe 'Threads Integration', type: :request do
 
   context 'when authorized' do
     before do
+      allow(SM::Client).to receive(:new).and_return(authenticated_client)
       VCR.insert_cassette('sm_client/session')
     end
 
@@ -71,6 +72,17 @@ RSpec.describe 'Threads Integration', type: :request do
           expect(response).to match_camelized_response_schema('message_threads')
         end
 
+        it 'responds to GET #index when requires_oh_messages param is provided' do
+          VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder_oh_messages') do
+            get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
+                params: { page_size: '5', page_number: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC',
+                          requires_oh_messages: '1' }
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+        end
+
         it 'returns an empty array when there are no messages in the folder' do
           VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder_no_messages') do
             get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
@@ -96,6 +108,23 @@ RSpec.describe 'Threads Integration', type: :request do
 
         expect(response).to be_successful
         expect(response).to have_http_status(:no_content)
+      end
+
+      it 'responds with error to PATCH threads/move with invalid thread id' do
+        VCR.use_cassette('sm_client/threads/moves_a_thread_with_invalid_thread_id') do
+          patch '/my_health/v1/messaging/threads/123/move?folder_id=0'
+        end
+        json_response = JSON.parse(response.body)['errors'].first
+        expect(json_response['code']).to eq('SM115')
+      end
+
+      it 'responds with error to PATCH threads/move with invalid folder id' do
+        VCR.use_cassette('sm_client/threads/moves_a_thread_with_invalid_folder_id') do
+          patch '/my_health/v1/messaging/threads/3470562/move?folder_id=123'
+        end
+        puts "response #{response.inspect}"
+        json_response = JSON.parse(response.body)['errors'].first
+        expect(json_response['detail']).to eq("Folder Doesn't exists")
       end
     end
   end
