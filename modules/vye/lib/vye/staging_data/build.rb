@@ -14,7 +14,7 @@ module Vye
       private_constant :PATHS, :MAX_AWARD_COUNT, :MAX_PENDING_DOCUMENT_COUNT
 
       def dump
-        @dump if defined?(@dump)
+        return @dump if defined?(@dump)
 
         rows.each do |row|
           summary = row[:summary]
