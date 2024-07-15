@@ -48,21 +48,37 @@ module Lighthouse
         response = BenefitsDocuments::Form526::DocumentsStatusPollingService.call(lighthouse_document_request_ids)
 
         if response.status == 200
-          BenefitsDocuments::Form526::UpdateDocumentsStatusService.call(document_batch, response.body)
-        else
-          StatsD.increment("#{STATSD_KEY_PREFIX}.polling_error")
+          result = BenefitsDocuments::Form526::UpdateDocumentsStatusService.call(document_batch, response.body)
 
-          Rails.logger.warn(
-            'Lighthouse::Form526DocumentUploadPollingJob status endpoint failure',
-            {
-              response_status: response.status,
-              response_body: response.body,
-              lighthouse_document_request_ids:,
-              timestamp: Time.now.utc
-            }
-          )
+          if result && !result[:success]
+            response_struct = OpenStruct.new(result[:response])
+
+            handle_error(response_struct, response_struct.unknown_ids.map(&:to_s))
+          end
+        else
+          handle_error(response, lighthouse_document_request_ids)
         end
+      rescue Faraday::ResourceNotFound => e
+        response_struct = OpenStruct.new(e.response)
+
+        handle_error(response_struct, lighthouse_document_request_ids)
       end
+    end
+
+    private
+
+    def handle_error(response, lighthouse_document_request_ids)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.polling_error")
+
+      Rails.logger.warn(
+        'Lighthouse::Form526DocumentUploadPollingJob status endpoint error',
+        {
+          response_status: response.status,
+          response_body: response.body,
+          lighthouse_document_request_ids:,
+          timestamp: Time.now.utc
+        }
+      )
     end
   end
 end
