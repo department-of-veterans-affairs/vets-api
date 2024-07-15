@@ -7,7 +7,7 @@ module Swagger
   
         swagger_path '/v0/claim_attachments' do
           operation :post do
-            extend Swagger::Responses::ValidationError
+            extend Swagger::Responses::InternalServerError
             extend Swagger::Responses::SavedForm
   
             key :description, 'Submit a claim document'
