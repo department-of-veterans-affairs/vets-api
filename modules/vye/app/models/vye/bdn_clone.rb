@@ -17,6 +17,8 @@ module Vye
 
     validates :is_active, :export_ready, uniqueness: true, allow_nil: true
 
+    validates :transact_date, presence: true
+
     def self.injested
       find_by(is_active: false)
     end
