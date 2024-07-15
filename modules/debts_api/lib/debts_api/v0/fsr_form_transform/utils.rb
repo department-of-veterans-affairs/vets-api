@@ -109,5 +109,15 @@ module FsrFormTransform
     def format_number(number)
       format('%.2f', number).to_s
     end
+
+    def safe_sum(array)
+      array.map { |el| safe_number(el) }.sum.round(2)
+    end
+
+    def safe_number(str)
+      return 0.0 if str.nil?
+
+      str.gsub(/[^0-9.-]/, '').to_f
+    end
   end
 end

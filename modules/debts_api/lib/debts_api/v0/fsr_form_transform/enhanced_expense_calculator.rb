@@ -127,16 +127,6 @@ module DebtsApi
           credit_card_monthly_due = @credit_card_bills.pluck('amountDueMonthly')
           safe_sum([installment_monthly_due, credit_card_monthly_due].flatten)
         end
-
-        def safe_number(str)
-          return 0.0 if str.nil?
-
-          str.gsub(/[^0-9.-]/, '').to_f
-        end
-
-        def safe_sum(ary)
-          ary.map { |el| safe_number(el) }.sum.round(2)
-        end
       end
     end
   end
