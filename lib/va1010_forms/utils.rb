@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'benchmark'
 require 'hca/configuration'
 require 'hca/overrides_parser'
 
@@ -51,7 +52,16 @@ module VA1010Forms
 
     def log_payload_info(formatted_form, submission_body)
       form_name = formatted_form.dig('va:form', 'va:formIdentifier', 'va:value')
-      attachment_count = formatted_form.dig('va:form', 'va:attachments')&.length || 0
+      attachments = formatted_form.dig('va:form', 'va:attachments')
+      attachment_count = attachments&.length || 0
+      # Log the attachment sizes in descending order
+      if attachment_count.positive?
+        # Convert the attachments into xml format so they resemble what will be sent to VES
+        attachment_sizes =
+          attachments.map { |a| a.to_xml.size }.sort.reverse!.map { |size| number_to_human_size(size) }.join(', ')
+
+        Rails.logger.info("Attachment sizes in descending order: #{attachment_sizes}")
+      end
 
       Rails.logger.info("Payload for submitted #{form_name}: " \
                         "Body size of #{number_to_human_size(submission_body.bytesize)} " \

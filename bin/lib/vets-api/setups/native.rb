@@ -3,7 +3,6 @@
 require 'yaml'
 require 'fileutils'
 require_relative 'rails'
-require 'pry'
 
 module VetsApi
   module Setups
