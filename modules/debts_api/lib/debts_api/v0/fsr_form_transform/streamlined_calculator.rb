@@ -50,17 +50,16 @@ module DebtsApi
         def streamlined_long_form?
           return false unless eligible_for_streamlined? && are_liquid_assets_below_gmt_threshold?
 
-          meets_streamlined_long_form_common_conditions? || streamlined_waiver_asset_update?
+          meets_streamlined_long_form_common_conditions =
+            !income_below_gmt_threshold? && income_below_upper_threshold? && income_below_discretionary_threshold?
+
+          meets_streamlined_long_form_common_conditions || streamlined_waiver_asset_update?
         end
 
         def eligible_for_streamlined?
           return false if @form['selected_debts_and_copays'].empty?
 
           debt_below_vha_limit? && total_waiver_and_copay_debts
-        end
-
-        def meets_streamlined_long_form_common_conditions?
-          !income_below_gmt_threshold? && income_below_upper_threshold? && income_below_discretionary_threshold?
         end
 
         def are_liquid_assets_below_gmt_threshold?
