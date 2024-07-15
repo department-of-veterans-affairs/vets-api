@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
 module FsrFormTransform
   module Utils
     def dollars_cents(flt)
@@ -109,6 +110,10 @@ module FsrFormTransform
       str.gsub(/[^0-9.-]/, '').to_i || 0
     end
 
+    def sum_values(collection, key)
+      collection&.sum { |item| item[key]&.gsub(/[^0-9.-]/, '')&.to_f } || 0
+    end
+
     def format_number(number)
       format('%.2f', number).to_s
     end
@@ -124,3 +129,4 @@ module FsrFormTransform
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength
