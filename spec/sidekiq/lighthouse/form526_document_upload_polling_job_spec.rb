@@ -93,8 +93,10 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
       end
 
       it 'increments StatsD counters for both documents and logs unknown document error' do
-        expect(StatsD).to receive(:increment).with('api.form526.lighthouse_document_upload_processing_status.bdd_instructions.complete').ordered
-        expect(StatsD).to receive(:increment).with('worker.lighthouse.poll_form526_document_uploads.polling_error').ordered
+        expect(StatsD).to receive(:increment)
+          .with('api.form526.lighthouse_document_upload_processing_status.bdd_instructions.complete').ordered
+        expect(StatsD).to receive(:increment)
+          .with('worker.lighthouse.poll_form526_document_uploads.polling_error').ordered
 
         Timecop.freeze(Time.new(1985, 10, 26).utc) do
           expect(Rails.logger).to receive(:warn).with(
