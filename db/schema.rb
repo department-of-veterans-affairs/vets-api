@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_12_133408) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_15_172532) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -1492,6 +1492,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_12_133408) do
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
     t.date "queue_date"
+    t.index ["user_profile_id"], name: "index_vye_pending_documents_on_user_profile_id"
   end
 
   create_table "vye_user_infos", force: :cascade do |t|
