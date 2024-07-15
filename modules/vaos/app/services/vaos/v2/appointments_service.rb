@@ -11,7 +11,6 @@ module VAOS
       extend Memoist
 
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
-      VAOS_SERVICE_DATA_KEY = 'VAOSServiceTypesAndCategory'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
       AVS_APPT_TEST_ID = '192308'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
@@ -41,6 +40,7 @@ module VAOS
           appointments = response.body[:data]
           appointments.each do |appt|
             prepare_appointment(appt)
+            reason_code_service.extract_reason_code_fields(appt)
             merge_clinic(appt) if include[:clinics]
             merge_facility(appt) if include[:facilities]
             cnp_count += 1 if cnp?(appt)
@@ -68,6 +68,7 @@ module VAOS
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
           appointment = response.body[:data]
           prepare_appointment(appointment)
+          reason_code_service.extract_reason_code_fields(appointment)
           OpenStruct.new(appointment)
         end
       end
@@ -88,16 +89,17 @@ module VAOS
                      end
 
           if request_object_body[:kind] == 'clinic' &&
-             request_object_body[:status] == 'booked' # a direct scheduled appointment
+             booked?(request_object_body) # a direct scheduled appointment
             modify_desired_date(request_object_body, get_facility_timezone(request_object_body[:location_id]))
           end
 
           new_appointment = response.body
           convert_appointment_time(new_appointment)
-          find_and_merge_provider_name(new_appointment) if new_appointment[:kind] == 'cc'
+          find_and_merge_provider_name(new_appointment) if cc?(new_appointment)
+          reason_code_service.extract_reason_code_fields(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
-          log_direct_schedule_submission_errors(e) if params[:status] == 'booked'
+          log_direct_schedule_submission_errors(e) if booked?(params)
           raise e
         end
       end
@@ -113,6 +115,7 @@ module VAOS
           else
             response = update_appointment_vaos(appt_id, status)
             convert_appointment_time(response.body)
+            reason_code_service.extract_reason_code_fields(response.body)
             OpenStruct.new(response.body)
           end
         end
@@ -215,7 +218,7 @@ module VAOS
         if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
           fetch_avs_and_update_appt_body(appointment)
         end
-        if appointment[:kind] == 'cc' && %w[proposed cancelled].include?(appointment[:status])
+        if cc?(appointment) && %w[proposed cancelled].include?(appointment[:status])
           find_and_merge_provider_name(appointment)
         end
       end
@@ -260,8 +263,11 @@ module VAOS
       end
 
       def avs_service
-        @avs_service ||=
-          Avs::V0::AvsService.new
+        @avs_service ||= Avs::V0::AvsService.new
+      end
+
+      def reason_code_service
+        @reason_code_service ||= VAOS::V2::AppointmentsReasonCodeService.new
       end
 
       def log_cnp_appt_count(cnp_count)
@@ -363,6 +369,10 @@ module VAOS
         appt[:avs_path] = AVS_ERROR_MESSAGE
       end
 
+      # Determines if the appointment cannot be cancelled.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment cannot be cancelled
       def cannot_be_cancelled?(appointment)
         cnp?(appointment) || covid?(appointment) ||
           (cc?(appointment) && booked?(appointment)) || telehealth?(appointment)
