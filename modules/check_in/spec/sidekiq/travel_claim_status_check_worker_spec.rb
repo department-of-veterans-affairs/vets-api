@@ -84,8 +84,10 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       expect(StatsD).to have_received(:increment).with(@statsd_success).exactly(1).time
       expect(StatsD).to have_received(:increment)
         .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
-      expect(Sidekiq.logger).to have_received(:info).with({ message: 'Multiple claim status response',
-                                                            uuid: })
+      expect(Sidekiq.logger).to have_received(:info).with({
+                                                            message: 'Received multiple claim status response',
+                                                            uuid:
+                                                          })
     end
   end
 
@@ -111,8 +113,10 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
       expect(StatsD).to have_received(:increment)
         .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
-      expect(Sidekiq.logger).to have_received(:info).with({ message: 'Empty claim status response',
-                                                            uuid: })
+      expect(Sidekiq.logger).to have_received(:info).with({
+                                                            message: 'Received empty claim status response',
+                                                            uuid:
+                                                          })
     end
   end
 

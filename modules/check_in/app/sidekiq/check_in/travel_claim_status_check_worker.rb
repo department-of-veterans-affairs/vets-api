@@ -74,11 +74,11 @@ module CheckIn
 
       case response_code
       when TravelClaim::Response::CODE_EMPTY_STATUS
-        logger.info({ message: 'Empty claim status response', uuid: })
+        logger.info({ message: 'Received empty claim status response', uuid: })
         TravelClaim::Response::CODE_EMPTY_STATUS
       else
         if response_code == TravelClaim::Response::CODE_MULTIPLE_STATUSES
-          logger.info({ message: 'Multiple claim status response', uuid: })
+          logger.info({ message: 'Received multiple claim status response', uuid: })
         end
 
         response_body = claim_status_resp.dig(:data, :body)
