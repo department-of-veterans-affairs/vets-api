@@ -3420,7 +3420,7 @@
                                       "state": {
                                         "description": "State of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^[a-z,A-Z]{2}$",
+                                        "pattern": "^$|^[-a-z,A-Z]{2}$",
                                         "example": "OR",
                                         "nullable": true
                                       }
@@ -4771,7 +4771,7 @@
                                     "state": {
                                       "description": "State of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^[a-z,A-Z]{2}$",
+                                      "pattern": "^$|^[-a-z,A-Z]{2}$",
                                       "example": "OR",
                                       "nullable": true
                                     }
@@ -5681,7 +5681,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "624fe012-db16-4b35-a9eb-2de3d6550c25",
+                    "id": "a600ae30-60e0-4dad-beee-29a07a77ff6d",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -5864,7 +5864,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-07-14"
+                          "anticipatedSeparationDate": "2024-07-17"
                         },
                         "confinements": [
                           {
@@ -6655,7 +6655,7 @@
                                       "state": {
                                         "description": "State of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^[a-z,A-Z]{2}$",
+                                        "pattern": "^$|^[-a-z,A-Z]{2}$",
                                         "example": "OR",
                                         "nullable": true
                                       }
@@ -8006,7 +8006,7 @@
                                     "state": {
                                       "description": "State of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^[a-z,A-Z]{2}$",
+                                      "pattern": "^$|^[-a-z,A-Z]{2}$",
                                       "example": "OR",
                                       "nullable": true
                                     }
@@ -9900,7 +9900,7 @@
                                     "state": {
                                       "description": "State of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^[a-z,A-Z]{2}$",
+                                      "pattern": "^$|^[-a-z,A-Z]{2}$",
                                       "example": "OR",
                                       "nullable": true
                                     }
@@ -10559,7 +10559,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e537474f-3e77-4ddf-86a5-7d547e644da4",
+                    "id": "3c8356a0-3d4b-4ff4-b8cb-92e4e0671f05",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -13434,8 +13434,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-07-12",
-                      "expirationDate": "2025-07-12",
+                      "creationDate": "2024-07-15",
+                      "expirationDate": "2025-07-15",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -14311,7 +14311,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "33e9423e-c98d-4ad2-81f1-c873262ac93c",
+                    "id": "6faa8024-c079-461f-9116-f57364530a13",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15004,7 +15004,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "85ba2151-8672-4696-8d20-1a4da95fa48d",
+                    "id": "48643966-4b93-4f4c-b6dc-8e24b4607daa",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16955,10 +16955,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "453ea161-d350-4ff0-b74b-0e91f06fcf13",
+                    "id": "7c6810fb-ecde-4f16-a199-9d6821470b46",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-07-12",
+                      "dateRequestAccepted": "2024-07-15",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
