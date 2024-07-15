@@ -40,6 +40,23 @@ RSpec.describe 'Disability Claims', type: :request do
     )
   end
 
+  let(:no_first_last_name_target_veteran) do
+    OpenStruct.new(
+      icn: '1012832025V743496',
+      first_name: '',
+      last_name: '',
+      birth_date: '19630211',
+      loa: { current: 3, highest: 3 },
+      edipi: nil,
+      ssn: '796043735',
+      participant_id: '600061742',
+      mpi: OpenStruct.new(
+        icn: '1012832025V743496',
+        profile: OpenStruct.new(ssn: '796043735')
+      )
+    )
+  end
+
   before do
     Timecop.freeze(Time.zone.now)
     allow_any_instance_of(ClaimsApi::EVSSService::Base).to receive(:submit).and_return OpenStruct.new(claimId: 1337)
@@ -4463,38 +4480,6 @@ RSpec.describe 'Disability Claims', type: :request do
     let(:invalid_scopes) { %w[claim.write claim.read] }
     let(:generate_pdf_path) { "/services/claims/v2/veterans/#{veteran_id}/526/generatePDF/minimum-validations" }
     let(:special_issues) { ['POW'] }
-    let(:no_first_last_name_target_veteran) do
-      OpenStruct.new(
-        icn: '1012832025V743496',
-        first_name: '',
-        last_name: '',
-        birth_date: '19630211',
-        loa: { current: 3, highest: 3 },
-        edipi: nil,
-        ssn: '796043735',
-        participant_id: '600061742',
-        mpi: OpenStruct.new(
-          icn: '1012832025V743496',
-          profile: OpenStruct.new(ssn: '796043735')
-        )
-      )
-    end
-    let(:no_first_name_target_veteran) do
-      OpenStruct.new(
-        icn: '1012832025V743496',
-        first_name: '',
-        last_name: 'Ford',
-        birth_date: '19630211',
-        loa: { current: 3, highest: 3 },
-        edipi: nil,
-        ssn: '796043735',
-        participant_id: '600061742',
-        mpi: OpenStruct.new(
-          icn: '1012832025V743496',
-          profile: OpenStruct.new(ssn: '796043735')
-        )
-      )
-    end
 
     context 'submission to generatePDF' do
       it 'returns a 200 response when successful' do
@@ -4663,24 +4648,7 @@ RSpec.describe 'Disability Claims', type: :request do
       end
     end
 
-    describe 'with missing first and last name' do
-      let(:no_first_last_name_target_veteran) do
-        OpenStruct.new(
-          icn: '1012832025V743496',
-          first_name: '',
-          last_name: '',
-          birth_date: '19630211',
-          loa: { current: 3, highest: 3 },
-          edipi: nil,
-          ssn: '796043735',
-          participant_id: '600061742',
-          mpi: OpenStruct.new(
-            icn: '1012832025V743496',
-            profile: OpenStruct.new(ssn: '796043735')
-          )
-        )
-      end
-
+    context 'handling for missing first and last name' do
       context 'without the first and last name present' do
         it 'does not allow the submit to occur' do
           mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
