@@ -313,7 +313,6 @@ FactoryBot.define do
       last_signed_in { Time.zone.parse('2017-12-07T00:55:09Z') }
       birth_date { '1986-05-06T00:00:00+00:00'.to_date.to_s }
       ssn { '796043735' }
-      user_account_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
     end
 
     factory :unauthorized_evss_user, traits: [:loa3] do

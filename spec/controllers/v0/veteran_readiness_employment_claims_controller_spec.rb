@@ -5,8 +5,10 @@ require 'support/controller_spec_helper'
 require 'claims_api/vbms_uploader'
 
 RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller do
+  let(:user_account) { create(:user_account) }
   let(:loa3_user) { create(:evss_user) }
   let(:user_no_pid) { create(:unauthorized_evss_user) }
+  let(:user_account) { create(:user_account) }
 
   let(:test_form) do
     build(:veteran_readiness_employment_claim)
@@ -23,11 +25,16 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
 
   describe 'POST create' do
     context 'logged in user' do
-      before { sign_in_as(loa3_user) }
+      before do
+        sign_in_as(loa3_user)
+        allow_any_instance_of(User).to receive(:user_account).and_return(user_account)
+      end
 
       it 'validates successfully' do
         form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
         expect { post(:create, params: form_params) }.to change(VRE::Submit1900Job.jobs, :size).by(1)
+        vre_claim = SavedClaim::VeteranReadinessEmploymentClaim.last
+        expect(vre_claim.user_account_id).to eq(user_account.id)
         expect(response.code).to eq('200')
       end
 
@@ -51,8 +58,11 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
     context 'logged in user with no pid' do
       it 'validates successfully' do
         sign_in_as(user_no_pid)
+        allow_any_instance_of(User).to receive(:user_account).and_return(user_account)
         form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
         expect { post(:create, params: form_params) }.to change(VRE::Submit1900Job.jobs, :size).by(1)
+        vre_claim = SavedClaim::VeteranReadinessEmploymentClaim.last
+        expect(vre_claim.user_account_id).to eq(user_account.id)
         expect(response.code).to eq('200')
       end
     end
