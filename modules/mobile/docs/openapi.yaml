@@ -1280,6 +1280,13 @@ paths:
         '200':
           content:
             application/json:
+              examples:
+                Appeal:
+                  value:
+                    $ref: ./schemas/ClaimsAndAppealsOverviewAppeal.yml
+                Claim:
+                  value:
+                    $ref: ./schemas/ClaimsAndAppealsOverviewClaim.yml
               schema:
                 $ref: ./schemas/ClaimsAndAppealsOverview.yml
           description: OK
