@@ -7,7 +7,12 @@ module RepresentationManagement
         form = RepresentationManagement::Form2122aData.new(flatten_form_params)
 
         if form.valid?
-          render json: { message: 'Form is valid' }, status: :created
+          p 'Form ' * 10, form.inspect
+          output_path = RepresentationManagement::V0::PdfConstructor::Form2122a.new.construct(form)
+          file_contents = File.read(output_path)
+          send_data file_contents, filename: 'test', type: 'application/pdf', disposition: 'attachment'
+
+          # render json: { message: 'Form is valid' }, status: :created
         else
           render json: { errors: form.errors.full_messages }, status: :unprocessable_entity
         end

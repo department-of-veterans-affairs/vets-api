@@ -18,7 +18,7 @@ module RepresentationManagement
         end
 
         #
-        # Add text signature to pdf page .
+        # Set the template path that will be used by the base class.
         #
         # @param data [Hash] Hash of data to add to the pdf
         def set_template_path
