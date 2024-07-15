@@ -19,7 +19,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
     before do
       job.instance_variable_set(:@claim, claim)
-      allow(Pensions:SavedClaim).to receive(:find).and_return(claim)
+      allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
       allow(claim).to receive_messages(to_pdf: pdf_path, persistent_attachments: [])
 
       job.instance_variable_set(:@intake_service, service)
