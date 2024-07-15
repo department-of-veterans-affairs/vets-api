@@ -1342,9 +1342,6 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe '#add_timezone_offset' do
-    let(:va_booked_request_body) do
-      FactoryBot.build(:appointment_form_v2, :va_booked).attributes
-    end
     let(:desired_date) { '2022-09-21T00:00:00+00:00'.to_datetime }
 
     context 'with a date and timezone' do
