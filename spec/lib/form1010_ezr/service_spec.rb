@@ -52,7 +52,7 @@ RSpec.describe Form1010Ezr::Service do
           'confirmationCode' => create(:form1010_ezr_attachment).guid
         },
         {
-          'confirmationCode' => create(:form1010_ezr_attachment).guid
+          'confirmationCode' => create(:form1010_ezr_attachment_2).guid
         }
       ]
     )
