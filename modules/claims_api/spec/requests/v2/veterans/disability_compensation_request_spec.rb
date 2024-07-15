@@ -66,8 +66,6 @@ RSpec.describe 'Disability Claims', type: :request do
     Timecop.return
   end
 
-
-
   describe '#526', vcr: 'claims_api/disability_comp' do
     let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
