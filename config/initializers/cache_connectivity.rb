@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module CacheConnectivityTest
   def self.test_connectivity
     Rails.cache.redis.ping == 'PONG'

@@ -1,10 +1,13 @@
+# frozen_string_literal: true
+
 require 'redis'
 
 namespace :redis do
-  desc "Test Redis connectivity"
+  desc 'Test Redis connectivity'
   task test_connectivity: :environment do
     def safe_connection_info(redis_instance)
       return 'Not available' unless redis_instance.respond_to?(:connection)
+
       begin
         info = redis_instance.connection
         "#{info[:host]}:#{info[:port]}"
@@ -16,12 +19,13 @@ namespace :redis do
     def test_connection(name, redis_instance)
       return [false, "#{name}: Skipped (Redis not configured)"] unless redis_instance
 
-      start_time = Time.now
+      start_time = Time.zone.now
       response = redis_instance.ping
-      end_time = Time.now
+      end_time = Time.zone.now
 
       if response == 'PONG'
-        [true, "#{name}: Connected\n  URL: #{safe_connection_info(redis_instance)}\n  Response time: #{(end_time - start_time) * 1000} ms"]
+        [true,
+         "#{name}: Connected\n  URL: #{safe_connection_info(redis_instance)}\n  Response time: #{(end_time - start_time) * 1000} ms"]
       else
         [false, "#{name}: Failed (unexpected response)"]
       end
@@ -33,12 +37,13 @@ namespace :redis do
 
     results = {
       redis_store: test_connection('Redis Store', Redis.new(url: Settings.redis.app_data.url)),
-      rails_cache: test_connection('Rails Cache', Rails.cache.is_a?(ActiveSupport::Cache::RedisCacheStore) ? Rails.cache.redis : nil),
+      rails_cache: test_connection('Rails Cache',
+                                   Rails.cache.is_a?(ActiveSupport::Cache::RedisCacheStore) ? Rails.cache.redis : nil),
       sidekiq: Sidekiq.redis { |conn| test_connection('Sidekiq', conn) }
     }
 
     puts "\nResults:"
-    results.each do |service, (success, message)|
+    results.each_value do |(_success, message)|
       puts message
     end
 

@@ -100,12 +100,10 @@ module Common
     end
 
     def self.test_connectivity
-      begin
-        redis_namespace.ping == 'PONG'
-      rescue Redis::CannotConnectError => e
-        Rails.logger.error "Redis connection failed: #{e.message}"
-        false
-      end
+      redis_namespace.ping == 'PONG'
+    rescue Redis::CannotConnectError => e
+      Rails.logger.error "Redis connection failed: #{e.message}"
+      false
     end
 
     def save
