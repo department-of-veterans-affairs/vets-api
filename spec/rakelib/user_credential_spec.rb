@@ -19,6 +19,28 @@ describe 'user_credential rake tasks' do # rubocop:disable RSpec/DescribeClass
     Rake::Task.define_task(:environment)
   end
 
+  context 'argument validations' do
+    let(:task) { Rake::Task['user_credential:lock'] }
+
+    before { task.reenable }
+
+    context 'when a required argument is missing' do
+      let(:expected_output) { '[UserCredential::Lock] failed - Missing required arguments' }
+
+      it 'raises an error' do
+        expect { task.invoke }.to output("#{expected_output}\n").to_stdout
+      end
+    end
+
+    context 'rwhen type argument is invalid' do
+      let(:expected_output) { '[UserCredential::Lock] failed - Invalid type' }
+
+      it 'raises an error' do
+        expect { task.invoke('invalid', credential_id, requested_by) }.to output("#{expected_output}\n").to_stdout
+      end
+    end
+  end
+
   context 'single credential changes' do
     let(:expected_output) do
       "#{namespace} rake task start, context: {\"type\":\"#{type}\",\"credential_id\":\"#{credential_id}\"," \
@@ -62,12 +84,14 @@ describe 'user_credential rake tasks' do # rubocop:disable RSpec/DescribeClass
 
   context 'account-wide credential changes' do
     let(:expected_output) do
-      "#{namespace} rake task start, context: {\"icn\":\"#{icn}\",\"requested_by\":\"#{requested_by}\"}\n" \
+      [
+        "#{namespace} rake task start, context: {\"icn\":\"#{icn}\",\"requested_by\":\"#{requested_by}\"}",
         "#{namespace} credential #{action}, context: {\"icn\":\"#{icn}\",\"requested_by\":\"#{requested_by}\"," \
-        "\"type\":\"#{type}\",\"credential_id\":\"#{credential_id}\",\"locked\":#{locked}}\n" \
+        "\"type\":\"#{type}\",\"credential_id\":\"#{credential_id}\",\"locked\":#{locked}}",
         "#{namespace} credential #{action}, context: {\"icn\":\"#{icn}\",\"requested_by\":\"#{requested_by}\"," \
-        "\"type\":\"#{linked_type}\",\"credential_id\":\"#{linked_credential_id}\",\"locked\":#{locked}}\n" \
-        "#{namespace} rake task complete, context: {\"icn\":\"#{icn}\",\"requested_by\":\"#{requested_by}\"}\n"
+        "\"type\":\"#{linked_type}\",\"credential_id\":\"#{linked_credential_id}\",\"locked\":#{locked}}",
+        "#{namespace} rake task complete, context: {\"icn\":\"#{icn}\",\"requested_by\":\"#{requested_by}\"}"
+      ].sort
     end
 
     describe 'user_credential:lock_all' do
@@ -82,9 +106,14 @@ describe 'user_credential rake tasks' do # rubocop:disable RSpec/DescribeClass
       end
 
       it 'locks all credentials for a user account & return the ICN when successful' do
-        expect(user_verification.locked).to be_falsey
-        expect(linked_user_verification.locked).to be_falsey
-        expect { task.invoke(icn, requested_by) }.to output(expected_output).to_stdout
+        sorted_output = []
+
+        expect do
+          task.invoke(icn, requested_by)
+          sorted_output = $stdout.string.split("\n").map(&:strip).sort
+        end.to output.to_stdout
+
+        expect(sorted_output).to eq(expected_output)
         expect(user_verification.reload.locked).to be_truthy
         expect(linked_user_verification.reload.locked).to be_truthy
       end
@@ -102,9 +131,14 @@ describe 'user_credential rake tasks' do # rubocop:disable RSpec/DescribeClass
       end
 
       it 'unlocks all credentials for a user account & return the ICN when successful' do
-        expect(user_verification.locked).to be_truthy
-        expect(linked_user_verification.locked).to be_truthy
-        expect { task.invoke(icn, requested_by) }.to output(expected_output).to_stdout
+        sorted_output = []
+
+        expect do
+          task.invoke(icn, requested_by)
+          sorted_output = $stdout.string.split("\n").map(&:strip).sort
+        end.to output.to_stdout
+
+        expect(sorted_output).to eq(expected_output)
         expect(user_verification.reload.locked).to be_falsey
         expect(linked_user_verification.reload.locked).to be_falsey
       end

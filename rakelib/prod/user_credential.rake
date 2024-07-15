@@ -19,8 +19,8 @@ namespace :user_credential do
   end
 
   def run_task(action, args, all_credentials: false)
-    validate_args(args, all_credentials)
     namespace = "UserCredential::#{action.to_s.camelize}"
+    validate_args(args, all_credentials)
     action = %i[lock lock_all].include?(action) ? :lock : :unlock
     context = build_context(args)
     log_message(level: 'info', message: "[#{namespace}] rake task start, context: #{context.to_json}")
@@ -35,12 +35,13 @@ namespace :user_credential do
     end
     log_message(level: 'info', message: "[#{namespace}] rake task complete, context: #{context.to_json}")
   rescue => e
-    log_message(level: 'error', message: "#{namespace} failed - #{e.message}")
+    log_message(level: 'error', message: "[#{namespace}] failed - #{e.message}")
   end
 
   def validate_args(args, all_credentials)
     missing_args = all_credentials ? %i[icn requested_by] : %i[type credential_id requested_by]
     raise 'Missing required arguments' unless args.values_at(*missing_args).all?
+    raise 'Invalid type' if SignIn::Constants::Auth::CSP_TYPES.exclude?(args[:type]) && !all_credentials
   end
 
   def build_context(args)
