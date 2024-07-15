@@ -14,7 +14,7 @@ module Pensions
     class PensionBenefitIntakeError < StandardError; end
 
     STATSD_KEY_PREFIX = 'worker.lighthouse.pension_benefit_intake_job'
-    PENSION_SOURCE = 'modules/pensions/app/sidekiq/pensions/lighthouse/pension_benefit_intake_job.rb'
+    PENSION_SOURCE = __FILE__
 
     # retry for one day
     sidekiq_options retry: 14, queue: 'low'
@@ -144,7 +144,8 @@ module Pensions
         form_data: @claim.to_json,
         benefits_intake_uuid: @intake_service.uuid,
         saved_claim: @claim,
-        saved_claim_id: @claim.id
+        saved_claim_id: @claim.id,
+        user_account: UserAccount.find_by(icn: claim.parsed_form['veteran_information']['icn'])
       )
       @form_submission_attempt = FormSubmissionAttempt.create(form_submission:)
 
