@@ -22,4 +22,4 @@ We did not want to adopt this job for now and we have decided to keep a copy of 
 
 ## Consequences
 
-What becomes easier or more difficult to do and any risks introduced by the change that will need to be mitigated.
+We will do as little stubbing as possible and instead take the shortest path when it comes to migrating over the ownership of the files. We will think about how inheritance could impact the software.
