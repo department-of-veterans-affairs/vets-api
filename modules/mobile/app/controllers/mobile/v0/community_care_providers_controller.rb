@@ -27,7 +27,7 @@ module Mobile
       private
 
       def ppms_api
-        FacilitiesApi::V1::PPMS::Client.new
+        FacilitiesApi::V2::PPMS::Client.new
       end
 
       def locator_params
