@@ -124,6 +124,8 @@ describe ClaimsApi::BD do
     context 'when the upstream service is down' do
       let(:client) { instance_double(Faraday::Connection) }
       let(:response) { instance_double(Faraday::Response, body: 'failed to request: timeout') }
+      let(:claim_id) { '600397218' }
+      let(:file_number) { '796378782' }
 
       before do
         allow(Rails).to receive(:logger).and_return(double('Logger', info: true))
