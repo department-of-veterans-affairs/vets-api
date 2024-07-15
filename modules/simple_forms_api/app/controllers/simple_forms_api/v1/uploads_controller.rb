@@ -61,8 +61,12 @@ module SimpleFormsApi
       end
 
       def get_intents_to_file
-        intent_service = SimpleFormsApi::IntentToFile.new(icn)
-        existing_intents = intent_service.existing_intents
+        existing_intents = {}
+
+        if icn && participant_id
+          intent_service = SimpleFormsApi::IntentToFile.new(icn)
+          existing_intents = intent_service.existing_intents
+        end
 
         render json: {
           compensation_intent: existing_intents['compensation'],
@@ -144,7 +148,7 @@ module SimpleFormsApi
       def get_file_paths_and_metadata(parsed_form_data)
         form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
-        form = form.populate_veteran_data(@current_user) if form_id == '21-0966' && first_party?
+        form = form.populate_veteran_data(@current_user) if form_id == 'vba_21_0966' && first_party?
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
 
         file_path = if @current_user

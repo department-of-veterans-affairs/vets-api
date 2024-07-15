@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require Vye::Engine.root / 'spec/rails_helper'
 
 RSpec.describe Vye::VerificationSerializer, type: :serializer do
   subject { serialize(verification, serializer_class: described_class) }
