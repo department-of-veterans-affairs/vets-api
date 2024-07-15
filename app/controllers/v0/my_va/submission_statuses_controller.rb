@@ -5,6 +5,7 @@ require 'forms/submission_statuses/report'
 module V0
   module MyVA
     class SubmissionStatusesController < ApplicationController
+      service_tag 'form-submission-statuses'
       before_action :controller_enabled?
       before_action { authorize :lighthouse, :access? }
 
