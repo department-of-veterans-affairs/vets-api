@@ -28,7 +28,8 @@ module Rx
           @meta_attributes = split_meta_fields!
           @errors = @parsed_json.delete(:errors) || {}
 
-          data =  parsed_prescription_list || parsed_tracking_object || parsed_prescription || parsed_medication_list || parsed_documentation
+          data =  parsed_prescription_list || parsed_tracking_object ||
+                  parsed_prescription || parsed_medication_list || parsed_documentation
           @parsed_json = {
             data:,
             errors: @errors,
