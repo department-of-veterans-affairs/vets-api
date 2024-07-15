@@ -38,7 +38,6 @@ module ClaimsApi
     #
     # @return success or failure
     # rubocop:disable Metrics/ParameterLists
-    # rubocop:disable Metrics/MethodLength
     def upload(claim:, pdf_path:, pctpnt_vet_id: nil, doc_type: 'L122', file_number: nil, original_filename: nil)
       unless File.exist? pdf_path
         ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist",
@@ -49,12 +48,6 @@ module ClaimsApi
       @multipart = true
       body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:, pctpnt_vet_id:)
       res = client.post('documents', body)&.body
-      request_id = res&.dig(:data, :requestId)
-      ClaimsApi::Logger.log(
-        'benefits_documents',
-        detail: "Successfully uploaded #{doc_type == 'L122' ? 'claim' : 'supporting'} doc to BD",
-        claim_id: claim.id, request_id:
-      )
 
       raise ::Common::Exceptions::GatewayTimeout.new(detail: 'Upstream service error.') unless res.is_a?(Hash)
 
@@ -70,7 +63,6 @@ module ClaimsApi
       raise e
     end
     # rubocop:enable Metrics/ParameterLists
-    # rubocop:enable Metrics/MethodLength
 
     private
 
