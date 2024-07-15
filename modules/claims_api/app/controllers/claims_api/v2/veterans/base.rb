@@ -24,15 +24,17 @@ module ClaimsApi
         end
 
         def validate_veteran_name(require_first_and_last)
+          first_name_blank = target_veteran[:first_name].blank?
+          last_name_blank = target_veteran[:last_name].blank?
           if require_first_and_last
-            if target_veteran[:first_name].blank? && target_veteran[:last_name].blank?
+            if first_name_blank && last_name_blank
               raise_exception_name_error('Missing first and last name')
-            elsif target_veteran[:first_name].blank?
+            elsif first_name_blank
               raise_exception_name_error('Missing first name')
-            elsif target_veteran[:last_name].blank?
+            elsif last_name_blank
               raise_exception_name_error('Missing last name')
             end
-          elsif target_veteran[:first_name].blank? && target_veteran[:last_name].blank?
+          elsif first_name_blank && last_name_blank
             raise_exception_name_error('Must have either first or last name')
           end
         end
