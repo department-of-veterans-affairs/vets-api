@@ -36,4 +36,5 @@ There are also class references to the modules in here that may need to change a
 We need to maintain another factory for our new module class of this type, we've appended `pensions_module_` as a prefix to this factory. We should use the existing attachment factory from the root project for this and remove any of the extra fixtures that it brings in. We need this new spec helper file to be included in the module and to adjust the tests. We want to support the changes that include the models we are bringing over and nothing else.
 
 ## Consequences
+
 We decided that because the pension burial attachment was being used as-is, it may allude to some other refactoring needed. Support this in the best way possible. We might want to create some tests to check the sql is the same as before. Support the code as-is. Review the tests and ensure they are working as intended.
