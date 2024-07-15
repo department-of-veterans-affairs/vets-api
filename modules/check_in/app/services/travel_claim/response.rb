@@ -16,6 +16,8 @@ module TravelClaim
     # claim status responses
     CODE_EMPTY_STATUS = 'CLM_020_EMPTY_STATUS'
     CODE_MULTIPLE_STATUSES = 'CLM_021_MULTIPLE_STATUSES'
+    CODE_CLAIM_APPROVED = 'CLM_023_CLAIM_APPROVED'
+    CODE_CLAIM_NOT_APPROVED = 'CLM_024_CLAIM_NOT_APPROVED'
 
     def self.build(opts = {})
       new(opts)

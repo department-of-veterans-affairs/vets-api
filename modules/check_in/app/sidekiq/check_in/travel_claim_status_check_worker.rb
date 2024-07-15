@@ -29,17 +29,18 @@ module CheckIn
     end
 
     def claim_status(opts = {})
-      check_in_session = CheckIn::V2::Session.build(data: { uuid: opts[:uuid] })
+      uuid, appointment_date, facility_type = opts.values_at(:uuid, :appointment_date, :facility_type)
+      check_in_session = CheckIn::V2::Session.build(data: { uuid: })
 
       claim_status_resp = TravelClaim::Service.build(
         check_in: check_in_session,
-        params: { appointment_date: opts[:appointment_date] }
+        params: { appointment_date: }
       ).claim_status
 
-      handle_response(claim_status_resp:, facility_type: opts[:facility_type], uuid: opts[:uuid])
+      handle_response(claim_status_resp:, facility_type:, uuid:)
     rescue => e
       logger.error({ message: "Error calling BTSSS Service: #{e.message}", method: 'claim_status' }.merge(opts))
-      if 'oh'.casecmp?(opts[:facility_type])
+      if 'oh'.casecmp?(facility_type)
         StatsD.increment(Constants::OH_STATSD_BTSSS_ERROR)
         template_id = Constants::OH_ERROR_TEMPLATE_ID
       else
@@ -50,116 +51,46 @@ module CheckIn
     end
 
     def handle_response(opts = {})
-      claim_response_body = opts[:claim_status_resp]&.dig(:data, :body)
-      claim_response_code = opts[:claim_status_resp]&.dig(:data, :code)
+      response_body = opts[:claim_status_resp]&.dig(:data, :body)
+      status = opts[:claim_status_resp]&.dig(:status)
       facility_type = opts[:facility_type] || ''
 
-      process_claim_response(claim_response_body:, claim_response_code:, facility_type:, uuid: opts[:uuid])
-    end
+      code = if status == 200
+               get_code_for_200_response(opts[:claim_status_resp], opts[:uuid])
+             else
+               opts[:claim_status_resp]&.dig(:data, :code)
+             end
 
-    private
+      statsd_metric, template_id = facility_type.downcase == 'oh' ? OH_RESPONSES[code] : CIE_RESPONSES[code]
 
-    def process_claim_response(claim_response_body:, claim_response_code:, facility_type:, uuid:)
-      claim_number = if claim_response_body&.empty?
-                       nil
-                     else
-                       claim_response_body&.first&.with_indifferent_access&.[](:claimNum)&.last(4)
-                     end
+      claim_number = response_body&.first&.with_indifferent_access&.[](:claimNum)&.last(4)
 
-      statsd_metric, template_id = get_metric_and_template_id(claim_response_body, claim_response_code, facility_type,
-                                                              uuid)
       StatsD.increment(statsd_metric)
       [claim_number, template_id]
     end
 
-    def validate_claim_status(claim_response_body:, facility_type:, uuid:)
-      claim_status = claim_response_body.first.with_indifferent_access[:claimStatus]
+    def get_code_for_200_response(claim_status_resp, uuid)
+      response_code = claim_status_resp&.dig(:data, :code)
 
-      if SUCCESSFUL_CLAIM_STATUSES.include?(claim_status.downcase)
-        success_statsd_metric_and_template_id(facility_type:)
-      elsif FAILED_CLAIM_STATUSES.include?(claim_status.downcase)
-        failure_statsd_metric_and_template_id(facility_type:)
+      case response_code
+      when TravelClaim::Response::CODE_EMPTY_STATUS
+        logger.info({ message: 'Empty claim status response', uuid: })
+        TravelClaim::Response::CODE_EMPTY_STATUS
       else
-        logger.info({ message: 'Received non-matching claim status', claim_status:, uuid: })
-        error_statsd_metric_and_template_id(facility_type:)
-      end
-    end
-
-    def get_metric_and_template_id(claim_response_body, code, facility_type, uuid)
-      if facility_type.downcase == 'oh'
-        oh_responses(claim_response_body, facility_type, uuid).fetch(code).call
-      else
-        cie_responses(claim_response_body, facility_type, uuid).fetch(code).call
-      end
-    end
-
-    def oh_responses(claim_response_body, facility_type, uuid)
-      Hash.new([Constants::OH_STATSD_BTSSS_ERROR, Constants::OH_ERROR_TEMPLATE_ID]).merge(
-        TravelClaim::Response::CODE_EMPTY_STATUS => proc do
-          logger.info({ message: 'Empty claim status response', uuid: })
-          [Constants::OH_STATSD_BTSSS_ERROR, Constants::OH_ERROR_TEMPLATE_ID]
-        end,
-        TravelClaim::Response::CODE_MULTIPLE_STATUSES => proc do
-          logger.info({ message: 'Multiple claim statuses', uuid: })
-          validate_claim_status(claim_response_body:, facility_type:,
-                                uuid:)
-        end,
-        TravelClaim::Response::CODE_SUCCESS => proc do
-          validate_claim_status(claim_response_body:, facility_type:, uuid:)
-        end,
-        TravelClaim::Response::CODE_BTSSS_TIMEOUT => proc do
-          [Constants::OH_STATSD_BTSSS_TIMEOUT,
-           Constants::OH_TIMEOUT_TEMPLATE_ID]
+        if response_code == TravelClaim::Response::CODE_MULTIPLE_STATUSES
+          logger.info({ message: 'Multiple claim status response', uuid: })
         end
-      )
-    end
 
-    def cie_responses(claim_response_body, facility_type, uuid)
-      Hash.new([Constants::CIE_STATSD_BTSSS_ERROR, Constants::CIE_ERROR_TEMPLATE_ID]).merge(
-        TravelClaim::Response::CODE_EMPTY_STATUS => proc do
-          logger.info({ message: 'Empty claim status response', uuid: })
-          [Constants::CIE_STATSD_BTSSS_ERROR,
-           Constants::CIE_ERROR_TEMPLATE_ID]
-        end,
-        TravelClaim::Response::CODE_MULTIPLE_STATUSES => proc do
-          logger.info({ message: 'Multiple claim statuses', uuid: })
-          validate_claim_status(claim_response_body:, facility_type:,
-                                uuid:)
-        end,
-        TravelClaim::Response::CODE_SUCCESS => proc do
-          validate_claim_status(claim_response_body:, facility_type:, uuid:)
-        end,
-        TravelClaim::Response::CODE_BTSSS_TIMEOUT => proc do
-          [Constants::CIE_STATSD_BTSSS_TIMEOUT,
-           Constants::CIE_TIMEOUT_TEMPLATE_ID]
+        response_body = claim_status_resp.dig(:data, :body)
+        claim_status = response_body.first.with_indifferent_access[:claimStatus]
+        if SUCCESSFUL_CLAIM_STATUSES.include?(claim_status.downcase)
+          TravelClaim::Response::CODE_CLAIM_APPROVED
+        elsif FAILED_CLAIM_STATUSES.include?(claim_status.downcase)
+          TravelClaim::Response::CODE_CLAIM_NOT_APPROVED
+        else
+          logger.info({ message: 'Received non-matching claim status', claim_status:, uuid: })
+          TravelClaim::Response::CODE_UNKNOWN_ERROR
         end
-      )
-    end
-
-    def success_statsd_metric_and_template_id(facility_type:)
-      case facility_type
-      when 'oh'
-        [Constants::OH_STATSD_BTSSS_SUCCESS, Constants::OH_SUCCESS_TEMPLATE_ID]
-      else
-        [Constants::CIE_STATSD_BTSSS_SUCCESS, Constants::CIE_SUCCESS_TEMPLATE_ID]
-      end
-    end
-
-    def error_statsd_metric_and_template_id(facility_type:)
-      case facility_type
-      when 'oh'
-        [Constants::OH_STATSD_BTSSS_ERROR, Constants::OH_ERROR_TEMPLATE_ID]
-      else
-        [Constants::CIE_STATSD_BTSSS_ERROR, Constants::CIE_ERROR_TEMPLATE_ID]
-      end
-    end
-
-    def failure_statsd_metric_and_template_id(facility_type:)
-      case facility_type
-      when 'oh'
-        [Constants::OH_STATSD_BTSSS_CLAIM_FAILURE, Constants::OH_FAILURE_TEMPLATE_ID]
-      else
-        [Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE, Constants::CIE_FAILURE_TEMPLATE_ID]
       end
     end
   end

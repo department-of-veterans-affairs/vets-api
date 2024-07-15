@@ -52,10 +52,8 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       )
       expect(worker).not_to receive(:log_exception_to_sentry)
 
-      Sidekiq::Testing.inline! do
-        VCR.use_cassette('check_in/btsss/claim_status/claim_status_200', match_requests_on: [:host]) do
-          worker.perform(uuid, appt_date)
-        end
+      VCR.use_cassette('check_in/btsss/claim_status/claim_status_200', match_requests_on: [:host]) do
+        worker.perform(uuid, appt_date)
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_success).exactly(1).time
@@ -79,16 +77,14 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       )
       expect(worker).not_to receive(:log_exception_to_sentry)
 
-      Sidekiq::Testing.inline! do
-        VCR.use_cassette('check_in/btsss/claim_status/multiple_claim_status_200', match_requests_on: [:host]) do
-          worker.perform(uuid, appt_date)
-        end
+      VCR.use_cassette('check_in/btsss/claim_status/multiple_claim_status_200', match_requests_on: [:host]) do
+        worker.perform(uuid, appt_date)
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_success).exactly(1).time
       expect(StatsD).to have_received(:increment)
         .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
-      expect(Sidekiq.logger).to have_received(:info).with({ message: 'Multiple claim statuses',
+      expect(Sidekiq.logger).to have_received(:info).with({ message: 'Multiple claim status response',
                                                             uuid: })
     end
   end
@@ -108,10 +104,8 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       )
       expect(worker).not_to receive(:log_exception_to_sentry)
 
-      Sidekiq::Testing.inline! do
-        VCR.use_cassette('check_in/btsss/claim_status/claim_status_empty_response_200', match_requests_on: [:host]) do
-          worker.perform(uuid, appt_date)
-        end
+      VCR.use_cassette('check_in/btsss/claim_status/claim_status_empty_response_200', match_requests_on: [:host]) do
+        worker.perform(uuid, appt_date)
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
@@ -136,10 +130,8 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       )
       expect(worker).not_to receive(:log_exception_to_sentry)
 
-      Sidekiq::Testing.inline! do
-        VCR.use_cassette('check_in/btsss/claim_status/failed_claim_status_200', match_requests_on: [:host]) do
-          worker.perform(uuid, appt_date)
-        end
+      VCR.use_cassette('check_in/btsss/claim_status/failed_claim_status_200', match_requests_on: [:host]) do
+        worker.perform(uuid, appt_date)
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_failed_claim).exactly(1).time
@@ -162,18 +154,17 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       )
       expect(worker).not_to receive(:log_exception_to_sentry)
 
-      Sidekiq::Testing.inline! do
-        VCR.use_cassette('check_in/btsss/claim_status/non_matching_claim_status_200', match_requests_on: [:host]) do
-          worker.perform(uuid, appt_date)
-        end
+      VCR.use_cassette('check_in/btsss/claim_status/non_matching_claim_status_200', match_requests_on: [:host]) do
+        worker.perform(uuid, appt_date)
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
-      expect(StatsD).to have_received(:increment)
-        .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
-      expect(Sidekiq.logger).to have_received(:info).with({ message: 'Received non-matching claim status',
+      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
+      expect(Sidekiq.logger).to have_received(:info).with({
+                                                            message: 'Received non-matching claim status',
                                                             claim_status: 'invalid',
-                                                            uuid: })
+                                                            uuid:
+                                                          })
     end
   end
 
@@ -191,10 +182,8 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       )
       expect(worker).not_to receive(:log_exception_to_sentry)
 
-      Sidekiq::Testing.inline! do
-        VCR.use_cassette('check_in/btsss/claim_status/claim_status_500', match_requests_on: [:host]) do
-          worker.perform(uuid, appt_date)
-        end
+      VCR.use_cassette('check_in/btsss/claim_status/claim_status_500', match_requests_on: [:host]) do
+        worker.perform(uuid, appt_date)
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
@@ -221,10 +210,8 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       )
       expect(worker).not_to receive(:log_exception_to_sentry)
 
-      Sidekiq::Testing.inline! do
-        VCR.use_cassette('check_in/btsss/token/token_500', match_requests_on: [:host]) do
-          worker.perform(uuid, appt_date)
-        end
+      VCR.use_cassette('check_in/btsss/token/token_500', match_requests_on: [:host]) do
+        worker.perform(uuid, appt_date)
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
@@ -252,9 +239,7 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
         personalisation: { claim_number: nil, appt_date: notify_appt_date }
       )
 
-      Sidekiq::Testing.inline! do
-        worker.perform(uuid, appt_date)
-      end
+      worker.perform(uuid, appt_date)
 
       expect(StatsD).to have_received(:increment).with(@statsd_timeout)
                                                  .exactly(1).time
