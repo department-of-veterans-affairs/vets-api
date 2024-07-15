@@ -61,8 +61,10 @@ module Vye
     end
 
     def load_profile(attributes)
-      user_profile = UserProfile.find_or_build(attributes)
-      conflict, attribute_name = user_profile.confirm_no_conflict(attributes).values_at(:conflict, :attribute_name)
+      user_profile, conflict, attribute_name =
+        UserProfile
+        .find_or_build(attributes)
+        .values_at(:user_profile, :conflict, :attribute_name)
 
       if user_profile.new_record? && source == :tims_feed
         raise UserProfileNotFound
@@ -71,12 +73,10 @@ module Vye
       elsif conflict == true
         message =
           format(
-            'Updating conflict for %<attribute_name>s from BDN feed line: %<locator>s',
+            'Updated conflict for %<attribute_name>s from BDN feed line: %<locator>s',
             attribute_name:, locator:
           )
         Rails.logger.info message
-        value = attributes[attribute_name]
-        user_profile.send("#{attribute_name}=", value)
       end
 
       user_profile.save!

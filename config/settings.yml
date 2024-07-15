@@ -1745,7 +1745,7 @@ vye:
   #   https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#scrypt
   scrypt:
     salt: ~
-    N: 16384
+    N: 2048
     r: 8
     p: 1
     length: 16

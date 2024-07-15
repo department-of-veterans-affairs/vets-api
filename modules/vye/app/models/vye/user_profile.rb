@@ -26,13 +26,15 @@ class Vye::UserProfile < ApplicationRecord
     end
   end
 
+  validates :ssn_digest, :file_number_digest, uniqueness: true, allow_nil: true
+
   scope(
     :with_assos,
     lambda {
       includes(
         :pending_documents,
         :verifications,
-        active_user_info: %i[bdn_clone address_changes awards]
+        active_user_info: %i[address_changes awards]
       )
     }
   )
@@ -45,31 +47,40 @@ class Vye::UserProfile < ApplicationRecord
     end
   end
 
-  def confirm_no_conflict(attributes)
-    if new_record?
-      return { conflict: false }
-    elsif gen_digest(attributes[:ssn]) != self.attributes['ssn_digest']
-      return { conflict: true, attribute_name: 'ssn' }
-    elsif gen_digest(attributes[:file_number]) != self.attributes['file_number_digest']
-      return { conflict: true, attribute_name: 'file_number' }
-    end
-
-    { conflict: false }
-  end
-
   def self.find_or_build(attributes)
     ssn, file_number, icn = attributes.values_at(:ssn, :file_number, :icn)
+    ssn_digest, file_number_digest = [ssn, file_number].map { |value| gen_digest(value) }
 
-    record = find_from_digested_ssn(ssn) || find_from_digested_file_number(file_number)
+    user_profile = find_by(ssn_digest:) || find_by(file_number_digest:)
 
-    if record.blank?
-      record = build(attributes)
+    if user_profile.blank?
+      user_profile = build(ssn_digest:, file_number_digest:, icn:)
     else
-      record.ssn = ssn if record.ssn_digest.blank?
-      record.file_number = file_number if record.file_number_digest.blank?
-      record.icn = icn if icn.present? && record.icn.blank?
+      user_profile.ssn_digest = ssn_digest if user_profile.ssn_digest.blank?
+      user_profile.file_number_digest = file_number_digest if user_profile.file_number_digest.blank?
+      user_profile.icn = icn if icn.present? && user_profile.icn.blank?
     end
 
-    record
+    user_profile.check_for_match(ssn_digest:, file_number_digest:)
+  end
+
+  def check_for_match(ssn_digest:, file_number_digest:)
+    user_profile = self
+    conflict = false
+    attribute_name = nil
+
+    if new_record?
+      conflict = false
+    elsif ssn_digest != attributes['ssn_digest']
+      conflict = true
+      attribute_name = 'ssn'
+      self.ssn_digest = ssn_digest
+    elsif file_number_digest != attributes['file_number_digest']
+      conflict = true
+      attribute_name = 'file_number'
+      self.file_number_digest = file_number_digest
+    end
+
+    { user_profile:, conflict:, attribute_name: }
   end
 end

@@ -39,7 +39,7 @@ module Vye
 
       def bdn_import(path)
         counts = { success: 0, failure: 0 }
-        bdn_clone = BdnClone.create!
+        bdn_clone = BdnClone.create!(transact_date: Time.zone.today)
         source = :bdn_feed
         path.each_line.with_index do |line, index|
           locator = index + 1
