@@ -57,7 +57,10 @@ describe 'user_credential rake tasks' do # rubocop:disable RSpec/DescribeClass
       let(:action) { 'lock' }
       let(:locked) { true }
 
-      before { user_verification.unlock! }
+      before do
+        user_verification.unlock!
+        task.reenable
+      end
 
       it 'locks the credential & return the credential type & uuid when successful' do
         expect(user_verification.locked).to be_falsey
