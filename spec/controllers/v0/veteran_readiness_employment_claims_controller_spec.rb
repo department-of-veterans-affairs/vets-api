@@ -8,8 +8,6 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
   let(:user_account) { create(:user_account) }
   let(:loa3_user) { create(:evss_user) }
   let(:user_no_pid) { create(:unauthorized_evss_user) }
-  let(:user_account) { create(:user_account) }
-
   let(:test_form) do
     build(:veteran_readiness_employment_claim)
   end
