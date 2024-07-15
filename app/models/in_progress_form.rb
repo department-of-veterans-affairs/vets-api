@@ -21,8 +21,6 @@ class InProgressForm < ApplicationRecord
   has_kms_key
   has_encrypted :form_data, key: :kms_key, **lockbox_options
 
-  has_many :form_submissions, dependent: :nullify
-
   enum :status, %w[pending processing], prefix: :submission, default: :pending
   scope :submission_pending, -> { where(status: [nil, 'pending']) } # override to include nil
 

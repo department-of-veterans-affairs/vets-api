@@ -26,6 +26,14 @@ FactoryBot.define do
     }
   end
 
+  trait :backup_accepted do
+    backup_submitted_claim_status { 'accepted' }
+  end
+
+  trait :backup_rejected do
+    backup_submitted_claim_status { 'rejected' }
+  end
+
   trait :with_everything do
     form_json do
       File.read("#{submissions_path}/with_everything.json")
@@ -263,11 +271,22 @@ FactoryBot.define do
     submitted_claim_id { SecureRandom.rand(900_000_000) }
   end
 
-  trait :with_accepted_backup_status do
-    backup_submitted_claim_status { :accepted }
-  end
-
   trait :created_more_than_3_days_ago do
     created_at { 4.days.ago }
+  end
+
+  trait :remediated do
+    after(:create) do |submission|
+      create(:form526_submission_remediation, form526_submission: submission, lifecycle: ['i have been remediated'])
+    end
+  end
+
+  trait :no_longer_remediated do
+    after(:create) do |submission|
+      create(:form526_submission_remediation,
+             form526_submission: submission,
+             lifecycle: ['i am no longer remediated'],
+             success: false)
+    end
   end
 end
