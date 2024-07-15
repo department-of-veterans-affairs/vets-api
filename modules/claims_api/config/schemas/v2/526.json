@@ -683,14 +683,14 @@
               "city": {
                 "description": "City of treatment facility.",
                 "type": ["string", "null"],
-                "pattern": "^$|^([a-zA-Z0-9'.' ])+$",
+                "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                 "example": "Portland",
                 "nullable": true
               },
               "state": {
                 "description": "State of treatment facility.",
                 "type": ["string", "null"],
-                "pattern": "^$|^[-a-z,A-Z]{2}$",
+                "pattern": "^$|^[a-z,A-Z]{2}$",
                 "example": "OR",
                 "nullable": true
               }

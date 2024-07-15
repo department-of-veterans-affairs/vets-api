@@ -2047,14 +2047,14 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([a-zA-Z0-9'.' ])+$",
+                                        "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
                                       "state": {
                                         "description": "State of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^[-a-z,A-Z]{2}$",
+                                        "pattern": "^$|^[a-z,A-Z]{2}$",
                                         "example": "OR",
                                         "nullable": true
                                       }
@@ -3398,14 +3398,14 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([a-zA-Z0-9'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
                                     "state": {
                                       "description": "State of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^[-a-z,A-Z]{2}$",
+                                      "pattern": "^$|^[a-z,A-Z]{2}$",
                                       "example": "OR",
                                       "nullable": true
                                     }
@@ -4315,7 +4315,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "20a9dbf2-98e2-4ddd-a406-793f85a0dc76",
+                    "id": "be0b5388-a8c3-4db0-9b6d-d343a52fcb03",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -5282,14 +5282,14 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([a-zA-Z0-9'.' ])+$",
+                                        "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
                                       "state": {
                                         "description": "State of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^[-a-z,A-Z]{2}$",
+                                        "pattern": "^$|^[a-z,A-Z]{2}$",
                                         "example": "OR",
                                         "nullable": true
                                       }
@@ -6633,14 +6633,14 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([a-zA-Z0-9'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
                                     "state": {
                                       "description": "State of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^[-a-z,A-Z]{2}$",
+                                      "pattern": "^$|^[a-z,A-Z]{2}$",
                                       "example": "OR",
                                       "nullable": true
                                     }
@@ -8527,14 +8527,14 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([a-zA-Z0-9'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
                                     "state": {
                                       "description": "State of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^[-a-z,A-Z]{2}$",
+                                      "pattern": "^$|^[a-z,A-Z]{2}$",
                                       "example": "OR",
                                       "nullable": true
                                     }
@@ -9193,7 +9193,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "316760ea-8ef9-4b5a-8a55-c283774447b5",
+                    "id": "325dd8b8-ae7a-469d-a0e9-66887dd5ec24",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12945,7 +12945,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "324ce19c-2007-4e0a-bf0c-fd6b9f1b2115",
+                    "id": "6ae7a4b3-2846-4a8d-ba20-13cfecf951cc",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13638,7 +13638,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "267dd259-7b98-4d16-a51b-e59e3379ea2d",
+                    "id": "ac0a296b-c1ee-4f20-8fa1-f02305aa0bff",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15589,7 +15589,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "02429805-cf03-4f13-b9ba-125236f15312",
+                    "id": "2481cfc2-318d-4f1a-9b84-6768f6037604",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "dateRequestAccepted": "2024-07-15",
