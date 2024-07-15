@@ -5,11 +5,6 @@ module ClaimsApi
     module Exceptions
       module Lighthouse
         class Timeout < StandardError
-          def initialize(errors)
-            @errors = [errors].flatten
-            super
-          end
-
           def errors
             errors_array = []
             errors_array << {

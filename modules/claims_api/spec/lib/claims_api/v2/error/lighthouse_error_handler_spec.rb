@@ -49,7 +49,8 @@ describe ApplicationController, type: :controller do
     end
 
     def raise_timeout
-      raise Common::Exceptions::GatewayTimeout
+      error = [{ status_code: 499 }]
+      raise ClaimsApi::Common::Exceptions::Lighthouse::Timeout, error
     end
   end
 
@@ -163,8 +164,8 @@ describe ApplicationController, type: :controller do
 
       expect(response).to have_http_status(:gateway_timeout)
       parsed_body = JSON.parse(response.body)
-      expect(parsed_body['errors'][0]['title']).to eq('Gateway timeout')
-      expect(parsed_body['errors'][0]['detail']).to eq('Did not receive a timely response from an upstream server')
+      expect(parsed_body['errors'][0]['title']).to eq('Upstream timeout')
+      expect(parsed_body['errors'][0]['detail']).to eq('An upstream service timed out.')
       expect(parsed_body['errors'][0]['status']).to eq('504')
       expect(parsed_body['errors'][0]['status']).to be_a(String)
     end
