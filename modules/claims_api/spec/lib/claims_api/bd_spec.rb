@@ -72,6 +72,20 @@ describe ClaimsApi::BD do
         expect(result).to eq(expected)
       end
     end
+
+    context 'when the upstream service is down' do
+      let(:client) { instance_double(Faraday::Connection) }
+      let(:response) { instance_double(Faraday::Response, body: 'failed to request: timeout') }
+
+      before do
+        allow(Faraday).to receive(:new).and_return(client)
+        allow(client).to receive(:post).and_return(response)
+      end
+
+      it 'raises a GatewayTimeout exception' do
+        expect { subject.upload(claim:, pdf_path:) }.to raise_error(Common::Exceptions::GatewayTimeout)
+      end
+    end
   end
 
   describe 'evidence waiver submissions (doc_type: L705)' do
@@ -104,6 +118,24 @@ describe ClaimsApi::BD do
                              fileName: '5103.pdf', trackedItemIds: [234, 235], participantId: '60289076',
                              fileNumber: '7348296' } }
         expect(result).to eq(expected)
+      end
+    end
+
+    context 'when the upstream service is down' do
+      let(:client) { instance_double(Faraday::Connection) }
+      let(:response) { instance_double(Faraday::Response, body: 'failed to request: timeout') }
+
+      before do
+        allow(Rails).to receive(:logger).and_return(double('Logger', info: true))
+        allow(Faraday).to receive(:new).and_return(client)
+        allow(client).to receive(:post).and_return(response)
+      end
+
+      it 'logs the error and returns an empty hash' do
+        result = subject.search(claim_id, file_number)
+        expect(Rails.logger).to have_received(:info)
+          .with(%r{benefits_documents :: {"detail":"/search failure for claimId #{claim_id}, Gateway timeout"}})
+        expect(result).to eq({})
       end
     end
   end

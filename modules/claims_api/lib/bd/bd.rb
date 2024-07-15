@@ -22,7 +22,11 @@ module ClaimsApi
       body = { data: { claimId: claim_id, fileNumber: file_number } }
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "calling benefits documents search for claimId #{claim_id}")
-      client.post('documents/search', body)&.body&.deep_symbolize_keys
+      res = client.post('documents/search', body)&.body
+
+      raise ::Common::Exceptions::GatewayTimeout.new(detail: 'Upstream service error.') unless res.is_a?(Hash)
+
+      res.deep_symbolize_keys
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "/search failure for claimId #{claim_id}, #{e.message}")
@@ -34,6 +38,7 @@ module ClaimsApi
     #
     # @return success or failure
     # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable Metrics/MethodLength
     def upload(claim:, pdf_path:, pctpnt_vet_id: nil, doc_type: 'L122', file_number: nil, original_filename: nil)
       unless File.exist? pdf_path
         ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist",
@@ -43,13 +48,21 @@ module ClaimsApi
 
       @multipart = true
       body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:, pctpnt_vet_id:)
-      res = client.post('documents', body)&.body&.deep_symbolize_keys
+      res = client.post('documents', body)&.body
       request_id = res&.dig(:data, :requestId)
       ClaimsApi::Logger.log(
         'benefits_documents',
         detail: "Successfully uploaded #{doc_type == 'L122' ? 'claim' : 'supporting'} doc to BD",
         claim_id: claim.id, request_id:
       )
+
+      raise ::Common::Exceptions::GatewayTimeout.new(detail: 'Upstream service error.') unless res.is_a?(Hash)
+
+      res = res.deep_symbolize_keys
+      request_id = res.dig(:data, :requestId)
+      ClaimsApi::Logger.log('benefits_documents',
+                            detail: "Successfully uploaded #{doc_type == 'L122' ? 'claim' : 'supporting'} doc to BD",
+                            claim_id: claim.id, request_id:)
       res
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
@@ -57,6 +70,7 @@ module ClaimsApi
       raise e
     end
     # rubocop:enable Metrics/ParameterLists
+    # rubocop:enable Metrics/MethodLength
 
     private
 
@@ -82,8 +96,8 @@ module ClaimsApi
       payload[:file] = Faraday::UploadIO.new(pdf_path.to_s, 'application/pdf')
       payload
     end
-    # rubocop:enable Metrics/ParameterLists
 
+    # rubocop:enable Metrics/ParameterLists
     def generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
       # https://confluence.devops.va.gov/display/VAExternal/Document+Types
       if doc_type == 'L122'
