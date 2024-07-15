@@ -98,6 +98,9 @@ module FsrFormTransform
       expenses.filter { |expense| names.exclude?(expense['name']) }
     end
 
+    def find_zipcode_data(zip)
+      StdZipcode.find_by(zip_code: zip)
+    end
 
     def str_to_num(str)
       return str if str.is_a? Numeric
