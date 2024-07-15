@@ -144,8 +144,7 @@ module Pensions
         form_data: @claim.to_json,
         benefits_intake_uuid: @intake_service.uuid,
         saved_claim: @claim,
-        saved_claim_id: @claim.id,
-        user_account: UserAccount.find_by(icn: claim.parsed_form['veteran_information']['icn'])
+        saved_claim_id: @claim.id
       )
       @form_submission_attempt = FormSubmissionAttempt.create(form_submission:)
 
