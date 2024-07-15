@@ -8,11 +8,13 @@
   },
   "inquiryType": "Question",
   "query": "Some question?",
-  "fullName": {
+  "personalInformation": {
     "first": "Jane",
     "last": "Doe"
   },
+  "contactInformation": {
+    "email": "jane.doe@va.gov"
+  },
   "preferredContactMethod": "email",
-  "email": "jane.doe@va.gov",
   "privacyAgreementAccepted": true
 }
