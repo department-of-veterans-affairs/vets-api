@@ -138,7 +138,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
             end
 
             context 'when a veteran does not have first name' do
-              it 'returns an error message' do
+              it 'returns an accepted message' do
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
                     allow_any_instance_of(ClaimsApi::V2::ApplicationController)

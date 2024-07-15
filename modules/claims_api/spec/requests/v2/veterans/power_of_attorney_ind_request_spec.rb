@@ -389,7 +389,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               end
 
               describe 'with missing first name' do
-                let(:no_first_last_name_target_veteran) do
+                let(:no_first_name_target_veteran) do
                   OpenStruct.new(
                     icn: '1012832025V743496',
                     first_name: '',
@@ -414,7 +414,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
                   VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                     mock_ccg(scopes) do |auth_header|
                       allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-                        .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)
+                        .to receive(:target_veteran).and_return(no_first_name_target_veteran)
 
                       post validate2122a_path, params: request_body, headers: auth_header
                       expect(response).to have_http_status(:ok)

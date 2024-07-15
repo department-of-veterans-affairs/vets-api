@@ -124,7 +124,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               )
             end
 
-            it 'returns a success response' do
+            it 'returns a 422' do
               mock_ccg(scopes) do |auth_header|
                 allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
                   .and_return({ person_poa_history: nil })
