@@ -37,12 +37,11 @@ class FormProfiles::VA0873 < FormProfile
   end
 
   def initialize_personal_information
-    payload = user.full_name_normalized.merge(preferred_name:, service_number: profile.service_number)
+    service_number = profile.is_a?(Hash) ? profile : profile.service_number
+
+    payload = user.full_name_normalized.merge(preferred_name:, service_number:)
 
     VA0873::FormPersonalInformation.new(payload)
-  rescue => e
-    log_exception_to_sentry(e, {}, prefill: :personal_information)
-    {}
   end
 
   def initialize_ava_profile
@@ -57,7 +56,7 @@ class FormProfiles::VA0873 < FormProfile
 
     VA0873::FormAvaProfile.new(payload)
   rescue => e
-    log_exception_to_sentry(e, {}, prefill: :ava_profile)
+    log_exception_to_sentry(e, {}, prefill: :personal_information)
     {}
   end
 
@@ -67,6 +66,9 @@ class FormProfiles::VA0873 < FormProfile
 
   def profile
     AskVAApi::Profile::Retriever.new(icn: user.icn).call
+  rescue => e
+    log_exception_to_sentry(e, {}, prefill: :personal_information)
+    {}
   end
 
   def metadata

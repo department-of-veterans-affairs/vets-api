@@ -2763,7 +2763,7 @@
                                     "addressLine1": {
                                       "description": "Address line 1 for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                       "maxLength": 20,
                                       "example": "1234 Couch Street"
                                     },
@@ -2863,13 +2863,14 @@
                                 "addressLine1": {
                                   "description": "Address line 1 for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "1234 Couch Street"
                                 },
                                 "addressLine2": {
                                   "description": "Address line 2 for the Veteran's new address.",
                                   "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Unit 4",
                                   "nullable": true
@@ -2877,6 +2878,7 @@
                                 "addressLine3": {
                                   "description": "Address line 3 for the Veteran's new address.",
                                   "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Room 1",
                                   "nullable": true
@@ -4112,7 +4114,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -4212,13 +4214,14 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Unit 4",
                                 "nullable": true
@@ -4226,6 +4229,7 @@
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Room 1",
                                 "nullable": true
@@ -5677,7 +5681,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "599b92a0-8788-4fdc-b512-c4c76ad630bb",
+                    "id": "624fe012-db16-4b35-a9eb-2de3d6550c25",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -5994,7 +5998,7 @@
                                     "addressLine1": {
                                       "description": "Address line 1 for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                       "maxLength": 20,
                                       "example": "1234 Couch Street"
                                     },
@@ -6094,13 +6098,14 @@
                                 "addressLine1": {
                                   "description": "Address line 1 for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "1234 Couch Street"
                                 },
                                 "addressLine2": {
                                   "description": "Address line 2 for the Veteran's new address.",
                                   "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Unit 4",
                                   "nullable": true
@@ -6108,6 +6113,7 @@
                                 "addressLine3": {
                                   "description": "Address line 3 for the Veteran's new address.",
                                   "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Room 1",
                                   "nullable": true
@@ -7343,7 +7349,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -7443,13 +7449,14 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Unit 4",
                                 "nullable": true
@@ -7457,6 +7464,7 @@
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Room 1",
                                 "nullable": true
@@ -9235,7 +9243,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -9335,13 +9343,14 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Unit 4",
                                 "nullable": true
@@ -9349,6 +9358,7 @@
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Room 1",
                                 "nullable": true
@@ -10549,7 +10559,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7bbf1556-b9a3-41c6-aa05-f176a154a8d8",
+                    "id": "e537474f-3e77-4ddf-86a5-7d547e644da4",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -11706,14 +11716,14 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.' ])+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 325,
                                     "example": "1234 Couch Street"
                                   },
                                   "addressLine2": {
                                     "description": "Address line 2 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 325,
                                     "example": "Unit 4",
                                     "nullable": true
@@ -11721,7 +11731,7 @@
                                   "addressLine3": {
                                     "description": "Address line 3 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 325,
                                     "example": "Room 1",
                                     "nullable": true
@@ -11806,13 +11816,14 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 325,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 325,
                                 "example": "Unit 4",
                                 "nullable": true
@@ -11820,6 +11831,7 @@
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 325,
                                 "example": "Room 1",
                                 "nullable": true
@@ -14299,7 +14311,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5e0c7506-a792-4e36-953e-2c7119190e8d",
+                    "id": "33e9423e-c98d-4ad2-81f1-c873262ac93c",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14992,7 +15004,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0c04555d-f23e-404a-bf6b-9be7177fce13",
+                    "id": "85ba2151-8672-4696-8d20-1a4da95fa48d",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16943,7 +16955,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8decc8d7-9304-4c4b-8a15-b43d44edef9a",
+                    "id": "453ea161-d350-4ff0-b74b-0e91f06fcf13",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "dateRequestAccepted": "2024-07-12",

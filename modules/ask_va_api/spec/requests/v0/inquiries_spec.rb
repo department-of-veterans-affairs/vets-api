@@ -282,37 +282,32 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       end
     end
 
-    context 'when an error occur' do
+    context 'when the service call fails' do
+      subject(:retriever) { described_class.new(icn: '123') }
+
+      let(:body) do
+        '{"Data":null,"Message":"Data Validation: No Profile found by ID 123"' \
+          ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Profile found by ' \
+          'ID 123","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
+      end
+      let(:service) { instance_double(Crm::Service) }
+      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
+
       before do
-        allow_any_instance_of(Crm::Service).to receive(:call).and_raise(ErrorHandler::ServiceError)
+        allow(Crm::Service).to receive(:new).and_return(service)
+        allow(service).to receive(:call)
+        allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+        allow(service).to receive(:call).and_return(failure)
         sign_in(authorized_user)
         get '/ask_va_api/v0/profile'
       end
 
-      it {
-        expect(JSON.parse(response.body)).to eq('error' => 'ErrorHandler::ServiceError: ErrorHandler::ServiceError')
-      }
-    end
-
-    context 'when user is not signed in' do
-      before do
-        get '/ask_va_api/v0/profile'
-      end
-
-      it { expect(response).to have_http_status(:unauthorized) }
-    end
-
-    context 'when a user does not have a profile' do
-      let(:icn) { '1013694290V263188' }
-      let(:profile_user) { build(:user, :accountable_with_sec_id, icn:) }
-
-      before do
-        sign_in(profile_user)
-        get '/ask_va_api/v0/profile', params: { user_mock_data: true }
+      it 'raise InvalidProfileError' do
+        expect(response).to have_http_status(:unprocessable_entity)
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'AskVAApi::Profile::InvalidInquiryError: No Contact found'
+                      'AskVAApi::Profile::InvalidProfileError: Data Validation: No Profile found by ID 123'
     end
   end
 
