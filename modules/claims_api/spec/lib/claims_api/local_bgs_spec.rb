@@ -9,10 +9,17 @@ describe ClaimsApi::LocalBGS do
 
   let(:soap_error_handler) { ClaimsApi::SoapErrorHandler.new }
 
+  before do
+    Flipper.disable(:lighthouse_claims_api_hardcode_wsdl)
+  end
+
   describe '#find_poa_by_participant_id' do
     context 'hardcoded WSDL' do
+      before do
+        Flipper.enable(:lighthouse_claims_api_hardcode_wsdl)
+      end
+
       it 'response with the correct namespace' do
-        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_hardcode_wsdl).and_return true
         VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
           result = subject.find_poa_by_participant_id('does-not-matter')
           expect(result).to be_a Hash
@@ -21,7 +28,6 @@ describe ClaimsApi::LocalBGS do
       end
 
       it 'falls back to WSDL' do
-        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_hardcode_wsdl).and_return true
         allow(ClaimsApi::LocalBGSRefactored::FindDefinition).to receive(:for_service).and_raise(
           ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
         )
@@ -35,7 +41,6 @@ describe ClaimsApi::LocalBGS do
 
       context 'invalid cached value' do
         it 'raises an error' do
-          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_hardcode_wsdl).and_return true
           service = ClaimsApi::BGSClient::Definitions::Service.new(
             bean: ClaimsApi::BGSClient::Definitions::Bean.new(
               path: 'PersonWebServiceBean',
@@ -60,7 +65,6 @@ describe ClaimsApi::LocalBGS do
     it 'responds as expected, with extra ClaimsApi::Logger logging' do
       VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
         allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id).and_return({})
-        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_hardcode_wsdl).and_return false
 
         # Events logged:
         # 1: establish_ssl_connection - how long to establish the connection
@@ -94,7 +98,6 @@ describe ClaimsApi::LocalBGS do
       VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id',
                        allow_playback_repeats: true) do
         allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id).and_return({})
-        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_hardcode_wsdl).and_return false
 
         %w[establish_ssl_connection connection_wsdl_get connection_post parsed_response].each do |event|
           expect { subject.find_poa_by_participant_id('does-not-matter') }
