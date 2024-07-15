@@ -2,7 +2,7 @@
 
 module Pensions
   class SavedClaim < ::SavedClaim
-    self.inheritance_column = :_type_disabled
+    self.inheritance_column = "SavedClaim::Pension"
 
     FORM = '21P-527EZ'
 
