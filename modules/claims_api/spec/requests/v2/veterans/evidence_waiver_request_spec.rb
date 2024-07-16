@@ -151,7 +151,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request do
               it 'returns an error message' do
                 bgs_claim_response = build(:bgs_response_with_one_lc_status).to_h
                 details = bgs_claim_response[:benefit_claim_details_dto]
-                details[:ptcpnt_vet_id] = no_first_name_target_veteran[:participant_id]
+                details[:ptcpnt_vet_id] = no_first_last_name_target_veteran[:participant_id]
                 details[:ptcpnt_clmant_id] = target_veteran[:participant_id]
 
                 expect_any_instance_of(ClaimsApi::LocalBGS)
