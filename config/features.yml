@@ -334,14 +334,6 @@ features:
   decision_review_delay_evidence:
     actor_type: user
     description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself
-  decision_review_save_encrypted_attachments:
-    actor_type: user
-    description: Enables saving a copy of encrypted decision review evidence attachment files for manual validation
-    enable_in_development: true
-  decision_review_use_hexapdf_for_encrypted_attachments:
-    actor_type: user
-    description: Enables using Hexapdf instead of PDFTK for decrypting password protected decision review evidence attachment files
-    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -1389,6 +1381,9 @@ features:
   mobile_lighthouse_disability_ratings:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our disability ratings endpoints upstream service
+  mobile_military_indicator_logger:
+    actor_type: user
+    description: For mobile app, enables logging of military discharge codes
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry

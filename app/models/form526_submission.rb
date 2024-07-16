@@ -62,20 +62,37 @@ class Form526Submission < ApplicationRecord
   enum backup_submitted_claim_status: { accepted: 0, rejected: 1 }
   enum submit_endpoint: { evss: 0, claims_api: 1, benefits_intake_api: 2 }
 
+  # Documentation describing the purpose of these scopes:
+  # https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/disability/526ez/engineering_research/untouched_submission_audit/526_state_repair_tdd.md
   scope :pending_backup_submissions, lambda {
     where(submitted_claim_id: nil, backup_submitted_claim_status: nil)
       .where.not(backup_submitted_claim_id: nil)
+      .where.missing(:form526_submission_remediations)
   }
   scope :in_process, lambda {
     where(submitted_claim_id: nil, backup_submitted_claim_status: nil)
-      .where('created_at >= ?', MAX_PENDING_TIME.ago)
+      .where(arel_table[:created_at].gt(MAX_PENDING_TIME.ago))
+      .where.missing(:form526_submission_remediations)
+  }
+  scope :accepted_to_primary_path, lambda {
+    where.not(submitted_claim_id: nil)
+  }
+  scope :accepted_to_backup_path, lambda {
+    where.not(backup_submitted_claim_id: nil)
+         .where(backup_submitted_claim_status: backup_submitted_claim_statuses[:accepted])
+  }
+  scope :rejected_from_backup_path, lambda {
+    where.not(backup_submitted_claim_id: nil)
+         .where(backup_submitted_claim_status: backup_submitted_claim_statuses[:rejected])
+  }
+  scope :remediated, lambda {
+    left_joins(:form526_submission_remediations)
+      .where(form526_submission_remediations: { success: true })
   }
   scope :success_type, lambda {
-    left_joins(:form526_submission_remediations)
-      .where.not(submitted_claim_id: nil)
-      .or(where.not(backup_submitted_claim_id: nil)
-        .where(backup_submitted_claim_status: backup_submitted_claim_statuses[:accepted]))
-      .or(where(form526_submission_remediations: { success: true }))
+    where(id: accepted_to_primary_path.select(:id))
+      .or(where(id: accepted_to_backup_path.select(:id)))
+      .or(where(id: remediated.select(:id)))
   }
   scope :failure_type, lambda {
     where.not(id: in_process.select(:id))

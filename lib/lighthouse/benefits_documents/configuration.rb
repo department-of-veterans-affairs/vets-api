@@ -16,7 +16,9 @@ module BenefitsDocuments
     SYSTEM_NAME = 'VA.gov'
     API_SCOPES = %w[documents.read documents.write].freeze
     DOCUMENTS_PATH = 'services/benefits-documents/v1/documents'
+    DOCUMENTS_STATUS_PATH = 'services/benefits-documents/v1/uploads/status'
     TOKEN_PATH = 'oauth2/benefits-documents/system/v1/token'
+    QA_TESTING_DOMAIN = 'https://dev-api.va.gov'
 
     ##
     # @return [Config::Options] Settings for benefits_claims API.
@@ -95,13 +97,28 @@ module BenefitsDocuments
       payload
     end
 
+    def get_documents_status(lighthouse_document_request_ids)
+      headers = {
+        'Authorization' => "Bearer #{documents_status_access_token}",
+        'Content-Type' => 'application/json'
+      }
+
+      body = {
+        data: {
+          requestIds: lighthouse_document_request_ids
+        }
+      }.to_json
+
+      documents_status_api_connection.post(DOCUMENTS_STATUS_PATH, body, headers)
+    end
+
     ##
     # Creates a Faraday connection with parsing json and breakers functionality.
     #
     # @return [Faraday::Connection] a Faraday connection instance.
     #
-    def connection
-      @conn ||= Faraday.new(base_api_path, headers: base_request_headers, request: request_options) do |faraday|
+    def connection(api_path = base_api_path)
+      @conn ||= Faraday.new(api_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use :breakers
         faraday.use Faraday::Response::RaiseError
 
@@ -151,6 +168,16 @@ module BenefitsDocuments
       @token_service ||= Auth::ClientCredentials::Service.new(
         url, API_SCOPES, lighthouse_client_id, aud_claim_url, lighthouse_rsa_key_path, 'benefits-documents'
       )
+    end
+
+    def documents_status_access_token
+      # Lighthouse requires the documents status endpoint be tested on the QA testing domain
+      ENV['RAILS_ENV'] == 'test' ? access_token(nil, nil, { host:  QA_TESTING_DOMAIN }) : access_token
+    end
+
+    def documents_status_api_connection
+      # Lighthouse requires the documents status endpoint be tested on the QA testing domain
+      ENV['RAILS_ENV'] == 'test' ? connection(QA_TESTING_DOMAIN) : connection
     end
   end
 end
