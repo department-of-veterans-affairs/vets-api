@@ -14,4 +14,3 @@ module AccreditedRepresentation
     end
   end
 end
-  
