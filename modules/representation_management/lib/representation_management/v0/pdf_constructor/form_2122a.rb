@@ -11,6 +11,7 @@ module RepresentationManagement
                           'representation_management',
                           'lib',
                           'representation_management',
+                          'v0',
                           'pdf_constructor',
                           'pdf_templates',
                           '21-22a.pdf')
@@ -54,8 +55,9 @@ module RepresentationManagement
           {
             # Section !
             # Item 1
-            "#{page1_key}.VeteransLastName[0]": data.veteran_last_name
-            # "#{page1_key}.VeteransFirstName[0]": data.dig('veteran', 'firstName'),
+            "#{page1_key}.Veterans_Last_Name[0]": data.veteran_last_name,
+            "#{page1_key}.Veterans_Middle_Initial[0]": data.veteran_middle_initial,
+            "#{page1_key}.Veterans_First_Name[0]": data.veteran_first_name
             # # Item 2
             # "#{page1_key}.SocialSecurityNumber_FirstThreeNumbers[0]": data.dig('veteran', 'ssn')[0..2],
             # "#{page1_key}.SocialSecurityNumber_SecondTwoNumbers[0]": data.dig('veteran', 'ssn')[3..4],
