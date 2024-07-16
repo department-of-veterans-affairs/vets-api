@@ -25,10 +25,13 @@ module VAOS
         # Extract contact fields from hash
         if reason_code_hash.key?('phone number') || reason_code_hash.key?('email')
           contact_info = []
-          contact_info.push({ system: 'phone', value: reason_code_hash['phone number'] })
-          contact_info.push({ system: 'email', value: reason_code_hash['email'] })
+          contact_info.push({ type: 'phone', value: reason_code_hash['phone number'] })
+          contact_info.push({ type: 'email', value: reason_code_hash['email'] })
           appointment[:contact] = { telecom: contact_info }
         end
+
+        # Extract additionalAppointmentDetails from hash
+        appointment[:additional_appointment_details] = reason_code_hash['comments'] if reason_code_hash.key?('comments')
       end
     end
   end
