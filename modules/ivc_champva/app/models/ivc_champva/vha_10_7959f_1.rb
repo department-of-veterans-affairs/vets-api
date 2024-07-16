@@ -3,6 +3,7 @@
 module IvcChampva
   class VHA107959f1
     include Virtus.model(nullify_blank: true)
+    include Attachments
 
     attribute :data
     attr_reader :form_id
