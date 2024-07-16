@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/ModuleLength
 module FsrFormTransform
   module Utils
     def dollars_cents(flt)
@@ -8,33 +7,14 @@ module FsrFormTransform
     end
 
     def re_camel(x)
-      return re_camel_array(x) if x.instance_of?(Array)
-
-      re_camel_hash(x) if x.instance_of?(Hash)
-    end
-
-    def re_camel_array(x)
-      result = []
-      x.each do |el|
-        result << if el.instance_of?(Hash) || el.instance_of?(Array)
-                    re_camel(el)
-                  else
-                    el
-                  end
+      case x
+      when Array
+        x.map { |el| re_camel(el) }
+      when Hash
+        x.transform_keys { |key| key.camelcase(:lower) }.transform_values { |val| re_camel(val) }
+      else
+        x
       end
-      result
-    end
-
-    def re_camel_hash(x)
-      result = {}
-      x.each do |key, val|
-        result[key.camelcase(:lower)] = if val.instance_of?(Hash) || val.instance_of?(Array)
-                                          re_camel(val)
-                                        else
-                                          val
-                                        end
-      end
-      result
     end
 
     def re_dollar_cent(x, ignore = [])
@@ -129,4 +109,3 @@ module FsrFormTransform
     end
   end
 end
-# rubocop:enable Metrics/ModuleLength
