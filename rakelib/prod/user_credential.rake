@@ -20,18 +20,18 @@ namespace :user_credential do
 
   def run_task(action, args, all_credentials: false)
     namespace = "UserCredential::#{action.to_s.camelize}"
-    action = %i[lock lock_all].include?(action) ? :lock : :unlock
+    lock_action = %i[lock lock_all].include?(action) ? :lock : :unlock
     validate_args(args, all_credentials)
     context = build_context(args)
     log_message(level: 'info', message: "[#{namespace}] rake task start, context: #{context.to_json}")
 
     if all_credentials
       UserAccount.find_by(icn: args[:icn]).user_verifications.each do |user_verification|
-        update_credential(user_verification, action, namespace, context)
+        update_credential(user_verification, lock_action, namespace, context)
       end
     else
       user_verification = UserVerification.where(["#{args[:type]}_uuid = ?", args[:credential_id]]).first
-      update_credential(user_verification, action, namespace, context)
+      update_credential(user_verification, lock_action, namespace, context)
     end
     log_message(level: 'info', message: "[#{namespace}] rake task complete, context: #{context.to_json}")
   rescue => e
@@ -51,12 +51,13 @@ namespace :user_credential do
       requested_by: args[:requested_by] }.compact
   end
 
-  def update_credential(user_verification, action, namespace, context)
-    user_verification.send("#{action}!")
+  def update_credential(user_verification, lock_action, namespace, context)
+    user_verification.send("#{lock_action}!")
     credential_context = context.merge({ type: user_verification.credential_type,
                                          credential_id: user_verification.credential_identifier,
                                          locked: user_verification.locked }).compact
-    log_message(level: 'info', message: "[#{namespace}] credential #{action}, context: #{credential_context.to_json}")
+    log_message(level: 'info',
+                message: "[#{namespace}] credential #{lock_action}, context: #{credential_context.to_json}")
   end
 
   def log_message(level:, message:)
