@@ -150,8 +150,9 @@ RSpec.describe 'Evidence Waiver 5103', type: :request do
             context 'when a veteran does not have first and last name' do
               it 'returns an error message' do
                 bgs_claim_response = build(:bgs_response_with_one_lc_status).to_h
-                bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_vet_id] = no_first_name_target_veteran[:participant_id]
-                bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_clmant_id] = target_veteran[:participant_id]
+                details = bgs_claim_response[:benefit_claim_details_dto]
+                details[:ptcpnt_vet_id] = no_first_name_target_veteran[:participant_id]
+                details[:ptcpnt_clmant_id] = target_veteran[:participant_id]
 
                 expect_any_instance_of(ClaimsApi::LocalBGS)
                   .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
@@ -192,8 +193,9 @@ RSpec.describe 'Evidence Waiver 5103', type: :request do
             context 'when a veteran does not have first name' do
               it 'returns an accepted message' do
                 bgs_claim_response = build(:bgs_response_with_one_lc_status).to_h
-                bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_vet_id] = no_first_name_target_veteran[:participant_id]
-                bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_clmant_id] = target_veteran[:participant_id]
+                details = bgs_claim_response[:benefit_claim_details_dto]
+                details[:ptcpnt_vet_id] = no_first_name_target_veteran[:participant_id]
+                details[:ptcpnt_clmant_id] = target_veteran[:participant_id]
 
                 expect_any_instance_of(ClaimsApi::LocalBGS)
                   .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
