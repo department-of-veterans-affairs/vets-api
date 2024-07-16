@@ -1568,3 +1568,6 @@ features:
   toggle_vye_application:
     actor_type: user
     description: Enable VYE
+  military_benefit_estimates:
+    actor_type: user
+    description: swap order of the military details in GI search filters 
