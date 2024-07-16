@@ -83,7 +83,7 @@ Rails.application.configure do
     connect_timeout: 2,
     url: Settings.redis.rails_cache.url,
     expires_in: 30.minutes,
-    pool: ENV.fetch('RAILS_MAX_THREADS', 5).to_i
+    pool: { size: ENV.fetch('RAILS_MAX_THREADS', 5).to_i }
   }
 
   config.action_mailer.perform_caching = false
