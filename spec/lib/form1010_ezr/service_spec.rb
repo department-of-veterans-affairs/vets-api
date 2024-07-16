@@ -191,7 +191,7 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       it 'logs the submission id, payload size, and individual attachment sizes in descending order (if applicable)',
-         run_at: 'Tue, 18 Jun 2024 18:17:40 GMT' do
+         run_at: 'Tue, 16 Jul 2024 18:35:57 GMT' do
         VCR.use_cassette(
           'form1010_ezr/authorized_submit_with_attachments',
           { match_requests_on: %i[method uri body], erb: true }
@@ -200,9 +200,9 @@ RSpec.describe Form1010Ezr::Service do
 
           expect(Rails.logger).to have_received(:info).with("SubmissionID=#{submission_response[:formSubmissionId]}")
           expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZR: ' \
-                                                            'Body size of 15.6 KB with 2 attachment(s)')
+                                                            'Body size of 362 KB with 2 attachment(s)')
           expect(Rails.logger).to have_received(:info).with(
-            'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
+            'Attachment sizes in descending order: 348 KB, 1.8 KB'
           )
         end
       end
@@ -272,7 +272,7 @@ RSpec.describe Form1010Ezr::Service do
         let(:form) { get_fixture('form1010_ezr/valid_form') }
 
         context 'with pdf attachments' do
-          it 'returns a success object', run_at: 'Tue, 18 Jun 2024 18:17:40 GMT' do
+          it 'returns a success object', run_at: 'Tue, 16 Jul 2024 18:35:57 GMT' do
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_with_attachments',
               { match_requests_on: %i[method uri body], erb: true }
@@ -280,19 +280,19 @@ RSpec.describe Form1010Ezr::Service do
               expect(submit_form(ezr_form_with_attachments)).to eq(
                 {
                   success: true,
-                  formSubmissionId: 435_240_209,
-                  timestamp: '2024-06-18T13:17:40.593-05:00'
+                  formSubmissionId: 435_834_217,
+                  timestamp: '2024-07-16T13:35:59.228-05:00'
                 }
               )
               expect(Rails.logger).to have_received(:info).with(
-                'Payload for submitted 1010EZR: Body size of 15.6 KB with 2 attachment(s)'
+                'Payload for submitted 1010EZR: Body size of 362 KB with 2 attachment(s)'
               )
             end
           end
         end
 
         context 'with a non-pdf attachment' do
-          it 'returns a success object', run_at: 'Tue, 18 Jun 2024 18:42:09 GMT' do
+          it 'returns a success object', run_at: 'Tue, 16 Jul 2024 19:36:34 GMT' do
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_with_non_pdf_attachment',
               { match_requests_on: %i[method uri body], erb: true }
@@ -317,8 +317,8 @@ RSpec.describe Form1010Ezr::Service do
               expect(submit_form(form_with_non_pdf_attachment)).to eq(
                 {
                   success: true,
-                  formSubmissionId: 435_240_322,
-                  timestamp: '2024-06-18T13:42:09.475-05:00'
+                  formSubmissionId: 435_836_106,
+                  timestamp: '2024-07-16T14:36:35.662-05:00'
                 }
               )
               expect(Rails.logger).to have_received(:info).with(
