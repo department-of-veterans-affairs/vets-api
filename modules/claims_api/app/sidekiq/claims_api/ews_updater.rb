@@ -2,7 +2,6 @@
 
 require 'bgs'
 require 'bgs_service/benefit_claim_service'
-require 'bgs_service/claim_management_service'
 
 module ClaimsApi
   class EwsUpdater < ClaimsApi::ServiceBase
@@ -34,11 +33,6 @@ module ClaimsApi
                                                   external_key: ews.auth_headers['va_eauth_pnid'])
     end
 
-    def claim_management_service(ews)
-      @cms ||= ClaimsApi::ClaimManagementService.new(external_uid: ews.auth_headers['va_eauth_pnid'],
-                                                     external_key: ews.auth_headers['va_eauth_pnid'])
-    end
-
     def update_bgs_claim(ews, bgs_claim)
       response = bgs_service(ews).benefit_claims.update_bnft_claim(claim: bgs_claim)
       if response[:bnft_claim_dto].nil?
@@ -49,6 +43,8 @@ module ClaimsApi
                                              detail: 'Waiver update Failed', error: response[:return_code],
                                              failure_count: ews.bgs_upload_failure_count)
       else
+        ClaimsApi::Logger.log('ews_updater', ews_id: ews.id, claim_id: ews.claim_id,
+                                             detail: 'Waiver update Success')
         ews.status = ClaimsApi::EvidenceWaiverSubmission::UPDATED
       end
     end
