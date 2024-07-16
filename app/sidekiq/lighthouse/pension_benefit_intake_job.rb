@@ -79,7 +79,6 @@ module Lighthouse
     ensure
       cleanup_file_paths
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
