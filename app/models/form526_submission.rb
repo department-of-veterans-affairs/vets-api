@@ -569,7 +569,7 @@ class Form526Submission < ApplicationRecord
   def poll_form526_pdf
     # In order to track the status of the 526 PDF upload via Lighthouse,
     # call poll_form526_pdf, provided we received a valid claim_id from Lighthouse
-    Lighthouse::PollForm526Pdf.perform(id) if !submitted_claim_id.nil
+    Lighthouse::PollForm526Pdf.perform(id) if submitted_claim_id
   end   
 
   def cleanup
