@@ -11,7 +11,7 @@ FactoryBot.define do
     end
   end
 
-  factory :form1010_ezr_attachment_2, class: 'Form1010EzrAttachment' do
+  factory :form1010_ezr_attachment2, class: 'Form1010EzrAttachment' do
     after(:build) do |ezr_attachment|
       ezr_attachment.set_file_data!(
         Rack::Test::UploadedFile.new(
