@@ -8,10 +8,13 @@ require 'claims_api/dependent_service'
 module ClaimsApi
   module V2
     module Veterans
-      class EvidenceWaiverController < ClaimsApi::V2::ApplicationController
+      class EvidenceWaiverController < ClaimsApi::V2::Veterans::Base
+        skip_before_action :validate_json_format
         before_action :set_lighthouse_claim, :set_bgs_claim!, :verify_if_dependent_claim!
 
         def submit
+          validate_veteran_name(false)
+
           ews = create_ews(params[:id])
           ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id, @pctpnt_vet_id)
 
