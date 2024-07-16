@@ -67,14 +67,14 @@
             "addressLine1": {
               "description": "Address line 1 for the Veteran's current mailing address.",
               "type": "string",
-              "pattern": "^([-a-zA-Z0-9'.' ])+$",
+              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 325,
               "example": "1234 Couch Street"
             },
             "addressLine2": {
               "description": "Address line 2 for the Veteran's current mailing address.",
               "type": ["string", "null"],
-              "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 325,
               "example": "Unit 4",
               "nullable": true
@@ -82,7 +82,7 @@
             "addressLine3": {
               "description": "Address line 3 for the Veteran's current mailing address.",
               "type": ["string", "null"],
-              "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 325,
               "example": "Room 1",
               "nullable": true
@@ -164,13 +164,14 @@
         "addressLine1": {
           "description": "Address line 1 for the Veteran's new address.",
           "type": "string",
-          "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+          "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
           "maxLength": 325,
           "example": "1234 Couch Street"
         },
         "addressLine2": {
           "description": "Address line 2 for the Veteran's new address.",
           "type": ["string", "null"],
+          "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
           "maxLength": 325,
           "example": "Unit 4",
           "nullable": true
@@ -178,6 +179,7 @@
         "addressLine3": {
           "description": "Address line 3 for the Veteran's new address.",
           "type": ["string", "null"],
+          "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
           "maxLength": 325,
           "example": "Room 1",
           "nullable": true

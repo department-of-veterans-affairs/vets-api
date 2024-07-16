@@ -7,8 +7,8 @@ class Swagger::V1::Requests::IvcChampvaForms
     operation :post do
       extend Swagger::Responses::AuthenticationError
 
-      key :description, 'Creates a new form'
-      key :operationId, 'Endpoint for creating a new form'
+      key :description, 'Updates an existing form'
+      key :operationId, 'Endpoint for updating an existing form'
       key :tags, %w[ivc_champva_forms]
       parameter :authorization
 
@@ -28,12 +28,19 @@ class Swagger::V1::Requests::IvcChampvaForms
               key :type, :string
               key :description, 'List of file names associated with the form'
             end
-            key :example, ['12345678-1234_vha_7959F1.pdf', '12345678-1234_vha_7959F2.pdf']
+            key :example,
+                ['12345678-1234-5678-1234-567812345678_vha_10_10d.pdf',
+                 '12345678-1234-5678-1234-567812345678_vha_10_10d2.pdf']
           end
           property :status do
             key :type, :string
-            key :example, 'processed'
+            key :example, 'Processed'
             key :description, 'Status of the form processing'
+          end
+          property :case_id do
+            key :type, :string
+            key :example, 'D-40350'
+            key :description, 'PEGA System UUID'
           end
         end
       end

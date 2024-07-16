@@ -112,7 +112,7 @@
             "content": {
               "application/json": {
                 "example": {
-}
+                }
               }
             }
           },
@@ -697,6 +697,7 @@
                   ],
                   "decision": {
                     "statuses": [
+                      "None",
                       "Accepted",
                       "Declined"
                     ]
@@ -733,6 +734,7 @@
                 ],
                 "decision": {
                   "statuses": [
+                    "None",
                     "Accepted",
                     "Declined"
                   ]
@@ -756,7 +758,7 @@
               "application/json": {
                 "example": {
                   "metadata": {
-                    "totalCount": 26,
+                    "totalCount": 121,
                     "query": {
                       "filter": {
                         "poaCodes": [
@@ -778,6 +780,7 @@
                         ],
                         "decision": {
                           "statuses": [
+                            "None",
                             "Accepted",
                             "Declined"
                           ]
@@ -795,173 +798,128 @@
                   },
                   "data": [
                     {
-                      "id": "600061742_3854079",
+                      "id": "111_10910",
                       "type": "powerOfAttorneyRequest",
                       "attributes": {
-                        "powerOfAttorneyCode": "074",
+                        "powerOfAttorneyCode": "002",
                         "isAddressChangingAuthorized": true,
                         "isTreatmentDisclosureAuthorized": true,
                         "veteran": {
-                          "firstName": "WESLEY",
-                          "middleName": "WATSON",
-                          "lastName": "FORD"
-                        },
-                        "claimant": null,
-                        "claimantAddress": {
-                          "city": "WASHINGTON",
-                          "state": "DC",
-                          "zip": "20420",
-                          "country": "USA",
-                          "militaryPostOffice": null,
-                          "militaryPostalCode": null
-                        },
-                        "decision": {
-                          "status": "Accepted",
-                          "declinedReason": null,
-                          "createdAt": "2024-03-20T17:52:31Z",
-                          "createdBy": {
-                            "firstName": "BEATRICE",
-                            "lastName": "STROUD",
-                            "email": "Beatrice.Stroud44@va.gov"
-                          }
-                        },
-                        "createdAt": "2024-03-01T15:13:08Z"
-                      }
-                    },
-                    {
-                      "id": "600061742_3854197",
-                      "type": "powerOfAttorneyRequest",
-                      "attributes": {
-                        "powerOfAttorneyCode": "074",
-                        "isAddressChangingAuthorized": true,
-                        "isTreatmentDisclosureAuthorized": true,
-                        "veteran": {
-                          "firstName": "WESLEY",
-                          "middleName": "WATSON",
-                          "lastName": "FORD"
-                        },
-                        "claimant": null,
-                        "claimantAddress": {
-                          "city": "WASHINGTON",
-                          "state": "DC",
-                          "zip": "20420",
-                          "country": "USA",
-                          "militaryPostOffice": null,
-                          "militaryPostalCode": null
-                        },
-                        "decision": {
-                          "status": "Accepted",
-                          "declinedReason": null,
-                          "createdAt": "2024-03-08T14:10:41Z",
-                          "createdBy": {
-                            "firstName": "BEATRICE",
-                            "lastName": "STROUD",
-                            "email": "Beatrice.Stroud44@va.gov"
-                          }
-                        },
-                        "createdAt": "2024-03-08T13:56:37Z"
-                      }
-                    },
-                    {
-                      "id": "600082088_3854594",
-                      "type": "powerOfAttorneyRequest",
-                      "attributes": {
-                        "powerOfAttorneyCode": "074",
-                        "isAddressChangingAuthorized": true,
-                        "isTreatmentDisclosureAuthorized": true,
-                        "veteran": {
-                          "firstName": "KENT",
-                          "middleName": "DAVID",
-                          "lastName": "RICHARDSON"
-                        },
-                        "claimant": null,
-                        "claimantAddress": {
-                          "city": "HOUSTON",
-                          "state": "NM",
-                          "zip": "87110",
-                          "country": "USA",
-                          "militaryPostOffice": null,
-                          "militaryPostalCode": null
-                        },
-                        "decision": {
-                          "status": "Accepted",
-                          "declinedReason": null,
-                          "createdAt": "2024-04-04T18:10:56Z",
-                          "createdBy": {
-                            "firstName": "BEATRICE",
-                            "lastName": "STROUD",
-                            "email": "Beatrice.Stroud44@va.gov"
-                          }
-                        },
-                        "createdAt": "2024-04-04T18:08:05Z"
-                      }
-                    },
-                    {
-                      "id": "600033542_3854600",
-                      "type": "powerOfAttorneyRequest",
-                      "attributes": {
-                        "powerOfAttorneyCode": "074",
-                        "isAddressChangingAuthorized": true,
-                        "isTreatmentDisclosureAuthorized": true,
-                        "veteran": {
-                          "firstName": "ALLAN",
+                          "firstName": "first",
                           "middleName": null,
-                          "lastName": "BUTLER"
+                          "lastName": "last"
                         },
                         "claimant": null,
                         "claimantAddress": {
-                          "city": "CHICAGO",
-                          "state": "IL",
-                          "zip": "60640",
-                          "country": "USA",
+                          "city": "Bourges",
+                          "state": null,
+                          "zip": "00123",
+                          "country": "France",
                           "militaryPostOffice": null,
                           "militaryPostalCode": null
                         },
-                        "decision": {
-                          "status": "Declined",
-                          "declinedReason": "Some reason",
-                          "createdAt": "2024-05-09T07:18:04Z",
-                          "createdBy": {
-                            "firstName": "BEATRICE",
-                            "lastName": "STROUD",
-                            "email": "Beatrice.Stroud44@va.gov"
-                          }
-                        },
-                        "createdAt": "2024-04-05T17:08:02Z"
+                        "decision": null,
+                        "createdAt": "2013-01-14T14:57:18Z"
                       }
                     },
                     {
-                      "id": "600082088_3854827",
+                      "id": "111_11023",
                       "type": "powerOfAttorneyRequest",
                       "attributes": {
-                        "powerOfAttorneyCode": "074",
+                        "powerOfAttorneyCode": "003",
                         "isAddressChangingAuthorized": true,
                         "isTreatmentDisclosureAuthorized": true,
                         "veteran": {
-                          "firstName": "KENT",
-                          "middleName": "DAVID",
-                          "lastName": "RICHARDSON"
+                          "firstName": "[Vet First Name]",
+                          "middleName": null,
+                          "lastName": "[Vet Last Name]"
                         },
                         "claimant": null,
                         "claimantAddress": {
-                          "city": "HOUSTON",
-                          "state": "NM",
-                          "zip": "87110",
+                          "city": "Richmond",
+                          "state": null,
+                          "zip": "00123",
                           "country": "USA",
                           "militaryPostOffice": null,
                           "militaryPostalCode": null
                         },
-                        "decision": {
-                          "status": "Accepted",
-                          "declinedReason": null,
-                          "createdAt": "2024-04-22T15:42:35Z",
-                          "createdBy": {
-                            "firstName": "BEATRICE",
-                            "lastName": "STROUD",
-                            "email": "Beatrice.Stroud44@va.gov"
-                          }
+                        "decision": null,
+                        "createdAt": "2013-01-17T16:54:11Z"
+                      }
+                    },
+                    {
+                      "id": "111_11024",
+                      "type": "powerOfAttorneyRequest",
+                      "attributes": {
+                        "powerOfAttorneyCode": "003",
+                        "isAddressChangingAuthorized": true,
+                        "isTreatmentDisclosureAuthorized": true,
+                        "veteran": {
+                          "firstName": "[Vet First Name]",
+                          "middleName": null,
+                          "lastName": "[Vet Last Name]"
                         },
-                        "createdAt": "2024-04-16T20:21:38Z"
+                        "claimant": null,
+                        "claimantAddress": {
+                          "city": "Richmond",
+                          "state": null,
+                          "zip": "00123",
+                          "country": "USA",
+                          "militaryPostOffice": null,
+                          "militaryPostalCode": null
+                        },
+                        "decision": null,
+                        "createdAt": "2013-01-17T17:04:22Z"
+                      }
+                    },
+                    {
+                      "id": "111_11025",
+                      "type": "powerOfAttorneyRequest",
+                      "attributes": {
+                        "powerOfAttorneyCode": "003",
+                        "isAddressChangingAuthorized": true,
+                        "isTreatmentDisclosureAuthorized": true,
+                        "veteran": {
+                          "firstName": "[Vet First Name]",
+                          "middleName": null,
+                          "lastName": "[Vet Last Name]"
+                        },
+                        "claimant": null,
+                        "claimantAddress": {
+                          "city": "Charlottesville",
+                          "state": null,
+                          "zip": "00123",
+                          "country": "USA",
+                          "militaryPostOffice": null,
+                          "militaryPostalCode": null
+                        },
+                        "decision": null,
+                        "createdAt": "2013-01-17T17:06:54Z"
+                      }
+                    },
+                    {
+                      "id": "_11037",
+                      "type": "powerOfAttorneyRequest",
+                      "attributes": {
+                        "powerOfAttorneyCode": "065",
+                        "isAddressChangingAuthorized": true,
+                        "isTreatmentDisclosureAuthorized": true,
+                        "veteran": {
+                          "firstName": "cory",
+                          "middleName": "joseph",
+                          "lastName": "washington"
+                        },
+                        "claimant": null,
+                        "claimantAddress": {
+                          "city": "WICHITA",
+                          "state": "KS",
+                          "zip": "67211",
+                          "country": "USA",
+                          "militaryPostOffice": null,
+                          "militaryPostalCode": null
+                        },
+                        "decision": null,
+                        "createdAt": "2013-01-17T22:24:32Z"
                       }
                     }
                   ]
@@ -969,9 +927,104 @@
                 "schema": {
                   "type": "object",
                   "required": [
+                    "metadata",
                     "data"
                   ],
                   "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "description": "Metadata about the search results including the number of records satisfying the filters and the query that was used after defaults were applied",
+                      "additionalProperties": false,
+                      "required": [
+                        "totalCount",
+                        "query"
+                      ],
+                      "properties": {
+                        "totalCount": {
+                          "type": "integer",
+                          "description": "The number of records that are satisified by the filters",
+                          "minimum": 0
+                        },
+                        "query": {
+                          "type": "object",
+                          "description": "The query that was used after defaults were applied",
+                          "additionalProperties": false,
+                          "required": [
+                            "filter"
+                          ],
+                          "properties": {
+                            "filter": {
+                              "type": "object",
+                              "required": [
+                                "poaCodes"
+                              ],
+                              "properties": {
+                                "poaCodes": {
+                                  "type": "array",
+                                  "minItems": 1,
+                                  "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  }
+                                },
+                                "decision": {
+                                  "type": "object",
+                                  "properties": {
+                                    "statuses": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "enum": [
+                                          "None",
+                                          "Accepted",
+                                          "Declined"
+                                        ]
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "page": {
+                              "type": "object",
+                              "properties": {
+                                "number": {
+                                  "type": "integer",
+                                  "minimum": 1
+                                },
+                                "size": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 100
+                                }
+                              }
+                            },
+                            "sort": {
+                              "type": "object",
+                              "required": [
+                                "field",
+                                "order"
+                              ],
+                              "properties": {
+                                "field": {
+                                  "type": "string",
+                                  "enum": [
+                                    "createdAt"
+                                  ]
+                                },
+                                "order": {
+                                  "type": "string",
+                                  "enum": [
+                                    "asc",
+                                    "desc"
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
                     "data": {
                       "type": "array",
                       "description": "List of Power of Attorney requests satisfying the given search",
@@ -1082,16 +1135,20 @@
                                 ],
                                 "properties": {
                                   "city": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "nullable": true
                                   },
                                   "state": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "nullable": true
                                   },
                                   "zip": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "nullable": true
                                   },
                                   "country": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "nullable": true
                                   },
                                   "militaryPostOffice": {
                                     "type": "string",
@@ -1107,6 +1164,7 @@
                                 "type": "object",
                                 "description": "The decision to accept or decline a Power of Attorney request",
                                 "additionalProperties": false,
+                                "nullable": true,
                                 "required": [
                                   "status",
                                   "createdAt",
@@ -2763,7 +2821,7 @@
                                     "addressLine1": {
                                       "description": "Address line 1 for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                       "maxLength": 20,
                                       "example": "1234 Couch Street"
                                     },
@@ -2863,13 +2921,14 @@
                                 "addressLine1": {
                                   "description": "Address line 1 for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "1234 Couch Street"
                                 },
                                 "addressLine2": {
                                   "description": "Address line 2 for the Veteran's new address.",
                                   "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Unit 4",
                                   "nullable": true
@@ -2877,6 +2936,7 @@
                                 "addressLine3": {
                                   "description": "Address line 3 for the Veteran's new address.",
                                   "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Room 1",
                                   "nullable": true
@@ -3411,7 +3471,7 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                        "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
@@ -4112,7 +4172,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -4212,13 +4272,14 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Unit 4",
                                 "nullable": true
@@ -4226,6 +4287,7 @@
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Room 1",
                                 "nullable": true
@@ -4760,7 +4822,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -5677,7 +5739,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "117704e8-a8d6-4c63-ac95-2adf6e919441",
+                    "id": "79150c60-0eaa-4b13-95a1-4653f3396b43",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -5860,7 +5922,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-07-04"
+                          "anticipatedSeparationDate": "2024-07-17"
                         },
                         "confinements": [
                           {
@@ -5994,7 +6056,7 @@
                                     "addressLine1": {
                                       "description": "Address line 1 for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                       "maxLength": 20,
                                       "example": "1234 Couch Street"
                                     },
@@ -6094,13 +6156,14 @@
                                 "addressLine1": {
                                   "description": "Address line 1 for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "1234 Couch Street"
                                 },
                                 "addressLine2": {
                                   "description": "Address line 2 for the Veteran's new address.",
                                   "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Unit 4",
                                   "nullable": true
@@ -6108,6 +6171,7 @@
                                 "addressLine3": {
                                   "description": "Address line 3 for the Veteran's new address.",
                                   "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Room 1",
                                   "nullable": true
@@ -6642,7 +6706,7 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                        "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
@@ -7343,7 +7407,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -7443,13 +7507,14 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Unit 4",
                                 "nullable": true
@@ -7457,6 +7522,7 @@
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Room 1",
                                 "nullable": true
@@ -7991,7 +8057,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -9235,7 +9301,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -9335,13 +9401,14 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Unit 4",
                                 "nullable": true
@@ -9349,6 +9416,7 @@
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Room 1",
                                 "nullable": true
@@ -9883,7 +9951,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -10549,7 +10617,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2d4da601-0705-4755-8b39-84583ccc9680",
+                    "id": "3cb33906-2a37-4c22-a73a-8553fec74fe4",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -11706,14 +11774,14 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.' ])+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 325,
                                     "example": "1234 Couch Street"
                                   },
                                   "addressLine2": {
                                     "description": "Address line 2 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 325,
                                     "example": "Unit 4",
                                     "nullable": true
@@ -11721,7 +11789,7 @@
                                   "addressLine3": {
                                     "description": "Address line 3 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 325,
                                     "example": "Room 1",
                                     "nullable": true
@@ -11806,13 +11874,14 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 325,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 325,
                                 "example": "Unit 4",
                                 "nullable": true
@@ -11820,6 +11889,7 @@
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 325,
                                 "example": "Room 1",
                                 "nullable": true
@@ -13422,8 +13492,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-07-02",
-                      "expirationDate": "2025-07-02",
+                      "creationDate": "2024-07-15",
+                      "expirationDate": "2025-07-15",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -14299,7 +14369,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f239d2dc-0f34-4271-8735-1e1693ee0056",
+                    "id": "722216eb-4991-42ac-9059-cc5a8aa85a8b",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14992,7 +15062,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c18f7d9a-10fa-4a9c-b3d8-708ada6acef1",
+                    "id": "42954b3c-7aad-4d1c-9a54-c793b03d6a29",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16943,10 +17013,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "fa50852c-dec5-479d-9c0c-7bc1c85d3d3b",
+                    "id": "10044dd9-11b6-4c21-9ac4-b15f54393731",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-07-02",
+                      "dateRequestAccepted": "2024-07-15",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
