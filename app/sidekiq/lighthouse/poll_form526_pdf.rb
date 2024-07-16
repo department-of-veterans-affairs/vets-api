@@ -76,6 +76,20 @@ module Lighthouse
       Sentry.set_tags(source: '526EZ-all-claims')
 
       with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
+        # Check the submission.created_at date, if it's more than 2 days old and the PDF is missing
+        # update the job status to pdf_not_found immediately and exit the job
+
+        if !submission.created_at.between?(Date.current-2, Date.current)
+          form_job_status.update(
+            status: Form526JobStatus::STATUS[:pdf_not_found],
+            bgjob_errors: bgjob_errors.merge(new_error)
+          )
+          ::Rails.logger.warn(
+            'Submission creation date is over 2 days old. Exiting...',
+          )
+          return
+        end
+
         user_account = UserAccount.find_by(id: submission.user_account_id) ||
                        Account.lookup_by_user_uuid(submission.user_uuid)
 
