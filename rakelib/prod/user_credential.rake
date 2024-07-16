@@ -20,8 +20,8 @@ namespace :user_credential do
 
   def run_task(action, args, all_credentials: false)
     namespace = "UserCredential::#{action.to_s.camelize}"
-    validate_args(args, all_credentials)
     action = %i[lock lock_all].include?(action) ? :lock : :unlock
+    validate_args(args, all_credentials)
     context = build_context(args)
     log_message(level: 'info', message: "[#{namespace}] rake task start, context: #{context.to_json}")
 
@@ -52,7 +52,7 @@ namespace :user_credential do
   end
 
   def update_credential(user_verification, action, namespace, context)
-    action == :lock ? user_verification.lock! : user_verification.unlock!
+    user_verification.send("#{action}!")
     credential_context = context.merge({ type: user_verification.credential_type,
                                          credential_id: user_verification.credential_identifier,
                                          locked: user_verification.locked }).compact
