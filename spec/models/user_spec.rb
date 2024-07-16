@@ -1179,22 +1179,6 @@ RSpec.describe User, type: :model do
       end
     end
 
-    describe '#inherited_proof_verified' do
-      context 'when Inherited Proof Verified User Account exists and matches current user_account' do
-        let!(:inherited_proof_verified) { create(:inherited_proof_verified_user_account, user_account:) }
-
-        it 'returns true' do
-          expect(user.inherited_proof_verified).to be true
-        end
-      end
-
-      context 'when no Inherited Proof Verified User Account is found' do
-        it 'returns false' do
-          expect(user.inherited_proof_verified).to be false
-        end
-      end
-    end
-
     describe '#credential_lock' do
       context 'when the user has a UserVerification' do
         let(:user) { build(:user, :loa3, icn: user_account.icn) }
