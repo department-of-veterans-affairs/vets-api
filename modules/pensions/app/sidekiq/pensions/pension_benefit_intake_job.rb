@@ -37,7 +37,6 @@ module Pensions
     #
     # @param [Integer] saved_claim_id
     #
-    # rubocop:disable Metrics/MethodLength
     def perform(saved_claim_id, user_uuid = nil)
       init(saved_claim_id, user_uuid)
 
@@ -47,20 +46,7 @@ module Pensions
       @metadata = generate_metadata
 
       # upload must be performed within 15 minutes of this request
-      @intake_service.request_upload
-      @pension_monitor.track_submission_begun(@claim, @intake_service, @user_uuid)
-      form_submission_polling
-
-      payload = {
-        upload_url: @intake_service.location,
-        document: @form_path,
-        metadata: @metadata.to_json,
-        attachments: @attachment_paths
-      }
-
-      @pension_monitor.track_submission_attempted(@claim, @intake_service, @user_uuid, payload)
-      response = @intake_service.perform_upload(**payload)
-      raise PensionBenefitIntakeError, response.to_s unless response.success?
+      upload_document
 
       @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       @pension_monitor.track_submission_success(@claim, @intake_service, @user_uuid)
@@ -73,9 +59,28 @@ module Pensions
     ensure
       cleanup_file_paths
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
+
+    ##
+    # Upload generated pdf to Benefits Intake API
+    #
+    def upload_document
+      @intake_service.request_upload
+      @pension_monitor.track_submission_begun(@claim, @intake_service, @user_uuid)
+      form_submission_polling
+
+      payload = {
+        upload_url: @intake_service.location,
+        document: @form_path,
+        metadata: @metadata,
+        attachments: @attachment_paths
+      }
+
+      @pension_monitor.track_submission_attempted(@claim, @intake_service, @user_uuid, payload)
+      response = @intake_service.perform_upload(**payload)
+      raise PensionBenefitIntakeError, response.to_s unless response.success?
+    end
 
     ##
     # Instantiate instance variables for _this_ job
