@@ -1,3 +1,4 @@
+# This migration comes from vye (originally 20240715000014)
 class IndexUserProfileInUserInfos < ActiveRecord::Migration[7.1]
   disable_ddl_transaction!
 
