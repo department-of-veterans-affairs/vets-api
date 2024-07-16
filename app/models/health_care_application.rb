@@ -301,6 +301,7 @@ class HealthCareApplication < ApplicationRecord
           { 'salutation' => salutation },
           api_key
         )
+        StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_failure_email_sent")
       rescue => e
         log_exception_to_sentry(e)
       end

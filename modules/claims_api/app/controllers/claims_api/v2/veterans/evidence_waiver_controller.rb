@@ -8,7 +8,9 @@ require 'claims_api/dependent_service'
 module ClaimsApi
   module V2
     module Veterans
-      class EvidenceWaiverController < ClaimsApi::V2::ApplicationController
+      class EvidenceWaiverController < ClaimsApi::V2::Veterans::Base
+        skip_before_action :validate_json_format
+
         def submit
           lighthouse_claim = find_lighthouse_claim!(claim_id: params[:id])
           benefit_claim_id = lighthouse_claim.present? ? lighthouse_claim.evss_id : params[:id]
@@ -27,10 +29,12 @@ module ClaimsApi
               'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
           end
 
+          validate_veteran_name(false)
+
           ews = create_ews(params[:id])
           ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id)
 
-          render json: { success: true }
+          render json: { success: true }, status: :accepted
         end
 
         private

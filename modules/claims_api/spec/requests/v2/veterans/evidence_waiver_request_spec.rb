@@ -25,7 +25,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
         context 'when provided' do
           context 'when valid' do
             context 'when success' do
-              it 'returns a 200' do
+              it 'returns a 202' do
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
                     allow_any_instance_of(ClaimsApi::LocalBGS)
@@ -33,7 +33,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
 
                     post sub_path, headers: auth_header
 
-                    expect(response.status).to eq(200)
+                    expect(response.status).to eq(202)
                   end
                 end
               end
@@ -83,6 +83,75 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
             end
           end
 
+          describe 'with missing first and last name' do
+            let(:no_first_last_name_target_veteran) do
+              OpenStruct.new(
+                icn: '1012832025V743496',
+                first_name: '',
+                last_name: '',
+                birth_date: '19630211',
+                loa: { current: 3, highest: 3 },
+                edipi: nil,
+                ssn: '796043735',
+                participant_id: '600061742',
+                mpi: OpenStruct.new(
+                  icn: '1012832025V743496',
+                  profile: OpenStruct.new(ssn: '796043735')
+                )
+              )
+            end
+
+            context 'when a veteran does not have first and last name' do
+              it 'returns an error message' do
+                mock_ccg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
+                    allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                      .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)
+
+                    post sub_path, headers: auth_header
+                    json = JSON.parse(response.body)
+                    expect_res = json['errors'][0]['detail']
+
+                    expect(expect_res).to eq('Must have either first or last name')
+                  end
+                end
+              end
+            end
+          end
+
+          describe 'with missing first name' do
+            let(:no_first_name_target_veteran) do
+              OpenStruct.new(
+                icn: '1012832025V743496',
+                first_name: '',
+                last_name: 'Wesley',
+                birth_date: '19630211',
+                loa: { current: 3, highest: 3 },
+                edipi: nil,
+                ssn: '796043735',
+                participant_id: '600061742',
+                mpi: OpenStruct.new(
+                  icn: '1012832025V743496',
+                  profile: OpenStruct.new(ssn: '796043735')
+                )
+              )
+            end
+
+            context 'when a veteran does not have first name' do
+              it 'returns an accepted message' do
+                mock_ccg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
+                    allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                      .to receive(:target_veteran).and_return(no_first_name_target_veteran)
+
+                    post sub_path, headers: auth_header
+                    expect(response).to have_http_status(:accepted)
+                  end
+                end
+              end
+            end
+          end
+
           context 'scopes' do
             let(:invalid_scopes) { %w[system/526-pdf.override] }
             let(:ews_scopes) { %w[system/claim.write] }
@@ -92,7 +161,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
                 mock_ccg_for_fine_grained_scope(ews_scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
                     post sub_path, headers: auth_header
-                    expect(response).to have_http_status(:ok)
+                    expect(response).to have_http_status(:accepted)
                   end
                 end
               end
