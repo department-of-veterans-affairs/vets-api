@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sign_in/constants/auth'
+require_relative '../../lib/accredited_representation/seed_data'
 
 # Create Config for va.gov Sign in Service client
 vaweb = SignIn::ClientConfig.find_or_initialize_by(client_id: 'vaweb')
@@ -145,14 +146,10 @@ poa_code = '678'
 test_rep_email = 'vets.gov.user+1@gmail.com'
 individual_type = 'representative'
 
-accredited_individual = AccreditedIndividual.find_or_initialize_by(registration_number: ogc_registration_number)
-accredited_individual.update!(ogc_id: SecureRandom.uuid,
-                              poa_code:,
-                              individual_type:,
-                              email:)
-
-verified_rep = AccreditedRepresentativePortal::VerifiedRepresentative.find_or_initialize_by(email: test_rep_email)
-verified_rep.update!(ogc_registration_number:)
+AccreditedRepresentation::SeedData.create_rep_data(test_rep_email,
+                                                   ogc_registration_number,
+                                                   poa_code,
+                                                   individual_type)
 
 # Create Service Account Config for BTSSS
 btsss = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: 'bbb5830ecebdef04556e9c430e374972')
