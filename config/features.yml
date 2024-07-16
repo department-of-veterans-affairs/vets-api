@@ -175,6 +175,10 @@ features:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
     enable_in_development: true
+  lighthouse_claims_api_hardcode_wsdl:
+    actor_type: user
+    description: Use hardcoded namespaces for WSDL calls to BGS
+    enable_in_development: true
   cst_5103_update_enabled:
     actor_type: user
     description: When enabled, claims status tool will use the new 5103 alert designs and hides the ask your claim decision section
@@ -1556,3 +1560,6 @@ features:
   toggle_vye_application:
     actor_type: user
     description: Enable VYE
+  military_benefit_estimates:
+    actor_type: user
+    description: swap order of the military details in GI search filters 
