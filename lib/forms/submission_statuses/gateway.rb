@@ -13,17 +13,17 @@ module Forms
         @dataset = Forms::SubmissionStatuses::Dataset.new
       end
 
-      def fetch_data
-        @dataset.submissions = fetch_submissions
-        @dataset.statuses = fetch_statuses(@dataset.submissions) if @dataset.submissions?
+      def data
+        @dataset.submissions = submissions
+        @dataset.statuses = statuses(@dataset.submissions) if @dataset.submissions?
         @dataset
       end
 
-      def fetch_submissions
+      def submissions
         FormSubmission.where(user_account: @user_account).to_a
       end
 
-      def fetch_statuses(submissions)
+      def statuses(submissions)
         uuids = submissions.map(&:benefits_intake_uuid)
 
         response = benefits_intake_service.bulk_status(uuids:)

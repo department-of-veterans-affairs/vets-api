@@ -12,12 +12,12 @@ module Forms
       end
 
       def run
-        fetch_data
+        data
         format_data
       end
 
-      def fetch_data
-        @dataset = @gateway.fetch_data
+      def data
+        @dataset = @gateway.data
       end
 
       def format_data

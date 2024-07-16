@@ -12,8 +12,8 @@ describe Forms::SubmissionStatuses::Report do
 
   context 'when user has no submissions' do
     before do
-      allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:fetch_submissions).and_return([])
-      allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:fetch_statuses).and_return(nil)
+      allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:submissions).and_return([])
+      allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:statuses).and_return(nil)
     end
 
     it 'returns an empty array' do
@@ -24,7 +24,7 @@ describe Forms::SubmissionStatuses::Report do
 
   context 'when user has submissions' do
     before do
-      allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:fetch_submissions).and_return(
+      allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:submissions).and_return(
         [
           OpenStruct.new(
             id: 1,
@@ -46,22 +46,26 @@ describe Forms::SubmissionStatuses::Report do
 
     context 'has statuses' do
       before do
-        allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:fetch_statuses).and_return(
+        allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:statuses).and_return(
           [
             {
               'id' => '4b846069',
               'attributes' => {
+                'detail' => 'detail',
                 'guid' => '4b846069',
-                'updated_at' => '2024-03-13T18:51:00.953Z',
-                'status' => 'received'
+                'message' => 'message',
+                'status' => 'received',
+                'updated_at' => '2024-03-13T18:51:00.953Z'
               }
             },
             {
               'id' => 'd0c6cea6',
               'attributes' => {
+                'detail' => 'detail',
                 'guid' => 'd0c6cea6',
-                'updated_at' => '2024-03-08T19:30:39.939Z',
-                'status' => 'received'
+                'message' => 'message',
+                'status' => 'received',
+                'updated_at' => '2024-03-08T19:30:39.939Z'
               }
             }
           ]
@@ -85,7 +89,9 @@ describe Forms::SubmissionStatuses::Report do
         results = subject.run
 
         expect(results.first.id).to be('d0c6cea6')
+        expect(results.first.detail).to be('detail')
         expect(results.first.form_type).to be('21-0966')
+        expect(results.first.message).to be('message')
         expect(results.first.status).to be('received')
         expect(results.first.created_at).to be('2024-03-08')
         expect(results.first.updated_at).to be('2024-03-08T19:30:39.939Z')
@@ -94,7 +100,7 @@ describe Forms::SubmissionStatuses::Report do
 
     context 'when no statuses' do
       before do
-        allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:fetch_statuses).and_return(nil)
+        allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:statuses).and_return(nil)
       end
 
       it 'returns the correct count' do
@@ -107,7 +113,9 @@ describe Forms::SubmissionStatuses::Report do
         results = subject.run
 
         expect(results.first.id).to be('4b846069')
+        expect(results.first.detail).to be_nil
         expect(results.first.form_type).to be('21-4142')
+        expect(results.first.message).to be_nil
         expect(results.first.status).to be_nil
         expect(results.first.created_at).to be('2024-03-12')
         expect(results.first.updated_at).to be_nil
@@ -116,12 +124,14 @@ describe Forms::SubmissionStatuses::Report do
 
     context 'when missing status' do
       before do
-        allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:fetch_statuses).and_return(
+        allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:statuses).and_return(
           [
             {
               'id' => '4b846069',
               'attributes' => {
+                'detail' => 'detail',
                 'guid' => '4b846069',
+                'message' => 'message',
                 'updated_at' => '2024-03-13T18:51:00.953Z',
                 'status' => 'received'
               }

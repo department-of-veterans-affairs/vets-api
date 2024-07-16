@@ -36,7 +36,7 @@ RSpec.describe 'submission_statuses', type: :request do
 
     context 'when user has submissions' do
       before do
-        allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:fetch_submissions).and_return(
+        allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:submissions).and_return(
           [
             OpenStruct.new(
               id: 1,
@@ -77,7 +77,7 @@ RSpec.describe 'submission_statuses', type: :request do
 
     context 'when user has no submissions' do
       before do
-        allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:fetch_submissions).and_return([])
+        allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:submissions).and_return([])
       end
 
       it 'returns an empty array' do

@@ -22,6 +22,8 @@ module Forms
       def merge_record(submission_map, status)
         submission = submission_map[status['attributes']['guid']]
         if submission
+          submission.detail = status['attributes']['detail']
+          submission.message = status['attributes']['message']
           submission.status = status['attributes']['status']
           submission.updated_at = status['attributes']['updated_at']
         end
@@ -31,7 +33,9 @@ module Forms
         submissions.each_with_object({}) do |submission, hash|
           hash[submission.benefits_intake_uuid] = OpenStruct.new(
             id: submission.benefits_intake_uuid,
+            detail: nil,
             form_type: submission.form_type,
+            message: nil,
             status: nil,
             created_at: submission.created_at,
             updated_at: nil
