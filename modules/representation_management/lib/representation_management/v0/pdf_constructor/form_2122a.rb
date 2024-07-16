@@ -86,31 +86,39 @@ module RepresentationManagement
             "#{page1_key}.MailingAddress_StateOrProvince[0]": data.veteran_state_code,
             "#{page1_key}.MailingAddress_Country[0]": data.veteran_country,
             "#{page1_key}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": data.veteran_zip_code,
-            "#{page1_key}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": data.veteran_zip_code_suffix
-            # # Item 8
-            # "#{page1_key}.TelephoneNumber_IncludeAreaCode[0]": "#{data.dig('veteran', 'phone', 'areaCode')} #{data.dig('veteran', 'phone', 'phoneNumber')}",
-            # # Item 9
-            # "#{page1_key}.EmailAddress_Optional[0]": data.dig('veteran', 'email'),
+            "#{page1_key}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": data.veteran_zip_code_suffix,
+            # Veteran Phone Number
+            "#{page1_key}.Telephone_Number_Area_Code[1]": data.veteran_phone[0..2],
+            "#{page1_key}.Telephone_Middle_Three_Numbers[0]": data.veteran_phone[3..5],
+            "#{page1_key}.Telephone_Last_Four_Numbers[1]": data.veteran_phone[6..9],
+            # Veteran Email
+            "#{page1_key}.E_Mail_Address_Optional[1]": data.veteran_email,
 
             # # Section II
-            # # Item 10
-            # "#{page1_key}.Claimants_First_Name[0]": data.dig('claimant', 'firstName'),
-            # "#{page1_key}.Claimants_Middle_Initial1[0]": data.dig('claimant', 'middleInitial'),
-            # "#{page1_key}.Claimants_Last_Name[0]": data.dig('claimant', 'lastName'),
-            # # Item 11
-            # "#{page1_key}.MailingAddress_NumberAndStreet[0]": data.dig('claimant', 'address', 'addressLine1'),
-            # "#{page1_key}.MailingAddress_ApartmentOrUnitNumber[0]": data.dig('claimant', 'address', 'addressLine2'),
-            # "#{page1_key}.MailingAddress_City[0]": data.dig('claimant', 'address', 'city'),
-            # "#{page1_key}.MailingAddress_StateOrProvince[0]": data.dig('claimant', 'address', 'stateCode'),
-            # "#{page1_key}.MailingAddress_Country[0]": data.dig('claimant', 'address', 'country'),
-            # "#{page1_key}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": data.dig('claimant', 'address', 'zipCode'),
-            # "#{page1_key}.CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": data.dig('address', 'zipCodeSuffix'),
-            # # Item 12
-            # "#{page1_key}.TelephoneNumber_IncludeAreaCode[1]": "#{data.dig('claimant', 'phone', 'areaCode')} #{data.dig('claimant', 'phone', 'phoneNumber')}",
-            # # Item 13
-            # "#{page1_key}.EmailAddress_Optional[1]": data.dig('claimant', 'email'),
-            # # Item 14
-            # "#{page1_key}.RelationshipToVeteran[0]": data.dig('claimant', 'relationship'),
+            # Claimant Name
+            "#{page1_key}.Claimants_First_Name[0]": data.claimant_first_name,
+            "#{page1_key}.Claimants_Middle_Initial[0]": data.claimant_middle_initial,
+            "#{page1_key}.Claimants_Last_Name[0]": data.claimant_last_name,
+            # Claimant DOB
+            "#{page1_key}.Claimants_Date_Of_Birth_Month[0]": data.claimant_date_of_birth.split('/').first,
+            "#{page1_key}.Date_Of_Birth_Day[1]": data.claimant_date_of_birth.split('/').second,
+            "#{page1_key}.Date_Of_Birth_Year[1]": data.claimant_date_of_birth.split('/').last,
+            # Claimant Relationship
+            "#{page1_key}.RelationshipToVeteran[0]": data.claimant_relationship,
+            # Claimant Mailing Address
+            "#{page1_key}.MailingAddress_NumberAndStreet[1]": data.claimant_address_line1,
+            "#{page1_key}.MailingAddress_ApartmentOrUnitNumber[1]": data.claimant_address_line2,
+            "#{page1_key}.MailingAddress_City[1]": data.claimant_city,
+            "#{page1_key}.MailingAddress_StateOrProvince[1]": data.claimant_state_code,
+            "#{page1_key}.MailingAddress_Country[1]": data.claimant_country,
+            "#{page1_key}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]": data.claimant_zip_code,
+            "#{page1_key}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[1]": data.claimant_zip_code_suffix,
+            # Claimant Phone Number
+            "#{page1_key}.Telephone_Number_Area_Code[0]": data.claimant_phone[0..2],
+            "#{page1_key}.Telphone_Middle_Three_Numbers[0]": data.claimant_phone[3..5],
+            "#{page1_key}.Telephone_Last_Four_Numbers[0]": data.claimant_phone[6..9],
+            # Claimant Email
+            "#{page1_key}.E_Mail_Address_Optional[0]": data.claimant_email
 
             # # Section III
             # # Item 15A
