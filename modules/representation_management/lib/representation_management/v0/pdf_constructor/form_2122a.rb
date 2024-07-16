@@ -54,20 +54,22 @@ module RepresentationManagement
           page1_key = 'form1[0].#subform[0]'
           {
             # Section !
-            # Item 1
+            # Veteran Name
             "#{page1_key}.Veterans_Last_Name[0]": data.veteran_last_name,
             "#{page1_key}.Veterans_Middle_Initial[0]": data.veteran_middle_initial,
-            "#{page1_key}.Veterans_First_Name[0]": data.veteran_first_name
-            # # Item 2
-            # "#{page1_key}.SocialSecurityNumber_FirstThreeNumbers[0]": data.dig('veteran', 'ssn')[0..2],
-            # "#{page1_key}.SocialSecurityNumber_SecondTwoNumbers[0]": data.dig('veteran', 'ssn')[3..4],
-            # "#{page1_key}.SocialSecurityNumber_LastFourNumbers[0]": data.dig('veteran', 'ssn')[5..8],
-            # # Item 4
-            # "#{page1_key}.DOBmonth[0]": data.dig('veteran', 'birthdate').split('-').second,
-            # "#{page1_key}.DOBday[0]": data.dig('veteran', 'birthdate').split('-').last.first(2),
-            # "#{page1_key}.DOByear[0]": data.dig('veteran', 'birthdate').split('-').first,
-            # # Item 5
-            # "#{page1_key}.VeteransServiceNumber[0]": data.dig('veteran', 'serviceNumber'),
+            "#{page1_key}.Veterans_First_Name[0]": data.veteran_first_name,
+            # Veteran SSN
+            "#{page1_key}.SocialSecurityNumber_FirstThreeNumbers[0]": data.veteran_social_security_number[0..2],
+            "#{page1_key}.SocialSecurityNumber_SecondTwoNumbers[0]": data.veteran_social_security_number[3..4],
+            "#{page1_key}.SocialSecurityNumber_LastFourNumbers[0]": data.veteran_social_security_number[5..8],
+            # Veteran File Number
+            "#{page1_key}.Veterans_Service_Number_If_Applicable[0]": data.veteran_va_file_number,
+            # Veteran DOB
+            "#{page1_key}.Date_Of_Birth_Month[0]": data.veteran_date_of_birth.split('/').first,
+            "#{page1_key}.Date_Of_Birth_Day[0]": data.veteran_date_of_birth.split('/').second,
+            "#{page1_key}.Date_Of_Birth_Year[0]": data.veteran_date_of_birth.split('/').last,
+            # Veteran Service Number
+            "#{page1_key}.Veterans_Service_Number_If_Applicable[1]": data.veteran_service_number,
             # # Item 6 Service Branch
             # "#{page1_key}.ARMYCheckbox1[0]": (data.dig('veteran', 'serviceBranch') == 'ARMY' ? 1 : 0),
             # "#{page1_key}.NAVYCheckbox2[0]": (data.dig('veteran', 'serviceBranch') == 'NAVY' ? 1 : 0),
@@ -77,14 +79,14 @@ module RepresentationManagement
             # "#{page1_key}.SPACE_FORCECheckbox3[0]": (data.dig('veteran', 'serviceBranch') == 'SPACE_FORCE' ? 1 : 0),
             # "#{page1_key}.OTHER_Checkbox6[0]": (data.dig('veteran', 'serviceBranch') == 'OTHER' ? 1 : 0),
             # "#{page1_key}.JF15[0]": data.dig('veteran', 'serviceBranchOther'),
-            # # Item 7
-            # "#{page1_key}.Veterans_MailingAddress_NumberAndStreet[0]": data.dig('veteran', 'address', 'addressLine1'),
-            # "#{page1_key}.MailingAddress_ApartmentOrUnitNumber[1]": data.dig('veteran', 'address', 'addressLine2'),
-            # "#{page1_key}.MailingAddress_City[1]": data.dig('veteran', 'address', 'city'),
-            # "#{page1_key}.MailingAddress_StateOrProvince[1]": data.dig('veteran', 'address', 'stateCode'),
-            # "#{page1_key}.MailingAddress_Country[1]": data.dig('veteran', 'address', 'country'),
-            # "#{page1_key}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]": data.dig('veteran', 'address', 'zipCode'),
-            # "#{page1_key}.MailingAddress_ZIPOrPostalCode_ZIPOrPostalCode_LastFourNumbers[1]": data.dig('veteran', 'address', 'zipCodeSuffix'),
+            # Veteran Mailing Address
+            "#{page1_key}.MailingAddress_NumberAndStreet[0]": data.veteran_address_line1,
+            "#{page1_key}.MailingAddress_ApartmentOrUnitNumber[0]": data.veteran_address_line2,
+            "#{page1_key}.MailingAddress_City[0]": data.veteran_city,
+            "#{page1_key}.MailingAddress_StateOrProvince[0]": data.veteran_state_code,
+            "#{page1_key}.MailingAddress_Country[0]": data.veteran_country,
+            "#{page1_key}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": data.veteran_zip_code,
+            "#{page1_key}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": data.veteran_zip_code_suffix
             # # Item 8
             # "#{page1_key}.TelephoneNumber_IncludeAreaCode[0]": "#{data.dig('veteran', 'phone', 'areaCode')} #{data.dig('veteran', 'phone', 'phoneNumber')}",
             # # Item 9
