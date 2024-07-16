@@ -19,6 +19,9 @@ module Mobile
       attribute :updated_at, Types::Date
       attribute :display_title, Types::String
       attribute :decision_letter_sent, Types::Bool
+      attribute :phase, Types::Integer.optional.default(nil)
+      attribute :documentsNeeded, Types::Bool.optional.default(nil)
+      attribute :developmentLetterSent, Types::Bool.optional.default(nil)
     end
   end
 end
