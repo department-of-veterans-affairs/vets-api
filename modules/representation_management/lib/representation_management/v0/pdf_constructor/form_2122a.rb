@@ -70,15 +70,8 @@ module RepresentationManagement
             "#{page1_key}.Date_Of_Birth_Year[0]": data.veteran_date_of_birth.split('/').last,
             # Veteran Service Number
             "#{page1_key}.Veterans_Service_Number_If_Applicable[1]": data.veteran_service_number,
-            # # Item 6 Service Branch
-            # "#{page1_key}.ARMYCheckbox1[0]": (data.dig('veteran', 'serviceBranch') == 'ARMY' ? 1 : 0),
-            # "#{page1_key}.NAVYCheckbox2[0]": (data.dig('veteran', 'serviceBranch') == 'NAVY' ? 1 : 0),
-            # "#{page1_key}.AIR_FORCECheckbox3[0]": (data.dig('veteran', 'serviceBranch') == 'AIR_FORCE' ? 1 : 0),
-            # "#{page1_key}.MARINE_CORPSCheckbox4[0]": (data.dig('veteran', 'serviceBranch') == 'MARINE_CORPS' ? 1 : 0),
-            # "#{page1_key}.COAST_GUARDCheckbox5[0]": (data.dig('veteran', 'serviceBranch') == 'COAST_GUARD' ? 1 : 0),
-            # "#{page1_key}.SPACE_FORCECheckbox3[0]": (data.dig('veteran', 'serviceBranch') == 'SPACE_FORCE' ? 1 : 0),
-            # "#{page1_key}.OTHER_Checkbox6[0]": (data.dig('veteran', 'serviceBranch') == 'OTHER' ? 1 : 0),
-            # "#{page1_key}.JF15[0]": data.dig('veteran', 'serviceBranchOther'),
+            # Item 6 Service Branch
+            "#{page1_key}.RadioButtonList[1]": service_branch_checkbox(data.veteran_service_branch),
             # Veteran Mailing Address
             "#{page1_key}.MailingAddress_NumberAndStreet[0]": data.veteran_address_line1,
             "#{page1_key}.MailingAddress_ApartmentOrUnitNumber[0]": data.veteran_address_line2,
@@ -118,19 +111,44 @@ module RepresentationManagement
             "#{page1_key}.Telphone_Middle_Three_Numbers[0]": data.claimant_phone[3..5],
             "#{page1_key}.Telephone_Last_Four_Numbers[0]": data.claimant_phone[6..9],
             # Claimant Email
-            "#{page1_key}.E_Mail_Address_Optional[0]": data.claimant_email
+            "#{page1_key}.E_Mail_Address_Optional[0]": data.claimant_email,
 
             # # Section III
-            # # Item 15A
-            # "#{page1_key}.NAME_OF_INDIVIDUAL_APPOINTED_AS_REPRESENTATIVE[0]": "#{data.dig('representative', 'firstName')} #{data.dig('representative', 'lastName')}",
-            # # Item 15B
-            # "#{page1_key}.Checkbox1[0]": (data.dig('representative', 'type') == 'ATTORNEY' ? 1 : 0),
-            # "#{page1_key}.Checkbox2[0]": (data.dig('representative', 'type') == 'AGENT' ? 1 : 0),
+            # Representative Name
+            "#{page1_key}.Name_Of_Individual_Appointed_As_Representative_First_Name[0]": data.representative_first_name,
+            "#{page1_key}.Middle_Initial[0]": data.representative_middle_initial,
+            "#{page1_key}.Last_Name[0]": data.representative_last_name,
+            # Representative Type
+            "#{page1_key}.RadioButtonList[0]": representative_type_checkbox(data.representative_type)
             # # Item 18
             # "#{page1_key}.ADDRESSOFINDIVIDUALAPPOINTEDASCLAIMANTSREPRESENTATATIVE[0]": stringify_address(data.dig('representative', 'address'))
           }
         end
+
         # rubocop:enable Layout/LineLength
+        def service_branch_checkbox(service_branch)
+          service_branch_map = {
+            'ARMY' => 4,
+            'NAVY' => 5,
+            'AIR_FORCE' => 6,
+            'MARINE_CORPS' => 7,
+            'COAST_GUARD' => 8,
+            'SPACE_FORCE' => 9,
+            'NOAA' => 10,
+            'USPHS' => 11
+          }
+          service_branch_map[service_branch]
+        end
+
+        def representative_type_checkbox(representative_type)
+          representative_type_map = {
+            'ATTORNEY' => 4,
+            'AGENT' => 1,
+            'INDIVIDUAL' => 3,
+            'VSO' => 2
+          }
+          representative_type_map[representative_type]
+        end
       end
     end
   end
