@@ -57,6 +57,7 @@ module Vye
       end
 
       def tims_import(path)
+        Vye::PendingDocument.delete_all
         counts = { success: 0, failure: 0 }
         data = CSV.open(path, 'r', headers: %i[ssn file_number doc_type queue_date rpo])
         source = :tims_feed
