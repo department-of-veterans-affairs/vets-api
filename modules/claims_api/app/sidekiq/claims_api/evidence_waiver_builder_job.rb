@@ -12,14 +12,14 @@ module ClaimsApi
     # Generate a 5103 "form" for a given veteran.
     #
     # @param evidence_waiver_id [String] Unique identifier of the submitted EWS
-    def perform(evidence_waiver_id)
+    def perform(evidence_waiver_id, tracked_item_ids)
       lighthouse_claim = ClaimsApi::EvidenceWaiverSubmission.find(evidence_waiver_id)
       auth_headers = lighthouse_claim.auth_headers
       output_path = ClaimsApi::EvidenceWaiver.new(auth_headers:).construct
 
       # upload to BD
       benefits_doc_api.upload(claim: lighthouse_claim, pdf_path: output_path,
-                              doc_type: 'L705')
+                              doc_type: 'L705', tracked_item_ids:)
       ClaimsApi::EwsUpdater.perform_async(evidence_waiver_id)
       ::Common::FileHelpers.delete_file_if_exists(output_path)
     rescue => e

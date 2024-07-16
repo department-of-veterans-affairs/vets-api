@@ -5681,7 +5681,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "79150c60-0eaa-4b13-95a1-4653f3396b43",
+                    "id": "f0f0bf24-f512-4cf6-bc5f-6bc4a3196075",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -5864,7 +5864,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-07-17"
+                          "anticipatedSeparationDate": "2024-07-18"
                         },
                         "confinements": [
                           {
@@ -10559,7 +10559,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3cb33906-2a37-4c22-a73a-8553fec74fe4",
+                    "id": "af97559b-a25d-4c85-ad88-7561c2c331ab",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -13148,6 +13148,50 @@
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "attributes": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "description": "Claims API 5103 Schema",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "trackedItems": {
+                            "description": "Array of tracked items ids.",
+                            "type": "array",
+                            "nullable": true,
+                            "uniqueItems": true,
+                            "items": {
+                              "type": "string",
+                              "additionalProperties": false
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "type": "form/5103",
+                    "attributes": {
+                      "trackedItems": [
+                        "1234"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -13434,8 +13478,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-07-15",
-                      "expirationDate": "2025-07-15",
+                      "creationDate": "2024-07-16",
+                      "expirationDate": "2025-07-16",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -14311,7 +14355,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "722216eb-4991-42ac-9059-cc5a8aa85a8b",
+                    "id": "92fb9335-4409-46b1-bbe6-b65cc222a8c4",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15004,7 +15048,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "42954b3c-7aad-4d1c-9a54-c793b03d6a29",
+                    "id": "10795264-501f-4637-9e1c-9040ee24bbd0",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16955,10 +16999,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "10044dd9-11b6-4c21-9ac4-b15f54393731",
+                    "id": "2c60f921-3be9-4584-9e2f-9ab3d08a08e0",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-07-15",
+                      "dateRequestAccepted": "2024-07-16",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

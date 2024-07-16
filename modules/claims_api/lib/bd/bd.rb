@@ -37,7 +37,7 @@ module ClaimsApi
     # Upload document of mapped claim
     #
     # @return success or failure
-    def upload(claim:, pdf_path:, doc_type: 'L122', file_number: nil, original_filename: nil)
+    def upload(claim:, pdf_path:, doc_type: 'L122', file_number: nil, original_filename: nil, tracked_item_ids: nil)
       unless File.exist? pdf_path
         ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist",
                                                     claim_id: claim.id)
@@ -45,7 +45,7 @@ module ClaimsApi
       end
 
       @multipart = true
-      body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:)
+      body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:, tracked_item_ids:)
       res = client.post('documents', body)&.body
 
       raise ::Common::Exceptions::GatewayTimeout.new(detail: 'Upstream service error.') unless res.is_a?(Hash)
@@ -68,7 +68,8 @@ module ClaimsApi
     # Generate form body to upload a document
     #
     # @return {parameters, file}
-    def generate_upload_body(claim:, doc_type:, pdf_path:, file_number: nil, original_filename: nil)
+    def generate_upload_body(claim:, doc_type:, pdf_path:, file_number: nil, original_filename: nil,
+                             tracked_item_ids: nil)
       payload = {}
       auth_headers = claim.auth_headers
       veteran_name = "#{auth_headers['va_eauth_firstName']}_#{auth_headers['va_eauth_lastName']}"
@@ -77,7 +78,7 @@ module ClaimsApi
       file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
       participant_id = auth_headers['va_eauth_pid'] if doc_type == 'L705'
       data = build_body(doc_type:, file_name:, participant_id:, claim_id:,
-                        file_number: birls_file_num)
+                        file_number: birls_file_num, tracked_item_ids:)
 
       fn = Tempfile.new('params')
       File.write(fn, data.to_json)

@@ -4,14 +4,18 @@ require 'bgs'
 require 'token_validation/v2/client'
 require 'claims_api/claim_logger'
 require 'claims_api/dependent_service'
+require 'claims_api/v2/params_validation/evidence_waiver_submission'
 
 module ClaimsApi
   module V2
     module Veterans
       class EvidenceWaiverController < ClaimsApi::V2::Veterans::Base
         skip_before_action :validate_json_format
+        FORM_NUMBER = '5103'
 
         def submit
+          validate_request!(ClaimsApi::V2::ParamsValidation::EvidenceWaiverSubmission)
+
           lighthouse_claim = find_lighthouse_claim!(claim_id: params[:id])
           benefit_claim_id = lighthouse_claim.present? ? lighthouse_claim.evss_id : params[:id]
           bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
@@ -31,8 +35,9 @@ module ClaimsApi
 
           validate_veteran_name(false)
 
+          tracked_item_ids = params['data']['attributes']['trackedItems'] if params['data'].present?
           ews = create_ews(params[:id])
-          ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id)
+          ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id, tracked_item_ids)
 
           render json: { success: true }, status: :accepted
         end

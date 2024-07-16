@@ -38,6 +38,9 @@ describe 'EvidenceWaiver5103',
       let(:Authorization) { 'Bearer token' }
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
 
+      parameter name: :evidence_waiver_submission_request, in: :body,
+                schema: SwaggerSharedComponents::V2.body_examples[:evidence_waiver_submission_request][:schema]
+
       describe 'Getting a successful response' do
         response '202', 'Successful response' do
           schema JSON.parse(File.read(Rails.root.join('spec',
@@ -49,7 +52,7 @@ describe 'EvidenceWaiver5103',
                                                       'submit_waiver_5103.json')))
 
           let(:scopes) { %w[system/claim.write] }
-
+          let(:evidence_waiver_submission_request) {}
           before do |example|
             bgs_claim_response = build(:bgs_response_with_one_lc_status).to_h
             expect_any_instance_of(ClaimsApi::LocalBGS)
@@ -83,6 +86,7 @@ describe 'EvidenceWaiver5103',
 
           let(:Authorization) { nil }
           let(:scopes) { %w[system/claim.read] }
+          let(:evidence_waiver_submission_request) {}
 
           before do |example|
             submit_request(example.metadata)
@@ -110,6 +114,7 @@ describe 'EvidenceWaiver5103',
           let(:Authorization) { nil }
           let(:scopes) { %w[system/claim.read] }
           let(:sponsorIcn) { '1012861229V078999' } # rubocop:disable RSpec/VariableName
+          let(:evidence_waiver_submission_request) {}
 
           before do |example|
             mock_ccg(scopes) do
