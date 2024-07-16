@@ -29,26 +29,6 @@ module Lighthouse
     end
 
     ##
-    # Upload generated pdf to Benefits Intake API
-    #
-    def upload_document
-      @intake_service.request_upload
-      @pension_monitor.track_submission_begun(@claim, @intake_service, @user_uuid)
-      form_submission_polling
-
-      payload = {
-        upload_url: @intake_service.location,
-        document: @form_path,
-        metadata: @metadata,
-        attachments: @attachment_paths
-      }
-
-      @pension_monitor.track_submission_attempted(@claim, @intake_service, @user_uuid, payload)
-      response = @intake_service.perform_upload(**payload)
-      raise PensionBenefitIntakeError, response.to_s unless response.success?
-    end
-
-    ##
     # Process claim pdfs and upload to Benefits Intake API
     # https://developer.va.gov/explore/api/benefits-intake/docs
     #
@@ -81,6 +61,26 @@ module Lighthouse
     end
 
     private
+
+    ##
+    # Upload generated pdf to Benefits Intake API
+    #
+    def upload_document
+      @intake_service.request_upload
+      @pension_monitor.track_submission_begun(@claim, @intake_service, @user_uuid)
+      form_submission_polling
+
+      payload = {
+        upload_url: @intake_service.location,
+        document: @form_path,
+        metadata: @metadata,
+        attachments: @attachment_paths
+      }
+
+      @pension_monitor.track_submission_attempted(@claim, @intake_service, @user_uuid, payload)
+      response = @intake_service.perform_upload(**payload)
+      raise PensionBenefitIntakeError, response.to_s unless response.success?
+    end
 
     ##
     # Instantiate instance variables for _this_ job
