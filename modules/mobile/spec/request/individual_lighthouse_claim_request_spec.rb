@@ -48,7 +48,6 @@ RSpec.describe 'lighthouse individual claim', type: :request do
         expect(date_of_events).to eq(['2022-10-30', '2022-10-30', '2022-09-30', '2023-03-01', '2022-12-12',
                                       '2022-10-30', '2022-10-30', '2022-10-11', '2022-09-30', '2022-09-30',
                                       '2022-09-27', nil, nil, nil, nil, nil, nil, nil, nil])
-
         expect(response.parsed_body.dig('data', 'attributes', 'claimTypeCode')).to eq('020NEW')
       end
     end
