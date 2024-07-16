@@ -65,6 +65,7 @@ module Lighthouse
       @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
       @metadata = generate_metadata
 
+      # upload must be performed within 15 minutes of this request
       upload_document
 
       @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
