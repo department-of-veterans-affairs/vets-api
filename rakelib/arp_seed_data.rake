@@ -13,7 +13,8 @@ namespace :arp do
     accredited_individual = AccreditedIndividual.find_or_initialize_by(registration_number: ogc_registration_number)
     accredited_individual.update!(ogc_id: SecureRandom.uuid,
                                   poa_code:,
-                                  individual_type:)
+                                  individual_type:,
+                                  email:)
 
     verified_rep = AccreditedRepresentativePortal::VerifiedRepresentative.find_or_initialize_by(email: test_rep_email)
     verified_rep.update!(ogc_registration_number:)
