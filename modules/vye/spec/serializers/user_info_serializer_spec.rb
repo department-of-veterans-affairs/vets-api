@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require Vye::Engine.root / 'spec/rails_helper'
 
 describe Vye::UserInfoSerializer, type: :serializer do
   subject { serialize(user_info, serializer_class: described_class) }
 
   before do
+    user_profile = user_info.user_profile
     award = create(:vye_award, user_info:)
-    create_list(:vye_verification, 3, user_profile: user_info.user_profile, award:)
+    create_list(:vye_verification, 3, user_profile:, user_info:, award:)
     allow(user_info).to receive(:pending_verifications).and_return(user_info.verifications)
   end
 
@@ -40,16 +42,8 @@ describe Vye::UserInfoSerializer, type: :serializer do
     expect(attributes['indicator']).to eq user_info.indicator
   end
 
-  context 'when api_key is set' do
-    it 'includes :zip_code' do
-      expect(attributes['zip_code']).to eq user_info.zip_code
-    end
-  end
-
-  context 'when api_key is not set' do
-    it 'includes :zip_code' do
-      expect(attributes['zip_code']).to eq nil
-    end
+  it 'includes :zip_code' do
+    expect(attributes['zip_code']).to eq user_info.zip_code
   end
 
   it 'includes :latest_address' do
