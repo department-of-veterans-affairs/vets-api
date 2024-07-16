@@ -16,8 +16,8 @@ class Form526StatusPollingJob
   end
 
   def perform
-    Rails.logger.info('Beginning Form 526 Intake Status polling', total_submissions: submissions.count)
-    submissions.each_slice(max_batch_size) do |batch|
+    Rails.logger.info('Beginning Form 526 Intake Status polling')
+    submissions.in_batches(of: max_batch_size) do |batch|
       batch_ids = batch.pluck(:backup_submitted_claim_id).flatten
       response = api_to_poll.get_bulk_status_of_uploads(batch_ids)
       handle_response(response)
@@ -40,7 +40,7 @@ class Form526StatusPollingJob
   def handle_response(response)
     response.body['data']&.each do |submission|
       status = submission.dig('attributes', 'status')
-      form_submission = submissions.find_by(backup_submitted_claim_id: submission['id'])
+      form_submission = Form526Submission.find_by(backup_submitted_claim_id: submission['id'])
 
       if %w[error expired].include? status
         log_result('failure')
