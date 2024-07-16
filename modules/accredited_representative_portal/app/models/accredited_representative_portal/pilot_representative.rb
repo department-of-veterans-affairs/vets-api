@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
-  # Represents a verified representative within the Accredited Representative Portal.
+  # Represents a pilot representative within the Accredited Representative Portal.
   # This class is responsible for managing the data associated with individuals who have
   # been verified as representatives by the ARF Team. The model includes validations to ensure the presence and
   # uniqueness of identifiers such as the OGC registration number and email.
   #
   # Currently, this model is populated manually by engineers as users are accepted into the pilot program.
   # There is potential for a UI to be developed in the future that would facilitate administrative tasks
-  # related to managing verified representatives.
+  # related to managing pilot representatives.
   #
   # A more automated process may be possible once OGC and MPI data facilitate such a process.
   #
