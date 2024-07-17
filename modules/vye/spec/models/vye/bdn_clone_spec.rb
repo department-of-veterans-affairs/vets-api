@@ -13,6 +13,16 @@ RSpec.describe Vye::BdnClone, type: :model do
     end
   end
 
+  describe 'non-activation' do
+    let!(:vbc0) { FactoryBot.create(:vye_bdn_clone_base, is_active: nil) }
+
+    it "doesn't activate records" do
+      expect do
+        described_class.activate_injested!
+      end.to raise_error(Vye::BndCloneNotFound)
+    end
+  end
+
   describe 'activation' do
     let!(:vbc0) { FactoryBot.create(:vye_bdn_clone_base, is_active: nil) }
     let!(:vbc1) { FactoryBot.create(:vye_bdn_clone_base, is_active: true) }
@@ -47,8 +57,11 @@ RSpec.describe Vye::BdnClone, type: :model do
     it 'activates the correct records' do
       expect(Vye::UserInfo.where(bdn_clone_active: [nil, false]).count).to eq(8)
       expect(Vye::UserInfo.where(bdn_clone_active: true).count).to eq(7)
-      expect(described_class.injested?).to eq(true)
-      described_class.activate_injested!
+
+      expect do
+        described_class.activate_injested!
+      end.not_to raise_error
+
       expect(Vye::UserInfo.where(bdn_clone_active: [nil, false]).count).to eq(10)
       expect(Vye::UserInfo.where(bdn_clone_active: true).count).to eq(5)
     end
