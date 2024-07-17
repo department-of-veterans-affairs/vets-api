@@ -60,8 +60,7 @@ module Vet360
       transaction = "AsyncTransaction::VAProfile::#{type.capitalize}Transaction".constantize.start(
         @current_user, response
       )
-
-      render json: transaction, serializer: AsyncTransaction::BaseSerializer
+      render json: AsyncTransaction::BaseSerializer.new(transaction).serializable_hash
     end
 
     def add_effective_end_date(params)
