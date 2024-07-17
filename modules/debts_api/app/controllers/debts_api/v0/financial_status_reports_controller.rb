@@ -18,6 +18,7 @@ module DebtsApi
 
       def transform_and_submit
         output = full_transform_service.transform
+
         render json: service.submit_financial_status_report(output.to_h)
       end
 
@@ -328,7 +329,9 @@ module DebtsApi
           ],
           income: [:veteran_or_spouse],
           gmt_data: [
-            :is_eligible_for_streamlined, :gmt_threshold, { error: [:error] }
+            :is_eligible_for_streamlined, :gmt_threshold, :error, :income_upper_threshold,
+            :asset_threshold, :discretionary_income_threshold, :income_below_gmt,
+            :income_below_one_fifty_gmt, :liquid_assets_below_gmt, :discretionary_below
           ],
           installment_contracts: %i[
             purpose creditor_name original_amount unpaid_balance
