@@ -36,6 +36,7 @@ properties:
           - claimType
           - everPhaseBack
           - currentPhaseBack
+          - claimTypeCode
         properties:
           dateFiled:
             type: string
@@ -87,3 +88,6 @@ properties:
             type: boolean
           currentPhaseBack:
             type: boolean
+          claimTypeCode:
+            type: string
+            example: '020NEW'

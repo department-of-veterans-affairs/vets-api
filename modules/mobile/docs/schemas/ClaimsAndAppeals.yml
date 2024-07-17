@@ -22,6 +22,7 @@ properties:
       - phase
       - documentsNeeded
       - developmentLetterSent
+      - claimTypeCode
     properties:
       subtype:
         type: string
@@ -57,3 +58,7 @@ properties:
         type: boolean, null
         description: Development letter has been sent.
         example: "true"
+      claimTypeCode:
+        type: string
+        description: Type of claim
+        example: "020NEW"
