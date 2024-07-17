@@ -56,7 +56,6 @@
                 "verified",
                 "sign_in",
                 "authn_context",
-                "inherited_proof_verified",
                 "icn",
                 "birls_id",
                 "edipi",
@@ -93,7 +92,6 @@
                   }
                 },
                 "authn_context": { "type": "string" },
-                "inherited_proof_verified": { "type": "boolean" },
                 "icn": { "type": "string" },
                 "birls_id": { "type": [ "string", null ] },
                 "edipi": { "type": [ "string", null ] },

@@ -25,7 +25,10 @@ module Mobile
               date_filed: date(attributes['claimDate']),
               updated_at: date(attributes['claimPhaseDates']['phaseChangeDate']),
               display_title: attributes['claimType'],
-              decision_letter_sent: attributes['decisionLetterSent']
+              decision_letter_sent: attributes['decisionLetterSent'],
+              phase: Mobile::ClaimsHelper.phase_to_number(attributes['claimPhaseDates']['phaseType']),
+              documentsNeeded: attributes['documentsNeeded'],
+              developmentLetterSent: attributes['developmentLetterSent']
             }
           )
         end

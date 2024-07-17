@@ -13,6 +13,7 @@ module ClaimsApi
 
         def submit
           shared_form_validation(FORM_NUMBER)
+          validate_veteran_name(false)
           poa_code = get_poa_code(FORM_NUMBER)
           validate_org_poa_code!(poa_code)
 
@@ -21,6 +22,7 @@ module ClaimsApi
 
         def validate
           shared_form_validation(FORM_NUMBER)
+          validate_veteran_name(false)
           poa_code = get_poa_code(FORM_NUMBER)
           validate_org_poa_code!(poa_code)
 
