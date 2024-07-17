@@ -142,7 +142,7 @@ module ClaimsApi
         docType: doc_type,
         claimId: claim_id,
         fileName: file_name,
-        trackedItemIds: tracked_item_ids
+        trackedItemIds: tracked_item_ids.map(&:to_i)
       }
       data[:participantId] = participant_id unless participant_id.nil?
       data[:fileNumber] = file_number unless file_number.nil?
