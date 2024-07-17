@@ -3,7 +3,9 @@
 require 'rails_helper'
 require 'dgi/status/status_response'
 
-describe ClaimStatusSerializer do
+describe ClaimStatusSerializer, type: :serializer do
+  subject { serialize(claim_status_response, serializer_class: described_class) }
+
   let(:claimant) { 600_000_001 }
   let(:claim_service_id) { 99_000_000_113_358_369 }
   let(:claim_status) { 'ELIGIBLE' }
@@ -18,44 +20,26 @@ describe ClaimStatusSerializer do
                       })
     MebApi::DGI::Status::StatusResponse.new(201, response)
   end
-
-  let(:expected_response) do
-    {
-      data: {
-        id: '',
-        type: 'meb_api_dgi_status_status_responses',
-        attributes: {
-          claimant_id: 600_000_001,
-          claim_service_id: 99_000_000_113_358_369,
-          claim_status: 'ELIGIBLE',
-          received_date: '2022-06-13'
-        }
-      }
-    }
-  end
-
-  let(:rendered_hash) do
-    ActiveModelSerializers::SerializableResource.new(claim_status_response, { serializer: described_class }).as_json
-  end
-  let(:rendered_attributes) { rendered_hash[:data][:attributes] }
+  let(:data) { JSON.parse(subject)['data'] }
+  let(:attributes) { data['attributes'] }
 
   it 'includes :id' do
-    expect(rendered_hash[:data][:id]).to be_blank
+    expect(data['id']).to be_blank
   end
 
   it 'includes :claimant_id' do
-    expect(rendered_attributes[:claimant_id]).to eq expected_response[:data][:attributes][:claimant_id]
+    expect(attributes['claimant_id']).to eq claimant
   end
 
   it 'includes :claim_service_id' do
-    expect(rendered_attributes[:claim_service_id]).to eq expected_response[:data][:attributes][:claim_service_id]
+    expect(attributes['claim_service_id']).to eq claim_service_id
   end
 
   it 'includes :claim_status' do
-    expect(rendered_attributes[:claim_status]).to eq expected_response[:data][:attributes][:claim_status]
+    expect(attributes['claim_status']).to eq 'ELIGIBLE'
   end
 
   it 'includes :received_date' do
-    expect(rendered_attributes[:received_date]).to eq expected_response[:data][:attributes][:received_date]
+    expect(attributes['received_date']).to eq received_date
   end
 end

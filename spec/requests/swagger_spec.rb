@@ -14,6 +14,7 @@ require 'support/rx_client_helpers'
 require 'bgs/service'
 require 'sign_in/logingov/service'
 require 'hca/enrollment_eligibility/constants'
+require 'form1010_ezr/service'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -893,6 +894,166 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
             'form' => test_veteran
           }
         )
+      end
+    end
+
+    context 'Form1010Ezr tests' do
+      let(:form) do
+        json_string = File.read(
+          Rails.root.join('spec', 'fixtures', 'form1010_ezr', 'valid_form.json')
+        )
+        json = JSON.parse(json_string)
+        json.to_json
+      end
+      let(:user) do
+        build(
+          :evss_user,
+          :loa3,
+          icn: '1013032368V065534',
+          birth_date: '1986-01-02',
+          first_name: 'FirstName',
+          middle_name: 'MiddleName',
+          last_name: 'ZZTEST',
+          suffix: 'Jr.',
+          ssn: '111111234',
+          gender: 'F'
+        )
+      end
+      let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
+
+      context 'attachments' do
+        context 'unauthenticated user' do
+          it 'returns unauthorized status code' do
+            expect(subject).to validate(
+              :post,
+              '/v0/form1010_ezr_attachments',
+              401
+            )
+          end
+        end
+
+        context 'authenticated' do
+          it 'supports submitting an ezr attachment' do
+            expect(subject).to validate(
+              :post,
+              '/v0/form1010_ezr_attachments',
+              200,
+              headers.merge(
+                '_data' => {
+                  'form1010_ezr_attachment' => {
+                    file_data: fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+                  }
+                }
+              )
+            )
+          end
+
+          it 'returns 422 if the attachment is not an allowed type' do
+            expect(subject).to validate(
+              :post,
+              '/v0/form1010_ezr_attachments',
+              422,
+              headers.merge(
+                '_data' => {
+                  'form1010_ezr_attachment' => {
+                    file_data: fixture_file_upload('invalid_idme_cert.crt')
+                  }
+                }
+              )
+            )
+          end
+
+          it 'returns a 400 if no attachment data is given' do
+            expect(subject).to validate(
+              :post,
+              '/v0/form1010_ezr_attachments',
+              400,
+              headers
+            )
+          end
+        end
+      end
+
+      context 'submitting a 1010EZR form' do
+        before do
+          Flipper.disable('ezr_async')
+        end
+
+        context 'unauthenticated user' do
+          it 'returns unauthorized status code' do
+            expect(subject).to validate(:post, '/v0/form1010_ezrs', 401)
+          end
+        end
+
+        context 'authenticated' do
+          it 'supports submitting a 1010EZR application', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+            VCR.use_cassette('form1010_ezr/authorized_submit_with_es_dev_uri', match_requests_on: [:body]) do
+              expect(subject).to validate(
+                :post,
+                '/v0/form1010_ezrs',
+                200,
+                headers.merge(
+                  '_data' => {
+                    'form' => form
+                  }
+                )
+              )
+            end
+          end
+
+          it 'returns a 422 if form validation fails', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+            VCR.use_cassette('form1010_ezr/authorized_submit_with_es_dev_uri', match_requests_on: [:body]) do
+              expect(subject).to validate(
+                :post,
+                '/v0/form1010_ezrs',
+                422,
+                headers.merge(
+                  '_data' => {
+                    'form' => {}.to_json
+                  }
+                )
+              )
+            end
+          end
+
+          it 'returns a 400 if a backend service error occurs', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+            VCR.use_cassette('form1010_ezr/authorized_submit', match_requests_on: [:body]) do
+              allow_any_instance_of(Form1010Ezr::Service).to receive(:submit_form) do
+                raise Common::Exceptions::BackendServiceException, 'error message'
+              end
+
+              expect(subject).to validate(
+                :post,
+                '/v0/form1010_ezrs',
+                400,
+                headers.merge(
+                  '_data' => {
+                    'form' => form
+                  }
+                )
+              )
+            end
+          end
+
+          it 'returns a 500 if a server error occurs', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+            VCR.use_cassette('form1010_ezr/authorized_submit', match_requests_on: [:body]) do
+              allow_any_instance_of(Form1010Ezr::Service).to receive(:submit_form) do
+                raise Common::Exceptions::InternalServerError, 'error message'
+              end
+
+              expect(subject).to validate(
+                :post,
+                '/v0/form1010_ezrs',
+                500,
+                headers.merge(
+                  '_data' => {
+                    'form' => form
+                  }
+                )
+              )
+            end
+          end
+        end
       end
     end
 
@@ -1820,8 +1981,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
     context 'without EVSS mock' do
       before do
-        allow(Settings.evss).to receive(:mock_gi_bill_status).and_return(false)
-        allow(Settings.evss).to receive(:mock_letters).and_return(false)
+        allow(Settings.evss).to receive_messages(mock_gi_bill_status: false, mock_letters: false)
       end
 
       it 'supports getting EVSS Letters' do
@@ -1861,7 +2021,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       let(:user) { build(:user, middle_name: 'Lee') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
 
-      it 'supports getting user with some external errors', skip_mvi: true do
+      it 'supports getting user with some external errors', :skip_mvi do
         expect(subject).to validate(:get, '/v0/user', 296, headers)
       end
     end
@@ -3056,9 +3216,16 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
             inquiry: {
               form: JSON.generate(
                 {
-                  fullName: {
+                  personalInformation: {
                     first: 'Obi Wan',
                     last: 'Kenobi'
+                  },
+                  contactInformation: {
+                    email: 'obi1kenobi@gmail.com',
+                    address: {
+                      country: 'USA'
+                    },
+                    phone: '1234567890'
                   },
                   topic: {
                     levelOne: 'Caregiver Support Program',
@@ -3069,11 +3236,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
                   veteranStatus: {
                     veteranStatus: 'general'
                   },
-                  preferredContactMethod: 'email',
-                  email: 'obi1kenobi@gmail.com',
-                  address: {
-                    country: 'USA'
-                  }
+                  preferredContactMethod: 'email'
                 }
               )
             }
@@ -3433,14 +3596,14 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
       it 'returns 400 for invalid request' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        VCR.use_cassette('travel_pay/404_claims') do
+        VCR.use_cassette('travel_pay/404_claims', match_requests_on: %i[host path method]) do
           expect(subject).to validate(:get, '/travel_pay/claims', 400, headers)
         end
       end
 
       it 'returns 200 for successful response' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        VCR.use_cassette('travel_pay/200_claims') do
+        VCR.use_cassette('travel_pay/200_claims', match_requests_on: %i[host path method]) do
           expect(subject).to validate(:get, '/travel_pay/claims', 200, headers)
         end
       end

@@ -62,7 +62,7 @@
             "addressLine1": {
               "description": "Address line 1 for the Veteran's current mailing address.",
               "type": "string",
-              "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 20,
               "example": "1234 Couch Street"
             },
@@ -159,13 +159,14 @@
         "addressLine1": {
           "description": "Address line 1 for the Veteran's new address.",
           "type": "string",
-          "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+          "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
           "maxLength": 20,
           "example": "1234 Couch Street"
         },
         "addressLine2": {
           "description": "Address line 2 for the Veteran's new address.",
           "type": ["string", "null"],
+          "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
           "maxLength": 20,
           "example": "Unit 4",
           "nullable": true
@@ -173,6 +174,7 @@
         "addressLine3": {
           "description": "Address line 3 for the Veteran's new address.",
           "type": ["string", "null"],
+          "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
           "maxLength": 20,
           "example": "Room 1",
           "nullable": true
@@ -586,7 +588,7 @@
           },
           "secondaryDisabilities": {
             "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
-            "type": "array",
+            "type": ["array", "null"],
             "items": {
               "type": "object",
               "additionalProperties": false,
@@ -681,7 +683,7 @@
               "city": {
                 "description": "City of treatment facility.",
                 "type": ["string", "null"],
-                "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                 "example": "Portland",
                 "nullable": true
               },
@@ -869,14 +871,14 @@
             "properties": {
               "approximateBeginDate": {
                 "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
-                "type": ["string", "null"],
-                "nullable": true,
+                "type": ["string"],
+                "nullable": false,
                 "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                 "example": "2018-06-06 or 2018-06"
               },
               "approximateEndDate": {
-                "type": ["string", "null"],
-                "nullable": true,
+                "type": ["string"],
+                "nullable": false,
                 "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                 "example": "2018-06-06 or 2018-06"
               }

@@ -37,7 +37,6 @@ module Lighthouse
     #
     # @param [Integer] saved_claim_id
     #
-    # rubocop:disable Metrics/MethodLength
     def perform(saved_claim_id, user_uuid = nil)
       init(saved_claim_id, user_uuid)
 
@@ -47,6 +46,26 @@ module Lighthouse
       @metadata = generate_metadata
 
       # upload must be performed within 15 minutes of this request
+      upload_document
+
+      @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
+      @pension_monitor.track_submission_success(@claim, @intake_service, @user_uuid)
+
+      @intake_service.uuid
+    rescue => e
+      @pension_monitor.track_submission_retry(@claim, @intake_service, @user_uuid, e)
+      @form_submission_attempt&.fail!
+      raise e
+    ensure
+      cleanup_file_paths
+    end
+
+    private
+
+    ##
+    # Upload generated pdf to Benefits Intake API
+    #
+    def upload_document
       @intake_service.request_upload
       @pension_monitor.track_submission_begun(@claim, @intake_service, @user_uuid)
       form_submission_polling
@@ -61,21 +80,7 @@ module Lighthouse
       @pension_monitor.track_submission_attempted(@claim, @intake_service, @user_uuid, payload)
       response = @intake_service.perform_upload(**payload)
       raise PensionBenefitIntakeError, response.to_s unless response.success?
-
-      @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
-      @pension_monitor.track_submission_success(@claim, @intake_service, @user_uuid)
-
-      @intake_service.uuid
-    rescue => e
-      @pension_monitor.track_submission_retry(@claim, @intake_service, @user_uuid, e)
-      @form_submission_attempt&.fail!
-      raise e
-    ensure
-      cleanup_file_paths
     end
-    # rubocop:enable Metrics/MethodLength
-
-    private
 
     ##
     # Instantiate instance variables for _this_ job

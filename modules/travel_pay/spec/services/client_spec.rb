@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 describe TravelPay::Client do
+  let(:user) { build(:user) }
+
   before do
     @stubs = Faraday::Adapter::Test::Stubs.new
 
@@ -18,7 +20,6 @@ describe TravelPay::Client do
   context 'request_veis_token' do
     it 'returns veis token from proper endpoint' do
       tenant_id = Settings.travel_pay.veis.tenant_id
-
       @stubs.post("#{tenant_id}/oauth2/token") do
         [
           200,
@@ -26,7 +27,6 @@ describe TravelPay::Client do
           '{"access_token": "fake_veis_token"}'
         ]
       end
-
       client = TravelPay::Client.new
       token = client.request_veis_token
 
@@ -57,6 +57,12 @@ describe TravelPay::Client do
   end
 
   context 'ping' do
+    before do
+      allow_any_instance_of(TravelPay::Client)
+        .to receive(:request_veis_token)
+        .and_return('veis_token')
+    end
+
     it 'receives response from ping endpoint' do
       @stubs.get('/api/v1/Sample/ping') do
         [
@@ -65,7 +71,7 @@ describe TravelPay::Client do
         ]
       end
       client = TravelPay::Client.new
-      response = client.ping('sample_token')
+      response = client.ping
 
       expect(response).to be_success
       @stubs.verify_stubbed_calls
@@ -73,10 +79,20 @@ describe TravelPay::Client do
   end
 
   context '/claims' do
-    it 'returns a list of claims sorted by most recently updated' do
-      payload = { ContactID: 'test' }
-      fake_btsss_token = JWT.encode(payload, nil, 'none')
+    before do
+      allow_any_instance_of(TravelPay::Client)
+        .to receive(:request_veis_token)
+        .and_return('veis_token')
+      allow_any_instance_of(TravelPay::Client)
+        .to receive(:request_sts_token)
+        .and_return('sts_token')
+      allow_any_instance_of(TravelPay::Client)
+        .to receive(:request_btsss_token)
+        .with('veis_token', 'sts_token')
+        .and_return('btsss_token')
+    end
 
+    it 'returns response from claims endpoint' do
       @stubs.get('/api/v1/claims') do
         [
           200,
@@ -115,23 +131,31 @@ describe TravelPay::Client do
         ]
       end
 
-      expected_ordered_ids = %w[uuid2 uuid3 uuid1]
-      expected_statuses = ['In Progress', 'Incomplete', 'In Progress']
+      expected_ids = %w[uuid1 uuid2 uuid3]
 
       client = TravelPay::Client.new
-      claims = client.get_claims('veis_token', fake_btsss_token)
-      actual_claim_ids = claims[:data].pluck(:id)
-      actual_statuses = claims[:data].pluck(:claimStatus)
+      claims_response = client.get_claims(user)
+      actual_claim_ids = claims_response.body['data'].pluck('id')
 
-      expect(actual_claim_ids).to eq(expected_ordered_ids)
-      expect(actual_statuses).to eq(expected_statuses)
+      expect(actual_claim_ids).to eq(expected_ids)
     end
   end
 
   context 'authorized_ping' do
+    before do
+      allow_any_instance_of(TravelPay::Client)
+        .to receive(:request_veis_token)
+        .and_return('veis_token')
+      allow_any_instance_of(TravelPay::Client)
+        .to receive(:request_sts_token)
+        .and_return('sts_token')
+      allow_any_instance_of(TravelPay::Client)
+        .to receive(:request_btsss_token)
+        .with('veis_token', 'sts_token')
+        .and_return('btsss_token')
+    end
+
     it 'receives response from authorized-ping endpoint' do
-      allow(Settings.travel_pay.veis).to receive(:auth_url).and_return('sample_url')
-      allow(Settings.travel_pay.veis).to receive(:tenant_id).and_return('sample_id')
       @stubs.get('/api/v1/Sample/authorized-ping') do
         [
           200,
@@ -139,9 +163,50 @@ describe TravelPay::Client do
         ]
       end
       client = TravelPay::Client.new
-      response = client.authorized_ping('veis_token', 'btsss_token')
+      response = client.authorized_ping(user)
 
       expect(response).to be_success
+      @stubs.verify_stubbed_calls
+    end
+  end
+
+  context 'request_sts_token' do
+    let(:assertion) do
+      {
+        'iss' => 'https://www.example.com',
+        'sub' => user.email,
+        'aud' => 'https://www.example.com/v0/sign_in/token',
+        'iat' => 1_634_745_556,
+        'exp' => 1_634_745_856,
+        'scopes' => [],
+        'service_account_id' => nil,
+        'jti' => 'c3fa0763-70cb-419a-b3a6-d2563e7b8504',
+        'user_attributes' => { 'icn' => '123498767V234859' }
+      }
+    end
+    let(:grant_type) { 'urn:ietf:params:oauth:grant-type:jwt-bearer' }
+
+    before do
+      Timecop.freeze(Time.zone.parse('2021-10-20T15:59:16Z'))
+      allow(SecureRandom).to receive(:uuid).and_return('c3fa0763-70cb-419a-b3a6-d2563e7b8504')
+    end
+
+    after { Timecop.return }
+
+    it 'builds sts assertion and requests sts token' do
+      private_key_file = Settings.sign_in.sts_client.key_path
+      private_key = OpenSSL::PKey::RSA.new(File.read(private_key_file))
+      jwt = JWT.encode(assertion, private_key, 'RS256')
+      @stubs.post("http:/v0/sign_in/token?assertion=#{jwt}&grant_type=#{grant_type}") do
+        [
+          200,
+          { 'Content-Type': 'application/json' },
+          '{"data": {"access_token": "fake_sts_token"}}'
+        ]
+      end
+      client = TravelPay::Client.new
+      sts_token = client.request_sts_token(user)
+      expect(sts_token).to eq('fake_sts_token')
       @stubs.verify_stubbed_calls
     end
   end

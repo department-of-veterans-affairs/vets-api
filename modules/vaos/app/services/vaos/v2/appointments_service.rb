@@ -11,7 +11,6 @@ module VAOS
       extend Memoist
 
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
-      VAOS_SERVICE_DATA_KEY = 'VAOSServiceTypesAndCategory'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
       AVS_APPT_TEST_ID = '192308'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
@@ -41,10 +40,17 @@ module VAOS
           appointments = response.body[:data]
           appointments.each do |appt|
             prepare_appointment(appt)
+            reason_code_service.extract_reason_code_fields(appt)
             merge_clinic(appt) if include[:clinics]
             merge_facility(appt) if include[:facilities]
             cnp_count += 1 if cnp?(appt)
           end
+
+          if Flipper.enabled?(:appointments_consolidation, user)
+            filterer = AppointmentsPresentationFilter.new
+            appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
+          end
+
           # log count of C&P appointments in the appointments list, per GH#78141
           log_cnp_appt_count(cnp_count) if cnp_count.positive?
           {
@@ -53,6 +59,7 @@ module VAOS
           }
         end
       end
+
       # rubocop:enable Metrics/MethodLength
 
       def get_appointment(appointment_id)
@@ -61,6 +68,7 @@ module VAOS
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
           appointment = response.body[:data]
           prepare_appointment(appointment)
+          reason_code_service.extract_reason_code_fields(appointment)
           OpenStruct.new(appointment)
         end
       end
@@ -81,19 +89,21 @@ module VAOS
                      end
 
           if request_object_body[:kind] == 'clinic' &&
-             request_object_body[:status] == 'booked' # a direct scheduled appointment
+             booked?(request_object_body) # a direct scheduled appointment
             modify_desired_date(request_object_body, get_facility_timezone(request_object_body[:location_id]))
           end
 
           new_appointment = response.body
           convert_appointment_time(new_appointment)
-          find_and_merge_provider_name(new_appointment) if new_appointment[:kind] == 'cc'
+          find_and_merge_provider_name(new_appointment) if cc?(new_appointment)
+          reason_code_service.extract_reason_code_fields(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
-          log_direct_schedule_submission_errors(e) if params[:status] == 'booked'
+          log_direct_schedule_submission_errors(e) if booked?(params)
           raise e
         end
       end
+
       # rubocop:enable Metrics/MethodLength
 
       def update_appointment(appt_id, status)
@@ -105,6 +115,7 @@ module VAOS
           else
             response = update_appointment_vaos(appt_id, status)
             convert_appointment_time(response.body)
+            reason_code_service.extract_reason_code_fields(response.body)
             OpenStruct.new(response.body)
           end
         end
@@ -153,6 +164,7 @@ module VAOS
 
         facility_info[:timezone]&.[](:time_zone_id)
       end
+
       memoize :get_facility_timezone_memoized
 
       private
@@ -192,9 +204,7 @@ module VAOS
 
       def prepare_appointment(appointment)
         # for CnP, covid, CC and telehealth appointments set cancellable to false per GH#57824, GH#58690, ZH#326
-        if cnp?(appointment) || covid?(appointment) || cc?(appointment) || telehealth?(appointment)
-          set_cancellable_false(appointment)
-        end
+        set_cancellable_false(appointment) if cannot_be_cancelled?(appointment)
 
         # remove service type(s) for non-medical non-CnP appointments per GH#56197
         unless medical?(appointment) || cnp?(appointment) || no_service_cat?(appointment)
@@ -208,7 +218,9 @@ module VAOS
         if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
           fetch_avs_and_update_appt_body(appointment)
         end
-        find_and_merge_provider_name(appointment) if appointment[:kind] == 'cc' && appointment[:status] == 'proposed'
+        if cc?(appointment) && %w[proposed cancelled].include?(appointment[:status])
+          find_and_merge_provider_name(appointment)
+        end
       end
 
       def find_and_merge_provider_name(appointment)
@@ -251,8 +263,11 @@ module VAOS
       end
 
       def avs_service
-        @avs_service ||=
-          Avs::V0::AvsService.new
+        @avs_service ||= Avs::V0::AvsService.new
+      end
+
+      def reason_code_service
+        @reason_code_service ||= VAOS::V2::AppointmentsReasonCodeService.new
       end
 
       def log_cnp_appt_count(cnp_count)
@@ -352,6 +367,15 @@ module VAOS
         err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
         Rails.logger.error("VAOS: Error retrieving AVS link: #{e.class}, #{e.message} \n   #{err_stack}")
         appt[:avs_path] = AVS_ERROR_MESSAGE
+      end
+
+      # Determines if the appointment cannot be cancelled.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment cannot be cancelled
+      def cannot_be_cancelled?(appointment)
+        cnp?(appointment) || covid?(appointment) ||
+          (cc?(appointment) && booked?(appointment)) || telehealth?(appointment)
       end
 
       # Checks if appointment is eligible for receiving an AVS link, i.e.

@@ -18,8 +18,7 @@ module V0
 
       def statuses
         transactions = AsyncTransaction::VAProfile::Base.refresh_transaction_statuses(@current_user, service)
-
-        render json: transactions, each_serializer: AsyncTransaction::BaseSerializer
+        render json: AsyncTransaction::BaseSerializer.new(transactions).serializable_hash
       end
 
       private

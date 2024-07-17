@@ -52,4 +52,46 @@ describe TestDisabilityCompensationValidationClass do
       expect(result).to eq(false)
     end
   end
+
+  describe '#date_range_overlap?' do
+    let(:date_begin_one) { '2018-06-04' }
+    let(:date_end_one) { '2020-07-01' }
+    let(:date_begin_two) { '2020-06-05' }
+    let(:date_end_two) { '2020-07-01' }
+
+    it 'returns true when the date ranges overlap' do
+      begin_one = test_526_validation_instance.send(:date_regex_groups, date_begin_one)
+      end_one = test_526_validation_instance.send(:date_regex_groups, date_end_one)
+      begin_two = test_526_validation_instance.send(:date_regex_groups, date_begin_two)
+      end_two = test_526_validation_instance.send(:date_regex_groups, date_end_two)
+      result = test_526_validation_instance.send(:date_range_overlap?, begin_one..end_one, begin_two..end_two)
+      expect(result).to eq(true)
+    end
+
+    it 'returns false when the date ranges do not overlap' do
+      begin_one = test_526_validation_instance.send(:date_regex_groups, date_begin_one)
+      end_one = test_526_validation_instance.send(:date_regex_groups, '2020-04-28')
+      begin_two = test_526_validation_instance.send(:date_regex_groups, date_begin_two)
+      end_two = test_526_validation_instance.send(:date_regex_groups, date_end_two)
+      result = test_526_validation_instance.send(:date_range_overlap?, begin_one..end_one, begin_two..end_two)
+      expect(result).to eq(false)
+    end
+  end
+
+  describe '#date_is_valid' do
+    let(:begin_date) { '2017-02-29' }
+    let(:begin_prop) { '/toxicExposure/additionalHazardExposures/exposureDates/beginDate' }
+    let(:end_date) { '2017-02-28' }
+    let(:end_prop) { '/toxicExposure/additionalHazardExposures/exposureDates/endDate' }
+
+    it 'returns false when a date is invalid' do
+      result = test_526_validation_instance.send(:date_is_valid?, begin_date, begin_prop)
+      expect(result).to eq(false)
+    end
+
+    it 'returns true when a date is valid' do
+      result = test_526_validation_instance.send(:date_is_valid?, end_date, end_prop)
+      expect(result).to eq(true)
+    end
+  end
 end

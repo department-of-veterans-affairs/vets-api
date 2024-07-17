@@ -10,6 +10,7 @@ DebtsApi::Engine.routes.draw do
     end
 
     get 'financial_status_reports/rehydrate_submission/:submission_id', to: 'financial_status_reports#rehydrate'
+    post 'financial_status_reports/transform_and_submit', to: 'financial_status_reports#transform_and_submit'
 
     post 'calculate_total_assets', to: 'financial_status_reports_calculations#total_assets'
     post 'calculate_monthly_expenses', to: 'financial_status_reports_calculations#monthly_expenses'

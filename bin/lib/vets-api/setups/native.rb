@@ -41,7 +41,14 @@ module VetsApi
           settings.delete(key) if settings.key?(key)
         end
 
-        File.write(settings_path, YAML.dump(settings).tr('---', ''))
+        lines = File.readlines(settings_path)
+        updated_lines = lines.reject do |line|
+          hybrid_keys.any? { |key| line.strip.start_with?("#{key}:") }
+        end
+        File.open(settings_path, 'w') do |file|
+          file.puts updated_lines
+        end
+
         puts 'Done'
       end
 

@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require 'debts_api/v0/fsr_form_transform/utils'
+
 module DebtsApi
   module V0
     module FsrFormTransform
       class IncomeCalculator
+        include ::FsrFormTransform::Utils
+
         BENEFICIARY_MAP = {
           'veteran' => 'VETERAN',
           'spouse' => 'SPOUSE'
@@ -83,7 +87,7 @@ module DebtsApi
           {
             vetIncome: vet_income,
             spIncome: sp_income,
-            totalMonthlyNetIncome: total_monthly_net_income
+            totalMonthlyNetIncome: total_monthly_net_income || 0.00
           }
         end
 
@@ -146,12 +150,12 @@ module DebtsApi
         private
 
         def filter_reduce_by_name(deductions, filters)
-          return 0 unless deductions&.any?
+          return 0.0 unless deductions&.any?
 
           deductions
             .select { |deduction| filters.include?(deduction['name']) }
-            .reduce(0) do |acc, curr|
-              acc + (curr['amount']&.gsub(/[^0-9.-]/, '')&.to_f || 0)
+            .reduce(0.0) do |acc, curr|
+              acc + curr['amount']&.gsub(/[^0-9.-]/, '').to_f
             end
         end
 
@@ -247,27 +251,27 @@ module DebtsApi
           tot_deductions = taxes_values + retirement_values + social_sec + other
           other_income = addl_inc.to_f.round(2) + benefits_amount.to_f.round(2) + soc_sec_amt.to_f.round(2)
           net_income = gross_salary - tot_deductions
-          total_monthly_net_income = net_income + other_income
+          total_monthly_net_income = (net_income + other_income) || 0.00
 
           {
             'veteranOrSpouse' => BENEFICIARY_MAP[beneficiary_type],
-            'monthlyGrossSalary' => gross_salary,
+            'monthlyGrossSalary' => dollars_cents(gross_salary),
             'deductions' => {
-              'taxes' => taxes_values,
-              'retirement' => retirement_values,
-              'socialSecurity' => social_sec,
+              'taxes' => dollars_cents(taxes_values),
+              'retirement' => dollars_cents(retirement_values),
+              'socialSecurity' => dollars_cents(social_sec),
               'otherDeductions' => {
                 'name' => other_deductions_name(deductions, ALL_FILTERS),
-                'amount' => other
+                'amount' => dollars_cents(other.to_f)
               }
             },
-            'totalDeductions' => tot_deductions,
-            'netTakeHomePay' => net_income,
+            'totalDeductions' => dollars_cents(tot_deductions),
+            'netTakeHomePay' => dollars_cents(net_income),
             'otherIncome' => {
               'name' => name_str(soc_sec_amt, comp, edu, addl_inc_records),
-              'amount' => other_income.round(2)
+              'amount' => dollars_cents(other_income.round(2))
             },
-            'totalMonthlyNetIncome' => total_monthly_net_income.round(2)
+            'totalMonthlyNetIncome' => dollars_cents(total_monthly_net_income.round(2))
           }
         end
 
@@ -304,7 +308,7 @@ module DebtsApi
                  end
 
           edu = if beneficiary_type == 'spouse'
-                  benefits.dig('spouse_benefits', 'education').to_f || 0
+                  benefits.dig('spouse_benefits', 'education').to_f || 0.00
                 else
                   income.sum { |item| item['education'].to_f }
                 end
@@ -353,7 +357,7 @@ module DebtsApi
               name: name_str(soc_sec_amt, comp, edu, addl_inc_records),
               amount: other_income.round(2)
             },
-            totalMonthlyNetIncome: total_monthly_net_income.round(2)
+            totalMonthlyNetIncome: total_monthly_net_income.round(2) || 0.00
           }
         end
       end

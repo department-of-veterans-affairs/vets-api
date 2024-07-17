@@ -26,13 +26,15 @@ class Vye::UserProfile < ApplicationRecord
     end
   end
 
+  validates :ssn_digest, :file_number_digest, uniqueness: true, allow_nil: true
+
   scope(
     :with_assos,
     lambda {
       includes(
         :pending_documents,
         :verifications,
-        active_user_info: %i[bdn_clone address_changes awards]
+        active_user_info: %i[address_changes awards]
       )
     }
   )
@@ -45,29 +47,33 @@ class Vye::UserProfile < ApplicationRecord
     end
   end
 
-  def assign_digested_changes(attributes)
-    attributes.slice(:ssn, :file_number).each do |key, value|
-      next if self[format('%<key>s_digest', key:)] == gen_digest(value)
+  def check_for_match
+    user_profile = self
+    attribute_name = %w[ssn_digest file_number_digest icn].find { |a| attribute_changed? a }
+    conflict = attribute_name.present?
 
-      Rails.logger.info format('Vye::UserProfile(%<id>u) updating with new %<key>s', id:, key:)
-      send(format('%<key>s=', key), value)
-    end
+    { user_profile:, conflict:, attribute_name: }
   end
 
   def self.produce(attributes)
-    attributes = attributes.slice(:ssn, :file_number, :icn)
+    ssn, file_number, icn = attributes.values_at(:ssn, :file_number, :icn).map(&:presence)
+    ssn_digest, file_number_digest = [ssn, file_number].map { |value| gen_digest(value) }
+    assignment = { ssn_digest:, file_number_digest: }.merge(icn.present? ? { icn: } : {})
 
-    %i[ssn file_number].each do |key|
-      record = send("find_from_digested_#{key}", attributes[key])
+    user_profile = find_or_build(ssn_digest:, file_number_digest:)
+    user_profile&.assign_attributes(**assignment)
+    user_profile&.check_for_match
+  end
 
-      next if record.blank?
+  def self.find_or_build(ssn_digest:, file_number_digest:)
+    return nil if ssn_digest.blank? && file_number_digest.blank?
 
-      record.assign_digested_changes(attributes)
+    result = find_by(ssn_digest:) if ssn_digest.present?
+    return result if result.present?
 
-      return record
-    end
+    result = find_by(file_number_digest:) if file_number_digest.present?
+    return result if result.present?
 
-    Rails.logger.info format('Vye::UserProfile, new record with %<attribute_keys>p', attribute_keys: attributes.keys)
-    build(attributes)
+    build(ssn_digest:, file_number_digest:)
   end
 end

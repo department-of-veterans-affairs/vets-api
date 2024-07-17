@@ -11,7 +11,8 @@ module IvcChampva
         '10-10D' => 'vha_10_10d',
         '10-7959F-1' => 'vha_10_7959f_1',
         '10-7959F-2' => 'vha_10_7959f_2',
-        '10-7959C' => 'vha_10_7959c'
+        '10-7959C' => 'vha_10_7959c',
+        '10-7959A' => 'vha_10_7959a'
       }.freeze
 
       def submit
@@ -20,19 +21,20 @@ module IvcChampva
           form_id = get_form_id
           parsed_form_data = JSON.parse(params.to_json)
           file_paths, metadata, attachment_ids = get_file_paths_and_metadata(parsed_form_data)
+          statuses, error_message = FileUploader.new(form_id, metadata, file_paths, attachment_ids, true).handle_uploads
+          response = build_json(Array(statuses), error_message)
 
-          status, error_message = FileUploader.new(form_id, metadata, file_paths, attachment_ids, true).handle_uploads
-
-          render json: build_json(Array(status), error_message)
+          render json: response[:json], status: response[:status]
         rescue => e
-          puts 'An unknown error occurred while uploading document(s).'
           Rails.logger.error "Error: #{e.message}"
           Rails.logger.error e.backtrace.join("\n")
+          render json: { error_message: "Error: #{e.message}" },
+                 status: :internal_server_error
         end
       end
 
       def submit_supporting_documents
-        if %w[10-10D 10-7959C 10-7959F-2].include?(params[:form_id])
+        if %w[10-10D 10-7959C 10-7959F-2 10-7959A].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
@@ -56,6 +58,7 @@ module IvcChampva
         applicant_rounded_number = total_applicants_count.positive? ? total_applicants_count.ceil : total_applicants_count.floor
 
         form = form_class.new(parsed_form_data)
+        form.track_user_identity
 
         attachment_ids = generate_attachment_ids(form_id, applicant_rounded_number)
         attachment_ids.concat(supporting_document_ids(parsed_form_data))
@@ -96,21 +99,16 @@ module IvcChampva
         FORM_NUMBER_MAP[form_number_without_colon]
       end
 
-      def build_json(status, error_message)
-        if status.all? { |s| s == 200 }
-          {
-            status: 200
-          }
-        elsif status.all? { |s| s == 400 }
-          {
-            error_message:,
-            status: 400
-          }
+      def build_json(statuses, error_message)
+        unique_statuses = statuses.uniq
+
+        if unique_statuses == [200]
+          { json: {}, status: 200 }
+        elsif unique_statuses.include? 400
+          { json: { error_message: error_message ||
+            'An unknown error occurred while uploading some documents.' }, status: 400 }
         else
-          {
-            error_message: 'Partial upload failure',
-            status: 206
-          }
+          { json: { error_message: 'An unknown error occurred while uploading document(s).' }, status: 500 }
         end
       end
 

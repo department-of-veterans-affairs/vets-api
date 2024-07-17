@@ -3,6 +3,7 @@
 module IvcChampva
   class VHA107959f1
     include Virtus.model(nullify_blank: true)
+    include Attachments
 
     attribute :data
     attr_reader :form_id
@@ -29,8 +30,8 @@ module IvcChampva
       }
     end
 
-    def submission_date_config
-      { should_stamp_date?: false }
+    def desired_stamps
+      [{ coords: [26, 82.5], text: data['statement_of_truth_signature'], page: 0 }]
     end
 
     def method_missing(_, *args)

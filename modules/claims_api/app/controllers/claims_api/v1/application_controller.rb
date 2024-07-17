@@ -151,14 +151,14 @@ module ClaimsApi
       end
 
       def target_veteran(with_gender: false)
-        if header_request?
-          headers_to_validate = %w[X-VA-SSN X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date]
-          validate_headers(headers_to_validate)
-          validate_ccg_token! if @is_valid_ccg_flow
-          veteran_from_headers(with_gender:)
-        else
-          build_target_veteran(veteran_id: @current_user.icn, loa: { current: 3, highest: 3 })
-        end
+        @target ||= if header_request?
+                      headers_to_validate = %w[X-VA-SSN X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date]
+                      validate_headers(headers_to_validate)
+                      validate_ccg_token! if @is_valid_ccg_flow
+                      veteran_from_headers(with_gender:)
+                    else
+                      build_target_veteran(veteran_id: @current_user.icn, loa: { current: 3, highest: 3 })
+                    end
       end
 
       def veteran_from_headers(with_gender: false)
@@ -171,7 +171,12 @@ module ClaimsApi
           last_signed_in: Time.now.utc,
           loa: @is_valid_ccg_flow ? { current: 3, highest: 3 } : @current_user.loa
         )
-        vet.mpi_record?
+        # Fail fast if mpi_record can't be found
+        unless vet.mpi_record?
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail:
+            'Unable to retrieve a record from Master Person Index (MPI). ' \
+            'Please try again later.')
+        end
         vet.gender = header('X-VA-Gender') || vet.gender_mpi if with_gender
         vet.edipi = vet.edipi_mpi
         vet.participant_id = vet.participant_id_mpi
@@ -193,15 +198,16 @@ module ClaimsApi
       end
 
       def validate_header_values_format
-        if header('X-VA-Birth-Date').blank?
+        errors = []
+        errors << 'X-VA-Birth-Date' if header('X-VA-Birth-Date').blank?
+        errors << 'X-VA-First-Name' if header('X-VA-First-Name').blank?
+        errors << 'X-VA-Last-Name' if header('X-VA-Last-Name').blank?
+
+        if errors.present?
           raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'The following values are invalid: birth date'
+            detail: "The following values are invalid: #{errors.join(', ')}"
           )
         end
-      end
-
-      def birth_date_valid_format?(birth_date)
-        false if birth_date.blank?
       end
 
       def claims_v1_logging(tag = 'traceability', level: :info, message: nil, icn: target_veteran&.mpi&.icn)

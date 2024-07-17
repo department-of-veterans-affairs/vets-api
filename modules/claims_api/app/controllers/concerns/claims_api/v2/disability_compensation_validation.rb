@@ -30,12 +30,12 @@ module ClaimsApi
         # ensure homeless information is valid
         validate_form_526_veteran_homelessness
         # ensure toxic exposure info is valid
-        validate_form_526_gulf_service
+        validate_form_526_toxic_exposure
         # ensure new address is valid
         validate_form_526_change_of_address
         # ensure military service pay information is valid
         validate_form_526_service_pay
-        # ensure treament centers information is valid
+        # ensure treatment centers information is valid
         validate_form_526_treatments
         # ensure service information is valid
         validate_form_526_service_information(target_veteran)
@@ -44,6 +44,8 @@ module ClaimsApi
         # collect errors and pass back to the controller
         raise_error_collection if @errors
       end
+
+      private
 
       def validate_form_526_change_of_address
         return if form_attributes['changeOfAddress'].blank?
@@ -76,8 +78,10 @@ module ClaimsApi
       end
 
       def validate_form_526_change_of_address_ending_date
-        change_of_address = form_attributes['changeOfAddress']
-        date = change_of_address.dig('dates', 'endDate')
+        change_of_address = form_attributes&.dig('changeOfAddress')
+        date = change_of_address&.dig('dates', 'endDate')
+        return if date.nil? # nullable on schema
+
         if 'PERMANENT'.casecmp?(change_of_address['typeOfAddressChange']) && date.present?
           collect_error_messages(
             detail: 'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT',
@@ -198,11 +202,11 @@ module ClaimsApi
       end
 
       def validate_form_526_disability_approximate_begin_date
-        disabilities = form_attributes['disabilities']
+        disabilities = form_attributes&.dig('disabilities')
         return if disabilities.blank?
 
         disabilities.each_with_index do |disability, idx|
-          approx_begin_date = disability['approximateDate']
+          approx_begin_date = disability&.dig('approximateDate')
           next if approx_begin_date.blank?
 
           next unless date_is_valid?(approx_begin_date, "disability/#{idx}/approximateDate")
@@ -249,8 +253,13 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_disability_secondary_disabilities
+      def validate_form_526_disability_secondary_disabilities # rubocop:disable Metrics/MethodLength
         form_attributes['disabilities'].each_with_index do |disability, dis_idx|
+          if disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].blank?
+            collect_error_messages(source: "disabilities/#{dis_idx}/",
+                                   detail: 'If the `disabilityActionType` is set to `NONE` ' \
+                                           'there must be a secondary disability present.')
+          end
           next if disability['secondaryDisabilities'].blank?
 
           validate_form_526_disability_secondary_disability_required_fields(disability, dis_idx)
@@ -312,6 +321,8 @@ module ClaimsApi
       end
 
       def validate_form_526_veteran_homelessness # rubocop:disable Metrics/MethodLength
+        return if form_attributes&.dig('homeless').nil? # nullable on schema
+
         handle_empty_other_description
 
         if too_many_homelessness_attributes_provided?
@@ -391,23 +402,53 @@ module ClaimsApi
         phone.length > 25 if phone
       end
 
-      def validate_form_526_gulf_service
+      def validate_form_526_toxic_exposure
+        return if form_attributes&.dig('toxicExposure').nil? # nullable on schema
+
         gulf_war_service = form_attributes&.dig('toxicExposure', 'gulfWarHazardService')
-        return if gulf_war_service&.dig('servedInGulfWarHazardLocations') == 'NO'
-
-        begin_date = gulf_war_service&.dig('serviceDates', 'beginDate')
-        end_date = gulf_war_service&.dig('serviceDates', 'endDate')
-
-        begin_prop = '/toxicExposure/gulfWarHazardService/serviceDates/beginDate'
-        end_prop = '/toxicExposure/gulfWarHazardService/serviceDates/endDate'
-
-        validate_gulf_war_service_date(begin_date, begin_prop) unless begin_date.nil? || !date_is_valid?(begin_date,
-                                                                                                         begin_prop)
-        validate_gulf_war_service_date(end_date, end_prop) unless end_date.nil? || !date_is_valid?(end_date,
-                                                                                                   end_prop)
+        validate_form_526_toxic_exp_sections(gulf_war_service, 'gulfWarHazardService')
+        herbicide_service = form_attributes&.dig('toxicExposure', 'herbicideHazardService')
+        validate_form_526_toxic_exp_sections(herbicide_service, 'herbicideHazardService')
+        other_exposures = form_attributes&.dig('toxicExposure', 'additionalHazardExposures')
+        validate_form_526_toxic_multi_addtl_exp(other_exposures, 'additionalHazardExposures')
+        multi_exposures = form_attributes&.dig('toxicExposure', 'multipleExposures')
+        validate_form_526_toxic_multi_addtl_exp(multi_exposures, 'multipleExposures')
       end
 
-      def validate_gulf_war_service_date(date, prop)
+      def validate_form_526_toxic_exp_sections(section, attribute_name)
+        if section&.nil? || section&.dig('servedInHerbicideHazardLocations') == 'NO' ||
+           section&.dig('servedInGulfWarHazardLocations') == 'NO'
+          return
+        end
+
+        begin_date = section&.dig('serviceDates', 'beginDate')
+        end_date = section&.dig('serviceDates', 'endDate')
+
+        begin_prop = "/toxicExposure/#{attribute_name}/serviceDates/beginDate"
+        end_prop = "/toxicExposure/#{attribute_name}/serviceDates/endDate"
+
+        validate_service_date(begin_date, begin_prop) unless begin_date.nil? || !date_is_valid?(begin_date,
+                                                                                                begin_prop)
+        validate_service_date(end_date, end_prop) unless end_date.nil? || !date_is_valid?(end_date, end_prop)
+      end
+
+      def validate_form_526_toxic_multi_addtl_exp(section, attribute_name)
+        return if section.nil?
+
+        [section].flatten&.each do |item, idx|
+          begin_date = item&.dig('exposureDates', 'beginDate')
+          end_date = item&.dig('exposureDates', 'endDate')
+
+          begin_prop = "/toxicExposure/#{attribute_name}/#{idx}/exposureDates/beginDate"
+          end_prop = "/toxicExposure/#{attribute_name}/#{idx}/exposureDates/endDate"
+
+          validate_service_date(begin_date, begin_prop) unless begin_date.nil? || !date_is_valid?(begin_date,
+                                                                                                  begin_prop)
+          validate_service_date(end_date, end_prop) unless end_date.nil? || !date_is_valid?(end_date, end_prop)
+        end
+      end
+
+      def validate_service_date(date, prop)
         if date_has_day?(date) # this date should not have the day
           collect_error_messages(source: prop.to_s,
                                  detail: 'Service dates must be in the format of yyyy-mm or yyyy')
@@ -505,7 +546,7 @@ module ClaimsApi
 
       def collect_treated_disability_names(treatments)
         names = []
-        treatments.each do |treatment|
+        treatments&.each do |treatment|
           treatment['treatedDisabilityNames']&.each do |disability_name|
             names << disability_name.strip.downcase
           end
@@ -513,28 +554,44 @@ module ClaimsApi
         names
       end
 
-      def validate_treatment_dates(treatments) # rubocop:disable Metrics/MethodLength
+      def valid_treatment_date?(first_service_date, treatment_begin_date)
+        return true if first_service_date.blank? || treatment_begin_date.nil?
+
+        case type_of_date_format(treatment_begin_date)
+        when 'yyyy-mm'
+          first_service_date = Date.new(first_service_date.year, first_service_date.month, 1)
+          treatment_begin_date = Date.strptime(treatment_begin_date, '%Y-%m')
+        when 'yyyy'
+          first_service_date = Date.new(first_service_date.year, 1, 1)
+          treatment_begin_date = Date.strptime(treatment_begin_date, '%Y')
+        else
+          return false
+        end
+
+        first_service_date <= treatment_begin_date
+      end
+
+      def validate_treatment_dates(treatments)
         first_service_period = form_attributes['serviceInformation']['servicePeriods'].min_by do |per|
           per['activeDutyBeginDate']
         end
-        if first_service_period['activeDutyBeginDate']
-          return unless date_is_valid?(first_service_period['activeDutyBeginDate'],
-                                       'serviceInformation/servicePeriods/activeDutyBeginDate')
 
-          first_service_date = Date.strptime(first_service_period['activeDutyBeginDate'],
-                                             '%Y-%m-%d')
-        end
+        first_service_date = if first_service_period['activeDutyBeginDate'] &&
+                                date_is_valid?(
+                                  first_service_period['activeDutyBeginDate'],
+                                  'serviceInformation/servicePeriods/activeDutyBeginDate'
+                                )
+                               Date.strptime(first_service_period['activeDutyBeginDate'], '%Y-%m-%d')
+                             end
+
         treatments.each_with_index do |treatment, idx|
-          next if treatment['beginDate'].nil?
-          next unless date_is_valid?(treatment['beginDate'], "/treatments/#{idx}/beginDate")
+          treatment_begin_date = treatment['beginDate']
 
-          treatment_begin_date = if type_of_date_format(treatment['beginDate']) == 'yyyy-mm'
-                                   Date.strptime(treatment['beginDate'], '%Y-%m')
-                                 elsif type_of_date_format(treatment['beginDate']) == 'yyyy'
-                                   Date.strptime(treatment['beginDate'], '%Y')
-                                 end
+          next if treatment_begin_date.nil?
 
-          next if first_service_date.blank? || treatment_begin_date.nil? || treatment_begin_date >= first_service_date
+          next unless date_is_valid?(treatment_begin_date, "/treatments/#{idx}/beginDate")
+
+          next if valid_treatment_date?(first_service_date, treatment_begin_date)
 
           collect_error_messages(
             source: "/treatments/#{idx}/beginDate",
@@ -686,7 +743,6 @@ module ClaimsApi
           approximate_end_date = confinement&.dig('approximateEndDate')
 
           form_object_desc = "/confinement/#{idx}"
-
           if approximate_begin_date.blank?
             raise_exception_if_value_not_present('approximate begin date',
                                                  "#{form_object_desc}/approximateBeginDate")
@@ -724,6 +780,14 @@ module ClaimsApi
             )
           end
 
+          @ranges ||= []
+          @ranges << (date_regex_groups(approximate_begin_date)..date_regex_groups(approximate_end_date))
+          if overlapping_confinement_periods?(idx)
+            collect_error_messages(
+              source: "/confinements/#{idx}/approximateBeginDate",
+              detail: 'Confinement periods may not overlap each other.'
+            )
+          end
           unless confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date,
                                                               service_periods)
             collect_error_messages(
@@ -828,8 +892,13 @@ module ClaimsApi
         form_obj_desc = 'obligation terms of service'
 
         # if one is present both need to be present
-        raise_exception_if_value_not_present('begin date', form_obj_desc) if tos_start_date.blank?
-        raise_exception_if_value_not_present('end date', form_obj_desc) if tos_end_date.blank?
+        if tos_start_date.blank? && tos_end_date.present?
+          raise_exception_if_value_not_present('begin date', form_obj_desc)
+        end
+        if tos_end_date.blank? && tos_start_date.present?
+          raise_exception_if_value_not_present('end date',
+                                               form_obj_desc)
+        end
         if tos_start_date.present? && tos_end_date.present? && (Date.strptime(tos_start_date,
                                                                               '%Y-%m-%d') > Date.strptime(tos_end_date,
                                                                                                           '%Y-%m-%d'))
@@ -843,18 +912,15 @@ module ClaimsApi
       def validate_federal_activation_values(service_information)
         federal_activation = service_information&.dig('federalActivation')
         federal_activation_date = federal_activation&.dig('activationDate')
-        anticipated_seperation_date = federal_activation&.dig('anticipatedSeparationDate')
+        anticipated_separation_date = federal_activation&.dig('anticipatedSeparationDate')
 
         return if federal_activation.blank?
 
         form_obj_desc = '/serviceInformation/federalActivation'
 
-        if federal_activation_date.blank?
-          raise_exception_if_value_not_present('federal activation date',
-                                               form_obj_desc)
-        end
+        raise_exception_if_value_not_present('federal activation date', form_obj_desc) if federal_activation_date.blank?
 
-        return if anticipated_seperation_date.blank?
+        return if anticipated_separation_date.blank?
 
         # we know the dates are present
         if activation_date_not_after_duty_begin_date?(federal_activation_date)
@@ -864,7 +930,7 @@ module ClaimsApi
           )
         end
 
-        validate_anticipated_seperation_date_in_past(anticipated_seperation_date)
+        validate_anticipated_separation_date_in_past(anticipated_separation_date)
       end
 
       def activation_date_not_after_duty_begin_date?(activation_date)
@@ -899,7 +965,7 @@ module ClaimsApi
         end
       end
 
-      def validate_anticipated_seperation_date_in_past(date)
+      def validate_anticipated_separation_date_in_past(date)
         return if date.blank?
 
         if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
@@ -987,8 +1053,6 @@ module ClaimsApi
         end
       end
 
-      private
-
       def bdd_claim?
         claim_process_type = form_attributes['claimProcessType']
         claim_process_type == 'BDD_PROGRAM'
@@ -1013,6 +1077,7 @@ module ClaimsApi
         when 'yyyy-mm'
           param_date = Date.strptime(date, '%Y-%m')
           now_date = Date.strptime(Time.zone.today.strftime('%Y-%m'), '%Y-%m')
+          now_date.end_of_month
         when 'yyyy'
           param_date = Date.strptime(date, '%Y')
           now_date = Date.strptime(Time.zone.today.strftime('%Y'), '%Y')
@@ -1047,7 +1112,7 @@ module ClaimsApi
         if date_length == 4
           "#{date_object[:year]}-01-01".to_date
         elsif date_length == 7
-          "#{date_object[:year]}-#{date_object[:month]}-01".to_date
+          "#{date_object[:year]}-#{date_object[:month]}-01".to_date.end_of_month
         else
           "#{date_object[:year]}-#{date_object[:month]}-#{date_object[:day]}".to_date
         end
@@ -1061,6 +1126,20 @@ module ClaimsApi
         return unless date_is_valid?(begin_date, 'serviceInformation/servicePeriods/activeDutyEndDate')
 
         date_regex_groups(begin_date) > date_regex_groups(approximate_begin_date)
+      end
+
+      def overlapping_confinement_periods?(idx)
+        return if @ranges&.size&.<= 1
+
+        range_one = @ranges[idx - 1]
+        range_two = @ranges[idx]
+        range_one.present? && range_two.present? ? date_range_overlap?(range_one, range_two) : return
+      end
+
+      def date_range_overlap?(range_one, range_two)
+        return if range_one.last.nil? || range_one.first.nil? || range_two.last.nil? || range_two.first.nil?
+
+        (range_one&.last&.> range_two&.first) || (range_two&.last&.< range_one&.first)
       end
 
       # Will check for a real date including leap year

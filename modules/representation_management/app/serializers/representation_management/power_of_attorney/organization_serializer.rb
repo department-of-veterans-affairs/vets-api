@@ -3,12 +3,13 @@
 module RepresentationManagement
   module PowerOfAttorney
     class OrganizationSerializer < BaseSerializer
-      attribute :type
-      attribute :name
+      include JSONAPI::Serializer
 
-      def type
+      attribute :type do
         'organization'
       end
+
+      attribute :name
     end
   end
 end

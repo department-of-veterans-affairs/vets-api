@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
+RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
   stub_virus_scan
   subject(:job) { described_class.new }
 
@@ -112,9 +112,6 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
         allow(mailer_double).to receive(:deliver_now)
         expect(claim).to receive(:submittable_686?).and_return(true).exactly(:twice)
         expect(claim).to receive(:submittable_674?).and_return(false)
-        expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(OpenStruct)) {
-                                                        mailer_double
-                                                      }
         expect { subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct) }.to raise_error(CentralMail::SubmitCentralForm686cJob::CentralMailResponseError) # rubocop:disable Layout/LineLength
 
         expect(central_mail_submission.reload.state).to eq('failed')
@@ -249,6 +246,15 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
           'ahash1' => 'hash2',
           'numberPages1' => 2
         )
+      end
+    end
+
+    describe 'sidekiq_retries_exhausted block' do
+      it 'logs a distinct error when retries are exhausted' do
+        CentralMail::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block do
+          expect(Rails.logger).to receive(:error).exactly(:once)
+          expect(StatsD).to receive(:increment).with('worker.submit_686c_674_backup_submission.exhausted')
+        end
       end
     end
   end

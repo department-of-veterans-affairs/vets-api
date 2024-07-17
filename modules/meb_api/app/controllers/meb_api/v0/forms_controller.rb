@@ -35,19 +35,19 @@ module MebApi
         response = claimant_response.status == 200 ? claim_status_response : claimant_response
         serializer = claimant_response.status == 200 ? ClaimStatusSerializer : ClaimantSerializer
 
-        render json: response, serializer:
+        render json: serializer.new(response)
       end
 
       def claimant_info
         response = claimant_service.get_claimant_info('toe')
 
-        render json: response, serializer: ToeClaimantInfoSerializer
+        render json: ToeClaimantInfoSerializer.new(response)
       end
 
       def sponsors
         response = sponsor_service.post_sponsor
 
-        render json: response, serializer: SponsorsSerializer
+        render json: SponsorsSerializer.new(response)
       end
 
       def submit_claim

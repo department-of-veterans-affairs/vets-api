@@ -42,6 +42,7 @@ RSpec.describe 'Claims', type: :request do
     before do
       allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return false
       allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_hardcode_wsdl).and_return false
     end
 
     describe 'index' do
@@ -839,16 +840,8 @@ RSpec.describe 'Claims', type: :request do
                         .and_return(local_bgs_service)
 
                       allow(local_bgs_service)
-                        .to receive(:find_benefit_claim_details_by_benefit_claim_id)
-                        .and_return(bgs_claim)
-
-                      allow(local_bgs_service)
-                        .to receive(:find_by_ssn)
-                        .and_return(nil)
-
-                      allow(local_bgs_service)
-                        .to receive(:find_tracked_items)
-                        .and_return({ dvlpmt_items: [] })
+                        .to receive_messages(find_benefit_claim_details_by_benefit_claim_id: bgs_claim,
+                                             find_by_ssn: nil, find_tracked_items: { dvlpmt_items: [] })
 
                       get claim_by_id_path, headers: auth_header
 

@@ -8,10 +8,10 @@ RSpec.describe 'VBADocuments::SlackInflightNotifier', type: :job do
   let(:slack_enabled) { true }
 
   before do
-    allow(Settings.vba_documents.slack).to receive(:in_flight_notification_hung_time_in_days).and_return(14)
-    allow(Settings.vba_documents.slack).to receive(:renotification_in_minutes).and_return(240)
-    allow(Settings.vba_documents.slack).to receive(:update_stalled_notification_in_minutes).and_return(180)
-    allow(Settings.vba_documents.slack).to receive(:enabled).and_return(slack_enabled)
+    allow(Settings.vba_documents.slack).to receive_messages(in_flight_notification_hung_time_in_days: 14,
+                                                            renotification_in_minutes: 240,
+                                                            update_stalled_notification_in_minutes: 180,
+                                                            enabled: slack_enabled)
     allow(VBADocuments::Slack::Messenger).to receive(:new).and_return(slack_messenger)
     allow(slack_messenger).to receive(:notify!)
     @job = VBADocuments::SlackInflightNotifier.new
