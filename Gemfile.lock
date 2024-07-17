@@ -1,11 +1,11 @@
 GIT
   remote: https://github.com/adhocteam/connect_vbms
-  revision: 6e5dc751afaf0da9c7cbc10c94b909f114f3a156
-  tag: v2.0.0.rc
+  revision: aeb88b817dfd418113078109351134ce91a0bb13
+  tag: v2.2.0
   specs:
-    connect_vbms (2.0.0.rc)
+    connect_vbms (1.4.0)
+      faraday (~> 2.10)
       httpclient (~> 2.8.0)
-      httpi (~> 2.4)
       mail
       nokogiri (>= 1.8.4)
       nori
@@ -667,11 +667,10 @@ GEM
     nenv (0.3.0)
     net-http (0.4.1)
       uri
-    net-imap (0.4.12)
+    net-imap (0.4.14)
       date
       net-protocol
     net-pop (0.1.2)
-      net-protocol
     net-protocol (0.2.2)
       timeout
     net-sftp (4.0.0)
