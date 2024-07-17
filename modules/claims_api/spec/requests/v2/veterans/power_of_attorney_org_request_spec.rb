@@ -71,6 +71,76 @@ RSpec.describe 'Power Of Attorney', type: :request do
               expect(response).to have_http_status(:unauthorized)
             end
           end
+
+          describe 'with missing first name' do
+            let(:no_first_name_target_veteran) do
+              OpenStruct.new(
+                icn: '1012832025V743496',
+                first_name: '',
+                last_name: 'Ford',
+                birth_date: '19630211',
+                loa: { current: 3, highest: 3 },
+                edipi: nil,
+                ssn: '796043735',
+                participant_id: '600061742',
+                mpi: OpenStruct.new(
+                  icn: '1012832025V743496',
+                  profile: OpenStruct.new(ssn: '796043735')
+                )
+              )
+            end
+
+            it 'returns a success response' do
+              mock_ccg(scopes) do |auth_header|
+                expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                  .and_return(bgs_poa)
+                allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                  .and_return({ person_poa_history: nil })
+                allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                  .to receive(:target_veteran).and_return(no_first_name_target_veteran)
+
+                post appoint_organization_path, params: data.to_json, headers: auth_header
+
+                expect(response).to have_http_status(:accepted)
+              end
+            end
+          end
+
+          describe 'with missing first and last name' do
+            let(:no_first_last_name_target_veteran) do
+              OpenStruct.new(
+                icn: '1012832025V743496',
+                first_name: '',
+                last_name: '',
+                birth_date: '19630211',
+                loa: { current: 3, highest: 3 },
+                edipi: nil,
+                ssn: '796043735',
+                participant_id: '600061742',
+                mpi: OpenStruct.new(
+                  icn: '1012832025V743496',
+                  profile: OpenStruct.new(ssn: '796043735')
+                )
+              )
+            end
+
+            it 'returns a 422' do
+              mock_ccg(scopes) do |auth_header|
+                allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                  .and_return({ person_poa_history: nil })
+                allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                  .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)
+
+                post appoint_organization_path, params: data.to_json, headers: auth_header
+
+                response_body = JSON.parse(response.body)['errors'][0]
+
+                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response_body['status']).to eq('422')
+                expect(response_body['detail']).to eq('Must have either first or last name')
+              end
+            end
+          end
         end
       end
 
@@ -170,6 +240,45 @@ RSpec.describe 'Power Of Attorney', type: :request do
                     expect(response_body['status']).to eq('422')
                     expect(response_body['detail']).to eq(detail)
                   end
+                end
+              end
+            end
+
+            describe 'with missing first and last name' do
+              let(:no_first_last_name_target_veteran) do
+                OpenStruct.new(
+                  icn: '1012832025V743496',
+                  first_name: '',
+                  last_name: '',
+                  birth_date: '19630211',
+                  loa: { current: 3, highest: 3 },
+                  edipi: nil,
+                  ssn: '796043735',
+                  participant_id: '600061742',
+                  mpi: OpenStruct.new(
+                    icn: '1012832025V743496',
+                    profile: OpenStruct.new(ssn: '796043735')
+                  )
+                )
+              end
+
+              let(:request_body) do
+                Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                'power_of_attorney', '2122', 'valid.json').read
+              end
+
+              it 'returns a success response' do
+                mock_ccg(scopes) do |auth_header|
+                  allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                    .and_return({ person_poa_history: nil })
+                  allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                    .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)
+
+                  post validate2122_path, params: request_body, headers: auth_header
+                  response_body = JSON.parse(response.body)['errors'][0]
+                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response_body['status']).to eq('422')
+                  expect(response_body['detail']).to eq('Must have either first or last name')
                 end
               end
             end
