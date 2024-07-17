@@ -304,8 +304,8 @@ module DebtsApi
             :p_h_account_number,
             :p_h_large_font_indcator,
             :debt_type,
-            details: [],
-            station: {}
+            { details: [] },
+            { station: {} }
           ],
           additional_income: [
             addl_inc_records: %i[name amount],
