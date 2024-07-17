@@ -693,36 +693,6 @@ module PdfFill
         %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo]
       end
 
-      def merge_primary_caregiver_has_health_insurance_helper
-        value = @form_data.dig('primaryCaregiver', 'hasHealthInsurance')
-        selection = case value
-                    when true
-                      '2'
-                    when false
-                      '1'
-                    else
-                      'Off'
-                    end
-
-        @form_data['helpers']['primaryCaregiver']['hasHealthInsurance'] = selection
-      end
-
-      def merge_veteran_last_treatment_facility_helper
-        value = @form_data.dig('veteran', 'lastTreatmentFacility', 'type')
-        selection = case value
-                    when 'hospital'
-                      '2'
-                    when 'clinic'
-                      '1'
-                    else
-                      'Off'
-                    end
-
-        @form_data['helpers']['veteran']['lastTreatmentFacility'] = {
-          'type' => selection
-        }
-      end
-
       def merge_planned_facility_label_helper
         target_facility_code = @form_data.dig 'veteran', 'plannedClinic'
         caregiver_facilities = VetsJsonSchema::CONSTANTS['caregiverProgramFacilities'].values.flatten

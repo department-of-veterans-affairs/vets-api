@@ -35,10 +35,10 @@ module BenefitsIntake
     # Perform the upload to BenefitsIntake
     # parameters should be run through validation functions first, to prevent downstream processing errors
     #
-    # @param [Hash] metadata
-    # @param [String] document file path
-    # @param [Array<String>] attachments file path; optional, default = []
-    # @param [String] upload_url; optional, default = @location
+    # @param metadata [Hash] metadata to be sent with upload
+    # @param document [String] main document file path
+    # @param attachments [Array<String>] attachment file path; optional, default = []
+    # @param upload_url [String] override instance upload_url; optional, default = @location
     #
     def perform_upload(metadata:, document:, attachments: [], upload_url: nil)
       upload_url, _uuid = request_upload unless upload_url
