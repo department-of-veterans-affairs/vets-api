@@ -191,7 +191,7 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       it 'logs the submission id, payload size, and individual attachment sizes in descending order (if applicable)',
-         run_at: 'Tue, 16 Jul 2024 18:35:57 GMT' do
+         run_at: 'Wed, 17 Jul 2024 18:17:30 GMT' do
         VCR.use_cassette(
           'form1010_ezr/authorized_submit_with_attachments',
           { match_requests_on: %i[method uri body], erb: true }
@@ -272,7 +272,7 @@ RSpec.describe Form1010Ezr::Service do
         let(:form) { get_fixture('form1010_ezr/valid_form') }
 
         context 'with pdf attachments' do
-          it 'returns a success object', run_at: 'Tue, 16 Jul 2024 18:35:57 GMT' do
+          it 'returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:32 GMT' do
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_with_attachments',
               { match_requests_on: %i[method uri body], erb: true }
@@ -280,8 +280,8 @@ RSpec.describe Form1010Ezr::Service do
               expect(submit_form(ezr_form_with_attachments)).to eq(
                 {
                   success: true,
-                  formSubmissionId: 435_834_217,
-                  timestamp: '2024-07-16T13:35:59.228-05:00'
+                  formSubmissionId: 435_845_348,
+                  timestamp: '2024-07-17T13:17:32.384-05:00'
                 }
               )
               expect(Rails.logger).to have_received(:info).with(
@@ -292,7 +292,7 @@ RSpec.describe Form1010Ezr::Service do
         end
 
         context 'with a non-pdf attachment' do
-          it 'returns a success object', run_at: 'Tue, 16 Jul 2024 19:36:34 GMT' do
+          it 'returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:34 GMT' do
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_with_non_pdf_attachment',
               { match_requests_on: %i[method uri body], erb: true }
@@ -317,8 +317,8 @@ RSpec.describe Form1010Ezr::Service do
               expect(submit_form(form_with_non_pdf_attachment)).to eq(
                 {
                   success: true,
-                  formSubmissionId: 435_836_106,
-                  timestamp: '2024-07-16T14:36:35.662-05:00'
+                  formSubmissionId: 435_845_365,
+                  timestamp: '2024-07-17T13:17:35.167-05:00'
                 }
               )
               expect(Rails.logger).to have_received(:info).with(
