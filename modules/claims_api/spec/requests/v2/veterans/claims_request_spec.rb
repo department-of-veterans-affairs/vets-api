@@ -42,6 +42,7 @@ RSpec.describe 'Claims', type: :request do
     before do
       allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return false
       allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_hardcode_wsdl).and_return false
     end
 
     describe 'index' do
