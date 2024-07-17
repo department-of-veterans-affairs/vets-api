@@ -108,6 +108,8 @@ spec:
               value: {{ $root.Values.image.tag}}
             - name: BACKLOG_POD
               value: "{{ if lt (randInt 0 100) 20 }}true{{ else }}false{{ end }}"
+            - name: AUTOSCALING_TARGET_VALUE
+              value: {{ $root.Values.web.autoscaling.targetValue }}
 {{ toYaml $root.Values.web.envSecrets | indent 12 }}
           {{- range $keys, $key := $root.Values.common.secrets }}
           {{- range $secrets, $secret := $key }}
