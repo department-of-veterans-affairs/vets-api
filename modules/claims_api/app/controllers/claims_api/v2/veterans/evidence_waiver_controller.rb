@@ -16,24 +16,7 @@ module ClaimsApi
 
         def submit
           validate_request!(ClaimsApi::V2::ParamsValidation::EvidenceWaiverSubmission)
-
-          lighthouse_claim = find_lighthouse_claim!(claim_id: params[:id])
-          benefit_claim_id = lighthouse_claim.present? ? lighthouse_claim.evss_id : params[:id]
-          bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
-
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if bgs_claim.blank?
-
           file_number_check(icn: params[:veteranId])
-
-          if @file_number.nil?
-            claims_v2_logging('EWS_submit', level: :error,
-                                            message: "EWS no file number error, claim_id: #{params[:id]}")
-
-            raise ::Common::Exceptions::ResourceNotFound.new(detail:
-              "Unable to locate Veteran's File Number. " \
-              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
-          end
-
           validate_veteran_name(false)
 
           tracked_item_ids = params['data']['attributes']['trackedItems'] if params['data'].present?
