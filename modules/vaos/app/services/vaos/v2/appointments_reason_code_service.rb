@@ -31,19 +31,69 @@ module VAOS
         return if reason_code_hash.empty?
 
         # Extract contact fields from hash
+        contact = extract_contact_fields(reason_code_hash)
+        appointment[:contact] = contact unless contact.nil?
+
+        # Extract additional appointment details from hash
+        appointment[:additional_appointment_details] = reason_code_hash['comments'] if reason_code_hash.key?('comments')
+
+        # Extract reason for appointment from hash
+        reason = extract_reason_for_appointment(reason_code_hash)
+        appointment[:reason_for_appointment] = reason unless reason.nil?
+
+        # Extract preferred dates from hash
+        preferred_dates = extract_preferred_dates(reason_code_hash)
+        appointment[:preferred_dates] = preferred_dates unless preferred_dates.nil?
+      end
+
+      private
+
+      # Extract contact fields from the reason code hash if possible.
+      #
+      # @param reason_code_hash [Hash] the hash of reason code key value pairs
+      # @return [Hash, nil] A hash containing the contact info, or nil if not possible.
+      def extract_contact_fields(reason_code_hash)
         if reason_code_hash.key?('phone number') || reason_code_hash.key?('email')
           contact_info = []
           contact_info.push({ type: 'phone', value: reason_code_hash['phone number'] })
           contact_info.push({ type: 'email', value: reason_code_hash['email'] })
-          appointment[:contact] = { telecom: contact_info }
+          { telecom: contact_info }
         end
+      end
 
-        # Extract additionalAppointmentDetails from hash
-        appointment[:additional_appointment_details] = reason_code_hash['comments'] if reason_code_hash.key?('comments')
-
-        # Extract reason for appointment from hash
+      # Extract reason for appointment from the reason code hash if possible.
+      #
+      # @param reason_code_hash [Hash] the hash of reason code key value pairs
+      # @return [String, nil] The reason for appointment as a string, or nil if not possible.
+      def extract_reason_for_appointment(reason_code_hash)
         if reason_code_hash.key?('reason code') && PURPOSE_TEXT.key?(reason_code_hash['reason code'])
-          appointment[:reason_for_appointment] = PURPOSE_TEXT[reason_code_hash['reason code']]
+          PURPOSE_TEXT[reason_code_hash['reason code']]
+        end
+      end
+
+      # Extract preferred time from the reason code hash if possible.
+      #
+      # @param reason_code_hash [Hash] the hash of reason code key value pairs
+      # @return [Array, nil] An array of the preferred times, or nil if not possible.
+      def extract_preferred_dates(reason_code_hash)
+        if reason_code_hash.key?('preferred dates')
+          dates = []
+          reason_code_hash['preferred dates'].split(',').each do |date|
+            # DateTime format reference in order of appearance:
+            # %m - Date: Month of the year, zero-padded (01..12)
+            # %d - Date: Day of the month, zero-padded (01..31)
+            # %Y - Date: Year with century (can be negative, 4 digits at least, e.g. 1995, 2009)
+            # %p - Time: Meridian indicator, uppercase ('AM' or 'PM')
+            # %a - Weekday: The abbreviated name ('Sun')
+            # %B - Date: The full month name ('January')
+            # %-d - Date: Day of the month, no-padded (1..31)
+            if date.end_with?('AM')
+              dates.push(DateTime.strptime(date, '%m/%d/%Y %p').strftime('%a, %B %-d, %Y in the morning'))
+            elsif date.end_with?('PM')
+              dates.push(DateTime.strptime(date, '%m/%d/%Y %p').strftime('%a, %B %-d, %Y in the afternoon'))
+            end
+          end
+          dates.presence
         end
       end
     end
