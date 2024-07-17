@@ -920,6 +920,9 @@ RSpec.describe Form526Submission do
     end
 
     context 'with Lighthouse document upload polling' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
+      end
 
       context 'when feature enabled' do
         before { Flipper.enable(:disability_526_toxic_exposure_document_upload_polling) }
@@ -940,9 +943,8 @@ RSpec.describe Form526Submission do
           end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(0)
         end
       end
+    end
 
-      let(:form_json) do
-        
   end
 
   describe '#get_first_name' do
