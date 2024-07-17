@@ -16,7 +16,7 @@ module Vet360
 
       raise Common::Exceptions::RecordNotFound, transaction unless transaction
 
-      render json: transaction, serializer: AsyncTransaction::BaseSerializer
+      render json: AsyncTransaction::BaseSerializer.new(transaction).serializable_hash
     end
 
     private

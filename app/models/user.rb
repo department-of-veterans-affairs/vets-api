@@ -75,10 +75,6 @@ class User < Common::RedisStore
     @user_account_uuid ||= user_account&.id
   end
 
-  def inherited_proof_verified
-    @inherited_proof_verified ||= InheritedProofVerifiedUserAccount.where(user_account_id: user_account_uuid).present?
-  end
-
   def pciu_email
     pciu&.get_email_address&.email
   end

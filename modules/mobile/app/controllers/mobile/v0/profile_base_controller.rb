@@ -17,7 +17,7 @@ module Mobile
       private
 
       def render_transaction_to_json(transaction)
-        render json: transaction, serializer: AsyncTransaction::BaseSerializer
+        render json: AsyncTransaction::BaseSerializer.new(transaction).serializable_hash
       end
 
       def service
