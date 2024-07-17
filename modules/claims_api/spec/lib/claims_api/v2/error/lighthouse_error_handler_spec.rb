@@ -49,8 +49,7 @@ describe ApplicationController, type: :controller do
     end
 
     def raise_timeout
-      error = [{ status_code: 499 }]
-      raise ClaimsApi::Common::Exceptions::Lighthouse::Timeout, error
+      raise ClaimsApi::Common::Exceptions::Lighthouse::Timeout
     end
   end
 
