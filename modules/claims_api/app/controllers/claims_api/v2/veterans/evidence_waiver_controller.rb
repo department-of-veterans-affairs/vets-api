@@ -16,7 +16,6 @@ module ClaimsApi
 
         def submit
           validate_request!(ClaimsApi::V2::ParamsValidation::EvidenceWaiverSubmission)
-          file_number_check(icn: params[:veteranId])
           validate_veteran_name(false)
 
           tracked_item_ids = params['data']['attributes']['trackedItems'] if params['data'].present?
