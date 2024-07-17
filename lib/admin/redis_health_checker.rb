@@ -6,10 +6,10 @@ module RedisHealthChecker
   end
 
   def self.app_data_redis_up
-    # Test 1: Check app data Redis namespace
-    bank_name = BankName.find_or_build("fake routing number")
-    bank_name.update(bank_name: "fake bank name")
-    BankName.delete("fake routing number")
+    # Test 1: Check attribute that uses redis key
+    bank_name = BankName.find_or_build('fake routing number')
+    bank_name.update(bank_name: 'fake bank name')
+    BankName.delete('fake routing number')
     bank_name.present?
   rescue => e
     Rails.logger.error(
