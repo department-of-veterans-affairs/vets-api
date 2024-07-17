@@ -40,7 +40,6 @@
             "telephone": {
               "description": "Veteran's phone number. Number including area code.",
               "type": ["string", "null"],
-              "pattern": "^\\d{10}?$",
               "example": "5555555555",
               "nullable": true
             },
@@ -67,14 +66,12 @@
             "addressLine1": {
               "description": "Address line 1 for the Veteran's current mailing address.",
               "type": "string",
-              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 325,
               "example": "1234 Couch Street"
             },
             "addressLine2": {
               "description": "Address line 2 for the Veteran's current mailing address.",
               "type": ["string", "null"],
-              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 325,
               "example": "Unit 4",
               "nullable": true
@@ -82,7 +79,6 @@
             "addressLine3": {
               "description": "Address line 3 for the Veteran's current mailing address.",
               "type": ["string", "null"],
-              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 325,
               "example": "Room 1",
               "nullable": true
@@ -90,7 +86,6 @@
             "city": {
               "description": "City for the Veteran's current mailing address.",
               "type": "string",
-              "pattern": "^$|^([-a-zA-Z'.' ])+$",
               "example": "Portland",
               "maxLength": 1000
             },
@@ -164,14 +159,12 @@
         "addressLine1": {
           "description": "Address line 1 for the Veteran's new address.",
           "type": "string",
-          "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
           "maxLength": 325,
           "example": "1234 Couch Street"
         },
         "addressLine2": {
           "description": "Address line 2 for the Veteran's new address.",
           "type": ["string", "null"],
-          "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
           "maxLength": 325,
           "example": "Unit 4",
           "nullable": true
@@ -179,7 +172,6 @@
         "addressLine3": {
           "description": "Address line 3 for the Veteran's new address.",
           "type": ["string", "null"],
-          "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
           "maxLength": 325,
           "example": "Room 1",
           "nullable": true
@@ -187,14 +179,12 @@
         "city": {
           "description": "City for the Veteran's new address.",
           "type": "string",
-          "pattern": "^$|^([-a-zA-Z'.' ])+$",
           "example": "Portland",
           "maxLength": 1000
         },
         "state": {
           "description": "State for the Veteran's new address.",
           "type": "string",
-          "pattern": "^$|^[a-z,A-Z]{2}$",
           "example": "OR",
           "maxLength": 1000
         },
@@ -222,7 +212,6 @@
           "properties": {
             "beginDate": {
               "description": "Begin date for the Veteran's new address.",
-              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
               "type": "string",
               "example": "2018-06-04"
             },
@@ -230,7 +219,6 @@
               "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
               "type": ["string", "null"],
               "nullable": true,
-              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
               "example": "2018-06-04"
             }
           }
@@ -302,7 +290,6 @@
           "nullable": true,
           "minLength": 1,
           "maxLength": 1000,
-          "pattern": "^([-a-zA-Z0-9/']+( ?))*$",
           "example": "Jane Doe"
         },
         "pointOfContactNumber": {
@@ -313,7 +300,6 @@
             "telephone": {
               "description": "Ten digit primary phone of point of contact.",
               "type": ["string", "null"],
-              "pattern": "^\\d{10}?$",
               "example": "5555555555",
               "nullable": true
             },
@@ -380,7 +366,7 @@
             "otherLocationsServed": {
               "type": ["string", "null"],
               "nullable": true,
-              "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+
               "description": "Other location(s) where Veteran served.",
               "maxLength": 5000
             },
@@ -435,7 +421,6 @@
             "specifyOtherExposures": {
               "type": ["string", "null"],
               "nullable": true,
-              "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
               "description": "Exposure to asbestos.",
               "maxLength": 5000
             },
@@ -474,14 +459,12 @@
               "hazardExposedTo": {
                 "type": ["string", "null"],
                 "nullable": true,
-                "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                 "description": "Hazard the Veteran was exposed to.",
                 "maxLength": 1000
               },
               "exposureLocation": {
                 "type": ["string", "null"],
                 "nullable": true,
-                "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                 "description": "Location where the exposure happened.",
                 "maxLength": 1000
               },
@@ -524,7 +507,6 @@
           "name": {
             "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
             "type": "string",
-            "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
             "example": "PTSD (post traumatic stress disorder)",
             "maxLength": 1000
           },
@@ -545,7 +527,6 @@
           "approximateDate": {
             "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
             "type": ["string", "null"],
-            "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
             "example": "2018-03-02 or 2018-03 or 2018",
             "nullable": true,
             "maxLength": 1000
@@ -683,21 +664,18 @@
                 "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                 "type": ["string", "null"],
                 "nullable": true,
-                "pattern": "^$|(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                 "example": "Private Facility 2",
                 "maxLength": 100
               },
               "city": {
                 "description": "City of treatment facility.",
                 "type": ["string", "null"],
-                "pattern": "^$|^([-a-zA-Z'.' ])+$",
                 "example": "Portland",
                 "nullable": true
               },
               "state": {
                 "description": "State of treatment facility.",
                 "type": ["string", "null"],
-                "pattern": "^$|^[a-z,A-Z]{2}$",
                 "example": "OR",
                 "nullable": true
               }
@@ -750,13 +728,13 @@
               "activeDutyBeginDate": {
                 "description": "Date started active duty.",
                 "type": "string",
-                "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                // "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                 "example": "2018-06-06"
               },
               "activeDutyEndDate": {
                 "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                 "type": "string",
-                "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                // "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                 "example": "2018-06-06"
               },
               "separationLocationCode": {
@@ -810,12 +788,10 @@
               "type": ["string", "null"],
               "maxLength": 1000,
               "nullable": true,
-              "pattern": "^$|([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
             },
             "unitAddress": {
               "type": ["string", "null"],
               "maxLength": 1000,
-              "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
               "nullable": true
             },
             "unitPhone": {
@@ -827,7 +803,6 @@
                   "type": ["string", "null"],
                   "nullable": true,
                   "maxLength": 1000,
-                  "pattern": "^$|^\\d{3}$",
                   "example": "555"
                 },
                 "phoneNumber": {
