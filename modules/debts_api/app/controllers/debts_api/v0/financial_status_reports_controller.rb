@@ -17,9 +17,7 @@ module DebtsApi
       end
 
       def transform_and_submit
-binding.pry
         output = full_transform_service.transform
-binding.pry
         render json: service.submit_financial_status_report(output.to_h)
       end
 
