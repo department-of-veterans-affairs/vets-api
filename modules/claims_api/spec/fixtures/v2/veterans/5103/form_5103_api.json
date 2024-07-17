@@ -2,7 +2,7 @@
     "data": {
         "type": "form/5103",
         "attributes": {
-            "trackedItems": ["1234"]
+            "trackedItems": [1234]
         }
     }
 }

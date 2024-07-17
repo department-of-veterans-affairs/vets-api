@@ -10,7 +10,7 @@
             "nullable": true,
             "uniqueItems": true,
             "items": {
-              "type": "string",
+              "type": "integer",
               "additionalProperties": false
             }
         }
