@@ -19,8 +19,7 @@ module Lighthouse
 
     # retry for one day
     # exhausted attempts will be logged in intent_to_file_queue_exhaustions table
-    # TODO: set this back to 14 after testing is complete
-    sidekiq_options retry: 0, queue: 'low'
+    sidekiq_options retry: 14, queue: 'low'
     sidekiq_retries_exhausted do |msg, error|
       form_type, form_start_date, veteran_icn = msg['args']
       itf_log_monitor = BenefitsClaims::IntentToFile::Monitor.new
