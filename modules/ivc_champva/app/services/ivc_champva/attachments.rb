@@ -37,8 +37,8 @@ module IvcChampva
          @data[self.class::ADDITIONAL_PDF_KEY].is_a?(Array) &&
          @data[self.class::ADDITIONAL_PDF_KEY].count > self.class::ADDITIONAL_PDF_COUNT
         additional_data = @data[self.class::ADDITIONAL_PDF_KEY].drop(self.class::ADDITIONAL_PDF_COUNT)
-        additional_data.each_slice(self.class::ADDITIONAL_PDF_COUNT) do |data|
-          file_path = generate_additional_pdf(data)
+        additional_data.each_slice(self.class::ADDITIONAL_PDF_COUNT).with_index(1) do |data, index|
+          file_path = generate_additional_pdf(data, index)
           attachments << file_path
         end
       end
@@ -53,15 +53,14 @@ module IvcChampva
       attachments
     end
 
-    def generate_additional_pdf(additional_data)
+    def generate_additional_pdf(additional_data, index)
       additional_form_data = @data
       additional_form_data[self.class::ADDITIONAL_PDF_KEY] = additional_data
       filler = IvcChampva::PdfFiller.new(
         form_number: form_id,
         form: self.class.name.constantize.new(additional_form_data),
-        name: "#{form_id}_additional_#{self.class::ADDITIONAL_PDF_KEY}"
+        name: "#{form_id}_additional_#{self.class::ADDITIONAL_PDF_KEY}-#{index}"
       )
-
       filler.generate
     end
   end
