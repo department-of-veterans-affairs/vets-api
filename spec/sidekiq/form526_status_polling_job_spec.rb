@@ -55,7 +55,7 @@ RSpec.describe Form526StatusPollingJob, type: :job do
 
       describe 'submission to the bulk status report endpoint' do
         it 'submits only paranoid_success form submissions' do
-          paranoid_claim_ids = Form526Submission.paranoid_success_type.pluck(:backup_submitted_claim_id)
+          paranoid_claim_ids = Form526Submission.paranoid_success.pluck(:backup_submitted_claim_id)
           response = double
           allow(response).to receive(:body).and_return(api_response)
           allow_any_instance_of(BenefitsIntakeService::Service)
@@ -80,7 +80,7 @@ RSpec.describe Form526StatusPollingJob, type: :job do
 
       describe 'updating changed states' do
         it 'updates paranoid submissions to their correct state' do
-          paranoid_claim_ids = Form526Submission.paranoid_success_type.pluck(:backup_submitted_claim_id)
+          paranoid_claim_ids = Form526Submission.paranoid_success.pluck(:backup_submitted_claim_id)
           response = double
           allow(response).to receive(:body).and_return(api_response)
           allow_any_instance_of(BenefitsIntakeService::Service)

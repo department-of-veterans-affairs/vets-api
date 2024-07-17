@@ -110,6 +110,7 @@ RSpec.describe Form526Submission do
   end
 
   describe 'scopes' do
+
     let!(:in_process) { create(:form526_submission) }
     let!(:expired) { create(:form526_submission, :created_more_than_3_weeks_ago) }
     let!(:happy_path_success) { create(:form526_submission, :with_submitted_claim_id) }
@@ -154,9 +155,27 @@ RSpec.describe Form526Submission do
       end
     end
 
-    describe 'paranoid_success_type' do
+    describe 'with_exhausted_primary_jobs' do
+      it 'returns submissions associated to failed or exhausted primary jobs' do
+        expect(Form526Submission.with_exhausted_primary_jobs).to contain_exactly(
+          failed_primary,
+          exhausted_primary
+        )
+      end
+    end
+
+    describe 'with_exhausted_backup_jobs' do
+      it 'returns submissions associated to failed or exhausted backup jobs' do
+        expect(Form526Submission.with_exhausted_backup_jobs).to contain_exactly(
+          failed_backup,
+          exhausted_backup
+        )
+      end
+    end
+
+    describe 'paranoid_success' do
       it 'returns records less than a year old with paranoid_success backup status' do
-        expect(Form526Submission.paranoid_success_type).to contain_exactly(
+        expect(Form526Submission.paranoid_success).to contain_exactly(
           paranoid_success
         )
       end
