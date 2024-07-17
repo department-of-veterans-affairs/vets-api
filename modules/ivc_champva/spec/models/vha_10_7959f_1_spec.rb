@@ -25,6 +25,13 @@ RSpec.describe IvcChampva::VHA107959f1 do
     }
   end
   let(:vha107959f1) { described_class.new(data) }
+  let(:file_path) { 'vha_10_7959f_1-tmp.pdf' }
+  let(:uuid) { SecureRandom.uuid }
+  let(:instance) { IvcChampva::VHA107959f1.new(data) }
+
+  before do
+    allow(instance).to receive_messages(uuid:, get_attachments: [])
+  end
 
   describe '#metadata' do
     it 'returns metadata for the form' do
@@ -51,12 +58,11 @@ RSpec.describe IvcChampva::VHA107959f1 do
     end
   end
 
-  describe '#method_missing' do
-    context 'when method is missing' do
-      it 'returns the arguments passed to it' do
-        args = %w[arg1 arg2]
-        expect(IvcChampva::VHA107959f1.new('data').handle_attachments(args)).to eq(args)
-      end
+  describe '#handle_attachments' do
+    it 'renames the file and returns the new file path' do
+      allow(File).to receive(:rename)
+      result = instance.handle_attachments(file_path)
+      expect(result).to eq(["#{uuid}_vha_10_7959f_1-tmp.pdf"])
     end
   end
 end

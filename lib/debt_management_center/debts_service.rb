@@ -59,8 +59,11 @@ module DebtManagementCenter
 
     def init_debts
       with_monitoring_and_error_handling do
+        options = { timeout: 30 }
         DebtManagementCenter::DebtsResponse.new(
-          perform(:post, Settings.dmc.debts_endpoint, fileNumber: @file_number).body
+          perform(
+            :post, Settings.dmc.debts_endpoint, { fileNumber: @file_number }, nil, options
+          ).body
         ).debts
       end
     end

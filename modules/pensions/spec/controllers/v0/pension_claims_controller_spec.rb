@@ -12,7 +12,7 @@ RSpec.describe Pensions::V0::PensionClaimsController, type: :controller do
 
   it_behaves_like 'a controller that deletes an InProgressForm', 'pension_claim', 'pension_claim', '21P-527EZ'
   describe '#create' do
-    let(:form) { build(:pension_claim) }
+    let(:form) { build(:pensions_module_pension_claim) }
     let(:param_name) { :pension_claim }
     let(:form_id) { '21P-527EZ' }
     let(:user) { create(:user) }
@@ -30,7 +30,7 @@ RSpec.describe Pensions::V0::PensionClaimsController, type: :controller do
   describe '#show' do
     it 'logs an error if no claim found' do
       expect(Rails.logger).to receive(:error).once
-      claim = create(:pension_claim)
+      claim = create(:pensions_module_pension_claim)
       guid = claim.guid
       claim.destroy
       response = get(:show, params: { id: guid })
