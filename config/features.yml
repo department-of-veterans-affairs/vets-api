@@ -980,6 +980,9 @@ features:
   my_va_lighthouse_uploads_report:
     actor_type: user
     description: Use lighthouse /uploads/report endpoint for Form status
+  my_va_form_submission_statuses:
+    actor_type: user
+    description: Enables users to view the status of submitted forms.
   rated_disabilities_detect_discrepancies:
     actor_type: user
     description:
@@ -1269,6 +1272,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for displaying the most recent facilities on the Choose your VA location page.
+  va_online_scheduling_med_review_instructions:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to update the Medication Review instructions on the Appointment Details page.
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
