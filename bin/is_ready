@@ -7,7 +7,7 @@
 # pod is considered ready for traffic. If the percentage is < threshold, script
 # will exit with a failure (1) and the probe will fail.
 
-THRESHOLD=25
+THRESHOLD=${AUTOSCALING_TARGET_VALUE:-25}
 
 data=$(curl -s 127.0.0.1:9293/stats)
 
