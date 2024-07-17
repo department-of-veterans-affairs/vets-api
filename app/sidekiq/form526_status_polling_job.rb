@@ -38,9 +38,9 @@ class Form526StatusPollingJob
 
   def submissions
     @submissions ||= if paranoid
-                       Form526Submission.paranoid_success_type
+                       Form526Submission.paranoid_success
                      else
-                       Form526Submission.pending_backup_submissions
+                       Form526Submission.pending_backup
                      end
   end
 
