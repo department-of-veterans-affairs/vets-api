@@ -14,7 +14,7 @@ RSpec.describe 'Forms uploader', type: :request do
   end
 
   unauthenticated_forms = %w[vba_40_0247.json vba_21_10210.json vba_21p_0847.json
-                                   vba_40_10007.json]
+                             vba_40_10007.json]
   authenticated_forms = [
     # TODO: Restore this test when we release 26-4555 to production.
     # 'vba_26_4555.json',
@@ -116,43 +116,43 @@ RSpec.describe 'Forms uploader', type: :request do
           context 'through the SimpleFormsApiSubmission::Service' do
             it 'makes the request' do
               allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-  
+
               post '/simple_forms_api/v1/simple_forms', params: data
-  
+
               expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
               expect(response).to have_http_status(:ok)
             end
-  
+
             it 'saves a FormSubmissionAttempt' do
               allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-  
+
               expect do
                 post '/simple_forms_api/v1/simple_forms', params: data
               end.to change(FormSubmissionAttempt, :count).by(1)
             end
           end
-  
+
           context 'through the Lighthouse BenefitsIntake::Service' do
             before do
               Flipper.enable(:simple_forms_lighthouse_benefits_intake_service)
             end
-  
+
             after do
               Flipper.disable(:simple_forms_lighthouse_benefits_intake_service)
             end
-  
+
             it 'makes the request' do
               allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-  
+
               post '/simple_forms_api/v1/simple_forms', params: data
-  
+
               expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
               expect(response).to have_http_status(:ok)
             end
-  
+
             it 'saves a FormSubmissionAttempt' do
               allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-  
+
               expect do
                 post '/simple_forms_api/v1/simple_forms', params: data
               end.to change(FormSubmissionAttempt, :count).by(1)
@@ -296,7 +296,7 @@ RSpec.describe 'Forms uploader', type: :request do
 
       context 'transliterating fields' do
         before { sign_in }
-        
+
         context 'transliteration succeeds' do
           it 'responds with ok' do
             Flipper.disable(:form21_0966_confirmation_email)
@@ -636,6 +636,7 @@ RSpec.describe 'Forms uploader', type: :request do
 
   describe 'email confirmations' do
     before { sign_in }
+
     let(:confirmation_number) { 'some_confirmation_number' }
 
     describe '21_4142' do
