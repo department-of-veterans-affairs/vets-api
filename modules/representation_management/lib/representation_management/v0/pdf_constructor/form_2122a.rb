@@ -49,11 +49,13 @@ module RepresentationManagement
           }
         end
 
-        # rubocop:disable Layout/LineLength
         def template_options(data)
           page1_key = 'form1[0].#subform[0]'
+          page2_key = 'form1[0].#subform[1]'
+          page3_key = 'form1[0].#subform[2]'
           {
-            # Section !
+            # Page 1
+            # Section I
             # Veteran Name
             "#{page1_key}.Veterans_Last_Name[0]": data.veteran_last_name,
             "#{page1_key}.Veterans_Middle_Initial[0]": data.veteran_middle_initial,
@@ -119,13 +121,36 @@ module RepresentationManagement
             "#{page1_key}.Middle_Initial[0]": data.representative_middle_initial,
             "#{page1_key}.Last_Name[0]": data.representative_last_name,
             # Representative Type
-            "#{page1_key}.RadioButtonList[0]": representative_type_checkbox(data.representative_type)
-            # # Item 18
-            # "#{page1_key}.ADDRESSOFINDIVIDUALAPPOINTEDASCLAIMANTSREPRESENTATATIVE[0]": stringify_address(data.dig('representative', 'address'))
+            "#{page1_key}.RadioButtonList[0]": representative_type_checkbox(data.representative_type),
+
+            # Page 2
+            # Header Veteran SSN
+            "#{page2_key}.SocialSecurityNumber_FirstThreeNumbers[1]": data.veteran_social_security_number[0..2],
+            "#{page2_key}.SocialSecurityNumber_SecondTwoNumbers[1]": data.veteran_social_security_number[3..4],
+            "#{page2_key}.SocialSecurityNumber_LastFourNumbers[1]": data.veteran_social_security_number[5..8],
+            # Representative Mailing Address
+            "#{page2_key}.MailingAddress_NumberAndStreet[2]": data.representative_address_line1,
+            "#{page2_key}.MailingAddress_ApartmentOrUnitNumber[2]": data.representative_address_line2,
+            "#{page2_key}.MailingAddress_City[2]": data.representative_city,
+            "#{page2_key}.MailingAddress_StateOrProvince[2]": data.representative_state_code,
+            "#{page2_key}.MailingAddress_Country[2]": data.representative_country,
+            "#{page2_key}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[2]": data.representative_zip_code,
+            "#{page2_key}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[2]": data.representative_zip_code_suffix,
+            # Representative Phone Number
+            "#{page2_key}.Telephone_Number_Area_Code[2]": data.representative_phone[0..2],
+            "#{page2_key}.Telephone_Middle_Three_Numbers[1]": data.representative_phone[3..5],
+            "#{page2_key}.Telephone_Last_Four_Numbers[2]": data.representative_phone[6..9],
+            # Representative Email
+            "#{page2_key}.E_Mail_Address_Of_Individual_Appointed_As_Claimants_Representative_Optional[0]": data.representative_email_address,
+
+            # Page 3
+            # Header Veteran SSN
+            "#{page3_key}.SocialSecurityNumber_FirstThreeNumbers[2]": data.veteran_social_security_number[0..2],
+            "#{page3_key}.SocialSecurityNumber_SecondTwoNumbers[2]": data.veteran_social_security_number[3..4],
+            "#{page3_key}.SocialSecurityNumber_LastFourNumbers[2]": data.veteran_social_security_number[5..8]
           }
         end
 
-        # rubocop:enable Layout/LineLength
         def service_branch_checkbox(service_branch)
           service_branch_map = {
             'ARMY' => 4,
@@ -145,7 +170,7 @@ module RepresentationManagement
             'ATTORNEY' => 4,
             'AGENT' => 1,
             'INDIVIDUAL' => 3,
-            'VSO' => 2
+            'VSO_REPRESENTATIVE' => 2
           }
           representative_type_map[representative_type]
         end
