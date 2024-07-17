@@ -18,7 +18,6 @@ module DebtsApi
 
       def transform_and_submit
         output = full_transform_service.transform
-
         render json: service.submit_financial_status_report(output.to_h)
       end
 
