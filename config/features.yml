@@ -706,6 +706,10 @@ features:
     actor_type: user
     description: Enable/disable skipping BGS calls for POA Requests
     enable_in_development: true
+  lighthouse_claims_api_poa_use_bd:
+    actor_type: user
+    description: Lighthouse Benefits Claims API uses Lighthouse Benefits Documents API to upload POA forms instead of VBMS
+    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
