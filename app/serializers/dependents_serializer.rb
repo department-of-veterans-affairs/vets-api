@@ -3,14 +3,14 @@
 class DependentsSerializer < ActiveModel::Serializer
   type :dependents
 
-  has_many :persons, each_serializer: DependentSerializer
+  attribute :persons, each_serializer: DependentSerializer
 
   def id
     nil
   end
 
   def persons
-    @persons = object[:persons].instance_of?(Hash) ? [object[:persons]] : object[:persons]
+    @persons ||= object[:persons].instance_of?(Hash) ? [object[:persons]] : object[:persons]
 
     @persons.each do |person|
       person[:upcoming_removal] = upcoming_removals[person[:ptcpntId]]
