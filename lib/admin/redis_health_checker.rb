@@ -7,11 +7,10 @@ module RedisHealthChecker
 
   def self.app_data_redis_up
     # Test 1: Check app data Redis namespace
-    Common::RedisStore.redis_store('test_namespace')
-    Common::RedisStore.create({ test_key: 'test_value' })
-    result = Common::RedisStore.find('test_key')
-    Common::RedisStore.delete('test_key')
-    result.present?
+    bank_name = BankName.find_or_build("fake routing number")
+    bank_name.update(bank_name: "fake bank name")
+    BankName.delete("fake routing number")
+    bank_name.present?
   rescue => e
     Rails.logger.error(
       { message: "ARGO CD UPGRADE - REDIS TEST: Failed to access app data Redis. Error: #{e.message}" }
