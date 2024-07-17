@@ -856,7 +856,7 @@ module HCA
     def add_attachment(file, id, is_dd214)
       {
         'va:document' => {
-          'va:name' => "Attachment#{id}",
+          'va:name' => "Attachment_#{id}",
           'va:format' => get_va_format(file.content_type),
           'va:type' => is_dd214 ? '1' : '5',
           'va:content' => Base64.encode64(file.read)
