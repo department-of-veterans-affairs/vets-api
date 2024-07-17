@@ -63,7 +63,7 @@ module Vye
     def load_profile(attributes)
       user_profile, conflict, attribute_name =
         UserProfile
-        .find_or_build(attributes)
+        .produce(attributes)
         .values_at(:user_profile, :conflict, :attribute_name)
 
       if user_profile.new_record? && source == :tims_feed

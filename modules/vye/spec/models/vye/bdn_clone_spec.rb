@@ -16,7 +16,7 @@ RSpec.describe Vye::BdnClone, type: :model do
   describe 'non-activation' do
     let!(:vbc0) { FactoryBot.create(:vye_bdn_clone_base, is_active: nil) }
 
-    it 'doesn\'t activate records' do
+    it "doesn't activate records" do
       expect do
         described_class.activate_injested!
       end.to raise_error(Vye::BndCloneNotFound)
