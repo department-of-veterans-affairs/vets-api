@@ -734,7 +734,7 @@
               "activeDutyEndDate": {
                 "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                 "type": "string",
-                // "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                 "example": "2018-06-06"
               },
               "separationLocationCode": {
@@ -787,7 +787,7 @@
             "unitName": {
               "type": ["string", "null"],
               "maxLength": 1000,
-              "nullable": true,
+              "nullable": true
             },
             "unitAddress": {
               "type": ["string", "null"],
