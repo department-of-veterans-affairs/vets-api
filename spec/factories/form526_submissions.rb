@@ -261,6 +261,36 @@ FactoryBot.define do
     end
   end
 
+  trait :with_failed_primary_job do
+    after(:create) do |submission|
+      create(:form526_job_status, :non_retryable_error, form526_submission: submission)
+    end
+  end
+
+  trait :with_exhausted_primary_job do
+    after(:create) do |submission|
+      create(:form526_job_status, :pif_in_use_error, form526_submission: submission)
+    end
+  end
+
+  trait :with_failed_backup_job do
+    after(:create) do |submission|
+      create(:form526_job_status, :backup_path_job, :non_retryable_error, form526_submission: submission)
+    end
+  end
+
+  trait :with_exhausted_backup_job do
+    after(:create) do |submission|
+      create(:form526_job_status, :exhausted_backup_job, form526_submission: submission)
+    end
+  end
+
+  trait :with_successful_backup_job do
+    after(:create) do |submission|
+      create(:form526_job_status, :backup_path_job, form526_submission: submission)
+    end
+  end
+
   trait :with_pif_in_use_error do
     after(:create) do |submission|
       create(:form526_job_status, :pif_in_use_error, form526_submission: submission)
