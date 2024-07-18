@@ -22,16 +22,11 @@ module V1
       )
       render json: nod_response_body
     rescue => e
-      request = begin
-        { body: request_body_hash }
-      rescue
-        request_body_debug_data
-      end
-
-      log_exception_to_personal_information_log(
-        e, error_class: error_class(method: 'create', exception_class: e.class), request:
+      ::Rails.logger.error(
+        message: "Exception occurred while submitting Notice Of Disagreement: #{e.message}",
+        backtrace: e.backtrace
       )
-      raise
+      handle_personal_info_error(e)
     end
 
     private
@@ -42,6 +37,19 @@ module V1
 
     def version_number
       'v2'
+    end
+
+    def handle_personal_info_error(e)
+      request = begin
+        { body: request_body_hash }
+      rescue
+        request_body_debug_data
+      end
+
+      log_exception_to_personal_information_log(
+        e, error_class: error_class(method: 'create', exception_class: e.class), request:
+      )
+      raise
     end
   end
 end
