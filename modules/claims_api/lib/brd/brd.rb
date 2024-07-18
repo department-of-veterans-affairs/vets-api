@@ -1,18 +1,36 @@
 # frozen_string_literal: true
 
+require 'brd/brd_response_store'
+require 'common/models/concerns/cache_aside'
+
 module ClaimsApi
   ##
   # Class to interact with the BRD API
   #
   # Takes an optional request parameter
   # @param [] rails request object (used to determine environment)
-  class BRD
+  class BRD < ::Common::RedisStore
+    def initialize
+      @response_store = BRDResponseStore
+    end
+
+    def service_name
+      'BENEFITS_REFERENCE_DATA'
+    end
+
     ##
     # List of valid countries
     #
     # @return [Array<String>] list of countries
     def countries
-      client.get('countries').body[:items]
+      key = "#{service_name}:countries"
+
+      countries_list = @response_store.get_brd_response(key)
+      if countries_list.nil?
+        countries_list = client.get('countries').body[:items]
+        @response_store.set_brd_response(key, countries_list)
+      end
+      countries_list
     end
 
     ##

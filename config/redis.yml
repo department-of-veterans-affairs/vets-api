@@ -196,6 +196,9 @@ development: &defaults
   sidekiq_attr_package:
     namespace: sidekiq_attr_package
     each_ttl: 604800
+  brd_response_store:
+    namespace: brd_response_store
+    each_ttl: 600
 test:
   <<: *defaults
   redis:
