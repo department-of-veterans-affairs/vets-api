@@ -140,7 +140,7 @@ arp.update!(authentication: SignIn::Constants::Auth::COOKIE,
             credential_service_providers: [SignIn::Constants::Auth::IDME, SignIn::Constants::Auth::LOGINGOV],
             service_levels: [SignIn::Constants::Auth::LOA3, SignIn::Constants::Auth::IAL2])
 
-# Create VerifiedRepresentative and AccreditedInvidial for logging into accredited_representative_portal
+# Create VerifiedRepresentative and AccreditedIndividual for logging into accredited_representative_portal
 ogc_registration_number = '123'
 poa_code = '678'
 test_rep_email = 'vets.gov.user+1@gmail.com'
