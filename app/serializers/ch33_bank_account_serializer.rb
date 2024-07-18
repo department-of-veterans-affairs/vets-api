@@ -7,7 +7,7 @@ class Ch33BankAccountSerializer
   set_type :hashes
 
   attribute :account_type do |object|
-    next nil unless  object[:dposit_acnt_type_nm].present?
+    next nil if object[:dposit_acnt_type_nm].blank?
 
     object[:dposit_acnt_type_nm] == 'C' ? 'Checking' : 'Savings'
   end
