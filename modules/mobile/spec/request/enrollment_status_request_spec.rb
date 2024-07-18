@@ -17,8 +17,8 @@ RSpec.describe 'enrollment status', type: :request do
       }
     end
 
-    context 'when user is enrolled' do
-      it 'returns enrolled with 200 status' do
+    context 'with an loa3 user' do
+      it 'returns ok with enrollment status information' do
         expect(HealthCareApplication).to receive(:enrollment_status).with(
           user.icn, true
         ).and_return(success_response)
@@ -30,8 +30,22 @@ RSpec.describe 'enrollment status', type: :request do
       end
     end
 
-    context 'when user is not enrolled' do
+    context 'with a non-loa3 user' do
+      let!(:user) { sis_user(:api_auth, :loa1) }
 
+      it 'returns unauthorized' do
+        get('/mobile/v0/enrollment-status', headers: sis_headers)
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when user has no icn' do
+      let!(:user) { sis_user(:api_auth, icn: nil) }
+
+      it 'returns not found' do
+        get('/mobile/v0/enrollment-status', headers: sis_headers)
+        expect(response).to have_http_status(:not_found)
+      end
     end
   end
 end
