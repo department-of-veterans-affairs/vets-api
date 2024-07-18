@@ -24,7 +24,6 @@ module ClaimsApi
     # @return [Array<String>] list of countries
     def countries
       key = "#{service_name}:countries"
-
       countries_list = @response_store.get_brd_response(key)
       if countries_list.nil?
         countries_list = client.get('countries').body[:items]
@@ -39,15 +38,33 @@ module ClaimsApi
     # @return [Array<Hash>] list of intake sites
     # as {id: <number> and description: <string>}
     def intake_sites
-      client.get('intake-sites').body[:items]
+      key = "#{service_name}:intake-sites"
+      intake_sites = @response_store.get_brd_response(key)
+      if intake_sites.nil?
+        intake_sites = client.get('intake-sites').body[:items]
+        @response_store.set_brd_response(key, intake_sites)
+      end
+      intake_sites
     end
 
     def disabilities
-      client.get('disabilities').body[:items]
+      key = "#{service_name}:disabilities"
+      disabilities_list = @response_store.get_brd_response(key)
+      if disabilities_list.nil?
+        disabilities_list = client.get('disabilities').body[:items]
+        @response_store.set_brd_response(key, disabilities_list)
+      end
+      disabilities_list
     end
 
     def service_branches
-      client.get('service-branches').body[:items]
+      key = "#{service_name}:service-branches"
+      branches_list = @response_store.get_brd_response(key)
+      if branches_list.nil?
+        branches_list = client.get('service-branches').body[:items]
+        @response_store.set_brd_response(key, branches_list)
+      end
+      branches_list
     end
 
     private
