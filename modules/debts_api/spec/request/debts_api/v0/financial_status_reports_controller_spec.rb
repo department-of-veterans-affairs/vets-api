@@ -112,7 +112,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
       end
     end
 
-    it 'submits a streamlined short form' do
+    it 'submits a streamlined long form' do
       VCR.use_cassette('dmc/submit_fsr') do
         VCR.use_cassette('bgs/people_service/person_data') do
           post(
