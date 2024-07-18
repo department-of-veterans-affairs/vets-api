@@ -68,25 +68,25 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUserLoader do
           expect(reloaded_user.sign_in).to eq(sign_in)
         end
 
-        context 'verified_representatives' do
+        context 'pilot_representatives' do
           let!(:ogc_registration_number) { '12300' }
-          let!(:verified_representative) do
-            create(:verified_representative, email: session.credential_email,
-                                             ogc_registration_number:)
+          let!(:pilot_representative) do
+            create(:pilot_representative, email: session.credential_email,
+                                          ogc_registration_number:)
           end
           let!(:accredited_individual) do
             create(:accredited_individual, :with_organizations, registration_number: ogc_registration_number)
           end
 
           describe '#ogc_registration_number' do
-            context 'when a matching verified_representative is found' do
+            context 'when a matching pilot_representative is found' do
               it 'returns the OGC registration number' do
-                expect(reloaded_user.ogc_registration_number).to eq(verified_representative.ogc_registration_number)
+                expect(reloaded_user.ogc_registration_number).to eq(pilot_representative.ogc_registration_number)
               end
             end
 
-            context 'when a verified_representative record does not exist for the user' do
-              let(:verified_representative) { nil }
+            context 'when a pilot_representative record does not exist for the user' do
+              let(:pilot_representative) { nil }
 
               it 'returns nil' do
                 expect(reloaded_user.ogc_registration_number).to be_nil
@@ -102,8 +102,8 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUserLoader do
               end
             end
 
-            context 'when a verified_representative record does not exist for the user' do
-              let(:verified_representative) { nil }
+            context 'when a pilot_representative record does not exist for the user' do
+              let(:pilot_representative) { nil }
 
               it 'returns nil' do
                 expect(reloaded_user.poa_codes).to be_nil

@@ -61,8 +61,12 @@ module SimpleFormsApi
       end
 
       def get_intents_to_file
-        intent_service = SimpleFormsApi::IntentToFile.new(icn)
-        existing_intents = intent_service.existing_intents
+        existing_intents = {}
+
+        if icn && participant_id
+          intent_service = SimpleFormsApi::IntentToFile.new(@current_user)
+          existing_intents = intent_service.existing_intents
+        end
 
         render json: {
           compensation_intent: existing_intents['compensation'],
@@ -71,19 +75,10 @@ module SimpleFormsApi
         }
       end
 
-      def authenticate
-        super
-      rescue Common::Exceptions::Unauthorized
-        Rails.logger.info(
-          'Simple forms api - unauthenticated user submitting form',
-          { form_number: params[:form_number] }
-        )
-      end
-
       private
 
       def handle_210966_authenticated
-        intent_service = SimpleFormsApi::IntentToFile.new(icn, params)
+        intent_service = SimpleFormsApi::IntentToFile.new(@current_user, params)
         parsed_form_data = JSON.parse(params.to_json)
         form = SimpleFormsApi::VBA210966.new(parsed_form_data)
         existing_intents = intent_service.existing_intents

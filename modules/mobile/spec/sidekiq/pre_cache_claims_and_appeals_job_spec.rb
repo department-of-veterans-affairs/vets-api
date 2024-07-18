@@ -33,9 +33,9 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
               display_title: 'Compensation',
               decision_letter_sent: false,
               phase: 4,
-              documentsNeeded: false,
-              developmentLetterSent: true
-
+              documents_needed: false,
+              development_letter_sent: true,
+              claim_type_code: '400PREDSCHRG'
             }
           )
         end
@@ -60,8 +60,9 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
               display_title: 'Compensation',
               decision_letter_sent: false,
               phase: 4,
-              documentsNeeded: false,
-              developmentLetterSent: true }
+              documents_needed: false,
+              development_letter_sent: true,
+              claim_type_code: '400PREDSCHRG' }
           )
         end
       end
@@ -83,8 +84,9 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
               display_title: 'supplemental claim for disability compensation',
               decision_letter_sent: false,
               phase: nil,
-              documentsNeeded: nil,
-              developmentLetterSent: nil }
+              documents_needed: nil,
+              development_letter_sent: nil,
+              claim_type_code: nil }
           )
         end
       end
