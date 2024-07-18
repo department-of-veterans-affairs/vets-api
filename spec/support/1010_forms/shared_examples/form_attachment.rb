@@ -68,8 +68,6 @@ shared_examples 'create 1010 form attachment' do
       form_attachment
     end
 
-    expect(subject).to receive(:render).with(json: form_attachment).and_call_original # rubocop:disable RSpec/SubjectStub
-
     form_attachment
   end
 

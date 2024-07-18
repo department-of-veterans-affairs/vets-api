@@ -1,22 +1,22 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
-  # Represents a verified representative within the Accredited Representative Portal.
+  # Represents a pilot representative within the Accredited Representative Portal.
   # This class is responsible for managing the data associated with individuals who have
   # been verified as representatives by the ARF Team. The model includes validations to ensure the presence and
   # uniqueness of identifiers such as the OGC registration number and email.
   #
   # Currently, this model is populated manually by engineers as users are accepted into the pilot program.
   # There is potential for a UI to be developed in the future that would facilitate administrative tasks
-  # related to managing verified representatives.
+  # related to managing pilot representatives.
   #
   # A more automated process may be possible once OGC and MPI data facilitate such a process.
   #
   # == Associations
   # This model may eventually be associated with AccreditedIndividuals to pull POA codes,
   # if they exist, based on the OGC registration number. It currently does so via a helper method.
-  class VerifiedRepresentative < ApplicationRecord
-    EMAIL_NO_MATCH_MESSAGE = 'No matching email for AccreditedIndividual found for VerifiedRepresentative'
+  class PilotRepresentative < ApplicationRecord
+    EMAIL_NO_MATCH_MESSAGE = 'No matching email for AccreditedIndividual found for PilotRepresentative'
     EMAIL_MULTIPLE_MATCH_MESSAGE =
       'Multiple `AccreditedIndividuals` have the same email. Please review.'
 
@@ -69,15 +69,15 @@ module AccreditedRepresentativePortal
 
     def log_accredited_individual_missing_data(accredited_individual)
       if accredited_individual.nil?
-        Rails.logger.info("No matching AccreditedIndividual found for VerifiedRepresentative ID: #{id}")
+        Rails.logger.info("No matching AccreditedIndividual found for PilotRepresentative ID: #{id}")
       else
-        Rails.logger.info("No matching POA codes for VerifiedRepresentative ID: #{id}")
+        Rails.logger.info("No matching POA codes for PilotRepresentative ID: #{id}")
       end
     end
 
     def log_accredited_individual_multiple_email_match
       message = "#{EMAIL_MULTIPLE_MATCH_MESSAGE} AccreditedIndividual IDs: #{fetch_accredited_individual_ids}"
-      message += " VerifiedRepresentative ID: #{id}" unless new_record?
+      message += " PilotRepresentative ID: #{id}" unless new_record?
       Rails.logger.info(message)
     end
 
@@ -86,7 +86,7 @@ module AccreditedRepresentativePortal
     end
 
     def log_fetch_failure(exception)
-      Rails.logger.info("Fetching POA codes failed for VerifiedRepresentative ID: #{id} - #{exception.message}")
+      Rails.logger.info("Fetching POA codes failed for PilotRepresentative ID: #{id} - #{exception.message}")
     end
 
     def accredited_individual_email_count
