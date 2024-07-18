@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# require 'common/models/redis_store'
+require 'common/models/redis_store'
 
 module ClaimsApi
   class BRDResponseStore < ::Common::RedisStore

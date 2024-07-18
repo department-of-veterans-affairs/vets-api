@@ -198,7 +198,7 @@ development: &defaults
     each_ttl: 604800
   brd_response_store:
     namespace: brd_response_store
-    each_ttl: 600
+    each_ttl: 82800
 test:
   <<: *defaults
   redis:

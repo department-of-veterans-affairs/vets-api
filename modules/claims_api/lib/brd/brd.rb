@@ -9,7 +9,7 @@ module ClaimsApi
   #
   # Takes an optional request parameter
   # @param [] rails request object (used to determine environment)
-  class BRD < ::Common::RedisStore
+  class BRD
     def initialize
       @response_store = BRDResponseStore
     end
@@ -39,12 +39,12 @@ module ClaimsApi
     # as {id: <number> and description: <string>}
     def intake_sites
       key = "#{service_name}:intake-sites"
-      intake_sites = @response_store.get_brd_response(key)
-      if intake_sites.nil?
-        intake_sites = client.get('intake-sites').body[:items]
-        @response_store.set_brd_response(key, intake_sites)
+      sites_list = @response_store.get_brd_response(key)
+      if sites_list.nil?
+        sites_list = client.get('intake-sites').body[:items]
+        @response_store.set_brd_response(key, sites_list)
       end
-      intake_sites
+      sites_list
     end
 
     def disabilities
