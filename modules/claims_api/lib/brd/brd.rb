@@ -1,18 +1,22 @@
 # frozen_string_literal: true
 
+require 'library_base'
+
 module ClaimsApi
   ##
   # Class to interact with the BRD API
   #
   # Takes an optional request parameter
   # @param [] rails request object (used to determine environment)
-  class BRD
+  class BRD < LibraryBase
     ##
     # List of valid countries
     #
     # @return [Array<String>] list of countries
     def countries
       client.get('countries').body[:items]
+    rescue => e
+      rescue_brd(e, 'countries')
     end
 
     ##
@@ -22,14 +26,20 @@ module ClaimsApi
     # as {id: <number> and description: <string>}
     def intake_sites
       client.get('intake-sites').body[:items]
+    rescue => e
+      rescue_brd(e, 'intake-sites')
     end
 
     def disabilities
       client.get('disabilities').body[:items]
+    rescue => e
+      rescue_brd(e, 'disabilities')
     end
 
     def service_branches
       client.get('service-branches').body[:items]
+    rescue => e
+      rescue_brd(e, 'service-branches')
     end
 
     private
@@ -53,6 +63,13 @@ module ClaimsApi
         f.response :json, parser_options: { symbolize_names: true }
         f.adapter Faraday.default_adapter
       end
+    end
+
+    def rescue_brd(e, service)
+      detail = e.respond_to?(:original_body) ? e.original_body : e
+      log_outcome_for_claims_api(service, 'error', detail)
+
+      error_handler(e)
     end
   end
 end

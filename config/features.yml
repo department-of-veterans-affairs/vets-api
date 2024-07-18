@@ -155,6 +155,10 @@ features:
     actor_type: user
     description: Enables the 45 minute reminder
     enable_in_development: true
+  check_in_experience_check_claim_status_on_timeout:
+    actor_type: user
+    description: Uses a background worker to check travel claim status when the submission times out
+    enable_in_development: true
   check_in_experience_browser_monitoring:
     actor_type: user
     description: Enables browser monitoring for check-in applications.
@@ -170,6 +174,10 @@ features:
   claims_api_local_bgs_refactor:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
+    enable_in_development: true
+  lighthouse_claims_api_hardcode_wsdl:
+    actor_type: user
+    description: Use hardcoded namespaces for WSDL calls to BGS
     enable_in_development: true
   cst_5103_update_enabled:
     actor_type: user
@@ -330,14 +338,6 @@ features:
   decision_review_delay_evidence:
     actor_type: user
     description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself
-  decision_review_save_encrypted_attachments:
-    actor_type: user
-    description: Enables saving a copy of encrypted decision review evidence attachment files for manual validation
-    enable_in_development: true
-  decision_review_use_hexapdf_for_encrypted_attachments:
-    actor_type: user
-    description: Enables using Hexapdf instead of PDFTK for decrypting password protected decision review evidence attachment files
-    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -384,6 +384,9 @@ features:
   disability_526_ep_merge_new_claims:
     actor_type: user
     description: enables EP Merge for single-contention 526 claims for a new condition
+  disability_526_ep_merge_multi_contention:
+    actor_type: user
+    description: enables EP Merge for multi-contention 526 claims
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
@@ -603,6 +606,9 @@ features:
     actor_type: user
     description: Enables form email submission confirmations (for allowed email types via VaNotify)
     enable_in_development: true
+  simple_forms_lighthouse_benefits_intake_service:
+    actor_type: user
+    description: Enables use of the Lighthouse BenefitsIntake::Service instead of the SimpleFormsApiSubmission::Service
   form2010206:
     actor_type: user
     description: If enabled shows the digital form experience for form 20-10206
@@ -636,6 +642,9 @@ features:
   form1010d:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
+  form107959c:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-7959c (IVC CHAMPVA other health insurance)
   form107959f1:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program)
@@ -700,6 +709,10 @@ features:
     actor_type: user
     description: Enable/disable skipping BGS calls for POA Requests
     enable_in_development: true
+  lighthouse_claims_api_poa_use_bd:
+    actor_type: user
+    description: Lighthouse Benefits Claims API uses Lighthouse Benefits Documents API to upload POA forms instead of VBMS
+    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
@@ -722,10 +735,6 @@ features:
   medical_copay_notifications:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
-    enable_in_development: true
-  mhv_landing_page_enabled:
-    actor_type: user
-    description: Enables the My HealtheVet landing page on VA.gov
     enable_in_development: true
   mhv_landing_page_show_priority_group:
     actor_type: user
@@ -821,9 +830,6 @@ features:
     actor_type: user
     description: Enables/disables documentation-related content for Medications on VA.gov
     enable_in_development: true
-  mhv_landing_page_enable_va_gov_health_tools_links:
-    actor_type: user
-    description: Enables VA.gov Health Tools links (Appts, SM, Rx, Records) on MHV-on-VA.gov Landing Page
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer experience (Identity)
@@ -977,6 +983,9 @@ features:
   my_va_lighthouse_uploads_report:
     actor_type: user
     description: Use lighthouse /uploads/report endpoint for Form status
+  my_va_form_submission_statuses:
+    actor_type: user
+    description: Enables users to view the status of submitted forms.
   rated_disabilities_detect_discrepancies:
     actor_type: user
     description:
@@ -1266,12 +1275,24 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for displaying the most recent facilities on the Choose your VA location page.
+  va_online_scheduling_med_review_instructions:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to update the Medication Review instructions on the Appointment Details page.
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
   va_profile_information_v3_service:
     actor_type: user
     description: When enabled, the VAProfile::V3::Service will be enabled for VaProfile::ProfileInformation
+    enable_in_development: false
+  va_profile_information_v3_redis:
+    actor_type: user
+    description: When enabled, the VAProfileRedis::ProfileInformation will be enabled for VaProfile::ProfileInformation
+    enable_in_development: false
+  va_profile_information_v3_transactions:
+    actor_type: user
+    description: When enabled, the transactions will be enabled for VAProfile::ProfileInformation
     enable_in_development: false
   veteran_onboarding_beta_flow:
     actor_type: user
@@ -1378,6 +1399,9 @@ features:
   mobile_lighthouse_disability_ratings:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our disability ratings endpoints upstream service
+  mobile_military_indicator_logger:
+    actor_type: user
+    description: For mobile app, enables logging of military discharge codes
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
@@ -1482,6 +1506,10 @@ features:
   pension_claim_submission_to_lighthouse:
     actor_type: user
     description: Pension claim submission uses Lighthouse API
+  pension_multiple_page_response:
+    actor_type: user
+    description: Implement multiple page response pattern
+    enable_in_development: true
   pension_module_enabled:
     actor_type: user
     description: Enable the pension module routes
@@ -1546,3 +1574,6 @@ features:
   toggle_vye_application:
     actor_type: user
     description: Enable VYE
+  military_benefit_estimates:
+    actor_type: user
+    description: swap order of the military details in GI search filters 

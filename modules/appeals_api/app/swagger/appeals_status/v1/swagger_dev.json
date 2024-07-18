@@ -57,16 +57,6 @@
             },
             "in": "query",
             "required": false
-          },
-          {
-            "name": "X-VA-User",
-            "in": "header",
-            "required": true,
-            "example": "va.api.user+idme.025@gmail.com",
-            "schema": {
-              "type": "string"
-            },
-            "description": "VA username of the person making the request"
           }
         ],
         "responses": {
@@ -1619,10 +1609,6 @@
             ]
           }
         }
-      },
-      "X-VA-User": {
-        "description": "VA username of the person making the request",
-        "type": "string"
       }
     }
   },

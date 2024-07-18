@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/client/middleware/faraday_middleware_patch'
 require 'common/client/middleware/request/remove_cookies'
 require 'common/client/middleware/request/immutable_headers'
 require 'hca/soap_parser'
