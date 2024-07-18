@@ -44,7 +44,7 @@ module DebtsApi
 
         def total_discretionary_income
           monthly_net_income = @income_data[:totalMonthlyNetIncome]
-          monthly_expenses = @enhanced_expense_calculator['totalMonthlyExpenses']
+          monthly_expenses = @enhanced_expense_calculator['totalMonthlyExpenses']&.to_f
 
           monthly_net_income - monthly_expenses
         end
