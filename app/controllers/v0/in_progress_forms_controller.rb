@@ -25,8 +25,15 @@ module V0
 
       form.update!(form_data: params[:form_data] || params[:formData], metadata: params[:metadata])
 
-      if Flipper.enabled?(:intent_to_file_lighthouse_enabled) && form.id_previously_changed? &&
-         Lighthouse::CreateIntentToFileJob::ITF_FORMS.include?(form.form_id) && @current_user.participant_id.present?
+      if @current_user.participant_id.blank?
+        StatsD.increment("user.participant_id.blank")
+        Rails.logger.info("V0 InProgressFormsController async ITF user.participant_id is blank", {
+                            in_progress_form_id: form.id,
+                            user_uuid: @current_user.uuid,
+                            user_account_uuid: @current_user.user_account_id
+                          })
+      elsif Flipper.enabled?(:intent_to_file_lighthouse_enabled) && form.id_previously_changed? &&
+         Lighthouse::CreateIntentToFileJob::ITF_FORMS.include?(form.form_id)
         Lighthouse::CreateIntentToFileJob.perform_async(form.form_id, form.created_at, @current_user.icn)
       end
 
