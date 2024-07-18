@@ -4,17 +4,17 @@ require_relative '../lib/accredited_representation/seed_data'
 
 namespace :arp do
   desc 'Seed VerifiedRepresentative data for staging'
-  task :seed_representative, [:test_rep_email] => [:environment] do |_, args|
+  task :seed_representative, [:test_rep_email, :ogc, :poa, :indiv_type] => [:environment] do |_, args|
     raise 'No representative email provided' unless args[:test_rep_email]
+    raise 'No representative OGC code provided' unless args[:ogc]
+    raise 'No representative POA code provided' unless args[:poa]
+    raise 'No representative individual_type provided' unless args[:test_rep_email]
 
-    # Create VerifiedRepresentative and AccreditedIndividual for logging into accredited_representative_portal
-    ogc_registration_number = '123'
-    poa_code = '678'
-    individual_type = 'representative'
+    # Create PilotRepresentative and AccreditedIndividual for logging into accredited_representative_portal
 
     AccreditedRepresentation::SeedData.create_rep_data(args[:test_rep_email],
-                                                       ogc_registration_number,
-                                                       poa_code,
-                                                       individual_type)
+                                                       args[:opc],
+                                                       args[:poa],
+                                                       args[:indiv_type])
   end
 end
