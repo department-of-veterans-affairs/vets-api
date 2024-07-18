@@ -38,7 +38,7 @@ module ClaimsApi
     #
     # @return success or failure
     # rubocop:disable Metrics/ParameterLists
-    def upload(claim:, pdf_path:, pctpnt_vet_id: nil, doc_type: 'L122', file_number: nil, original_filename: nil)
+    def upload(claim:, pdf_path:, doc_type: nil, pctpnt_vet_id: nil, file_number: nil, original_filename: nil)
       unless File.exist? pdf_path
         ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist",
                                                     claim_id: claim.id)
@@ -70,6 +70,17 @@ module ClaimsApi
       [first_name, last_name].compact_blank.join('_')
     end
 
+    def get_claim_id(doc_type, claim)
+      doc_type_to_claim_id = {
+        'L075' => nil,
+        'L122' => claim.evss_id,
+        'L190' => nil,
+        'L705' => claim.claim_id
+      }
+
+      doc_type_to_claim_id[doc_type]
+    end
+
     ##
     # Generate form body to upload a document
     #
@@ -80,7 +91,7 @@ module ClaimsApi
       auth_headers = claim.auth_headers
       veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'], auth_headers['va_eauth_lastName'])
       birls_file_num = auth_headers['va_eauth_birlsfilenumber'] || file_number if doc_type != 'L705'
-      claim_id = doc_type == 'L705' ? claim.claim_id : claim.evss_id
+      claim_id = get_claim_id(doc_type, claim)
       file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
       participant_id = pctpnt_vet_id if %w[L075 L190 L750].include?(doc_type)
       system_name = 'LH-B' if %w[L075 L190].include?(doc_type)

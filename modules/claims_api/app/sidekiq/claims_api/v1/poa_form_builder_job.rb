@@ -4,6 +4,7 @@ require 'claims_api/poa_vbms_sidekiq'
 require 'claims_api/v1/poa_pdf_constructor/organization'
 require 'claims_api/v1/poa_pdf_constructor/individual'
 require 'claims_api/stamp_signature_error'
+require 'bd/bd'
 
 module ClaimsApi
   module V1
@@ -23,7 +24,6 @@ module ClaimsApi
         output_path = pdf_constructor(poa_code).construct(data(power_of_attorney), id: power_of_attorney.id)
 
         if Flipper.enabled?(:lighthouse_claims_api_poa_use_bd)
-          # TODO: Verify with mock data
           benefits_doc_api.upload(claim: power_of_attorney, pdf_path: output_path)
         else
           upload_to_vbms(power_of_attorney, output_path)
@@ -40,6 +40,10 @@ module ClaimsApi
       end
 
       private
+
+      def benefits_doc_api
+        ClaimsApi::BD.new
+      end
 
       def pdf_constructor(poa_code)
         if poa_code_in_organization?(poa_code)

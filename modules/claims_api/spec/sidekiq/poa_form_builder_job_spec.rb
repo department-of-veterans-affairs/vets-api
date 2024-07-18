@@ -11,6 +11,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
   let(:bad_b64_image) { File.read('modules/claims_api/spec/fixtures/signature_b64_prefix_bad.txt') }
 
   before do
+    Flipper.disable(:lighthouse_claims_api_poa_use_bd)
     Sidekiq::Job.clear_all
     b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
     power_of_attorney.form_data = {
@@ -171,5 +172,13 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
     end
   end
 
-  # TODO: Add tests for POA BD feature flag
+  # TODO: Fix test
+  context 'when the BD upload feature flag is enabled' do
+    it 'uploads to the benefits document API' do
+      Flipper.enable(:lighthouse_claims_api_poa_use_bd)
+      expect(ClaimsApi::VBMSUploader).not_to receive(:new)
+      expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
+      subject.new.perform(power_of_attorney.id)
+    end
+  end
 end
