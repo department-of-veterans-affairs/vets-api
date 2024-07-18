@@ -944,7 +944,6 @@ RSpec.describe Form526Submission do
         end
       end
     end
-
   end
 
   describe '#get_first_name' do
