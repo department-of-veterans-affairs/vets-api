@@ -866,6 +866,54 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v21_22_expected_) do
+    {
+      'claimantInformation' => {
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dob' => '1809-02-12'
+      },
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.address[:city],
+        'state' => user.address[:state],
+        'country' => user.address[:country],
+        'postal_code' => user.address[:zip][0..4]
+      },
+      'primaryPhone' => us_phone,
+      'email' => user.pciu_email
+    }
+  end
+
+  let(:v21_22a_expected_) do
+    {
+      'claimantInformation' => {
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dob' => '1809-02-12'
+      },
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.address[:city],
+        'state' => user.address[:state],
+        'country' => user.address[:country],
+        'postal_code' => user.address[:zip][0..4]
+      },
+      'primaryPhone' => us_phone,
+      'email' => user.pciu_email
+    }
+  end
+
   let(:v26_4555_expected) do
     {
       'veteran' => {
