@@ -8,7 +8,6 @@ class DependentsVerificationsSerializer
 
   attribute :dependency_verifications
 
-
   attribute :dependency_verifications do |object|
     dependency_decs = object[:dependency_decs]
     ensured_array = dependency_decs.instance_of?(Hash) ? [dependency_decs] : dependency_decs
