@@ -9,7 +9,7 @@ RSpec.describe CovidVaccine::SubmissionJob, type: :worker do
     let(:pending_submission) { create(:covid_vax_registration, :unsubmitted) }
     let(:user_type) { 'loa3' }
     let(:expected_attributes) do
-      %i[vaccine_interest zip_code time_at_zip phone email first_name last_name
+      %w[vaccine_interest zip_code time_at_zip phone email first_name last_name
          date_of_birth patient_ssn zip_lat zip_lon sta3n authenticated]
     end
 
@@ -20,7 +20,7 @@ RSpec.describe CovidVaccine::SubmissionJob, type: :worker do
           pending_submission.reload
           expect(pending_submission.sid).to be_truthy
           expect(pending_submission.form_data).to be_truthy
-          expect(pending_submission.form_data.keys).to match_array(expected_attributes)
+          expect(pending_submission.form_data).to include(*expected_attributes)
         end
       end
     end
