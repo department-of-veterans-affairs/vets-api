@@ -44,15 +44,15 @@ describe 'PowerOfAttorney', metadata do
           ],
           'decision' => {
             'statuses' => %w[
-              None
-              Accepted
-              Declined
+              none
+              accepting
+              declining
             ]
           }
         },
         'page' => {
           'number' => 2,
-          'size' => 5
+          'size' => 3
         },
         'sort' => {
           'field' => 'createdAt',
