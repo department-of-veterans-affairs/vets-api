@@ -3,13 +3,15 @@
 require 'brd/brd_response_store'
 require 'common/models/concerns/cache_aside'
 
+require 'library_base'
+
 module ClaimsApi
   ##
   # Class to interact with the BRD API
   #
   # Takes an optional request parameter
   # @param [] rails request object (used to determine environment)
-  class BRD
+  class BRD < LibraryBase
     def initialize
       @response_store = BRDResponseStore
     end
@@ -30,6 +32,8 @@ module ClaimsApi
         @response_store.set_brd_response(key, countries_list)
       end
       countries_list
+    rescue => e
+      rescue_brd(e, 'countries')
     end
 
     ##
@@ -45,6 +49,8 @@ module ClaimsApi
         @response_store.set_brd_response(key, sites_list)
       end
       sites_list
+    rescue => e
+      rescue_brd(e, 'intake-sites')
     end
 
     def disabilities
@@ -55,6 +61,8 @@ module ClaimsApi
         @response_store.set_brd_response(key, disabilities_list)
       end
       disabilities_list
+    rescue => e
+      rescue_brd(e, 'disabilities')
     end
 
     def service_branches
@@ -65,6 +73,8 @@ module ClaimsApi
         @response_store.set_brd_response(key, branches_list)
       end
       branches_list
+    rescue => e
+      rescue_brd(e, 'service-branches')
     end
 
     private
@@ -88,6 +98,13 @@ module ClaimsApi
         f.response :json, parser_options: { symbolize_names: true }
         f.adapter Faraday.default_adapter
       end
+    end
+
+    def rescue_brd(e, service)
+      detail = e.respond_to?(:original_body) ? e.original_body : e
+      log_outcome_for_claims_api(service, 'error', detail)
+
+      error_handler(e)
     end
   end
 end
