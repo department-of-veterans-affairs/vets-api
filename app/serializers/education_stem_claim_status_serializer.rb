@@ -5,7 +5,6 @@ class EducationStemClaimStatusSerializer
 
   attribute :confirmation_number
 
-  # rubocop:disable Naming/PredicateName
   attribute :is_enrolled_stem do |object|
     object.saved_claim.parsed_form['isEnrolledStem']
   end
@@ -13,7 +12,6 @@ class EducationStemClaimStatusSerializer
   attribute :is_pursuing_teaching_cert do |object|
     object.saved_claim.parsed_form['isPursuingTeachingCert']
   end
-  # rubocop:enable Naming/PredicateName
 
   attribute :benefit_left do |object|
     object.saved_claim.parsed_form['benefitLeft']
