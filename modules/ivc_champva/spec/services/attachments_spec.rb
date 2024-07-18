@@ -27,11 +27,11 @@ RSpec.describe IvcChampva::Attachments do
         expect(File).to receive(:rename).with(file_path, "tmp/#{uuid}_#{form_id}-tmp.pdf")
         expect(test_instance).to receive(:get_attachments).and_return(['attachment1.pdf', 'attachment2.png'])
         expect(File).to receive(:rename).with('attachment1.pdf', "./#{uuid}_#{form_id}-tmp1.pdf")
-        expect(File).to receive(:rename).with('attachment2.png', "./#{uuid}_#{form_id}-tmp2.png")
+        expect(File).to receive(:rename).with('attachment2.png', "./#{uuid}_#{form_id}-tmp2.pdf")
 
         result = test_instance.handle_attachments(file_path)
         expect(result).to contain_exactly("tmp/#{uuid}_#{form_id}-tmp.pdf", "./#{uuid}_#{form_id}-tmp1.pdf",
-                                          "./#{uuid}_#{form_id}-tmp2.png")
+                                          "./#{uuid}_#{form_id}-tmp2.pdf")
       end
     end
 

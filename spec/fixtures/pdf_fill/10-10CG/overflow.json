@@ -3,7 +3,8 @@
     "fullName": {
       "last": " AAAAAAAAA AAAAAAAAA AAAAAAAAA",
       "first": " BBBBBBBBB BBBBBBBBB BBBBBBBBB",
-      "middle": " CCCCCCCCC CCCCCCCCC CCCCCCCCC"
+      "middle": " CCCCCCCCC CCCCCCCCC CCCCCCCCC",
+      "suffix": "Jr."
     },
     "ssnOrTin": "789787893",
     "dateOfBirth": "1990-07-03",
@@ -13,23 +14,21 @@
       "street2": " DDDDDDDDDD DDDDDDDDDD DDDDDDDDDD DDDDDDDDDD",
       "city": " EEEEEEEEE EEEEEEEEE EEEEEEEEE",
       "state": "WA",
-      "postalCode": "98101-1234"
+      "postalCode": "98101-1234",
+      "county": " AAAAAAAAA AAAAAAAAA AAAAAAAAA AAAAAAAAA AAAAAAAAA AAAAAAAAA"
     },
     "primaryPhoneNumber": "8887775541",
     "alternativePhoneNumber": "8887775542",
     "email": "FFFFFFFFF-FFFFFFFFF-FFFFFFFFF-FFFFFFFFF-FFFFFFFFF-FFFFFFFFF-FFFFFFFFF-F@FFFF.FFF",
     "plannedClinic": "740",
-    "lastTreatmentFacility": {
-      "name": " GGGGGGGGG GGGGGGGGG GGGGGGGGG GGGGGGGGG GGGGGGGGG GGGGGGGGG GGGGGGGGG...",
-      "type": "clinic"
-    },
     "signature": " BBBBBBBBB BBBBBBBBB BBBBBBBBB  CCCCCCCCC CCCCCCCCC CCCCCCCCC  AAAAAAAAA AAAAAAAAA AAAAAAAAA"
   },
   "primaryCaregiver": {
     "fullName": {
       "last": " HHHHHHHHH HHHHHHHHH HHHHHHHHH",
       "first": " IIIIIIIII IIIIIIIII IIIIIIIII",
-      "middle": " JJJJJJJJJ JJJJJJJJJ JJJJJJJJJ"
+      "middle": " JJJJJJJJJ JJJJJJJJJ JJJJJJJJJ",
+      "suffix": "Sr."
     },
     "ssnOrTin": "202901412",
     "dateOfBirth": "1978-07-03",
@@ -39,20 +38,29 @@
       "street2": " KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK",
       "city": " LLLLLLLLL LLLLLLLLL LLLLLLLLL",
       "state": "WA",
-      "postalCode": "98101-1234"
+      "postalCode": "98101-1234",
+      "county": " BBBBBBBBB BBBBBBBBB BBBBBBBBB BBBBBBBBB BBBBBBBBB BBBBBBBBB"
+    },
+    "mailingAddress": {
+      "street": " MMMMMMMMM KKKKKKKKK KKKKKKKKK KKKKKKKKK",
+      "street2": " KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK",
+      "city": " LLLLLLLLL LLLLLLLLL LLLLLLLLL",
+      "state": "WA",
+      "postalCode": "98101-1234",
+      "county": " BBBBBBBBB BBBBBBBBB BBBBBBBBB BBBBBBBBB BBBBBBBBB BBBBBBBBB"
     },
     "primaryPhoneNumber": "1112929933",
     "alternativePhoneNumber": "9990239330",
     "email": "MMMMMMMMM-MMMMMMMMM-MMMMMMMMM-MMMMMMMMM@MM.MMM",
     "vetRelationship": "Spouse",
-    "hasHealthInsurance": true,
     "signature": " IIIIIIIII IIIIIIIII IIIIIIIII  JJJJJJJJJ JJJJJJJJJ JJJJJJJJJ  HHHHHHHHH HHHHHHHHH HHHHHHHHH"
   },
   "secondaryCaregiverOne": {
     "fullName": {
       "last": " OOOOOOOOO OOOOOOOOO OOOOOOOOO",
       "first": " PPPPPPPPP PPPPPPPPP PPPPPPPPP",
-      "middle": " QQQQQQQQQ QQQQQQQQQ QQQQQQQQQ"
+      "middle": " QQQQQQQQQ QQQQQQQQQ QQQQQQQQQ",
+      "suffix": "III"
     },
     "ssnOrTin": "994328445",
     "dateOfBirth": "1981-03-29",
@@ -62,7 +70,16 @@
       "street2": " RRRRRRRRR RRRRRRRRR RRRRRRRRR RRRRRRRRR",
       "city": " SSSSSSSSS SSSSSSSSS SSSSSSSSS",
       "state": "WA",
-      "postalCode": "98101"
+      "postalCode": "98101",
+      "county": " CCCCCCCCC CCCCCCCCC CCCCCCCCC CCCCCCCCC CCCCCCCCC CCCCCCCCC"
+    },
+    "mailingAddress": {
+      "street": " MMMMMMMMM RRRRRRRRR RRRRRRRRR RRRRRRRRR",
+      "street2": " RRRRRRRRR RRRRRRRRR RRRRRRRRR RRRRRRRRR",
+      "city": " SSSSSSSSS SSSSSSSSS SSSSSSSSS",
+      "state": "WA",
+      "postalCode": "98101",
+      "county": " CCCCCCCCC CCCCCCCCC CCCCCCCCC CCCCCCCCC CCCCCCCCC CCCCCCCCC"
     },
     "primaryPhoneNumber": "1118293993",
     "alternativePhoneNumber": "0002938484",
@@ -74,7 +91,8 @@
     "fullName": {
       "last": " UUUUUUUUU UUUUUUUUU UUUUUUUUU",
       "first": " VVVVVVVVV VVVVVVVVV VVVVVVVVV",
-      "middle": " WWWWWWWWW WWWWWWWWW WWWWWWWWW"
+      "middle": " WWWWWWWWW WWWWWWWWW WWWWWWWWW",
+      "suffix": "Jr."
     },
     "ssnOrTin": "091449494",
     "dateOfBirth": "1980-09-06",
@@ -84,7 +102,16 @@
       "street2": " XXXXXXXXX XXXXXXXXX XXXXXXXXX XXXXXXXXX",
       "city": " YYYYYYYYY YYYYYYYYY YYYYYYYYY",
       "state": "WA",
-      "postalCode": "98101"
+      "postalCode": "98101",
+      "county": " DDDDDDDDD DDDDDDDDD DDDDDDDDD DDDDDDDDD DDDDDDDDD DDDDDDDDD"
+    },
+    "mailingAddress": {
+      "street": " MMMMMMMMM XXXXXXXXX XXXXXXXXX XXXXXXXXX",
+      "street2": " XXXXXXXXX XXXXXXXXX XXXXXXXXX XXXXXXXXX",
+      "city": " YYYYYYYYY YYYYYYYYY YYYYYYYYY",
+      "state": "WA",
+      "postalCode": "98101",
+      "county": " DDDDDDDDD DDDDDDDDD DDDDDDDDD DDDDDDDDD DDDDDDDDD DDDDDDDDD"
     },
     "primaryPhoneNumber": "8784844999",
     "alternativePhoneNumber": "8788894300",

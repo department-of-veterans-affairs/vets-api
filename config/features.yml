@@ -175,6 +175,10 @@ features:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
     enable_in_development: true
+  lighthouse_claims_api_hardcode_wsdl:
+    actor_type: user
+    description: Use hardcoded namespaces for WSDL calls to BGS
+    enable_in_development: true
   cst_5103_update_enabled:
     actor_type: user
     description: When enabled, claims status tool will use the new 5103 alert designs and hides the ask your claim decision section
@@ -334,14 +338,6 @@ features:
   decision_review_delay_evidence:
     actor_type: user
     description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself
-  decision_review_save_encrypted_attachments:
-    actor_type: user
-    description: Enables saving a copy of encrypted decision review evidence attachment files for manual validation
-    enable_in_development: true
-  decision_review_use_hexapdf_for_encrypted_attachments:
-    actor_type: user
-    description: Enables using Hexapdf instead of PDFTK for decrypting password protected decision review evidence attachment files
-    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -646,6 +642,9 @@ features:
   form1010d:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
+  form107959c:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-7959c (IVC CHAMPVA other health insurance)
   form107959f1:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program)
@@ -709,6 +708,10 @@ features:
   lighthouse_claims_v2_poa_requests_skip_bgs:
     actor_type: user
     description: Enable/disable skipping BGS calls for POA Requests
+    enable_in_development: true
+  lighthouse_claims_api_poa_use_bd:
+    actor_type: user
+    description: Lighthouse Benefits Claims API uses Lighthouse Benefits Documents API to upload POA forms instead of VBMS
     enable_in_development: true
   loop_pages:
     actor_type: user
@@ -980,6 +983,9 @@ features:
   my_va_lighthouse_uploads_report:
     actor_type: user
     description: Use lighthouse /uploads/report endpoint for Form status
+  my_va_form_submission_statuses:
+    actor_type: user
+    description: Enables users to view the status of submitted forms.
   rated_disabilities_detect_discrepancies:
     actor_type: user
     description:
@@ -1269,6 +1275,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for displaying the most recent facilities on the Choose your VA location page.
+  va_online_scheduling_med_review_instructions:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to update the Medication Review instructions on the Appointment Details page.
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
@@ -1564,3 +1574,6 @@ features:
   toggle_vye_application:
     actor_type: user
     description: Enable VYE
+  military_benefit_estimates:
+    actor_type: user
+    description: swap order of the military details in GI search filters 

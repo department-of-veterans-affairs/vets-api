@@ -6,7 +6,6 @@ module Vye
 
     def perform
       IngressBdn.perform_async
-      IngressTims.perform_async
     end
   end
 end

@@ -25,7 +25,7 @@
           "additionalProperties": false,
           "required": [
             "status",
-            "declinedReason",
+            "decliningReason",
             "createdBy"
           ],
           "properties": {
@@ -33,11 +33,11 @@
               "type": "string",
               "description": "TODO",
               "enum": [
-                "Accepted",
-                "Declined"
+                "accepting",
+                "declining"
               ]
             },
-            "declinedReason": {
+            "decliningReason": {
               "type": [
                 "string",
                 "null"
