@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'brd/brd_response_store'
-require 'common/models/concerns/cache_aside'
-
 require 'library_base'
 
 module ClaimsApi
