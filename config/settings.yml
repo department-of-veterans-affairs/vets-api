@@ -16,7 +16,6 @@ logingov:
   client_key_path: spec/fixtures/sign_in/oauth.key
   oauth_url: https://idp.int.identitysandbox.gov
   oauth_public_key: spec/fixtures/logingov/logingov_oauth_pub.pem
-  inherited_proofing_redirect_uri: http://localhost:3000/inherited_proofing/callback
 
 idme:
   client_id: ef7f1237ed3c396e4b4a2b04b608a7b1
@@ -539,10 +538,6 @@ mhv:
     collection_caching_enabled: true
   account:
     mock: false
-  inherited_proofing:
-    base_path: https://mhv-api.example.com
-    app_token: fake-app-token
-    mock: true
   medical_records:
     host: fake-host
     app_token: fake-app-token
@@ -1749,6 +1744,11 @@ vye:
     r: 8
     p: 1
     length: 16
+  s3:
+    access_key_id: ~
+    secret_access_key: ~
+    region: ~
+    bucket: ~
 
 schema_contract:
   appointments_index: 'modules/vaos/app/schemas/appointments_index.json'

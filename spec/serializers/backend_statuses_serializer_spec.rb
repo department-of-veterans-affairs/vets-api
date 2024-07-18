@@ -24,13 +24,13 @@ describe BackendStatusesSerializer do
   end
 
   context 'when maintence_windows is present' do
+    subject { serialize(pagerduty_response, { serializer_class: described_class, params: { maintenance_windows: } }) }
+
     let(:maintenance_windows) { [build_stubbed(:maintenance_window)] }
-    let(:rendered_hash) { serialize(pagerduty_response, { serializer_class: described_class, maintenance_windows: }) }
-    let(:attributes_with_windows) { JSON.parse(rendered_hash)['data']['attributes'] }
 
     it 'includes :maintence_windows' do
-      expect(attributes_with_windows['maintenance_windows'].size).to eq maintenance_windows.size
-      expect(attributes_with_windows['maintenance_windows'].first['id']).to eq maintenance_windows.first.id
+      expect(attributes['maintenance_windows'].size).to eq maintenance_windows.size
+      expect(attributes['maintenance_windows'].first['id']).to eq maintenance_windows.first.id
     end
   end
 

@@ -3,7 +3,7 @@
 module Vye
   class Vye::Award < ApplicationRecord
     belongs_to :user_info
-    has_many :verifications, dependent: :nullify
+    has_one :verification, dependent: :nullify
 
     enum(
       cur_award_ind: { current: 'C', future: 'F', past: 'P' },
@@ -12,8 +12,8 @@ module Vye
 
     validates(
       *%i[
-        award_end_date cur_award_ind
-        monthly_rate number_hours training_time
+        cur_award_ind
+        monthly_rate training_time
       ].freeze,
       presence: true
     )

@@ -143,10 +143,10 @@
     }
   ],
   "certification": {
-    "lastName": "Joe",
-    "firstName": "GI",
-    "middleInitial": "Canceled",
-    "streetAddress": "Hasbro",
+    "last_name": "Joe",
+    "first_name": "GI",
+    "middle_initial": "Canceled",
+    "street_address": "Hasbro",
     "city": "Burbank",
     "postal_code": "90041",
     "state": "CA",

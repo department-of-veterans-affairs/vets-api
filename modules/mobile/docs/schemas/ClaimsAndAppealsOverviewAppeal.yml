@@ -1,0 +1,22 @@
+data:
+  - type: appeal
+    id: "1196201"
+    attributes:
+      subtype: legacyAppeal
+      completed: true
+      dateFiled: "2003-01-06"
+      updatedAt: "2003-09-30"
+      displayTitle: disability compensation appeal
+      decisionLetterSent: false
+      phase: null
+      documentsNeeded: null
+      developmentLetterSent: null
+      claimTypeCode: null
+meta:
+  errors: []
+  pagination:
+    currentPage: 1
+    perPage: 60
+    totalPages: 1
+    totalEntries: 11
+  activeClaimsCount: 7

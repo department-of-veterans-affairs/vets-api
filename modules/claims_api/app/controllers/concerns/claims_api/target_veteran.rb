@@ -83,10 +83,6 @@ module ClaimsApi
 
     def populate_target_veteran(mpi_profile, target_veteran)
       target_veteran[:first_name] = mpi_profile[:given_names]&.first
-      if target_veteran[:first_name].nil?
-        raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'Missing first name')
-      end
-
       target_veteran[:last_name] = mpi_profile[:family_name]
       target_veteran[:gender] = mpi_profile[:gender]
       target_veteran[:edipi] = mpi_profile[:edipi]

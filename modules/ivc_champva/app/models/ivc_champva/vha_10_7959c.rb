@@ -23,19 +23,11 @@ module IvcChampva
         'zipCode' => @data.dig('applicant_address', 'postal_code') || '00000',
         'country' => @data.dig('applicant_address', 'country') || 'USA',
         'source' => 'VA Platform Digital Forms',
+        'ssn_or_tin' => @data['applicant_ssn'],
         'docType' => @data['form_number'],
         'businessLine' => 'CMP',
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info']
-      }
-    end
-
-    def submission_date_config
-      {
-        should_stamp_date?: false,
-        page_number: 1,
-        title_coords: [440, 690],
-        text_coords: [440, 670]
       }
     end
 

@@ -10,8 +10,12 @@ require 'claims_api/claim_logger'
 require 'claims_api/error/soap_error_handler'
 require 'claims_api/evss_bgs_mapper'
 
+require 'bgs_service/local_bgs_refactored'
+
 module ClaimsApi
   class LocalBGS
+    CACHED_SERVICES = %w[ClaimantServiceBean/ClaimantWebService].freeze
+
     # rubocop:disable Metrics/MethodLength
     def initialize(external_uid:, external_key:)
       @client_ip =
@@ -287,13 +291,8 @@ module ClaimsApi
       connection.options.timeout = @timeout
 
       begin
-        wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
-          connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
-        end
-
         url = "#{Settings.bgs.url}/#{endpoint}"
-        namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace').to_s
-        body = full_body(action:, body:, namespace:, namespaces:)
+        body = full_body(action:, body:, namespace: namespace(connection, endpoint), namespaces:)
         headers = {
           'Content-Type' => 'text/xml;charset=UTF-8',
           'Host' => "#{@env}.vba.va.gov",
@@ -314,6 +313,32 @@ module ClaimsApi
       log_duration(event: 'parsed_response', key:) do
         parsed_response(response, action:, key:, transform: transform_response)
       end
+    end
+
+    def namespace(connection, endpoint)
+      if CACHED_SERVICES.include?(endpoint) && Flipper.enabled?(:lighthouse_claims_api_hardcode_wsdl)
+        begin
+          ClaimsApi::LocalBGSRefactored::FindDefinition
+            .for_service(endpoint)
+            .bean.namespaces.target
+        rescue => e
+          unless e.is_a? ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
+            ClaimsApi::Logger.log('local_bgs', level: :error,
+                                               detail: "local BGS FindDefinition Error: #{e.message}")
+          end
+
+          fetch_namespace(connection, endpoint)
+        end
+      else
+        fetch_namespace(connection, endpoint)
+      end
+    end
+
+    def fetch_namespace(connection, endpoint)
+      wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
+        connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
+      end
+      Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace').to_s
     end
 
     def construct_itf_body(options)

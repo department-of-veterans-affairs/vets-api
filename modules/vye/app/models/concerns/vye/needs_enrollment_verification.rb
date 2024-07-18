@@ -89,8 +89,10 @@ module Vye
     end
 
     def push_enrollment(**attributes)
+      user_info = self
+
       @enrollments.push(
-        Verification.build(user_profile:, **attributes)
+        Verification.build(user_profile:, user_info:, **attributes)
       )
 
       true
