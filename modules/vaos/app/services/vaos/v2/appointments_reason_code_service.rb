@@ -12,6 +12,15 @@ module VAOS
         'OTHER_REASON' => 'My reason isn’t listed'
       }.freeze
 
+      # Input format for preferred dates
+      # Example: "07/18/2024 AM"
+      INPUT_FORMAT = '%m/%d/%Y %p'
+
+      # Output format for preferred dates
+      # Example: "Thu, July 18, 2024 in the ..."
+      OUTPUT_FORMAT_AM = '%a, %B %-d, %Y in the morning'
+      OUTPUT_FORMAT_PM = '%a, %B %-d, %Y in the afternoon'
+
       # Modifies the appointment, extracting individual fields from the reason code text whenever possible.
       #
       # @param appointment [Hash] the appointment to modify
@@ -30,19 +39,14 @@ module VAOS
                                            .to_h { |pair| pair.split(':').map!(&:strip) }
         return if reason_code_hash.empty?
 
-        # Extract contact fields from hash
         contact = extract_contact_fields(reason_code_hash)
-        appointment[:contact] = contact unless contact.nil?
-
-        # Extract additional appointment details from hash
-        appointment[:additional_appointment_details] = reason_code_hash['comments'] if reason_code_hash.key?('comments')
-
-        # Extract reason for appointment from hash
+        comments = reason_code_hash['comments'] if reason_code_hash.key?('comments')
         reason = extract_reason_for_appointment(reason_code_hash)
-        appointment[:reason_for_appointment] = reason unless reason.nil?
-
-        # Extract preferred dates from hash
         preferred_dates = extract_preferred_dates(reason_code_hash)
+
+        appointment[:contact] = contact unless contact.nil?
+        appointment[:additional_appointment_details] = comments unless comments.nil?
+        appointment[:reason_for_appointment] = reason unless reason.nil?
         appointment[:preferred_dates] = preferred_dates unless preferred_dates.nil?
       end
 
@@ -79,18 +83,10 @@ module VAOS
         if reason_code_hash.key?('preferred dates')
           dates = []
           reason_code_hash['preferred dates'].split(',').each do |date|
-            # DateTime format reference in order of appearance:
-            # %m - Date: Month of the year, zero-padded (01..12)
-            # %d - Date: Day of the month, zero-padded (01..31)
-            # %Y - Date: Year with century (can be negative, 4 digits at least, e.g. 1995, 2009)
-            # %p - Time: Meridian indicator, uppercase ('AM' or 'PM')
-            # %a - Weekday: The abbreviated name ('Sun')
-            # %B - Date: The full month name ('January')
-            # %-d - Date: Day of the month, no-padded (1..31)
             if date.end_with?('AM')
-              dates.push(DateTime.strptime(date, '%m/%d/%Y %p').strftime('%a, %B %-d, %Y in the morning'))
+              dates.push(DateTime.strptime(date, INPUT_FORMAT).strftime(OUTPUT_FORMAT_AM))
             elsif date.end_with?('PM')
-              dates.push(DateTime.strptime(date, '%m/%d/%Y %p').strftime('%a, %B %-d, %Y in the afternoon'))
+              dates.push(DateTime.strptime(date, INPUT_FORMAT).strftime(OUTPUT_FORMAT_PM))
             end
           end
           dates.presence
