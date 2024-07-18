@@ -172,7 +172,6 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
     end
   end
 
-  # TODO: Fix test
   context 'when the BD upload feature flag is enabled' do
     it 'uploads to the benefits document API' do
       Flipper.enable(:lighthouse_claims_api_poa_use_bd)
