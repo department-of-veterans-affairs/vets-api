@@ -72,7 +72,7 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUserLoader do
           let!(:ogc_registration_number) { '12300' }
           let!(:pilot_representative) do
             create(:pilot_representative, email: session.credential_email,
-                                             ogc_registration_number:)
+                                          ogc_registration_number:)
           end
           let!(:accredited_individual) do
             create(:accredited_individual, :with_organizations, registration_number: ogc_registration_number)
