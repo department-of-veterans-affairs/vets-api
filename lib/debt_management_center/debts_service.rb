@@ -73,7 +73,8 @@ module DebtManagementCenter
     end
 
     def init_cached_debts
-      Rails.cache.fetch("debts_data_#{@file_number}", expires_in: time_until_midnight) do
+      # DMC refreshes DB at 5am every morning
+      Rails.cache.fetch("debts_data_#{@file_number}", expires_in: time_until_5am_utc) do
         with_monitoring_and_error_handling do
           options = { timeout: 30 }
           response = perform(
@@ -101,10 +102,11 @@ module DebtManagementCenter
       debt_history.sort_by { |d| Date.strptime(d['date'], '%m/%d/%Y') }.reverse
     end
 
-    def time_until_midnight
+    def time_until_5am_utc
       now = Time.now.utc
-      midnight = now.beginning_of_day + 1.day
-      (midnight - now).to_i.seconds
+      five_am_utc = Time.utc(now.year, now.month, now.day, 5)
+      five_am_utc += 1.day if now >= five_am_utc
+      five_am_utc - now
     end
   end
 end
