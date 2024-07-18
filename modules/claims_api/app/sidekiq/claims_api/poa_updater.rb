@@ -28,7 +28,9 @@ module ClaimsApi
 
         ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Success')
 
-        ClaimsApi::PoaVBMSUpdater.perform_async(poa_form.id) if enable_vbms_access?(poa_form:)
+        if enable_vbms_access?(poa_form:) && !Flipper.enabled?(:lighthouse_claims_api_poa_use_bd)
+          ClaimsApi::PoaVBMSUpdater.perform_async(poa_form.id)
+        end
       else
         poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
         poa_form.vbms_error_message = "BGS Error: update_birls_record failed with code #{response[:return_code]}"

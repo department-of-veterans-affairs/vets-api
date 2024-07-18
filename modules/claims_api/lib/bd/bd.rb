@@ -74,6 +74,7 @@ module ClaimsApi
     def generate_upload_body(claim:, doc_type:, pdf_path:, pctpnt_vet_id: nil, file_number: nil, original_filename: nil)
       payload = {}
       auth_headers = claim.auth_headers
+      # TODO: Compact veteran name (first name can be empty)
       veteran_name = "#{auth_headers['va_eauth_firstName']}_#{auth_headers['va_eauth_lastName']}"
       birls_file_num = auth_headers['va_eauth_birlsfilenumber'] || file_number if doc_type != 'L705'
       claim_id = doc_type == 'L705' ? claim.claim_id : claim.evss_id
@@ -92,6 +93,7 @@ module ClaimsApi
     # rubocop:enable Metrics/ParameterLists
     def generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
       # https://confluence.devops.va.gov/display/VAExternal/Document+Types
+      # TODO: Make case statement, add 21-22 and 21-22a
       if doc_type == 'L122'
         "#{veteran_name}_#{claim_id}_526EZ.pdf"
       elsif doc_type == 'L705'
@@ -137,6 +139,7 @@ module ClaimsApi
     end
 
     def build_body(doc_type:, file_name:, claim_id:, participant_id: nil, tracked_item_ids: [], file_number: nil) # rubocop:disable Metrics/ParameterLists
+      # TODO: Make systemName dynamic
       data = {
         systemName: 'VA.gov',
         docType: doc_type,

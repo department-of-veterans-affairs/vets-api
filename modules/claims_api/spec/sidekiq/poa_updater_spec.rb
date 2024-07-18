@@ -130,6 +130,8 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
     end
   end
 
+  # TODO: Add test for BD upload feature flag
+
   private
 
   def create_poa

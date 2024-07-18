@@ -22,7 +22,13 @@ module ClaimsApi
 
         output_path = pdf_constructor(poa_code).construct(data(power_of_attorney), id: power_of_attorney.id)
 
-        upload_to_vbms(power_of_attorney, output_path)
+        if Flipper.enabled?(:lighthouse_claims_api_poa_use_bd)
+          # TODO: Verify with mock data
+          benefits_doc_api.upload(claim: power_of_attorney, pdf_path: output_path)
+        else
+          upload_to_vbms(power_of_attorney, output_path)
+        end
+
         ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
       rescue VBMS::Unknown
         rescue_vbms_error(power_of_attorney)
@@ -32,6 +38,8 @@ module ClaimsApi
         signature_errors = (power_of_attorney.signature_errors || []).push(e.detail)
         power_of_attorney.update(status: ClaimsApi::PowerOfAttorney::ERRORED, signature_errors:)
       end
+
+      private
 
       def pdf_constructor(poa_code)
         if poa_code_in_organization?(poa_code)
