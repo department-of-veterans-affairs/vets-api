@@ -10,6 +10,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       expect(appt[:contact]).to eq({})
       expect(appt[:additional_appointment_details]).to be_nil
       expect(appt[:reason_for_appointment]).to be_nil
+      expect(appt[:preferred_dates]).to be_nil
     end
 
     it 'returns without modification if no valid reason code text fields exists' do
@@ -18,6 +19,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       expect(appt[:contact]).to eq({})
       expect(appt[:additional_appointment_details]).to be_nil
       expect(appt[:reason_for_appointment]).to be_nil
+      expect(appt[:preferred_dates]).to be_nil
     end
 
     it 'returns without modification for cc request' do
@@ -26,6 +28,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       expect(appt[:contact]).to eq({})
       expect(appt[:additional_appointment_details]).to be_nil
       expect(appt[:reason_for_appointment]).to be_nil
+      expect(appt[:preferred_dates]).to be_nil
     end
 
     it 'returns without modification for va booked' do
@@ -34,6 +37,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       expect(appt[:contact]).to eq({})
       expect(appt[:additional_appointment_details]).to be_nil
       expect(appt[:reason_for_appointment]).to be_nil
+      expect(appt[:preferred_dates]).to be_nil
     end
 
     it 'extract valid reason text for va request' do
@@ -43,6 +47,41 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       expect(appt[:contact][:telecom][1]).to eq({ type: 'email', value: 'myemail72585885@unattended.com' })
       expect(appt[:additional_appointment_details]).to eq('test')
       expect(appt[:reason_for_appointment]).to eq('Routine/Follow-up')
+      expect(appt[:preferred_dates]).to eq(['Wed, June 26, 2024 in the morning',
+                                            'Wed, June 26, 2024 in the afternoon'])
+    end
+  end
+
+  describe '#extract_reason_for_appointment' do
+    [
+      ['', nil],
+      ['NON_EXISTENT', nil],
+      ['ROUTINEVISIT', 'Routine/Follow-up'],
+      ['MEDICALISSUE', 'New medical issue'],
+      ['QUESTIONMEDS', 'Medication concern'],
+      ['OTHER_REASON', 'My reason isn’t listed']
+    ].each do |input, output|
+      it "#{input} returns #{output}" do
+        input_hash = {}
+        input_hash['reason code'] = input
+        expect(subject.send(:extract_reason_for_appointment, input_hash)).to eq(output)
+      end
+    end
+  end
+
+  describe '#extract_preferred_dates' do
+    [
+      ['', nil],
+      ['06/26/2024 AM', ['Wed, June 26, 2024 in the morning']],
+      ['06/26/2024 PM', ['Wed, June 26, 2024 in the afternoon']],
+      ['06/26/2024 AM,06/26/2024 PM', ['Wed, June 26, 2024 in the morning', 'Wed, June 26, 2024 in the afternoon']],
+      ['09/06/2024 PM', ['Fri, September 6, 2024 in the afternoon']]
+    ].each do |input, output|
+      it "#{input} returns #{output}" do
+        input_hash = {}
+        input_hash['preferred dates'] = input
+        expect(subject.send(:extract_preferred_dates, input_hash)).to eq(output)
+      end
     end
   end
 end
