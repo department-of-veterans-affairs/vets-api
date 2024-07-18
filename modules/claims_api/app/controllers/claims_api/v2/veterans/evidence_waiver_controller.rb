@@ -16,7 +16,7 @@ module ClaimsApi
           validate_veteran_name(false)
 
           ews = create_ews(params[:id])
-          ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id, @pctpnt_vet_id)
+          ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id)
 
           render json: { success: true }, status: :accepted
         end
@@ -66,6 +66,8 @@ module ClaimsApi
           }
 
           new_ews = ClaimsApi::EvidenceWaiverSubmission.create!(attributes)
+          # ensure that in the case of a dependent claimant this gets into the correct folder
+          new_ews.auth_headers['target_veteran_folder_id'] = @pctpnt_vet_id
           new_ews.save
           new_ews
         end
