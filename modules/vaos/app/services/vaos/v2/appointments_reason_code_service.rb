@@ -4,6 +4,14 @@ module VAOS
   module V2
     # This class contains the logic for extracting extra fields from reason codes and updating the appointment.
     class AppointmentsReasonCodeService
+      # Reason code purpose text
+      PURPOSE_TEXT = {
+        'ROUTINEVISIT' => 'Routine/Follow-up',
+        'MEDICALISSUE' => 'New medical issue',
+        'QUESTIONMEDS' => 'Medication concern',
+        'OTHER_REASON' => 'My reason isn’t listed'
+      }.freeze
+
       # Modifies the appointment, extracting individual fields from the reason code text whenever possible.
       #
       # @param appointment [Hash] the appointment to modify
@@ -32,6 +40,11 @@ module VAOS
 
         # Extract additionalAppointmentDetails from hash
         appointment[:additional_appointment_details] = reason_code_hash['comments'] if reason_code_hash.key?('comments')
+
+        # Extract reason for appointment from hash
+        if reason_code_hash.key?('reason code') && PURPOSE_TEXT.key?(reason_code_hash['reason code'])
+          appointment[:reason_for_appointment] = PURPOSE_TEXT[reason_code_hash['reason code']]
+        end
       end
     end
   end

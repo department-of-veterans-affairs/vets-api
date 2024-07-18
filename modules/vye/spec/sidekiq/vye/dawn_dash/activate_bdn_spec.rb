@@ -9,14 +9,14 @@ describe Vye::DawnDash::ActivateBdn, type: :worker do
   end
 
   it 'enqueues child jobs' do
-    expect(Vye::BdnClone).to receive(:injested?).and_return(true)
     expect(Vye::BdnClone).to receive(:activate_injested!)
-    expect(Vye::DawnDash::EgressUpdates).to receive(:perform_async)
 
     expect do
       described_class.perform_async
     end.to change { Sidekiq::Worker.jobs.size }.by(1)
 
-    Sidekiq::Worker.drain_all
+    described_class.drain
+
+    expect(Vye::DawnDash::EgressUpdates).to have_enqueued_sidekiq_job
   end
 end
