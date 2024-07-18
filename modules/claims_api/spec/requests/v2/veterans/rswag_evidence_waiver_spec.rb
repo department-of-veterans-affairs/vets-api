@@ -33,18 +33,29 @@ describe 'EvidenceWaiver5103',
                 type: :string,
                 example: '1012667145V762142',
                 description: 'ID of Veteran'
-      parameter name: 'sponsorIcn',
-                in: :query,
-                required: false,
-                type: :string,
-                example: '1012861229V078999',
-                description: 'ICN of the veteran affiliated with the dependent'
+
       let(:id) { '256803' }
       let(:Authorization) { 'Bearer token' }
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
 
+      let(:target_veteran) do
+        OpenStruct.new(
+          icn: '1012667145V762142',
+          first_name: 'Tamara',
+          last_name: 'Ellis',
+          loa: { current: 3, highest: 3 },
+          edipi: '1007697216',
+          ssn: '796130115',
+          participant_id: '600043201',
+          mpi: OpenStruct.new(
+            icn: '1012667145V762142',
+            profile: OpenStruct.new(ssn: '796130115')
+          )
+        )
+      end
+
       describe 'Getting a successful response' do
-        response '200', 'Successful response' do
+        response '202', 'Successful response' do
           schema JSON.parse(File.read(Rails.root.join('spec',
                                                       'support',
                                                       'schemas',
@@ -56,7 +67,13 @@ describe 'EvidenceWaiver5103',
           let(:scopes) { %w[system/claim.write] }
 
           before do |example|
+            allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+              .to receive(:target_veteran).and_return(target_veteran)
+
             bgs_claim_response = build(:bgs_response_with_one_lc_status).to_h
+            bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_vet_id] = '600043201'
+            bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_clmant_id] = target_veteran[:participant_id]
+
             expect_any_instance_of(ClaimsApi::LocalBGS)
               .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
 
@@ -75,7 +92,7 @@ describe 'EvidenceWaiver5103',
             }
           end
 
-          it 'returns a valid 200 response' do |example|
+          it 'returns a valid 202 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end

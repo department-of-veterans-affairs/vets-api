@@ -1,0 +1,61 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder?requiresOHMessages=1"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Token: "<SESSION_TOKEN>"
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Fri, 28 Jun 2024 12:56:17 GMT
+        Content-Type:
+          - application/json
+        Content-Length:
+          - "639"
+        X-Amzn-Requestid:
+          - 04b6fb07-7d20-425e-8ffb-13637215b3cb
+        X-Xss-Protection:
+          - 1; mode=block
+        X-Frame-Options:
+          - DENY
+        X-Amzn-Remapped-Connection:
+          - keep-alive
+        X-Amz-Apigw-Id:
+          - aFDlsGH-vHMFVuQ=
+        Cache-Control:
+          - no-cache, no-store, max-age=0, must-revalidate
+        Expires:
+          - "0"
+        X-Content-Type-Options:
+          - nosniff
+        Pragma:
+          - no-cache
+        X-Amzn-Remapped-Date:
+          - Fri, 28 Jun 2024 12:56:17 GMT
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: ASCII-8BIT
+        string:
+          '{"folder":[{"id":0,"name":"Inbox","unreadCount":0,"count":1,"systemFolder":true},{"id":-2,"name":"Drafts","unreadCount":2,"count":2,"systemFolder":true},{"id":-1,"name":"Sent","unreadCount":6,"count":6,"systemFolder":true},{"id":-3,"name":"Deleted","unreadCount":0,"count":0,"systemFolder":true},{"id":3719270,"name":"MHV
+          FOLDER 001","unreadCount":0,"count":2,"systemFolder":false},{"id":3719271,"name":"MHV
+          Folder 002","unreadCount":0,"count":0,"systemFolder":false},{"id":3719266,"name":"OH
+          Folder 001","unreadCount":0,"count":0,"systemFolder":false},{"id":3719267,"name":"OH
+          Folder 002","unreadCount":0,"count":0,"systemFolder":false}]}'
+    recorded_at: Fri, 28 Jun 2024 12:56:17 GMT
+recorded_with: VCR 6.2.0

@@ -94,14 +94,10 @@ module BGS
     def submit_to_central_service(claim:)
       vet_info = JSON.parse(claim.form)['dependents_application']
 
-      if Flipper.enabled?(:dependents_central_submission)
-        user = BGS::SubmitForm686cJob.generate_user_struct(vet_info)
-        CentralMail::SubmitCentralForm686cJob.perform_async(claim.id,
-                                                            KmsEncrypted::Box.new.encrypt(vet_info.to_json),
-                                                            KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
-      else
-        DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present? # rubocop:disable Style/IfInsideElse
-      end
+      user = BGS::SubmitForm686cJob.generate_user_struct(vet_info)
+      CentralMail::SubmitCentralForm686cJob.perform_async(claim.id,
+                                                          KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+                                                          KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
     end
 
     def external_key

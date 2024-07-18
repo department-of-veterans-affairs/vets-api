@@ -3,7 +3,7 @@
 module IvcChampva
   module V1
     class PegaController < SignIn::ServiceAccountApplicationController
-      service_tag 'identity'
+      service_tag 'veteran-ivc-champva-forms'
       VALID_KEYS = %w[form_uuid file_names status case_id].freeze
 
       def update_status

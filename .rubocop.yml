@@ -96,6 +96,7 @@ Metrics/MethodLength:
     - 'spec/support/form1010cg_helpers/build_claim_data_for.rb'
     - 'spec/simplecov_helper.rb'
     - 'app/sidekiq/education_form/create_daily_spool_files.rb'
+    - 'lib/map/security_token/service.rb'
     - 'Dangerfile'
 
 Metrics/ClassLength:

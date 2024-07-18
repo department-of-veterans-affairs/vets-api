@@ -38,8 +38,19 @@ module IvcChampva
       }
     end
 
-    def submission_date_config
-      { should_stamp_date?: false }
+    def desired_stamps
+      [{ coords: [40, 105], text: data['statement_of_truth_signature'], page: 0 }]
+    end
+
+    def submission_date_stamps
+      [
+        {
+          coords: [40, 500],
+          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          page: 1,
+          font_size: 12
+        }
+      ]
     end
 
     def track_user_identity

@@ -24,7 +24,7 @@ module V0
 
         @claim.save!
         ::Form1010cg::SubmissionJob.perform_async(@claim.id)
-        render(json: @claim, serializer: ::Form1010cg::ClaimSerializer)
+        render json: ::Form1010cg::ClaimSerializer.new(@claim)
       else
         PersonalInformationLog.create!(data: { form: @claim.parsed_form }, error_class: '1010CGValidationError')
         auditor.record(:submission_failure_client_data, claim_guid: @claim.guid, errors: @claim.errors.messages)

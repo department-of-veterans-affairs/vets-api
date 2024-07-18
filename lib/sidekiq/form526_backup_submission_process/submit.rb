@@ -29,7 +29,6 @@ module Sidekiq
         error_message = msg['error_message']
         timestamp = Time.now.utc
         form526_submission_id = msg['args'].first
-        Form526Submission.find(form526_submission_id).fail_backup_delivery!
 
         form_job_status = Form526JobStatus.find_by(job_id:)
         bgjob_errors = form_job_status.bgjob_errors || {}
@@ -72,8 +71,7 @@ module Sidekiq
       def perform(form526_submission_id)
         return unless Settings.form526_backup.enabled
 
-        submission = Form526Submission.find(form526_submission_id)
-        submission.benefits_intake_api!
+        Form526Submission.find(form526_submission_id).benefits_intake_api!
         job_status = Form526JobStatus.find_or_initialize_by(job_id: jid)
         job_status.assign_attributes(form526_submission_id:,
                                      job_class: 'BackupSubmission',
@@ -82,7 +80,6 @@ module Sidekiq
 
         Processor.new(form526_submission_id).process!
         job_status.update(status: Form526JobStatus::STATUS[:success])
-        submission.deliver_to_backup!
       rescue => e
         ::Rails.logger.warn(
           message: 'Form 526 backup submission failure. retrying...',

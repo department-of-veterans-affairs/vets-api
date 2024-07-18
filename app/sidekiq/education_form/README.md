@@ -27,3 +27,10 @@ new_region = one of 'eastern', 'western', or 'central'
 application = EducationBenefitsClaim.find(application_id)
 application.reprocess_at(region)
 ```
+
+## Rerunning the job for a day (non production only)
+
+As designed, the Daily Spool File Job only runs once a day. To rerun:
+
+* Run `jobs:reset_daily_spool_files_for_today`
+* do either of the two options under Testing Locally
