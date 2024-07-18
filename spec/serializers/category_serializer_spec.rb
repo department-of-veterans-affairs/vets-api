@@ -15,7 +15,7 @@ RSpec.describe CategorySerializer do
   end
 
   it 'includes :type' do
-    expect(data['type']).to eq("categories")
+    expect(data['type']).to eq('categories')
   end
 
   it 'includes :message_category_type' do

@@ -8,8 +8,5 @@ class CemeterySerializer
   attribute :name
   attribute :cemetery_type
   attribute :num
-
-  attributes :cemetery_id do |object|
-    object.id
-  end
+  attribute :cemetery_id, &:id
 end
