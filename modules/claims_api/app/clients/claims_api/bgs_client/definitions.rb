@@ -156,6 +156,15 @@ module ClaimsApi
               key: 'POARequestUpdate'
             )
         end
+
+        module UpdatePoaRelationship
+          DEFINITION =
+            Action.new(
+              service: ManageRepresentativeService::DEFINITION,
+              name: 'updatePOARelationship',
+              key: 'POARelationshipReturnVO'
+            )
+        end
       end
 
       ##
