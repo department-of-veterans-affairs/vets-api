@@ -46,6 +46,12 @@ module BenefitsDocuments
 
       def call
         update_documents_status
+
+        unknown_ids = @lighthouse_status_response.dig('data', 'requestIdsNotFound')
+
+        return { success: true } if unknown_ids.blank?
+
+        { success: false, response: { status: 404, body: 'Upload Request Async Status Not Found', unknown_ids: } }
       end
 
       private

@@ -18,6 +18,6 @@ describe Vye::DawnDash::EgressUpdates, type: :worker do
       described_class.perform_async
     end.to change { Sidekiq::Worker.jobs.size }.by(1)
 
-    Sidekiq::Worker.drain_all
+    described_class.drain
   end
 end

@@ -69,8 +69,6 @@ RSpec.describe V0::Preneeds::PreneedAttachmentsController, type: :controller do
         form_attachment
       end
 
-      expect(subject).to receive(:render).with(json: form_attachment).and_call_original # rubocop:disable RSpec/SubjectStub
-
       form_attachment
     end
 

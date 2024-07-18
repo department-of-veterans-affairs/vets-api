@@ -12,4 +12,10 @@ FactoryBot.define do
       create_list(:vye_pending_document, 3, user_profile:)
     end
   end
+
+  factory :vye_user_profile_fresh_import, class: 'Vye::UserProfile' do
+    ssn { (1..9).map(&digit).join }
+    file_number { (1..9).map(&digit).join }
+    icn { SecureRandom.uuid }
+  end
 end

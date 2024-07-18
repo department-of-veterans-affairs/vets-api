@@ -642,6 +642,9 @@ features:
   form1010d:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
+  form107959c:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-7959c (IVC CHAMPVA other health insurance)
   form107959f1:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program)
@@ -705,6 +708,10 @@ features:
   lighthouse_claims_v2_poa_requests_skip_bgs:
     actor_type: user
     description: Enable/disable skipping BGS calls for POA Requests
+    enable_in_development: true
+  lighthouse_claims_api_poa_use_bd:
+    actor_type: user
+    description: Lighthouse Benefits Claims API uses Lighthouse Benefits Documents API to upload POA forms instead of VBMS
     enable_in_development: true
   loop_pages:
     actor_type: user
@@ -976,6 +983,9 @@ features:
   my_va_lighthouse_uploads_report:
     actor_type: user
     description: Use lighthouse /uploads/report endpoint for Form status
+  my_va_form_submission_statuses:
+    actor_type: user
+    description: Enables users to view the status of submitted forms.
   rated_disabilities_detect_discrepancies:
     actor_type: user
     description:
@@ -1265,6 +1275,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for displaying the most recent facilities on the Choose your VA location page.
+  va_online_scheduling_med_review_instructions:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to update the Medication Review instructions on the Appointment Details page.
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2

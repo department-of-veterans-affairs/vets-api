@@ -9,6 +9,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       subject.extract_reason_code_fields(appt)
       expect(appt[:contact]).to eq({})
       expect(appt[:additional_appointment_details]).to be_nil
+      expect(appt[:reason_for_appointment]).to be_nil
     end
 
     it 'returns without modification if no valid reason code text fields exists' do
@@ -16,6 +17,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       subject.extract_reason_code_fields(appt)
       expect(appt[:contact]).to eq({})
       expect(appt[:additional_appointment_details]).to be_nil
+      expect(appt[:reason_for_appointment]).to be_nil
     end
 
     it 'returns without modification for cc request' do
@@ -23,6 +25,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       subject.extract_reason_code_fields(appt)
       expect(appt[:contact]).to eq({})
       expect(appt[:additional_appointment_details]).to be_nil
+      expect(appt[:reason_for_appointment]).to be_nil
     end
 
     it 'returns without modification for va booked' do
@@ -30,6 +33,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       subject.extract_reason_code_fields(appt)
       expect(appt[:contact]).to eq({})
       expect(appt[:additional_appointment_details]).to be_nil
+      expect(appt[:reason_for_appointment]).to be_nil
     end
 
     it 'extract valid reason text for va request' do
@@ -38,6 +42,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       expect(appt[:contact][:telecom][0]).to eq({ type: 'phone', value: '6195551234' })
       expect(appt[:contact][:telecom][1]).to eq({ type: 'email', value: 'myemail72585885@unattended.com' })
       expect(appt[:additional_appointment_details]).to eq('test')
+      expect(appt[:reason_for_appointment]).to eq('Routine/Follow-up')
     end
   end
 end

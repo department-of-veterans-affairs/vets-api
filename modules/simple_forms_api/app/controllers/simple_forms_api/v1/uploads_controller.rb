@@ -75,15 +75,6 @@ module SimpleFormsApi
         }
       end
 
-      def authenticate
-        super
-      rescue Common::Exceptions::Unauthorized
-        Rails.logger.info(
-          'Simple forms api - unauthenticated user submitting form',
-          { form_number: params[:form_number] }
-        )
-      end
-
       private
 
       def handle_210966_authenticated
