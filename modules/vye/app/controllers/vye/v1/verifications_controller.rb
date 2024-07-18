@@ -6,8 +6,6 @@ module Vye
       class EmptyAwards < StandardError; end
       class AwardsMismatch < StandardError; end
 
-      include Vye::Ivr
-
       rescue_from EmptyAwards, with: -> { head :unprocessable_entity }
       rescue_from AwardsMismatch, with: -> { head :unprocessable_entity }
 
@@ -43,15 +41,7 @@ module Vye
         raise AwardsMismatch unless matching_awards?
       end
 
-      def source_ind
-        api_key? ? :phone : :web
-      end
-
-      def load_user_info(scoped: Vye::UserProfile)
-        return super(scoped:) unless api_key?
-
-        @user_info = user_info_for_ivr(scoped:)
-      end
+      def source_ind = :web
     end
   end
 end

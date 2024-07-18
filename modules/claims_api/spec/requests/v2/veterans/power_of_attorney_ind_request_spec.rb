@@ -236,6 +236,41 @@ RSpec.describe 'Power Of Attorney', type: :request do
                   end
                 end
               end
+
+              describe 'with missing first and last name' do
+                let(:no_first_last_name_target_veteran) do
+                  OpenStruct.new(
+                    icn: '1012832025V743496',
+                    first_name: '',
+                    last_name: '',
+                    birth_date: '19630211',
+                    loa: { current: 3, highest: 3 },
+                    edipi: nil,
+                    ssn: '796043735',
+                    participant_id: '600061742',
+                    mpi: OpenStruct.new(
+                      icn: '1012832025V743496',
+                      profile: OpenStruct.new(ssn: '796043735')
+                    )
+                  )
+                end
+
+                it 'returns a 422 if first and last name is not present' do
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                    mock_ccg(scopes) do |auth_header|
+                      allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                        .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)
+
+                      post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                      response_body = JSON.parse(response.body)
+                      expect(response_body['errors'][0]['detail']).to eq(
+                        'Must have either first or last name'
+                      )
+                    end
+                  end
+                end
+              end
             end
           end
         end
@@ -310,6 +345,80 @@ RSpec.describe 'Power Of Attorney', type: :request do
                     expect(response_body['title']).to eq('Resource not found')
                     expect(response_body['status']).to eq('404')
                     expect(response_body['detail']).to eq(detail)
+                  end
+                end
+              end
+
+              describe 'with missing first and last name' do
+                let(:no_first_last_name_target_veteran) do
+                  OpenStruct.new(
+                    icn: '1012832025V743496',
+                    first_name: '',
+                    last_name: '',
+                    birth_date: '19630211',
+                    loa: { current: 3, highest: 3 },
+                    edipi: nil,
+                    ssn: '796043735',
+                    participant_id: '600061742',
+                    mpi: OpenStruct.new(
+                      icn: '1012832025V743496',
+                      profile: OpenStruct.new(ssn: '796043735')
+                    )
+                  )
+                end
+                let(:request_body) do
+                  Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                  'power_of_attorney', '2122a', 'valid.json').read
+                end
+
+                it 'returns a 422 if first and last name is not present' do
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                    mock_ccg(scopes) do |auth_header|
+                      allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                        .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)
+
+                      post validate2122a_path, params: request_body, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                      response_body = JSON.parse(response.body)
+                      expect(response_body['errors'][0]['detail']).to eq(
+                        'Must have either first or last name'
+                      )
+                    end
+                  end
+                end
+              end
+
+              describe 'with missing first name' do
+                let(:no_first_name_target_veteran) do
+                  OpenStruct.new(
+                    icn: '1012832025V743496',
+                    first_name: '',
+                    last_name: 'Ford',
+                    birth_date: '19630211',
+                    loa: { current: 3, highest: 3 },
+                    edipi: nil,
+                    ssn: '796043735',
+                    participant_id: '600061742',
+                    mpi: OpenStruct.new(
+                      icn: '1012832025V743496',
+                      profile: OpenStruct.new(ssn: '796043735')
+                    )
+                  )
+                end
+                let(:request_body) do
+                  Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                  'power_of_attorney', '2122a', 'valid.json').read
+                end
+
+                it 'returns a success response' do
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                    mock_ccg(scopes) do |auth_header|
+                      allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                        .to receive(:target_veteran).and_return(no_first_name_target_veteran)
+
+                      post validate2122a_path, params: request_body, headers: auth_header
+                      expect(response).to have_http_status(:ok)
+                    end
                   end
                 end
               end
