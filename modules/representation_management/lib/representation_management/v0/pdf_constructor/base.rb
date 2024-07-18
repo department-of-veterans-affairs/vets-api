@@ -62,7 +62,7 @@ module RepresentationManagement
         # @param page2_path [String] Path to page 2 of pdf
         #
         # @return [String] Path to final pdf
-        def combine_pdf(id, template_path, page2_path, page3_path, page4_path)
+        def combine_pdf(id, template_path, _page2_path, _page3_path, _page4_path)
           output_path = "/tmp/#{id}_final.pdf"
 
           pdf = CombinePDF.new

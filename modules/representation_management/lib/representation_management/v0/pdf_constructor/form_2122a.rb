@@ -25,30 +25,6 @@ module RepresentationManagement
           @template_path = template_path
         end
 
-        def page2_options(data)
-          page2_key = 'form1[0].#subform[1]'
-          {
-            # Header
-            # "#{page2_key}.SocialSecurityNumber_FirstThreeNumbers[1]": data.dig('veteran', 'ssn')[0..2],
-            # "#{page2_key}.SocialSecurityNumber_SecondTwoNumbers[1]": data.dig('veteran', 'ssn')[3..4],
-            # "#{page2_key}.SocialSecurityNumber_LastFourNumbers[1]": data.dig('veteran', 'ssn')[5..8],
-            # # Section IV
-            # # Item 19
-            # "#{page2_key}.AuthorizationForRepAccessToRecords[0]": data['recordConsent'] == true ? 1 : 0,
-            # # Item 20
-            # "#{page2_key}.LIMITATIONOFCONSENT[0]": data['consentLimits']&.join(', ')&.gsub('_', ' '),
-            # # Item 21
-            # "#{page2_key}.AuthorizationForRepActClaimantsBehalf[0]": data['consentAddressChange'] == true ? 1 : 0,
-            # # Conditions of Appointment
-            # # Item 22B
-            # "#{page2_key}.Date_Signed[0]": I18n.l(Time.zone.now.to_date, format: :va_form),
-            # # Item 23
-            # "#{page2_key}.LIMITATIONS[0]": data['conditionsOfAppointment']&.join(', '),
-            # # Item 24B
-            # "#{page2_key}.Date_Signed[1]": I18n.l(Time.zone.now.to_date, format: :va_form)
-          }
-        end
-
         def template_options(data)
           page1_key = 'form1[0].#subform[0]'
           page2_key = 'form1[0].#subform[1]'
@@ -142,12 +118,20 @@ module RepresentationManagement
             "#{page2_key}.Telephone_Last_Four_Numbers[2]": data.representative_phone[6..9],
             # Representative Email
             "#{page2_key}.E_Mail_Address_Of_Individual_Appointed_As_Claimants_Representative_Optional[0]": data.representative_email_address,
+            # Record Consent
+            "#{page2_key}.AuthorizationForRepAccessToRecords[0]": data.record_consent == true ? 1 : 0,
+            # Consent Limits
+            "#{page2_key}.RelationshipToVeteran[1]": limitations_of_consent_text(data.consent_limits),
+            # Consent Address Change
+            "#{page2_key}.AuthorizationForRepActClaimantsBehalf[0]": data.consent_address_change == true ? 1 : 0,
 
             # Page 3
             # Header Veteran SSN
             "#{page3_key}.SocialSecurityNumber_FirstThreeNumbers[2]": data.veteran_social_security_number[0..2],
             "#{page3_key}.SocialSecurityNumber_SecondTwoNumbers[2]": data.veteran_social_security_number[3..4],
-            "#{page3_key}.SocialSecurityNumber_LastFourNumbers[2]": data.veteran_social_security_number[5..8]
+            "#{page3_key}.SocialSecurityNumber_LastFourNumbers[2]": data.veteran_social_security_number[5..8],
+            # Condtions of Appointment
+            "#{page3_key}.LIMITATIONS[0]": data.conditions_of_appointment.join(', ')
           }
         end
 
@@ -173,6 +157,17 @@ module RepresentationManagement
             'VSO_REPRESENTATIVE' => 2
           }
           representative_type_map[representative_type]
+        end
+
+        def limitations_of_consent_text(consent_limits)
+          limitations = {
+            'ALCOHOLISM' => 'Alcoholism and alcohol abuse records',
+            'DRUG_ABUSE' => 'Drug abuse records',
+            'HIV' => 'HIV records',
+            'SICKLE_CELL' => 'Sickle cell anemia records'
+          }
+          consent_text = consent_limits.filter_map { |limit| limitations[limit] }.to_sentence
+          consent_text.presence || "No, they can't access any of these types of records."
         end
       end
     end
