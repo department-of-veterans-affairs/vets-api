@@ -66,7 +66,6 @@ module ClaimsApi
           }
 
           new_ews = ClaimsApi::EvidenceWaiverSubmission.create!(attributes)
-          new_ews.auth_headers['va_eauth_birlsfilenumber'] = @file_number
           new_ews.save
           new_ews
         end
