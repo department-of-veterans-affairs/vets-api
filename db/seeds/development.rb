@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'sign_in/constants/auth'
-require_relative '../../lib/accredited_representation/seed_data'
 
 # Create Config for va.gov Sign in Service client
 vaweb = SignIn::ClientConfig.find_or_initialize_by(client_id: 'vaweb')
@@ -139,17 +138,6 @@ arp.update!(authentication: SignIn::Constants::Auth::COOKIE,
             logout_redirect_uri: 'http://localhost:3001/representative',
             credential_service_providers: [SignIn::Constants::Auth::IDME, SignIn::Constants::Auth::LOGINGOV],
             service_levels: [SignIn::Constants::Auth::LOA3, SignIn::Constants::Auth::IAL2])
-
-# Create VerifiedRepresentative and AccreditedIndividual for logging into accredited_representative_portal
-ogc_registration_number = '123'
-poa_code = '678'
-test_rep_email = 'vets.gov.user+1@gmail.com'
-individual_type = 'representative'
-
-AccreditedRepresentation::SeedData.create_rep_data(test_rep_email,
-                                                   ogc_registration_number,
-                                                   poa_code,
-                                                   individual_type)
 
 # Create Service Account Config for BTSSS
 btsss = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: 'bbb5830ecebdef04556e9c430e374972')
