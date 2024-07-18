@@ -20,11 +20,12 @@ module ClaimsApi
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
         rep_or_org = form_number == '2122A' ? 'representative' : 'serviceOrganization'
         poa_code = power_of_attorney.form_data&.dig(rep_or_org, 'poaCode')
+        doc_type = power_of_attorney.form_data&.dig('docType')
 
         output_path = pdf_constructor(poa_code).construct(data(power_of_attorney), id: power_of_attorney.id)
 
         if Flipper.enabled?(:lighthouse_claims_api_poa_use_bd)
-          benefits_doc_api.upload(claim: power_of_attorney, pdf_path: output_path)
+          benefits_doc_api.upload(claim: power_of_attorney, pdf_path: output_path, doc_type:)
         else
           upload_to_vbms(power_of_attorney, output_path)
         end

@@ -178,7 +178,18 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
       Flipper.enable(:lighthouse_claims_api_poa_use_bd)
       expect(ClaimsApi::VBMSUploader).not_to receive(:new)
       expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
-      subject.new.perform(power_of_attorney.id)
+      power_of_attorney.update(form_data: power_of_attorney.form_data.deep_merge(
+        {
+          docType: 'L190'
+        }
+      ))
+      allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
+        .to receive(:get_auth_token).and_return('some-value-here')
+      VCR.use_cassette('claims_api/bd/upload') do
+        subject.new.perform(power_of_attorney.id)
+        power_of_attorney.reload
+        expect(power_of_attorney.uploader).to be_a(ClaimsApi::PowerOfAttorneyUploader)
+      end
     end
   end
 end

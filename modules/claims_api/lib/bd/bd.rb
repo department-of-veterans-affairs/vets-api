@@ -71,12 +71,16 @@ module ClaimsApi
     end
 
     def get_claim_id(doc_type, claim)
-      doc_type_to_claim_id = {
-        'L075' => nil,
-        'L122' => claim.evss_id,
-        'L190' => nil,
-        'L705' => claim.claim_id
-      }
+      return nil if doc_type.nil?
+
+      case doc_type
+      when 'L075', 'L190'
+        return nil
+      when 'L122'
+        return claim.evss_id
+      when 'L705'
+        return claim.claim_id
+      end
 
       doc_type_to_claim_id[doc_type]
     end
@@ -118,10 +122,10 @@ module ClaimsApi
       form_name = doc_type_to_form_name[doc_type]
 
       if form_name
-        "#{veteran_name}_#{claim_id}_#{form_name}.pdf"
+        "#{[veteran_name, claim_id, form_name].compact_blank.join('_')}.pdf"
       else
         filename = get_original_supporting_doc_file_name(original_filename)
-        "#{veteran_name}_#{claim_id}_#{filename}.pdf"
+        "#{[veteran_name, claim_id, filename].compact_blank.join('_')}.pdf"
       end
     end
 
