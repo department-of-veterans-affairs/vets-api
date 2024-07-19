@@ -176,8 +176,8 @@ form_10_10cg:
       async_timeout: 600
       v2: 
         mock: false
-        timeout: 30
-        token_url: ~
+        timeout: ~
+        auth_token_url: ~
         client_id: ~
         client_secret: ~
   poa:
