@@ -178,6 +178,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.alternate_names).not_to be_nil
       expect(result.reserves_national_guard_service).not_to be_nil
       expect(result.reserves_national_guard_service.receiving_inactive_duty_training_pay).to be('YES')
+      expect(result.reserves_national_guard_service.obligation_terms_of_service.begin_date).to eq('2000-01-04')
       expect(result.service_periods.first.separation_location_code).to eq('OU812')
       expect(result.reserves_national_guard_service.component).to eq('Reserves')
     end
