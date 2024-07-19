@@ -25,10 +25,9 @@ module RepresentationManagement
           @template_path = template_path
         end
 
-        def template_options(data)
+        # rubocop:disable Metrics/MethodLength
+        def page1_options(data)
           page1_key = 'form1[0].#subform[0]'
-          page2_key = 'form1[0].#subform[1]'
-          page3_key = 'form1[0].#subform[2]'
           {
             # Page 1
             # Section I
@@ -97,8 +96,15 @@ module RepresentationManagement
             "#{page1_key}.Middle_Initial[0]": data.representative_middle_initial,
             "#{page1_key}.Last_Name[0]": data.representative_last_name,
             # Representative Type
-            "#{page1_key}.RadioButtonList[0]": representative_type_checkbox(data.representative_type),
+            "#{page1_key}.RadioButtonList[0]": representative_type_checkbox(data.representative_type)
+          }
+        end
+        # rubocop:enable Metrics/MethodLength
 
+        # rubocop:disable Layout/LineLength
+        def page2_options(data)
+          page2_key = 'form1[0].#subform[1]'
+          {
             # Page 2
             # Header Veteran SSN
             "#{page2_key}.SocialSecurityNumber_FirstThreeNumbers[1]": data.veteran_social_security_number[0..2],
@@ -123,7 +129,14 @@ module RepresentationManagement
             # Consent Limits
             "#{page2_key}.RelationshipToVeteran[1]": limitations_of_consent_text(data.consent_limits),
             # Consent Address Change
-            "#{page2_key}.AuthorizationForRepActClaimantsBehalf[0]": data.consent_address_change == true ? 1 : 0,
+            "#{page2_key}.AuthorizationForRepActClaimantsBehalf[0]": data.consent_address_change == true ? 1 : 0
+          }
+        end
+        # rubocop:enable Layout/LineLength
+
+        def template_options(data)
+          page3_key = 'form1[0].#subform[2]'
+          {
 
             # Page 3
             # Header Veteran SSN
@@ -132,7 +145,7 @@ module RepresentationManagement
             "#{page3_key}.SocialSecurityNumber_LastFourNumbers[2]": data.veteran_social_security_number[5..8],
             # Condtions of Appointment
             "#{page3_key}.LIMITATIONS[0]": data.conditions_of_appointment.join(', ')
-          }
+          }.merge(page1_options(data)).merge(page2_options(data))
         end
 
         def service_branch_checkbox(service_branch)
