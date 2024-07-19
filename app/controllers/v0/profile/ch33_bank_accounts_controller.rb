@@ -40,11 +40,8 @@ module V0
       end
 
       def render_find_ch33_dd_eft
-        get_ch33_dd_eft_info = service.get_ch33_dd_eft_info
-        render(
-          json: get_ch33_dd_eft_info,
-          serializer: Ch33BankAccountSerializer
-        )
+        ch33_dd_eft_info = service.get_ch33_dd_eft_info
+        render json: Ch33BankAccountSerializer.new(ch33_dd_eft_info)
       end
 
       def service

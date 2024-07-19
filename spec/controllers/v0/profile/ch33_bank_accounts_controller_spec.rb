@@ -60,7 +60,8 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
     expect(JSON.parse(response.body)).to eq(
       {
         'data' => {
-          'id' => '', 'type' => 'hashes',
+          'id' => '',
+          'type' => 'hashes',
           'attributes' => {
             'account_type' => 'Checking',
             'account_number' => '123',
