@@ -16,9 +16,9 @@ module IvcChampva
 
     def metadata
       {
-        'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
-        'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
-        'zipCode' => @data.dig('veteran', 'address', 'postal_code'),
+        'veteranFirstName' => @data.dig('applicant_name', 'first'),
+        'veteranLastName' => @data.dig('applicant_name', 'last'),
+        'zipCode' => @data.dig('applicant_address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP',
