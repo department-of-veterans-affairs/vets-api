@@ -758,9 +758,6 @@ features:
   mhv_transitional_medical_records_landing_page:
     actor_type: user
     description: Enables the transitional Medical Records page at /my-health/records
-  mhv_helpdesk_information_enabled:
-    actor_type: user
-    description: Enables the MHV helpdesk information
   mhv_secure_messaging_to_va_gov_release:
     actor_type: user
     description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
@@ -880,6 +877,10 @@ features:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
     enable_in_development: true
+  pension_medical_evidence_clarification:
+   actor_type: user
+   description: >
+     [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
   pre_entry_covid19_screener:
     actor_type: user
     description: >
