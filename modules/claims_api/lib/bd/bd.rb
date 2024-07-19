@@ -38,7 +38,7 @@ module ClaimsApi
     #
     # @return success or failure
     # rubocop:disable Metrics/ParameterLists
-    def upload(claim:, pdf_path:, doc_type: nil, pctpnt_vet_id: nil, file_number: nil, original_filename: nil)
+    def upload(claim:, pdf_path:, pctpnt_vet_id: nil, doc_type: 'L122', file_number: nil, original_filename: nil)
       unless File.exist? pdf_path
         ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist",
                                                     claim_id: claim.id)
