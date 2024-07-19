@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-require_relative 'evss_claim_base_helper'
-
 class EVSSClaimListSerializer
   include JSONAPI::Serializer
-  extend EvssClaimBaseHelper
+  extend EVSSClaimBaseHelper
 
   # Our IDs are not stable due to 24 hour expiration, use EVSS IDs for consistency
   # This can be removed if our IDs become stable
@@ -17,7 +15,7 @@ class EVSSClaimListSerializer
   attribute :updated_at, if: proc { |object| !object.updated_at.nil? }
 
   attribute :date_filed do |object|
-    date_attr(object.list_data.dig('date'))
+    date_attr(object.list_data['date'])
   end
 
   attribute :phase_change_date do |object|
@@ -25,25 +23,25 @@ class EVSSClaimListSerializer
   end
 
   attribute :min_est_date do |object|
-    date_attr(object.list_data.dig('min_est_claim_date'))
+    date_attr(object.list_data['min_est_claim_date'])
   end
 
   attribute :max_est_date do |object|
-    date_attr(object.list_data.dig('max_est_claim_date'))
+    date_attr(object.list_data['max_est_claim_date'])
   end
 
   attribute :development_letter_sent do |object|
-    value = object.list_data.dig('development_letter_sent')
+    value = object.list_data['development_letter_sent']
     yes_no_attr(value, 'development_letter_sent')
   end
 
   attribute :decision_letter_sent do |object|
-    value = object.list_data.dig('decision_notification_sent')
+    value = object.list_data['decision_notification_sent']
     yes_no_attr(value, 'decision_notification_sent')
   end
 
   attribute :documents_needed do |object|
-    value = object.list_data.dig('attention_needed')
+    value = object.list_data['attention_needed']
     yes_no_attr(value, 'attention_needed')
   end
 
@@ -73,8 +71,7 @@ class EVSSClaimListSerializer
   end
 
   attribute :phase do |object|
-    status = object.list_data.dig('status')
+    status = object.list_data['status']
     phase_from_keys(status)
   end
-
 end

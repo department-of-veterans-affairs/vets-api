@@ -1,4 +1,6 @@
-module EvssClaimBaseHelper
+# frozen_string_literal: true
+
+module EVSSClaimBaseHelper
   PHASE_MAPPING = {
     'claim received' => 1,
     'under review' => 2,
@@ -9,7 +11,6 @@ module EvssClaimBaseHelper
     'preparation for notification' => 7,
     'complete' => 8
   }.freeze
-
 
   def phase_from_keys(phase)
     PHASE_MAPPING[phase&.downcase]

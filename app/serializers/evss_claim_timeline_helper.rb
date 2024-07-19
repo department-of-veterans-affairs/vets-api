@@ -1,9 +1,10 @@
-module EvssClaimTimelineHelper
+# frozen_string_literal: true
 
+module EVSSClaimTimelineHelper
   def events_timeline(object)
     events = [
-      create_event_from_string_date(:filed, object.data.dig('date')),
-      create_event_from_string_date(:completed, object.data.dig('claim_complete_date'))
+      create_event_from_string_date(:filed, object.data['date']),
+      create_event_from_string_date(:completed, object.data['claim_complete_date'])
     ]
 
     # Do the 8 phases

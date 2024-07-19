@@ -107,6 +107,6 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
 
   it 'includes :phase' do
     phase = evss_claim.data.dig('claim_phase_dates', 'latest_phase_type')&.downcase
-    expect(attributes['phase']).to eq EvssClaimBaseHelper::PHASE_MAPPING[phase]
+    expect(attributes['phase']).to eq EVSSClaimBaseHelper::PHASE_MAPPING[phase]
   end
 end

@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
-require_relative 'evss_claim_base_helper'
-require_relative 'evss_claim_timeline_helper'
-
 class EVSSClaimDetailSerializer
   include JSONAPI::Serializer
-  extend EvssClaimTimelineHelper
-  extend EvssClaimBaseHelper
+  extend EVSSClaimTimelineHelper
+  extend EVSSClaimBaseHelper
 
   # Our IDs are not stable due to 24 hour expiration, use EVSS IDs for consistency
   # This can be removed if our IDs become stable
@@ -38,7 +35,7 @@ class EVSSClaimDetailSerializer
   end
 
   attribute :date_filed do |object|
-    date_attr(object.data.dig('date'))
+    date_attr(object.data['date'])
   end
 
   attribute :phase_change_date do |object|
@@ -46,25 +43,25 @@ class EVSSClaimDetailSerializer
   end
 
   attribute :min_est_date do |object|
-    date_attr(object.data.dig('min_est_claim_date'))
+    date_attr(object.data['min_est_claim_date'])
   end
 
   attribute :max_est_date do |object|
-    date_attr(object.data.dig('max_est_claim_date'))
+    date_attr(object.data['max_est_claim_date'])
   end
 
   attribute :development_letter_sent do |object|
-    value = object.data.dig('development_letter_sent')
+    value = object.data['development_letter_sent']
     yes_no_attr(value, 'development_letter_sent')
   end
 
   attribute :decision_letter_sent do |object|
-    value = object.data.dig('decision_notification_sent')
+    value = object.data['decision_notification_sent']
     yes_no_attr(value, 'decision_notification_sent')
   end
 
   attribute :documents_needed do |object|
-    value = object.data.dig('attention_needed')
+    value = object.data['attention_needed']
     yes_no_attr(value, 'attention_needed')
   end
 
@@ -92,5 +89,4 @@ class EVSSClaimDetailSerializer
   attribute :claim_type do |object|
     object.data['status_type']
   end
-
 end

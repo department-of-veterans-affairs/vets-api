@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 RSpec.shared_examples 'shared_evss_claim' do
-
   it 'expects object_data to be defined' do
     expect(object_data).not_to be_nil
   end
@@ -46,7 +45,7 @@ RSpec.shared_examples 'shared_evss_claim' do
 
   context 'when yes/no attributes have invalid values' do
     let(:bad_data) { { 'development_letter_sent' => 'Test' } }
-    let(:evss_claim) { build(:evss_claim, data: bad_data, list_data: bad_data ) }
+    let(:evss_claim) { build(:evss_claim, data: bad_data, list_data: bad_data) }
 
     it 'logs an error message' do
       message = "Expected key EVSS 'development_letter_sent' to be Yes/No. Got 'Test'."

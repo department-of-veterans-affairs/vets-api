@@ -36,7 +36,6 @@ module V0
       claim, synchronized = service.update_from_remote(claim)
       options = { meta: { sync_status: synchronized } }
       render json: EVSSClaimDetailSerializer.new(claim, options)
-
     end
 
     private
