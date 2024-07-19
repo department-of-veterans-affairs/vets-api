@@ -918,6 +918,32 @@ RSpec.describe Form526Submission do
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm8940.jobs, :size).by(1)
       end
     end
+
+    context 'with Lighthouse document upload polling' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
+      end
+
+      context 'when feature enabled' do
+        before { Flipper.enable(:disability_526_toxic_exposure_document_upload_polling) }
+
+        it 'queues polling job' do
+          expect do
+            subject.perform_ancillary_jobs(first_name)
+          end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(1)
+        end
+      end
+
+      context 'when feature disabled' do
+        before { Flipper.disable(:disability_526_toxic_exposure_document_upload_polling) }
+
+        it 'does not queue polling job' do
+          expect do
+            subject.perform_ancillary_jobs(first_name)
+          end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(0)
+        end
+      end
+    end
   end
 
   describe '#get_first_name' do
