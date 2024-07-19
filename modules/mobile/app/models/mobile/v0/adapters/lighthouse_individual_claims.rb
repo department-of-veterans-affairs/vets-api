@@ -68,7 +68,8 @@ module Mobile
               contention_list: attributes['contentions'].pluck('name'),
               va_representative: nil,
               events_timeline:,
-              updated_at: nil
+              updated_at: nil,
+              claim_type_code: attributes['claimTypeCode']
             }
           )
         end
