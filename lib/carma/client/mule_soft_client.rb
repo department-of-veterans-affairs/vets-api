@@ -20,7 +20,7 @@ module CARMA
           res = if Flipper.enabled?(:cg_OAuth_2_enabled)
                   perform_post('v2/application/1010CG/submit', payload)
                 else
-                  do_post('v2/application/1010CG/submit', payload, config.settings.async_timeout)
+                  do_post('v2/application/1010CG/submit', payload)
                 end
 
           raise RecordParseError if res.dig('record', 'hasErrors')
@@ -34,10 +34,10 @@ module CARMA
       # @param resource [String] REST-ful path component
       # @param payload [String] JSON payload to submit
       # @return [Hash]
-      def do_post(resource, payload, timeout = config.timeout)
+      def do_post(resource, payload)
         with_monitoring do
           Rails.logger.info "[Form 10-10CG] Submitting to '#{resource}'"
-          args = post_args(resource, payload, timeout)
+          args = post_args(resource, payload)
           response = perform(*args)
 
           handle_response(resource, response)
@@ -45,9 +45,9 @@ module CARMA
       end
 
       # @return [Array]
-      def post_args(resource, payload, timeout)
+      def post_args(resource, payload)
         headers = config.base_request_headers
-        opts = { timeout: }
+        opts = { timeout: config.settings.async_timeout }
         [:post, resource, get_body(payload), headers, opts]
       end
 
@@ -69,19 +69,21 @@ module CARMA
       end
 
       # New Authentication strategy
-
       # Call Mulesoft with bearer token
       def perform_post(resource, payload)
-        Rails.logger.info "[Form 10-10CG] Submitting to '#{resource}' using bearer token"
+        with_monitoring do
+          Rails.logger.info "[Form 10-10CG] Submitting to '#{resource}' using bearer token"
 
-        response = perform(
-          :post,
-          resource,
-          get_body(payload),
-          { Authorization: "Bearer #{bearer_token}" }
-        )
+          response = perform(
+            :post,
+            resource,
+            get_body(payload),
+            { Authorization: "Bearer #{bearer_token}" },
+            { timeout: config.settings.async_timeout }
+          )
 
-        handle_response(resource, response)
+          handle_response(resource, response)
+        end
       end
 
       def bearer_token
