@@ -26,6 +26,7 @@ module ClaimsApi
                         ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound,
                         ::ClaimsApi::Common::Exceptions::Lighthouse::BadRequest,
                         ::Common::Exceptions::BackendServiceException,
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::Timeout,
                         ::ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException do |err|
                           render_non_source_error(err)
                         end

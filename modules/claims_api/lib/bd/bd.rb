@@ -37,7 +37,8 @@ module ClaimsApi
     # Upload document of mapped claim
     #
     # @return success or failure
-    def upload(claim:, pdf_path:, doc_type: 'L122', file_number: nil, original_filename: nil)
+    # rubocop:disable Metrics/ParameterLists
+    def upload(claim:, pdf_path:, pctpnt_vet_id: nil, doc_type: 'L122', file_number: nil, original_filename: nil)
       unless File.exist? pdf_path
         ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist",
                                                     claim_id: claim.id)
@@ -45,7 +46,7 @@ module ClaimsApi
       end
 
       @multipart = true
-      body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:)
+      body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:, pctpnt_vet_id:)
       res = client.post('documents', body)&.body
 
       raise ::Common::Exceptions::GatewayTimeout.new(detail: 'Upstream service error.') unless res.is_a?(Hash)
@@ -61,6 +62,7 @@ module ClaimsApi
                             detail: "/upload failure for claimId #{claim.id}, #{e.message}")
       raise e
     end
+    # rubocop:enable Metrics/ParameterLists
 
     private
 
@@ -68,14 +70,15 @@ module ClaimsApi
     # Generate form body to upload a document
     #
     # @return {parameters, file}
-    def generate_upload_body(claim:, doc_type:, pdf_path:, file_number: nil, original_filename: nil)
+    # rubocop:disable Metrics/ParameterLists
+    def generate_upload_body(claim:, doc_type:, pdf_path:, pctpnt_vet_id: nil, file_number: nil, original_filename: nil)
       payload = {}
       auth_headers = claim.auth_headers
       veteran_name = "#{auth_headers['va_eauth_firstName']}_#{auth_headers['va_eauth_lastName']}"
       birls_file_num = auth_headers['va_eauth_birlsfilenumber'] || file_number if doc_type != 'L705'
       claim_id = doc_type == 'L705' ? claim.claim_id : claim.evss_id
       file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
-      participant_id = auth_headers['va_eauth_pid'] if doc_type == 'L705'
+      participant_id = pctpnt_vet_id if doc_type == 'L705'
       data = build_body(doc_type:, file_name:, participant_id:, claim_id:,
                         file_number: birls_file_num)
 
@@ -86,6 +89,7 @@ module ClaimsApi
       payload
     end
 
+    # rubocop:enable Metrics/ParameterLists
     def generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
       # https://confluence.devops.va.gov/display/VAExternal/Document+Types
       if doc_type == 'L122'

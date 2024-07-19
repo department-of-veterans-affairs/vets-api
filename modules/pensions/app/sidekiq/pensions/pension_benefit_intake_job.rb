@@ -73,7 +73,7 @@ module Pensions
       payload = {
         upload_url: @intake_service.location,
         document: @form_path,
-        metadata: @metadata,
+        metadata: @metadata.to_json,
         attachments: @attachment_paths
       }
 

@@ -341,6 +341,10 @@ features:
   decision_review_delay_evidence:
     actor_type: user
     description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself
+  decision_review_hlr_form_v4_enabled:
+    actor_type: user
+    description: Enable using MAR 2024 revision of 200996 Higher Level Review form when submitting to EMMS for intake
+    enable_in_development: false
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -396,6 +400,9 @@ features:
   disability_526_toxic_exposure_ipf:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims for in progress forms (ipf)
+  disability_526_toxic_exposure_document_upload_polling:
+    actor_type: user
+    description: enables the poll_form526_pdf call during the perform_ancillary_jobs step of submissions
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
@@ -645,6 +652,9 @@ features:
   form1010d:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
+  form107959c:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-7959c (IVC CHAMPVA other health insurance)
   form107959f1:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program)
@@ -709,6 +719,10 @@ features:
     actor_type: user
     description: Enable/disable skipping BGS calls for POA Requests
     enable_in_development: true
+  lighthouse_claims_api_poa_use_bd:
+    actor_type: user
+    description: Lighthouse Benefits Claims API uses Lighthouse Benefits Documents API to upload POA forms instead of VBMS
+    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
@@ -747,9 +761,6 @@ features:
   mhv_transitional_medical_records_landing_page:
     actor_type: user
     description: Enables the transitional Medical Records page at /my-health/records
-  mhv_helpdesk_information_enabled:
-    actor_type: user
-    description: Enables the MHV helpdesk information
   mhv_secure_messaging_to_va_gov_release:
     actor_type: user
     description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
@@ -869,6 +880,10 @@ features:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
     enable_in_development: true
+  pension_medical_evidence_clarification:
+   actor_type: user
+   description: >
+     [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1192,10 +1207,6 @@ features:
     actor_type: user
     description: Toggle for new mobile facility service v2 endpoints
     enable_in_development: true
-  va_online_scheduling_clinic_location:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for display of clinic location on appointment detail page
   va_online_scheduling_status_improvement_canceled:
     actor_type: user
     enable_in_development: true
@@ -1572,4 +1583,4 @@ features:
     description: Enable VYE
   military_benefit_estimates:
     actor_type: user
-    description: swap order of the military details in GI search filters 
+    description: swap order of the military details in GI search filters

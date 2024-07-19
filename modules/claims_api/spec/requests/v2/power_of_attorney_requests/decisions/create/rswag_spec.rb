@@ -44,8 +44,8 @@ describe 'PowerOfAttorney', metadata do
         'data' => {
           'type' => 'powerOfAttorneyRequestDecision',
           'attributes' => {
-            'status' => 'Accepted',
-            'declinedReason' => nil,
+            'status' => 'accepting',
+            'decliningReason' => nil,
             'createdBy' => {
               'firstName' => 'BEATRICE',
               'lastName' => 'STROUD',
@@ -63,6 +63,10 @@ describe 'PowerOfAttorney', metadata do
         let(:data) { body_schema[:example] }
 
         before do |example|
+          allow(ClaimsApi::PowerOfAttorneyRequestService::UpdatePowerOfAttorney).to(
+            receive(:perform)
+          )
+
           mock_ccg(scopes) do
             use_soap_cassette('declined', use_spec_name_prefix: true, record: :new_episodes) do
               submit_request(example.metadata)
