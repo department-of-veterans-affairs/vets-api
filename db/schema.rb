@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_01_192934) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_16_143105) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -60,7 +60,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_01_192934) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["accredited_individual_id", "accredited_organization_id"], name: "index_accreditations_on_indi_and_org_ids", unique: true
-    t.index ["accredited_individual_id"], name: "index_accreditations_on_accredited_individual_id"
     t.index ["accredited_organization_id"], name: "index_accreditations_on_accredited_organization_id"
   end
 
@@ -129,6 +128,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_01_192934) do
     t.index ["location"], name: "index_accredited_organizations_on_location", using: :gist
     t.index ["name"], name: "index_accredited_organizations_on_name"
     t.index ["poa_code"], name: "index_accredited_organizations_on_poa_code", unique: true
+  end
+
+  create_table "accredited_representative_portal_pilot_representatives", force: :cascade do |t|
+    t.string "ogc_registration_number", null: false
+    t.string "email", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_pilot_representatives_on_email", unique: true
+    t.index ["ogc_registration_number"], name: "index_pilot_representatives_on_ogc_number", unique: true
   end
 
   create_table "accredited_representative_portal_verified_representatives", force: :cascade do |t|
@@ -287,7 +295,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_01_192934) do
     t.index ["id", "type"], name: "index_async_transactions_on_id_and_type"
     t.index ["source_id"], name: "index_async_transactions_on_source_id"
     t.index ["transaction_id", "source"], name: "index_async_transactions_on_transaction_id_and_source", unique: true
-    t.index ["transaction_id"], name: "index_async_transactions_on_transaction_id"
     t.index ["user_account_id"], name: "index_async_transactions_on_user_account_id"
     t.index ["user_uuid"], name: "index_async_transactions_on_user_uuid"
   end
@@ -757,18 +764,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_01_192934) do
   create_table "form_submissions", force: :cascade do |t|
     t.string "form_type", null: false
     t.uuid "benefits_intake_uuid"
-    t.uuid "submitted_claim_uuid"
     t.uuid "user_account_id"
     t.bigint "saved_claim_id"
-    t.bigint "in_progress_form_id"
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.jsonb "form_data_ciphertext"
     t.index ["benefits_intake_uuid"], name: "index_form_submissions_on_benefits_intake_uuid"
-    t.index ["in_progress_form_id"], name: "index_form_submissions_on_in_progress_form_id"
     t.index ["saved_claim_id"], name: "index_form_submissions_on_saved_claim_id"
-    t.index ["submitted_claim_uuid"], name: "index_form_submissions_on_submitted_claim_uuid"
     t.index ["user_account_id"], name: "index_form_submissions_on_user_account_id"
   end
 
@@ -887,6 +890,25 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_01_192934) do
     t.datetime "updated_at", null: false
     t.string "case_id"
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
+  end
+
+  create_table "lighthouse526_document_uploads", force: :cascade do |t|
+    t.bigint "form526_submission_id", null: false
+    t.bigint "form_attachment_id"
+    t.string "lighthouse_document_request_id", null: false
+    t.string "aasm_state"
+    t.string "document_type"
+    t.datetime "lighthouse_processing_started_at"
+    t.datetime "lighthouse_processing_ended_at"
+    t.datetime "status_last_polled_at"
+    t.jsonb "error_message"
+    t.jsonb "last_status_response"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["aasm_state"], name: "index_lighthouse526_document_uploads_on_aasm_state"
+    t.index ["form526_submission_id"], name: "index_lighthouse526_document_uploads_on_form526_submission_id"
+    t.index ["form_attachment_id"], name: "index_lighthouse526_document_uploads_on_form_attachment_id"
+    t.index ["status_last_polled_at"], name: "index_lighthouse526_document_uploads_on_status_last_polled_at"
   end
 
   create_table "maintenance_windows", id: :serial, force: :cascade do |t|
@@ -1033,6 +1055,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_01_192934) do
     t.string "uploaded_forms", default: [], array: true
     t.datetime "itf_datetime"
     t.datetime "form_start_date"
+    t.datetime "delete_date"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
@@ -1266,7 +1289,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_01_192934) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_account_id", "form_id"], name: "index_in_progress_reminders_sent_user_account_form_id", unique: true
-    t.index ["user_account_id"], name: "index_va_notify_in_progress_reminders_sent_on_user_account_id"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
@@ -1409,6 +1431,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_01_192934) do
     t.datetime "updated_at", null: false
     t.string "origin"
     t.text "address5_ciphertext"
+    t.index ["created_at"], name: "index_vye_address_changes_on_created_at"
     t.index ["user_info_id"], name: "index_vye_address_changes_on_user_info_id"
   end
 
@@ -1457,6 +1480,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_01_192934) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_vye_direct_deposit_changes_on_created_at"
     t.index ["user_info_id"], name: "index_vye_direct_deposit_changes_on_user_info_id"
   end
 
@@ -1467,6 +1491,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_01_192934) do
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
     t.date "queue_date"
+    t.index ["user_profile_id"], name: "index_vye_pending_documents_on_user_profile_id"
   end
 
   create_table "vye_user_infos", force: :cascade do |t|
@@ -1493,6 +1518,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_01_192934) do
     t.index ["bdn_clone_active"], name: "index_vye_user_infos_on_bdn_clone_active"
     t.index ["bdn_clone_id"], name: "index_vye_user_infos_on_bdn_clone_id"
     t.index ["bdn_clone_line"], name: "index_vye_user_infos_on_bdn_clone_line"
+    t.index ["user_profile_id"], name: "index_vye_user_infos_on_user_profile_id"
   end
 
   create_table "vye_user_profiles", force: :cascade do |t|
@@ -1523,6 +1549,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_01_192934) do
     t.date "payment_date"
     t.date "transact_date"
     t.string "trace"
+    t.index ["award_id"], name: "index_vye_verifications_on_award_id"
+    t.index ["created_at"], name: "index_vye_verifications_on_created_at"
     t.index ["user_info_id"], name: "index_vye_verifications_on_user_info_id"
     t.index ["user_profile_id"], name: "index_vye_verifications_on_user_profile_id"
   end
@@ -1584,12 +1612,13 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_01_192934) do
   add_foreign_key "form526_submissions", "user_accounts"
   add_foreign_key "form5655_submissions", "user_accounts"
   add_foreign_key "form_submission_attempts", "form_submissions"
-  add_foreign_key "form_submissions", "in_progress_forms"
   add_foreign_key "form_submissions", "saved_claims"
   add_foreign_key "form_submissions", "user_accounts"
   add_foreign_key "health_quest_questionnaire_responses", "user_accounts"
   add_foreign_key "in_progress_forms", "user_accounts"
   add_foreign_key "inherited_proof_verified_user_accounts", "user_accounts"
+  add_foreign_key "lighthouse526_document_uploads", "form526_submissions"
+  add_foreign_key "lighthouse526_document_uploads", "form_attachments"
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"

@@ -35,6 +35,8 @@ http_interactions:
           <env:Body>
             <tns:readPOARequest>
               <data:SecondaryStatusList>
+                <SecondaryStatus>New</SecondaryStatus>
+                <SecondaryStatus>Pending</SecondaryStatus>
                 <SecondaryStatus>Accepted</SecondaryStatus>
                 <SecondaryStatus>Declined</SecondaryStatus>
               </data:SecondaryStatusList>
@@ -66,7 +68,7 @@ http_interactions:
         </env:Envelope>
     headers:
       User-Agent:
-      - <FARADAY_VERSION>
+      - "<FARADAY_VERSION>"
       Soapaction:
       - '"readPOARequest"'
       Content-Type:
@@ -83,7 +85,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 11 Jun 2024 23:07:38 GMT
+      - Sat, 29 Jun 2024 22:48:51 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -111,124 +113,123 @@ http_interactions:
             >
               <ns2:POARequestRespondReturnVO>
                 <poaRequestRespondReturnVOList>
-                  <VSOUserEmail>Beatrice.Stroud44@va.gov</VSOUserEmail>
-                  <VSOUserFirstName>BEATRICE</VSOUserFirstName>
-                  <VSOUserLastName>STROUD</VSOUserLastName>
+                  <VSOUserEmail />
+                  <VSOUserFirstName>VDC USER</VSOUserFirstName>
+                  <VSOUserLastName />
                   <changeAddressAuth>Y</changeAddressAuth>
-                  <claimantCity>WASHINGTON</claimantCity>
-                  <claimantCountry>USA</claimantCountry>
+                  <claimantCity>Bourges</claimantCity>
+                  <claimantCountry>France</claimantCountry>
                   <claimantMilitaryPO />
                   <claimantMilitaryPostalCode />
-                  <claimantState>DC</claimantState>
-                  <claimantZip>20420</claimantZip>
-                  <dateRequestActioned>2024-03-20T12:52:31-05:00</dateRequestActioned>
-                  <dateRequestReceived>2024-03-01T09:13:08-06:00</dateRequestReceived>
-                  <declinedReason>N/A</declinedReason>
+                  <claimantState />
+                  <claimantZip>00123</claimantZip>
+                  <dateRequestActioned>2013-01-14T08:57:18-06:00</dateRequestActioned>
+                  <dateRequestReceived>2013-01-14T08:57:18-06:00</dateRequestReceived>
+                  <declinedReason />
                   <healthInfoAuth>Y</healthInfoAuth>
-                  <poaCode>074</poaCode>
-                  <procID>3854079</procID>
-                  <secondaryStatus>Accepted</secondaryStatus>
-                  <vetFirstName>WESLEY</vetFirstName>
-                  <vetLastName>FORD</vetLastName>
-                  <vetMiddleName>WATSON</vetMiddleName>
-                  <vetPtcpntID>600061742</vetPtcpntID>
-                </poaRequestRespondReturnVOList>
-                <poaRequestRespondReturnVOList>
-                  <VSOUserEmail>Beatrice.Stroud44@va.gov</VSOUserEmail>
-                  <VSOUserFirstName>BEATRICE</VSOUserFirstName>
-                  <VSOUserLastName>STROUD</VSOUserLastName>
-                  <changeAddressAuth>Y</changeAddressAuth>
-                  <claimantCity>WASHINGTON</claimantCity>
-                  <claimantCountry>USA</claimantCountry>
-                  <claimantMilitaryPO />
-                  <claimantMilitaryPostalCode />
-                  <claimantState>DC</claimantState>
-                  <claimantZip>20420</claimantZip>
-                  <dateRequestActioned>2024-03-08T08:10:41-06:00</dateRequestActioned>
-                  <dateRequestReceived>2024-03-08T07:56:37-06:00</dateRequestReceived>
-                  <declinedReason>N/A</declinedReason>
-                  <healthInfoAuth>Y</healthInfoAuth>
-                  <poaCode>074</poaCode>
-                  <procID>3854197</procID>
-                  <secondaryStatus>Accepted</secondaryStatus>
-                  <vetFirstName>WESLEY</vetFirstName>
-                  <vetLastName>FORD</vetLastName>
-                  <vetMiddleName>WATSON</vetMiddleName>
-                  <vetPtcpntID>600061742</vetPtcpntID>
-                </poaRequestRespondReturnVOList>
-                <poaRequestRespondReturnVOList>
-                  <VSOUserEmail>Beatrice.Stroud44@va.gov</VSOUserEmail>
-                  <VSOUserFirstName>BEATRICE</VSOUserFirstName>
-                  <VSOUserLastName>STROUD</VSOUserLastName>
-                  <changeAddressAuth>Y</changeAddressAuth>
-                  <claimantCity>HOUSTON</claimantCity>
-                  <claimantCountry>USA</claimantCountry>
-                  <claimantMilitaryPO />
-                  <claimantMilitaryPostalCode />
-                  <claimantState>NM</claimantState>
-                  <claimantZip>87110</claimantZip>
-                  <dateRequestActioned>2024-04-04T13:10:56-05:00</dateRequestActioned>
-                  <dateRequestReceived>2024-04-04T13:08:05-05:00</dateRequestReceived>
-                  <declinedReason>N/A</declinedReason>
-                  <healthInfoAuth>Y</healthInfoAuth>
-                  <poaCode>074</poaCode>
-                  <procID>3854594</procID>
-                  <secondaryStatus>Accepted</secondaryStatus>
-                  <vetFirstName>KENT</vetFirstName>
-                  <vetLastName>RICHARDSON</vetLastName>
-                  <vetMiddleName>DAVID</vetMiddleName>
-                  <vetPtcpntID>600082088</vetPtcpntID>
-                </poaRequestRespondReturnVOList>
-                <poaRequestRespondReturnVOList>
-                  <VSOUserEmail>Beatrice.Stroud44@va.gov</VSOUserEmail>
-                  <VSOUserFirstName>BEATRICE</VSOUserFirstName>
-                  <VSOUserLastName>STROUD</VSOUserLastName>
-                  <changeAddressAuth>Y</changeAddressAuth>
-                  <claimantCity>CHICAGO</claimantCity>
-                  <claimantCountry>USA</claimantCountry>
-                  <claimantMilitaryPO />
-                  <claimantMilitaryPostalCode />
-                  <claimantState>IL</claimantState>
-                  <claimantZip>60640</claimantZip>
-                  <dateRequestActioned>2024-05-09T02:18:04-05:00</dateRequestActioned>
-                  <dateRequestReceived>2024-04-05T12:08:02-05:00</dateRequestReceived>
-                  <declinedReason>Some reason</declinedReason>
-                  <healthInfoAuth>Y</healthInfoAuth>
-                  <poaCode>074</poaCode>
-                  <procID>3854600</procID>
-                  <secondaryStatus>Declined</secondaryStatus>
-                  <vetFirstName>ALLAN</vetFirstName>
-                  <vetLastName>BUTLER</vetLastName>
+                  <poaCode>002</poaCode>
+                  <procID>10910</procID>
+                  <secondaryStatus>New</secondaryStatus>
+                  <vetFirstName>first</vetFirstName>
+                  <vetLastName>last</vetLastName>
                   <vetMiddleName />
-                  <vetPtcpntID>600033542</vetPtcpntID>
+                  <vetPtcpntID>111</vetPtcpntID>
                 </poaRequestRespondReturnVOList>
                 <poaRequestRespondReturnVOList>
-                  <VSOUserEmail>Beatrice.Stroud44@va.gov</VSOUserEmail>
-                  <VSOUserFirstName>BEATRICE</VSOUserFirstName>
-                  <VSOUserLastName>STROUD</VSOUserLastName>
+                  <VSOUserEmail />
+                  <VSOUserFirstName>VDC USER</VSOUserFirstName>
+                  <VSOUserLastName />
                   <changeAddressAuth>Y</changeAddressAuth>
-                  <claimantCity>HOUSTON</claimantCity>
+                  <claimantCity>Richmond</claimantCity>
                   <claimantCountry>USA</claimantCountry>
                   <claimantMilitaryPO />
                   <claimantMilitaryPostalCode />
-                  <claimantState>NM</claimantState>
-                  <claimantZip>87110</claimantZip>
-                  <dateRequestActioned>2024-04-22T10:42:35-05:00</dateRequestActioned>
-                  <dateRequestReceived>2024-04-16T15:21:38-05:00</dateRequestReceived>
-                  <declinedReason>N/A</declinedReason>
+                  <claimantState />
+                  <claimantZip>00123</claimantZip>
+                  <dateRequestActioned>2013-01-17T10:54:11-06:00</dateRequestActioned>
+                  <dateRequestReceived>2013-01-17T10:54:11-06:00</dateRequestReceived>
+                  <declinedReason />
                   <healthInfoAuth>Y</healthInfoAuth>
-                  <poaCode>074</poaCode>
-                  <procID>3854827</procID>
-                  <secondaryStatus>Accepted</secondaryStatus>
-                  <vetFirstName>KENT</vetFirstName>
-                  <vetLastName>RICHARDSON</vetLastName>
-                  <vetMiddleName>DAVID</vetMiddleName>
-                  <vetPtcpntID>600082088</vetPtcpntID>
+                  <poaCode>003</poaCode>
+                  <procID>11023</procID>
+                  <secondaryStatus>New</secondaryStatus>
+                  <vetFirstName>[Vet First Name]</vetFirstName>
+                  <vetLastName>[Vet Last Name]</vetLastName>
+                  <vetMiddleName />
+                  <vetPtcpntID>111</vetPtcpntID>
                 </poaRequestRespondReturnVOList>
-                <totalNbrOfRecords>26</totalNbrOfRecords>
+                <poaRequestRespondReturnVOList>
+                  <VSOUserEmail />
+                  <VSOUserFirstName>VDC USER</VSOUserFirstName>
+                  <VSOUserLastName />
+                  <changeAddressAuth>Y</changeAddressAuth>
+                  <claimantCity>Richmond</claimantCity>
+                  <claimantCountry>USA</claimantCountry>
+                  <claimantMilitaryPO />
+                  <claimantMilitaryPostalCode />
+                  <claimantState />
+                  <claimantZip>00123</claimantZip>
+                  <dateRequestActioned>2013-01-17T11:04:22-06:00</dateRequestActioned>
+                  <dateRequestReceived>2013-01-17T11:04:22-06:00</dateRequestReceived>
+                  <declinedReason />
+                  <healthInfoAuth>Y</healthInfoAuth>
+                  <poaCode>003</poaCode>
+                  <procID>11024</procID>
+                  <secondaryStatus>New</secondaryStatus>
+                  <vetFirstName>[Vet First Name]</vetFirstName>
+                  <vetLastName>[Vet Last Name]</vetLastName>
+                  <vetMiddleName />
+                  <vetPtcpntID>111</vetPtcpntID>
+                </poaRequestRespondReturnVOList>
+                <poaRequestRespondReturnVOList>
+                  <VSOUserEmail />
+                  <VSOUserFirstName>VDC USER</VSOUserFirstName>
+                  <VSOUserLastName />
+                  <changeAddressAuth>Y</changeAddressAuth>
+                  <claimantCity>Charlottesville</claimantCity>
+                  <claimantCountry>USA</claimantCountry>
+                  <claimantMilitaryPO />
+                  <claimantMilitaryPostalCode />
+                  <claimantState />
+                  <claimantZip>00123</claimantZip>
+                  <dateRequestActioned>2013-01-17T11:06:54-06:00</dateRequestActioned>
+                  <dateRequestReceived>2013-01-17T11:06:54-06:00</dateRequestReceived>
+                  <declinedReason />
+                  <healthInfoAuth>Y</healthInfoAuth>
+                  <poaCode>003</poaCode>
+                  <procID>11025</procID>
+                  <secondaryStatus>New</secondaryStatus>
+                  <vetFirstName>[Vet First Name]</vetFirstName>
+                  <vetLastName>[Vet Last Name]</vetLastName>
+                  <vetMiddleName />
+                  <vetPtcpntID>111</vetPtcpntID>
+                </poaRequestRespondReturnVOList>
+                <poaRequestRespondReturnVOList>
+                  <VSOUserEmail />
+                  <VSOUserFirstName>VDC</VSOUserFirstName>
+                  <VSOUserLastName>Application</VSOUserLastName>
+                  <changeAddressAuth>Y</changeAddressAuth>
+                  <claimantCity>WICHITA</claimantCity>
+                  <claimantCountry>USA</claimantCountry>
+                  <claimantMilitaryPO />
+                  <claimantMilitaryPostalCode />
+                  <claimantState>KS</claimantState>
+                  <claimantZip>67211</claimantZip>
+                  <dateRequestActioned>2013-01-17T16:24:33-06:00</dateRequestActioned>
+                  <dateRequestReceived>2013-01-17T16:24:32-06:00</dateRequestReceived>
+                  <declinedReason />
+                  <healthInfoAuth>Y</healthInfoAuth>
+                  <poaCode>065</poaCode>
+                  <procID>11037</procID>
+                  <secondaryStatus>New</secondaryStatus>
+                  <vetFirstName>cory</vetFirstName>
+                  <vetLastName>washington</vetLastName>
+                  <vetMiddleName>joseph</vetMiddleName>
+                </poaRequestRespondReturnVOList>
+                <totalNbrOfRecords>121</totalNbrOfRecords>
               </ns2:POARequestRespondReturnVO>
             </ns0:readPOARequestResponse>
           </S:Body>
         </S:Envelope>
-  recorded_at: Tue, 11 Jun 2024 23:07:39 GMT
+  recorded_at: Sat, 29 Jun 2024 22:48:53 GMT
 recorded_with: VCR 6.2.0
