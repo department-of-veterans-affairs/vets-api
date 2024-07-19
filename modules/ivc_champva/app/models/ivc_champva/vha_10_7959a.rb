@@ -22,6 +22,7 @@ module IvcChampva
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP',
+        'ssn_or_tin' => @data.dig('veteran', 'ssn_or_tin'),
         'country' => @data.dig('applicant_address', 'country') || 'USA',
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info']
