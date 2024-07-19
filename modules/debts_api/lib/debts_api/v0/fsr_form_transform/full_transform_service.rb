@@ -35,20 +35,20 @@ module DebtsApi
         end
 
         def transform
-          output = {}
-          output['income'] = @income
-          output['assets'] = @assets
-          output['expenses'] = @expenses
-          output['additionalData'] = @additional_data
-          output['discretionaryIncome'] = @discretionary_income
-          output['installmentContractsAndOtherDebts'] = @installment_contracts_other_debts
-          output['totalOfInstallmentContractsAndOtherDebts'] = @total_installments
-          output['personalData'] = @personal_data
-          output['personalIdentification'] = @personal_identification
-          output['applicantCertifications'] = certification
-          output['selectedDebtsAndCopays'] = @selected_debts_and_copays
-          output['streamlined'] = @streamlined
-          output
+          {
+            'income' => @income,
+            'assets' => @assets,
+            'expenses' => @expenses,
+            'additionalData' => @additional_data,
+            'discretionaryIncome' => @discretionary_income,
+            'installmentContractsAndOtherDebts' => @installment_contracts_other_debts,
+            'totalOfInstallmentContractsAndOtherDebts' => @total_installments,
+            'personalData' => @personal_data,
+            'personalIdentification' => @personal_identification,
+            'applicantCertifications' => certification,
+            'selectedDebtsAndCopays' => @selected_debts_and_copays,
+            'streamlined' => @streamlined
+          }
         end
 
         private
