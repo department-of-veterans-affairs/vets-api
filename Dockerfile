@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/ruby:3.3.3-slim-bookworm AS rubyimg
+FROM ruby:3.2.4-slim-bookworm AS rubyimg
 FROM rubyimg AS modules
 
 WORKDIR /tmp
