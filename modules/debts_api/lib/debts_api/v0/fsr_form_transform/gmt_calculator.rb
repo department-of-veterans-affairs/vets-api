@@ -4,6 +4,7 @@ module DebtsApi
   module V0
     module FsrFormTransform
       class GmtCalculator
+        include ::FsrFormTransform::Utils
         class InvalidYear < StandardError; end
         class InvalidDependentCount < StandardError; end
         class InvalidZipCode < StandardError; end
@@ -109,10 +110,6 @@ module DebtsApi
                       .where(effective_year: @income_threshold_year)
                       .order(trhd1: :desc)
                       .first
-        end
-
-        def find_zipcode_data(zip)
-          StdZipcode.find_by(zip_code: zip)
         end
 
         def valid_year?
