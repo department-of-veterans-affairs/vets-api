@@ -44,8 +44,8 @@ module Vye
         path.each_line.with_index do |line, index|
           locator = index + 1
           line.chomp!
-          records = BdnLineExtraction.new(line:).attributes
-          ld = Vye::LoadData.new(source:, locator:, bdn_clone:, records:)
+          extraction = BdnLineExtraction.new(line:)
+          ld = Vye::LoadData.new(source:, locator:, bdn_clone:, extraction:)
           if ld.valid?
             counts[:success] += 1
           else
@@ -63,8 +63,8 @@ module Vye
         source = :tims_feed
         data.each.with_index do |row, index|
           locator = index + 1
-          records = TimsLineExtraction.new(row:).records
-          ld = Vye::LoadData.new(source:, locator:, records:)
+          extraction = TimsLineExtraction.new(row:)
+          ld = Vye::LoadData.new(source:, locator:, extraction:)
           if ld.valid?
             counts[:success] += 1
           else

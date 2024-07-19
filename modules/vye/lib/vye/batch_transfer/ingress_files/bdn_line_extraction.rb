@@ -3,9 +3,13 @@
 module Vye
   module BatchTransfer
     module IngressFiles
-      BdnLineExtraction = Struct.new(:line, :result, :award_lines, :awards) do
+      BDN_LINE_EXTRACTION_ATTRIBUTES =
+        %i[original_line line result original_award_lines award_lines awards].freeze
+
+      BdnLineExtraction = Struct.new(*BDN_LINE_EXTRACTION_ATTRIBUTES) do
         def initialize(line:)
-          super(line:, result: {}, award_lines: [], awards: [])
+          original_line = line.dup
+          super(original_line:, line:, result: {}, original_award_lines:, award_lines: [], awards: [])
 
           extract_main
           extract_award_lines
@@ -34,6 +38,7 @@ module Vye
               extracted = line.slice!(0...41)
               award_lines << extracted unless dead
             end
+          self.original_award_lines = award_lines.map(&:dup)
         end
 
         def extract_awards
@@ -57,7 +62,7 @@ module Vye
 
         public
 
-        def attributes
+        def records
           raise 'incomplete extraction' unless line.blank? && award_lines.all?(&:blank?)
 
           profile = result.slice(*config[:mappings][:profile])
