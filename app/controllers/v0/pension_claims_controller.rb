@@ -50,6 +50,7 @@ module V0
         raise Common::Exceptions::ValidationErrors, claim.errors
       end
 
+      # Rails.logger.info(current_user.inspect)
       claim.upload_to_lighthouse(current_user)
 
       pension_monitor.track_create_success(in_progress_form, claim, current_user)

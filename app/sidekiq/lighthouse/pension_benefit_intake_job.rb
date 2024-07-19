@@ -63,26 +63,6 @@ module Lighthouse
     private
 
     ##
-    # Upload generated pdf to Benefits Intake API
-    #
-    def upload_document
-      @intake_service.request_upload
-      @pension_monitor.track_submission_begun(@claim, @intake_service, @user_uuid)
-      form_submission_polling
-
-      payload = {
-        upload_url: @intake_service.location,
-        document: @form_path,
-        metadata: @metadata.to_json,
-        attachments: @attachment_paths
-      }
-
-      @pension_monitor.track_submission_attempted(@claim, @intake_service, @user_uuid, payload)
-      response = @intake_service.perform_upload(**payload)
-      raise PensionBenefitIntakeError, response.to_s unless response.success?
-    end
-
-    ##
     # Instantiate instance variables for _this_ job
     #
     def init(saved_claim_id, user_uuid)
@@ -116,6 +96,26 @@ module Lighthouse
     end
 
     ##
+    # Upload generated pdf to Benefits Intake API
+    #
+    def upload_document
+      @intake_service.request_upload
+      @pension_monitor.track_submission_begun(@claim, @intake_service, @user_uuid)
+      form_submission_polling
+
+      payload = {
+        upload_url: @intake_service.location,
+        document: @form_path,
+        metadata: @metadata.to_json,
+        attachments: @attachment_paths
+      }
+
+      @pension_monitor.track_submission_attempted(@claim, @intake_service, @user_uuid, payload)
+      response = @intake_service.perform_upload(**payload)
+      raise PensionBenefitIntakeError, response.to_s unless response.success?
+    end
+
+    ##
     # Generate form metadata to send in upload to Benefits Intake API
     #
     # @see https://developer.va.gov/explore/api/benefits-intake/docs
@@ -144,14 +144,15 @@ module Lighthouse
     # Insert submission polling entries
     #
     def form_submission_polling
-      form_submission = FormSubmission.create(
+      @form_submission = {
         form_type: @claim.form_id,
         form_data: @claim.to_json,
         benefits_intake_uuid: @intake_service.uuid,
         saved_claim: @claim,
         saved_claim_id: @claim.id,
-        user_account: UserAccount.find_by(uuid: @user_uuid)
-      )
+      }
+      @form_submission[:user_account] =  UserAccount.find(@user_uuid) unless @user_uuid.nil?
+      @form_submission = FormSubmission.create(**@form_submission)
       @form_submission_attempt = FormSubmissionAttempt.create(form_submission:)
 
       Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)
