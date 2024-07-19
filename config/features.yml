@@ -1511,7 +1511,7 @@ features:
     actor_type: user
     description: Implement multiple page response pattern
     enable_in_development: true
-  pension_introduction_update
+  pension_introduction_update:
     actor_type: user
     description: Show updated introduction page
   pension_module_enabled:
