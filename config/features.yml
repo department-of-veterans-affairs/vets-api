@@ -1511,7 +1511,7 @@ features:
     description: Implement multiple page response pattern
     enable_in_development: true
   pension_introduction_update
-    acor_type: user
+    actor_type: user
     description: Show updated introduction page
   pension_module_enabled:
     actor_type: user
