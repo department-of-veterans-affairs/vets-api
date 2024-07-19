@@ -8,9 +8,12 @@ module RepresentationManagement
 
         if form.valid?
           p 'Form ' * 10, form.inspect
-          output_path = RepresentationManagement::V0::PdfConstructor::Form2122.new.construct(form)
-          file_contents = File.read(output_path)
-          send_data file_contents, filename: 'test', type: 'application/pdf', disposition: 'attachment'
+          Tempfile.create do |tempfile|
+            tempfile.binmode
+            RepresentationManagement::V0::PdfConstructor::Form2122.new(tempfile).construct(form)
+
+            send_data tempfile.read, filename: '2122.pdf', type: 'application/pdf', disposition: 'attachment'
+          end
 
           # render json: { message: 'Form is valid' }, status: :created
         else
