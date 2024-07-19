@@ -51,7 +51,7 @@ if [ $unavailable_percentage -ge $ALLOWED_UNAVAILABLE_PERCENTAGE ]; then
   # Convert LATEST_VALUE to an integer
   LATEST_VALUE=${LATEST_VALUE%.*}
 
-  # Check if the latest value is 2 or below
+  # Determine if we have enough ready pods in replicaSet
   if [ $LATEST_VALUE -le $MIN_NOT_READY_PODS ]; then
     echo "Pod is unhealthy but only $LATEST_VALUE (need $MIN_NOT_READY_PODS) pods are ready for traffic. Accumulating a backlog."
     exit 0 # Ready pods is too low, accumulate a backlog
