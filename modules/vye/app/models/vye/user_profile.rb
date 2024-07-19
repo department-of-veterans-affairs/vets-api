@@ -49,6 +49,8 @@ class Vye::UserProfile < ApplicationRecord
 
   def check_for_match
     user_profile = self
+    return { user_profile:, conflict: false, attribute_name: nil } if new_record?
+
     attribute_name = %w[ssn_digest file_number_digest icn].find { |a| attribute_changed? a }
     conflict = attribute_name.present?
 
