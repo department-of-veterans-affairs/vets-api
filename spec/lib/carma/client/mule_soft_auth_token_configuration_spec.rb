@@ -6,17 +6,17 @@ require 'carma/client/mule_soft_auth_token_configuration'
 describe CARMA::Client::MuleSoftAuthTokenConfiguration do
   subject { described_class.instance }
 
-  let(:token_url) { 'https://www.somesite.gov' }
+  let(:auth_token_url) { 'https://www.somesite.gov' }
 
   before do
-    allow(Settings.form_10_10cg.carma.mulesoft.v2).to receive(:token_url).and_return(token_url)
+    allow(Settings.form_10_10cg.carma.mulesoft.v2).to receive(:auth_token_url).and_return(auth_token_url)
   end
 
   describe 'connection' do
     subject { super().connection }
 
     it 'sets url previx' do
-      expect(subject.url_prefix.to_s).to eq("#{token_url}/oauth2/default/v1/token")
+      expect(subject.url_prefix.to_s).to eq("#{auth_token_url}/oauth2/default/v1/token")
     end
   end
 
@@ -56,7 +56,7 @@ describe CARMA::Client::MuleSoftAuthTokenConfiguration do
     subject { super().send(:base_path) }
 
     it 'returns the correct value' do
-      expect(subject).to eq("#{token_url}/oauth2/default/v1/token")
+      expect(subject).to eq("#{auth_token_url}/oauth2/default/v1/token")
     end
   end
 end

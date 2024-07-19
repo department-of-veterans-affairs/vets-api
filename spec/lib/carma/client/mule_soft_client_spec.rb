@@ -23,20 +23,12 @@ describe CARMA::Client::MuleSoftClient do
     let(:config) { double('config') }
     let(:exp_headers) { { client_id: '1234', client_secret: 'abcd' } }
     let(:timeout) { 60 }
-    let(:v2) do
-      OpenStruct.new(
-        token_url: 'my/token/url',
-        client_id: 'id',
-        client_secret: 'secret'
-      )
-    end
 
     before do
       allow(client).to receive(:config).and_return(config)
       allow(config).to receive_messages(base_request_headers: exp_headers, timeout: 10,
                                         settings: OpenStruct.new(
-                                          async_timeout: timeout,
-                                          v2:
+                                          async_timeout: timeout
                                         ))
     end
 

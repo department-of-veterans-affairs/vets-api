@@ -19,7 +19,7 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
   let(:timeout) { 60 }
   let(:settings) do
     OpenStruct.new(
-      token_url: 'my/token/url',
+      auth_token_url: 'my/token/url',
       client_id: 'id',
       client_secret: 'secret',
       timeout:
