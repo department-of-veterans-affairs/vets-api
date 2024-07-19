@@ -56,7 +56,7 @@ if [ $unavailable_percentage -ge $ALLOWED_UNAVAILABLE_PERCENTAGE ]; then
     echo "Pod is unhealthy but only $LATEST_VALUE (need $MIN_NOT_READY_PODS) pods are ready for traffic. Accumulating a backlog."
     exit 0 # Ready pods is too low, accumulate a backlog
   else
-    echo "Pod nod ready (too much traffic) and we have $LATEST_VALUE pods ready. We only need $MIN_NOT_READY_PODS."
+    echo "Pod not ready (too much traffic) and we have $LATEST_VALUE pods ready. We only need $MIN_NOT_READY_PODS."
     exit 1 # Enough pods are available but this one has too much traffic.
   fi
 else
