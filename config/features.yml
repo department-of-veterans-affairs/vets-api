@@ -877,6 +877,10 @@ features:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
     enable_in_development: true
+  pension_medical_evidence_clarification:
+   actor_type: user
+   description: >
+     [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
   pre_entry_covid19_screener:
     actor_type: user
     description: >
