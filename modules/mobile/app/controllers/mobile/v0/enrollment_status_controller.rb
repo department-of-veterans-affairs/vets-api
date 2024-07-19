@@ -3,16 +3,25 @@
 module Mobile
   module V0
     class EnrollmentStatusController < ApplicationController
+      before_action :authorize_user
+      before_action :validate_user_icn
+
       def show
-        raise Common::Exceptions::Unauthorized unless current_user.loa3?
+        response = HealthCareApplication.enrollment_status(current_user.icn, true)
+        enrollment_status = Mobile::V0::EnrollmentStatus.new(response)
+        json = Mobile::V0::EnrollmentStatusSerializer.new(enrollment_status)
 
-        raise Common::Exceptions::RecordNotFound, 'User ICN not found' if current_user.icn.blank?
+        render(json:)
+      end
 
-        json = HealthCareApplication.enrollment_status(current_user.icn, true)
-        enrollment_status = Mobile::V0::EnrollmentStatus.new(json)
-        serialized = Mobile::V0::EnrollmentStatusSerializer.new(enrollment_status)
+      # all mobile users should be loa3
+      def authorize_user
+        raise_unauthorized('User is not loa3') unless current_user.loa3?
+      end
 
-        render(json: serialized)
+      # unclear if this is possible; matching logic from HealthCareApplicationsController
+      def validate_user_icn
+        raise Common::Exceptions::RecordNotFound, current_user.uuid if current_user.icn.blank?
       end
     end
   end

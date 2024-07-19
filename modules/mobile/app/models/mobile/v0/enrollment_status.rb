@@ -6,7 +6,7 @@ module Mobile
   module V0
     class EnrollmentStatus < Common::Resource
       attribute :id, Types::String.default(SecureRandom.uuid)
-      attribute :application_date, Types::String
+      attribute :application_date, Types::String.optional.default(nil)
       attribute :enrollment_date, Types::String.optional.default(nil)
       attribute :preferred_facility, Types::String.optional.default(nil)
       attribute :parsed_status, Types::String.optional.default(nil)
