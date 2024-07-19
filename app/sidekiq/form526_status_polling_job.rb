@@ -8,23 +8,24 @@ class Form526StatusPollingJob
 
   STATS_KEY = 'api.benefits_intake.submission_status'
   MAX_BATCH_SIZE = 1000
-  attr_reader :max_batch_size
+  attr_reader :max_batch_size, :paranoid
 
-  def initialize(max_batch_size: MAX_BATCH_SIZE)
+  def initialize(max_batch_size: MAX_BATCH_SIZE, paranoid: false)
     @max_batch_size = max_batch_size
     @total_handled = 0
+    @paranoid = paranoid
   end
 
   def perform
-    Rails.logger.info('Beginning Form 526 Intake Status polling')
+    Rails.logger.info('Beginning Form 526 Intake Status polling', paranoid:)
     submissions.in_batches(of: max_batch_size) do |batch|
       batch_ids = batch.pluck(:backup_submitted_claim_id).flatten
       response = api_to_poll.get_bulk_status_of_uploads(batch_ids)
       handle_response(response)
     end
-    Rails.logger.info('Form 526 Intake Status polling complete', total_handled: @total_handled)
+    Rails.logger.info('Form 526 Intake Status polling complete', total_handled: @total_handled, paranoid:)
   rescue => e
-    Rails.logger.error('Error processing 526 Intake Status batch', class: self.class.name, message: e.message)
+    Rails.logger.error('Error processing 526 Intake Status batch', class: self.class.name, message: e.message, paranoid:)
   end
 
   private
@@ -34,7 +35,20 @@ class Form526StatusPollingJob
   end
 
   def submissions
-    @submissions ||= Form526Submission.pending_backup_submissions
+    @submissions ||= if paranoid
+                       load_paranoid_success_submissions
+                     else
+                       load_pending_submissions
+                     end
+  end
+
+  def load_paranoid_success_submissions
+    paranoid_status = Form526Submission.backup_submitted_claim_statuses[:paranoid_success]
+    Form526Submission.where(backup_submitted_claim_status: paranoid_status)
+  end
+
+  def load_pending_submissions
+    Form526Submission.pending_backup_submissions
   end
 
   def handle_response(response)
