@@ -33,7 +33,7 @@ module Rswag
         openapi_spec.deep_merge!(metadata_to_swagger(metadata))
       end
 
-      # rubocop:disable Metrics/BlockNesting, Layout/LineLength, Style/CommentedKeyword, Metrics/MethodLength
+      # rubocop:disable Layout/LineLength, Style/CommentedKeyword, Metrics/MethodLength
       def stop(_notification = nil)
         @config.openapi_specs.each do |url_path, doc|
           unless doc_version(doc).start_with?('2')
@@ -69,7 +69,7 @@ module Rswag
           end # Added conditional
         end
       end
-      # rubocop:enable Metrics/BlockNesting, Layout/LineLength, Style/CommentedKeyword, Metrics/MethodLength
+      # rubocop:enable Layout/LineLength, Style/CommentedKeyword, Metrics/MethodLength
 
       private # Added methods
 

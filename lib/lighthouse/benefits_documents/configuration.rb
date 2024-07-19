@@ -15,8 +15,9 @@ module BenefitsDocuments
 
     SYSTEM_NAME = 'VA.gov'
     API_SCOPES = %w[documents.read documents.write].freeze
-    DOCUMENTS_PATH = 'services/benefits-documents/v1/documents'
-    DOCUMENTS_STATUS_PATH = 'services/benefits-documents/v1/uploads/status'
+    BASE_PATH = 'services/benefits-documents/v1'
+    DOCUMENTS_PATH = "#{BASE_PATH}/documents".freeze
+    DOCUMENTS_STATUS_PATH = "#{BASE_PATH}/uploads/status".freeze
     TOKEN_PATH = 'oauth2/benefits-documents/system/v1/token'
     QA_TESTING_DOMAIN = 'https://dev-api.va.gov'
 

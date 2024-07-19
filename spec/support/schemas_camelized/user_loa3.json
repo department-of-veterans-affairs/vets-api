@@ -112,7 +112,6 @@
                 "verified",
                 "signIn",
                 "authnContext",
-                "inheritedProofVerified",
                 "icn",
                 "birlsId",
                 "edipi",
@@ -195,9 +194,6 @@
                 },
                 "authnContext": {
                   "type": "string"
-                },
-                "inheritedProofVerified": {
-                  "type": "boolean"
                 },
                 "icn": {
                   "type": "string"
