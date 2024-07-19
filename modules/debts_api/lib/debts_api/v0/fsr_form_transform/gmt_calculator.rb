@@ -32,16 +32,13 @@ module DebtsApi
         end
 
         def income_limits
-          income_upper_threshold = @gmt_threshold * INCOME_UPPER_PERCENTAGE
-          asset_threshold = @gmt_threshold * ASSET_PERCENTAGE
-          discretionary_income_threshold = @gmt_threshold * DISCRETIONARY_INCOME_PERCENTAGE
           {
             pension_threshold: @pension_threshold,
             national_threshold: @national_threshold,
             gmt_threshold: @gmt_threshold,
-            income_upper_threshold:,
-            asset_threshold:,
-            discretionary_income_threshold:
+            income_upper_threshold: @gmt_threshold * INCOME_UPPER_PERCENTAGE,
+            asset_threshold: @gmt_threshold * ASSET_PERCENTAGE,
+            discretionary_income_threshold: @gmt_threshold * DISCRETIONARY_INCOME_PERCENTAGE
           }
         end
 
