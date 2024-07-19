@@ -62,29 +62,11 @@ describe CARMA::Client::MuleSoftClient do
       let(:payload) { {} }
 
       context 'OAuth 2.0 flipper enabled' do
-        let(:token_params) do
-          URI.encode_www_form({
-                                grant_type: 'client_credentials',
-                                scope: 'read'
-                              })
-        end
-
-        let(:basic_auth) do
-          Base64.urlsafe_encode64("#{config.settings.v2.client_id}:#{config.settings.v2.client_secret}")
-        end
-
-        let(:token_headers) do
-          {
-            'Authorization' => "Basic #{basic_auth}",
-            'Content-Type' => 'application/x-www-form-urlencoded'
-          }
-        end
-
-        let(:access_token) { 'my-token' }
-        let(:mock_token_response) { MockFaradayResponse.new({ access_token: }, 201) }
+        let(:mulesoft_token_client) { instance_double(CARMA::Client::MuleSoftTokenClient) }
 
         before do
           Flipper.enable(:cg_OAuth_2_enabled)
+          allow(CARMA::Client::MuleSoftTokenClient).to receive(:new).and_return(mulesoft_token_client)
         end
 
         after do
@@ -92,15 +74,15 @@ describe CARMA::Client::MuleSoftClient do
         end
 
         context 'successfully gets token' do
+          let(:bearer_token) { 'my-bearer-token' }
+
           before do
-            allow(client).to receive(:perform)
-              .with(:post, v2[:token_url], token_params, token_headers)
-              .and_return(mock_token_response)
+            allow(mulesoft_token_client).to receive(:new_bearer_token).and_return(bearer_token)
           end
 
           it 'calls perform with expected params' do
             expect(client).to receive(:perform)
-              .with(:post, resource, payload.to_json, { Authorization: "Bearer #{access_token}" })
+              .with(:post, resource, payload.to_json, { Authorization: "Bearer #{bearer_token}" })
               .and_return(mock_success_response)
 
             expect(Rails.logger).to receive(:info).with("[Form 10-10CG] Submitting to '#{resource}' using bearer token")
@@ -117,7 +99,7 @@ describe CARMA::Client::MuleSoftClient do
 
             it 'raises SchemaValidationError' do
               expect(client).to receive(:perform)
-                .with(:post, resource, payload.to_json, { Authorization: "Bearer #{access_token}" })
+                .with(:post, resource, payload.to_json, { Authorization: "Bearer #{bearer_token}" })
                 .and_return(mock_error_response)
 
               expect(Rails.logger).to receive(:info)
@@ -132,16 +114,13 @@ describe CARMA::Client::MuleSoftClient do
         end
 
         context 'error getting token' do
-          let(:mock_error_token_response) { MockFaradayResponse.new({ sad: true }, 500) }
-
           it 'logs error' do
-            expect(client).to receive(:perform)
-              .with(:post, v2[:token_url], token_params, token_headers)
-              .and_return(mock_error_token_response)
+            expect(mulesoft_token_client).to receive(:new_bearer_token)
+              .and_raise(CARMA::Client::MuleSoftTokenClient::GetAuthTokenError)
 
             expect do
               subject
-            end.to raise_error(CARMA::Client::MuleSoftClient::GetAuthTokenError)
+            end.to raise_error(CARMA::Client::MuleSoftTokenClient::GetAuthTokenError)
           end
         end
       end
