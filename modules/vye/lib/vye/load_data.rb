@@ -13,7 +13,9 @@ module Vye
 
     attr_reader :bdn_clone, :locator, :user_profile, :user_info, :source
 
-    def initialize(source:, locator:, bdn_clone: nil, records: {})
+    def initialize(source:, locator:, extraction:, bdn_clone: nil)
+      records = extraction.records || {}
+
       raise ArgumentError, format('Invalid source: %<source>s', source:) unless sources.include?(source)
       raise ArgumentError, 'Missing profile' if records[:profile].blank?
       raise ArgumentError, 'Missing bdn_clone' unless source == :tims_feed || bdn_clone.present?
