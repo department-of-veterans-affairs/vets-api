@@ -155,10 +155,12 @@ RSpec.describe Form526StatusPollingJob, type: :job do
 
           expect(Rails.logger)
             .to have_received(:error)
-            .with('Error processing 526 Intake Status batch',
-                   class: 'Form526StatusPollingJob',
-                   message:,
-                   paranoid: false)
+            .with(
+              'Error processing 526 Intake Status batch',
+              class: 'Form526StatusPollingJob',
+              message:,
+              paranoid: false
+            )
           expect(Rails.logger)
             .not_to have_received(:info).with('Form 526 Intake Status polling complete')
         end
