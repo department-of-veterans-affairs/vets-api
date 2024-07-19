@@ -12,6 +12,7 @@ module RepresentationManagement
             RepresentationManagement::V0::PdfConstructor::Form2122.new(tempfile).construct(form)
             send_data tempfile.read, filename: '21-22.pdf', type: 'application/pdf', disposition: 'attachment'
           end
+          # The Tempfile is automatically deleted after the block ends
         else
           render json: { errors: form.errors.full_messages }, status: :unprocessable_entity
         end
