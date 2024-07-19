@@ -12,6 +12,7 @@ module ClaimsApi
   class BRD < LibraryBase
     def initialize
       @response_store = BRDResponseStore
+      super()
     end
 
     def service_name
