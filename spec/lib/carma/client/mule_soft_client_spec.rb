@@ -67,6 +67,7 @@ describe CARMA::Client::MuleSoftClient do
 
         context 'successfully gets token' do
           let(:bearer_token) { 'my-bearer-token' }
+          let(:headers) { { Authorization: "Bearer #{bearer_token}" } }
 
           before do
             allow(mulesoft_auth_token_client).to receive(:new_bearer_token).and_return(bearer_token)
@@ -74,7 +75,7 @@ describe CARMA::Client::MuleSoftClient do
 
           it 'calls perform with expected params' do
             expect(client).to receive(:perform)
-              .with(:post, resource, payload.to_json, { Authorization: "Bearer #{bearer_token}" })
+              .with(:post, resource, payload.to_json, headers, { timeout: })
               .and_return(mock_success_response)
 
             expect(Rails.logger).to receive(:info).with("[Form 10-10CG] Submitting to '#{resource}' using bearer token")
@@ -91,7 +92,7 @@ describe CARMA::Client::MuleSoftClient do
 
             it 'raises SchemaValidationError' do
               expect(client).to receive(:perform)
-                .with(:post, resource, payload.to_json, { Authorization: "Bearer #{bearer_token}" })
+                .with(:post, resource, payload.to_json, headers, { timeout: })
                 .and_return(mock_error_response)
 
               expect(Rails.logger).to receive(:info)
@@ -152,7 +153,7 @@ describe CARMA::Client::MuleSoftClient do
 
         context 'with a records error' do
           it 'raises RecordParseError' do
-            expect(client).to receive(:do_post).with(resource, {}, 60).and_return(
+            expect(client).to receive(:do_post).with(resource, {}).and_return(
               { 'data' => { 'carmacase' => { 'createdAt' => '2022-08-04 16:44:37', 'id' => 'aB93S0000000FTqSAM' } },
                 'record' => { 'hasErrors' => true,
                               'results' => [{ 'referenceId' => '1010CG', 'id' => '0683S000000YBIFQA4',
