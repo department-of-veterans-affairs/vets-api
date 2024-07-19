@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'carma/client/mule_soft_configuration'
-require 'carma/client/mule_soft_token_client'
+require 'carma/client/mule_soft_auth_token_client'
 
 module CARMA
   module Client
@@ -85,7 +85,7 @@ module CARMA
       end
 
       def bearer_token
-        @bearer_token ||= CARMA::Client::MuleSoftTokenClient.new.new_bearer_token
+        @bearer_token ||= CARMA::Client::MuleSoftAuthTokenClient.new.new_bearer_token
       end
     end
   end

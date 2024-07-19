@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'carma/client/mule_soft_token_client'
+require 'carma/client/mule_soft_auth_token_client'
 
 class MockFaradayResponse
   attr_reader :body, :status
@@ -12,7 +12,7 @@ class MockFaradayResponse
   end
 end
 
-describe CARMA::Client::MuleSoftTokenClient do
+describe CARMA::Client::MuleSoftAuthTokenClient do
   let(:client) { described_class.new }
 
   let(:config) { double('config') }
@@ -75,7 +75,7 @@ describe CARMA::Client::MuleSoftTokenClient do
 
         expect do
           subject
-        end.to raise_error(CARMA::Client::MuleSoftTokenClient::GetAuthTokenError)
+        end.to raise_error(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError)
       end
     end
   end
