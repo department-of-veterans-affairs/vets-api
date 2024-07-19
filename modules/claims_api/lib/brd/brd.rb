@@ -24,13 +24,7 @@ module ClaimsApi
     #
     # @return [Array<String>] list of countries
     def countries
-      key = "#{service_name}:countries"
-      countries_list = @response_store.get_brd_response(key)
-      if countries_list.nil?
-        countries_list = client.get('countries').body[:items]
-        @response_store.set_brd_response(key, countries_list)
-      end
-      countries_list
+      response_from_cache_or_service('countries')
     rescue => e
       rescue_brd(e, 'countries')
     end
@@ -41,42 +35,34 @@ module ClaimsApi
     # @return [Array<Hash>] list of intake sites
     # as {id: <number> and description: <string>}
     def intake_sites
-      key = "#{service_name}:intake-sites"
-      sites_list = @response_store.get_brd_response(key)
-      if sites_list.nil?
-        sites_list = client.get('intake-sites').body[:items]
-        @response_store.set_brd_response(key, sites_list)
-      end
-      sites_list
+      response_from_cache_or_service('intake-sites')
     rescue => e
       rescue_brd(e, 'intake-sites')
     end
 
     def disabilities
-      key = "#{service_name}:disabilities"
-      disabilities_list = @response_store.get_brd_response(key)
-      if disabilities_list.nil?
-        disabilities_list = client.get('disabilities').body[:items]
-        @response_store.set_brd_response(key, disabilities_list)
-      end
-      disabilities_list
+      response_from_cache_or_service('disabilities')
     rescue => e
       rescue_brd(e, 'disabilities')
     end
 
     def service_branches
-      key = "#{service_name}:service-branches"
-      branches_list = @response_store.get_brd_response(key)
-      if branches_list.nil?
-        branches_list = client.get('service-branches').body[:items]
-        @response_store.set_brd_response(key, branches_list)
-      end
-      branches_list
+      response_from_cache_or_service('service-branches')
     rescue => e
       rescue_brd(e, 'service-branches')
     end
 
     private
+
+    def response_from_cache_or_service(brd_service)
+      key = "#{service_name}:#{brd_service}"
+      response = @response_store.get_brd_response(key)
+      if response.nil?
+        response = client.get(brd_service).body[:items]
+        @response_store.set_brd_response(key, response)
+      end
+      response
+    end
 
     def client
       base_name = if Settings.brd&.base_name.nil?
