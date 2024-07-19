@@ -6,7 +6,6 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
   subject { described_class }
 
   before do
-    Flipper.disable(:lighthouse_claims_api_poa_use_bd)
     Sidekiq::Job.clear_all
   end
 
@@ -128,22 +127,6 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
           error: error_msg
         )
       end
-    end
-  end
-
-  context 'when the BD upload feature flag is enabled' do
-    it 'does not create a PoaVBMSUpdater job but still updates the form status' do
-      Flipper.enable(:lighthouse_claims_api_poa_use_bd)
-      create_mock_lighthouse_service
-      expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
-
-      poa = create_poa
-      poa.form_data.merge!({ recordConsent: true, consentLimits: [] })
-      poa.save!
-
-      subject.new.perform(poa.id)
-      poa.reload
-      expect(poa.status).to eq('updated')
     end
   end
 
