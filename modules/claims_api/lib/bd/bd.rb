@@ -82,8 +82,6 @@ module ClaimsApi
     end
 
     def get_claim_id(doc_type, claim)
-      return nil if doc_type.nil?
-
       case doc_type
       when 'L075', 'L190'
         nil
