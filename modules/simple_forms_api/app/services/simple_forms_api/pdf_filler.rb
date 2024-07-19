@@ -25,9 +25,9 @@ module SimpleFormsApi
 
       # Tempfile workaround inspired by this:
       #   https://github.com/actions/runner-images/issues/4443#issuecomment-965391736
-      tempfile = Tempfile.new(["tmp", ".pdf"]).tap do |tempfile|
-        IO.copy_stream(template_form_path, tempfile)
-        tempfile.close
+      tempfile = Tempfile.new(['tmp', '.pdf']).tap do |tmpfile|
+        IO.copy_stream(template_form_path, tmpfile)
+        tmpfile.close
       end
       FileUtils.touch(tempfile)
       FileUtils.copy_file(tempfile.path, stamped_template_path)
