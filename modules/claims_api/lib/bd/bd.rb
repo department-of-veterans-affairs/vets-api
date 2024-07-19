@@ -54,7 +54,7 @@ module ClaimsApi
       res = res.deep_symbolize_keys
       request_id = res.dig(:data, :requestId)
       ClaimsApi::Logger.log('benefits_documents',
-                            detail: "Successfully uploaded #{doc_type == 'L122' ? 'claim' : 'supporting'} doc to BD",
+                            detail: "Successfully uploaded #{doc_type_to_plain_language(doc_type)} doc to BD",
                             claim_id: claim.id, request_id:)
       res
     rescue => e
@@ -65,6 +65,17 @@ module ClaimsApi
     # rubocop:enable Metrics/ParameterLists
 
     private
+
+    def doc_type_to_plain_language(doc_type)
+      case doc_type
+      when 'L075', 'L190'
+        'POA'
+      when 'L122'
+        'claim'
+      when 'L705'
+        'supporting'
+      end
+    end
 
     def compact_veteran_name(first_name, last_name)
       [first_name, last_name].compact_blank.join('_')
