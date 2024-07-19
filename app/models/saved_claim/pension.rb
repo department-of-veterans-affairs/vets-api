@@ -44,6 +44,6 @@ class SavedClaim::Pension < SavedClaim
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
 
-    Lighthouse::PensionBenefitIntakeJob.perform_async(id, current_user&.user_account_id)
+    Lighthouse::PensionBenefitIntakeJob.perform_async(id, current_user&.user_account_uuid)
   end
 end
