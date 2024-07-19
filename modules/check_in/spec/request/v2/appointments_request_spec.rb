@@ -153,7 +153,10 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
                   facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
                   facilityVistaSite: '534',
                   facilityTimezone: 'America/New_York',
-                  facilityPhoneMain: '843-577-5011'
+                  facilityPhoneMain: '843-577-5011',
+                  serviceName: 'CHS NEUROSURGERY VARMA',
+                  physicalLocation: '1ST FL SPECIALTY MODULE 2',
+                  friendlyName: 'CHS NEUROSURGERY VARMA'
                 }
               },
               {
@@ -171,7 +174,10 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
                   facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
                   facilityVistaSite: '534',
                   facilityTimezone: 'America/New_York',
-                  facilityPhoneMain: '843-577-5011'
+                  facilityPhoneMain: '843-577-5011',
+                  serviceName: 'CHS NEUROSURGERY VARMA',
+                  physicalLocation: '1ST FL SPECIALTY MODULE 2',
+                  friendlyName: 'CHS NEUROSURGERY VARMA'
                 }
               }
             ]
@@ -179,10 +185,12 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
         end
 
         it 'returns appointments' do
-          VCR.use_cassette 'check_in/facilities/get_facilities_200' do
-            VCR.use_cassette 'check_in/appointments/get_appointments_200' do
-              VCR.use_cassette 'check_in/map/security_token_service_200' do
-                get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
+          VCR.use_cassette 'check_in/clinics/get_clinics_200' do
+            VCR.use_cassette 'check_in/facilities/get_facilities_200' do
+              VCR.use_cassette 'check_in/appointments/get_appointments_200' do
+                VCR.use_cassette 'check_in/map/security_token_service_200' do
+                  get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
+                end
               end
             end
           end
@@ -207,10 +215,12 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
         end
 
         it 'returns error' do
-          VCR.use_cassette 'check_in/facilities/get_facilities_200' do
-            VCR.use_cassette 'check_in/appointments/get_appointments_500' do
-              VCR.use_cassette 'check_in/map/security_token_service_200' do
-                get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
+          VCR.use_cassette 'check_in/clinics/get_clinics_200' do
+            VCR.use_cassette 'check_in/facilities/get_facilities_200' do
+              VCR.use_cassette 'check_in/appointments/get_appointments_500' do
+                VCR.use_cassette 'check_in/map/security_token_service_200' do
+                  get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
+                end
               end
             end
           end
@@ -235,10 +245,72 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
         end
 
         it 'returns error' do
-          VCR.use_cassette 'check_in/facilities/get_facilities_500' do
-            VCR.use_cassette 'check_in/appointments/get_appointments_200' do
-              VCR.use_cassette 'check_in/map/security_token_service_200' do
-                get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
+          VCR.use_cassette 'check_in/clinics/get_clinics_500' do
+            VCR.use_cassette 'check_in/facilities/get_facilities_500' do
+              VCR.use_cassette 'check_in/appointments/get_appointments_200' do
+                VCR.use_cassette 'check_in/map/security_token_service_200' do
+                  get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
+                end
+              end
+            end
+          end
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response.body).to eq(error_response)
+        end
+      end
+
+      context 'when facility service returns 500 and clinic service succeeds' do
+        let(:error_response) do
+          {
+            errors: [
+              {
+                title: 'Operation failed',
+                detail: 'Operation failed',
+                code: 'VA900',
+                status: '400'
+              }
+            ]
+          }.to_json
+        end
+
+        it 'returns error' do
+          VCR.use_cassette 'check_in/clinics/get_clinics_200' do
+            VCR.use_cassette 'check_in/facilities/get_facilities_500' do
+              VCR.use_cassette 'check_in/appointments/get_appointments_200' do
+                VCR.use_cassette 'check_in/map/security_token_service_200' do
+                  get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
+                end
+              end
+            end
+          end
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response.body).to eq(error_response)
+        end
+      end
+
+      context 'when facility service succeeds 500 but clinic service returns 500' do
+        let(:error_response) do
+          {
+            errors: [
+              {
+                title: 'Operation failed',
+                detail: 'Operation failed',
+                code: 'VA900',
+                status: '400'
+              }
+            ]
+          }.to_json
+        end
+
+        it 'returns error' do
+          VCR.use_cassette 'check_in/clinics/get_clinics_500' do
+            VCR.use_cassette 'check_in/facilities/get_facilities_200' do
+              VCR.use_cassette 'check_in/appointments/get_appointments_200' do
+                VCR.use_cassette 'check_in/map/security_token_service_200' do
+                  get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
+                end
               end
             end
           end
