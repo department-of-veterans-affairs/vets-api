@@ -1,5 +1,4 @@
 <%= parse_with_template_path('header_1995') %>
-<%= form_type %>
 <%= @applicant.benefitAppliedFor&.titleize %>
 *START*
 VA Form 22-1995
@@ -57,6 +56,7 @@ Benefit Most Recently Received: <%= form_benefit %>
 Select Another Benefit: <%= @applicant.changeAnotherBenefit %>
 
 Benefit Being Applied For: <%= @applicant.benefitAppliedFor&.titleize %>
+
 Type of Education or Training: <%= @applicant.educationTypeUpdate&.titleize %>
 Education or Career Goal: <%= @applicant.educationObjective %>
 
@@ -101,7 +101,6 @@ Address of Parent, Guardian or Custodian:
   Email address: <%= @applicant.minorQuestions.guardianEmail %>
 
 <% end -%>
-
 
 <% if @applicant.isActiveDuty -%>
 As an active-duty service member, you have consulted with an Education Service
