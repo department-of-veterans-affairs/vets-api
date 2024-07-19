@@ -123,6 +123,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.mailing_address.state).to eq('AE')
       expect(result.mailing_address.zip_first_five).to eq('817')
     end
+
+    it 'trims leading/trailing spaces from address line 1' do
+      data['form526']['veteran']['currentMailingAddress']['addressLine1'] = ' 1234 Couch Street '
+      result = transformer.send(:transform_veteran, data['form526']['veteran'])
+      expect(result.mailing_address.address_line_1).to eq('1234 Couch Street')
+    end
   end
 
   describe 'transform change of address' do
@@ -172,6 +178,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.alternate_names).not_to be_nil
       expect(result.reserves_national_guard_service).not_to be_nil
       expect(result.reserves_national_guard_service.receiving_inactive_duty_training_pay).to be('YES')
+      expect(result.reserves_national_guard_service.obligation_terms_of_service.begin_date).to eq('2000-01-04')
       expect(result.service_periods.first.separation_location_code).to eq('OU812')
       expect(result.reserves_national_guard_service.component).to eq('Reserves')
     end

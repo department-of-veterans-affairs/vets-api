@@ -17,6 +17,7 @@ module DebtManagementCenter
       response = BGS::People::Request.new.find_person_by_participant_id(user: @user)
       response.file_number || @user.ssn
     rescue
+      Rails.logger.error("BGS::People::Request error - falling back to ssn for user: #{@user.uuid}")
       @user.ssn
     end
 

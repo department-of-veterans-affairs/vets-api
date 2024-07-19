@@ -47,6 +47,10 @@ describe ApplicationController, type: :controller do
     def raise_expired_token_signature
       raise Common::Exceptions::TokenValidationError.new(detail: 'Signature has expired')
     end
+
+    def raise_timeout
+      raise ClaimsApi::Common::Exceptions::Lighthouse::Timeout
+    end
   end
 
   before do
@@ -57,6 +61,7 @@ describe ApplicationController, type: :controller do
       get 'raise_json_526_validation_error' => 'anonymous#raise_json_526_validation_error'
       get 'raise_invalid_token' => 'anonymous#raise_invalid_token'
       get 'raise_expired_token_signature' => 'anonymous#raise_expired_token_signature'
+      get 'raise_timeout' => 'anonymous#raise_timeout'
     end
   end
 
@@ -146,6 +151,21 @@ describe ApplicationController, type: :controller do
       expect(parsed_body['errors'][0]['title']).to eq('Not authorized')
       expect(parsed_body['errors'][0]['detail']).to eq('Signature has expired')
       expect(parsed_body['errors'][0]['status']).to eq('401')
+      expect(parsed_body['errors'][0]['status']).to be_a(String)
+    end
+  end
+
+  it 'catches a timeout' do
+    mock_ccg(scopes) do |auth_header|
+      request.headers.merge!(auth_header)
+
+      get :raise_timeout
+
+      expect(response).to have_http_status(:gateway_timeout)
+      parsed_body = JSON.parse(response.body)
+      expect(parsed_body['errors'][0]['title']).to eq('Upstream timeout')
+      expect(parsed_body['errors'][0]['detail']).to eq('An upstream service timed out.')
+      expect(parsed_body['errors'][0]['status']).to eq('504')
       expect(parsed_body['errors'][0]['status']).to be_a(String)
     end
   end

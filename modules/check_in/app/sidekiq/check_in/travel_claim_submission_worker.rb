@@ -53,30 +53,10 @@ module CheckIn
       code = opts[:claims_resp]&.dig(:data, :code)
       facility_type = opts[:facility_type] || ''
 
-      statsd_metric, template_id = get_metric_and_template_id(code, facility_type)
+      statsd_metric, template_id = facility_type.downcase == 'oh' ? OH_RESPONSES[code] : CIE_RESPONSES[code]
 
       StatsD.increment(statsd_metric)
       [claim_number, template_id]
-    end
-
-    def get_metric_and_template_id(code, facility_type)
-      oh_responses = Hash.new([Constants::OH_STATSD_BTSSS_ERROR, Constants::OH_ERROR_TEMPLATE_ID]).merge(
-        TravelClaim::Response::CODE_SUCCESS => [Constants::OH_STATSD_BTSSS_SUCCESS, Constants::OH_SUCCESS_TEMPLATE_ID],
-        TravelClaim::Response::CODE_CLAIM_EXISTS => [Constants::OH_STATSD_BTSSS_DUPLICATE,
-                                                     Constants::OH_DUPLICATE_TEMPLATE_ID],
-        TravelClaim::Response::CODE_BTSSS_TIMEOUT => [Constants::OH_STATSD_BTSSS_TIMEOUT,
-                                                      Constants::OH_TIMEOUT_TEMPLATE_ID]
-      )
-      cie_responses = Hash.new([Constants::CIE_STATSD_BTSSS_ERROR, Constants::CIE_ERROR_TEMPLATE_ID]).merge(
-        TravelClaim::Response::CODE_SUCCESS => [Constants::CIE_STATSD_BTSSS_SUCCESS,
-                                                Constants::CIE_SUCCESS_TEMPLATE_ID],
-        TravelClaim::Response::CODE_CLAIM_EXISTS => [Constants::CIE_STATSD_BTSSS_DUPLICATE,
-                                                     Constants::CIE_DUPLICATE_TEMPLATE_ID],
-        TravelClaim::Response::CODE_BTSSS_TIMEOUT => [Constants::CIE_STATSD_BTSSS_TIMEOUT,
-                                                      Constants::CIE_TIMEOUT_TEMPLATE_ID]
-      )
-
-      facility_type.downcase == 'oh' ? oh_responses[code] : cie_responses[code]
     end
 
     def should_handle_timeout(claims_resp)

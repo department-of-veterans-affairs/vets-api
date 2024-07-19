@@ -4,10 +4,11 @@ require 'rails_helper'
 
 describe IvcChampva::FileUploader do
   let(:form_id) { '123' }
-  let(:metadata) { { key: 'value' } }
-  let(:file_paths) { ['tmp/file1.pdf', 'tmp/file2.pdf'] }
+  let(:metadata) { { 'uuid' => '4171e61a-03b5-49f3-8717-dbf340310473' } }
+  let(:file_paths) { ['tmp/file1.pdf', 'tmp/file2.png'] }
   let(:attachment_ids) { ['Social Security card', 'Birth certificate'] }
-  let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, attachment_ids) }
+  let(:insert_db_row) { false }
+  let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, attachment_ids, insert_db_row) }
 
   describe '#handle_uploads' do
     context 'when all PDF uploads succeed' do
@@ -33,7 +34,7 @@ describe IvcChampva::FileUploader do
   end
 
   describe '#generate_and_upload_meta_json' do
-    let(:meta_file_path) { "tmp/#{form_id}_metadata.json" }
+    let(:meta_file_path) { "tmp/#{metadata['uuid']}_#{form_id}_metadata.json" }
 
     before do
       allow(File).to receive(:write)
@@ -44,7 +45,7 @@ describe IvcChampva::FileUploader do
     it 'writes metadata to a JSON file and uploads it' do
       expect(File).to receive(:write).with(meta_file_path, metadata.to_json)
       expect(uploader).to receive(:upload).with(
-        "#{form_id}_metadata.json",
+        "#{metadata['uuid']}_#{form_id}_metadata.json",
         meta_file_path,
         attachment_ids:
       ).and_return([200, nil])

@@ -54,11 +54,11 @@ module Lighthouse
     def perform(form_type, form_start_date, veteran_icn)
       init(form_type, veteran_icn)
 
-      @itf_log_monitor.track_create_itf_begun(@itf_type, form_start_date, @user_account.id)
+      @itf_log_monitor.track_create_itf_begun(@itf_type, form_start_date, @user_account&.id)
       @service.create_intent_to_file(@itf_type, '')
-      @itf_log_monitor.track_create_itf_success(@itf_type, form_start_date, @user_account.id)
+      @itf_log_monitor.track_create_itf_success(@itf_type, form_start_date, @user_account&.id)
     rescue => e
-      @itf_log_monitor.track_create_itf_failure(@itf_type, form_start_date, @user_account.id, e)
+      @itf_log_monitor.track_create_itf_failure(@itf_type, form_start_date, @user_account&.id, e)
       raise e
     end
 
