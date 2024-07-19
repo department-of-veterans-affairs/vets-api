@@ -868,49 +868,43 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v21_22_expected_) do
     {
-      'claimantInformation' => {
-        'fullName' => {
-          'first' => user.first_name&.capitalize,
-          'last' => user.last_name&.capitalize,
-          'suffix' => user.suffix
-        },
-        'ssn' => '796111863',
-        'dob' => '1809-02-12'
+      'personalInformation' => {
+        'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.suffix,
+        'preferredName' => 'SAM',
+        'dateOfBirth' => user.birth_date,
+        'socialSecurityNumber' => user.ssn,
+        'serviceNumber' => '123455678'
       },
-      'veteranAddress' => {
-        'street' => street_check[:street],
-        'street2' => street_check[:street2],
-        'city' => user.address[:city],
-        'state' => user.address[:state],
-        'country' => user.address[:country],
-        'postal_code' => user.address[:zip][0..4]
+      'contactInformation' => {
+        'email' => user.pciu_email,
+        'phone' => us_phone,
+        'address' => address
       },
-      'primaryPhone' => us_phone,
-      'email' => user.pciu_email
+      'veteranServiceInformation' => veteran_service_information
     }
   end
 
   let(:v21_22a_expected_) do
     {
-      'claimantInformation' => {
-        'fullName' => {
-          'first' => user.first_name&.capitalize,
-          'last' => user.last_name&.capitalize,
-          'suffix' => user.suffix
-        },
-        'ssn' => '796111863',
-        'dob' => '1809-02-12'
+      'personalInformation' => {
+        'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.suffix,
+        'preferredName' => 'SAM',
+        'dateOfBirth' => user.birth_date,
+        'socialSecurityNumber' => user.ssn,
+        'serviceNumber' => '123455678'
       },
-      'veteranAddress' => {
-        'street' => street_check[:street],
-        'street2' => street_check[:street2],
-        'city' => user.address[:city],
-        'state' => user.address[:state],
-        'country' => user.address[:country],
-        'postal_code' => user.address[:zip][0..4]
+      'contactInformation' => {
+        'email' => user.pciu_email,
+        'phone' => us_phone,
+        'address' => address
       },
-      'primaryPhone' => us_phone,
-      'email' => user.pciu_email
+      'veteranServiceInformation' => veteran_service_information
     }
   end
 
