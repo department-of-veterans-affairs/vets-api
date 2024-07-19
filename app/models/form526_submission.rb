@@ -61,7 +61,9 @@ class Form526Submission < ApplicationRecord
   belongs_to :user_account, dependent: nil, optional: true
 
   validates(:auth_headers_json, presence: true)
-  enum backup_submitted_claim_status: { accepted: 0, rejected: 1 }
+  # Documentation describing the purpose of 'paranoid success'
+  # https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/disability/526ez/engineering_research/paranoid_success_submissions.md
+  enum backup_submitted_claim_status: { accepted: 0, rejected: 1, paranoid_success: 2 }
   enum submit_endpoint: { evss: 0, claims_api: 1, benefits_intake_api: 2 }
 
   # Documentation describing the purpose of these scopes:
@@ -95,10 +97,22 @@ class Form526Submission < ApplicationRecord
     where(id: accepted_to_primary_path.select(:id))
       .or(where(id: accepted_to_backup_path.select(:id)))
       .or(where(id: remediated.select(:id)))
+      .or(where(id: paranoid_success_type.select(:id)))
+      .or(where(id: success_by_age_type.select(:id)))
   }
   scope :failure_type, lambda {
     where.not(id: in_process.select(:id))
          .where.not(id: success_type.select(:id))
+  }
+  # after 1 year as paranoid success, we consider it fully successful
+  scope :success_by_age_type, lambda {
+    where(backup_submitted_claim_status: backup_submitted_claim_statuses[:paranoid_success])
+      .where(arel_table[:created_at].lt(1.year.ago))
+  }
+  # addresses a Benefits Intake API edge case where 'success' can revert to failure
+  scope :paranoid_success_type, lambda {
+    where(backup_submitted_claim_status: backup_submitted_claim_statuses[:paranoid_success])
+      .where(arel_table[:created_at].gt(1.year.ago))
   }
 
   FORM_526 = 'form526'
