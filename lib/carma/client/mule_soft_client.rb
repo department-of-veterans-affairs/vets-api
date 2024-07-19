@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'carma/client/mule_soft_configuration'
+require 'carma/client/mule_soft_token_client'
 
 module CARMA
   module Client
@@ -73,37 +74,18 @@ module CARMA
       def perform_post(resource, payload)
         Rails.logger.info "[Form 10-10CG] Submitting to '#{resource}' using bearer token"
 
-        response = perform(:post, resource, get_body(payload), { Authorization: "Bearer #{bearer_token}" })
+        response = perform(
+          :post,
+          resource,
+          get_body(payload),
+          { Authorization: "Bearer #{bearer_token}" }
+        )
 
         handle_response(resource, response)
       end
 
-      # get token
       def bearer_token
-        @bearer_token ||= get_new_bearer_token
-      end
-
-      def get_new_bearer_token
-        encoded_params = URI.encode_www_form({
-                                               grant_type: 'client_credentials',
-                                               scope: 'read' # TODO: this is probably a write?
-                                             })
-
-        basic_auth =  Base64.urlsafe_encode64("#{config.settings.v2.client_id}:#{config.settings.v2.client_secret}")
-
-        token_headers = {
-          'Authorization' => "Basic #{basic_auth}",
-          'Content-Type' => 'application/x-www-form-urlencoded'
-        }
-
-        response = perform(:post,
-                           config.settings.v2.token_url,
-                           encoded_params,
-                           token_headers)
-
-        return response.body[:access_token] if response.status == 201
-
-        raise GetAuthTokenError
+        @bearer_token ||= CARMA::Client::MuleSoftTokenClient.new.new_bearer_token
       end
     end
   end
