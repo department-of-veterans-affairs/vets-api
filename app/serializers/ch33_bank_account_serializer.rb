@@ -1,29 +1,26 @@
 # frozen_string_literal: true
 
-class Ch33BankAccountSerializer < ActiveModel::Serializer
-  attributes :account_type, :account_number, :financial_institution_routing_number, :financial_institution_name
+class Ch33BankAccountSerializer
+  include JSONAPI::Serializer
 
-  def account_type
-    dposit_acnt_type_nm = object[:dposit_acnt_type_nm]
+  set_id { '' }
+  set_type :hashes
 
-    if dposit_acnt_type_nm.present?
-      dposit_acnt_type_nm == 'C' ? 'Checking' : 'Savings'
-    end
+  attribute :account_type do |object|
+    next nil if object[:dposit_acnt_type_nm].blank?
+
+    object[:dposit_acnt_type_nm] == 'C' ? 'Checking' : 'Savings'
   end
 
-  def account_number
+  attribute :account_number do |object|
     StringHelpers.mask_sensitive(object[:dposit_acnt_nbr])
   end
 
-  def financial_institution_routing_number
+  attribute :financial_institution_routing_number do |object|
     StringHelpers.mask_sensitive(object[:routng_trnsit_nbr])
   end
 
-  def financial_institution_name
+  attribute :financial_institution_name do |object|
     object[:financial_institution_name]
-  end
-
-  def id
-    nil
   end
 end
