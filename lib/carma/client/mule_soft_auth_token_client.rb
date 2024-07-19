@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require 'carma/client/mule_soft_token_configuration'
+require 'carma/client/mule_soft_auth_token_configuration'
 
 module CARMA
   module Client
-    class MuleSoftTokenClient < Common::Client::Base
+    class MuleSoftAuthTokenClient < Common::Client::Base
       include Common::Client::Concerns::Monitoring
 
       STATSD_KEY_PREFIX = 'api.carma.mulesoft.auth'
 
-      configuration MuleSoftTokenConfiguration
+      configuration MuleSoftAuthTokenConfiguration
 
       class GetAuthTokenError < StandardError; end
 

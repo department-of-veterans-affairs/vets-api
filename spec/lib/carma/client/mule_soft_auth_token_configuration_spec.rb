@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'carma/client/mule_soft_token_configuration'
+require 'carma/client/mule_soft_auth_token_configuration'
 
-describe CARMA::Client::MuleSoftTokenConfiguration do
+describe CARMA::Client::MuleSoftAuthTokenConfiguration do
   subject { described_class.instance }
 
   let(:token_url) { 'https://www.somesite.gov' }
@@ -24,7 +24,7 @@ describe CARMA::Client::MuleSoftTokenConfiguration do
     subject { super().service_name }
 
     it 'returns class name' do
-      expect(subject).to eq('CARMA::Client::MuleSoftTokenConfiguration')
+      expect(subject).to eq('CARMA::Client::MuleSoftAuthTokenConfiguration')
     end
   end
 

@@ -2,7 +2,7 @@
 
 module CARMA
   module Client
-    class MuleSoftTokenConfiguration < Common::Client::Configuration::REST
+    class MuleSoftAuthTokenConfiguration < Common::Client::Configuration::REST
       def connection
         Faraday.new(base_path) do |conn|
           conn.use :breakers

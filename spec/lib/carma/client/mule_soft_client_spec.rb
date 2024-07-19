@@ -62,11 +62,11 @@ describe CARMA::Client::MuleSoftClient do
       let(:payload) { {} }
 
       context 'OAuth 2.0 flipper enabled' do
-        let(:mulesoft_token_client) { instance_double(CARMA::Client::MuleSoftTokenClient) }
+        let(:mulesoft_auth_token_client) { instance_double(CARMA::Client::MuleSoftAuthTokenClient) }
 
         before do
           Flipper.enable(:cg_OAuth_2_enabled)
-          allow(CARMA::Client::MuleSoftTokenClient).to receive(:new).and_return(mulesoft_token_client)
+          allow(CARMA::Client::MuleSoftAuthTokenClient).to receive(:new).and_return(mulesoft_auth_token_client)
         end
 
         after do
@@ -77,7 +77,7 @@ describe CARMA::Client::MuleSoftClient do
           let(:bearer_token) { 'my-bearer-token' }
 
           before do
-            allow(mulesoft_token_client).to receive(:new_bearer_token).and_return(bearer_token)
+            allow(mulesoft_auth_token_client).to receive(:new_bearer_token).and_return(bearer_token)
           end
 
           it 'calls perform with expected params' do
@@ -115,12 +115,12 @@ describe CARMA::Client::MuleSoftClient do
 
         context 'error getting token' do
           it 'logs error' do
-            expect(mulesoft_token_client).to receive(:new_bearer_token)
-              .and_raise(CARMA::Client::MuleSoftTokenClient::GetAuthTokenError)
+            expect(mulesoft_auth_token_client).to receive(:new_bearer_token)
+              .and_raise(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError)
 
             expect do
               subject
-            end.to raise_error(CARMA::Client::MuleSoftTokenClient::GetAuthTokenError)
+            end.to raise_error(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError)
           end
         end
       end
