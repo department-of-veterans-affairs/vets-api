@@ -203,8 +203,8 @@ RSpec.describe Form526StatusPollingJob, type: :job do
         end
 
         it 'updates local state to reflect the returned statuses' do
-          pending_claim_ids = Form526Submission
-            .pending_backup_submissions.pluck(:backup_submitted_claim_id)
+          pending_claim_ids = Form526Submission.pending_backup_submissions
+                                               .pluck(:backup_submitted_claim_id)
           response = double
 
           allow(response).to receive(:body).and_return(api_response)
