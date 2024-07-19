@@ -78,7 +78,7 @@ module V0
       job_status = Form526JobStatus.where(job_id: params[:job_id]).first
       raise Common::Exceptions::RecordNotFound, params[:job_id] unless job_status
 
-      render json: job_status, serializer: Form526JobStatusSerializer
+      render json: Form526JobStatusSerializer.new(job_status)
     end
 
     def rating_info
