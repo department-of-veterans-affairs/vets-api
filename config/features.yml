@@ -1559,3 +1559,7 @@ features:
   military_benefit_estimates:
     actor_type: user
     description: swap order of the military details in GI search filters 
+  merge_1995_and_5490:
+    actore_type: user
+    description: Activating the combined 1995 and 5490 form 
+    
