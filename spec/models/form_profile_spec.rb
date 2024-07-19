@@ -866,7 +866,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  let(:v21_22_expected_) do
+  let(:v21_22_expected) do
     {
       'personalInformation' => {
         'first' => user.first_name&.capitalize,
@@ -887,7 +887,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  let(:v21_22a_expected_) do
+  let(:v21_22a_expected) do
     {
       'personalInformation' => {
         'first' => user.first_name&.capitalize,
