@@ -1389,8 +1389,6 @@
                                   "required": [
                                     "addressLine1",
                                     "city",
-                                    "state",
-                                    "zipFirstFive",
                                     "country"
                                   ],
                                   "properties": {
@@ -1425,10 +1423,11 @@
                                       "example": "Portland"
                                     },
                                     "state": {
-                                      "description": "State for the Veteran's current mailing address.",
+                                      "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                       "type": "string",
                                       "pattern": "^[a-z,A-Z]{2}$",
-                                      "example": "OR"
+                                      "example": "OR",
+                                      "nullable": true
                                     },
                                     "country": {
                                       "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -1437,16 +1436,22 @@
                                       "example": "USA"
                                     },
                                     "zipFirstFive": {
-                                      "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
+                                      "description": "Zip code (First 5 digits) for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                       "type": "string",
                                       "pattern": "^\\d{5}?$",
-                                      "example": "12345"
+                                      "example": "12345",
+                                      "nullable": true
                                     },
                                     "zipLastFour": {
                                       "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
                                       "type": "string",
                                       "pattern": "^\\d{4}?$",
                                       "example": "6789",
+                                      "nullable": true
+                                    },
+                                    "internationalPostalCode": {
+                                      "type": "string",
+                                      "maxLength": 100,
                                       "nullable": true
                                     }
                                   }
@@ -1525,10 +1530,11 @@
                                   "example": "Portland"
                                 },
                                 "state": {
-                                  "description": "State for the Veteran's new address.",
+                                  "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                   "type": "string",
                                   "pattern": "^$|^[a-z,A-Z]{2}$",
-                                  "example": "OR"
+                                  "example": "OR",
+                                  "nullable": true
                                 },
                                 "country": {
                                   "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -1537,10 +1543,11 @@
                                   "example": "USA"
                                 },
                                 "zipFirstFive": {
-                                  "description": "Zip code (First 5 digits) for the Veteran's new address.",
+                                  "description": "Zip code (First 5 digits) for the Veteran's new address. Required if 'country' is 'USA'.",
                                   "type": "string",
                                   "pattern": "^$|^\\d{5}?$",
-                                  "example": "12345"
+                                  "example": "12345",
+                                  "nullable": true
                                 },
                                 "zipLastFour": {
                                   "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -1548,6 +1555,11 @@
                                   "nullable": true,
                                   "pattern": "^$|^\\d{4}?$",
                                   "example": "6789"
+                                },
+                                "internationalPostalCode": {
+                                  "type": "string",
+                                  "maxLength": 100,
+                                  "nullable": true
                                 },
                                 "dates": {
                                   "type": "object",
@@ -2740,8 +2752,6 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "state",
-                                  "zipFirstFive",
                                   "country"
                                 ],
                                 "properties": {
@@ -2776,10 +2786,11 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the Veteran's current mailing address.",
+                                    "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR"
+                                    "example": "OR",
+                                    "nullable": true
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -2788,16 +2799,22 @@
                                     "example": "USA"
                                   },
                                   "zipFirstFive": {
-                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
+                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
-                                    "example": "12345"
+                                    "example": "12345",
+                                    "nullable": true
                                   },
                                   "zipLastFour": {
                                     "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789",
+                                    "nullable": true
+                                  },
+                                  "internationalPostalCode": {
+                                    "type": "string",
+                                    "maxLength": 100,
                                     "nullable": true
                                   }
                                 }
@@ -2876,10 +2893,11 @@
                                 "example": "Portland"
                               },
                               "state": {
-                                "description": "State for the Veteran's new address.",
+                                "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR"
+                                "example": "OR",
+                                "nullable": true
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -2888,10 +2906,11 @@
                                 "example": "USA"
                               },
                               "zipFirstFive": {
-                                "description": "Zip code (First 5 digits) for the Veteran's new address.",
+                                "description": "Zip code (First 5 digits) for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^\\d{5}?$",
-                                "example": "12345"
+                                "example": "12345",
+                                "nullable": true
                               },
                               "zipLastFour": {
                                 "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -2899,6 +2918,11 @@
                                 "nullable": true,
                                 "pattern": "^$|^\\d{4}?$",
                                 "example": "6789"
+                              },
+                              "internationalPostalCode": {
+                                "type": "string",
+                                "maxLength": 100,
+                                "nullable": true
                               },
                               "dates": {
                                 "type": "object",
@@ -4624,8 +4648,6 @@
                                   "required": [
                                     "addressLine1",
                                     "city",
-                                    "state",
-                                    "zipFirstFive",
                                     "country"
                                   ],
                                   "properties": {
@@ -4660,10 +4682,11 @@
                                       "example": "Portland"
                                     },
                                     "state": {
-                                      "description": "State for the Veteran's current mailing address.",
+                                      "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                       "type": "string",
                                       "pattern": "^[a-z,A-Z]{2}$",
-                                      "example": "OR"
+                                      "example": "OR",
+                                      "nullable": true
                                     },
                                     "country": {
                                       "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -4672,16 +4695,22 @@
                                       "example": "USA"
                                     },
                                     "zipFirstFive": {
-                                      "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
+                                      "description": "Zip code (First 5 digits) for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                       "type": "string",
                                       "pattern": "^\\d{5}?$",
-                                      "example": "12345"
+                                      "example": "12345",
+                                      "nullable": true
                                     },
                                     "zipLastFour": {
                                       "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
                                       "type": "string",
                                       "pattern": "^\\d{4}?$",
                                       "example": "6789",
+                                      "nullable": true
+                                    },
+                                    "internationalPostalCode": {
+                                      "type": "string",
+                                      "maxLength": 100,
                                       "nullable": true
                                     }
                                   }
@@ -4760,10 +4789,11 @@
                                   "example": "Portland"
                                 },
                                 "state": {
-                                  "description": "State for the Veteran's new address.",
+                                  "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                   "type": "string",
                                   "pattern": "^$|^[a-z,A-Z]{2}$",
-                                  "example": "OR"
+                                  "example": "OR",
+                                  "nullable": true
                                 },
                                 "country": {
                                   "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -4772,10 +4802,11 @@
                                   "example": "USA"
                                 },
                                 "zipFirstFive": {
-                                  "description": "Zip code (First 5 digits) for the Veteran's new address.",
+                                  "description": "Zip code (First 5 digits) for the Veteran's new address. Required if 'country' is 'USA'.",
                                   "type": "string",
                                   "pattern": "^$|^\\d{5}?$",
-                                  "example": "12345"
+                                  "example": "12345",
+                                  "nullable": true
                                 },
                                 "zipLastFour": {
                                   "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -4783,6 +4814,11 @@
                                   "nullable": true,
                                   "pattern": "^$|^\\d{4}?$",
                                   "example": "6789"
+                                },
+                                "internationalPostalCode": {
+                                  "type": "string",
+                                  "maxLength": 100,
+                                  "nullable": true
                                 },
                                 "dates": {
                                   "type": "object",
@@ -5975,8 +6011,6 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "state",
-                                  "zipFirstFive",
                                   "country"
                                 ],
                                 "properties": {
@@ -6011,10 +6045,11 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the Veteran's current mailing address.",
+                                    "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR"
+                                    "example": "OR",
+                                    "nullable": true
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -6023,16 +6058,22 @@
                                     "example": "USA"
                                   },
                                   "zipFirstFive": {
-                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
+                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
-                                    "example": "12345"
+                                    "example": "12345",
+                                    "nullable": true
                                   },
                                   "zipLastFour": {
                                     "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789",
+                                    "nullable": true
+                                  },
+                                  "internationalPostalCode": {
+                                    "type": "string",
+                                    "maxLength": 100,
                                     "nullable": true
                                   }
                                 }
@@ -6111,10 +6152,11 @@
                                 "example": "Portland"
                               },
                               "state": {
-                                "description": "State for the Veteran's new address.",
+                                "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR"
+                                "example": "OR",
+                                "nullable": true
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -6123,10 +6165,11 @@
                                 "example": "USA"
                               },
                               "zipFirstFive": {
-                                "description": "Zip code (First 5 digits) for the Veteran's new address.",
+                                "description": "Zip code (First 5 digits) for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^\\d{5}?$",
-                                "example": "12345"
+                                "example": "12345",
+                                "nullable": true
                               },
                               "zipLastFour": {
                                 "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -6134,6 +6177,11 @@
                                 "nullable": true,
                                 "pattern": "^$|^\\d{4}?$",
                                 "example": "6789"
+                              },
+                              "internationalPostalCode": {
+                                "type": "string",
+                                "maxLength": 100,
+                                "nullable": true
                               },
                               "dates": {
                                 "type": "object",
@@ -7869,8 +7917,6 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "state",
-                                  "zipFirstFive",
                                   "country"
                                 ],
                                 "properties": {
@@ -7905,10 +7951,11 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the Veteran's current mailing address.",
+                                    "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR"
+                                    "example": "OR",
+                                    "nullable": true
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -7917,16 +7964,22 @@
                                     "example": "USA"
                                   },
                                   "zipFirstFive": {
-                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
+                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
-                                    "example": "12345"
+                                    "example": "12345",
+                                    "nullable": true
                                   },
                                   "zipLastFour": {
                                     "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789",
+                                    "nullable": true
+                                  },
+                                  "internationalPostalCode": {
+                                    "type": "string",
+                                    "maxLength": 100,
                                     "nullable": true
                                   }
                                 }
@@ -8005,10 +8058,11 @@
                                 "example": "Portland"
                               },
                               "state": {
-                                "description": "State for the Veteran's new address.",
+                                "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR"
+                                "example": "OR",
+                                "nullable": true
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -8017,10 +8071,11 @@
                                 "example": "USA"
                               },
                               "zipFirstFive": {
-                                "description": "Zip code (First 5 digits) for the Veteran's new address.",
+                                "description": "Zip code (First 5 digits) for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^\\d{5}?$",
-                                "example": "12345"
+                                "example": "12345",
+                                "nullable": true
                               },
                               "zipLastFour": {
                                 "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -8028,6 +8083,11 @@
                                 "nullable": true,
                                 "pattern": "^$|^\\d{4}?$",
                                 "example": "6789"
+                              },
+                              "internationalPostalCode": {
+                                "type": "string",
+                                "maxLength": 100,
+                                "nullable": true
                               },
                               "dates": {
                                 "type": "object",
