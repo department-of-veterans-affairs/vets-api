@@ -7,15 +7,11 @@ module RepresentationManagement
         form = RepresentationManagement::Form2122Data.new(flatten_form_params)
 
         if form.valid?
-          p 'Form ' * 10, form.inspect
           Tempfile.create do |tempfile|
             tempfile.binmode
             RepresentationManagement::V0::PdfConstructor::Form2122.new(tempfile).construct(form)
-
-            send_data tempfile.read, filename: '2122.pdf', type: 'application/pdf', disposition: 'attachment'
+            send_data tempfile.read, filename: '21-22.pdf', type: 'application/pdf', disposition: 'attachment'
           end
-
-          # render json: { message: 'Form is valid' }, status: :created
         else
           render json: { errors: form.errors.full_messages }, status: :unprocessable_entity
         end
