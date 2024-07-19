@@ -27,10 +27,12 @@ unavailable_percentage=$(awk "BEGIN {printf \"%d\", 100 - (($pool_capacity * 100
 if [ $unavailable_percentage -ge $ALLOWED_UNAVAILABLE_PERCENTAGE ]; then
   CURRENT_TIME=$(date +%s)
 
+  dd_env=$(echo $DD_ENV | cut -f2 -d-)
+  cluster_env=${DD_ENV#eks-}
   dd_data=$(
     curl -sG \
       'https://vagov.ddog-gov.com/api/v1/query' \
-      --data-urlencode "query=avg:kubernetes_state.deployment.replicas_available{kube_cluster_name:dsva-vagov-prod-cluster,kube_namespace:vets-api} by {kube_deployment}" \
+      --data-urlencode "query=avg:kubernetes_state.deployment.replicas_available{kube_cluster_name:dsva-vagov-${cluster_env:-prod}-cluster,kube_namespace:vets-api} by {kube_deployment}" \
       -d "from=$((CURRENT_TIME - 60))" \
       -d "to=${CURRENT_TIME}" \
       -H "DD-API-KEY: $DD_API_KEY" \
