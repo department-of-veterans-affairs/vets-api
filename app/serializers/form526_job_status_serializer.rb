@@ -4,16 +4,19 @@ class Form526JobStatusSerializer
   include JSONAPI::Serializer
 
   set_id { '' }
-
-  attributes :job_id, :status
+  set_type :form526_job_statuses
 
   attribute :claim_id do |object|
     object.submission.submitted_claim_id
   end
 
+  attributes :job_id
+
   attribute :submission_id do |object|
     object.submission.id
   end
+
+  attributes :status
 
   attribute :ancillary_item_statuses do |object|
     if object.job_class.include?('526')
