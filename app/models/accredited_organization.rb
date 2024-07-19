@@ -39,10 +39,15 @@ class AccreditedOrganization < ApplicationRecord
     where(query, params)
   end
 
-  # return all registration_numbers associated with the individual
+  # return all registration_numbers associated with the organization
   #
   # @return [Array<String>]
   def registration_numbers
     accredited_individuals.pluck(:registration_number)
+  end
+
+  # This method needs to exist on the model so [Common::Collection] doesn't blow up when trying to paginate
+  def self.max_per_page
+    100
   end
 end

@@ -20,9 +20,10 @@ module RepresentationManagement
       PERMITTED_TYPES = %w[attorney claims_agent representative].freeze
 
       def index
-        individuals = individual_query.paginate(**pagination_params)
+        collection = Common::Collection.new(AccreditedIndividual, data: individual_query)
+        resource = collection.paginate(**pagination_params)
 
-        render(json: individuals, meta: pagination_meta(individuals), each_serializer: serializer_class)
+        render json: serializer_class.new(resource.data, { meta: resource.metadata })
       end
 
       private
@@ -87,12 +88,12 @@ module RepresentationManagement
 
       def sort_query_string
         case sort_param
-        when 'distance_asc'
-          distance_asc_string
         when 'first_name_asc' then 'first_name ASC'
         when 'first_name_desc' then 'first_name DESC'
         when 'last_name_asc' then 'last_name ASC'
         when 'last_name_desc' then 'last_name DESC'
+        else
+          distance_asc_string
         end
       end
 

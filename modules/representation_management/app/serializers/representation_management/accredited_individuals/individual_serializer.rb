@@ -2,36 +2,20 @@
 
 module RepresentationManagement
   module AccreditedIndividuals
-    class IndividualSerializer < ActiveModel::Serializer
-      attribute :individual_type
-      attribute :registration_number
-      attribute :full_name
-      attribute :address_line1
-      attribute :address_line2
-      attribute :address_line3
-      attribute :address_type
-      attribute :city
-      attribute :country_name
-      attribute :country_code_iso3
-      attribute :province
-      attribute :international_postal_code
-      attribute :state_code
-      attribute :zip_code
-      attribute :zip_suffix
-      attribute :phone
-      attribute :email
-      attribute :lat
-      attribute :long
-      attribute :distance
-      attribute :accredited_organizations
+    class IndividualSerializer
+      include JSONAPI::Serializer
 
-      def distance
+      attributes :individual_type, :registration_number, :first_name, :last_name, :address_line1,
+                 :address_line2, :address_line3, :address_type, :city, :country_name, :country_code_iso3, :province,
+                 :international_postal_code, :state_code, :zip_code, :zip_suffix, :phone, :email,
+                 :lat, :long
+
+      attribute :distance do |object|
         object.distance / AccreditedRepresentation::Constants::METERS_PER_MILE
       end
 
-      def accredited_organizations
-        ActiveModelSerializers::SerializableResource.new(object.accredited_organizations,
-                                                         each_serializer: OrganizationSerializer)
+      attribute :accredited_organizations do |object|
+        OrganizationSerializer.new(object.accredited_organizations)
       end
     end
   end

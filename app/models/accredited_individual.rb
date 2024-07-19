@@ -33,6 +33,8 @@ class AccreditedIndividual < ApplicationRecord
     'representative' => 'representative'
   }
 
+  DEFAULT_FUZZY_THRESHOLD = AccreditedRepresentation::Constants::FUZZY_SEARCH_THRESHOLD
+
   # Find all [AccreditedIndividuals] that are located within a distance of a specific location
   # @param long [Float] longitude of the location of interest
   # @param lat [Float] latitude of the location of interest
@@ -49,16 +51,16 @@ class AccreditedIndividual < ApplicationRecord
   end
 
   #
-  # Find all [AccreditedIndividuals] with a full name with at least the FUZZY_SEARCH_THRESHOLD value of
+  # Find all [AccreditedIndividuals] with a full name with at least the threshold value of
   #   word similarity. This gives us a way to fuzzy search for names.
   # @param search_phrase [String] the word, words, or phrase we want individuals with full names similar to
+  # @param threshold [Float] the strictness of word matching between 0 and 1. Values closer to zero allow for words to
+  #   be less similar.
   #
   # @return [AccreditedIndividual::ActiveRecord_Relation] an ActiveRecord_Relation of
   #   all individuals matching the search criteria
-  def self.find_with_full_name_similar_to(search_phrase)
-    where('word_similarity(?, accredited_individuals.full_name) >= ?',
-          search_phrase,
-          AccreditedRepresentation::Constants::FUZZY_SEARCH_THRESHOLD)
+  def self.find_with_full_name_similar_to(search_phrase, threshold = DEFAULT_FUZZY_THRESHOLD)
+    where('word_similarity(?, accredited_individuals.full_name) >= ?', search_phrase, threshold)
   end
 
   # return all poa_codes associated with the individual
@@ -66,5 +68,10 @@ class AccreditedIndividual < ApplicationRecord
   # @return [Array<String>]
   def poa_codes
     ([poa_code] + accredited_organizations.pluck(:poa_code)).compact
+  end
+
+  # This method needs to exist on the model so [Common::Collection] doesn't blow up when trying to paginate
+  def self.max_per_page
+    100
   end
 end

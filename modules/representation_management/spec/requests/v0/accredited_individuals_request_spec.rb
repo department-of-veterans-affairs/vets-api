@@ -56,12 +56,71 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedIndividualsController', 
                                    first_name: 'Joe', last_name: 'Lawyer') # ~6 miles from Washington, D.C.
   end
 
-  it 'fuzzy searches within the specified range' do
-    get path, params: { type:, lat:, long:, distance:, name: 'Bob' }
+  it 'does not include accredited individuals outside of max distance' do
+    get path, params: { type:, lat:, long:, distance: }
+
+    parsed_response = JSON.parse(response.body)
+
+    expect(parsed_response['data'].pluck('id')).to contain_exactly(ind1.id, ind2.id, ind3.id, ind4.id)
+  end
+
+  it 'sorts by distance_asc by default' do
+    get path, params: { type:, lat:, long:, distance: }
+
+    parsed_response = JSON.parse(response.body)
+
+    expect(parsed_response['data'].pluck('id')).to eq([ind1.id, ind2.id, ind3.id, ind4.id])
+  end
+
+  it 'can sort by first_name_asc' do
+    get path, params: { type:, lat:, long:, distance:, sort: 'first_name_asc' }
+
+    parsed_response = JSON.parse(response.body)
+
+    expect(parsed_response['data'].pluck('id')).to eq([ind1.id, ind2.id, ind4.id, ind3.id])
+  end
+
+  it 'can sort by first_name_desc' do
+    get path, params: { type:, lat:, long:, distance:, sort: 'first_name_desc' }
+
+    parsed_response = JSON.parse(response.body)
+
+    expect(parsed_response['data'].pluck('id')).to eq([ind3.id, ind4.id, ind2.id, ind1.id])
+  end
+
+  it 'can sort by last_name_asc' do
+    get path, params: { type:, lat:, long:, distance:, sort: 'last_name_asc' }
+
+    parsed_response = JSON.parse(response.body)
+
+    expect(parsed_response['data'].pluck('id')).to eq([ind1.id, ind4.id, ind2.id, ind3.id])
+  end
+
+  it 'can sort by last_name_desc' do
+    get path, params: { type:, lat:, long:, distance:, sort: 'last_name_desc' }
+
+    parsed_response = JSON.parse(response.body)
+
+    expect(parsed_response['data'].pluck('id')).to eq([ind3.id, ind2.id, ind4.id, ind1.id])
+  end
+
+  it 'can fuzzy search on name' do
+    get path, params: { type:, lat:, long:, distance:, name: 'Bob Law' }
 
     parsed_response = JSON.parse(response.body)
 
     expect(parsed_response['data'].pluck('id')).to eq([ind1.id])
+  end
+
+  it 'serializes the individual, organizations, and distance' do
+    get path, params: { type:, lat:, long:, distance:, name: 'Bob Law' }
+
+    parsed_response = JSON.parse(response.body)
+    poa_code = parsed_response['data'][0]['attributes']['accredited_organizations']['data'][0]['attributes']['poa_code']
+
+    expect(parsed_response['data'][0]['attributes']['registration_number']).to eq('12300')
+    expect(poa_code).not_to be_nil
+    expect(parsed_response['data'][0]['attributes']['distance']).to be_within(0.05).of(6.0292)
   end
 
   it 'can search for non-representatives' do
@@ -70,5 +129,17 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedIndividualsController', 
     parsed_response = JSON.parse(response.body)
 
     expect(parsed_response['data'].pluck('id')).to eq([ind8.id])
+  end
+
+  it 'paginates' do
+    get path, params: { type:, lat:, long:, distance:, page: 1, per_page: 2 }
+
+    parsed_response = JSON.parse(response.body)
+
+    expect(parsed_response['data'].pluck('id')).to eq([ind1.id, ind2.id])
+    expect(parsed_response['meta']['pagination']['current_page']).to eq(1)
+    expect(parsed_response['meta']['pagination']['per_page']).to eq(2)
+    expect(parsed_response['meta']['pagination']['total_pages']).to eq(2)
+    expect(parsed_response['meta']['pagination']['total_entries']).to eq(4)
   end
 end
