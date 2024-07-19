@@ -129,7 +129,6 @@ module RepresentationManagement
         def template_options(data)
           page3_key = 'form1[0].#subform[2]'
           {
-
             # Page 3
             # Header Veteran SSN
             "#{page3_key}.SocialSecurityNumber_FirstThreeNumbers[2]": data.veteran_social_security_number[0..2],
