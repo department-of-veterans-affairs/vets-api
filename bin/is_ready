@@ -36,7 +36,7 @@ if [ $unavailable_percentage -ge $ALLOWED_UNAVAILABLE_PERCENTAGE ]; then
       -d "from=$((CURRENT_TIME - 60))" \
       -d "to=${CURRENT_TIME}" \
       -H "DD-API-KEY: $DD_API_KEY" \
-      -H "DD-APPLICATION-KEY: $DD_APPLICATION_KEY"
+      -H "DD-APPLICATION-KEY: $DD_APP_KEY"
   )
 
   if [ $? -ne 0 ] || [ -z "$dd_data" ]; then
