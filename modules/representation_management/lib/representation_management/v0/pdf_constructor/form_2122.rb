@@ -20,8 +20,6 @@ module RepresentationManagement
         # rubocop:disable Layout/LineLength
         # rubocop:disable Metrics/MethodLength
         def template_options(data)
-          p "data: #{data}", "data.veteran_date_of_birth: #{data.veteran_date_of_birth}",
-            "data.veteran_date_of_birth.split('/'): #{data.veteran_date_of_birth.split('/')}"
           page1_key = 'form1[0].#subform[0]'
           page2_key = 'form1[0].#subform[1]'
           {
