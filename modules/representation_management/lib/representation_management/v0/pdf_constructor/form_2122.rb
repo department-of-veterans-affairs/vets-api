@@ -17,14 +17,6 @@ module RepresentationManagement
                           '21-22.pdf')
         end
 
-        #
-        # Set the template path that will be used by the base class.
-        #
-        # @param data [Hash] Hash of data to add to the pdf
-        def set_template_path
-          @template_path = template_path
-        end
-
         # rubocop:disable Layout/LineLength
         # rubocop:disable Metrics/MethodLength
         def template_options(data)

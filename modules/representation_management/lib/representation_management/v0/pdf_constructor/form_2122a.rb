@@ -17,14 +17,6 @@ module RepresentationManagement
                           '21-22a.pdf')
         end
 
-        #
-        # Set the template path that will be used by the base class.
-        #
-        # @param data [Hash] Hash of data to add to the pdf
-        def set_template_path
-          @template_path = template_path
-        end
-
         # rubocop:disable Metrics/MethodLength
         def page1_options(data)
           page1_key = 'form1[0].#subform[0]'

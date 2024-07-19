@@ -13,8 +13,6 @@ module RepresentationManagement
 
         def construct(data)
           set_template_path
-          # fill_pdf(data)
-          # combine_pdf(id, @template_path)
           fill_and_combine_pdf(data)
         end
 
@@ -30,6 +28,14 @@ module RepresentationManagement
         # @return [Hash] Data to fill in first page of pdf form
         def template_options(_data)
           raise 'NotImplemented' # Extend this class and implement
+        end
+
+        #
+        # Set the template path that is defined by the subclass
+        #
+        # @param data [Hash] Hash of data to add to the pdf
+        def set_template_path
+          @template_path = template_path
         end
 
         private
