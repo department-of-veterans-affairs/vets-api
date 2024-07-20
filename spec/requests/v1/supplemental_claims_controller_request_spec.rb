@@ -77,6 +77,9 @@ RSpec.describe V1::SupplementalClaimsController do
         # InProgressForm should be destroyed after successful submission
         in_progress_form = InProgressForm.find_by(user_uuid: user.uuid, form_id: '20-0995')
         expect(in_progress_form).to be_nil
+        # SavedClaim should be created with request data
+        saved_claim = SavedClaim::SupplementalClaim.find_by(guid: id)
+        expect(saved_claim.form).to eq(test_request_body)
       end
     end
 

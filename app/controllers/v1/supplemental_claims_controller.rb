@@ -98,11 +98,12 @@ module V1
 
           ::Rails.logger.info(post_create_log_msg(appeal_submission_id:, submitted_appeal_uuid:))
           if form4142.present?
-            handle_4142(request_body: req_body_obj,
-                        form4142:,
-                        appeal_submission_id:, submitted_appeal_uuid:)
+            handle_4142(request_body: req_body_obj, form4142:, appeal_submission_id:, submitted_appeal_uuid:)
           end
           submit_evidence(sc_evidence, appeal_submission_id, submitted_appeal_uuid) if sc_evidence.present?
+
+          store_request_in_saved_claim(form: request_body_obj, guid: submitted_appeal_uuid, uploaded_forms: sc_evidence)
+
           # Only destroy InProgressForm after evidence upload step
           # so that we still have references if a fatal error occurs before this step
           clear_in_progress_form
@@ -124,6 +125,14 @@ module V1
       }
       appeal_submission = AppealSubmission.create!(create_params)
       appeal_submission.id
+    end
+
+    def store_request_in_saved_claim(form:, guid:)
+      claim = SavedClaim::SupplementalClaim.new(form:, guid:, uploaded_forms:)
+      claim.save!
+    rescue => e
+      Rails.logger.warn('SupplementalClaimsController: Error saving SavedClaim::SupplementalClaim',
+                        { guid:, error: e.message })
     end
 
     def clear_in_progress_form

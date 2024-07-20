@@ -95,6 +95,16 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
 
         expect(sc.metadata.dig('form_data', 'evidence_type')).to eq(data_evidence_type)
       end
+
+      it 'stores the request as a SavedClaim' do
+        post(path, params: data, headers:)
+
+        guid = parsed['data']['id']
+
+        saved_claim = SavedClaim::SupplementalClaim.find_by(guid:)
+        expect(saved_claim.guid).to eq(guid)
+        expect(JSON.parse(saved_claim.form)).to eq(JSON.parse(data))
+      end
     end
 
     context 'when icn header is present' do

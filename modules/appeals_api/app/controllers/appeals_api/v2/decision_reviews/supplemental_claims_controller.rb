@@ -44,6 +44,8 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
 
     sc.save
 
+    store_request_in_saved_claim(form: @json_body.to_json, guid: sc.id)
+
     AppealsApi::PdfSubmitJob.perform_async(sc.id, 'AppealsApi::SupplementalClaim', 'v3')
     AppealsApi::AddIcnUpdater.perform_async(sc.id, 'AppealsApi::SupplementalClaim') if sc.veteran_icn.blank?
 
@@ -152,5 +154,13 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
 
   def evidence_submission_indicated?
     @json_body.dig('data', 'attributes', 'evidenceSubmission', 'evidenceType').include?('upload')
+  end
+
+  def store_request_in_saved_claim(form:, guid:)
+    claim = SavedClaim::SupplementalClaim.new(form:, guid:)
+    claim.save!
+  rescue => e
+    Rails.logger.warn('SupplementalClaimsController: Error saving SavedClaim::SupplementalClaim',
+                      { guid:, error: e.message })
   end
 end

@@ -25,8 +25,10 @@ class AppealSubmission < ApplicationRecord
       nod_response_body = decision_review_service.create_notice_of_disagreement(request_body: request_body_hash,
                                                                                 user: current_user)
                                                  .body
-      appeal_submission.submitted_appeal_uuid = nod_response_body.dig('data', 'id')
+      appeal_submission.submitted_appeal_uuid = guid = nod_response_body.dig('data', 'id')
       appeal_submission.save!
+
+      store_request_in_saved_claims(form: request_body_hash.to_json, guid:, uploaded_forms: uploads_arr)
 
       # Clear in-progress form if submit was successful
       InProgressForm.form_for_user('10182',
@@ -45,4 +47,13 @@ class AppealSubmission < ApplicationRecord
       DecisionReview::SubmitUpload.perform_async(asu.id)
     end
   end
+
+  def self.store_request_in_saved_claims(form:, guid:, uploaded_forms:)
+    claim = SavedClaim::NoticeOfDisagreement.new(form:, guid:, uploaded_forms:)
+    claim.save!
+  rescue => e
+    Rails.logger.warn('AppealSubmission: Error saving SavedClaim::NoticeOfDisagreement', { guid:, error: e.message })
+  end
+
+  private_class_method :store_request_in_saved_claims
 end

@@ -73,6 +73,9 @@ RSpec.describe V1::HigherLevelReviewsController do
         # InProgressForm should be destroyed after successful submission
         in_progress_form = InProgressForm.find_by(user_uuid: user.uuid, form_id: '20-0996')
         expect(in_progress_form).to be_nil
+        # SavedClaim should be created with request data
+        saved_claim = SavedClaim::HigherLevelReview.find_by(guid: appeal_uuid)
+        expect(saved_claim.form).to eq(VetsJsonSchema::EXAMPLES.fetch('HLR-CREATE-REQUEST-BODY_V1').to_json)
       end
     end
 
