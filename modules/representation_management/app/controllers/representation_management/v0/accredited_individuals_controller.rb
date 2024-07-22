@@ -6,6 +6,7 @@ module RepresentationManagement
       service_tag 'lighthouse-veteran'
       skip_before_action :authenticate
       before_action :feature_enabled
+      before_action :verify_type
       before_action :verify_sort
       before_action :verify_long
       before_action :verify_lat
@@ -117,6 +118,12 @@ module RepresentationManagement
         routing_error unless Flipper.enabled?(:find_a_representative_use_accredited_models)
       end
 
+      def verify_type
+        unless PERMITTED_TYPES.include?(search_params[:type])
+          raise Common::Exceptions::InvalidFieldValue.new('type', search_params[:type])
+        end
+      end
+
       def verify_sort
         return unless search_params[:sort]
         unless PERMITTED_SORTS.include?(search_params[:sort])
@@ -151,17 +158,6 @@ module RepresentationManagement
           raise Common::Exceptions::InvalidFieldValue.new('distance',
                                                           search_params[:distance])
         end
-      end
-
-      def pagination_meta(individuals)
-        {
-          pagination: {
-            current_page: individuals.current_page.to_i,
-            per_page: individuals.per_page,
-            total_pages: individuals.total_pages,
-            total_entries: individuals.total_entries
-          }
-        }
       end
     end
   end
