@@ -6,14 +6,25 @@ require 'pensions/tag_sentry'
 require 'pensions/monitor'
 require 'central_mail/datestamp_pdf'
 
+##
+# Pension 21P-527EZ Module
+#
 module Pensions
+  ##
+  # sidekig job to send pension pdf to Lighthouse:BenefitsIntake API
+  # @see https://developer.va.gov/explore/api/benefits-intake/docs
+  #
   class PensionBenefitIntakeJob
     include Sidekiq::Job
     include SentryLogging
 
+    # job processing error
     class PensionBenefitIntakeError < StandardError; end
 
+    # tracking id for datadog metrics
     STATSD_KEY_PREFIX = 'worker.lighthouse.pension_benefit_intake_job'
+
+    # `source` attribute for upload metadata
     PENSION_SOURCE = __FILE__
 
     # retry for one day
@@ -30,12 +41,12 @@ module Pensions
 
     ##
     # Process claim pdfs and upload to Benefits Intake API
-    # https://developer.va.gov/explore/api/benefits-intake/docs
-    #
     # On success send confirmation email
-    # Raises PensionBenefitIntakeError
     #
-    # @param [Integer] saved_claim_id
+    # @param saved_claim_id [Integer] the pension claim id
+    # @param user_account_uuid [UUID] the user submitting the form
+    #
+    # @return [UUID] benefits intake upload uuid
     #
     def perform(saved_claim_id, user_account_uuid = nil)
       init(saved_claim_id, user_account_uuid)
@@ -45,7 +56,6 @@ module Pensions
       @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
       @metadata = generate_metadata
 
-      # upload must be performed within 15 minutes of this request
       upload_document
 
       @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
@@ -65,6 +75,9 @@ module Pensions
     ##
     # Instantiate instance variables for _this_ job
     #
+    # @raise ActiveRecord::RecordNotFound if unable to find UserAccount
+    # @raise PensionBenefitIntakeError if unable to find SavedClaim::Pension
+    #
     def init(saved_claim_id, user_account_uuid)
       Pensions::TagSentry.tag_sentry
       @pension_monitor = Pensions::Monitor.new
@@ -82,7 +95,7 @@ module Pensions
     ##
     # Create a temp stamped PDF and validate the PDF satisfies Benefits Intake specification
     #
-    # @param [String] file_path
+    # @param file_path [String] pdf file path
     #
     # @return [String] path to stamped PDF
     #
@@ -101,7 +114,10 @@ module Pensions
     ##
     # Upload generated pdf to Benefits Intake API
     #
+    # @raise PensionBenefitIntakeError on upload failure
+    #
     def upload_document
+      # upload must be performed within 15 minutes of this request
       @intake_service.request_upload
       @pension_monitor.track_submission_begun(@claim, @intake_service, @user_account_uuid)
       form_submission_polling
@@ -120,8 +136,6 @@ module Pensions
 
     ##
     # Generate form metadata to send in upload to Benefits Intake API
-    #
-    # @see https://developer.va.gov/explore/api/benefits-intake/docs
     # @see SavedClaim.parsed_form
     # @see BenefitsIntake::Metadata
     #
@@ -145,6 +159,8 @@ module Pensions
 
     ##
     # Insert submission polling entries
+    # @see FormSubmission
+    # @see FormSubmissionAttempt
     #
     def form_submission_polling
       form_submission = {
@@ -163,7 +179,9 @@ module Pensions
     end
 
     ##
-    # Delete temporary stamped PDF files for this instance.
+    # Delete temporary stamped PDF files for this job instance.
+    #
+    # @raise PensionBenefitIntakeError if unable to delete file
     #
     def cleanup_file_paths
       Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path
