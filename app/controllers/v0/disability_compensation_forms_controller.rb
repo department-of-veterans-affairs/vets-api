@@ -50,7 +50,7 @@ module V0
 
     def suggested_conditions
       results = DisabilityContention.suggested(params[:name_part])
-      render json: results, each_serializer: DisabilityContentionSerializer
+      render json: DisabilityContentionSerializer.new(results)
     end
 
     def submit_all_claim
