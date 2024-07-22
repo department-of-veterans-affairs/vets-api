@@ -70,6 +70,9 @@ module Lighthouse
       @pension_monitor = Pension21p527ez::Monitor.new
 
       @user_account_uuid = user_account_uuid
+      @user_account = UserAccount.find(@user_account_uuid) unless @user_account_uuid.nil?
+      # UserAccount.find will raise an error if unable to find the user_account record
+
       @claim = SavedClaim::Pension.find(saved_claim_id)
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
@@ -151,7 +154,7 @@ module Lighthouse
         saved_claim: @claim,
         saved_claim_id: @claim.id,
       }
-      form_submission[:user_account] =  UserAccount.find(@user_account_uuid) unless @user_account_uuid.nil?
+      form_submission[:user_account] =  @user_account unless @user_account_uuid.nil?
 
       @form_submission = FormSubmission.create(**form_submission)
       @form_submission_attempt = FormSubmissionAttempt.create(form_submission: @form_submission)

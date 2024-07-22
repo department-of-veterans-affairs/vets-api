@@ -37,8 +37,8 @@ module Pensions
     #
     # @param [Integer] saved_claim_id
     #
-    def perform(saved_claim_id, user_uuid = nil)
-      init(saved_claim_id, user_uuid)
+    def perform(saved_claim_id, user_account_uuid = nil)
+      init(saved_claim_id, user_account_uuid)
 
       # generate and validate claim pdf documents
       @form_path = process_document(@claim.to_pdf)
@@ -49,11 +49,11 @@ module Pensions
       upload_document
 
       @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
-      @pension_monitor.track_submission_success(@claim, @intake_service, @user_uuid)
+      @pension_monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
       @intake_service.uuid
     rescue => e
-      @pension_monitor.track_submission_retry(@claim, @intake_service, @user_uuid, e)
+      @pension_monitor.track_submission_retry(@claim, @intake_service, @user_account_uuid, e)
       @form_submission_attempt&.fail!
       raise e
     ensure
@@ -63,33 +63,16 @@ module Pensions
     private
 
     ##
-    # Upload generated pdf to Benefits Intake API
-    #
-    def upload_document
-      @intake_service.request_upload
-      @pension_monitor.track_submission_begun(@claim, @intake_service, @user_uuid)
-      form_submission_polling
-
-      payload = {
-        upload_url: @intake_service.location,
-        document: @form_path,
-        metadata: @metadata.to_json,
-        attachments: @attachment_paths
-      }
-
-      @pension_monitor.track_submission_attempted(@claim, @intake_service, @user_uuid, payload)
-      response = @intake_service.perform_upload(**payload)
-      raise PensionBenefitIntakeError, response.to_s unless response.success?
-    end
-
-    ##
     # Instantiate instance variables for _this_ job
     #
-    def init(saved_claim_id, user_uuid)
+    def init(saved_claim_id, user_account_uuid)
       Pensions::TagSentry.tag_sentry
       @pension_monitor = Pensions::Monitor.new
 
-      @user_uuid = user_uuid
+      @user_account_uuid = user_account_uuid
+      @user_account = UserAccount.find(@user_account_uuid) unless @user_account_uuid.nil?
+      # UserAccount.find will raise an error if unable to find the user_account record
+
       @claim = Pensions::SavedClaim.find(saved_claim_id)
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
@@ -113,6 +96,26 @@ module Pensions
       )
 
       @intake_service.valid_document?(document:)
+    end
+
+    ##
+    # Upload generated pdf to Benefits Intake API
+    #
+    def upload_document
+      @intake_service.request_upload
+      @pension_monitor.track_submission_begun(@claim, @intake_service, @user_account_uuid)
+      form_submission_polling
+
+      payload = {
+        upload_url: @intake_service.location,
+        document: @form_path,
+        metadata: @metadata.to_json,
+        attachments: @attachment_paths
+      }
+
+      @pension_monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, payload)
+      response = @intake_service.perform_upload(**payload)
+      raise PensionBenefitIntakeError, response.to_s unless response.success?
     end
 
     ##
@@ -144,14 +147,17 @@ module Pensions
     # Insert submission polling entries
     #
     def form_submission_polling
-      form_submission = FormSubmission.create(
+      form_submission = {
         form_type: @claim.form_id,
         form_data: @claim.to_json,
         benefits_intake_uuid: @intake_service.uuid,
         saved_claim: @claim,
-        saved_claim_id: @claim.id
-      )
-      @form_submission_attempt = FormSubmissionAttempt.create(form_submission:)
+        saved_claim_id: @claim.id,
+      }
+      form_submission[:user_account] =  @user_account unless @user_account_uuid.nil?
+
+      @form_submission = FormSubmission.create(**form_submission)
+      @form_submission_attempt = FormSubmissionAttempt.create(form_submission: @form_submission)
 
       Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)
     end
@@ -163,7 +169,7 @@ module Pensions
       Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     rescue => e
-      @pension_monitor.track_file_cleanup_error(@claim, @intake_service, @user_uuid, e)
+      @pension_monitor.track_file_cleanup_error(@claim, @intake_service, @user_account_uuid, e)
       raise PensionBenefitIntakeError, e.message
     end
   end
