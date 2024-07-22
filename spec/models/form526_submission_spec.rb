@@ -132,7 +132,7 @@ RSpec.describe Form526Submission do
     end
 
     describe 'success_by_age_type' do
-      it 'returns records less than a year old with paranoid_success backup status' do
+      it 'returns records more than a year old with paranoid_success backup status' do
         expect(Form526Submission.success_by_age_type).to contain_exactly(
           success_by_age
         )
