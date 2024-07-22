@@ -481,6 +481,10 @@ class Form526Submission < ApplicationRecord
     self.class.in_process.exists?(id:)
   end
 
+  def last_remediation
+    form526_submission_remediations&.order(:created_at)&.last
+  end
+
   private
 
   attr_accessor :lighthouse_validation_response
@@ -588,9 +592,5 @@ class Form526Submission < ApplicationRecord
 
   def cleanup
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
-  end
-
-  def last_remediation
-    form526_submission_remediations&.order(:created_at)&.last
   end
 end
