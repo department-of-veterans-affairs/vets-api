@@ -38,11 +38,16 @@ module V0
 
       clear_saved_form(FORM_ID)
 
-      render(json: result)
+      if result[:id]
+        render json: HealthCareApplicationSerializer.new(result)
+      else
+        render json: result
+      end
     end
 
     def show
-      render(json: HealthCareApplication.find(params[:id]))
+      application = HealthCareApplication.find(params[:id])
+      render json: HealthCareApplicationSerializer.new(application)
     end
 
     def enrollment_status
