@@ -84,7 +84,7 @@ features:
   hca_submission_failure_email_va_notify:
     actor_type: user
     description: Send HCA Submission Failure email using VANotify.
-  cg1010_oauth_2_enabled:
+  cg_OAuth_2_enabled:
     actor_type: user
     description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
   ezr_prod_enabled:

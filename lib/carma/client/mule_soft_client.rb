@@ -13,7 +13,6 @@ module CARMA
       STATSD_KEY_PREFIX = 'api.carma.mulesoft'
 
       class RecordParseError < StandardError; end
-      class GetAuthTokenError < StandardError; end
 
       def create_submission_v2(payload)
         with_monitoring do
