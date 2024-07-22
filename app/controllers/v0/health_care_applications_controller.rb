@@ -22,7 +22,8 @@ module V0
       service = BGS::Service.new(current_user)
       disability_rating = service.find_rating_data[:disability_rating_record][:service_connected_combined_degree]
 
-      render json: HCARatingInfoSerializer.new({ user_percent_of_disability: disability_rating })
+      hca_rating_info = { user_percent_of_disability: disability_rating }
+      render json: HCARatingInfoSerializer.new(hca_rating_info)
     end
 
     def create
