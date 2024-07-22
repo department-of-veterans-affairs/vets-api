@@ -1036,7 +1036,7 @@
           "type": ["string", "null"],
           "maxLength": 1000,
           "nullable": true,
-          "pattern": "^[0-9]+$",
+          "pattern": "^$|^\\d{0,1000}$",
           "example": "123123123"
         }
       }
