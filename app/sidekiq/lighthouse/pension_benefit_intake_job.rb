@@ -73,10 +73,11 @@ module Lighthouse
     private
 
     ##
+    # @private
     # Instantiate instance variables for _this_ job
     #
-    # @raise ActiveRecord::RecordNotFound if unable to find UserAccount
-    # @raise PensionBenefitIntakeError if unable to find SavedClaim::Pension
+    # @raise [ActiveRecord::RecordNotFound] if unable to find UserAccount
+    # @raise [PensionBenefitIntakeError] if unable to find SavedClaim::Pension
     #
     def init(saved_claim_id, user_account_uuid)
       Pension21p527ez::TagSentry.tag_sentry
@@ -93,6 +94,7 @@ module Lighthouse
     end
 
     ##
+    # @private
     # Create a temp stamped PDF and validate the PDF satisfies Benefits Intake specification
     #
     # @param file_path [String] pdf file path
@@ -112,9 +114,10 @@ module Lighthouse
     end
 
     ##
+    # @private
     # Upload generated pdf to Benefits Intake API
     #
-    # @raise PensionBenefitIntakeError on upload failure
+    # @raise [PensionBenefitIntakeError] on upload failure
     #
     def upload_document
       # upload must be performed within 15 minutes of this request
@@ -135,11 +138,13 @@ module Lighthouse
     end
 
     ##
+    # @private
     # Generate form metadata to send in upload to Benefits Intake API
-    # @see SavedClaim.parsed_form
-    # @see BenefitsIntake::Metadata
     #
-    # @return [Hash]
+    # @see SavedClaim.parsed_form
+    # @see BenefitsIntake::Metadata#generate
+    #
+    # @return [Hash] generated metadata for upload
     #
     def generate_metadata
       form = @claim.parsed_form
@@ -158,7 +163,9 @@ module Lighthouse
     end
 
     ##
+    # @private
     # Insert submission polling entries
+    #
     # @see FormSubmission
     # @see FormSubmissionAttempt
     #
@@ -179,9 +186,10 @@ module Lighthouse
     end
 
     ##
+    # @private
     # Delete temporary stamped PDF files for this job instance.
     #
-    # @raise PensionBenefitIntakeError if unable to delete file
+    # @raise [PensionBenefitIntakeError] if unable to delete file
     #
     def cleanup_file_paths
       Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path

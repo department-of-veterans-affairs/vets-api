@@ -30,6 +30,7 @@ class SavedClaim::Pension < SavedClaim
 
   ##
   # claim attachment list
+  #
   # @see PersistentAttachment
   #
   # @return [Array<String>] list of attachments
@@ -49,6 +50,7 @@ class SavedClaim::Pension < SavedClaim
 
   ##
   # enqueue the sending of the submission confirmation email
+  #
   # @see VANotify::EmailJob
   #
   def send_confirmation_email
@@ -67,7 +69,8 @@ class SavedClaim::Pension < SavedClaim
 
   ##
   # send this pension claim to the Lighthouse Benefit Intake API
-  # https://developer.va.gov/explore/api/benefits-intake/docs
+  #
+  # @see https://developer.va.gov/explore/api/benefits-intake/docs
   # @see Lighthouse::PensionBenefitIntakeJob
   #
   # @param current_user [User] the current user submitting the form
