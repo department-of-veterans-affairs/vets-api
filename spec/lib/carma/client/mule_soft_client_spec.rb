@@ -57,12 +57,12 @@ describe CARMA::Client::MuleSoftClient do
         let(:mulesoft_auth_token_client) { instance_double(CARMA::Client::MuleSoftAuthTokenClient) }
 
         before do
-          Flipper.enable(:cg_OAuth_2_enabled)
+          Flipper.enable(:cg1010_oauth_2_enabled)
           allow(CARMA::Client::MuleSoftAuthTokenClient).to receive(:new).and_return(mulesoft_auth_token_client)
         end
 
         after do
-          Flipper.disable(:cg_OAuth_2_enabled)
+          Flipper.disable(:cg1010_oauth_2_enabled)
         end
 
         context 'successfully gets token' do
