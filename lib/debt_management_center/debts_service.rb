@@ -81,7 +81,6 @@ module DebtManagementCenter
             :post, Settings.dmc.debts_endpoint, { fileNumber: @file_number }, nil, options
           ).body
 
-          # Only cache if the response is an empty array
           if response.is_a?(Array) && response.empty?
             Rails.cache.write("debts_data_#{@user.uuid}", response, expires_in: time_until_5am_utc)
           end
