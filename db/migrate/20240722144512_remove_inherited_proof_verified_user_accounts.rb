@@ -1,8 +1,6 @@
 class RemoveInheritedProofVerifiedUserAccounts < ActiveRecord::Migration[7.1]
   def up
-    if index_exists?(:inherited_proof_verified_user_accounts, :user_account_id)
-      remove_index :inherited_proof_verified_user_accounts, :user_account_id, name: 'index_inherited_proof_verified_user_accounts_on_user_account_id'
-    end
+    remove_index :inherited_proof_verified_user_accounts, :user_account_id if index_exists?(:inherited_proof_verified_user_accounts, :user_account_id)
     drop_table :inherited_proof_verified_user_accounts
   end
 
