@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.shared_examples 'Flipper debts_cache_dmc_empty_response behavior' do |flipper_enabled|
   before do
     allow(Flipper).to receive(:enabled?).with(:debts_cache_dmc_empty_response).and_return(flipper_enabled)
