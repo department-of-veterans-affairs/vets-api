@@ -174,10 +174,10 @@ form_10_10cg:
       client_secret: ~
       timeout: 30
       async_timeout: 600
-      v2: 
+      auth: 
         mock: false
         timeout: ~
-        auth_token_url: ~
+        token_url: ~
         client_id: ~
         client_secret: ~
   poa:

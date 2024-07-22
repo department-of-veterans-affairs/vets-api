@@ -18,7 +18,8 @@ module CARMA
           response = perform(:post,
                              'oauth2/ause1x1h6Zit9ziQL0j6/v1/token',
                              params,
-                             token_headers)
+                             token_headers,
+                             { timeout: config.timeout })
 
           return response.body[:access_token] if response.status == 201
 

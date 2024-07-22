@@ -16,17 +16,17 @@ module CARMA
       end
 
       def timeout
-        settings.key?(:timeout) ? settings.timeout : 10
+        settings.key?(:timeout) ? settings.timeout : 30
       end
 
       def settings
-        Settings.form_10_10cg.carma.mulesoft.v2
+        Settings.form_10_10cg.carma.mulesoft.auth
       end
 
       private
 
       def base_path
-        "#{settings.auth_token_url}/oauth2/default/v1/token"
+        "#{settings.token_url}/oauth2/default/v1/token"
       end
     end
   end
