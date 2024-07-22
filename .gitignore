@@ -113,3 +113,6 @@ clamav_tmp/*
 # ignore DBEX LH migration debug tools
 lib/TREX
 staging.benefits_claims.pem
+
+# ignore Yardoc generation
+.yardoc/

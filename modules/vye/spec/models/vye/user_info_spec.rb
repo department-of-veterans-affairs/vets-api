@@ -5,12 +5,14 @@ require Vye::Engine.root / 'spec/rails_helper'
 
 RSpec.describe Vye::UserInfo, type: :model do
   describe 'create' do
-    let(:bdn_clone) { FactoryBot.create(:vye_bdn_clone) }
-    let(:user_profile) { FactoryBot.create(:vye_user_profile) }
+    let!(:bdn_clone) { FactoryBot.create(:vye_bdn_clone) }
+    let!(:user_profile) { FactoryBot.create(:vye_user_profile) }
     let(:user_info) { FactoryBot.build(:vye_user_info, user_profile:, bdn_clone:) }
 
     it 'creates a record' do
-      expect { user_info.save! }.to change(described_class, :count).by(1)
+      expect do
+        user_info.save!
+      end.to change(described_class, :count).by(1)
     end
   end
 
@@ -41,14 +43,5 @@ RSpec.describe Vye::UserInfo, type: :model do
         expect(pending_verifications.first.trace).to eq('case_eom')
       end
     end
-
-    # describe 'case 1a' do
-    #   let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
-    #   let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:) }
-
-    #   it 'will add an enrollment if conditions are met' do
-    #     expect { user_info.send(:eval_case_1a) }.to change(user_info, :count).by(1)
-    #   end
-    # end
   end
 end

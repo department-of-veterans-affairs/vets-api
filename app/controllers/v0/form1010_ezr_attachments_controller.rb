@@ -6,5 +6,11 @@ module V0
     service_tag 'health-information-update'
 
     FORM_ATTACHMENT_MODEL = Form1010EzrAttachment
+
+    private
+
+    def serializer_klass
+      Form1010EzrAttachmentSerializer
+    end
   end
 end

@@ -86,7 +86,7 @@ module ClaimsApi
           Bean.new(
             path: 'EBenefitsBnftClaimStatusWebServiceBean',
             namespaces: Namespaces.new(
-              target: 'http://services.share.benefits.vba.va.gov/',
+              target: 'http://claimstatus.services.ebenefits.vba.va.gov/',
               data: nil
             )
           )
@@ -154,6 +154,46 @@ module ClaimsApi
               service: ManageRepresentativeService::DEFINITION,
               name: 'updatePOARequest',
               key: 'POARequestUpdate'
+            )
+        end
+
+        module UpdatePoaRelationship
+          DEFINITION =
+            Action.new(
+              service: ManageRepresentativeService::DEFINITION,
+              name: 'updatePOARelationship',
+              key: 'POARelationshipReturnVO'
+            )
+        end
+      end
+
+      ##
+      # PersonWebServiceBean
+      #
+      module PersonWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'PersonWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://person.services.vetsnet.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module PersonWebService
+        DEFINITION =
+          Service.new(
+            bean: PersonWebServiceBean::DEFINITION,
+            path: 'PersonWebService'
+          )
+
+        module FindPersonBySSN
+          DEFINITION =
+            Action.new(
+              service: PersonWebService::DEFINITION,
+              name: 'findPersonBySSN',
+              key: 'PersonDTO'
             )
         end
       end

@@ -202,10 +202,6 @@ RSpec.describe Users::Profile do
         expect(profile[:last_signed_in].httpdate).to eq(user.last_signed_in.httpdate)
       end
 
-      it 'includes inherited_proof_verified' do
-        expect(profile[:inherited_proof_verified]).to eq(user.inherited_proof_verified)
-      end
-
       it 'includes icn' do
         expect(profile[:icn]).to eq(user.icn)
       end

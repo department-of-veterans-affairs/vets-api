@@ -59,6 +59,11 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
               decision_letter_sent_claim = parsed_response_contents.select { |entry| entry['id'] == '600323434' }[0]
               nil_dates_claim = parsed_response_contents.last
               expect(open_claim.dig('attributes', 'updatedAt')).to eq('2022-09-30')
+              expect(open_claim.dig('attributes', 'phase')).to eq(4)
+              expect(open_claim.dig('attributes', 'documentsNeeded')).to eq(false)
+              expect(open_claim.dig('attributes', 'developmentLetterSent')).to eq(true)
+              expect(open_claim.dig('attributes', 'claimTypeCode')).to eq('400PREDSCHRG')
+              expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2021-03-22')
               expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2021-03-22')
               expect(nil_dates_claim.dig('attributes', 'updatedAt')).to eq(nil)
               expect(nil_dates_claim.dig('attributes', 'dateFiled')).to eq(nil)
@@ -69,6 +74,10 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
               closed_claim = parsed_response_contents.select { |entry| entry['id'] == '600106271' }[0]
               decision_letter_sent_claim = parsed_response_contents.select { |entry| entry['id'] == '600096536' }[0]
               expect(open_claim.dig('attributes', 'updatedAt')).to eq('2017-09-28')
+              expect(open_claim.dig('attributes', 'phase')).to eq(nil)
+              expect(open_claim.dig('attributes', 'documentsNeeded')).to eq(nil)
+              expect(open_claim.dig('attributes', 'developmentLetterSent')).to eq(nil)
+              expect(open_claim.dig('attributes', 'claimTypeCode')).to eq(nil)
               expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2017-09-20')
             end
 

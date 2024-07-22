@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'decision_review/schemas'
 require 'disability_compensation/factories/api_provider_factory'
+require 'gi/client'
 
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
@@ -35,8 +36,7 @@ RSpec.describe FormProfile, type: :model do
 
   let(:veteran_service_information) do
     {
-      'dateOfBirth' => user.birth_date,
-      'socialSecurityNumber' => user.ssn,
+
       'branchOfService' => 'Army',
       'serviceDateRange' => {
         'from' => '2012-03-02',
@@ -110,10 +110,29 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v0873_expected) do
     {
-      'fullName' => full_name,
-      'email' => user.pciu_email,
-      'phone' => us_phone,
-      'address' => address,
+      'personalInformation' => {
+        'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.suffix,
+        'preferredName' => 'SAM',
+        'dateOfBirth' => user.birth_date,
+        'socialSecurityNumber' => user.ssn,
+        'serviceNumber' => '123455678'
+      },
+      'contactInformation' => {
+        'email' => user.pciu_email,
+        'phone' => us_phone,
+        'address' => address
+      },
+      'avaProfile' => {
+        'schoolInfo' => {
+          'schoolFacilityCode' => '12345678',
+          'schoolName' => 'Fake School'
+        },
+        'businessPhone' => '1234567890',
+        'businessEmail' => 'fake@company.com'
+      },
       'veteranServiceInformation' => veteran_service_information
     }
   end
@@ -1474,10 +1493,41 @@ RSpec.describe FormProfile, type: :model do
       end
 
       context 'with VA Profile prefill for 0873' do
+        let(:info) do
+          {
+            SchoolFacilityCode: '12345678',
+            BusinessPhone: '1234567890',
+            BusinessEmail: 'fake@company.com',
+            ServiceNumber: '123455678'
+          }
+        end
+        let(:profile) do
+          AskVAApi::Profile::Entity.new(info)
+        end
+        let(:body) do
+          {
+            data: {
+              attributes: {
+                name: 'Fake School'
+              }
+            }
+          }
+        end
+        let(:gids_response) do
+          GI::GIDSResponse.new(status: 200, body:)
+        end
+
+        before do
+          allow_any_instance_of(AskVAApi::Profile::Retriever).to receive(:call).and_return(profile)
+          allow_any_instance_of(GI::Client).to receive(:get_institution_details_v0).and_return(gids_response)
+        end
+
         it 'prefills 0873' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                           allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-            expect_prefilled('0873')
+          VCR.use_cassette('va_profile/demographics/demographics', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                             allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
+              expect_prefilled('0873')
+            end
           end
         end
       end
