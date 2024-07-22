@@ -26,6 +26,21 @@ module V1
       end
       render json: hlr_response_body
     rescue => e
+      ::Rails.logger.error(
+        message: "Exception occurred while submitting Higher Level Review: #{e.message}",
+        backtrace: e.backtrace
+      )
+
+      handle_personal_info_error(e)
+    end
+
+    private
+
+    def error_class(method:, exception_class:)
+      "#{self.class.name}##{method} exception #{exception_class} (HLR_V1)"
+    end
+
+    def handle_personal_info_error(e)
       request = begin
         { body: request_body_hash }
       rescue
@@ -36,12 +51,6 @@ module V1
         e, error_class: error_class(method: 'create', exception_class: e.class), request:
       )
       raise
-    end
-
-    private
-
-    def error_class(method:, exception_class:)
-      "#{self.class.name}##{method} exception #{exception_class} (HLR_V1)"
     end
   end
 end
