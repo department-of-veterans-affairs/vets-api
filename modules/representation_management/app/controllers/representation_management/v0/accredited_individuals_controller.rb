@@ -3,7 +3,7 @@
 module RepresentationManagement
   module V0
     class AccreditedIndividualsController < ApplicationController
-      service_tag 'lighthouse-veteran'
+      service_tag 'representation-management'
       skip_before_action :authenticate
       before_action :feature_enabled
       before_action :verify_type
@@ -16,8 +16,7 @@ module RepresentationManagement
       DEFAULT_PER_PAGE = 10
       DEFAULT_SORT = 'distance_asc'
       PERMITTED_MAX_DISTANCES = [5, 10, 25, 50, 100, 200].freeze # in miles, no distance provided will default to "all"
-      PERMITTED_SORTS = %w[distance_asc first_name_asc first_name_desc last_name_asc
-                           last_name_desc].freeze
+      PERMITTED_SORTS = %w[distance_asc first_name_asc first_name_desc last_name_asc last_name_desc].freeze
       PERMITTED_TYPES = %w[attorney claims_agent representative].freeze
 
       def index
