@@ -135,7 +135,7 @@ describe CARMA::Client::MuleSoftClient do
         let(:mock_success_response) { MockFaradayResponse.new(response_body, 201) }
 
         before do
-          Flipper.disable(:cg_OAuth_2_enabled)
+          Flipper.disable(:cg1010_oauth_2_enabled)
         end
 
         it 'calls perform with expected params' do
