@@ -153,7 +153,7 @@ describe CARMA::Client::MuleSoftClient do
 
         context 'with a records error' do
           it 'raises RecordParseError' do
-            expect(client).to receive(:do_post).with(resource, {}).and_return(
+            expect(client).to receive(:do_post).with(resource, {}, 60).and_return(
               { 'data' => { 'carmacase' => { 'createdAt' => '2022-08-04 16:44:37', 'id' => 'aB93S0000000FTqSAM' } },
                 'record' => { 'hasErrors' => true,
                               'results' => [{ 'referenceId' => '1010CG', 'id' => '0683S000000YBIFQA4',
