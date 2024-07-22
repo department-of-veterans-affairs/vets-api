@@ -14,7 +14,8 @@ module V0
       statuses = ExternalServicesRedis::Status.new.fetch_or_cache
       maintenance_windows = MaintenanceWindow.end_after(Time.zone.now)
 
-      render json: statuses, maintenance_windows:, serializer: BackendStatusesSerializer
+      options = { params: { maintenance_windows: } }
+      render json: BackendStatusesSerializer.new(statuses, options)
     end
 
     # GET /v0/backend_statuses/:service
@@ -34,8 +35,7 @@ module V0
         be_status.uptime_remaining = 0
       end
 
-      render json: be_status,
-             serializer: BackendStatusSerializer
+      render json: BackendStatusSerializer.new(be_status)
     end
 
     private
