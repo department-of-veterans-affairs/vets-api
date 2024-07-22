@@ -11,8 +11,7 @@ module V0
 
     def index
       response = service.get_letters
-      render json: response,
-             serializer: LettersSerializer
+      render json: LettersSerializer.new(response)
     end
 
     def download
