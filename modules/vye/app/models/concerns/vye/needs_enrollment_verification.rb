@@ -152,7 +152,7 @@ module Vye
       return if @award.award_end_date.blank?
       return if are_dates_the_same(@award.award_end_date, date_last_certified)
       return unless current_rec_ended?
-      return unless ldpm_before_aed?
+      return unless ldpm_before_aed? && are_dates_the_same(@award.award_begin_date, @award.award_end_date)
 
       @supress_future_award = true
 
@@ -175,7 +175,7 @@ module Vye
       return if @award.award_end_date.blank?
       return if are_dates_the_same(@award.award_end_date, date_last_certified)
       return unless current_rec_ended?
-      return if ldpm_before_aed?
+      return if ldpm_before_aed? && are_dates_the_same(@award.award_begin_date, @award.award_end_date)
 
       push_enrollment(
         award_id: @award.id,
