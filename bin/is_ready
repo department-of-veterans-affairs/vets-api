@@ -44,6 +44,13 @@ if [ $unavailable_percentage -ge $ALLOWED_UNAVAILABLE_PERCENTAGE ]; then
     exit 0 # Accumulate a backlog if DD is inaccessible
   fi
 
+  # Check for errors in the dd_data response
+  if echo "$dd_data" | grep -q '"errors"'; then
+    echo "Datadog response contains errors:"
+    echo "$dd_data" | grep '"errors"' | sed 's/.*"errors":\[\([^]]*\)\].*/\1/'
+    exit 0 # Accumulate a backlog if there are errors in the response
+  fi
+
   # Extract the latest value for the given kube_deployment
   KUBE_DEPLOYMENT=$(echo $POD_NAME | rev | cut -d'-' -f3- | rev)
   LATEST_VALUE=$(echo "$dd_data" | tr -d '\n' | sed 's/},/\n/g' | grep "\"kube_deployment:$KUBE_DEPLOYMENT\"" | sed 's/.*pointlist":\[\[\([0-9\.]*,[0-9\.]*\)\].*/\1/' | awk -F, '{print $2}')
