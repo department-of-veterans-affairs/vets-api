@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'debt_management_center/debts_service'
 require 'debt_management_center/models/debt_store'
-require_relative 'support/debt_service_examples'
+require_relative 'shared_examples/debt_service_examples'
 
 RSpec.describe DebtManagementCenter::DebtsService do
   let(:file_number) { '796043735' }
