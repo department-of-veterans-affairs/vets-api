@@ -397,6 +397,9 @@ features:
   disability_526_toxic_exposure_ipf:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims for in progress forms (ipf)
+  disability_526_toxic_exposure_document_upload_polling:
+    actor_type: user
+    description: enables the poll_form526_pdf call during the perform_ancillary_jobs step of submissions
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
@@ -755,9 +758,6 @@ features:
   mhv_transitional_medical_records_landing_page:
     actor_type: user
     description: Enables the transitional Medical Records page at /my-health/records
-  mhv_helpdesk_information_enabled:
-    actor_type: user
-    description: Enables the MHV helpdesk information
   mhv_secure_messaging_to_va_gov_release:
     actor_type: user
     description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
@@ -877,6 +877,10 @@ features:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
     enable_in_development: true
+  pension_medical_evidence_clarification:
+   actor_type: user
+   description: >
+     [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1510,6 +1514,9 @@ features:
     actor_type: user
     description: Implement multiple page response pattern
     enable_in_development: true
+  pension_introduction_update:
+    actor_type: user
+    description: Show updated introduction page
   pension_module_enabled:
     actor_type: user
     description: Enable the pension module routes
