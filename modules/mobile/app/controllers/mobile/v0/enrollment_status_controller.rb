@@ -8,18 +8,17 @@ module Mobile
 
       def show
         response = HealthCareApplication.enrollment_status(current_user.icn, true)
+        response[:id] = current_user.uuid
         enrollment_status = Mobile::V0::EnrollmentStatus.new(response)
         json = Mobile::V0::EnrollmentStatusSerializer.new(enrollment_status)
 
         render(json:)
       end
 
-      # all mobile users should be loa3
       def authorize_user
         raise_unauthorized('User is not loa3') unless current_user.loa3?
       end
 
-      # unclear if this is possible; matching logic from HealthCareApplicationsController
       def validate_user_icn
         raise Common::Exceptions::RecordNotFound, current_user.uuid if current_user.icn.blank?
       end
