@@ -9,15 +9,11 @@ module SimpleFormsApi
     SUBMISSION_DATE_TITLE = 'Application Submitted:'
 
     def self.stamp_pdf(stamped_template_path, form, current_loa)
-      if File.exist? stamped_template_path
-        stamp_signature(stamped_template_path, form)
+      stamp_signature(stamped_template_path, form)
 
-        stamp_auth_text(stamped_template_path, current_loa)
+      stamp_auth_text(stamped_template_path, current_loa)
 
-        stamp_submission_date(stamped_template_path, form.submission_date_stamps)
-      else
-        raise "stamped template file does not exist: #{stamped_template_path}"
-      end
+      stamp_submission_date(stamped_template_path, form.submission_date_stamps)
     end
 
     def self.stamp_signature(stamped_template_path, form)
@@ -101,7 +97,7 @@ module SimpleFormsApi
       out_path = "#{Common::FileHelpers.random_file_path}.pdf"
       pdftk = PdfFill::Filler::PDF_FORMS
       pdftk.multistamp(stamped_template_path, stamp_path, out_path)
-      File.delete(stamped_template_path)
+      Common::FileHelpers.delete_file_if_exists(stamped_template_path)
       File.rename(out_path, stamped_template_path)
     rescue
       Common::FileHelpers.delete_file_if_exists(out_path)

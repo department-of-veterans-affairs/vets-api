@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_12_172822) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_16_143105) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -137,15 +137,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_12_172822) do
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_pilot_representatives_on_email", unique: true
     t.index ["ogc_registration_number"], name: "index_pilot_representatives_on_ogc_number", unique: true
-  end
-
-  create_table "accredited_representative_portal_verified_representatives", force: :cascade do |t|
-    t.string "ogc_registration_number", null: false
-    t.string "email", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["email"], name: "index_verified_representatives_on_email", unique: true
-    t.index ["ogc_registration_number"], name: "index_verified_representatives_on_ogc_number", unique: true
   end
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -479,15 +470,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_12_172822) do
     t.text "encrypted_kms_key"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
-  end
-
-  create_table "decision_review_evidence_attachment_validations", force: :cascade do |t|
-    t.uuid "decision_review_evidence_attachment_guid", null: false
-    t.text "password_ciphertext"
-    t.text "encrypted_kms_key"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["decision_review_evidence_attachment_guid"], name: "index_dr_evidence_attachment_validation_on_guid"
   end
 
   create_table "deprecated_user_accounts", force: :cascade do |t|
@@ -1431,6 +1413,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_12_172822) do
     t.datetime "updated_at", null: false
     t.string "origin"
     t.text "address5_ciphertext"
+    t.index ["created_at"], name: "index_vye_address_changes_on_created_at"
     t.index ["user_info_id"], name: "index_vye_address_changes_on_user_info_id"
   end
 
@@ -1479,6 +1462,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_12_172822) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_vye_direct_deposit_changes_on_created_at"
     t.index ["user_info_id"], name: "index_vye_direct_deposit_changes_on_user_info_id"
   end
 
@@ -1489,6 +1473,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_12_172822) do
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
     t.date "queue_date"
+    t.index ["user_profile_id"], name: "index_vye_pending_documents_on_user_profile_id"
   end
 
   create_table "vye_user_infos", force: :cascade do |t|
@@ -1515,6 +1500,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_12_172822) do
     t.index ["bdn_clone_active"], name: "index_vye_user_infos_on_bdn_clone_active"
     t.index ["bdn_clone_id"], name: "index_vye_user_infos_on_bdn_clone_id"
     t.index ["bdn_clone_line"], name: "index_vye_user_infos_on_bdn_clone_line"
+    t.index ["user_profile_id"], name: "index_vye_user_infos_on_user_profile_id"
   end
 
   create_table "vye_user_profiles", force: :cascade do |t|
@@ -1545,6 +1531,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_12_172822) do
     t.date "payment_date"
     t.date "transact_date"
     t.string "trace"
+    t.index ["award_id"], name: "index_vye_verifications_on_award_id"
+    t.index ["created_at"], name: "index_vye_verifications_on_created_at"
     t.index ["user_info_id"], name: "index_vye_verifications_on_user_info_id"
     t.index ["user_profile_id"], name: "index_vye_verifications_on_user_profile_id"
   end
