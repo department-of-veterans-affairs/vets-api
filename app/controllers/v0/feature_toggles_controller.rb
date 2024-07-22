@@ -33,19 +33,59 @@ module V0
       features = []
 
       FLIPPER_FEATURE_CONFIG['features'].collect do |feature_name, values|
-        flipper_enabled = if Settings.flipper.mute_logs
-                            ActiveRecord::Base.logger.silence do
-                              Flipper.enabled?(feature_name, actor(values['actor_type']))
-                            end
-                          else
-                            Flipper.enabled?(feature_name, actor(values['actor_type']))
-                          end
+        flipper_enabled = flipper_enabled? get_feature_flags_for_actor, feature_name, actor(values['actor_type'])
+
         # returning both camel and snakecase for uniformity on FE
         features << { name: feature_name.camelize(:lower), value: flipper_enabled }
         features << { name: feature_name, value: flipper_enabled }
       end
 
       features
+    end
+
+    def get_feature_flags_for_actor
+      if actor_has_custom_features?
+        flipper_get_all
+      else
+        cache_global_features
+      end
+    end
+
+    def actor_has_custom_features?
+      @actor_has_custom_features ||= begin
+        actor = params[:cookie_ids] || @current_user
+        if actor.present?
+          result = ActiveRecord::Base.connection.select_value(
+            "SELECT 1 FROM flipper_gates WHERE flipper_gates.key = 'actors' AND flipper_gates.value = ? LIMIT 1",
+            [actor]
+          )
+
+          !result.nil?
+        else
+          false
+        end
+      end
+    end
+
+    def flipper_get_all
+      if Settings.flipper.mute_logs
+        ActiveRecord::Base.logger.silence do
+          Flipper.adapter.get_all
+        end
+      else
+        Flipper.adapter.get_all
+      end
+    end
+
+    def cache_global_features
+      Rails.cache.fetch('global_feature_flags', expires_in: 1.minute) do
+        flipper_get_all
+      end
+    end
+
+    def flipper_enabled?(all_features, feature, actor)
+      gates = all_features.select { |feature_name| feature_name == feature }.values.first
+      gates[:actors].include?(actor&.flipper_id) || gates[:groups].include?('all') || gates[:boolean] == 'true'
     end
 
     def actor(actor_type)
