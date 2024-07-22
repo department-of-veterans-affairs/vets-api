@@ -25,7 +25,7 @@ module V0
     end
 
     def show
-      gi_bill_feedback =  GIBillFeedback.find(params[:id])
+      gi_bill_feedback = GIBillFeedback.find(params[:id])
       render json: GIBillFeedbackSerializer.new(gi_bill_feedback)
     end
   end
