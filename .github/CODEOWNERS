@@ -599,8 +599,8 @@ app/uploaders/evss_claim_document_uploader.rb @department-of-veterans-affairs/va
 app/uploaders/form1010cg @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/uploaders/form1010cg/poa_uploader.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/uploaders/hca_attachment_uploader.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/uploaders/lighthouse_document_uploader_base.rb @department-of-veterans-affairs/backend-review-group
-app/uploaders/lighthouse_document_uploader.rb @department-of-veterans-affairs/backend-review-group
+app/uploaders/lighthouse_document_uploader_base.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+app/uploaders/lighthouse_document_uploader.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/uploaders/preneed_attachment_uploader.rb @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/uploaders/set_aws_config.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/uploaders/supporting_evidence_attachment_uploader.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
