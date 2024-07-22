@@ -48,6 +48,11 @@ if [ $unavailable_percentage -ge $ALLOWED_UNAVAILABLE_PERCENTAGE ]; then
   KUBE_DEPLOYMENT=$(echo $POD_NAME | rev | cut -d'-' -f3- | rev)
   LATEST_VALUE=$(echo "$dd_data" | tr -d '\n' | sed 's/},/\n/g' | grep "\"kube_deployment:$KUBE_DEPLOYMENT\"" | sed 's/.*pointlist":\[\[\([0-9\.]*,[0-9\.]*\)\].*/\1/' | awk -F, '{print $2}')
 
+  if [ -z "$LATEST_VALUE" ]; then
+    echo "No results found for deployment $KUBE_DEPLOYMENT. From: ${FROM_TIME}, To: ${CURRENT_TIME}, Cluster Env: ${cluster_env:-prod}"
+    exit 0 # Accumulate a backlog if data not found in DD
+  fi
+
   # Convert LATEST_VALUE to an integer
   LATEST_VALUE=${LATEST_VALUE%.*}
 
