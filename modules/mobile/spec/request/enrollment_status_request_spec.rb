@@ -13,14 +13,15 @@ RSpec.describe 'enrollment status', type: :request do
         end
 
         expect(response).to have_http_status(:ok)
-        expect(response.parsed_body.dig('data', 'attributes')).to match(
+        expect(response.parsed_body).to match(
           {
-            applicationDate: '2018-12-27T00:00:00.000-06:00',
-            enrollmentDate: '2018-12-27T17:15:39.000-06:00',
-            preferredFacility: '988 - DAYT20',
-            parsedStatus: 'enrolled',
-            primaryEligibility: 'SC LESS THAN 50%',
-            canSubmitFinancialInfo: true
+            data: {
+              id: UUID_REGEX,
+              type: 'enrollment_status',
+              attributes: {
+                status: 'enrolled'
+              }
+            }
           }
         )
       end

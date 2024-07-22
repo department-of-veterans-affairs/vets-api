@@ -5,10 +5,7 @@ module Mobile
     class EnrollmentStatusSerializer
       include JSONAPI::Serializer
 
-      set_type :enrollment_status
-
-      attributes :application_date, :enrollment_date, :preferred_facility, :parsed_status, :primary_eligibility,
-                 :can_submit_financial_info
+      attributes :status
     end
   end
 end
