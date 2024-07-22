@@ -6,6 +6,21 @@ module RepresentationManagement
       class Form2122a < RepresentationManagement::V0::PdfConstructor::Base
         protected
 
+        def next_steps_page?
+          true
+        end
+
+        def next_steps_contact(pdf, data)
+          representative_name = "#{data.representative_first_name} #{data.representative_middle_initial} #{data.representative_last_name}"
+          pdf.text(representative_name)
+          pdf.text(data.representative_address_line1)
+          pdf.text(data.representative_address_line2)
+          pdf.text("#{data.representative_city}, #{data.representative_state_code} #{data.representative_zip_code}")
+          pdf.move_down(5)
+          pdf.text(data.representative_phone)
+          pdf.text(data.representative_email_address)
+        end
+
         def template_path
           Rails.root.join('modules',
                           'representation_management',

@@ -6,6 +6,10 @@ module RepresentationManagement
       class Form2122 < RepresentationManagement::V0::PdfConstructor::Base
         protected
 
+        def next_steps_page?
+          false
+        end
+
         def template_path
           Rails.root.join('modules',
                           'representation_management',
