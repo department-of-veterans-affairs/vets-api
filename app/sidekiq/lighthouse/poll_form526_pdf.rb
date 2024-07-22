@@ -57,7 +57,7 @@ module Lighthouse
       )
 
       ::Rails.logger.warn(
-        'Poll for Form 526 PDF Retries exhausted',
+        'Poll for Form 526 PDF: Retries exhausted',
         { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
       )
     rescue => e
@@ -93,10 +93,22 @@ module Lighthouse
           d['documentTypeLabel'] == 'VA 21-526 Veterans Application for Compensation or Pension'
         end
         if form526_pdf.present?
-          Rails.logger.info('PDF found')
+          Rails.logger.info('Poll for form 526 PDF: PDF found')
           return
         else
-          raise StandardError('keep on retrying!')
+          # Check the submission.created_at date, if it's more than 2 days old
+          # update the job status to pdf_not_found immediately and exit the job
+          unless submission.created_at.between?(Date.current - 2, Date.current)
+            form_job_status.update(
+              status: Form526JobStatus::STATUS[:pdf_not_found],
+              bgjob_errors: bgjob_errors.merge(new_error)
+            )
+            ::Rails.logger.warn(
+              'Poll for form 526 PDF: Submission creation date is over 2 days old. Exiting...'
+            )
+            return
+          end
+          raise StandardError('Poll for form 526 PDF: Keep on retrying!')
         end
       end
     end
