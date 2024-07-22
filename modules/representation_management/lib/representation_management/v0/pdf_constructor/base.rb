@@ -54,6 +54,7 @@ module RepresentationManagement
           raise 'NotImplemented' # Extend this class and implement
         end
 
+        # rubocop:disable Layout/LineLength
         def next_steps_above_contact(pdf)
           pdf.font_size(20)
           pdf.text('Fill out your form to appoint a VA accredited representative or VSO')
@@ -87,6 +88,7 @@ module RepresentationManagement
           pdf.font_size(12)
           pdf.text("You can call us at 800-698-2411, ext. 0 (TTY: 711).  We're here 24/7.")
         end
+        # rubocop:enable Layout/LineLength
 
         private
 
@@ -97,6 +99,7 @@ module RepresentationManagement
         # the controller.  Start with a Next Steps page if needed.
         #
         # @param data [Hash] Data to fill in pdf form with
+        # rubocop:disable Metrics/MethodLength
         def fill_and_combine_pdf(data)
           pdftk = PdfForms.new(Settings.binaries.pdftk)
 
@@ -134,6 +137,7 @@ module RepresentationManagement
           template_tempfile.unlink
           next_steps_tempfile.unlink if next_steps_page?
         end
+        # rubocop:enable Metrics/MethodLength
       end
     end
   end

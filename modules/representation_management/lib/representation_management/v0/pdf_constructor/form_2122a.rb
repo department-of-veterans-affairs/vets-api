@@ -10,9 +10,10 @@ module RepresentationManagement
           true
         end
 
+        # rubocop:disable Layout/LineLength
         def next_steps_contact(pdf, data)
-          representative_name = "#{data.representative_first_name} #{data.representative_middle_initial} #{data.representative_last_name}"
-          pdf.text(representative_name)
+          rep_name = "#{data.representative_first_name} #{data.representative_middle_initial} #{data.representative_last_name}"
+          pdf.text(rep_name)
           pdf.text(data.representative_address_line1)
           pdf.text(data.representative_address_line2)
           pdf.text("#{data.representative_city}, #{data.representative_state_code} #{data.representative_zip_code}")
@@ -20,6 +21,7 @@ module RepresentationManagement
           pdf.text(data.representative_phone)
           pdf.text(data.representative_email_address)
         end
+        # rubocop:enable Layout/LineLength
 
         def template_path
           Rails.root.join('modules',
