@@ -152,9 +152,9 @@ module Pensions
         form_data: @claim.to_json,
         benefits_intake_uuid: @intake_service.uuid,
         saved_claim: @claim,
-        saved_claim_id: @claim.id,
+        saved_claim_id: @claim.id
       }
-      form_submission[:user_account] =  @user_account unless @user_account_uuid.nil?
+      form_submission[:user_account] = @user_account unless @user_account_uuid.nil?
 
       @form_submission = FormSubmission.create(**form_submission)
       @form_submission_attempt = FormSubmissionAttempt.create(form_submission: @form_submission)
