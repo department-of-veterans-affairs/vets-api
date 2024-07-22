@@ -173,18 +173,12 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
   end
 
   context 'when the BD upload feature flag is enabled' do
-    it 'uploads to the benefits document API' do
+    it 'calls the benefits document API upload instead of VBMS' do
       Flipper.enable(:lighthouse_claims_api_poa_use_bd)
-      expect(ClaimsApi::VBMSUploader).not_to receive(:new)
       expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
-      allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
-        .to receive(:get_auth_token).and_return('some-value-here')
+      expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
 
-      VCR.use_cassette('claims_api/bd/upload') do
-        subject.new.perform(power_of_attorney.id)
-        power_of_attorney.reload
-        expect(power_of_attorney.uploader).to be_a(ClaimsApi::PowerOfAttorneyUploader)
-      end
+      subject.new.perform(power_of_attorney.id)
     end
   end
 end
