@@ -7,33 +7,14 @@ module FsrFormTransform
     end
 
     def re_camel(x)
-      return re_camel_array(x) if x.instance_of?(Array)
-
-      re_camel_hash(x) if x.instance_of?(Hash)
-    end
-
-    def re_camel_array(x)
-      result = []
-      x.each do |el|
-        result << if el.instance_of?(Hash) || el.instance_of?(Array)
-                    re_camel(el)
-                  else
-                    el
-                  end
+      case x
+      when Array
+        x.map { |el| re_camel(el) }
+      when Hash
+        x.transform_keys { |key| key.camelcase(:lower) }.transform_values { |val| re_camel(val) }
+      else
+        x
       end
-      result
-    end
-
-    def re_camel_hash(x)
-      result = {}
-      x.each do |key, val|
-        result[key.camelcase(:lower)] = if val.instance_of?(Hash) || val.instance_of?(Array)
-                                          re_camel(val)
-                                        else
-                                          val
-                                        end
-      end
-      result
     end
 
     def re_dollar_cent(x, ignore = [])
@@ -94,6 +75,14 @@ module FsrFormTransform
       "#{month}/#{year}"
     end
 
+    def exclude_expenses_by(expenses, names)
+      expenses.filter { |expense| names.exclude?(expense['name']) }
+    end
+
+    def find_zipcode_data(zip)
+      StdZipcode.find_by(zip_code: zip)
+    end
+
     def str_to_num(str)
       return str if str.is_a? Numeric
       return 0 unless str.instance_of?(String)
@@ -101,8 +90,22 @@ module FsrFormTransform
       str.gsub(/[^0-9.-]/, '').to_i || 0
     end
 
+    def sum_values(collection, key)
+      collection&.sum { |item| item[key]&.gsub(/[^0-9.-]/, '')&.to_f } || 0
+    end
+
     def format_number(number)
       format('%.2f', number).to_s
+    end
+
+    def safe_sum(array)
+      array.map { |el| safe_number(el) }.sum.round(2)
+    end
+
+    def safe_number(str)
+      return 0.0 if str.nil?
+
+      str.gsub(/[^0-9.-]/, '').to_f
     end
   end
 end
