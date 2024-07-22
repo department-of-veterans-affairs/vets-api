@@ -73,9 +73,9 @@ module DebtManagementCenter
     end
 
     def init_cached_debts
-      # DMC refreshes DB at 5am every morning
-      Rails.cache.fetch("debts_data_#{@file_number}", expires_in: time_until_5am_utc) do
-        with_monitoring_and_error_handling do
+      with_monitoring_and_error_handling do
+        # DMC refreshes DB at 5am every morning
+        Rails.cache.fetch("debts_data_#{@user.uuid}", expires_in: time_until_5am_utc) do
           options = { timeout: 30 }
           response = perform(
             :post, Settings.dmc.debts_endpoint, { fileNumber: @file_number }, nil, options
@@ -83,7 +83,7 @@ module DebtManagementCenter
 
           # Only cache if the response is an empty array
           if response.is_a?(Array) && response.empty?
-            Rails.cache.write("debts_data_#{@file_number}", response, expires_in: time_until_midnight)
+            Rails.cache.write("debts_data_#{@user.uuid}", response, expires_in: time_until_5am_utc)
           end
 
           DebtManagementCenter::DebtsResponse.new(response).debts
