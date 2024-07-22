@@ -17,7 +17,7 @@ module CARMA
 
       def create_submission_v2(payload)
         with_monitoring do
-          res = if Flipper.enabled?(:cg_OAuth_2_enabled)
+          res = if Flipper.enabled?(:cg1010_oauth_2_enabled)
                   perform_post('v2/application/1010CG/submit', payload)
                 else
                   do_post('v2/application/1010CG/submit', payload)
