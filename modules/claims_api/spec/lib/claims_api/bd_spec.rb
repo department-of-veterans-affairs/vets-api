@@ -64,12 +64,62 @@ describe ClaimsApi::BD do
         expect(result).to eq(expected)
       end
 
-      it 'builds an L023 (corespondence) body correctly' do
+      it 'builds an L023 (correspondence) body correctly' do
         result = subject.send(:build_body, doc_type: 'L023', file_name: 'rx.pdf', claim_id: claim.id)
 
         expected = { data: { systemName: 'VA.gov', docType: 'L023', claimId: '581128c6-ad08-4b1e-8b82-c3640e829fb3',
                              fileName: 'rx.pdf', trackedItemIds: [] } }
         expect(result).to eq(expected)
+      end
+    end
+
+    describe 'power of attorney submissions (doc_type: L075, L190)' do
+      let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
+
+      context 'when the doctype is L190' do
+        let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22/signed_filled_final.pdf' }
+        let(:json_body) do
+          res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:,
+                                                    doc_type: 'L190')
+          temp_io = res[:parameters].instance_variable_get(:@io).path
+          temp_io_contents = File.read(temp_io)
+          JSON.parse(temp_io_contents)
+        end
+
+        it 'the systemName is LH-B' do
+          expect(json_body['data']['systemName']).to eq('LH-B')
+        end
+
+        it 'the docType is L190' do
+          expect(json_body['data']['docType']).to eq('L190')
+        end
+
+        it 'the fileName ends in 21-22.pdf' do
+          expect(json_body['data']['fileName']).to end_with('21-22.pdf')
+        end
+      end
+
+      context 'when the doctype is L075' do
+        let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22A/signed_filled_final.pdf' }
+        let(:json_body) do
+          res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:,
+                                                    doc_type: 'L075')
+          temp_io = res[:parameters].instance_variable_get(:@io).path
+          temp_io_contents = File.read(temp_io)
+          JSON.parse(temp_io_contents)
+        end
+
+        it 'the systemName is LH-B' do
+          expect(json_body['data']['systemName']).to eq('LH-B')
+        end
+
+        it 'the docType is L075' do
+          expect(json_body['data']['docType']).to eq('L075')
+        end
+
+        it 'the fileName ends in 21-22a.pdf' do
+          expect(json_body['data']['fileName']).to end_with('21-22a.pdf')
+        end
       end
     end
 
