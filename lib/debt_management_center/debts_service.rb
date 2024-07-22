@@ -82,6 +82,7 @@ module DebtManagementCenter
           ).body
 
           if response.is_a?(Array) && response.empty?
+            Rails.logger.info('DebtManagement - DebtService: Writing empty response to cache')
             Rails.cache.write("debts_data_#{@user.uuid}", response, expires_in: time_until_5am_utc)
           end
 
