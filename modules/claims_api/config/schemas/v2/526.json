@@ -720,7 +720,6 @@
           "description": "Identifies the Service dates and Branch the Veteran served in.",
           "type": "array",
           "minItems": 1,
-          "uniqueItems": true,
           "items": {
             "type": "object",
             "required": [

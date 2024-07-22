@@ -2090,7 +2090,6 @@
                                   "description": "Identifies the Service dates and Branch the Veteran served in.",
                                   "type": "array",
                                   "minItems": 1,
-                                  "uniqueItems": true,
                                   "items": {
                                     "type": "object",
                                     "required": [
@@ -3441,7 +3440,6 @@
                                 "description": "Identifies the Service dates and Branch the Veteran served in.",
                                 "type": "array",
                                 "minItems": 1,
-                                "uniqueItems": true,
                                 "items": {
                                   "type": "object",
                                   "required": [
@@ -4315,7 +4313,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "be0b5388-a8c3-4db0-9b6d-d343a52fcb03",
+                    "id": "44da7531-e1b0-4ce1-af9e-2ea7c9b054cb",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -4498,7 +4496,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-07-17"
+                          "anticipatedSeparationDate": "2024-07-24"
                         },
                         "confinements": [
                           {
@@ -5325,7 +5323,6 @@
                                   "description": "Identifies the Service dates and Branch the Veteran served in.",
                                   "type": "array",
                                   "minItems": 1,
-                                  "uniqueItems": true,
                                   "items": {
                                     "type": "object",
                                     "required": [
@@ -6676,7 +6673,6 @@
                                 "description": "Identifies the Service dates and Branch the Veteran served in.",
                                 "type": "array",
                                 "minItems": 1,
-                                "uniqueItems": true,
                                 "items": {
                                   "type": "object",
                                   "required": [
@@ -8570,7 +8566,6 @@
                                 "description": "Identifies the Service dates and Branch the Veteran served in.",
                                 "type": "array",
                                 "minItems": 1,
-                                "uniqueItems": true,
                                 "items": {
                                   "type": "object",
                                   "required": [
@@ -9193,7 +9188,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "325dd8b8-ae7a-469d-a0e9-66887dd5ec24",
+                    "id": "bd256674-7cc2-45c4-96cc-e2e6f2667764",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12068,8 +12063,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-07-15",
-                      "expirationDate": "2025-07-15",
+                      "creationDate": "2024-07-22",
+                      "expirationDate": "2025-07-22",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -12945,7 +12940,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6ae7a4b3-2846-4a8d-ba20-13cfecf951cc",
+                    "id": "b9caf39a-a890-4ecf-b1b2-8a0feff1e70b",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13638,7 +13633,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ac0a296b-c1ee-4f20-8fa1-f02305aa0bff",
+                    "id": "2e96700b-39dd-4483-8295-c4ab72e9f21d",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15589,10 +15584,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2481cfc2-318d-4f1a-9b84-6768f6037604",
+                    "id": "2adee901-6f95-4730-b0a9-ade0c167e83e",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-07-15",
+                      "dateRequestAccepted": "2024-07-22",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
