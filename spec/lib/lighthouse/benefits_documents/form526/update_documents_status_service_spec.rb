@@ -173,13 +173,13 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
     before do
       allow_any_instance_of(BenefitsDocuments::Form526::UploadStatusUpdater).to receive(:update_status)
       allow_any_instance_of(Lighthouse526DocumentUpload).to receive(:failed?).and_return(true)
-      allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:warn)
     end
 
     it 'logs the latest_status_response to the Rails logger' do
       described_class.call(uploads, status_response)
 
-      expect(Rails.logger).to have_received(:info).with(
+      expect(Rails.logger).to have_received(:warn).with(
         'Benefits Documents API responded with a failed document upload status', {
           form526_submission_id: submission.id,
           document_type: form0781_document_upload.document_type,

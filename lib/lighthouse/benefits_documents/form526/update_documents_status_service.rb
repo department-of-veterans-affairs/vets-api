@@ -100,7 +100,7 @@ module BenefitsDocuments
         return unless document_upload.form0781_types?
 
         submission = document_upload.form526_submission
-        Rails.logger.info(
+        Rails.logger.warn(
           'Benefits Documents API responded with a failed document upload status', {
             form526_submission_id: submission.id,
             document_type: document_upload.document_type,
