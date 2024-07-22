@@ -206,7 +206,7 @@ RSpec.describe Form526Submission do
     end
 
     describe 'failure_type' do
-      it 'returns anything not successful of in process' do
+      it 'returns anything not explicitly successful or still in process' do
         expect(Form526Submission.failure_type).to contain_exactly(
           rejected_backup,
           no_longer_remediated,

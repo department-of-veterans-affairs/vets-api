@@ -62,6 +62,12 @@ class Form526StatusPollingJob
       log_result('true success')
       form_submission.accepted!
     elsif status == 'success' && !paranoid
+      # This is a weird, condition, here's how it works:
+      # if paranoid: true, then this job is only checking submissions already paranoid_success
+      # if paranoid: false, then this job is only checking submissions that are pending
+      # THEREFORE
+      # if paranoid: true, setting paranoid_success would be redundant
+      # if paranoid: false, this submission is pending but needs to become paranoid success
       log_result('paranoid success')
       form_submission.paranoid_success!
     elsif status == 'processing' && paranoid
