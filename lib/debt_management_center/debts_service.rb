@@ -63,6 +63,7 @@ module DebtManagementCenter
 
     def init_debts
       with_monitoring_and_error_handling do
+        Rails.logger.info('DebtManagement - DebtService#init_debts')
         options = { timeout: 30 }
         DebtManagementCenter::DebtsResponse.new(
           perform(
@@ -82,7 +83,7 @@ module DebtManagementCenter
           ).body
 
           if response.is_a?(Array) && response.empty?
-            Rails.logger.info('DebtManagement - DebtService: Writing empty response to cache')
+            Rails.logger.info('DebtManagement - DebtService#init_cached_debts: Writing empty response to cache')
             Rails.cache.write("debts_data_#{@user.uuid}", response, expires_in: time_until_5am_utc)
           end
 
