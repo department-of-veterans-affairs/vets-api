@@ -30,62 +30,32 @@ module V0
     end
 
     def get_all_features
-      features = []
+      sql = <<-SQL.squish
+        SELECT flipper_features.key AS feature_name,
+              MAX(CASE
+                    WHEN flipper_gates.key = 'boolean' AND flipper_gates.value = 'true' THEN 1
+                    WHEN flipper_gates.key = 'actors' AND flipper_gates.value = ? THEN 1
+                    ELSE 0
+                  END) = 1 AS enabled
+        FROM flipper_features
+        LEFT JOIN flipper_gates
+          ON flipper_features.key = flipper_gates.feature_key
+        GROUP BY flipper_features.key;
+      SQL
 
-      FLIPPER_FEATURE_CONFIG['features'].collect do |feature_name, values|
-        flipper_enabled = flipper_enabled? get_feature_flags_for_actor, feature_name, actor(values['actor_type'])
+      results = ActiveRecord::Base.connection.select_all(ActiveRecord::Base.sanitize_sql_array([sql, flipper_id]))
 
-        # returning both camel and snakecase for uniformity on FE
-        features << { name: feature_name.camelize(:lower), value: flipper_enabled }
-        features << { name: feature_name, value: flipper_enabled }
-      end
-
-      features
-    end
-
-    def get_feature_flags_for_actor
-      if actor_has_custom_features?
-        flipper_get_all
-      else
-        cache_global_features
-      end
-    end
-
-    def actor_has_custom_features?
-      @actor_has_custom_features ||= begin
-        actor = params[:cookie_ids] || @current_user
-        if actor.present?
-          result = ActiveRecord::Base.connection.select_value(
-            "SELECT 1 FROM flipper_gates WHERE flipper_gates.key = 'actors' AND flipper_gates.value = ? LIMIT 1",
-            [actor]
-          )
-
-          !result.nil?
-        else
-          false
+      results.each_with_object([]) do |row, array|
+        if row['enabled']
+          feature_name = row['feature_name']
+          array << { name: feature_name.camelize(:lower), value: row['enabled'] }
+          array << { name: feature_name, value: row['enabled'] }
         end
       end
     end
 
-    def flipper_get_all
-      if Settings.flipper.mute_logs
-        ActiveRecord::Base.logger.silence do
-          Flipper.adapter.get_all
-        end
-      else
-        Flipper.adapter.get_all
-      end
-    end
-
-    def cache_global_features
-      Rails.cache.fetch('global_feature_flags', expires_in: 1.minute) do
-        flipper_get_all
-      end
-    end
-
-    def flipper_enabled?(all_features, feature, actor)
-      gates = all_features.select { |feature_name| feature_name == feature }.values.first
-      gates[:actors].include?(actor&.flipper_id) || gates[:groups].include?('all') || gates[:boolean] == 'true'
+    def flipper_id
+      params[:cookie_id] || @current_user&.flipper_id
     end
 
     def actor(actor_type)
