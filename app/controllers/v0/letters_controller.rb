@@ -30,8 +30,7 @@ module V0
 
     def beneficiary
       response = service.get_letter_beneficiary
-      render json: response,
-             serializer: LetterBeneficiarySerializer
+      render json: LetterBeneficiarySerializer.new(response)
     end
 
     private
