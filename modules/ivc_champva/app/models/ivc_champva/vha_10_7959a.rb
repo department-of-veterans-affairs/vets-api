@@ -16,12 +16,14 @@ module IvcChampva
 
     def metadata
       {
-        'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
-        'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
-        'zipCode' => @data.dig('veteran', 'address', 'postal_code'),
+        'veteranFirstName' => @data.dig('applicant_name', 'first'),
+        'veteranLastName' => @data.dig('applicant_name', 'last'),
+        'zipCode' => @data.dig('applicant_address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP',
+        'ssn_or_tin' => @data['applicant_member_number'],
+        'member_number' => @data['applicant_member_number'],
         'country' => @data.dig('applicant_address', 'country') || 'USA',
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info']

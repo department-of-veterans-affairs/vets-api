@@ -261,12 +261,51 @@ module DebtsApi
           ],
           personal_identification: %i[ssn file_number],
           selected_debts_and_copays: [
-            :resolution_waiver_check, :resolution_option, :file_number,
-            :payee_number, :person_entitled, :deduction_code, :benefit_type,
-            :diary_code, :diary_code_description, :amount_overpaid, :amount_withheld,
-            :original_ar, :current_ar,
-            :id, :debt_type, :resolution_comment,
-            { debt_history: %i[date letter_code description] }
+            :id,
+            :p_s_seq_num,
+            :p_s_tot_seq_num,
+            :p_s_facility_num,
+            :p_s_fac_phone_num,
+            :p_s_tot_statement,
+            :p_s_statement_val,
+            :p_s_statement_date,
+            :p_s_statement_date_output,
+            :p_s_process_date,
+            :p_s_process_date_output,
+            :p_h_patient_lst_nme,
+            :p_h_patient_fst_nme,
+            :p_h_patient_mid_nme,
+            :p_h_address1,
+            :p_h_address2,
+            :p_h_address3,
+            :p_h_city,
+            :p_h_state,
+            :p_h_zip_cde,
+            :p_h_zip_cde_output,
+            :p_h_ctry_nme,
+            :p_h_amt_due,
+            :p_h_amt_due_output,
+            :p_h_prev_bal,
+            :p_h_prev_bal_output,
+            :p_h_tot_charges,
+            :p_h_tot_charges_output,
+            :p_h_tot_credits,
+            :p_h_tot_credits_output,
+            :p_h_new_balance,
+            :p_h_new_balance_output,
+            :p_h_special_notes,
+            :p_hro_para_cdes,
+            :p_h_num_of_lines,
+            :p_h_dfn_number,
+            :p_h_cerner_statement_number,
+            :p_h_cerner_patient_id,
+            :p_h_cerner_account_number,
+            :p_h_icn_number,
+            :p_h_account_number,
+            :p_h_large_font_indcator,
+            :debt_type,
+            { details: [] },
+            { station: {} }
           ],
           additional_income: [
             addl_inc_records: %i[name amount],
@@ -288,8 +327,10 @@ module DebtsApi
             { bankruptcy: %i[date_discharged court_location docket_number] }
           ],
           income: [:veteran_or_spouse],
-          gmt_data: [
-            :is_eligible_for_streamlined, :gmt_threshold, { error: [:error] }
+          gmt_data: %i[
+            is_eligible_for_streamlined gmt_threshold error income_upper_threshold
+            asset_threshold discretionary_income_threshold income_below_gmt
+            income_below_one_fifty_gmt liquid_assets_below_gmt discretionary_below
           ],
           installment_contracts: %i[
             purpose creditor_name original_amount unpaid_balance

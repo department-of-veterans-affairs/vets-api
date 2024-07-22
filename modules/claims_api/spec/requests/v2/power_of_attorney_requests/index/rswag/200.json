@@ -49,9 +49,9 @@
                       "items": {
                         "type": "string",
                         "enum": [
-                          "None",
-                          "Accepted",
-                          "Declined"
+                          "none",
+                          "accepting",
+                          "declining"
                         ]
                       }
                     }
@@ -249,11 +249,11 @@
                     "type": "string",
                     "description": "Whether the Power of Attorney request was accepted or declined",
                     "enum": [
-                      "Accepted",
-                      "Declined"
+                      "accepting",
+                      "declining"
                     ]
                   },
-                  "declinedReason": {
+                  "decliningReason": {
                     "type": "string",
                     "description": "The reason given for declining the Power of Attorney request",
                     "nullable": true
