@@ -15,6 +15,8 @@ module Mobile
         render(json:)
       end
 
+      private
+
       def authorize_user
         raise_unauthorized('User is not loa3') unless current_user.loa3?
       end
