@@ -187,7 +187,7 @@
                       "errors": [
                         {
                           "title": "Validation error",
-                          "detail": "object at `/data/attributes` is missing required properties: status, declinedReason",
+                          "detail": "object at `/data/attributes` is missing required properties: status, decliningReason",
                           "code": "109",
                           "status": "422"
                         }
@@ -505,7 +505,7 @@
                         "additionalProperties": false,
                         "required": [
                           "status",
-                          "declinedReason",
+                          "decliningReason",
                           "createdBy"
                         ],
                         "properties": {
@@ -513,11 +513,11 @@
                             "type": "string",
                             "description": "TODO",
                             "enum": [
-                              "Accepted",
-                              "Declined"
+                              "accepting",
+                              "declining"
                             ]
                           },
-                          "declinedReason": {
+                          "decliningReason": {
                             "type": "string",
                             "description": "TODO",
                             "nullable": true
@@ -552,8 +552,8 @@
                   "data": {
                     "type": "powerOfAttorneyRequestDecision",
                     "attributes": {
-                      "status": "Accepted",
-                      "declinedReason": null,
+                      "status": "accepting",
+                      "decliningReason": null,
                       "createdBy": {
                         "firstName": "BEATRICE",
                         "lastName": "STROUD",
@@ -629,9 +629,9 @@
                           "items": {
                             "type": "string",
                             "enum": [
-                              "None",
-                              "Accepted",
-                              "Declined"
+                              "none",
+                              "accepting",
+                              "declining"
                             ]
                           }
                         }
@@ -697,15 +697,15 @@
                   ],
                   "decision": {
                     "statuses": [
-                      "None",
-                      "Accepted",
-                      "Declined"
+                      "none",
+                      "accepting",
+                      "declining"
                     ]
                   }
                 },
                 "page": {
                   "number": 2,
-                  "size": 5
+                  "size": 3
                 },
                 "sort": {
                   "field": "createdAt",
@@ -734,15 +734,15 @@
                 ],
                 "decision": {
                   "statuses": [
-                    "None",
-                    "Accepted",
-                    "Declined"
+                    "none",
+                    "accepting",
+                    "declining"
                   ]
                 }
               },
               "page": {
                 "number": 2,
-                "size": 5
+                "size": 3
               },
               "sort": {
                 "field": "createdAt",
@@ -780,15 +780,15 @@
                         ],
                         "decision": {
                           "statuses": [
-                            "None",
-                            "Accepted",
-                            "Declined"
+                            "none",
+                            "accepting",
+                            "declining"
                           ]
                         }
                       },
                       "page": {
                         "number": 2,
-                        "size": 5
+                        "size": 3
                       },
                       "sort": {
                         "field": "createdAt",
@@ -805,20 +805,29 @@
                         "isAddressChangingAuthorized": true,
                         "isTreatmentDisclosureAuthorized": true,
                         "veteran": {
-                          "firstName": "first",
-                          "middleName": null,
-                          "lastName": "last"
+                          "firstName": "Kent",
+                          "middleName": "David",
+                          "lastName": "Richardson"
                         },
                         "claimant": null,
                         "claimantAddress": {
-                          "city": "Bourges",
-                          "state": null,
+                          "city": "Houston",
+                          "state": "TX",
                           "zip": "00123",
-                          "country": "France",
+                          "country": "USA",
                           "militaryPostOffice": null,
                           "militaryPostalCode": null
                         },
-                        "decision": null,
+                        "decision": {
+                          "status": "declining",
+                          "decliningReason": "Kent has an appeal in progress.",
+                          "createdAt": "2013-01-15T14:57:18Z",
+                          "createdBy": {
+                            "firstName": "Nate",
+                            "lastName": "Karev",
+                            "email": "test_evss_5@id.me"
+                          }
+                        },
                         "createdAt": "2013-01-14T14:57:18Z"
                       }
                     },
@@ -830,14 +839,14 @@
                         "isAddressChangingAuthorized": true,
                         "isTreatmentDisclosureAuthorized": true,
                         "veteran": {
-                          "firstName": "[Vet First Name]",
-                          "middleName": null,
-                          "lastName": "[Vet Last Name]"
+                          "firstName": "Kent",
+                          "middleName": "David",
+                          "lastName": "Richardson"
                         },
                         "claimant": null,
                         "claimantAddress": {
-                          "city": "Richmond",
-                          "state": null,
+                          "city": "Houston",
+                          "state": "TX",
                           "zip": "00123",
                           "country": "USA",
                           "militaryPostOffice": null,
@@ -848,78 +857,32 @@
                       }
                     },
                     {
-                      "id": "111_11024",
+                      "id": "600043203_3851911",
                       "type": "powerOfAttorneyRequest",
                       "attributes": {
                         "powerOfAttorneyCode": "003",
                         "isAddressChangingAuthorized": true,
                         "isTreatmentDisclosureAuthorized": true,
                         "veteran": {
-                          "firstName": "[Vet First Name]",
-                          "middleName": null,
-                          "lastName": "[Vet Last Name]"
+                          "firstName": "Kyle",
+                          "middleName": "Michael",
+                          "lastName": "Cole"
                         },
-                        "claimant": null,
+                        "claimant": {
+                          "firstName": "John",
+                          "lastName": "Doe",
+                          "relationshipToVeteran": "Brother"
+                        },
                         "claimantAddress": {
-                          "city": "Richmond",
-                          "state": null,
-                          "zip": "00123",
+                          "city": "Alpharetta",
+                          "state": "GA",
+                          "zip": "30022",
                           "country": "USA",
                           "militaryPostOffice": null,
                           "militaryPostalCode": null
                         },
                         "decision": null,
-                        "createdAt": "2013-01-17T17:04:22Z"
-                      }
-                    },
-                    {
-                      "id": "111_11025",
-                      "type": "powerOfAttorneyRequest",
-                      "attributes": {
-                        "powerOfAttorneyCode": "003",
-                        "isAddressChangingAuthorized": true,
-                        "isTreatmentDisclosureAuthorized": true,
-                        "veteran": {
-                          "firstName": "[Vet First Name]",
-                          "middleName": null,
-                          "lastName": "[Vet Last Name]"
-                        },
-                        "claimant": null,
-                        "claimantAddress": {
-                          "city": "Charlottesville",
-                          "state": null,
-                          "zip": "00123",
-                          "country": "USA",
-                          "militaryPostOffice": null,
-                          "militaryPostalCode": null
-                        },
-                        "decision": null,
-                        "createdAt": "2013-01-17T17:06:54Z"
-                      }
-                    },
-                    {
-                      "id": "_11037",
-                      "type": "powerOfAttorneyRequest",
-                      "attributes": {
-                        "powerOfAttorneyCode": "065",
-                        "isAddressChangingAuthorized": true,
-                        "isTreatmentDisclosureAuthorized": true,
-                        "veteran": {
-                          "firstName": "cory",
-                          "middleName": "joseph",
-                          "lastName": "washington"
-                        },
-                        "claimant": null,
-                        "claimantAddress": {
-                          "city": "WICHITA",
-                          "state": "KS",
-                          "zip": "67211",
-                          "country": "USA",
-                          "militaryPostOffice": null,
-                          "militaryPostalCode": null
-                        },
-                        "decision": null,
-                        "createdAt": "2013-01-17T22:24:32Z"
+                        "createdAt": "2023-08-23T17:16:37Z"
                       }
                     }
                   ]
@@ -975,9 +938,9 @@
                                       "items": {
                                         "type": "string",
                                         "enum": [
-                                          "None",
-                                          "Accepted",
-                                          "Declined"
+                                          "none",
+                                          "accepting",
+                                          "declining"
                                         ]
                                       }
                                     }
@@ -1175,11 +1138,11 @@
                                     "type": "string",
                                     "description": "Whether the Power of Attorney request was accepted or declined",
                                     "enum": [
-                                      "Accepted",
-                                      "Declined"
+                                      "accepting",
+                                      "declining"
                                     ]
                                   },
-                                  "declinedReason": {
+                                  "decliningReason": {
                                     "type": "string",
                                     "description": "The reason given for declining the Power of Attorney request",
                                     "nullable": true
@@ -1240,7 +1203,7 @@
                             "decision": {
                               "statuses": {
                                 "0": [
-                                  "must be one of: None, Accepted, Declined"
+                                  "must be one of: none, accepting, declining"
                                 ]
                               }
                             }
@@ -3826,9 +3789,9 @@
                                 },
                                 "accountNumber": {
                                   "description": "Account number for the direct deposit.",
-                                  "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                  "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                   "type": "string",
-                                  "maxLength": 14,
+                                  "maxLength": 1000,
                                   "nullable": true,
                                   "example": "123123123123"
                                 },
@@ -3844,7 +3807,7 @@
                                 },
                                 "financialInstitutionName": {
                                   "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                  "maxLength": 35,
+                                  "maxLength": 1000,
                                   "type": "string",
                                   "nullable": true,
                                   "example": "Some Bank"
@@ -3852,8 +3815,9 @@
                                 "routingNumber": {
                                   "description": "Routing number for the direct deposit.",
                                   "type": "string",
+                                  "maxLength": 1000,
                                   "nullable": true,
-                                  "pattern": "^(?:\\d{9})?$",
+                                  "pattern": "^$|^\\d{0,1000}$",
                                   "example": "123123123"
                                 }
                               }
@@ -5177,9 +5141,9 @@
                               },
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
-                                "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                 "type": "string",
-                                "maxLength": 14,
+                                "maxLength": 1000,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -5195,7 +5159,7 @@
                               },
                               "financialInstitutionName": {
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                "maxLength": 35,
+                                "maxLength": 1000,
                                 "type": "string",
                                 "nullable": true,
                                 "example": "Some Bank"
@@ -5203,8 +5167,9 @@
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "nullable": true,
-                                "pattern": "^(?:\\d{9})?$",
+                                "pattern": "^$|^\\d{0,1000}$",
                                 "example": "123123123"
                               }
                             }
@@ -5739,7 +5704,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "79150c60-0eaa-4b13-95a1-4653f3396b43",
+                    "id": "e8d9092e-20fd-4c8e-9c3b-13964eac7379",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -5922,7 +5887,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-07-17"
+                          "anticipatedSeparationDate": "2024-07-24"
                         },
                         "confinements": [
                           {
@@ -7061,9 +7026,9 @@
                                 },
                                 "accountNumber": {
                                   "description": "Account number for the direct deposit.",
-                                  "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                  "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                   "type": "string",
-                                  "maxLength": 14,
+                                  "maxLength": 1000,
                                   "nullable": true,
                                   "example": "123123123123"
                                 },
@@ -7079,7 +7044,7 @@
                                 },
                                 "financialInstitutionName": {
                                   "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                  "maxLength": 35,
+                                  "maxLength": 1000,
                                   "type": "string",
                                   "nullable": true,
                                   "example": "Some Bank"
@@ -7087,8 +7052,9 @@
                                 "routingNumber": {
                                   "description": "Routing number for the direct deposit.",
                                   "type": "string",
+                                  "maxLength": 1000,
                                   "nullable": true,
-                                  "pattern": "^(?:\\d{9})?$",
+                                  "pattern": "^$|^\\d{0,1000}$",
                                   "example": "123123123"
                                 }
                               }
@@ -8412,9 +8378,9 @@
                               },
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
-                                "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                 "type": "string",
-                                "maxLength": 14,
+                                "maxLength": 1000,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -8430,7 +8396,7 @@
                               },
                               "financialInstitutionName": {
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                "maxLength": 35,
+                                "maxLength": 1000,
                                 "type": "string",
                                 "nullable": true,
                                 "example": "Some Bank"
@@ -8438,8 +8404,9 @@
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "nullable": true,
-                                "pattern": "^(?:\\d{9})?$",
+                                "pattern": "^$|^\\d{0,1000}$",
                                 "example": "123123123"
                               }
                             }
@@ -10306,9 +10273,9 @@
                               },
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
-                                "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                 "type": "string",
-                                "maxLength": 14,
+                                "maxLength": 1000,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -10324,7 +10291,7 @@
                               },
                               "financialInstitutionName": {
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                "maxLength": 35,
+                                "maxLength": 1000,
                                 "type": "string",
                                 "nullable": true,
                                 "example": "Some Bank"
@@ -10332,8 +10299,9 @@
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "nullable": true,
-                                "pattern": "^(?:\\d{9})?$",
+                                "pattern": "^$|^\\d{0,1000}$",
                                 "example": "123123123"
                               }
                             }
@@ -10617,7 +10585,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3cb33906-2a37-4c22-a73a-8553fec74fe4",
+                    "id": "d3e22ffc-01ef-4519-b019-f3b86367202b",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -13492,8 +13460,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-07-15",
-                      "expirationDate": "2025-07-15",
+                      "creationDate": "2024-07-22",
+                      "expirationDate": "2025-07-22",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -14369,7 +14337,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "722216eb-4991-42ac-9059-cc5a8aa85a8b",
+                    "id": "b756ca5a-c99a-4111-9aee-e017e344c053",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15062,7 +15030,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "42954b3c-7aad-4d1c-9a54-c793b03d6a29",
+                    "id": "90d2e000-f7a1-4c14-9849-009ad6b80584",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -17013,10 +16981,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "10044dd9-11b6-4c21-9ac4-b15f54393731",
+                    "id": "9cd947f4-6ab3-4f35-96da-b808036b7a90",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-07-15",
+                      "dateRequestAccepted": "2024-07-22",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
