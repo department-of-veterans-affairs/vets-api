@@ -30,7 +30,23 @@ module V0
     end
 
     def get_all_features
-      sql = <<-SQL.squish
+      return old_get_all_features unless Flipper.enabled?(:use_new_get_all_features)
+
+      results = ActiveRecord::Base.connection.select_all(
+        ActiveRecord::Base.sanitize_sql_array([get_all_features_sql, flipper_id])
+      )
+
+      results.each_with_object([]) do |row, array|
+        next unless row['enabled']
+
+        feature_name = row['feature_name']
+        array << { name: feature_name.camelize(:lower), value: row['enabled'] }
+        array << { name: feature_name, value: row['enabled'] }
+      end
+    end
+
+    def get_all_features_sql
+      <<-SQL.squish
         SELECT flipper_features.key AS feature_name,
               MAX(CASE
                     WHEN flipper_gates.key = 'boolean' AND flipper_gates.value = 'true' THEN 1
@@ -42,16 +58,25 @@ module V0
           ON flipper_features.key = flipper_gates.feature_key
         GROUP BY flipper_features.key;
       SQL
+    end
 
-      results = ActiveRecord::Base.connection.select_all(ActiveRecord::Base.sanitize_sql_array([sql, flipper_id]))
+    def old_get_all_features
+      features = []
 
-      results.each_with_object([]) do |row, array|
-        if row['enabled']
-          feature_name = row['feature_name']
-          array << { name: feature_name.camelize(:lower), value: row['enabled'] }
-          array << { name: feature_name, value: row['enabled'] }
-        end
+      FLIPPER_FEATURE_CONFIG['features'].collect do |feature_name, values|
+        flipper_enabled = if Settings.flipper.mute_logs
+                            ActiveRecord::Base.logger.silence do
+                              Flipper.enabled?(feature_name, actor(values['actor_type']))
+                            end
+                          else
+                            Flipper.enabled?(feature_name, actor(values['actor_type']))
+                          end
+        # returning both camel and snakecase for uniformity on FE
+        features << { name: feature_name.camelize(:lower), value: flipper_enabled }
+        features << { name: feature_name, value: flipper_enabled }
       end
+
+      features
     end
 
     def flipper_id
