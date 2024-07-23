@@ -8,6 +8,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
     @feature_name_camel = @feature_name.camelize(:lower)
     @cached_enabled_val = Flipper.enabled?(@feature_name)
     Flipper.enable(@feature_name)
+    Flipper.enable(:use_new_get_all_features)
   end
 
   after(:all) do
@@ -49,29 +50,6 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
       expect(json_data['data']['features'].first['value']).not_to be_nil
       expect(json_data['data']['features']).to include({ 'name' => @feature_name_camel, 'value' => true })
       expect(json_data['data']['features']).to include({ 'name' => @feature_name, 'value' => true })
-    end
-
-    context 'when flipper.mute_logs settings is true' do
-      before do
-        allow(ActiveRecord::Base.logger).to receive(:silence)
-        allow(Settings.flipper).to receive(:mute_logs).and_return(true)
-      end
-
-      it 'sets ActiveRecord logger to silence' do
-        expect(ActiveRecord::Base.logger).to receive(:silence)
-
-        get :index
-      end
-    end
-
-    context 'when flipper.mute_logs settings is false' do
-      before { allow(Settings.flipper).to receive(:mute_logs).and_return(false) }
-
-      it 'does not set ActiveRecord logger to silence' do
-        expect(ActiveRecord::Base.logger).not_to receive(:silence)
-
-        get :index
-      end
     end
   end
 

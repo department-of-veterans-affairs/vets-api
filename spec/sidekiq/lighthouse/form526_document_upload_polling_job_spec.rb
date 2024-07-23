@@ -4,7 +4,6 @@ require 'rails_helper'
 
 RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
   before do
-    skip('Skip temporarily: Failing on main 7/23/34')
     Sidekiq::Job.clear_all
     # NOTE: to re-record the VCR cassettes for these tests:
     # 1. Comment out the line below stubbing the token
@@ -44,19 +43,19 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
     # End-to-end integration test - completion
     context 'for a document that has completed' do
       # Completed Lighthouse QA environment document requestId provided by Lighthouse for end-to-end testing
-      it_behaves_like 'document status updates', 'completed', 22,
+      it_behaves_like 'document status updates', 'completed', '22',
                       'lighthouse/benefits_claims/documents/form526_document_upload_status_complete'
     end
 
     context 'for a document that has failed' do
       # Failed Lighthouse QA environment document requestId provided by Lighthouse for end-to-end testing
-      it_behaves_like 'document status updates', 'failed', 16_819,
+      it_behaves_like 'document status updates', 'failed', '16819',
                       'lighthouse/benefits_claims/documents/form526_document_upload_status_failed'
     end
 
     context 'for a single document request whose status is not found' do
       # Non-existent Lighthouse QA environment document requestId
-      let!(:unknown_document) { create(:lighthouse526_document_upload, lighthouse_document_request_id: 21) }
+      let!(:unknown_document) { create(:lighthouse526_document_upload, lighthouse_document_request_id: '21') }
       let(:error_body) do
         { 'errors' => [{ 'detail' => 'Upload Request Async Status Not Found', 'status' => 404,
                          'title' => 'Not Found', 'instance' => '062dd917-a229-42d7-ad39-741eb81766a8',
@@ -84,8 +83,8 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
     end
 
     context 'for a document with status and another document whose request id is not found' do
-      let!(:complete_document) { create(:lighthouse526_document_upload, lighthouse_document_request_id: 22) }
-      let!(:unknown_document) { create(:lighthouse526_document_upload, lighthouse_document_request_id: 21) }
+      let!(:complete_document) { create(:lighthouse526_document_upload, lighthouse_document_request_id: '22') }
+      let!(:unknown_document) { create(:lighthouse526_document_upload, lighthouse_document_request_id: '21') }
 
       around do |example|
         VCR.use_cassette('lighthouse/benefits_claims/documents/form526_document_upload_with_request_ids_not_found') do

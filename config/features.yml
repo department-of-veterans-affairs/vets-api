@@ -770,6 +770,10 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging lefthand navigation for new navigation solution
     enable_in_development: true
+  mhv_secure_messaging_edit_contact_list:
+    actor_type: user
+    description: Disables/Enables Secure Messaging edit contact list page
+    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
@@ -1586,3 +1590,6 @@ features:
   merge_1995_and_5490:
     actore_type: user
     description: Activating the combined 1995 and 5490 form 
+  use_new_get_all_features:
+    actor_type: user
+    description: Used to test new feature toggle code. Removal ETA July 15, 2024
