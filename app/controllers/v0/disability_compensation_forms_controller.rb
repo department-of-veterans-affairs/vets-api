@@ -87,8 +87,8 @@ module V0
 
         disability_rating = service.get_combined_disability_rating
 
-        render json: { user_percent_of_disability: disability_rating },
-               serializer: LighthouseRatingInfoSerializer
+        rating_info = { user_percent_of_disability: disability_rating }
+        render json: LighthouseRatingInfoSerializer.new(rating_info)
       else
         rating_info_service = EVSS::CommonService.new(auth_headers)
         response = rating_info_service.get_rating_info
