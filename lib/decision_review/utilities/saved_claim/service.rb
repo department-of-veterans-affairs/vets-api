@@ -13,7 +13,9 @@ module DecisionReview
       ].freeze
 
       def store_saved_claim(claim_class:, form:, guid:, uploaded_forms: [])
-        raise Exception("Invalid class type '#{claim_class}'") unless VALID_CLASS.include? claim_class
+        return unless Flipper.enabled? :decision_review_form_store_saved_claims
+
+        raise "Invalid class type '#{claim_class}'" unless VALID_CLASS.include? claim_class
 
         claim = claim_class.new(form:, guid:, uploaded_forms:)
         claim.save!
