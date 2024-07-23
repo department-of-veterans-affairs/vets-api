@@ -616,7 +616,7 @@ module ClaimsApi
         end
         sorted = arr&.sort_by { |sp| sp[:activeDutyEndDate] }
 
-        @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = if sorted.count > 1
+        @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = if sorted.count >= 1
                                                                                             sorted
                                                                                           else
                                                                                             {}
