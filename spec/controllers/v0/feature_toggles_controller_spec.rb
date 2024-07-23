@@ -16,12 +16,15 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
   end
 
   describe 'GET #index without params' do
-    it 'returns all features' do
+    it 'returns all features (true or false)' do
+      Flipper.disable(:disabled_feature)
       get :index
       expect(response).to have_http_status(:ok)
       json_data = JSON.parse(response.body)
+      disabled_feature = json_data['data']['features'].find { |f| f['name'] == 'disabledFeature' }
 
       expect(json_data['data']['features'].first['value']).not_to be_nil
+      expect(disabled_feature['value']).to be false
     end
 
     it 'allows strings as actors' do
@@ -50,6 +53,26 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
       expect(json_data['data']['features'].first['value']).not_to be_nil
       expect(json_data['data']['features']).to include({ 'name' => @feature_name_camel, 'value' => true })
       expect(json_data['data']['features']).to include({ 'name' => @feature_name, 'value' => true })
+    end
+
+    it 'returns percentage of actor consistently' do
+      Flipper.enable_percentage_of_actors(:feature_two_five, 25)
+
+      5.times do |i|
+        cookie_id = "cookie_#{31 + i}"
+        actor = Flipper::Actor.new(cookie_id)
+        is_enabled = Flipper.enabled?(:feature_two_five, actor)
+
+        get :index, params: { cookie_id: }
+
+        expect(response).to have_http_status(:ok)
+        json_data = JSON.parse(response.body)
+
+        feature_two_five = json_data['data']['features'].find { |f| f['name'] == 'feature_two_five' }
+        feature_two_five_camel = json_data['data']['features'].find { |f| f['name'] == 'featureTwoFive' }
+        expect(feature_two_five['value']).to eq(is_enabled)
+        expect(feature_two_five_camel['value']).to eq(is_enabled)
+      end
     end
   end
 

@@ -43,32 +43,43 @@ module V0
 
     def fetch_features_from_db(flipper_id = nil)
       results = ActiveRecord::Base.connection.select_all(
-        ActiveRecord::Base.sanitize_sql_array([get_all_features_sql, flipper_id])
+        ActiveRecord::Base.sanitize_sql_array([get_all_features_sql, flipper_id, flipper_id, flipper_id, flipper_id])
       )
 
       results.each_with_object([]) do |row, array|
-        next unless row['enabled']
-
         feature_name = row['feature_name']
         array << { name: feature_name.camelize(:lower), value: row['enabled'] }
         array << { name: feature_name, value: row['enabled'] }
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def get_all_features_sql
       <<-SQL.squish
         SELECT flipper_features.key AS feature_name,
-              MAX(CASE
-                    WHEN flipper_gates.key = 'boolean' AND flipper_gates.value = 'true' THEN 1
-                    WHEN flipper_gates.key = 'actors' AND flipper_gates.value = ? THEN 1
-                    ELSE 0
-                  END) = 1 AS enabled
+              MAX(
+                CASE
+                  WHEN flipper_gates.key = 'boolean' AND flipper_gates.value = 'true' THEN 1
+                  WHEN flipper_gates.key = 'actors' AND flipper_gates.value = ? THEN 1
+                  WHEN flipper_gates.key = 'percentage_of_actors' AND (
+                    (abs(crc32((flipper_features.key || COALESCE(?, ''))::bytea)) % (100 * 1000)) < (CAST(CASE WHEN flipper_gates.key = 'percentage_of_actors' THEN flipper_gates.value ELSE '0' END AS integer) * 1000)
+                  ) THEN 1
+                  ELSE 0
+                END
+              ) = 1 AS enabled,
+              abs(crc32((flipper_features.key || COALESCE(?, ''))::bytea)) AS hash_value,
+              (CAST(CASE WHEN flipper_gates.key = 'percentage_of_actors' THEN flipper_gates.value ELSE '0' END AS integer) * 1000) AS threshold,
+              flipper_gates.value AS gate_value,
+              flipper_gates.key AS gate_key,
+              (abs(crc32((flipper_features.key || COALESCE(?, ''))::bytea)) % (100 * 1000)) AS hash_mod,
+              (CAST(CASE WHEN flipper_gates.key = 'percentage_of_actors' THEN flipper_gates.value ELSE '0' END AS integer) * 1000) AS threshold_value
         FROM flipper_features
         LEFT JOIN flipper_gates
           ON flipper_features.key = flipper_gates.feature_key
-        GROUP BY flipper_features.key;
+        GROUP BY flipper_features.key, flipper_gates.key, flipper_gates.value;
       SQL
     end
+    # rubocop:enable Metrics/MethodLength
 
     def old_get_all_features
       features = []
