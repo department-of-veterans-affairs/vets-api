@@ -2090,6 +2090,7 @@
                                   "description": "Identifies the Service dates and Branch the Veteran served in.",
                                   "type": "array",
                                   "minItems": 1,
+                                  "uniqueItems": true,
                                   "items": {
                                     "type": "object",
                                     "required": [
@@ -2401,9 +2402,9 @@
                                 },
                                 "accountNumber": {
                                   "description": "Account number for the direct deposit.",
-                                  "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                  "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                   "type": "string",
-                                  "maxLength": 14,
+                                  "maxLength": 1000,
                                   "nullable": true,
                                   "example": "123123123123"
                                 },
@@ -2419,7 +2420,7 @@
                                 },
                                 "financialInstitutionName": {
                                   "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                  "maxLength": 35,
+                                  "maxLength": 1000,
                                   "type": "string",
                                   "nullable": true,
                                   "example": "Some Bank"
@@ -2427,8 +2428,9 @@
                                 "routingNumber": {
                                   "description": "Routing number for the direct deposit.",
                                   "type": "string",
+                                  "maxLength": 1000,
                                   "nullable": true,
-                                  "pattern": "^(?:\\d{9})?$",
+                                  "pattern": "^$|^\\d{0,1000}$",
                                   "example": "123123123"
                                 }
                               }
@@ -3440,6 +3442,7 @@
                                 "description": "Identifies the Service dates and Branch the Veteran served in.",
                                 "type": "array",
                                 "minItems": 1,
+                                "uniqueItems": true,
                                 "items": {
                                   "type": "object",
                                   "required": [
@@ -3751,9 +3754,9 @@
                               },
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
-                                "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                 "type": "string",
-                                "maxLength": 14,
+                                "maxLength": 1000,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -3769,7 +3772,7 @@
                               },
                               "financialInstitutionName": {
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                "maxLength": 35,
+                                "maxLength": 1000,
                                 "type": "string",
                                 "nullable": true,
                                 "example": "Some Bank"
@@ -3777,8 +3780,9 @@
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "nullable": true,
-                                "pattern": "^(?:\\d{9})?$",
+                                "pattern": "^$|^\\d{0,1000}$",
                                 "example": "123123123"
                               }
                             }
@@ -4313,7 +4317,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "44da7531-e1b0-4ce1-af9e-2ea7c9b054cb",
+                    "id": "72ef0a7f-2659-474b-99fb-e948b5c461fe",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -5323,6 +5327,7 @@
                                   "description": "Identifies the Service dates and Branch the Veteran served in.",
                                   "type": "array",
                                   "minItems": 1,
+                                  "uniqueItems": true,
                                   "items": {
                                     "type": "object",
                                     "required": [
@@ -5634,9 +5639,9 @@
                                 },
                                 "accountNumber": {
                                   "description": "Account number for the direct deposit.",
-                                  "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                  "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                   "type": "string",
-                                  "maxLength": 14,
+                                  "maxLength": 1000,
                                   "nullable": true,
                                   "example": "123123123123"
                                 },
@@ -5652,7 +5657,7 @@
                                 },
                                 "financialInstitutionName": {
                                   "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                  "maxLength": 35,
+                                  "maxLength": 1000,
                                   "type": "string",
                                   "nullable": true,
                                   "example": "Some Bank"
@@ -5660,8 +5665,9 @@
                                 "routingNumber": {
                                   "description": "Routing number for the direct deposit.",
                                   "type": "string",
+                                  "maxLength": 1000,
                                   "nullable": true,
-                                  "pattern": "^(?:\\d{9})?$",
+                                  "pattern": "^$|^\\d{0,1000}$",
                                   "example": "123123123"
                                 }
                               }
@@ -6673,6 +6679,7 @@
                                 "description": "Identifies the Service dates and Branch the Veteran served in.",
                                 "type": "array",
                                 "minItems": 1,
+                                "uniqueItems": true,
                                 "items": {
                                   "type": "object",
                                   "required": [
@@ -6984,9 +6991,9 @@
                               },
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
-                                "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                 "type": "string",
-                                "maxLength": 14,
+                                "maxLength": 1000,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -7002,7 +7009,7 @@
                               },
                               "financialInstitutionName": {
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                "maxLength": 35,
+                                "maxLength": 1000,
                                 "type": "string",
                                 "nullable": true,
                                 "example": "Some Bank"
@@ -7010,8 +7017,9 @@
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "nullable": true,
-                                "pattern": "^(?:\\d{9})?$",
+                                "pattern": "^$|^\\d{0,1000}$",
                                 "example": "123123123"
                               }
                             }
@@ -8566,6 +8574,7 @@
                                 "description": "Identifies the Service dates and Branch the Veteran served in.",
                                 "type": "array",
                                 "minItems": 1,
+                                "uniqueItems": true,
                                 "items": {
                                   "type": "object",
                                   "required": [
@@ -8877,9 +8886,9 @@
                               },
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
-                                "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                 "type": "string",
-                                "maxLength": 14,
+                                "maxLength": 1000,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -8895,7 +8904,7 @@
                               },
                               "financialInstitutionName": {
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                "maxLength": 35,
+                                "maxLength": 1000,
                                 "type": "string",
                                 "nullable": true,
                                 "example": "Some Bank"
@@ -8903,8 +8912,9 @@
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "nullable": true,
-                                "pattern": "^(?:\\d{9})?$",
+                                "pattern": "^$|^\\d{0,1000}$",
                                 "example": "123123123"
                               }
                             }
@@ -9188,7 +9198,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bd256674-7cc2-45c4-96cc-e2e6f2667764",
+                    "id": "df6c72f7-2298-400d-9f81-87a1babbb38e",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12940,7 +12950,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b9caf39a-a890-4ecf-b1b2-8a0feff1e70b",
+                    "id": "e37f6e2e-b23a-4b80-ab03-90ca959ba722",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13633,7 +13643,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2e96700b-39dd-4483-8295-c4ab72e9f21d",
+                    "id": "c5b10341-5b5d-4b8d-8c3c-5ac5f7213d53",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15584,7 +15594,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2adee901-6f95-4730-b0a9-ade0c167e83e",
+                    "id": "91e1b40f-a365-4a21-8747-0654ceaafd3c",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "dateRequestAccepted": "2024-07-22",
