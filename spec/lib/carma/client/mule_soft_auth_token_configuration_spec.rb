@@ -16,7 +16,7 @@ describe CARMA::Client::MuleSoftAuthTokenConfiguration do
     subject { super().connection }
 
     it 'sets url prefix' do
-      expect(subject.url_prefix.to_s).to eq("#{token_url}/oauth2/default/v1/token")
+      expect(subject.url_prefix.to_s).to eq("#{token_url}/")
     end
   end
 
@@ -68,7 +68,7 @@ describe CARMA::Client::MuleSoftAuthTokenConfiguration do
     subject { super().send(:base_path) }
 
     it 'returns the correct value' do
-      expect(subject).to eq("#{token_url}/oauth2/default/v1/token")
+      expect(subject).to eq("#{token_url}/")
     end
   end
 end

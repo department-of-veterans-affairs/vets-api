@@ -26,7 +26,7 @@ module CARMA
       private
 
       def base_path
-        "#{settings.token_url}/oauth2/default/v1/token"
+        "#{settings.token_url}/"
       end
     end
   end
