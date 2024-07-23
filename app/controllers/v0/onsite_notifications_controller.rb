@@ -16,7 +16,7 @@ module V0
                       .for_user(current_user, include_dismissed: params[:include_dismissed])
                       .paginate(**pagination_params)
 
-      options = { meta: pagination_meta(notifications)}
+      options = { meta: pagination_meta(notifications) }
 
       render json: OnsiteNotificationSerializer.new(notifications, options)
     end
