@@ -751,10 +751,6 @@ features:
     actor_type: user
     description: Enables personalized content on the My HealtheVet landing page.
     enable_in_development: true
-  mhv_secondary_navigation_enabled:
-    actor_type: user
-    description: Enables the My HealtheVet secondary navigation
-    enable_in_development: true
   mhv_transitional_medical_records_landing_page:
     actor_type: user
     description: Enables the transitional Medical Records page at /my-health/records
