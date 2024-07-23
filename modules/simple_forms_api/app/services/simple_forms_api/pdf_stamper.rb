@@ -99,9 +99,10 @@ module SimpleFormsApi
       pdftk.multistamp(stamped_template_path, stamp_path, out_path)
       Common::FileHelpers.delete_file_if_exists(stamped_template_path)
       File.rename(out_path, stamped_template_path)
-    rescue
+    rescue => e
+      Rails.logger.error 'Simple forms api - Failed to perform multistamp', message: e.message
       Common::FileHelpers.delete_file_if_exists(out_path)
-      raise
+      raise e
     end
 
     def self.stamp_submission_date(stamped_template_path, desired_stamps)
