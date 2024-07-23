@@ -40,8 +40,11 @@ module IvcChampva
             )
           end
 
-          ivc_forms_by_email = ivc_forms.select { |record| record.email.present? }.group_by(&:email)
-          send_emails(ivc_forms_by_email) if ivc_forms_by_email.present?
+          # We only need the first form, outside of the file_names field, the data is the same.
+          form = ivc_forms.first
+          send_email(ivc_forms.first, ivc_forms.count) if form.email.present? && form.email_sent.nil?
+
+          update_email_sent(form_uuid)
 
           { json: {}, status: :ok }
         else
@@ -51,23 +54,28 @@ module IvcChampva
         end
       end
 
-      def send_emails(ivc_forms_by_email)
-        form_data = ivc_forms_by_email.map do |email, forms|
+      def send_email(form, file_count)
+        form_data =
           {
-            email:,
-            first_name: forms.first.first_name,
-            last_name: forms.first.last_name,
-            form_number: forms.first.form_number,
-            file_names: forms.map(&:file_name),
-            pega_status: forms.first.pega_status,
-            updated_at: forms.first.updated_at.strftime('%B %d, %Y')
+            email: form.email,
+            first_name: form.first_name,
+            last_name: form.last_name,
+            form_number: form.form_number,
+            file_count:,
+            pega_status: form.pega_status,
+            created_at: form.created_at.strftime('%B %d, %Y')
           }
-        end
 
-        form_data.each do |data|
-          IvcChampva::Email.new(data).send_email
-        end
+        IvcChampva::Email.new(form_data).send_email
       end
+
+      # It's just updating a flag that an email has been sent
+      # No need for callbacks or validations
+      # rubocop:disable Rails/SkipsModelValidations
+      def update_email_sent(form_uuid)
+        IvcChampvaForm.where(form_uuid:).update_all(email_sent: true)
+      end
+      # rubocop:enable Rails/SkipsModelValidations
 
       def valid_keys?(data)
         true if VALID_KEYS.all? { |key| data.key?(key) }
