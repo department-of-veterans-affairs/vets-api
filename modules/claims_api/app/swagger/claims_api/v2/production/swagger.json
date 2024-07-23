@@ -1397,7 +1397,7 @@
                                     "addressLine1": {
                                       "description": "Address line 1 for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                       "maxLength": 20,
                                       "example": "1234 Couch Street"
                                     },
@@ -1497,13 +1497,14 @@
                                 "addressLine1": {
                                   "description": "Address line 1 for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "1234 Couch Street"
                                 },
                                 "addressLine2": {
                                   "description": "Address line 2 for the Veteran's new address.",
                                   "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Unit 4",
                                   "nullable": true
@@ -1511,6 +1512,7 @@
                                 "addressLine3": {
                                   "description": "Address line 3 for the Veteran's new address.",
                                   "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Room 1",
                                   "nullable": true
@@ -2045,7 +2047,7 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                        "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
@@ -2400,9 +2402,9 @@
                                 },
                                 "accountNumber": {
                                   "description": "Account number for the direct deposit.",
-                                  "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                  "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                   "type": "string",
-                                  "maxLength": 14,
+                                  "maxLength": 1000,
                                   "nullable": true,
                                   "example": "123123123123"
                                 },
@@ -2418,7 +2420,7 @@
                                 },
                                 "financialInstitutionName": {
                                   "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                  "maxLength": 35,
+                                  "maxLength": 1000,
                                   "type": "string",
                                   "nullable": true,
                                   "example": "Some Bank"
@@ -2426,8 +2428,9 @@
                                 "routingNumber": {
                                   "description": "Routing number for the direct deposit.",
                                   "type": "string",
+                                  "maxLength": 1000,
                                   "nullable": true,
-                                  "pattern": "^(?:\\d{9})?$",
+                                  "pattern": "^$|^\\d{0,1000}$",
                                   "example": "123123123"
                                 }
                               }
@@ -2746,7 +2749,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -2846,13 +2849,14 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Unit 4",
                                 "nullable": true
@@ -2860,6 +2864,7 @@
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Room 1",
                                 "nullable": true
@@ -3394,7 +3399,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -3749,9 +3754,9 @@
                               },
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
-                                "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                 "type": "string",
-                                "maxLength": 14,
+                                "maxLength": 1000,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -3767,7 +3772,7 @@
                               },
                               "financialInstitutionName": {
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                "maxLength": 35,
+                                "maxLength": 1000,
                                 "type": "string",
                                 "nullable": true,
                                 "example": "Some Bank"
@@ -3775,8 +3780,9 @@
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "nullable": true,
-                                "pattern": "^(?:\\d{9})?$",
+                                "pattern": "^$|^\\d{0,1000}$",
                                 "example": "123123123"
                               }
                             }
@@ -4311,7 +4317,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9afa3d94-f0f1-4f02-9b91-afeb90f79a21",
+                    "id": "72ef0a7f-2659-474b-99fb-e948b5c461fe",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -4494,7 +4500,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-07-04"
+                          "anticipatedSeparationDate": "2024-07-24"
                         },
                         "confinements": [
                           {
@@ -4628,7 +4634,7 @@
                                     "addressLine1": {
                                       "description": "Address line 1 for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                       "maxLength": 20,
                                       "example": "1234 Couch Street"
                                     },
@@ -4728,13 +4734,14 @@
                                 "addressLine1": {
                                   "description": "Address line 1 for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "1234 Couch Street"
                                 },
                                 "addressLine2": {
                                   "description": "Address line 2 for the Veteran's new address.",
                                   "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Unit 4",
                                   "nullable": true
@@ -4742,6 +4749,7 @@
                                 "addressLine3": {
                                   "description": "Address line 3 for the Veteran's new address.",
                                   "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Room 1",
                                   "nullable": true
@@ -5276,7 +5284,7 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                        "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
@@ -5631,9 +5639,9 @@
                                 },
                                 "accountNumber": {
                                   "description": "Account number for the direct deposit.",
-                                  "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                  "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                   "type": "string",
-                                  "maxLength": 14,
+                                  "maxLength": 1000,
                                   "nullable": true,
                                   "example": "123123123123"
                                 },
@@ -5649,7 +5657,7 @@
                                 },
                                 "financialInstitutionName": {
                                   "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                  "maxLength": 35,
+                                  "maxLength": 1000,
                                   "type": "string",
                                   "nullable": true,
                                   "example": "Some Bank"
@@ -5657,8 +5665,9 @@
                                 "routingNumber": {
                                   "description": "Routing number for the direct deposit.",
                                   "type": "string",
+                                  "maxLength": 1000,
                                   "nullable": true,
-                                  "pattern": "^(?:\\d{9})?$",
+                                  "pattern": "^$|^\\d{0,1000}$",
                                   "example": "123123123"
                                 }
                               }
@@ -5977,7 +5986,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -6077,13 +6086,14 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Unit 4",
                                 "nullable": true
@@ -6091,6 +6101,7 @@
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Room 1",
                                 "nullable": true
@@ -6625,7 +6636,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -6980,9 +6991,9 @@
                               },
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
-                                "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                 "type": "string",
-                                "maxLength": 14,
+                                "maxLength": 1000,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -6998,7 +7009,7 @@
                               },
                               "financialInstitutionName": {
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                "maxLength": 35,
+                                "maxLength": 1000,
                                 "type": "string",
                                 "nullable": true,
                                 "example": "Some Bank"
@@ -7006,8 +7017,9 @@
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "nullable": true,
-                                "pattern": "^(?:\\d{9})?$",
+                                "pattern": "^$|^\\d{0,1000}$",
                                 "example": "123123123"
                               }
                             }
@@ -7869,7 +7881,7 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -7969,13 +7981,14 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Unit 4",
                                 "nullable": true
@@ -7983,6 +7996,7 @@
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Room 1",
                                 "nullable": true
@@ -8517,7 +8531,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -8872,9 +8886,9 @@
                               },
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
-                                "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                 "type": "string",
-                                "maxLength": 14,
+                                "maxLength": 1000,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -8890,7 +8904,7 @@
                               },
                               "financialInstitutionName": {
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                "maxLength": 35,
+                                "maxLength": 1000,
                                 "type": "string",
                                 "nullable": true,
                                 "example": "Some Bank"
@@ -8898,8 +8912,9 @@
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "nullable": true,
-                                "pattern": "^(?:\\d{9})?$",
+                                "pattern": "^$|^\\d{0,1000}$",
                                 "example": "123123123"
                               }
                             }
@@ -9183,7 +9198,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b5d8b4d2-772c-44d1-9f2f-e47df7353cd3",
+                    "id": "df6c72f7-2298-400d-9f81-87a1babbb38e",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -10340,14 +10355,14 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.' ])+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 325,
                                     "example": "1234 Couch Street"
                                   },
                                   "addressLine2": {
                                     "description": "Address line 2 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 325,
                                     "example": "Unit 4",
                                     "nullable": true
@@ -10355,7 +10370,7 @@
                                   "addressLine3": {
                                     "description": "Address line 3 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 325,
                                     "example": "Room 1",
                                     "nullable": true
@@ -10440,13 +10455,14 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 325,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 325,
                                 "example": "Unit 4",
                                 "nullable": true
@@ -10454,6 +10470,7 @@
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 325,
                                 "example": "Room 1",
                                 "nullable": true
@@ -11641,20 +11658,10 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "sponsorIcn",
-            "in": "query",
-            "required": false,
-            "example": "1012861229V078999",
-            "description": "ICN of the veteran affiliated with the dependent",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
-          "200": {
+          "202": {
             "description": "Successful response",
             "content": {
               "application/json": {
@@ -12066,8 +12073,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-07-02",
-                      "expirationDate": "2025-07-02",
+                      "creationDate": "2024-07-22",
+                      "expirationDate": "2025-07-22",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -12943,7 +12950,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c25a319c-68f1-4b73-a908-c723e2fc115a",
+                    "id": "e37f6e2e-b23a-4b80-ab03-90ca959ba722",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13636,7 +13643,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6ac66764-0e44-40e3-a8ca-80cf3e4f59ed",
+                    "id": "c5b10341-5b5d-4b8d-8c3c-5ac5f7213d53",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15587,10 +15594,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8a3abbba-3195-4025-8a49-a810fdf4aced",
+                    "id": "91e1b40f-a365-4a21-8747-0654ceaafd3c",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-07-02",
+                      "dateRequestAccepted": "2024-07-22",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

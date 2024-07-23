@@ -146,9 +146,8 @@ RSpec.describe 'claims document upload', :skip_json_api_validation, type: :reque
     it 'rejects files with invalid document_types' do
       params = { file:, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
-      expect(response.status).to eq(500)
-      expect(response.parsed_body['errors'].first['title']).to eq('Internal server error')
-      expect(response.parsed_body['errors'].first['meta']['exception']).to match(/can.t upload/)
+      expect(response.status).to eq(422)
+      expect(response.parsed_body['errors'].first['title']).to eq('File extension is not included in the list')
     end
   end
 

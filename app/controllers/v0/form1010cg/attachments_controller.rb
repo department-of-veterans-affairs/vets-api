@@ -9,6 +9,12 @@ module V0
       skip_before_action :authenticate, raise: false
 
       FORM_ATTACHMENT_MODEL = ::Form1010cg::Attachment
+
+      private
+
+      def serializer_klass
+        ::Form1010cg::AttachmentSerializer
+      end
     end
   end
 end

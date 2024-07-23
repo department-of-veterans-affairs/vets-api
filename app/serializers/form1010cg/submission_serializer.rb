@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 module Form1010cg
-  class SubmissionSerializer < ActiveModel::Serializer
-    attribute(:confirmation_number) { object.carma_case_id }
-    attribute(:submitted_at) { object.accepted_at }
+  class SubmissionSerializer
+    include JSONAPI::Serializer
 
-    def id
-      nil
-    end
+    set_id { '' }
+
+    attribute :confirmation_number, &:carma_case_id
+    attribute :submitted_at, &:accepted_at
   end
 end

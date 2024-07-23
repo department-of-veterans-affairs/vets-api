@@ -74,6 +74,17 @@ sample_client_api.update!(authentication: SignIn::Constants::Auth::API,
                           logout_redirect_uri: 'http://localhost:4567',
                           refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
 
+# Create Config for example sts service account
+sample_sts_config = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: 'sample_sts_service_account')
+sample_sts_config.update!(
+  description: 'Sample STS Service Account',
+  scopes: [],
+  access_token_audience: 'http://localhost:3000',
+  access_token_user_attributes: [],
+  access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+  certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')]
+)
+
 # Create Config for VA Identity Dashboard using cookie auth
 vaid_dash = SignIn::ClientConfig.find_or_initialize_by(client_id: 'identity_dashboard')
 vaid_dash.update!(authentication: SignIn::Constants::Auth::COOKIE,

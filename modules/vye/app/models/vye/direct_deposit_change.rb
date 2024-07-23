@@ -7,6 +7,7 @@ module Vye
     ENUM_ACCT_TYPE = ActiveSupport::HashWithIndifferentAccess.new(checking: 'C', savings: 'S')
 
     has_kms_key
+
     has_encrypted(
       :acct_no, :acct_type, :bank_name, :bank_phone, :email,
       :full_name, :routing_no, :phone, :phone2,
@@ -18,11 +19,6 @@ module Vye
       :full_name, :routing_no, :phone,
       presence: true
     )
-
-    scope :created_today, lambda {
-      includes(user_info: :user_profile)
-        .where('created_at >= ?', Time.zone.now.beginning_of_day)
-    }
 
     def self.acct_types
       ENUM_ACCT_TYPE
@@ -44,13 +40,23 @@ module Vye
       routing_no[8]
     end
 
-    def self.todays_records
-      created_today.each_with_object([]) do |record, result|
+    scope :export_ready, lambda {
+      self
+        .select('DISTINCT ON (vye_direct_deposit_changes.user_info_id) vye_direct_deposit_changes.*')
+        .joins(user_info: :bdn_clone)
+        .where(vye_bdn_clones: { export_ready: true })
+        .order('vye_direct_deposit_changes.user_info_id, vye_direct_deposit_changes.created_at DESC')
+    }
+
+    def self.report_rows
+      export_ready.each_with_object([]) do |record, result|
+        user_info = record.user_info
+
         result << {
-          rpo: record.user_info.rpo_code,
-          ben_type: record.user_info.indicator,
-          ssn: record.user_info.ssn,
-          file_number: record.user_info.file_number,
+          rpo: user_info.rpo_code,
+          ben_type: user_info.indicator,
+          ssn: user_info.ssn,
+          file_number: user_info.file_number,
           full_name: record.full_name,
           phone: record.phone.presence || "\0",
           phone2: record.phone2.presence || "\0",
@@ -65,7 +71,7 @@ module Vye
       end
     end
 
-    def self.todays_report_template
+    REPORT_TEMPLATE =
       YAML.load(<<-END_OF_TEMPLATE).gsub(/\n/, '')
       |-
         %3<rpo>s,
@@ -83,14 +89,13 @@ module Vye
         %<bank_name>s
         %<bank_phone>s
       END_OF_TEMPLATE
-    end
 
-    def self.todays_report
-      report = todays_records.each_with_object([]) do |record, result|
-        result << format(todays_report_template, record)
+    private_constant :REPORT_TEMPLATE
+
+    def self.write_report(io)
+      report_rows.each do |record|
+        io.puts(format(REPORT_TEMPLATE, record))
       end
-
-      report.join("\n")
     end
   end
 end

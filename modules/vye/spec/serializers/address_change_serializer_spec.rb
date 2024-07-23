@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require Vye::Engine.root / 'spec/rails_helper'
 
 describe Vye::AddressChangeSerializer, type: :serializer do
   subject { serialize(address_change, serializer_class: described_class) }

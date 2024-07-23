@@ -62,7 +62,7 @@
             "addressLine1": {
               "description": "Address line 1 for the Veteran's current mailing address.",
               "type": "string",
-              "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 20,
               "example": "1234 Couch Street"
             },
@@ -159,13 +159,14 @@
         "addressLine1": {
           "description": "Address line 1 for the Veteran's new address.",
           "type": "string",
-          "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+          "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
           "maxLength": 20,
           "example": "1234 Couch Street"
         },
         "addressLine2": {
           "description": "Address line 2 for the Veteran's new address.",
           "type": ["string", "null"],
+          "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
           "maxLength": 20,
           "example": "Unit 4",
           "nullable": true
@@ -173,6 +174,7 @@
         "addressLine3": {
           "description": "Address line 3 for the Veteran's new address.",
           "type": ["string", "null"],
+          "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
           "maxLength": 20,
           "example": "Room 1",
           "nullable": true
@@ -681,7 +683,7 @@
               "city": {
                 "description": "City of treatment facility.",
                 "type": ["string", "null"],
-                "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                 "example": "Portland",
                 "nullable": true
               },
@@ -1009,9 +1011,9 @@
         },
         "accountNumber": {
           "description": "Account number for the direct deposit.",
-          "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+          "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
           "type": ["string", "null"],
-          "maxLength": 14,
+          "maxLength": 1000,
           "nullable": true,
           "example": "123123123123"
         },
@@ -1024,7 +1026,7 @@
         },
         "financialInstitutionName": {
           "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-          "maxLength": 35,
+          "maxLength": 1000,
           "type": ["string", "null"],
           "nullable": true,
           "example": "Some Bank"
@@ -1032,8 +1034,9 @@
         "routingNumber": {
           "description": "Routing number for the direct deposit.",
           "type": ["string", "null"],
+          "maxLength": 1000,
           "nullable": true,
-          "pattern": "^(?:\\d{9})?$",
+          "pattern": "^$|^\\d{0,1000}$",
           "example": "123123123"
         }
       }

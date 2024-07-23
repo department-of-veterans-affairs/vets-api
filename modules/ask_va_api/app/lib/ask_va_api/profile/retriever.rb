@@ -4,7 +4,7 @@ module AskVAApi
   module Profile
     ENDPOINT = 'profile'
 
-    class InvalidInquiryError < StandardError; end
+    class InvalidProfileError < StandardError; end
 
     class Retriever
       attr_reader :icn, :user_mock_data
@@ -26,7 +26,7 @@ module AskVAApi
       private
 
       def default_service
-        Crm::Service.new(icn: @test_users[:crm_test_user_icn])
+        Crm::Service.new(icn:)
       end
 
       def fetch_data
@@ -59,11 +59,13 @@ module AskVAApi
         }.to_json
       end
 
-      def handle_response_data(data)
-        if data[:Data].nil?
-          raise InvalidInquiryError, data[:message]
+      def handle_response_data(response)
+        case response
+        when Hash
+          response[:Data]
         else
-          data[:Data]
+          error = JSON.parse(response.body, symbolize_names: true)
+          raise(InvalidProfileError, error[:Message])
         end
       end
 
