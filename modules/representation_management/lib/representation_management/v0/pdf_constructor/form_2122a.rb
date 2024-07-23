@@ -51,7 +51,6 @@ module RepresentationManagement
 
         def veteran_identification(data)
           {
-            # Section I
             # Veteran Name
             "#{PAGE1_KEY}.Veterans_Last_Name[0]": data.veteran_last_name,
             "#{PAGE1_KEY}.Veterans_Middle_Initial[0]": data.veteran_middle_initial,

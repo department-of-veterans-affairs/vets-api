@@ -130,7 +130,6 @@ module RepresentationManagement
             data.veteran_social_security_number[3..4],
             "#{PAGE2_KEY}.SocialSecurityNumber_LastFourNumbers[1]": \
             data.veteran_social_security_number[5..8],
-            # # Section IV
             # Record Consent
             "#{PAGE2_KEY}.I_Authorize[1]": data.record_consent == true ? 1 : 0,
             # # Item 20
