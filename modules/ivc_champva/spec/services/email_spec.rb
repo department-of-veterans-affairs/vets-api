@@ -35,6 +35,7 @@ RSpec.describe IvcChampva::Email, type: :service do
           {
             'form_number' => data[:form_number],
             'form_name' => 'Application for CHAMPVA Benefits',
+            'phone_number' => '800-733-8387',
             'first_name' => data[:first_name],
             'last_name' => data[:last_name],
             'file_count' => data[:file_count],
