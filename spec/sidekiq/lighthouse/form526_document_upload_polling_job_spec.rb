@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
-  before { skip("Skip temporarily: Failing on main 7/23/34") }
   before do
+    skip('Skip temporarily: Failing on main 7/23/34')
     Sidekiq::Job.clear_all
     # NOTE: to re-record the VCR cassettes for these tests:
     # 1. Comment out the line below stubbing the token
