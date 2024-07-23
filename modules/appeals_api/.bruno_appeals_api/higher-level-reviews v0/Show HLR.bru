@@ -1,0 +1,28 @@
+meta {
+  name: Show HLR
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{base_uri}}/services/appeals/higher-level-reviews/v0/forms/200996/{{hlr_id}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+vars:pre-request {
+  oauth_scope: system/HigherLevelReviews.read
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const { setOauthToken } = require('./helpers.js');
+  await setOauthToken();
+}

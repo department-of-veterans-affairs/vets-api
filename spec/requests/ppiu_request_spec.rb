@@ -8,7 +8,11 @@ RSpec.describe 'PPIU' do
   let(:user) { create(:user, :loa3) }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
-  before { sign_in(user) }
+  before do
+    sign_in(user)
+    allow(Flipper).to receive(:enabled?).with(:profile_ppiu_reject_requests, instance_of(User))
+                                        .and_return(false)
+  end
 
   def self.test_unauthorized(verb)
     context 'with an unauthorized user' do
@@ -129,7 +133,7 @@ RSpec.describe 'PPIU' do
 
         it 'sends an email through va notify' do
           expect(VANotifyDdEmailJob).to receive(:send_to_emails).with(
-            user.all_emails, :comp_pen
+            user.all_emails, 'comp_and_pen'
           )
 
           subject
@@ -144,7 +148,7 @@ RSpec.describe 'PPIU' do
         it 'logs a message to Sentry' do
           VCR.use_cassette('evss/ppiu/update_payment_information') do
             expect_any_instance_of(User).to receive(:all_emails).and_return([])
-            expect(Raven).to receive(:capture_message).once
+            expect(Sentry).to receive(:capture_message).once
 
             put('/v0/ppiu/payment_information', params: ppiu_request, headers:)
             expect(response).to have_http_status(:ok)
@@ -248,6 +252,23 @@ RSpec.describe 'PPIU' do
           expect(response).to match_camelized_response_schema('evss_errors')
           expect(JSON.parse(response.body)['errors'].first['title']).to eq('Account Flagged')
         end
+      end
+    end
+  end
+
+  describe 'feature flag' do
+    context 'when feature flag enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:profile_ppiu_reject_requests, instance_of(User))
+                                            .and_return(true)
+      end
+
+      it 'returns a status of 403' do
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          get '/v0/ppiu/payment_information', headers: inflection_header
+        end
+
+        expect(response).to have_http_status(:forbidden)
       end
     end
   end

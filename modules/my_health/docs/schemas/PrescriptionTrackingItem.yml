@@ -1,0 +1,46 @@
+type: object
+properties:
+  carrier:
+    type: string
+  completeDateTime:
+    type: string
+    format: datetime
+    example: 2023-07-24T15:48:49.000Z
+  dateLoaded:
+    type: string
+    format: datetime
+    example: 2023-07-24T15:48:49.000Z
+  dialDivisionPhone:
+    type: string
+  divisionPhone:
+    type: string
+  id:
+    type: integer
+  isLocalTracking:
+    type: boolean
+  ndc:
+    type: string
+  othersInSamePackage:
+    type: boolean
+  rxNumber:
+    type: integer
+  stationNumber:
+    type: integer
+  trackingNumber:
+    type: string
+  viewImageDisplayed:
+    type: boolean
+example:
+  carrier: 'UPS'
+  completeDateTime: '2023-03-28T04:39:11-04:00'
+  dateLoaded: '2023-06-21T13:05:19-04:00'
+  dialDivisionPhone: '3082719803'
+  divisionPhone: '(308)271-9803'
+  id: 3974
+  isLocalTracking: false
+  ndc: '00113002239'
+  othersInSamePackage: false
+  rxNumber: 2719799
+  stationNumber: 994
+  trackingNumber: '772980271979930000002254'
+  viewImageDisplayed: true

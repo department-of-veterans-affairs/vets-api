@@ -40,7 +40,7 @@ describe VAProfile::Service do
       let(:error) { Common::Client::Errors::ParsingError.new }
 
       it 'logs an error message to sentry', :aggregate_failures do
-        expect(Raven).to receive(:extra_context)
+        expect(Sentry).to receive(:set_extras)
 
         expect { subject.send('handle_error', error) }.to raise_error do |e|
           expect(e).to be_a(Common::Exceptions::BackendServiceException)
@@ -71,7 +71,7 @@ describe VAProfile::Service do
 
   describe '#log_dates' do
     it 'logs dates in the request' do
-      expect(Raven).to receive(:extra_context).with(
+      expect(Sentry).to receive(:set_extras).with(
         request_dates: {
           'effectiveStartDate' => '2018-06-06T15:35:55.000Z',
           'effectiveEndDate' => nil, 'sourceDate' => '2018-06-06T15:35:55.000Z'

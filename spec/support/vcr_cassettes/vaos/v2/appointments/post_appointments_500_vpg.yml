@@ -1,0 +1,51 @@
+---
+http_interactions:
+  - request:
+      method: post
+      uri: https://veteran.apps.va.gov/vpg/v1/patients/1012846043V576341/appointments
+      body:
+        encoding: UTF-8
+        string:
+          '{"kind":"clinic","status":"proposed","locationId":"983","clinic":"308","reason":"reason","slot":{"id":"A1","start":"2020-01-31T00:00:00.000+00:00","end":"2020-01-31T00:00:00.000+00:00"},"contact":{"telecom":[{"type":"email","value":"person@example.com"},{"type":"phone","value":"2125551212"}]},"serviceType":"primary
+          care","requestedPeriods":[{"start":"2020-01-31T00:00:00.000+00:00","end":"2020-01-31T21:00:00.000+00:00"},{"start":"2020-03-31T00:00:00.000+00:00","end":"2020-03-31T21:00:00.000+00:00"}]}'
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Referer:
+          - https://review-instance.va.gov
+        X-Vamf-Jwt:
+          - stubbed_token
+        X-Request-Id:
+          - ""
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 500
+        message: Internal Server Error
+      headers:
+        Date:
+          - Mon, 10 May 2021 17:59:32 GMT
+        Content-Type:
+          - text/html
+        Content-Length:
+          - "982"
+        Connection:
+          - keep-alive
+        Etag:
+          - '"5fa5087d-3d6"'
+        Set-Cookie:
+          - TS016f4012=stubbed_cookie;
+            Max-Age=900; Path=/
+          - vamfjwtv3=stubbed_token;
+            path=/; SameSite=Lax; HttpOnly
+          - vamftimeoutv1=1620670472; SameSite=Lax; path=/
+      body:
+        encoding: UTF-8
+        string: "need to record vcr cassette"
+    recorded_at: Mon, 10 May 2021 17:59:32 GMT
+recorded_with: VCR 6.0.0

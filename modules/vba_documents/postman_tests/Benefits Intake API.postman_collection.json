@@ -1,0 +1,246 @@
+{
+	"info": {
+		"_postman_id": "db3f58d4-18a9-494b-b6a6-6ea4af03c04a",
+		"name": "Benefits Intake API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21331983"
+	},
+	"item": [
+		{
+			"name": "/uploads",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"postman.setEnvironmentVariable(\"location\", jsonData.data.attributes.location);\r",
+							"postman.setEnvironmentVariable(\"id\", jsonData.data.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"type": "text",
+						"value": "{{apikey}}"
+					}
+				],
+				"url": {
+					"raw": "{{host}}/services/vba_documents/{{version}}/uploads",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"services",
+						"vba_documents",
+						"{{version}}",
+						"uploads"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/path",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "metadata",
+							"value": "{\"veteranFirstName\": \"Banana\",\n\"veteranLastName\": \"Peel\",\n\"fileNumber\": \"012345678\",\n\"zipCode\": \"20420\",\n\"source\": \"SomeVSO\",\n\"docType\": \"21-22\"}",
+							"contentType": "application/json",
+							"type": "text"
+						},
+						{
+							"key": "content",
+							"contentType": "application/pdf",
+							"type": "file",
+							"src": "valid_doc.pdf"
+						},
+						{
+							"key": "attachment1",
+							"contentType": "application/pdf",
+							"type": "file",
+							"src": "valid_doc.pdf"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{location}}",
+					"host": [
+						"{{location}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/uploads/{id}",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "{{apikey}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{host}}/services/vba_documents/{{version}}/uploads/{{id}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"services",
+						"vba_documents",
+						"{{version}}",
+						"uploads",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/uploads/{id}/download",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "{{apikey}}"
+					}
+				],
+				"url": {
+					"raw": "{{host}}/services/vba_documents/{{version}}/uploads/{{id}}/download",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"services",
+						"vba_documents",
+						"{{version}}",
+						"uploads",
+						"{{id}}",
+						"download"
+					]
+				},
+				"description": "An endpoint that will allow you to see exactly what the server sees. We split apart all submitted docs and metadata and zip the file to make it available to you to help with debugging purposes. Only available in sandbox"
+			},
+			"response": []
+		},
+		{
+			"name": "/uploads/report",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "{{apikey}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ids\": [\n        \"{{id}}\"\n    ]\n}"
+				},
+				"url": {
+					"raw": "{{host}}/services/vba_documents/{{version}}/uploads/report",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"services",
+						"vba_documents",
+						"{{version}}",
+						"uploads",
+						"report"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/uploads/validate_document",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "{{apikey}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "valid_doc.pdf"
+					}
+				},
+				"url": {
+					"raw": "{{host}}/services/vba_documents/{{version}}/uploads/validate_document",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"services",
+						"vba_documents",
+						"{{version}}",
+						"uploads",
+						"validate_document"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

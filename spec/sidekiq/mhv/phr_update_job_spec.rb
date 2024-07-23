@@ -18,7 +18,7 @@ RSpec.describe MHV::PhrUpdateJob, type: :job do
     context 'when the user is an MHV user' do
       it 'calls the PHR refresh' do
         described_class.new.perform(icn, mhv_correlation_id)
-        expect(phr_client_instance).to have_received(:post_phrmgr_refresh).with(icn)
+        expect(phr_client_instance).to have_received(:post_phrmgr_refresh)
       end
     end
 

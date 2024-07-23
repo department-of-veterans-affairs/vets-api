@@ -1,0 +1,155 @@
+meta {
+  name: Create NOD - Non-Veteran Claimant
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{base_uri}}/services/appeals/notice-of-disagreements/v0/forms/10182
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+body:json {
+  {
+    "data": {
+      "type": "noticeOfDisagreement",
+      "attributes": {
+        "veteran": {
+          "icn": "{{veteran_icn}}",
+          "fileNumber": "{{veteran_file_number}}",
+          "firstName": "{{veteran_first_name}}",
+          "lastName": "{{veteran_last_name}}",
+          "birthDate": "{{veteran_birth_date}}",
+          "homeless": false,
+          "address": {
+            "addressLine1": "123 Test St",
+            "addressLine2": "Suite #1200",
+            "addressLine3": "Box 4",
+            "city": "Testville",
+            "countryCodeIso3": "CAN",
+            "zipCode5": "00000",
+            "internationalPostalCode": "A1B 23C"
+          },
+          "phone": {
+            "countryCode": "6",
+            "areaCode": "555",
+            "phoneNumber": "8001111",
+            "phoneNumberExt": "2"
+          },
+          "email": "{{developer_email}}",
+          "timezone": "America/Chicago"
+        },
+        "claimant": {
+          "homeless": false,
+          "firstName": "{{nvc_first_name}}",
+          "lastName": "{{nvc_last_name}}",
+          "ssn": "{{nvc_ssn}}",
+          "birthDate": "{{nvc_birth_date}}",
+          "address": {
+            "addressLine1": "456 test St",
+            "addressLine2": "Apt 5",
+            "addressLine3": "Box 1",
+            "city": "testing",
+            "countryCodeIso3": "USA",
+            "stateCode": "MI",
+            "zipCode5": "48070"
+          },
+          "phone": {
+            "countryCode": "1",
+            "areaCode": "555",
+            "phoneNumber": "8111100",
+            "phoneNumberExt": "4"
+          },
+          "email": "{{developer_email}}",
+          "timezone": "America/Detroit"
+        },
+        "representative": {
+          "name": "Tony Danza"
+        },
+        "boardReviewOption": "evidence_submission",
+        "requestingExtension": true,
+        "extensionReason": "good cause substantive reason",
+        "appealingVhaDenial": true
+      }
+    },
+    "included": [
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "tinnitus",
+          "decisionDate": "1900-01-01",
+          "decisionIssueId": 1,
+          "ratingIssueReferenceId": "2",
+          "ratingDecisionReferenceId": "3",
+          "disagreementArea": "Effective Date"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "left knee",
+          "decisionDate": "1900-01-02",
+          "decisionIssueId": 4,
+          "ratingIssueReferenceId": "5"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "123456789",
+          "decisionDate": "1900-01-03",
+          "ratingIssueReferenceId": "6",
+          "ratingDecisionReferenceId": "7",
+          "disagreementArea": "Service"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "PTSD",
+          "decisionDate": "1900-01-04",
+          "decisionIssueId": 8,
+          "ratingDecisionReferenceId": "9"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "Traumatic Brain Injury",
+          "decisionDate": "1900-01-05",
+          "decisionIssueId": 10
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "right shoulder",
+          "decisionDate": "1900-01-06",
+          "disagreementArea": "Effective Date"
+        }
+      }
+    ]
+  }
+}
+
+vars:pre-request {
+  oauth_scope: system/NoticeOfDisagreements.write
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  const { setOauthToken } = require('./helpers.js');
+  await setOauthToken();
+}
+
+script:post-response {
+  if (res.body.data) bru.setVar('nod_id', res.body.data.id);
+}

@@ -13,7 +13,7 @@ FactoryBot.define do
     initialize_with do
       {
         pagerduty_id: 'ABCDEF',
-        external_service: 'emis',
+        external_service: 'vic',
         start_time: '2017-12-20 22:55:20',
         end_time: '2017-12-20 22:55:20',
         description: 'Outage'
@@ -25,7 +25,7 @@ FactoryBot.define do
     initialize_with do
       {
         pagerduty_id: 'ABCDEF',
-        external_service: 'emis',
+        external_service: 'vic',
         start_time: '2017-12-20 22:55:20',
         end_time: '2017-12-30 22:55:20',
         description: 'New Description'
@@ -49,7 +49,7 @@ FactoryBot.define do
     initialize_with do
       {
         pagerduty_id: 'ABC123',
-        external_service: 'emis',
+        external_service: 'vic',
         start_time: '2017-12-21 22:55:20',
         end_time: '2017-12-21 22:55:20',
         description: 'Outage'
@@ -61,10 +61,10 @@ FactoryBot.define do
     initialize_with do
       {
         pagerduty_id: 'ABCDEF',
-        external_service: 'emis',
+        external_service: 'vic',
         start_time: '2017-12-20 22:55:20',
         end_time: '2017-12-20 22:55:20',
-        description: 'Outage\nUSER_MESSAGE: Sorry, EMIS is unavailable RN\nTry again later  '
+        description: 'Outage\nUSER_MESSAGE: Sorry, VIC is unavailable RN\nTry again later  '
       }
     end
   end

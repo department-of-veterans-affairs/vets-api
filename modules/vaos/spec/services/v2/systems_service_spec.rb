@@ -33,10 +33,16 @@ describe VAOS::V2::SystemsService do
 
   describe '#get_available_slots' do
     context 'when the upstream server returns status code 500' do
+      before do
+        Flipper.disable(:va_online_scheduling_enable_OH_slots_search)
+      end
+
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/v2/systems/get_available_slots_500', match_requests_on: %i[method path query]) do
           expect do
-            subject.get_available_slots(location_id: '983', clinic_id: '1081',
+            subject.get_available_slots(location_id: '983',
+                                        clinic_id: '1081',
+                                        clinical_service: nil,
                                         start_dt: '2021-10-01T00:00:00Z',
                                         end_dt: '2021-12-31T23:59:59Z')
           end.to raise_error(Common::Exceptions::BackendServiceException, /VAOS_502/)
@@ -45,9 +51,15 @@ describe VAOS::V2::SystemsService do
     end
 
     context 'when the upstream server returns status code 200' do
+      before do
+        Flipper.disable(:va_online_scheduling_enable_OH_slots_search)
+      end
+
       it 'returns a list of available slots' do
         VCR.use_cassette('vaos/v2/systems/get_available_slots_200', match_requests_on: %i[method path query]) do
-          available_slots = subject.get_available_slots(location_id: '983', clinic_id: '1081',
+          available_slots = subject.get_available_slots(location_id: '983',
+                                                        clinic_id: '1081',
+                                                        clinical_service: nil,
                                                         start_dt: '2021-10-26T00:00:00Z',
                                                         end_dt: '2021-12-30T23:59:59Z')
           expect(available_slots.size).to eq(730)

@@ -62,32 +62,9 @@ properties:
               enum:
                 - appeals
             errorDetails:
-              type: array
-              items:
-                type: object
-                description: error details object from failing upstream service. Used for debugging only.
-                required:
-                  - title
-                  - detail
-                  - code
-                  - source
-                  - status
-                properties:
-                  title:
-                    type: string
-                    example: "Bad Gateway"
-                  detail:
-                    type: string
-                    example: "Received a 500 response from the upstream server"
-                  code:
-                    type: string
-                    example: "CASEFLOWSTATUS500"
-                  source:
-                    type: string
-                    example: "No method error"
-                  status:
-                    type: string
-                    example: "502"
+              type: string
+              description: List of errors encountered concatenated with semicolon delimiter.
+              example: "Received a 500 response from the upstream server"
       pagination:
         type: object
         required:

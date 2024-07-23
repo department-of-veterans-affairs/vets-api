@@ -3,6 +3,7 @@
 module AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements
   class EvidenceSubmissionsController < AppealsApi::ApplicationController
     include AppealsApi::CharacterUtilities
+    include AppealsApi::IcnParameterValidation
     include AppealsApi::JsonFormatValidation
     include AppealsApi::OpenidAuth
     include AppealsApi::Schemas
@@ -19,16 +20,25 @@ module AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements
 
     def show
       submission = AppealsApi::EvidenceSubmission.find_by(guid: params[:id])
-      raise Common::Exceptions::RecordNotFound, params[:id] unless submission
+
+      unless submission
+        raise Common::Exceptions::ResourceNotFound.new(
+          detail: I18n.t('appeals_api.errors.not_found', type: 'Evidence Submission', id: params[:id])
+        )
+      end
+
+      validate_token_nod_access!(submission.supportable_id)
 
       submission = with_status_simulation(submission) if status_requested_and_allowed?
 
-      render json: AppealsApi::NoticeOfDisagreements::V0::EvidenceSubmissionSerializer.new(submission).serializable_hash
+      render json: AppealsApi::EvidenceSubmissionSerializer.new(submission).serializable_hash
     end
 
     # rubocop:disable Metrics/MethodLength
     def create
       form_schemas.validate!('EVIDENCE_SUBMISSION', params.to_unsafe_h)
+
+      validate_token_nod_access!(params[:nodId])
 
       status, error = AppealsApi::EvidenceSubmissionRequestValidator.new(
         params[:nodId], params[:fileNumber], 'NoticeOfDisagreement'
@@ -50,13 +60,21 @@ module AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements
       )
 
       render status: :created,
-             json: AppealsApi::NoticeOfDisagreements::V0::EvidenceSubmissionSerializer.new(
+             json: AppealsApi::EvidenceSubmissionSerializer.new(
                submission, { params: { render_location: true } }
              ).serializable_hash
     end
     # rubocop:enable Metrics/MethodLength
 
     private
+
+    def validate_token_nod_access!(nod_id)
+      validate_token_icn_access!(AppealsApi::NoticeOfDisagreement.find(nod_id).veteran_icn)
+    rescue ActiveRecord::RecordNotFound
+      raise Common::Exceptions::ResourceNotFound.new(
+        detail: I18n.t('appeals_api.errors.not_found', type: 'Notice of Disagreement', id: nod_id)
+      )
+    end
 
     def token_validation_api_key
       Settings.dig(:modules_appeals_api, :token_validation, :notice_of_disagreements, :api_key)

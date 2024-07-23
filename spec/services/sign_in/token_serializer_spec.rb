@@ -15,15 +15,18 @@ RSpec.describe SignIn::TokenSerializer do
              client_config:,
              refresh_token:,
              access_token:,
-             anti_csrf_token:)
+             anti_csrf_token:,
+             device_secret:)
     end
     let(:cookies) { {} }
     let(:refresh_token) { create(:refresh_token) }
     let(:access_token) { create(:access_token) }
     let(:anti_csrf_token) { 'some-anti-csrf-token' }
-    let(:client_config) { create(:client_config, authentication:, anti_csrf:) }
+    let(:client_config) { create(:client_config, authentication:, anti_csrf:, shared_sessions:) }
     let(:anti_csrf) { false }
     let(:authentication) { SignIn::Constants::Auth::API }
+    let(:device_secret) { 'some-device-secret' }
+    let(:shared_sessions) { false }
     let(:encoded_access_token) do
       SignIn::AccessTokenJwtEncoder.new(access_token:).perform
     end
@@ -53,7 +56,8 @@ RSpec.describe SignIn::TokenSerializer do
           expires: refresh_token_expiration,
           path:,
           secure:,
-          httponly:
+          httponly:,
+          domain: :all
         }
       end
       let(:expected_refresh_token_cookie) do
@@ -80,7 +84,8 @@ RSpec.describe SignIn::TokenSerializer do
           expires: refresh_token_expiration,
           secure:,
           domain:,
-          httponly: httponly_info_cookie
+          httponly: httponly_info_cookie,
+          path:
         }
       end
       let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }
@@ -134,6 +139,27 @@ RSpec.describe SignIn::TokenSerializer do
       let(:authentication) { SignIn::Constants::Auth::API }
       let(:expected_json_payload) { { data: token_payload } }
 
+      context 'and client is not configured with shared sessions' do
+        let(:token_payload) do
+          { access_token: encoded_access_token, refresh_token: encrypted_refresh_token }
+        end
+
+        it 'returns expected json payload without device_secret' do
+          expect(subject).to eq(expected_json_payload)
+        end
+      end
+
+      context 'and client is configured with shared sessions' do
+        let(:shared_sessions) { true }
+        let(:token_payload) do
+          { access_token: encoded_access_token, refresh_token: encrypted_refresh_token, device_secret: }
+        end
+
+        it 'returns expected json payload with device_secret' do
+          expect(subject).to eq(expected_json_payload)
+        end
+      end
+
       context 'and client is not configured to check for anti csrf' do
         let(:anti_csrf) { false }
         let(:token_payload) { { access_token: encoded_access_token, refresh_token: encrypted_refresh_token } }
@@ -182,7 +208,8 @@ RSpec.describe SignIn::TokenSerializer do
           expires: refresh_token_expiration,
           path:,
           secure:,
-          httponly:
+          httponly:,
+          domain: :all
         }
       end
       let(:expected_refresh_token_cookie) do
@@ -209,7 +236,8 @@ RSpec.describe SignIn::TokenSerializer do
           expires: refresh_token_expiration,
           secure:,
           domain:,
-          httponly: httponly_info_cookie
+          httponly: httponly_info_cookie,
+          path:
         }
       end
       let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }

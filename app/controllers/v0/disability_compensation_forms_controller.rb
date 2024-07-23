@@ -35,24 +35,40 @@ module V0
         :all_users,
         :get_separation_locations
       ) do
-        EVSS::ReferenceData::Service.new(@current_user).get_separation_locations
+        api_provider = ApiProviderFactory.call(
+          type: ApiProviderFactory::FACTORIES[:brd],
+          provider: nil,
+          options: {},
+          current_user: @current_user,
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_BRD
+        )
+        api_provider.get_separation_locations
       end
-
-      render json: response, each_serializer: EVSSSeparationLocationSerializer
+      render json: response,
+             each_serializer: EVSSSeparationLocationSerializer
     end
 
     def suggested_conditions
       results = DisabilityContention.suggested(params[:name_part])
-      render json: results, each_serializer: DisabilityContentionSerializer
+      render json: DisabilityContentionSerializer.new(results)
     end
 
     def submit_all_claim
-      form_content = JSON.parse(request.body.string)
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
+      # if jid = 0 then the submission was prevented from going any further in the process
+      jid = 0
 
-      jid = submission.start
+      # Feature flag to stop submission from being submitted to third-party service
+      # With this on, the submission will NOT be processed by EVSS or Lighthouse,
+      # nor will it go to VBMS,
+      # but the line of code before this one creates the submission in the vets-api database
+      if Flipper.enabled?(:disability_compensation_prevent_submission_job, @current_user)
+        Rails.logger.info("Submission ID: #{submission.id} prevented from sending to third party service.")
+      else
+        jid = submission.start
+      end
 
       render json: { data: { attributes: { job_id: jid } } },
              status: :ok
@@ -62,7 +78,7 @@ module V0
       job_status = Form526JobStatus.where(job_id: params[:job_id]).first
       raise Common::Exceptions::RecordNotFound, params[:job_id] unless job_status
 
-      render json: job_status, serializer: Form526JobStatusSerializer
+      render json: Form526JobStatusSerializer.new(job_status)
     end
 
     def rating_info
@@ -88,6 +104,10 @@ module V0
       authorize(api, :rating_info_access?)
     end
 
+    def form_content
+      @form_content ||= JSON.parse(request.body.string)
+    end
+
     def lighthouse?
       Flipper.enabled?(:profile_lighthouse_rating_info, @current_user)
     end
@@ -101,7 +121,8 @@ module V0
         user_account: @current_user.user_account,
         saved_claim_id: saved_claim.id,
         auth_headers_json: auth_headers.to_json,
-        form_json: saved_claim.to_submission_data(@current_user)
+        form_json: saved_claim.to_submission_data(@current_user),
+        submit_endpoint: includes_toxic_exposure? ? 'claims_api' : 'evss'
       ) { |sub| sub.add_birls_ids @current_user.birls_id }
       submission.save! && submission
     rescue PG::NotNullViolation => e
@@ -121,10 +142,6 @@ module V0
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
     end
 
-    def translate_form4142(form_content)
-      EVSS::DisabilityCompensationForm::Form4142.new(@current_user, form_content).translate
-    end
-
     def validate_name_part
       raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?
     end
@@ -135,6 +152,11 @@ module V0
 
     def stats_key
       'api.disability_compensation'
+    end
+
+    def includes_toxic_exposure?
+      # any form that has a startedFormVersion (whether it is '2019' or '2022') will go through the Toxic Exposure flow
+      form_content['form526']['startedFormVersion']
     end
   end
 end

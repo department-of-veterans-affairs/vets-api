@@ -16,6 +16,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     frozen_time = Time.zone.parse '2020-11-05 13:19:50 -0500'
     Timecop.freeze(frozen_time)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+    Flipper.disable('disability_526_toxic_exposure')
   end
 
   after { Timecop.return }
@@ -100,7 +101,338 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'adds the correct overflow text' do
-        expect(subject.send(:overflow_text)).to eq nil
+        expect(subject.send(:overflow_text)).to eq ''
+      end
+    end
+
+    describe 'form 0781/a' do
+      context 'when the form526_include_document_upload_list_in_overflow_text flipper is enabled' do
+        before do
+          Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
+        end
+
+        context 'when a form 0781/a is included with Form 526' do
+          let(:form_content) do
+            {
+              'form526' => {
+                'form0781' => {
+                  'incidents' => []
+                }
+              }
+            }
+          end
+
+          it 'includes a note in the overflow text' do
+            expected_note = "VA Form 0781/a has been completed by the applicant and sent to the VBMS eFolder\n"
+            expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(expected_note)
+          end
+        end
+
+        context 'when a form 0781/a is not included with Form 526' do
+          before do
+            Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
+          end
+
+          let(:form_content) do
+            {
+              'form526' => {}
+            }
+          end
+
+          it 'does not include a note in the overflow text' do
+            expect(subject.send(:overflow_text)).to eq('')
+          end
+        end
+      end
+
+      context 'when the form526_include_document_upload_list_in_overflow_text flipper is disabled' do
+        before do
+          Flipper.disable(:form526_include_document_upload_list_in_overflow_text)
+        end
+
+        it 'does not include a note in the overflow text' do
+          expect(subject.send(:overflow_text)).to eq('')
+        end
+      end
+    end
+
+    describe 'veteran uploaded document list' do
+      subject { described_class.new(user, form_content, false) }
+
+      context 'when the veteran has uploaded documents to support the claim' do
+        let(:file1_guid) { SecureRandom.uuid }
+        let(:file2_guid) { SecureRandom.uuid }
+        let(:form_content) do
+          {
+            'form526' => {
+              'attachments' => [
+                { 'confirmationCode' => file1_guid },
+                { 'confirmationCode' => file2_guid }
+              ]
+            }
+          }
+        end
+
+        let!(:file1) do
+          create(
+            :supporting_evidence_attachment,
+            guid: file1_guid,
+            file_data: { filename: 'my_file_1.pdf' }.to_json
+          )
+        end
+
+        let!(:file2) do
+          create(
+            :supporting_evidence_attachment,
+            guid: file2_guid,
+            file_data: { filename: 'my_file_2.pdf' }.to_json
+          )
+        end
+
+        let(:terminally_ill_note) do
+          "Corporate Flash Details\n" \
+            "This applicant has indicated that they're terminally ill.\n" \
+        end
+
+        let(:form_4142_note) do
+          'VA Form 21-4142/4142a has been completed by the applicant and ' \
+            'sent to the PMR contractor for processing in accordance with ' \
+            'M21-1 III.iii.1.D.2.' \
+        end
+
+        let(:form_0781_note) do
+          "VA Form 0781/a has been completed by the applicant and sent to the VBMS eFolder\n"
+        end
+
+        context 'when the form526_include_document_upload_list_in_overflow_text flipper is enabled' do
+          before do
+            Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
+          end
+
+          let(:file_list) do
+            'The veteran uploaded 2 documents along with this claim. ' \
+              "Please verify in VBMS eFolder.\n" \
+              "my_file_1.pdf\n" \
+              "my_file_2.pdf\n"
+          end
+
+          it 'includes a list of documents in the overflow text ordered alphabetically' do
+            expect(subject.send(:overflow_text)).to eq(file_list)
+          end
+
+          context 'when the terminally ill, form 4142 and form 0781 notes are also present' do
+            # Third argument, has_form4142, set to true so that note is present
+            subject { described_class.new(user, form_content, true) }
+
+            let(:form_content) do
+              {
+                'form526' => {
+                  'isTerminallyIll' => true,
+                  'attachments' => [
+                    { 'confirmationCode' => file1_guid },
+                    { 'confirmationCode' => file2_guid }
+                  ],
+                  'form0781' => {
+                    'incidents' => []
+                  }
+                }
+              }
+            end
+
+            it 'lists them in the order: 1. Terminally Ill, 2. Form 4142, 3. Form 0781, 4. Veteran file list' do
+              expect(subject.send(:overflow_text)).to eq(
+                terminally_ill_note +
+                form_4142_note +
+                form_0781_note +
+                file_list
+              )
+            end
+          end
+
+          # EVSS restricts the maximum size included in the overflowText field
+          describe 'overflowText character limits' do
+            let(:attached_files_note) do
+              # Actual document count would likely be larger in cases where we are worried about exceeding
+              # size threshold, but we're only testing notes character length.
+              # To avoid generating thousands of mock files/filenames, simply expect this text to match the number
+              # of files we are actually mocking (2)
+              'The veteran uploaded 2 documents along with this claim. ' \
+                "Please verify in VBMS eFolder.\n"
+            end
+
+            context 'when no other notes are present' do
+              # Third constructor argument, has_form4142, set to false so that note is not present
+              subject { described_class.new(user, form_content, false) }
+
+              let(:form_content) do
+                {
+                  'form526' => {
+                    'isTerminallyIll' => false,
+                    'attachments' => [
+                      { 'confirmationCode' => file1_guid },
+                      { 'confirmationCode' => file2_guid }
+                    ]
+                  }
+                }
+              end
+
+              context 'when attached files note + file list alone would exceed the maximum allowed character length' do
+                before do
+                  over_the_limit_file_list_length = 4001 - attached_files_note.length
+
+                  # Guarantee we exceed chracter length
+                  allow(subject).to receive(:list_attachment_filenames).and_return(
+                    Faker::Lorem.characters(number: over_the_limit_file_list_length)
+                  )
+                end
+
+                it 'returns the attached files note only without listing the filenames' do
+                  expect(subject.send(:overflow_text)).to eq(attached_files_note)
+                end
+
+                it 'increments a StatsD metric noting we truncated the file list' do
+                  expect { subject.send(:overflow_text) }.to trigger_statsd_increment(
+                    'api.form_526.overflow_text.veteran_file_list.excluded_from_overflow_text'
+                  )
+                end
+
+                it 'logs the total file count' do
+                  logging_time = Time.new(1985, 10, 26).utc
+
+                  Timecop.freeze(logging_time) do
+                    expect(Rails.logger).to receive(:info).with(
+                      'Form526 Veteran-attached file names truncated from overflowText',
+                      {
+                        file_count: 2,
+
+                        user_uuid: user.uuid,
+                        timestamp: logging_time
+                      }
+                    )
+
+                    subject.send(:overflow_text)
+                  end
+                end
+              end
+            end
+
+            context 'when the sum total of all notes would exceed the maximum character length' do
+              # Third argument, has_form4142, set to true so that note is present
+              subject { described_class.new(user, form_content, true) }
+
+              let(:form_content) do
+                {
+                  'form526' => {
+                    'isTerminallyIll' => true,
+                    'attachments' => [
+                      { 'confirmationCode' => file1_guid },
+                      { 'confirmationCode' => file2_guid }
+                    ],
+                    'form0781' => {
+                      'incidents' => []
+                    }
+                  }
+                }
+              end
+
+              before do
+                notes_length = [terminally_ill_note, form_4142_note, form_0781_note, attached_files_note].join.length
+                over_the_limit_file_list_length = 4001 - notes_length
+
+                # Guarantee we exceed chracter length
+                allow(subject).to receive(:list_attachment_filenames).and_return(
+                  Faker::Lorem.characters(number: over_the_limit_file_list_length)
+                )
+              end
+
+              it 'returns all notes but does not include the file list' do
+                expect(subject.send(:overflow_text)).to eq(
+                  terminally_ill_note +
+                  form_4142_note +
+                  form_0781_note +
+                  attached_files_note
+                )
+              end
+
+              it 'increments a StatsD metric noting we truncated the file list' do
+                expect { subject.send(:overflow_text) }.to trigger_statsd_increment(
+                  'api.form_526.overflow_text.veteran_file_list.excluded_from_overflow_text'
+                )
+              end
+
+              it 'logs the total file count' do
+                logging_time = Time.new(1985, 10, 26).utc
+
+                Timecop.freeze(logging_time) do
+                  expect(Rails.logger).to receive(:info).with(
+                    'Form526 Veteran-attached file names truncated from overflowText',
+                    {
+                      file_count: 2,
+                      user_uuid: user.uuid,
+                      timestamp: logging_time
+                    }
+                  )
+
+                  subject.send(:overflow_text)
+                end
+              end
+            end
+
+            context 'when the overflowText size allows for displaying the full file list' do
+              # reset subject
+              it 'increments a StatsD metric noting we included the full file list' do
+                expect { subject.send(:overflow_text) }.to trigger_statsd_increment(
+                  'api.form_526.overflow_text.veteran_file_list.included_in_overflow_text'
+                )
+              end
+
+              it 'logs the total file count' do
+                logging_time = Time.new(1985, 10, 26).utc
+
+                Timecop.freeze(logging_time) do
+                  expect(Rails.logger).to receive(:info).with(
+                    'Form526 Veteran-attached file names included in overflowText',
+                    {
+                      file_count: 2,
+                      user_uuid: user.uuid,
+                      timestamp: logging_time
+                    }
+                  )
+
+                  subject.send(:overflow_text)
+                end
+              end
+            end
+          end
+        end
+
+        context 'when the form526_include_document_upload_list_in_overflow_text flipper is disabled' do
+          before do
+            Flipper.disable(:form526_include_document_upload_list_in_overflow_text)
+          end
+
+          it 'does not include the list of documents in the overflow text' do
+            expect(subject.send(:overflow_text)).to eq('')
+          end
+        end
+      end
+
+      context 'when the veteran has not uploaded documents to support the claim' do
+        it 'does not include the list of documents in the overflow text' do
+          expect(subject.send(:overflow_text)).to eq('')
+        end
+
+        it 'does not increment a StatsD metric noting we excluded the file list' do
+          expect { subject.send(:overflow_text) }.not_to trigger_statsd_increment(
+            'api.form_526.overflow_text.veteran_file_list.excluded_from_overflow_text'
+          )
+        end
+
+        it 'does not StatsD metric noting we included the file list' do
+          expect { subject.send(:overflow_text) }.not_to trigger_statsd_increment(
+            'api.form_526.overflow_text.veteran_file_list.included_in_overflow_text'
+          )
+        end
       end
     end
   end
@@ -1203,6 +1535,21 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           }
         ]
       end
+
+      it 'adds the cause field if the TE flag is ON' do
+        Flipper.enable('disability_526_toxic_exposure')
+        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
+          {
+            'disabilityActionType' => 'NEW',
+            'name' => 'new condition',
+            'classificationCode' => 'Test Code',
+            'specialIssues' => ['POW'],
+            'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description",
+            'cause' => 'NEW'
+          }
+        ]
+        Flipper.disable('disability_526_toxic_exposure')
+      end
     end
 
     context 'when there is a WORSENED disability' do
@@ -1234,6 +1581,22 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               "Worsened because of military service\nworsened condition description: worsened effects"
           }
         ]
+      end
+
+      it 'adds the cause field if the TE flag is ON' do
+        Flipper.enable('disability_526_toxic_exposure')
+        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
+          {
+            'disabilityActionType' => 'NEW',
+            'name' => 'worsened condition',
+            'classificationCode' => 'Test Code',
+            'specialIssues' => ['POW'],
+            'serviceRelevance' =>
+              "Worsened because of military service\nworsened condition description: worsened effects",
+            'cause' => 'WORSENED'
+          }
+        ]
+        Flipper.disable('disability_526_toxic_exposure')
       end
     end
 
@@ -1268,6 +1631,23 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               "Location: va location\nTimeFrame: the third of october"
           }
         ]
+      end
+
+      it 'adds the cause field if the TE flag is ON' do
+        Flipper.enable('disability_526_toxic_exposure')
+        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
+          {
+            'disabilityActionType' => 'NEW',
+            'name' => 'va condition',
+            'classificationCode' => 'Test Code',
+            'specialIssues' => ['POW'],
+            'serviceRelevance' =>
+              "Caused by VA care\nEvent: va condition description\n"\
+              "Location: va location\nTimeFrame: the third of october",
+            'cause' => 'VA'
+          }
+        ]
+        Flipper.disable('disability_526_toxic_exposure')
       end
     end
 
@@ -1448,6 +1828,36 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           expect(subject.send(:approximate_date, date)).to eq nil
         end
       end
+    end
+  end
+
+  describe '#add_toxic_exposure' do
+    let(:form_content) do
+      {
+        'form526' => {
+          'toxicExposure' => {
+            'gulfWar1990' => {
+              'iraq' => true,
+              'kuwait' => true,
+              'qatar' => true
+            }
+          }
+        }
+      }
+    end
+
+    it 'returns toxic exposure' do
+      expect(subject.send(:add_toxic_exposure)).to eq(
+        {
+          'toxicExposure' => {
+            'gulfWar1990' => {
+              'iraq' => true,
+              'kuwait' => true,
+              'qatar' => true
+            }
+          }
+        }
+      )
     end
   end
 

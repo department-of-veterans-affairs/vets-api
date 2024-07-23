@@ -66,14 +66,14 @@ RSpec.describe IAMUserIdentity, type: :model do
     it 'logs a warning to sentry' do
       with_settings(Settings.sentry, dsn: 'asdf') do
         attrs = mhv_attrs.merge(fediam_mhv_ien: '123456,7890123')
-        expect(Raven).to receive(:capture_message)
+        expect(Sentry).to receive(:capture_message)
         described_class.build_from_iam_profile(attrs)
       end
     end
 
     it 'ignores non-unique duplicates' do
       attrs = mhv_attrs.merge(fediam_mhv_ien: '123456,123456')
-      expect(Raven).not_to receive(:capture_message)
+      expect(Sentry).not_to receive(:capture_message)
       id = described_class.build_from_iam_profile(attrs)
       expect(id.iam_mhv_id).to eq('123456')
     end

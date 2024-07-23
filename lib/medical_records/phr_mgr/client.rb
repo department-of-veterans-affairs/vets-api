@@ -11,29 +11,35 @@ module PHRMgr
     configuration PHRMgr::Configuration
 
     ##
-    # Run a PHR Manager refresh on the patient with the given ICN number.
+    # Initialize the client
     #
     # @param icn [String] MHV patient ICN
-    # @return [Fixnum] Call status
     #
-    def post_phrmgr_refresh(icn)
+    def initialize(icn)
+      super()
       raise Common::Exceptions::ParameterMissing, 'ICN' if icn.blank?
 
-      response = perform(:post, "refresh/#{icn}", nil, self.class.configuration.x_auth_key_headers)
+      @icn = icn
+    end
+
+    ##
+    # Run a PHR Manager refresh on the patient.
+    #
+    # @return [Fixnum] Call status
+    #
+    def post_phrmgr_refresh
+      response = perform(:post, "refresh/#{@icn}", nil, self.class.configuration.x_auth_key_headers)
       # response_hash = JSON.parse(response.body)
       response&.status
     end
 
     ##
-    # Run a PHR Manager refresh on the patient with the given ICN number.
+    # Run a PHR Manager refresh on the patient.
     #
-    # @param icn [String] MHV patient ICN
     # @return [Hash] Patient status
     #
-    def get_phrmgr_status(icn)
-      raise Common::Exceptions::ParameterMissing, 'ICN' if icn.blank?
-
-      response = perform(:get, "status/#{icn}", nil, self.class.configuration.x_auth_key_headers)
+    def get_phrmgr_status
+      response = perform(:get, "status/#{@icn}", nil, self.class.configuration.x_auth_key_headers)
       response.body
     end
   end

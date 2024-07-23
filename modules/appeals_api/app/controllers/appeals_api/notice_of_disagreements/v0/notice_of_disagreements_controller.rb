@@ -3,19 +3,23 @@
 require 'appeals_api/form_schemas'
 
 module AppealsApi::NoticeOfDisagreements::V0
-  class NoticeOfDisagreementsController < AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController
+  class NoticeOfDisagreementsController < AppealsApi::ApplicationController
+    include AppealsApi::CharacterUtilities
+    include AppealsApi::IcnParameterValidation
+    include AppealsApi::JsonFormatValidation
     include AppealsApi::OpenidAuth
     include AppealsApi::PdfDownloads
+    include AppealsApi::Schemas
+    include AppealsApi::StatusSimulation
 
-    skip_before_action :new_notice_of_disagreement
-    skip_before_action :find_notice_of_disagreement
-    skip_before_action :validate_icn_header
-    skip_before_action :validate_json_format
-
-    prepend_before_action :validate_json_body, if: -> { request.post? }
-    before_action :validate_icn_parameter, only: %i[download]
+    skip_before_action :authenticate
+    before_action :validate_json_body, if: -> { request.post? }
+    before_action :validate_json_schema, only: %i[create validate]
+    before_action :validate_icn_parameter!, only: %i[download]
 
     API_VERSION = 'V0'
+    FORM_NUMBER = '10182'
+    MODEL_ERROR_STATUS = 422
     SCHEMA_OPTIONS = { schema_version: 'v0', api_name: 'notice_of_disagreements' }.freeze
 
     OAUTH_SCOPES = {
@@ -37,7 +41,9 @@ module AppealsApi::NoticeOfDisagreements::V0
     }.freeze
 
     def show
-      nod = AppealsApi::NoticeOfDisagreement.select(ALLOWED_COLUMNS).find(params[:id])
+      nod = AppealsApi::NoticeOfDisagreement.find(params[:id])
+      validate_token_icn_access!(nod.veteran_icn)
+
       nod = with_status_simulation(nod) if status_requested_and_allowed?
 
       render_notice_of_disagreement(nod)
@@ -46,13 +52,16 @@ module AppealsApi::NoticeOfDisagreements::V0
     end
 
     def create
+      submitted_icn = @json_body.dig('data', 'attributes', 'veteran', 'icn')
+      validate_token_icn_access!(submitted_icn)
+
       nod = AppealsApi::NoticeOfDisagreement.new(
         auth_headers: request_headers,
         form_data: @json_body,
         source: request_headers['X-Consumer-Username'].presence&.strip,
         board_review_option: @json_body.dig('data', 'attributes', 'boardReviewOption'),
         api_version: self.class::API_VERSION,
-        veteran_icn: @json_body.dig('data', 'attributes', 'veteran', 'icn')
+        veteran_icn: submitted_icn
       )
 
       return render_model_errors(nod) unless nod.validate
@@ -60,20 +69,28 @@ module AppealsApi::NoticeOfDisagreements::V0
       nod.save
       AppealsApi::PdfSubmitJob.perform_async(nod.id, 'AppealsApi::NoticeOfDisagreement', 'v3')
 
-      render_notice_of_disagreement(nod, status: :created)
+      render_notice_of_disagreement(nod, include_pii: true, status: :created)
     end
 
     def download
-      id = params[:id]
-      notice_of_disagreement = AppealsApi::NoticeOfDisagreement.find(id)
-
       render_appeal_pdf_download(
-        notice_of_disagreement,
-        "#{FORM_NUMBER}-notice-of-disagreement-#{id}.pdf",
-        params[:icn]
+        AppealsApi::NoticeOfDisagreement.find(params[:id]),
+        "#{FORM_NUMBER}-notice-of-disagreement-#{params[:id]}.pdf",
+        veteran_icn
       )
     rescue ActiveRecord::RecordNotFound
       render_notice_of_disagreement_not_found(params[:id])
+    end
+
+    def validate
+      render json: {
+        data: {
+          type: 'noticeOfDisagreementValidation',
+          attributes: {
+            status: 'valid'
+          }
+        }
+      }
     end
 
     def schema
@@ -82,40 +99,32 @@ module AppealsApi::NoticeOfDisagreements::V0
 
     private
 
-    def validate_icn_parameter
-      detail = nil
-
-      if params[:icn].blank?
-        detail = "'icn' parameter is required"
-      elsif !ICN_REGEX.match?(params[:icn])
-        detail = "'icn' parameter has an invalid format. Pattern: #{ICN_REGEX.inspect}"
-      end
-
-      raise Common::Exceptions::UnprocessableEntity.new(detail:) if detail.present?
+    def validate_json_schema
+      validate_headers(request_headers)
+      validate_form_data(@json_body)
+    rescue Common::Exceptions::DetailedSchemaErrors => e
+      render json: { errors: e.errors }, status: :unprocessable_entity
     end
 
-    def render_notice_of_disagreement(nod, **)
-      render(json: NoticeOfDisagreementSerializer.new(nod).serializable_hash, **)
+    def render_notice_of_disagreement(nod_or_nods, include_pii: false, **)
+      serializer_class = (include_pii ? NoticeOfDisagreementSerializerWithPii : NoticeOfDisagreementSerializer)
+      render(json: serializer_class.new(nod_or_nods).serializable_hash, **)
     end
 
     def render_notice_of_disagreement_not_found(id)
-      render(
-        status: :not_found,
-        json: {
-          errors: [
-            {
-              code: '404',
-              detail: I18n.t('appeals_api.errors.not_found', type: 'NoticeOfDisagreement', id:),
-              status: '404',
-              title: 'Record not found'
-            }
-          ]
-        }
+      raise Common::Exceptions::ResourceNotFound.new(
+        detail: I18n.t('appeals_api.errors.not_found', type: 'Notice of Disagreement', id:)
       )
     end
 
     def render_model_errors(nod)
       render json: model_errors_to_json_api(nod), status: MODEL_ERROR_STATUS
+    end
+
+    def header_names = headers_schema['definitions']['nodCreateParameters']['properties'].keys
+
+    def request_headers
+      header_names.index_with { |key| request.headers[key] }.compact
     end
 
     def token_validation_api_key

@@ -36,7 +36,7 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
       end
     end
 
-    context 'while authenticated', skip_mvi: true do
+    context 'while authenticated', :skip_mvi do
       let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534') }
 
       before do
@@ -125,6 +125,60 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
             ) do
               subject
 
+              expect(JSON.parse(response.body)).to eq(body)
+            end
+          end
+        end
+
+        context 'when the form includes TERA info' do
+          let(:params) do
+            {
+              form: File.read('spec/fixtures/form1010_ezr/valid_form_with_tera.json')
+            }
+          end
+          let(:body) do
+            {
+              'formSubmissionId' => 433_956_488,
+              'timestamp' => '2024-03-13T13:14:50.252-05:00',
+              'success' => true
+            }
+          end
+
+          it 'returns a successful response object', run_at: 'Wed, 13 Mar 2024 18:14:49 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_with_tera',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
+              subject
+
+              expect(JSON.parse(response.body)).to eq(body)
+            end
+          end
+        end
+
+        context 'when ezr_async is on' do
+          before do
+            Flipper.enable(:ezr_async)
+          end
+
+          let(:params) do
+            { form: }
+          end
+          let(:body) do
+            {
+              'formSubmissionId' => nil,
+              'timestamp' => nil,
+              'success' => true
+            }
+          end
+
+          it 'renders a successful response and deletes the saved form' do
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_async',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
+              expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('10-10EZR').once
+              subject
               expect(JSON.parse(response.body)).to eq(body)
             end
           end

@@ -6,15 +6,12 @@ module TermsOfUse
   class Provisioner
     include ActiveModel::Validations
 
-    attr_reader :icn, :first_name, :last_name, :mpi_gcids
+    attr_reader :icn
 
-    validates :icn, :first_name, :last_name, :mpi_gcids, presence: true
+    validates :icn, presence: true
 
-    def initialize(icn:, first_name:, last_name:, mpi_gcids:)
+    def initialize(icn:)
       @icn = icn
-      @first_name = first_name
-      @last_name = last_name
-      @mpi_gcids = mpi_gcids
 
       validate!
     rescue ActiveModel::ValidationError => e
@@ -24,9 +21,15 @@ module TermsOfUse
 
     def perform
       response = update_provisioning
-      raise(Errors::ProvisionerError, 'Agreement not accepted') if response[:agreement_signed].blank?
 
-      ActiveModel::Type::Boolean.new.cast(response[:agreement_signed])
+      if response[:agreement_signed].blank?
+        Rails.logger.error('[TermsOfUse] [Provisioner] update_provisioning error', { icn:, response: })
+        raise(Errors::ProvisionerError, 'Agreement not accepted')
+      end
+      if response[:cerner_provisioned].blank?
+        Rails.logger.error('[TermsOfUse] [Provisioner] update_provisioning error', { icn:, response: })
+        raise(Errors::ProvisionerError, 'Account not Provisioned')
+      end
     rescue Common::Client::Errors::ClientError => e
       log_provisioner_error(e)
       raise Errors::ProvisionerError, e.message
@@ -35,15 +38,28 @@ module TermsOfUse
     private
 
     def update_provisioning
-      MAP::SignUp::Service.new.update_provisioning(icn:, first_name:, last_name:, mpi_gcids: joined_mpi_gcids)
+      MAP::SignUp::Service.new.update_provisioning(icn:, first_name:, last_name:, mpi_gcids:)
     end
 
     def log_provisioner_error(error)
       Rails.logger.error("[TermsOfUse] [Provisioner] Error: #{error.message}", { icn: })
     end
 
-    def joined_mpi_gcids
-      mpi_gcids.join('|')
+    def mpi_profile
+      @mpi_profile ||= MPI::Service.new.find_profile_by_identifier(identifier: icn,
+                                                                   identifier_type: MPI::Constants::ICN)&.profile
+    end
+
+    def first_name
+      mpi_profile.given_names.first
+    end
+
+    def last_name
+      mpi_profile.family_name
+    end
+
+    def mpi_gcids
+      mpi_profile.full_mvi_ids.join('|')
     end
   end
 end

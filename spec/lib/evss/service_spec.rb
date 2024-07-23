@@ -24,8 +24,8 @@ describe EVSS::Service do
 
   describe '#save_error_details' do
     it 'sets the tags_context and extra_context' do
-      expect(Raven).to receive(:tags_context).with(external_service: 'evss/foo/service')
-      expect(Raven).to receive(:extra_context).with(
+      expect(Sentry).to receive(:set_tags).with(external_service: 'evss/foo/service')
+      expect(Sentry).to receive(:set_extras).with(
         message: 'Common::Client::Errors::ClientError',
         url: 'http://',
         body: nil,

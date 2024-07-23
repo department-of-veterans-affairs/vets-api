@@ -1,0 +1,29 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/internal/auth/v3/userinfo
+    body:
+      encoding: UTF-8
+      string: aud=https%3A%2F%2Fdev-api.va.gov%2Fservices%2Fclaims
+    headers:
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Host:
+      - dev-api.va.gov
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"uuid":"b24346a788c04dfea5048d44ad071181","email":"abraham.lincoln@vets.gov","lastLoginType":"logingov","firstName":"Tamara","lastName":"Ellis","middleName":"E","icn":"1012667145V762142","actorUser":false}'
+  recorded_at: Tue, 12 Dec 2017 03:09:06 GMT
+recorded_with: VCR 6.2.0

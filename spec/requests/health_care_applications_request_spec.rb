@@ -85,7 +85,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         preferred_facility: '987 - CHEY6',
         parsed_status: inelig_character_of_discharge,
         primary_eligibility: 'SC LESS THAN 50%',
-        can_submit_financial_info: false }
+        can_submit_financial_info: true }
     end
     let(:loa1_response) do
       { parsed_status: login_required }
@@ -102,8 +102,8 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
       end
 
       it 'logs user loa' do
-        allow(Raven).to receive(:extra_context)
-        expect(Raven).to receive(:extra_context).with(user_loa: nil)
+        allow(Sentry).to receive(:set_extras)
+        expect(Sentry).to receive(:set_extras).with(user_loa: nil)
 
         get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
       end
@@ -173,7 +173,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             effective_date: '2019-01-02T21:58:55.000-06:00',
             primary_eligibility: 'SC LESS THAN 50%',
             priority_group: 'Group 3',
-            can_submit_financial_info: false,
+            can_submit_financial_info: true,
             parsed_status: enrolled
           }
         end
@@ -207,6 +207,51 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
           }
         }
       )
+    end
+  end
+
+  describe 'GET facilities' do
+    it 'responds with facilities data' do
+      VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+        get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
+      end
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body[0]).to eq({ 'access' => nil,
+                                              'active_status' => nil,
+                                              'address' => {
+                                                'mailing' => { 'zip' => '66713', 'city' => 'Leavenworth',
+                                                               'state' => 'KS', 'address1' => '150 Muncie Rd' },
+                                                'physical' => { 'zip' => '66713', 'city' => 'Baxter Springs',
+                                                                'state' => 'KS',
+                                                                'address1' => 'Baxter Springs City Cemetery' }
+                                              },
+                                              'classification' => 'Soldiers Lot',
+                                              'detailed_services' => nil,
+                                              'distance' => nil,
+                                              'facility_type' => 'va_cemetery',
+                                              'facility_type_prefix' => 'nca',
+                                              'feedback' => nil,
+                                              'hours' =>
+                                               { 'monday' => 'Sunrise - Sundown',
+                                                 'tuesday' => 'Sunrise - Sundown',
+                                                 'wednesday' => 'Sunrise - Sundown',
+                                                 'thursday' => 'Sunrise - Sundown',
+                                                 'friday' => 'Sunrise - Sundown',
+                                                 'saturday' => 'Sunrise - Sundown',
+                                                 'sunday' => 'Sunrise - Sundown' },
+                                              'id' => 'nca_042',
+                                              'lat' => 37.0320575,
+                                              'long' => -94.7706605,
+                                              'mobile' => nil,
+                                              'name' => "Baxter Springs City Soldiers' Lot",
+                                              'operating_status' => { 'code' => 'NORMAL' },
+                                              'operational_hours_special_instructions' => nil,
+                                              'phone' => { 'fax' => '9137584136', 'main' => '9137584105' },
+                                              'services' => nil,
+                                              'type' => 'va_facilities',
+                                              'unique_id' => '042',
+                                              'visn' => nil,
+                                              'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp' })
     end
   end
 
@@ -308,7 +353,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         end
       end
 
-      context 'while authenticated', skip_mvi: true do
+      context 'while authenticated', :skip_mvi do
         let(:current_user) { build(:user, :mhv) }
 
         before do
@@ -395,7 +440,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
           end
 
           it 'renders error message' do
-            expect(Raven).to receive(:capture_exception).with(error, level: 'error').once
+            expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
 
             subject
 
@@ -406,6 +451,61 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
               ]
             )
           end
+        end
+      end
+
+      context 'with hca_use_facilities_API enabled' do
+        let(:current_user) { create(:user) }
+
+        before do
+          sign_in_as(current_user)
+          Flipper.disable(:hca_use_facilities_API)
+          Flipper.enable(:hca_use_facilities_API, current_user)
+        end
+
+        let(:params) do
+          test_veteran['vaMedicalFacility'] = '000'
+          {
+            form: test_veteran.to_json
+          }
+        end
+
+        let(:body) do
+          {
+            'formSubmissionId' => nil,
+            'timestamp' => nil,
+            'state' => 'pending'
+          }
+        end
+
+        it 'does not error on vaMedicalFacility validation' do
+          subject
+
+          expect(JSON.parse(response.body)['errors']).to be_blank
+          expect(JSON.parse(response.body)['data']['attributes']).to eq(body)
+        end
+      end
+
+      context 'with hca_use_facilities_API disabled' do
+        let(:current_user) { create(:user) }
+
+        before do
+          sign_in_as(current_user)
+          Flipper.disable(:hca_use_facilities_API)
+        end
+
+        let(:params) do
+          test_veteran['vaMedicalFacility'] = '000'
+          {
+            form: test_veteran.to_json
+          }
+        end
+
+        it 'errors on vaMedicalFacility validation' do
+          subject
+
+          expect(JSON.parse(response.body)['errors']).not_to be_blank
+          expect(JSON.parse(response.body)['errors'].first['title']).to include('"000" did not match')
         end
       end
     end

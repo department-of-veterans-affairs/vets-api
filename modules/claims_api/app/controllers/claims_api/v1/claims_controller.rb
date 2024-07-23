@@ -15,9 +15,7 @@ module ClaimsApi
         claims_v1_logging('claims_v1_index', message: 'Claims not found') if claims == []
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claims not found') if claims == []
 
-        render json: claims,
-               serializer: ActiveModel::Serializer::CollectionSerializer,
-               each_serializer: ClaimsApi::ClaimListSerializer
+        render json: ClaimsApi::ClaimListSerializer.new(claims)
       rescue EVSS::ErrorMiddleware::EVSSError => e
         claims_v1_logging('claims_index', message: e.message)
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claims not found')
@@ -29,14 +27,14 @@ module ClaimsApi
         if claim && claim.status == 'errored'
           fetch_errored(claim)
         elsif claim && claim.evss_id.blank?
-          render json: claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
+          render json: ClaimsApi::AutoEstablishedClaimSerializer.new(claim)
         elsif claim && claim.evss_id.present?
           updated_claim = claims_status_service.update_from_remote(claim.evss_id)
-          render json: updated_claim, serializer: ClaimsApi::ClaimDetailSerializer, uuid: claim.id
+          render json: ClaimsApi::ClaimDetailSerializer.new(updated_claim, { params: { uuid: claim.id } })
         elsif /^\d{2,20}$/.match?(params[:id])
           claim = claims_status_service.update_from_remote(params[:id])
           # NOTE: source doesn't seem to be accessible within a remote evss_claim
-          render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
+          render json: ClaimsApi::ClaimDetailSerializer.new(claim)
         else
           claims_v1_logging('claims_show', message: 'Claim not found')
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
@@ -63,9 +61,11 @@ module ClaimsApi
       end
 
       def format_evss_errors(errors)
-        errors.map do |error|
-          formatted = error['key'] ? error['key'].gsub('.', '/') : error['key']
-          { status: 422, detail: "#{error['severity']} #{error['detail'] || error['text']}".squish, source: formatted }
+        errors.map do |err|
+          error = err.deep_symbolize_keys
+          # Some old saved error messages saved key is an integer, so need to call .to_s before .gsub
+          formatted = error[:key] ? error[:key].to_s.gsub('.', '/') : error[:key]
+          { status: 422, detail: "#{error[:severity]} #{error[:detail] || error[:text]}".squish, source: formatted }
         end
       end
     end

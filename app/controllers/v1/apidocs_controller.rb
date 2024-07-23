@@ -30,6 +30,10 @@ module V1
         key :description, 'VA facilities, locations, hours of operation, available services'
       end
       tag do
+        key :name, 'ivc_champva_forms'
+        key :description, 'Creating and submitting IVC Champva applications'
+      end
+      tag do
         key :name, 'higher_level_reviews'
         key :description, 'Request a senior reviewer take a new look at a case'
       end
@@ -37,6 +41,11 @@ module V1
         key :name, 'income_limits'
         key :description, 'Get income limit thresholds for veteran benefits.'
       end
+      tag do
+        key :name, 'benefits_status'
+        key :description, 'Check status of benefits claims and appeals'
+      end
+
       key :host, Settings.hostname
       key :schemes, %w[https http]
       key :basePath, '/'
@@ -80,6 +89,8 @@ module V1
       Swagger::V1::Schemas::Appeals::HigherLevelReview,
       Swagger::V1::Schemas::Appeals::NoticeOfDisagreement,
       Swagger::V1::Schemas::Appeals::SupplementalClaims,
+      Swagger::V1::Requests::Post911GIBillStatuses,
+      Swagger::V1::Requests::IvcChampvaForms,
       self
     ].freeze
 

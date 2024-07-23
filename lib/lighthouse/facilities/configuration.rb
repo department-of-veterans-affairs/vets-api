@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/rest'
-require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/raise_custom_error'
 require 'lighthouse/facilities/middleware/errors'
 
 module Lighthouse
@@ -22,13 +22,13 @@ module Lighthouse
       def connection
         Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
           conn.use :breakers
-          conn.use :instrumentation, name: 'lighthouse.facilities.request.faraday'
+          conn.request :instrumentation, name: 'lighthouse.facilities.request.faraday'
 
           # Uncomment this if you want curl command equivalent or response output to log
           # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
           # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
-          conn.response :raise_error, error_prefix: service_name
+          conn.response :raise_custom_error, error_prefix: service_name
           conn.response :lighthouse_facilities_errors
 
           conn.adapter Faraday.default_adapter

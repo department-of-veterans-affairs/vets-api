@@ -1,0 +1,38 @@
+{
+  "data":{
+    "type":"form/526",
+      "attributes":{
+        "claimProcessType":"STANDARD_CLAIM_PROCESS",
+        "veteranIdentification": {
+          "mailingAddress": {
+            "addressLine1":"1234 Couch Street",
+            "city":"Portland",
+            "state":"OR",
+            "country":"USA",
+            "zipFirstFive":"12345"
+          },
+          "currentVaEmployee": false
+        },
+        "disabilities":[
+          {
+            "name":"hearing loss",
+            "serviceRelevance":"Heavy equipment operator in service",
+            "approximateDate":"2017-07",
+            "disabilityActionType":"NEW"
+          }
+        ],
+        "serviceInformation":{
+        "servicePeriods":[
+          {
+            "serviceBranch":"Air Force",
+            "serviceComponent":"Active",
+            "activeDutyBeginDate":"2015-11-14",
+            "activeDutyEndDate":"2018-11-30"
+          }
+        ]
+      },
+      "claimantCertification":true
+    }
+  }
+}
+

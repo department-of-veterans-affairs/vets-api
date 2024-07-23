@@ -20,7 +20,7 @@ module SignIn
     private
 
     def validate_client_assertion_type
-      if client_assertion_type != Constants::Auth::CLIENT_ASSERTION_TYPE
+      if client_assertion_type != Constants::Urn::JWT_BEARER_CLIENT_AUTHENTICATION
         raise Errors::ClientAssertionTypeInvalidError.new message: 'Client assertion type is not valid'
       end
     end
@@ -48,8 +48,9 @@ module SignIn
     end
 
     def hostname
-      scheme = Settings.vsp_environment == 'localhost' ? 'http://' : 'https://'
-      "#{scheme}#{Settings.hostname}"
+      return localhost_hostname if Settings.vsp_environment == 'localhost'
+
+      "https://#{Settings.hostname}"
     end
 
     def decoded_client_assertion
@@ -59,7 +60,7 @@ module SignIn
     def jwt_decode(with_validation: true)
       decoded_jwt = JWT.decode(
         client_assertion,
-        client_config.client_assertion_public_keys,
+        client_config.assertion_public_keys,
         with_validation,
         {
           verify_expiration: with_validation,
@@ -73,6 +74,12 @@ module SignIn
       raise Errors::ClientAssertionExpiredError.new message: 'Client assertion has expired'
     rescue JWT::DecodeError
       raise Errors::ClientAssertionMalformedJWTError.new message: 'Client assertion is malformed'
+    end
+
+    def localhost_hostname
+      port = URI.parse("http://#{Settings.hostname}").port
+
+      "http://localhost:#{port}"
     end
   end
 end

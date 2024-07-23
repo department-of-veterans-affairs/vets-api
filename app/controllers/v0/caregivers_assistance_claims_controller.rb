@@ -17,14 +17,14 @@ module V0
 
     def create
       if @claim.valid?
-        Raven.tags_context(claim_guid: @claim.guid)
+        Sentry.set_tags(claim_guid: @claim.guid)
         auditor.record_caregivers(@claim)
 
         ::Form1010cg::Service.new(@claim).assert_veteran_status
 
         @claim.save!
         ::Form1010cg::SubmissionJob.perform_async(@claim.id)
-        render(json: @claim, serializer: ::Form1010cg::ClaimSerializer)
+        render json: ::Form1010cg::ClaimSerializer.new(@claim)
       else
         PersonalInformationLog.create!(data: { form: @claim.parsed_form }, error_class: '1010CGValidationError')
         auditor.record(:submission_failure_client_data, claim_guid: @claim.guid, errors: @claim.errors.messages)

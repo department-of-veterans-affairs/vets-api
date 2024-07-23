@@ -1,0 +1,20 @@
+meta {
+  name: Download NOD
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{base_uri}}/services/appeals/v2/decision_reviews/notice_of_disagreements/{{dr_nod_id}}/download
+  body: none
+  auth: none
+}
+
+headers {
+  X-VA-ICN: {{veteran_icn}}
+  apikey: {{api_key}}
+}
+
+assert {
+  res.status: eq 200
+}

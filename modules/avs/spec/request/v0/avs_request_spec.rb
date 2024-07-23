@@ -58,7 +58,7 @@ RSpec.describe 'V0::Avs', type: :request do
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to eq(
           {
-            'path' => '/my-health/medical-records/care-summaries/avs/9A7AF40B2BC2471EA116891839113252'
+            'path' => '/my-health/medical-records/summaries-and-notes/visit-summary/9A7AF40B2BC2471EA116891839113252'
           }
         )
       end
@@ -71,6 +71,21 @@ RSpec.describe 'V0::Avs', type: :request do
 
     it 'returns error when sid format is incorrect' do
       get '/avs/v0/avs/1234567890'
+      expect(response).to have_http_status(:bad_request)
+    end
+
+    it 'returns error when sid is too short' do
+      get '/avs/v0/avs/3e8535e743ce63ed333ebbbb67626'
+      expect(response).to have_http_status(:bad_request)
+    end
+
+    it 'returns error when sid is too long' do
+      get '/avs/v0/avs/5e68a88a158a70da31e48c0bf02243545e68a88a1'
+      expect(response).to have_http_status(:bad_request)
+    end
+
+    it 'returns error when sid is not in hex format' do
+      get '/avs/v0/avs/5e68a88a158a70da31e48c0bf0224354z'
       expect(response).to have_http_status(:bad_request)
     end
 

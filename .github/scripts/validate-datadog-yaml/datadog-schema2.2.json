@@ -1,0 +1,208 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://github.com/DataDog/schema/tree/main/service-catalog/v2.2/schema.json",
+	"title": "Service Definition Schema v2.2",
+	"description": "A service definition for providing additional service metadata and integrations v2.2",
+	"type": "object",
+	"properties": {
+		"schema-version": {
+			"description": "Schema version being used",
+			"examples": ["v2.2"],
+			"type": "string",
+			"default": "v2.2",
+			"enum": ["v2.2"]
+		},
+		"dd-service": {
+			"description": "Unique identifier of the service. Must be unique across all services, and is used to match with a service in Datadog",
+			"examples": ["my-service"],
+			"type": "string"
+		},
+		"team": {
+			"description": "Team that owns the service. It is used to locate a team defined in Datadog Teams if it exists",
+			"examples": ["my-team"],
+			"type": "string"
+		},
+		"application": {
+			"description": "Identifier for a group of related services serving a product feature, which the service is a part of",
+			"examples": ["my-app"],
+			"type": "string"
+		},
+		"description": {
+			"description": "A short description of the service",
+			"examples": ["My app description"],
+			"type": "string"
+		},
+		"tier": {
+			"description": "Importance of the service",
+			"examples": ["1", "High"],
+			"type": "string"
+		},
+		"lifecycle": {
+			"description": "The current life cycle phase of the service.",
+			"examples": ["sandbox", "staging", "production", "deprecated"],
+			"type": "string"
+		},
+		"type": {
+			"description": "The type of service",
+			"examples": ["web", "db", "cache", "function", "browser", "mobile", "custom"],
+			"type": "string",
+			"enum": ["web", "db", "cache", "function", "browser", "mobile", "custom"]
+		},
+		"languages": {
+			"description": "The service's programming language. See examples for a list of recognizable languages",
+			"examples": [["dotnet", "go", "java", "js", "php", "python", "ruby", "c++"]],
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"contacts": {
+			"description": "A list of contacts related to the services. ",
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/contact"
+			}
+		},
+		"links": {
+			"description": "A list of links related to the services. ",
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/link"
+			}
+		},
+		"tags": {
+			"description": "A set of custom tags",
+			"examples": [["my:tag"]],
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"integrations": {
+			"description": "Third party integrations that Datadog supports",
+			"type": "object",
+			"properties": {
+				"pagerduty": {
+					"description": "Pagerduty integration for the service",
+					"type": "object",
+					"properties": {
+						"service-url": {
+							"description": "Pagerduty Service URL",
+							"examples": ["https://my-org.pagerduty.com/service-directory/PMyService"],
+							"type": "string",
+							"pattern": "^(https?://)?[a-zA-Z\\d_\\-.]+\\.pagerduty\\.com/service-directory/(P[a-zA-Z\\d_\\-]+)/?$"
+						}
+					},
+					"required": ["service-url"],
+					"additionalProperties": false
+				},
+				"opsgenie": {
+					"description": "Opsgenie integration for the service",
+					"type": "object",
+					"properties": {
+						"service-url": {
+							"description": "Opsgenie Service URL",
+							"examples": ["https://www.opsgenie.com/service/123e4567-e89b-12d3-a456-426614174000"],
+							"type": "string",
+							"pattern": "^(https?://)?[a-zA-Z\\d_\\-.]+\\.opsgenie\\.com/service/([a-zA-Z\\d_\\-]+)/?$"
+						},
+						"region": {
+							"description": "Opsgenie Instance Region",
+							"type": "string",
+							"examples": ["US", "EU"],
+							"enum": ["US", "EU"]
+						}
+					},
+					"required": ["service-url"],
+					"additionalProperties": false
+				}
+			},
+			"additionalProperties": false
+		},
+		"extensions": {
+			"description": "Custom extensions",
+			"type": "object",
+			"additionalProperties": true
+		},
+		"ci-pipeline-fingerprints": {
+			"description": "A set of CI pipeline fingerprints related to the service",
+			"examples": [["j88xdEy0J5lc", "eZ7LMljCk8vo"]],
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		}
+	},
+	"additionalProperties": false,
+	"required": ["schema-version", "dd-service"],
+	"$defs": {
+		"link": {
+			"additionalProperties": false,
+			"type": "object",
+			"properties": {
+				"name": {
+					"description": "Link name",
+					"examples": ["Runbook", "Dashboard"],
+					"type": "string"
+				},
+				"type": {
+					"description": "Link type. See examples for a list of recognizable types",
+					"examples": ["runbook", "doc", "repo", "dashboard", "other"],
+					"type": "string",
+					"default": "other"
+				},
+				"url": {
+					"description": "Link url",
+					"examples": ["https://my-runbook"],
+					"type": "string",
+					"format": "uri"
+				},
+				"provider": {
+					"description": "Link provider. See examples for a list of recognizable providers",
+					"examples": ["Github", "Confluence"],
+					"type": "string"
+				}
+			},
+			"required": [
+				"name",
+				"type",
+				"url"
+			]
+		},
+		"contact": {
+			"additionalProperties": false,
+			"type": "object",
+			"properties": {
+				"name": {
+					"description": "Contact name",
+					"examples": ["Oncall Slack", "Team Email"],
+					"type": "string",
+					"minLength": 2
+				},
+				"type": {
+					"description": "Contact type. See examples for a list of recognizable types",
+					"examples": ["email", "slack", "microsoft-teams"],
+					"type": "string"
+				},
+				"contact": {
+					"description": "Contact value",
+					"examples": ["contact@datadoghq.com", "https://my-org.slack.com/archives/my-channel"],
+					"type": "string"
+				}
+			},
+			"if": {
+				"properties": {"type": {"const": "email"}}
+			},
+			"then": {
+				"properties": {"contact": {"format": "email"}}
+			},
+			"else": {
+				"properties": {"contact": {"format": "uri"}}
+			},
+			"required": [
+				"type",
+				"contact"
+			]
+		}
+	}
+}

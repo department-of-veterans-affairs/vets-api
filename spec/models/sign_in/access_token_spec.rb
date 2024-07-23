@@ -16,7 +16,8 @@ RSpec.describe SignIn::AccessToken, type: :model do
            expiration_time:,
            version:,
            created_time:,
-           user_attributes:)
+           user_attributes:,
+           device_secret_hash:)
   end
 
   let(:session_handle) { create(:oauth_session).handle }
@@ -40,6 +41,7 @@ RSpec.describe SignIn::AccessToken, type: :model do
   let(:first_name) { Faker::Name.first_name }
   let(:last_name) { Faker::Name.last_name }
   let(:email) { Faker::Internet.email }
+  let(:device_secret_hash) { SecureRandom.hex }
   let(:user_attributes) { { 'first_name' => first_name, 'last_name' => last_name, 'email' => email } }
 
   describe 'validations' do

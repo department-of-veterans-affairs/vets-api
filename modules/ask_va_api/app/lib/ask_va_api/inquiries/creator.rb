@@ -2,6 +2,8 @@
 
 module AskVAApi
   module Inquiries
+    class InquiriesCreatorError < StandardError; end
+
     class Creator
       ENDPOINT = 'inquiries/new'
       attr_reader :icn, :service
@@ -11,8 +13,8 @@ module AskVAApi
         @service = service || default_service
       end
 
-      def call(params:)
-        post_data(payload: { params: })
+      def call(payload:)
+        post_data(payload:)
       rescue => e
         ErrorHandler.handle_service_error(e)
       end
@@ -20,11 +22,22 @@ module AskVAApi
       private
 
       def default_service
-        Dynamics::Service.new(icn:)
+        Crm::Service.new(icn:)
       end
 
       def post_data(payload: {})
-        service.call(endpoint: ENDPOINT, method: :post, payload:)
+        response = service.call(endpoint: ENDPOINT, method: :put, payload:)
+        handle_response_data(response)
+      end
+
+      def handle_response_data(response)
+        case response
+        when Hash
+          response[:Data]
+        else
+          error = JSON.parse(response.body, symbolize_names: true)
+          raise(InquiriesCreatorError, error[:Message])
+        end
       end
     end
   end

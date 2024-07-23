@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe VAProfileRedis::Cache, skip_vet360: true do
+describe VAProfileRedis::Cache, :skip_vet360 do
   let(:user) { build :user, :loa3 }
   let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
 

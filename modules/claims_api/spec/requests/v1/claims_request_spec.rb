@@ -48,7 +48,7 @@ RSpec.describe 'BGS Claims management', type: :request do
   context 'index' do
     it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
       mock_acg(scopes) do |auth_header|
-        VCR.use_cassette('bgs/claims/claims') do
+        VCR.use_cassette('claims_api/bgs/claims/claims') do
           allow_any_instance_of(ClaimsApi::V1::ApplicationController)
             .to receive(:target_veteran).and_return(target_veteran)
           get '/services/claims/v1/claims', params: nil, headers: request_headers.merge(auth_header)
@@ -59,7 +59,7 @@ RSpec.describe 'BGS Claims management', type: :request do
 
     it 'lists all Claims when camel-inflection', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
       mock_acg(scopes) do |auth_header|
-        VCR.use_cassette('bgs/claims/claims') do
+        VCR.use_cassette('claims_api/bgs/claims/claims') do
           allow_any_instance_of(ClaimsApi::V1::ApplicationController)
             .to receive(:target_veteran).and_return(target_veteran)
           get '/services/claims/v1/claims', params: nil, headers: request_headers_camel.merge(auth_header)
@@ -71,7 +71,7 @@ RSpec.describe 'BGS Claims management', type: :request do
     context 'with errors' do
       it 'shows a errored Claims not found error message' do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('bgs/claims/claims_with_errors') do
+          VCR.use_cassette('claims_api/bgs/claims/claims_with_errors') do
             get '/services/claims/v1/claims', params: nil, headers: request_headers.merge(auth_header)
             expect(response.status).to eq(404)
           end
@@ -83,7 +83,7 @@ RSpec.describe 'BGS Claims management', type: :request do
   context 'for a single claim' do
     it 'shows a single Claim', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
       mock_acg(scopes) do |auth_header|
-        VCR.use_cassette('bgs/claims/claim') do
+        VCR.use_cassette('claims_api/bgs/claims/claim') do
           get "/services/claims/v1/claims/#{bgs_claim_id}", params: nil, headers: request_headers.merge(auth_header)
           expect(response).to match_response_schema('claims_api/claim')
         end
@@ -92,7 +92,7 @@ RSpec.describe 'BGS Claims management', type: :request do
 
     it 'shows a single Claim when camel-inflected', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
       mock_acg(scopes) do |auth_header|
-        VCR.use_cassette('bgs/claims/claim') do
+        VCR.use_cassette('claims_api/bgs/claims/claim') do
           get "/services/claims/v1/claims/#{bgs_claim_id}", params: nil,
                                                             headers: request_headers_camel.merge(auth_header)
           expect(response).to match_camelized_response_schema('claims_api/claim')
@@ -109,7 +109,7 @@ RSpec.describe 'BGS Claims management', type: :request do
                    auth_headers: { some: 'data' },
                    evss_id: 600_118_851,
                    id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
-            VCR.use_cassette('bgs/claims/claim') do
+            VCR.use_cassette('claims_api/bgs/claims/claim') do
               get(
                 "/services/claims/v1/claims/#{bgs_claim_id}",
                 params: nil, headers: request_headers.merge(auth_header)
@@ -128,7 +128,7 @@ RSpec.describe 'BGS Claims management', type: :request do
                    auth_headers: { some: 'data' },
                    evss_id: 600_118_851,
                    id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
-            VCR.use_cassette('bgs/claims/claim') do
+            VCR.use_cassette('claims_api/bgs/claims/claim') do
               get(
                 "/services/claims/v1/claims/#{bgs_claim_id}",
                 params: nil, headers: request_headers_camel.merge(auth_header)
@@ -148,7 +148,7 @@ RSpec.describe 'BGS Claims management', type: :request do
                    auth_headers: { some: 'data' },
                    evss_id: 600_118_851,
                    id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
-            VCR.use_cassette('bgs/claims/claim') do
+            VCR.use_cassette('claims_api/bgs/claims/claim') do
               get(
                 '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
                 params: nil, headers: request_headers.merge(auth_header)
@@ -171,7 +171,7 @@ RSpec.describe 'BGS Claims management', type: :request do
                  id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
           expect_any_instance_of(claims_service).to receive(:update_from_remote)
             .and_raise(StandardError.new('no claim found'))
-          VCR.use_cassette('bgs/claims/claim') do
+          VCR.use_cassette('claims_api/bgs/claims/claim') do
             get(
               "/services/claims/v1/claims/#{bgs_claim_id}",
               params: nil, headers: request_headers.merge(auth_header)
@@ -185,7 +185,7 @@ RSpec.describe 'BGS Claims management', type: :request do
     context 'with errors' do
       it '404s' do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('bgs/claims/claim_with_errors') do
+          VCR.use_cassette('claims_api/bgs/claims/claim_with_errors') do
             get '/services/claims/v1/claims/123123131', params: nil, headers: request_headers.merge(auth_header)
             expect(response.status).to eq(404)
           end
@@ -194,7 +194,7 @@ RSpec.describe 'BGS Claims management', type: :request do
 
       it 'missing MPI Record' do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('bgs/claims/claim_with_errors') do
+          VCR.use_cassette('claims_api/bgs/claims/claim_with_errors') do
             vet = ClaimsApi::Veteran.new(
               uuid: request_headers['X-VA-SSN']&.gsub(/[^0-9]/, ''),
               ssn: request_headers['X-VA-SSN']&.gsub(/[^0-9]/, ''),
@@ -223,7 +223,7 @@ RSpec.describe 'BGS Claims management', type: :request do
 
       it 'missing an ICN' do
         mock_acg(scopes) do |auth_header|
-          VCR.use_cassette('bgs/claims/claim_with_errors') do
+          VCR.use_cassette('claims_api/bgs/claims/claim_with_errors') do
             vet = ClaimsApi::Veteran.new(
               uuid: request_headers['X-VA-SSN']&.gsub(/[^0-9]/, ''),
               ssn: request_headers['X-VA-SSN']&.gsub(/[^0-9]/, ''),
@@ -256,7 +256,7 @@ RSpec.describe 'BGS Claims management', type: :request do
                  id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
                  status: 'errored',
                  evss_response: [{ 'key' => 'Error', 'severity' => 'FATAL', 'text' => 'Failed' }])
-          VCR.use_cassette('bgs/claims/claim') do
+          VCR.use_cassette('claims_api/bgs/claims/claim') do
             headers = request_headers.merge(auth_header)
             get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers:)
             expect(response.status).to eq(422)
@@ -273,7 +273,7 @@ RSpec.describe 'BGS Claims management', type: :request do
                  id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
                  status: 'errored',
                  evss_response: nil)
-          VCR.use_cassette('bgs/claims/claim') do
+          VCR.use_cassette('claims_api/bgs/claims/claim') do
             headers = request_headers.merge(auth_header)
             get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers:)
             expect(response.status).to eq(422)
@@ -286,7 +286,7 @@ RSpec.describe 'BGS Claims management', type: :request do
   context 'POA verifier' do
     it 'users the poa verifier when the header is present' do
       mock_acg(scopes) do |auth_header|
-        VCR.use_cassette('bgs/claims/claim') do
+        VCR.use_cassette('claims_api/bgs/claims/claim') do
           verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
           allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
           allow(verifier_stub).to receive(:verify)
@@ -304,7 +304,7 @@ RSpec.describe 'BGS Claims management', type: :request do
         verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
         allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
         allow(verifier_stub).to receive(:verify)
-        VCR.use_cassette('bgs/claims/claims') do
+        VCR.use_cassette('claims_api/bgs/claims/claims') do
           allow_any_instance_of(ClaimsApi::V1::ApplicationController)
             .to receive(:target_veteran).and_return(target_veteran)
           get '/services/claims/v1/claims', params: nil, headers: auth_header
@@ -318,7 +318,7 @@ RSpec.describe 'BGS Claims management', type: :request do
         verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
         allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
         allow(verifier_stub).to receive(:verify)
-        VCR.use_cassette('bgs/claims/claims') do
+        VCR.use_cassette('claims_api/bgs/claims/claims') do
           get '/services/claims/v1/claims', params: nil, headers: auth_header.merge(camel_inflection_header)
           expect(response).to match_camelized_response_schema('claims_api/claims')
         end
@@ -329,7 +329,7 @@ RSpec.describe 'BGS Claims management', type: :request do
   context "when a 'Token Validation Error' is received" do
     it "raises a 'Common::Exceptions::Unauthorized' exception", run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
       auth = { Authorization: 'Bearer The-quick-brown-fox-jumped-over-the-lazy-dog' }
-      VCR.use_cassette('bgs/claims/claims') do
+      VCR.use_cassette('claims_api/bgs/claims/claims') do
         get '/services/claims/v1/claims', params: nil,
                                           headers: request_headers.merge(auth)
         parsed_response = JSON.parse(response.body)
@@ -343,13 +343,53 @@ RSpec.describe 'BGS Claims management', type: :request do
   context 'events timeline' do
     it 'maps BGS data to match previous logic with EVSS data' do
       mock_acg(scopes) do |auth_header|
-        VCR.use_cassette('bgs/claims/claim') do
+        VCR.use_cassette('claims_api/bgs/claims/claim') do
           get "/services/claims/v1/claims/#{bgs_claim_id}", params: nil, headers: request_headers.merge(auth_header)
           body = JSON.parse(response.body)
           events_timeline = body['data']['attributes']['events_timeline']
           expect(response.status).to eq(200)
           expect(events_timeline[1]['type']).to eq('completed')
           expect(events_timeline[2]['type']).to eq('filed')
+        end
+      end
+    end
+  end
+
+  # possible to have errors saved in production that were saved with this wrapper
+  # so need to make sure they do not break the formatter, even though the
+  # key of 400 will still show as the source, it will return the claim instead of saying 'not found'
+  context 'when a claim has an evss_response message with a key that is an integer' do
+    let(:err_message) do
+      [{
+        'key' => 400,
+        'severity' => 'FATAL',
+        'text' =>
+        { 'messages' =>
+          [{
+            'key' => 'form526.submit.establishClaim.serviceError',
+            'severity' => 'FATAL',
+            'text' => 'Claim not established. System error with BGS. GUID: 00797c5d-89d4-4da6-aab7-24b4ad0e4a4f'
+          }] }
+      }]
+    end
+
+    it 'shows correct error message despite the key being an integer' do
+      mock_acg(scopes) do |auth_header|
+        create(:auto_established_claim,
+               source: 'abraham lincoln',
+               auth_headers: auth_header,
+               evss_id: 600_118_851,
+               id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
+               status: 'errored',
+               evss_response: err_message)
+        VCR.use_cassette('bgs/claims/claim') do
+          headers = request_headers.merge(auth_header)
+          get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers:)
+          expect(response.status).not_to eq(404)
+          body = JSON.parse(response.body)
+          expect(body['errors'][0]['detail']).not_to eq('Claim not found')
+          expect(body['errors'][0]['source']).to eq('400')
+          expect(body['errors'][0]['detail']).to include('Claim not established')
         end
       end
     end

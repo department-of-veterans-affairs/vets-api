@@ -134,8 +134,8 @@ namespace :mvi do
     ids['icn'] = ENV['icn']
     ids['edipi'] = ENV['edipi']
     ids['participant_id'] = ENV['participant_id']
-    ids['mhv_ids'] = ENV['mhv_ids']&.split(' ')
-    ids['vha_facility_ids'] = ENV['vha_facility_ids']&.split(' ')
+    ids['mhv_ids'] = ENV['mhv_ids']&.split
+    ids['vha_facility_ids'] = ENV['vha_facility_ids']&.split
     # 5343578988
     if ids.values.all?(&:nil?)
       message = 'at least one correlation id is required, e.g. `rake mvi:update_ids ssn=111223333 icn=abc123`'

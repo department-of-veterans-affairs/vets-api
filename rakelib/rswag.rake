@@ -33,16 +33,6 @@ end
 
 namespace :rswag do
   namespace :claims_api do
-    desc 'Generate rswag docs for claims_api'
-    task run: :environment do
-      ENV['PATTERN'] = 'modules/claims_api/spec/requests/**/*_spec.rb'
-      ENV['RAILS_MODULE'] = 'claims_api'
-      ENV['SWAGGER_DRY_RUN'] = '0'
-      Rake::Task['rswag:specs:swaggerize'].invoke
-
-      %w[v1 v2].each { |version| format_for_swagger(version) }
-    end
-
     desc 'Generate rswag docs by environment for the claims_api'
     task build: :environment do
       ENV['PATTERN'] = 'modules/claims_api/spec/requests/**/*_spec.rb'
@@ -97,12 +87,7 @@ def generate_appeals_docs(dev: false)
   appeals_api_output_files(dev:).each { |file_path| rswag_to_oas!(file_path) }
 end
 
-# This method does two things
-# 1
-# Rwag still generates `basePath`, which is invalid in OAS v3 (https://github.com/rswag/rswag/issues/318)
-# This removes the basePath value from the generated JSON file(s)
-# 2
-# To validate the null values for fields in the JSON correctly we use type: ['string', 'null']
+# validates the null values for fields in the JSON correctly we use type: ['string', 'null']
 # Swagger displays that as stringnull so in order to make the docs remain readable we remove the null before writing
 def format_for_swagger(version, env = nil)
   path = "app/swagger/claims_api/#{version}/swagger.json"
@@ -110,7 +95,6 @@ def format_for_swagger(version, env = nil)
   swagger_file_path = ClaimsApi::Engine.root.join(path)
   oas = JSON.parse(File.read(swagger_file_path.to_s))
 
-  remove_base_path!(oas)
   clear_null_types!(oas) if version == 'v2'
   clear_null_enums!(oas) if version == 'v2'
   File.write(swagger_file_path, JSON.pretty_generate(oas))
@@ -162,10 +146,6 @@ def clear_null_enums!(data)
     end
   end
   data.replace deep_transform(data, transformer:)
-end
-
-def remove_base_path!(data)
-  data.except!('basePath')
 end
 
 # Does file manipulation to make an rswag-output json file compatible to OAS v3

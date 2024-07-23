@@ -4,12 +4,11 @@ require 'rails_helper'
 
 RSpec.describe TermsOfUse::Decliner, type: :service do
   describe '#perform!' do
-    subject(:decliner) { described_class.new(user_account:, common_name:, version:) }
+    subject(:decliner) { described_class.new(user_account:, version:) }
 
     let(:user_account) { create(:user_account, icn:) }
     let(:icn) { '123456789' }
     let(:version) { 'v1' }
-    let(:common_name) { 'some-common-name' }
 
     describe 'validations' do
       context 'when all attributes are present' do
@@ -34,16 +33,6 @@ RSpec.describe TermsOfUse::Decliner, type: :service do
           it 'is not valid' do
             expect { decliner }.to raise_error(TermsOfUse::Errors::DeclinerError).with_message(expected_error_message)
             expect(Rails.logger).to have_received(:error).with(expected_log, { user_account_id: nil })
-          end
-        end
-
-        context 'when common_name is missing' do
-          let(:common_name) { nil }
-          let(:expected_error_message) { 'Validation failed: Common name can\'t be blank' }
-
-          it 'is not valid' do
-            expect { decliner }.to raise_error(TermsOfUse::Errors::DeclinerError).with_message(expected_error_message)
-            expect(Rails.logger).to have_received(:error).with(expected_log, { user_account_id: user_account.id })
           end
         end
 
@@ -72,6 +61,7 @@ RSpec.describe TermsOfUse::Decliner, type: :service do
     describe '#perform!' do
       before do
         allow(TermsOfUse::SignUpServiceUpdaterJob).to receive(:perform_async)
+        allow(Rails.logger).to receive(:info)
       end
 
       it 'creates a new terms of use agreement with the given version' do
@@ -85,7 +75,13 @@ RSpec.describe TermsOfUse::Decliner, type: :service do
 
       it 'enqueues the SignUpServiceUpdaterJob with expected parameters' do
         decliner.perform!
-        expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:perform_async).with(icn, common_name, version)
+        expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:perform_async).with(user_account.id, version)
+      end
+
+      it 'logs the update_sign_up_service' do
+        decliner.perform!
+        expect(Rails.logger).to have_received(:info).with('[TermsOfUse] [Decliner] update_sign_up_service',
+                                                          { icn: })
       end
     end
   end

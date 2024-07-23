@@ -73,6 +73,7 @@ module DebtsApi
       Rails.logger.info('Submitting Combined FSR')
       create_vba_fsr(fsr_builder)
       create_vha_fsr(fsr_builder)
+      fsr_builder.destroy_related_form
       user_form = fsr_builder.user_form.form_data
 
       {
@@ -176,14 +177,14 @@ module DebtsApi
         enabled_flags = []
       end
       debt_amounts = debts.nil? ? [] : debts.map { |debt| debt['currentAR'] || debt['pHAmtDue'] }
-      debt_type = debts&.pluck('debtType')&.first
+      debt_type = debts&.pick('debtType')
       {
         'combined' => form_builder.is_combined,
         'debt_amounts' => debt_amounts,
         'debt_type' => debt_type,
         'flags' => enabled_flags,
         'streamlined' => form_builder.streamlined_data,
-        'zipcode' => (form.dig('personalData', 'address', 'zipOrPostalCode') || '???')
+        'zipcode' => form.dig('personalData', 'address', 'zipOrPostalCode') || '???'
       }
     end
 

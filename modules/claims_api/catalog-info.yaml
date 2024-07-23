@@ -1,14 +1,19 @@
 apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
-  name: benefits-claims
+  name: benefits-claims-v1
   description: The Benefits Claims API is a suite of services that enables VA and third-party consumers to build applications that let Veterans and their authorized representatives view and submit certain claims and claim-related information to the VA. We provide the ability to auto-establish claims by submitting structured data that can return realtime validations, allowing for better data quality. 
-  title: Benefits Claims API
+  annotations:
+    github.com/project-slug: https://github.com/department-of-veterans-affairs/vets-api
+    datadog/production-monitor-id: '130917'
+    datadog/sandbox-monitor-id: '130924' # status tab
+    hub.lighthouse.va.gov/api-id: 'claims' # release notes tab
+  title: Benefits Claims API v1
   tags:
     - lighthouse
     - external
   links:
-    - url: https://developer.va.gov/explore/api/benefits-claims
+    - url: https://developer.va.gov/explore/api/benefits-claims/docs?version=v1
       title: Public Docs
       icon: web
     - url: https://app.mural.co/t/departmentofveteransaffairs9999/m/departmentofveteransaffairs9999/1663867462895/b0161ab939bba7d08f6bea07e3663d9d5cea22d4?sender=u9943b9a042c336e83bb20590 
@@ -54,4 +59,4 @@ spec:
   owner: lighthouse-dash
   system: vets-api
   definition:
-    $text: https://github.com/department-of-veterans-affairs/vets-api/blob/48ae39ee3a329dfc9dc09376f6fbea004229a692/modules/claims_api/app/swagger/claims_api/v1/swagger.json
+    $text: https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/app/swagger/claims_api/v1/swagger.json

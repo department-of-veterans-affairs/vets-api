@@ -99,7 +99,7 @@ module HCA
             response,
             "#{XPATH_PREFIX}enrollmentDeterminationInfo/priorityGroup"
           ),
-          can_submit_financial_info: income_year_is_current_year?(response)
+          can_submit_financial_info: !income_year_is_last_year?(response)
         }
       end
       # rubocop:enable Metrics/MethodLength
@@ -261,6 +261,14 @@ module HCA
         return if date_str.blank?
 
         Date.parse(date_str).to_s
+      rescue Date::Error => e
+        log_exception_to_sentry(e)
+        PersonalInformationLog.create!(
+          data: date_str,
+          error_class: 'Form1010Ezr DateError'
+        )
+
+        nil
       end
 
       def part_a_effective_date(response)
@@ -317,13 +325,13 @@ module HCA
         end.to_xml
       end
 
-      def income_year_is_current_year?(response)
+      def income_year_is_last_year?(response)
         income_year = get_xpath(
           response,
           "#{XPATH_PREFIX}financialsInfo/incomeTest/incomeYear"
         )
 
-        income_year == DateTime.now.utc.year.to_s
+        income_year == (DateTime.now.utc.year - 1).to_s
       end
       # rubocop:enable Metrics/MethodLength
     end

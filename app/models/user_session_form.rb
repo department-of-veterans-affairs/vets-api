@@ -131,7 +131,7 @@ class UserSessionForm
         errors: @user&.errors&.full_messages
       },
       session: {
-        valid: (@session.valid? && !@session.uuid.nil?),
+        valid: @session.valid? && !@session.uuid.nil?,
         errors: get_session_errors
       },
       identity: {

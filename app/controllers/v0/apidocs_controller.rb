@@ -120,7 +120,6 @@ module V0
 
     # A list of all classes that have swagger_* declarations.
     SWAGGERED_CLASSES = [
-      Swagger::Requests::Address,
       Swagger::Requests::Appeals::Appeals,
       Swagger::Requests::Appointments,
       Swagger::Requests::ContactUs::Inquiries,
@@ -143,6 +142,8 @@ module V0
       Swagger::Requests::FeatureToggles,
       Swagger::Requests::FinancialStatusReports,
       Swagger::Requests::Form1010cg::Attachments,
+      Swagger::Requests::Form1010EzrAttachments,
+      Swagger::Requests::Form1010Ezrs,
       Swagger::Requests::Form1095Bs,
       Swagger::Requests::Forms,
       Swagger::Requests::Gibct::CalculatorConstants,
@@ -164,7 +165,7 @@ module V0
       Swagger::Requests::MviUsers,
       Swagger::Requests::OnsiteNotifications,
       Swagger::Requests::PensionClaims,
-      Swagger::Requests::Post911GIBillStatuses,
+      Swagger::Requests::IncomeAndAssetsClaims,
       Swagger::Requests::PPIU,
       Swagger::Requests::PreneedsClaims,
       Swagger::Requests::Prescriptions::Prescriptions,
@@ -174,6 +175,7 @@ module V0
       Swagger::Requests::SearchClickTracking,
       Swagger::Requests::SearchTypeahead,
       Swagger::Requests::SignIn,
+      Swagger::Requests::TravelPay,
       Swagger::Requests::UploadSupportingEvidence,
       Swagger::Requests::User,
       Swagger::Requests::CaregiversAssistanceClaims,
@@ -239,6 +241,7 @@ module V0
       Swagger::Schemas::SavedForm,
       Swagger::Schemas::SignIn,
       Swagger::Schemas::States,
+      Swagger::Schemas::TravelPay,
       Swagger::Schemas::UploadSupportingEvidence,
       Swagger::Schemas::UserInternalServices,
       Swagger::Schemas::Permission,

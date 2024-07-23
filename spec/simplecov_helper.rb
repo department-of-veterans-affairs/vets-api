@@ -39,7 +39,6 @@ class SimpleCovHelper
 
   def self.add_filters
     add_filter 'app/controllers/concerns/accountable.rb'
-    add_filter 'config/initializers/clamscan.rb'
     add_filter 'lib/apps/configuration.rb'
     add_filter 'lib/apps/responses/response.rb'
     add_filter 'lib/config_helper.rb'
@@ -59,6 +58,7 @@ class SimpleCovHelper
 
   def self.add_modules
     # Modules
+    add_group 'AccreditedRepresentativePortal', 'modules/accredited_representative_portal/'
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'AskVAApi', 'modules/ask_va_api/'
     add_group 'Avs', 'modules/avs/'
@@ -68,6 +68,8 @@ class SimpleCovHelper
     add_group 'DebtsApi', 'modules/debts_api/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
+    add_group 'IvcChampva', 'modules/ivc_champva/'
+    add_group 'RepresentationManagement', 'modules/representation_management/'
     add_group 'SimpleFormsApi', 'modules/simple_forms_api/'
     add_group 'HealthQuest', 'modules/health_quest'
     add_group 'IncomeLimits', 'modules/income_limits/'
@@ -78,11 +80,14 @@ class SimpleCovHelper
     add_group 'Services', 'app/services'
     add_group 'Swagger', 'app/swagger'
     add_group 'TestUserDashboard', 'modules/test_user_dashboard/'
+    add_group 'TravelPay', 'modules/travel_pay/'
     add_group 'Uploaders', 'app/uploaders'
     add_group 'VaNotify', 'modules/va_notify/'
     add_group 'VAOS', 'modules/vaos/'
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
+    add_group 'Vye', 'modules/vye/'
+    add_group 'Pensions', 'modules/pensions/'
   end
 end

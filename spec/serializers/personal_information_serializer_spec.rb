@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'va_profile/demographics/demographic_response'
 
-RSpec.describe PersonalInformationSerializer do
+RSpec.describe PersonalInformationSerializer, type: :serializer do
   let(:demographics) { get_demographics }
   let(:response) { serialize(demographics, serializer_class: described_class) }
   let(:attributes) { JSON.parse(response)['data']['attributes'] }

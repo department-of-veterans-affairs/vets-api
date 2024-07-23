@@ -10,12 +10,12 @@ class DynamicsMockService
   end
 
   def call(endpoint:, method: :get, payload: {})
+    raise ArgumentError, 'Only :get method is supported' unless method == :get
+
     @payload = payload
-    if method == :get
-      file_path = "modules/ask_va_api/config/locales/#{sanitize_endpoint(endpoint)}"
-      data = JSON.parse(File.read(file_path), symbolize_names: true)[:data]
-      filter_mock_data(data)
-    end
+    file_path = file_path_for(endpoint)
+    data = read_and_parse_json(file_path)
+    filter_mock_data(data)
   rescue Errno::ENOENT
     raise FileNotFound, "Mock file not found for #{endpoint}"
   rescue JSON::ParserError
@@ -24,21 +24,27 @@ class DynamicsMockService
 
   private
 
-  def sanitize_endpoint(endpoint)
-    "#{endpoint.tr('/', '_')}.json"
+  def file_path_for(endpoint)
+    "modules/ask_va_api/config/locales/get_#{endpoint}_mock_data.json"
+  end
+
+  def read_and_parse_json(file_path)
+    JSON.parse(File.read(file_path), symbolize_names: true)[:Data]
   end
 
   def filter_mock_data(data)
-    if @payload[:inquiry_number]
-      data.find { |i| i[:inquiryNumber] == @payload[:inquiry_number] } || {}
-    elsif @payload[:icn]
-      data.select { |i| i[:icn] == @payload[:icn] }.map { |i| i.except(:attachments) }
-    elsif @payload.blank?
-      data
+    return data if @payload.blank?
+
+    key, value = @payload.first
+    key = sanitize_key(key)
+    if key == 'Id'
+      { Data: data.find { |item| item[key.to_sym].to_i == value.to_i } }
     else
-      key = @payload.keys.first
-      symbolize_key = key.to_s.gsub(/_([a-z])/) { ::Regexp.last_match(1).upcase }.to_sym
-      data.select { |i| i[symbolize_key] == @payload[key].to_i }
+      { Data: data.select { |item| item[key.to_sym].to_i == value.to_i } }
     end
+  end
+
+  def sanitize_key(key)
+    key.to_s.gsub(/(\A.|_.)/) { ::Regexp.last_match(1).upcase }.gsub(/_/, '')
   end
 end

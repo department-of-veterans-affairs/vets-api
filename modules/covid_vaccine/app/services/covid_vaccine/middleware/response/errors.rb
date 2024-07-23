@@ -5,11 +5,11 @@ require 'common/exceptions'
 module CovidVaccine
   module Middleware
     module Response
-      class Errors < Faraday::Response::Middleware
+      class Errors < Faraday::Middleware
         def on_complete(env)
           return if env.success?
 
-          add_raven_extra_context(env)
+          add_sentry_extra_context(env)
 
           case env.status
           when 400
@@ -23,8 +23,8 @@ module CovidVaccine
         end
 
         # Adds a few additional helpful debugging contexts
-        def add_raven_extra_context(env)
-          Raven.extra_context(
+        def add_sentry_extra_context(env)
+          Sentry.set_extras(
             original_status: env.status,
             original_body: env.body,
             original_method: env.method,

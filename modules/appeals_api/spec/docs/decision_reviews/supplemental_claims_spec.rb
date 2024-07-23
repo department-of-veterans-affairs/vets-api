@@ -7,12 +7,12 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_pdf_downloads.rb')
 
-def swagger_doc
+def openapi_spec
   "modules/appeals_api/app/swagger/decision_reviews/v2/swagger#{DocHelpers.doc_suffix}.json"
 end
 
 # rubocop:disable RSpec/VariableName, RSpec/RepeatedExample, Layout/LineLength
-describe 'Supplemental Claims', swagger_doc:, type: :request do
+describe 'Supplemental Claims', openapi_spec:, type: :request do
   include DocHelpers
   include FixtureHelpers
   let(:apikey) { 'apikey' }
@@ -44,9 +44,7 @@ describe 'Supplemental Claims', swagger_doc:, type: :request do
           value: FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200995.json')
         },
         'all fields used' => {
-          value: FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200995_extra.json').tap do |data|
-            data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
-          end
+          value: FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200995_extra.json')
         }
       }
 
@@ -93,12 +91,7 @@ describe 'Supplemental Claims', swagger_doc:, type: :request do
         let(:'X-VA-NonVeteranClaimant-First-Name') { 'first' }
         let(:'X-VA-NonVeteranClaimant-Middle-Initial') { 'm' }
         let(:'X-VA-NonVeteranClaimant-Last-Name') { 'last' }
-
-        let(:sc_body) do
-          fixture_as_json('decision_reviews/v2/valid_200995_extra.json').tap do |data|
-            data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
-          end
-        end
+        let(:sc_body) { fixture_as_json('decision_reviews/v2/valid_200995_extra.json') }
 
         schema '$ref' => '#/components/schemas/scCreateResponse'
 
@@ -113,7 +106,6 @@ describe 'Supplemental Claims', swagger_doc:, type: :request do
         let(:sc_body) do
           fixture_as_json('decision_reviews/v2/valid_200995_extra.json').tap do |data|
             data.dig('data', 'attributes')&.delete('form5103Acknowledged')
-            data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
           end
         end
 
@@ -160,18 +152,18 @@ describe 'Supplemental Claims', swagger_doc:, type: :request do
     end
   end
 
-  path '/supplemental_claims/{uuid}/download' do
-    get 'Download a watermarked copy of a submitted Supplemental Claim' do
-      tags 'Supplemental Claims'
-      operationId 'downloadSc'
-      security DocHelpers.decision_reviews_security_config
+  # path '/supplemental_claims/{uuid}/download' do
+  # get 'Download a watermarked copy of a submitted Supplemental Claim' do
+  # tags 'Supplemental Claims'
+  # operationId 'downloadSc'
+  # security DocHelpers.decision_reviews_security_config
 
-      include_examples 'decision reviews PDF download docs', {
-        factory: :extra_supplemental_claim,
-        appeal_type_display_name: 'Supplemental Claim'
-      }
-    end
-  end
+  # include_examples 'decision reviews PDF download docs', {
+  # factory: :extra_supplemental_claim,
+  # appeal_type_display_name: 'Supplemental Claim'
+  # }
+  # end
+  # end
 
   path '/supplemental_claims/schema' do
     get 'Gets the Supplemental Claims JSON Schema.' do
@@ -205,9 +197,7 @@ describe 'Supplemental Claims', swagger_doc:, type: :request do
           value: FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200995.json')
         },
         'all fields used' => {
-          value: FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200995_extra.json').tap do |data|
-            data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
-          end
+          value: FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200995_extra.json')
         }
       }
 
@@ -249,11 +239,7 @@ describe 'Supplemental Claims', swagger_doc:, type: :request do
       end
 
       response '200', 'Valid maximum' do
-        let(:sc_body) do
-          fixture_as_json('decision_reviews/v2/valid_200995_extra.json').tap do |data|
-            data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
-          end
-        end
+        let(:sc_body) { fixture_as_json('decision_reviews/v2/valid_200995_extra.json') }
 
         let(:'X-VA-NonVeteranClaimant-First-Name') { 'first' }
         let(:'X-VA-NonVeteranClaimant-Last-Name') { 'last' }

@@ -66,17 +66,7 @@ module SAML
 
       ### Identifiers
       def uuid
-        return idme_uuid if idme_uuid
-        return logingov_uuid if logingov_uuid
-        # The sec_id is not a UUID, and while unique this has a potential to cause issues
-        # in downstream processes that are expecting a user UUID to be 32 bytes. For
-        # example, if there is a log filtering process that was striping out any 32 byte
-        # id, an 10 byte sec id would be missed. Using a one way UUID hash, will convert
-        # the sec id to a 32 byte unique identifier so that any downstream processes will
-        # will treat it exactly the same as a typical 32 byte ID.me identifier.
-        return Digest::UUID.uuid_v3('sec-id', sec_id).tr('-', '') if sec_id
-
-        raise Common::Exceptions::InvalidResource, @attributes
+        idme_uuid || logingov_uuid
       end
 
       def idme_uuid
@@ -193,7 +183,9 @@ module SAML
                   else
                     SAML::User::AUTHN_CONTEXTS.fetch(authn_context).fetch(:sign_in)
                   end
-        sign_in.merge(account_type:, auth_broker: SAML::URLService::BROKER_CODE)
+        sign_in.merge(account_type:,
+                      auth_broker: SAML::URLService::BROKER_CODE,
+                      client_id: tracker&.payload_attr(:application))
       end
 
       def needs_csp_id_mpi_update?
@@ -267,10 +259,7 @@ module SAML
       def mhv_outbound_redirect(mismatched_ids_error)
         return false if mismatched_ids_error[:tag] == :multiple_edipis
 
-        @mhv_outbound_redirect ||= begin
-          tracker = SAMLRequestTracker.find(@tracker_uuid)
-          %w[mhv myvahealth].include?(tracker&.payload_attr(:application))
-        end
+        @mhv_outbound_redirect ||= %w[mhv myvahealth].include?(tracker&.payload_attr(:application))
       end
 
       def check_id_mismatch(ids, multiple_ids_error_type)
@@ -299,6 +288,10 @@ module SAML
 
       def csid
         safe_attr('va_eauth_csid')&.downcase
+      end
+
+      def tracker
+        @tracker ||= SAMLRequestTracker.find(@tracker_uuid)
       end
     end
   end

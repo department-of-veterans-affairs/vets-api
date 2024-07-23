@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicalService=audiology&pageSize=0
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicalService=audiology&enableStopCodeFilter=true&pageSize=0
     body:
       encoding: US-ASCII
       string: ''
@@ -88,7 +88,7 @@ http_interactions:
       Referer:
       - https://review-instance.va.gov
       X-Vamf-Jwt:
-      - eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ikthc3N1bGtlIiwic3ViIjoiMTAwMDEyMzQ1NlYxMjM0NTYiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiZ2VuZGVyIjoiTUFMRSIsImlzcyI6Imdvdi52YS52YW1mLnVzZXJzZXJ2aWNlLnYyIiwiZGF0ZU9mQmlydGgiOiIyMDA2MDExNyIsInZlcnNpb24iOjIuNiwiZWRpcGlkIjoiNjI4OTA5NTQ3NyIsInNzbiI6IjMyMDc5OTczMCIsImZpcnN0TmFtZSI6IlRvbWFzIiwibmJmIjoxNjMzNzE4MjE3LCJzc3QiOjE2MzM3MTgzOTYsInBhdGllbnQiOnsiZmlyc3ROYW1lIjoiVG9tYXMiLCJsYXN0TmFtZSI6Ikthc3N1bGtlIiwiZ2VuZGVyIjoiTUFMRSIsImljbiI6IjEwMDAxMjM0NTZWMTIzNDU2IiwiZG9iIjoiMjAwNi0wMS0xNyIsImRhdGVPZkJpcnRoIjoiMjAwNi0wMS0xNyIsInNzbiI6IjMyMDc5OTczMCJ9LCJkb2IiOiIyMDA2MDExNyIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sImV4cCI6MTYzMzcxOTI5NywianRpIjoiODQyODZjNzEtY2Q0OC00YzRiLTkyOTktMTczNGMyNGYwYzE2IiwibG9hIjoyfQ.nxRkIHXSesYu83GA3RQ24GKyul-KN6jch0SodfVHtoC5Bc9vfstKrinVg15GO_FBXoFZ6IzFGBl4c9iIFU2yQT4WXdPzESpOWlIfUGIMXbvcBnA0yN115Ai9P3yYEAPRxmPahPwMeUrNFc58-Em39BVk1erriO0oK5yNKQ2hTBKN2RCg3Cwi7uFOuUYX34-TWX0SA3s82mqRwzMjQVkCdgRA5jjdDFBGRpsLUTTn_ixHis_UV513f3gz9jRGDVIPZrWk45RnJnrefZqoYptFO7sdbJ5qIo30kvWASw1re1V94ckPPehG2C-Q6GL7Ox7GQVmQEoDdlq3HEy9eRctOvQ
+      - stubbed_token
       X-Request-Id:
       - ''
       Accept-Encoding:
@@ -146,7 +146,7 @@ http_interactions:
       Referer:
       - https://review-instance.va.gov
       X-Vamf-Jwt:
-      - eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6IlJ1bm9sZnNzb24iLCJzdWIiOiIxMDAwMTIzNDU2VjEyMzQ1NiIsImF1dGhlbnRpY2F0ZWQiOnRydWUsImF1dGhlbnRpY2F0aW9uQXV0aG9yaXR5IjoiZ292LnZhLnZhb3MiLCJpZFR5cGUiOiJJQ04iLCJnZW5kZXIiOiJNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJkYXRlT2ZCaXJ0aCI6IjE5OTEwNTIxIiwidmVyc2lvbiI6Mi42LCJlZGlwaWQiOiI5ODAwNDY2NDI4Iiwic3NuIjoiNjA5ODYyNDU1IiwiZmlyc3ROYW1lIjoiTWFydGgiLCJuYmYiOjE2MzM3MTg0MDMsInNzdCI6MTYzMzcxODU4MiwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJNYXJ0aCIsImxhc3ROYW1lIjoiUnVub2xmc3NvbiIsImdlbmRlciI6Ik1BTEUiLCJpY24iOiIxMDAwMTIzNDU2VjEyMzQ1NiIsImRvYiI6IjE5OTEtMDUtMjEiLCJkYXRlT2ZCaXJ0aCI6IjE5OTEtMDUtMjEiLCJzc24iOiI2MDk4NjI0NTUifSwiZG9iIjoiMTk5MTA1MjEiLCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJleHAiOjE2MzM3MTk0ODMsImp0aSI6ImJlMzI5YWI2LTk4NmMtNDJiMi04MTQ0LTE3NDg3NTVhYTJjYiIsImxvYSI6Mn0.dk9teFlVFhZeU-uNIQBJ-9kXEmhJaM56lZxaee46sFY1gvGCuzRS6eNbpoZMuXnr-Cbp6Ds9Fepj9bnJUt_O0p7l65Be7NnsnEvXgURu7vC0Fw_57q4isr_7DBpVNaHLzdKnzru9Z03op0BlJ_FVDTk5J8tSh9XE2xRHGMdxULGgU5cvo1qDXIuV9TiKntM2rYWdxDKLVjCCA55ybHkNuQ5yH6xukBc_8cIqiF3yELWVjxwCzF8FuQ4wlFuAHrdgfsSbEoWELVsshHBnfLX4Is44afJJw7jalfxb-iI-Hpn_dcUmwbk4W0tRtp5yLNk1Rr6KG8w6mcp7k-cZzxFg-w
+      - stubbed_token
       X-Request-Id:
       - ''
       Accept-Encoding:

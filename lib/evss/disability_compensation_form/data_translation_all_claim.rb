@@ -30,6 +30,11 @@ module EVSS
                                "This applicant has indicated that they're terminally ill.\n"
       FORM4142_OVERFLOW_TEXT = 'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \
                                'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
+      FORM0781_OVERFLOW_TEXT = "VA Form 0781/a has been completed by the applicant and sent to the VBMS eFolder\n"
+
+      OVERFLOW_TEXT_THRESHOLD = 4000
+
+      VETERAN_FILE_LIST_STATSD_PREFIX = 'api.form_526.overflow_text.veteran_file_list'
 
       # EVSS validates this date using CST, at some point this may change to EST.
       EVSS_TZ = 'Central Time (US & Canada)'
@@ -54,6 +59,9 @@ module EVSS
         output_form['overflowText'] = overflow_text
         output_form['bddQualified'] = bdd_qualified?
         output_form['claimSubmissionSource'] = 'VA.gov'
+        # any form that has a startedFormVersion (whether it is '2019' or '2022')
+        # will go through the Toxic Exposure flow
+        output_form['startedFormVersion'] = input_form['startedFormVersion'] || nil
         output_form.compact!
 
         output_form.update(translate_banking_info)
@@ -62,6 +70,9 @@ module EVSS
         output_form.update(translate_veteran)
         output_form.update(translate_treatments)
         output_form.update(translate_disabilities)
+        # any form that has a startedFormVersion (whether it is '2019' or '2022')
+        # will go through the Toxic Exposure flow
+        output_form.update(add_toxic_exposure) if output_form['startedFormVersion']
 
         @translated_form
       end
@@ -85,13 +96,57 @@ module EVSS
       end
 
       def overflow_text
-        return nil unless @has_form4142 || input_form['isTerminallyIll'].present?
-
         overflow = ''
         overflow += TERMILL_OVERFLOW_TEXT if input_form['isTerminallyIll'].present?
         overflow += FORM4142_OVERFLOW_TEXT if @has_form4142
 
+        if Flipper.enabled?(:form526_include_document_upload_list_in_overflow_text)
+          overflow += FORM0781_OVERFLOW_TEXT if input_form['form0781'].present?
+
+          if input_form['attachments'].present?
+            file_guids = input_form['attachments'].pluck('confirmationCode')
+            attachments = SupportingEvidenceAttachment.where(guid: file_guids)
+
+            overflow += veteran_attached_files_text(attachments, overflow.length) if attachments.present?
+          end
+        end
+
         overflow
+      end
+
+      def veteran_attached_files_text(attachments, current_overflow_length)
+        attached_files_note = "The veteran uploaded #{attachments.count} documents along with this claim. " \
+                              "Please verify in VBMS eFolder.\n"
+        filenames_list = list_attachment_filenames(attachments)
+
+        # Display above note only if listing all file names would make notes exceed EVSS overflowText limits
+        if (current_overflow_length + attached_files_note.length + filenames_list.length) < OVERFLOW_TEXT_THRESHOLD
+          attached_files_note += filenames_list
+
+          StatsD.increment("#{VETERAN_FILE_LIST_STATSD_PREFIX}.included_in_overflow_text")
+
+          Rails.logger.info(
+            'Form526 Veteran-attached file names included in overflowText',
+            { file_count: attachments.count, user_uuid: @user.uuid, timestamp: Time.now.utc }
+          )
+        else
+          StatsD.increment("#{VETERAN_FILE_LIST_STATSD_PREFIX}.excluded_from_overflow_text")
+
+          Rails.logger.info(
+            'Form526 Veteran-attached file names truncated from overflowText',
+            { file_count: attachments.count, user_uuid: @user.uuid, timestamp: Time.now.utc }
+          )
+        end
+
+        attached_files_note
+      end
+
+      def list_attachment_filenames(attachments)
+        sorted_filenames = attachments.map(&:original_filename).sort
+
+        sorted_filenames.inject('') do |list, filename|
+          list + "#{filename}\n"
+        end
       end
 
       ###
@@ -486,10 +541,17 @@ module EVSS
 
       def translate_disabilities
         rated_disabilities = input_form['ratedDisabilities'].deep_dup.presence || []
+
         # New primary disabilities need to be added first before handling secondary
         # disabilities because a new secondary disability can be added to a new
         # primary disability
         primary_disabilities = translate_new_primary_disabilities(rated_disabilities)
+
+        # NOTE: currently (4/29/24), the submit transformer in vets-website removes
+        # the structured relationship between a secondary disability and its primary.
+        # These always come in with cause="NEW", and their relationship reduced to
+        # having "Secondary to..." in the primaryDescription. Consequentially, the
+        # call to translate_new_secondary_disabilities() is always short-circuited
         disabilities = translate_new_secondary_disabilities(primary_disabilities)
 
         # Strip out disabilities with ActionType eq to `None` that do not have any
@@ -511,18 +573,29 @@ module EVSS
           if input_disability['classificationCode'].blank?
             input_disability['condition'] = scrub_disability_condition(input_disability['condition'])
           end
+          append_input_disability = map_disability(input_disability)
 
-          case input_disability['cause']
-          when 'NEW'
-            disabilities.append(map_new(input_disability))
-          when 'WORSENED'
-            disabilities.append(map_worsened(input_disability))
-          when 'VA'
-            disabilities.append(map_va(input_disability))
+          next if append_input_disability.blank?
+
+          if Flipper.enabled?(:disability_526_toxic_exposure, @user)
+            append_input_disability['cause'] = input_disability['cause']
           end
+          disabilities.append(append_input_disability)
         end
 
         disabilities
+      end
+
+      def map_disability(input_disability)
+        case input_disability['cause']
+        when 'NEW'
+          append_input_disability = map_new(input_disability)
+        when 'WORSENED'
+          append_input_disability = map_worsened(input_disability)
+        when 'VA'
+          append_input_disability = map_va(input_disability)
+        end
+        append_input_disability
       end
 
       def scrub_disability_condition(condition)
@@ -627,6 +700,14 @@ module EVSS
             output_disability['secondaryDisabilities'].append(disability)
           end
         end
+      end
+
+      ###
+      # Toxic Exposure
+      ###
+
+      def add_toxic_exposure
+        { 'toxicExposure' => input_form['toxicExposure'] }
       end
 
       def application_expiration_date

@@ -4,6 +4,7 @@ require 'zip'
 require 'common/exceptions'
 require 'vba_documents/payload_manager'
 require 'vba_documents/upload_validator'
+require 'vba_documents/pdf_inspector'
 require './lib/webhooks/utilities'
 
 module VBADocuments
@@ -38,10 +39,9 @@ module VBADocuments
             )
           end
         end
-        render status: :accepted,
-               json: submission,
-               serializer: VBADocuments::V2::UploadSerializer,
-               render_location: true
+
+        options = { params: { render_location: true } }
+        render json: VBADocuments::V2::UploadSerializer.new(submission, options), status: :accepted
       rescue JSON::ParserError => e
         raise Common::Exceptions::SchemaValidationErrors, ["invalid JSON. #{e.message}"] if e.is_a? JSON::ParserError
       end
@@ -65,9 +65,8 @@ module VBADocuments
           end
         end
 
-        render json: submission,
-               serializer: VBADocuments::V2::UploadSerializer,
-               render_location: false
+        options = { params: { render_location: false } }
+        render json: VBADocuments::V2::UploadSerializer.new(submission, options)
       end
 
       def download
@@ -96,7 +95,8 @@ module VBADocuments
 
           # Validations
           validate_parts(upload_model, parts)
-          validate_metadata(parts[META_PART_NAME], submission_version: upload_model.metadata['version'].to_i)
+          validate_metadata(parts[META_PART_NAME], upload_model.consumer_id, upload_model.guid,
+                            submission_version: upload_model.metadata['version'].to_i)
           validate_documents(parts)
 
           perfect_metadata(upload_model, parts, Time.zone.now)
@@ -109,7 +109,8 @@ module VBADocuments
           upload_model.update(status: 'error', code: 'DOC104', detail: e.message)
         end
         status = upload_model.status.eql?('error') ? 400 : 200
-        render json: upload_model, serializer: VBADocuments::V2::UploadSerializer, status:
+
+        render json: VBADocuments::V2::UploadSerializer.new(upload_model), status:
       end
       # rubocop:enable Metrics/MethodLength
 

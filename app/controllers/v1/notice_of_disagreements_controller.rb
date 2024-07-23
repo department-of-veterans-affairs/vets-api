@@ -17,10 +17,29 @@ module V1
       nod_response_body = AppealSubmission.submit_nod(
         current_user: @current_user,
         request_body_hash:,
-        decision_review_service:
+        decision_review_service:,
+        version_number:
       )
       render json: nod_response_body
     rescue => e
+      ::Rails.logger.error(
+        message: "Exception occurred while submitting Notice Of Disagreement: #{e.message}",
+        backtrace: e.backtrace
+      )
+      handle_personal_info_error(e)
+    end
+
+    private
+
+    def error_class(method:, exception_class:)
+      "#{self.class.name}##{method} exception #{exception_class} (NOD_V1)"
+    end
+
+    def version_number
+      'v2'
+    end
+
+    def handle_personal_info_error(e)
       request = begin
         { body: request_body_hash }
       rescue
@@ -31,12 +50,6 @@ module V1
         e, error_class: error_class(method: 'create', exception_class: e.class), request:
       )
       raise
-    end
-
-    private
-
-    def error_class(method:, exception_class:)
-      "#{self.class.name}##{method} exception #{exception_class} (NOD_V1)"
     end
   end
 end

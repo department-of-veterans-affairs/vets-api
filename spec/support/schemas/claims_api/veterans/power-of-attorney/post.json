@@ -1,0 +1,47 @@
+{
+  "type": "object",
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "attributes"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "nullable": true
+        },
+        "type": {
+          "type": "string",
+          "nullable": true,
+          "description": "Type of representative, organization or individual",
+          "example": "individual"
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "name", "phoneNumber"],
+          "properties": {
+            "code": {
+              "type": "string",
+              "nullable": true,
+              "description": "Power of Attorney Code currently assigned to Veteran"
+            },
+            "name": {
+              "description": "Name of individual representative or organization",
+              "type": "string",
+              "nullable": true,
+              "example": "Jane Smith"
+            },
+            "phoneNumber": {
+              "description": "Phone number of representative. Can be organization or individual phone number.",
+              "type": "string",
+              "nullable": true,
+              "example": "555-555-5555"
+            }
+          }
+        }
+      }
+    }
+  }
+}

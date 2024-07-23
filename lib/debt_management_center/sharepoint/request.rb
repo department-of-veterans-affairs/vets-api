@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'faraday/multipart'
+
 module DebtManagementCenter
   module Sharepoint
     class Request
@@ -167,7 +169,7 @@ module DebtManagementCenter
           conn.request :url_encoded
           conn.use :breakers
           conn.use Faraday::Response::RaiseError
-          conn.response :raise_error, error_prefix: service_name
+          conn.response :raise_custom_error, error_prefix: service_name
           conn.response :json
           conn.response :betamocks if mock_enabled?
           conn.adapter Faraday.default_adapter
@@ -179,7 +181,7 @@ module DebtManagementCenter
           conn.request :json
           conn.use :breakers
           conn.use Faraday::Response::RaiseError
-          conn.response :raise_error, error_prefix: service_name
+          conn.response :raise_custom_error, error_prefix: service_name
           conn.response :json
           conn.response :betamocks if mock_enabled?
           conn.adapter Faraday.default_adapter
@@ -192,7 +194,7 @@ module DebtManagementCenter
           conn.request :url_encoded
           conn.use :breakers
           conn.use Faraday::Response::RaiseError
-          conn.response :raise_error, error_prefix: service_name
+          conn.response :raise_custom_error, error_prefix: service_name
           conn.response :json
           conn.response :betamocks if mock_enabled?
           conn.adapter Faraday.default_adapter

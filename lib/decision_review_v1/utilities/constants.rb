@@ -8,7 +8,6 @@ module DecisionReviewV1
   FORM4142_ID = '4142'
   FORM_ID = '21-4142'
   SUPP_CLAIM_FORM_ID = '20-0995'
-  FOREIGN_POSTALCODE = '00000'
 
   NOD_REQUIRED_CREATE_HEADERS = %w[X-VA-File-Number X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date].freeze
   NOD_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'NOD-CREATE-RESPONSE-200_V1'

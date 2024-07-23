@@ -1,0 +1,193 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VDC/ManageRepresentativeService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8" ?>
+        <env:Envelope
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+          xmlns:tns="http://gov.va.vba.benefits.vdc/services"
+          xmlns:data="http://gov.va.vba.benefits.vdc/data"
+        >
+          <env:Header>
+            <wsse:Security
+              xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+            >
+              <wsse:UsernameToken>
+                <wsse:Username>VAgovAPI</wsse:Username>
+              </wsse:UsernameToken>
+              <vaws:VaServiceHeaders
+                xmlns:vaws="http://vbawebservices.vba.va.gov/vawss"
+              >
+                <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+                <vaws:STN_ID>281</vaws:STN_ID>
+                <vaws:applicationName>VAgovAPI</vaws:applicationName>
+                <vaws:ExternalUid>xUid</vaws:ExternalUid>
+                <vaws:ExternalKey>xKey</vaws:ExternalKey>
+              </vaws:VaServiceHeaders>
+            </wsse:Security>
+          </env:Header>
+          <env:Body>
+            <tns:readPOARequest>
+              <data:SecondaryStatusList>
+                <SecondaryStatus>New</SecondaryStatus>
+                <SecondaryStatus>Pending</SecondaryStatus>
+                <SecondaryStatus>Accepted</SecondaryStatus>
+                <SecondaryStatus>Declined</SecondaryStatus>
+              </data:SecondaryStatusList>
+              <data:POACodeList>
+                <POACode>083</POACode>
+                <POACode>002</POACode>
+                <POACode>003</POACode>
+                <POACode>065</POACode>
+                <POACode>074</POACode>
+                <POACode>022</POACode>
+                <POACode>091</POACode>
+                <POACode>070</POACode>
+                <POACode>097</POACode>
+                <POACode>077</POACode>
+                <POACode>1EY</POACode>
+                <POACode>6B6</POACode>
+                <POACode>862</POACode>
+                <POACode>9U7</POACode>
+                <POACode>BQX</POACode>
+              </data:POACodeList>
+              <data:POARequestParameter>
+                <pageIndex>2</pageIndex>
+                <pageSize>3</pageSize>
+                <poaSortField>DATE_RECEIVED</poaSortField>
+                <poaSortOrder>ASCENDING</poaSortOrder>
+              </data:POARequestParameter>
+            </tns:readPOARequest>
+          </env:Body>
+        </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Soapaction:
+      - '"readPOARequest"'
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 29 Jun 2024 22:48:51 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        <?xml version='1.0' encoding='UTF-8' ?>
+        <S:Envelope
+          xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+          xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"
+        >
+          <env:Header />
+          <S:Body>
+            <ns0:readPOARequestResponse
+              xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
+              xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
+              xmlns:ns2="http://gov.va.vba.benefits.vdc/data"
+            >
+              <ns2:POARequestRespondReturnVO>
+                <poaRequestRespondReturnVOList>
+                  <VSOUserEmail>test_evss_5@id.me</VSOUserEmail>
+                  <VSOUserFirstName>Nate</VSOUserFirstName>
+                  <VSOUserLastName>Karev</VSOUserLastName>
+                  <changeAddressAuth>Y</changeAddressAuth>
+                  <claimantCity>Houston</claimantCity>
+                  <claimantCountry>USA</claimantCountry>
+                  <claimantMilitaryPO />
+                  <claimantMilitaryPostalCode />
+                  <claimantState>TX</claimantState>
+                  <claimantZip>00123</claimantZip>
+                  <dateRequestActioned>2013-01-15T08:57:18-06:00</dateRequestActioned>
+                  <dateRequestReceived>2013-01-14T08:57:18-06:00</dateRequestReceived>
+                  <declinedReason>Kent has an appeal in progress.</declinedReason>
+                  <healthInfoAuth>Y</healthInfoAuth>
+                  <poaCode>002</poaCode>
+                  <procID>10910</procID>
+                  <secondaryStatus>Declined</secondaryStatus>
+                  <vetFirstName>Kent</vetFirstName>
+                  <vetLastName>Richardson</vetLastName>
+                  <vetMiddleName>David</vetMiddleName>
+                  <vetPtcpntID>111</vetPtcpntID>
+                </poaRequestRespondReturnVOList>
+                <poaRequestRespondReturnVOList>
+                  <VSOUserEmail />
+                  <VSOUserFirstName />
+                  <VSOUserLastName />
+                  <changeAddressAuth>Y</changeAddressAuth>
+                  <claimantCity>Houston</claimantCity>
+                  <claimantCountry>USA</claimantCountry>
+                  <claimantMilitaryPO />
+                  <claimantMilitaryPostalCode />
+                  <claimantState>TX</claimantState>
+                  <claimantZip>00123</claimantZip>
+                  <dateRequestActioned>2013-01-17T10:54:11-06:00</dateRequestActioned>
+                  <dateRequestReceived>2013-01-17T10:54:11-06:00</dateRequestReceived>
+                  <declinedReason />
+                  <healthInfoAuth>Y</healthInfoAuth>
+                  <poaCode>003</poaCode>
+                  <procID>11023</procID>
+                  <secondaryStatus>New</secondaryStatus>
+                  <vetFirstName>Kent</vetFirstName>
+                  <vetLastName>Richardson</vetLastName>
+                  <vetMiddleName>David</vetMiddleName>
+                  <vetPtcpntID>111</vetPtcpntID>
+                </poaRequestRespondReturnVOList>
+                <poaRequestRespondReturnVOList>
+                  <VSOUserEmail />
+                  <VSOUserFirstName />
+                  <VSOUserLastName />
+                  <changeAddressAuth>Y</changeAddressAuth>
+                  <claimantCity>Alpharetta</claimantCity>
+                  <claimantCountry>USA</claimantCountry>
+                  <claimantFirstName>John</claimantFirstName>
+                  <claimantLastName>Doe</claimantLastName>
+                  <claimantRelationship>Brother</claimantRelationship>
+                  <claimantMilitaryPO />
+                  <claimantMilitaryPostalCode />
+                  <claimantState>GA</claimantState>
+                  <claimantZip>30022</claimantZip>
+                  <dateRequestActioned>2023-08-23T11:16:37-06:00</dateRequestActioned>
+                  <dateRequestReceived>2023-08-23T11:16:37-06:00</dateRequestReceived>
+                  <declinedReason />
+                  <healthInfoAuth>Y</healthInfoAuth>
+                  <poaCode>003</poaCode>
+                  <procID>3851911</procID>
+                  <secondaryStatus>New</secondaryStatus>
+                  <vetFirstName>Kyle</vetFirstName>
+                  <vetLastName>Cole</vetLastName>
+                  <vetMiddleName>Michael</vetMiddleName>
+                  <vetPtcpntID>600043203</vetPtcpntID>
+                </poaRequestRespondReturnVOList>
+                <totalNbrOfRecords>121</totalNbrOfRecords>
+              </ns2:POARequestRespondReturnVO>
+            </ns0:readPOARequestResponse>
+          </S:Body>
+        </S:Envelope>
+  recorded_at: Sat, 29 Jun 2024 22:48:53 GMT
+recorded_with: VCR 6.2.0

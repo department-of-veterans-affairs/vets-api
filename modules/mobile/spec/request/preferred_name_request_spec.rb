@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
+require_relative '../support/helpers/rails_helper'
+
 require 'va_profile/demographics/service'
 
 RSpec.describe 'preferred_name', type: :request do
@@ -18,6 +18,42 @@ RSpec.describe 'preferred_name', type: :request do
     let(:csd) { 'LGN' }
 
     describe 'PUT /mobile/v0/profile/preferred_names' do
+      context 'when user does not have demographics access' do
+        let!(:user) do
+          sis_user(
+            idme_uuid: nil,
+            logingov_uuid: nil
+          )
+        end
+
+        it 'returns forbidden' do
+          preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
+          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: sis_headers)
+
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'when user does not have mpi access' do
+        let!(:user) do
+          sis_user(
+            icn: nil,
+            first_name: nil,
+            last_name: nil,
+            birth_date: nil,
+            ssn: nil,
+            gender: nil
+          )
+        end
+
+        it 'returns forbidden' do
+          preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
+          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: sis_headers)
+
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
       context 'when text is valid' do
         it 'returns 204', :aggregate_failures do
           preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')

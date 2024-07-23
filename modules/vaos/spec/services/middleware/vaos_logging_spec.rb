@@ -22,6 +22,7 @@ describe VAOS::Middleware::VAOSLogging do
   let(:all_other_uris) { 'https://veteran.apps.va.gov/whatever' }
   let(:user_service_refresh_uri) { 'https://veteran.apps.va.gov/user_service_refresh_uri' }
   let(:user_service_uri) { 'https://veteran.apps.va.gov/users/v2/session?processRules=true' }
+  let(:appt_uri) { 'https://veteran.apps.va.gov/vaos/v1/patients/1234567890V123456/appointments' }
 
   before do
     allow(Settings.va_mobile).to receive(:key_path).and_return(fixture_file_path('open_ssl_rsa_private.pem'))
@@ -121,6 +122,23 @@ describe VAOS::Middleware::VAOSLogging do
       expect { client.post(user_service_uri) }.to raise_error(Faraday::TimeoutError)
       expect(Rails.logger).to have_received(:warn).with(rails_log_msg, anything).once
       expect(StatsD).to have_received(:increment).with(statsd_msg, anything).once
+    end
+
+    it 'logs timeout error with hashed URI' do
+      expected_log_tags = {
+        duration: 0.0,
+        jti: 'unknown jti',
+        status: nil,
+        url: '(POST) https://veteran.apps.va.gov/vaos/v1/patients/' \
+             '441ab560b8fc574c6bf84d6c6105318b79455321a931ef701d39f4ff91894c64/appointments'
+      }
+      rails_log_msg = 'VAOS service call failed - timeout'
+
+      allow_any_instance_of(Faraday::Adapter).to receive(:call).and_raise(Faraday::TimeoutError)
+      allow(Rails.logger).to receive(:warn).with(rails_log_msg, anything).and_call_original
+
+      expect { client.post(appt_uri) }.to raise_error(Faraday::TimeoutError)
+      expect(Rails.logger).to have_received(:warn).with(rails_log_msg, expected_log_tags).once
     end
   end
 end

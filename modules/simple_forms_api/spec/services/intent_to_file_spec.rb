@@ -18,8 +18,8 @@ describe SimpleFormsApi::IntentToFile do
     end
 
     it 'returns no confirmation number and no expiration date if no new ITF is filed' do
-      icn = 'fake-icn'
-      intent_to_file_service = SimpleFormsApi::IntentToFile.new(params, icn)
+      user = build(:user)
+      intent_to_file_service = SimpleFormsApi::IntentToFile.new(user, params)
       expiration_date = 'fake-expiration-date'
       compensation_intent = {
         'data' => {
@@ -54,8 +54,8 @@ describe SimpleFormsApi::IntentToFile do
     end
 
     it 'return the expiration date of a newly-created Intent To File' do
-      icn = 'fake-icn'
-      intent_to_file_service = SimpleFormsApi::IntentToFile.new(params, icn)
+      user = build(:user)
+      intent_to_file_service = SimpleFormsApi::IntentToFile.new(user, params)
       expiration_date = 'fake-expiration-date'
       id = 'fake-id'
       compensation_intent = {

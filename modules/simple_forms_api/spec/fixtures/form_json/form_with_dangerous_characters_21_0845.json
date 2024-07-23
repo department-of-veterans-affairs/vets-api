@@ -44,5 +44,6 @@
   "release_duration": "untilDate",
   "release_end_date": "2033-06-16",
   "security_question": "motherBirthplace",
-  "security_answer": "Las Vegas, NV"
+  "security_answer": "Las Vegas, NV",
+  "statement_of_truth_signature": "John Veteran"
 }

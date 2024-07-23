@@ -255,12 +255,20 @@ module Swagger
           parameter do
             key :name, :statements
             key :in, :body
-            key :description, 'New statement data'
+            key :description, 'An array of statement data sent as a base64 json file'
             key :required, true
 
             schema do
-              key :type, :object
+              key :type, :array
               key :required, [:statements]
+              items do
+                key :type, :object
+                property :veteranIdentifier, type: :string, example: '123456789'
+                property :identifierType, type: :string, example: 'edipi'
+                property :facilityNum, type: :string, example: '123'
+                property :facilityName, type: :string, example: 'VA Medical Center'
+                property :statementDate, type: :string, example: '01/01/2023'
+              end
             end
           end
 

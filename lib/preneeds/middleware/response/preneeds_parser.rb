@@ -5,7 +5,7 @@ module Preneeds
     module Response
       # Faraday middleware responsible for customizing parsing of the EOAS response.
       #
-      class PreneedsParser < Faraday::Response::Middleware
+      class PreneedsParser < Faraday::Middleware
         # Parses the EOAS response.
         #
         # @return [Faraday::Env]

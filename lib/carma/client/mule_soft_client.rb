@@ -32,7 +32,7 @@ module CARMA
           Rails.logger.info "[Form 10-10CG] Submitting to '#{resource}'"
           args = post_args(resource, payload, timeout)
           resp = perform(*args)
-          Raven.extra_context(response_body: resp.body)
+          Sentry.set_extras(response_body: resp.body)
           raise_error_unless_success(resource, resp.status)
           JSON.parse(resp.body)
         end

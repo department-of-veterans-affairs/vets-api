@@ -883,9 +883,125 @@ describe HCA::EnrollmentSystem do
             radiationExposureInd: true
           }
         }.deep_stringify_keys
+      ],
+      [
+        {
+          hasTeraResponse: true,
+          combatOperationService: true
+        }.deep_stringify_keys,
+        {
+          'eligibleForMedicaid' => false,
+          'noseThroatRadiumInfo' => {
+            'receivingTreatment' => false
+          },
+          'serviceConnectionAward' => {
+            'serviceConnectedIndicator' => false
+          },
+          'specialFactors' => {
+            'agentOrangeInd' => false,
+            'envContaminantsInd' => false,
+            'campLejeuneInd' => false,
+            'radiationExposureInd' => false,
+            'supportOperationsInd' => true
+          }
+        }
       ]
     ]
   )
+
+  describe '#veteran_to_tera' do
+    test_method(
+      described_class,
+      'veteran_to_tera',
+      [
+        [
+          { 'hasTeraResponse' => false },
+          {}
+        ],
+        [
+          {
+            'hasTeraResponse' => true
+          },
+          {
+            'supportOperationsInd' => false
+          }
+        ],
+        [
+          {
+            'hasTeraResponse' => true,
+            'combatOperationService' => true
+          },
+          {
+            'supportOperationsInd' => true
+          }
+        ],
+        [
+          {
+            'hasTeraResponse' => true,
+            'gulfWarService' => true,
+            'gulfWarStartDate' => '1993-16-08',
+            'gulfWarEndDate' => '1994-16-07'
+          },
+          {
+            'supportOperationsInd' => false,
+            'gulfWarHazard' => {
+              'gulfWarHazardInd' => true,
+              'fromDate' => '08/16/1993',
+              'toDate' => '07/16/1994'
+            }
+          }
+        ]
+      ]
+    )
+  end
+
+  describe '#veteran_to_toxic_exposure' do
+    test_method(
+      described_class,
+      'veteran_to_toxic_exposure',
+      [
+        [
+          {},
+          {}
+        ],
+        [
+          {
+            'exposureToAirPollutants' => 'true',
+            'toxicExposureStartDate' => '1980-16-08',
+            'toxicExposureEndDate' => '1989-13-08'
+          },
+          {
+            'toxicExposure' => {
+              'exposureCategories' => {
+                'exposureCategory' => ['Air Pollutants']
+              },
+              'otherText' => nil,
+              'fromDate' => '08/16/1980',
+              'toDate' => '08/13/1989'
+            }
+          }
+        ],
+        [
+          {
+            'exposureToOther' => 'true',
+            'otherToxicExposure' => 'other exposure text value here',
+            'toxicExposureStartDate' => '1980-16-08',
+            'toxicExposureEndDate' => '1989-13-08'
+          },
+          {
+            'toxicExposure' => {
+              'exposureCategories' => {
+                'exposureCategory' => ['Other']
+              },
+              'otherText' => 'other exposure text value here',
+              'fromDate' => '08/16/1980',
+              'toDate' => '08/13/1989'
+            }
+          }
+        ]
+      ]
+    )
+  end
 
   test_method(
     described_class,
@@ -1443,13 +1559,16 @@ describe HCA::EnrollmentSystem do
   )
 
   describe '#veteran_to_save_submit_form' do
-    subject do
-      described_class.veteran_to_save_submit_form(test_veteran, nil).with_indifferent_access
+    let(:ez_form) do
+      described_class.veteran_to_save_submit_form(test_veteran, nil, '10-10EZ').with_indifferent_access
+    end
+    let(:ezr_form) do
+      described_class.veteran_to_save_submit_form(test_veteran, nil, '10-10EZR').with_indifferent_access
     end
 
     it 'returns the right result' do
       Timecop.freeze(DateTime.new(2015, 10, 21, 23, 0, 0, '-5')) do
-        result = subject
+        result = ez_form
         expect(result).to eq(test_result)
         expect(
           result['va:form']['va:applications']['va:applicationInfo'][0]['va:appDate']
@@ -1460,33 +1579,64 @@ describe HCA::EnrollmentSystem do
     end
 
     context 'with attachments' do
-      it 'creates the right result', run_at: '2019-01-11 14:19:04 -0800' do
-        health_care_application = build(:hca_app_with_attachment)
-        result = described_class.veteran_to_save_submit_form(health_care_application.parsed_form, nil)
-        expect(result.to_json).to eq(get_fixture('hca/result_with_attachment').to_json)
+      context 'HCA attachment' do
+        it 'creates the right result', run_at: '2019-01-11 14:19:04 -0800' do
+          health_care_application = build(:hca_app_with_attachment)
+          result = described_class.veteran_to_save_submit_form(health_care_application.parsed_form, nil, '10-10EZ')
+          expect(result.to_json).to eq(get_fixture('hca/result_with_attachment').to_json)
+        end
+      end
+
+      context 'Form1010Ezr attachment' do
+        it 'creates the right result', run_at: '2024-06-27 18:22:17 -0800' do
+          parsed_form = get_fixture('form1010_ezr/valid_form').merge(
+            'attachments' => [
+              {
+                'confirmationCode' => create(:form1010_ezr_attachment).guid
+              }
+            ]
+          )
+          result = described_class.veteran_to_save_submit_form(parsed_form, nil, '10-10EZR')
+          expect(result.to_json).to eq(get_fixture('form1010_ezr/result_with_attachment').to_json)
+        end
+      end
+
+      context 'when a form attachment is not found based on the guid provided in the params' do
+        it 'does not add an attachment', run_at: '2024-06-27 18:22:17 -0800' do
+          parsed_form = get_fixture('form1010_ezr/valid_form').merge(
+            'attachments' => [
+              {
+                'confirmationCode' => create(:form1010_ezr_attachment).guid
+              },
+              {
+                # Bad guid that will not return an HCAAttachment nor a Form1010EzrAttachment
+                'confirmationCode' => 'some-random-guid'
+              }
+            ]
+          )
+          result = described_class.veteran_to_save_submit_form(parsed_form, nil, '10-10EZR')
+          expect(result['va:form']['va:attachments'].length).to eq(1)
+          expect(result.to_json).to eq(get_fixture('form1010_ezr/result_with_attachment').to_json)
+        end
       end
     end
 
-    it 'does not modify the form template' do
-      subject
+    context 'EZ form submission' do
+      it "sets the 'va:type' to '101' and 'va:value' to '1010EZR' for the va:formIdentifier object" do
+        result = ez_form
 
-      expect(described_class::FORM_TEMPLATE).to eq(
-        'va:form' => {
-          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
-          'va:formIdentifier' => {
-            'va:type' => '100',
-            'va:value' => '1010EZ',
-            'va:version' => 2_986_360_436
-          }
-        },
-        'va:identity' => {
-          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
-          'va:authenticationLevel' => {
-            'va:type' => '100',
-            'va:value' => 'anonymous'
-          }
-        }
-      )
+        expect(result['va:form']['va:formIdentifier']['va:type']).to eq('100')
+        expect(result['va:form']['va:formIdentifier']['va:value']).to eq('1010EZ')
+      end
+    end
+
+    context 'EZR form submission' do
+      it "sets the 'va:type' to '101' and 'va:value' to '1010EZR' for the va:formIdentifier object" do
+        result = ezr_form
+
+        expect(result['va:form']['va:formIdentifier']['va:type']).to eq('101')
+        expect(result['va:form']['va:formIdentifier']['va:value']).to eq('1010EZR')
+      end
     end
   end
 
@@ -1566,27 +1716,96 @@ describe HCA::EnrollmentSystem do
     end
   end
 
-  describe '#build_form_for_user' do
-    def self.should_return_template
-      it 'returns the form template' do
-        expect(subject).to eq(described_class::FORM_TEMPLATE)
+  describe '#form_template' do
+    let(:ez_template) do
+      {
+        'va:form' => {
+          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+          'va:formIdentifier' => {
+            'va:type' => '100',
+            'va:value' => '1010EZ',
+            'va:version' => 2_986_360_436
+          }
+        },
+        'va:identity' => {
+          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+          'va:authenticationLevel' => {
+            'va:type' => '100',
+            'va:value' => 'anonymous'
+          }
+        }
+      }
+    end
+    let(:ezr_template) do
+      {
+        'va:form' => {
+          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+          'va:formIdentifier' => {
+            'va:type' => '101',
+            'va:value' => '1010EZR',
+            'va:version' => 2_986_360_436
+          }
+        },
+        'va:identity' => {
+          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+          'va:authenticationLevel' => {
+            'va:type' => '100',
+            'va:value' => 'anonymous'
+          }
+        }
+      }
+    end
+
+    context "when the 'form_id' is '10-10EZR'" do
+      it "sets the 'va:type' to '101' and 'va:value' to '1010EZR' for the va:formIdentifier object" do
+        expect(described_class.form_template('10-10EZR')).to eq(ezr_template)
       end
     end
 
-    subject do
-      described_class.build_form_for_user(HealthCareApplication.get_user_identifier(current_user))
+    context "when the 'form_id' anything other than '10-10EZR'" do
+      it "sets the 'va:type' to '100' and 'va:value' to '1010EZ' for the va:formIdentifier object" do
+        expect(described_class.form_template('hello world')).to eq(ez_template)
+      end
+    end
+  end
+
+  describe '#build_form_for_user' do
+    let(:ez_form) { described_class.build_form_for_user(nil, '10-10EZ') }
+    let(:ez_form_with_user) do
+      described_class.build_form_for_user(HealthCareApplication.get_user_identifier(current_user), '10-10EZ')
+    end
+    let(:ezr_form) { described_class.build_form_for_user(nil, '10-10EZR') }
+
+    context 'form template' do
+      context 'when the submission is an EZ form' do
+        it 'returns the form template for an EZ submission' do
+          expect(ez_form).to eq(described_class.form_template('10-10EZ'))
+        end
+      end
+
+      context 'when the submission is an EZR form' do
+        it 'returns the form template for an EZR submission' do
+          expect(ezr_form).to eq(described_class.form_template('10-10EZR'))
+        end
+      end
+    end
+
+    def self.should_return_ez_template
+      it 'returns the form template for an EZ submission' do
+        expect(ez_form).to eq(described_class.form_template('10-10EZ'))
+      end
     end
 
     context 'with no user' do
       let(:current_user) { nil }
 
-      should_return_template
+      should_return_ez_template
     end
 
     context 'with a user' do
       def self.should_return_user_id
         it 'includes the user id in the authentication level' do
-          expect(subject).to eq(form_with_user)
+          expect(ez_form_with_user).to eq(form_with_user)
         end
       end
 
@@ -1617,7 +1836,7 @@ describe HCA::EnrollmentSystem do
       end
 
       context 'when the user doesnt have an id' do
-        should_return_template
+        should_return_ez_template
       end
 
       context 'when the user has an icn' do

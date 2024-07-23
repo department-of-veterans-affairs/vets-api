@@ -11,19 +11,51 @@ RSpec.describe Form1010Ezr::Service do
   end
 
   let(:form) { get_fixture('form1010_ezr/valid_form') }
-  let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534') }
+  let(:current_user) do
+    build(
+      :evss_user,
+      :loa3,
+      icn: '1013032368V065534',
+      birth_date: '1986-01-02',
+      first_name: 'FirstName',
+      middle_name: 'MiddleName',
+      last_name: 'ZZTEST',
+      suffix: 'Jr.',
+      ssn: '111111234',
+      gender: 'F'
+    )
+  end
   let(:service) { described_class.new(current_user) }
 
   def allow_logger_to_receive_error
     allow(Rails.logger).to receive(:error)
   end
 
-  def expect_logger_error(error_message)
-    expect(Rails.logger).to have_received(:error).with(error_message)
+  def allow_logger_to_receive_info
+    allow(Rails.logger).to receive(:info)
+  end
+
+  def expect_logger_errors(error_messages = [])
+    error_messages.each do |e|
+      expect(Rails.logger).to have_received(:error).with(include(e))
+    end
   end
 
   def submit_form(form)
     described_class.new(current_user).submit_form(form)
+  end
+
+  def ezr_form_with_attachments
+    form.merge(
+      'attachments' => [
+        {
+          'confirmationCode' => create(:form1010_ezr_attachment).guid
+        },
+        {
+          'confirmationCode' => create(:form1010_ezr_attachment2).guid
+        }
+      ]
+    )
   end
 
   describe '#add_financial_flag' do
@@ -44,6 +76,61 @@ RSpec.describe Form1010Ezr::Service do
     context 'when the form doesnt have veteran gross income' do
       it 'doesnt add the financial_flag' do
         expect(service.send(:add_financial_flag, {})).to eq({})
+      end
+    end
+  end
+
+  describe '#post_fill_required_user_fields' do
+    let(:required_user_fields) do
+      {
+        'veteranDateOfBirth' => current_user.birth_date,
+        'veteranFullName' => current_user.full_name_normalized&.compact&.stringify_keys,
+        'veteranSocialSecurityNumber' => current_user.ssn_normalized,
+        'gender' => current_user.gender
+      }
+    end
+
+    context 'when the fields are already present in the form' do
+      let(:parsed_form) do
+        {
+          'veteranFullName' => {
+            'first' => 'John',
+            'middle' => 'Matthew',
+            'last' => 'Smith',
+            'suffix' => 'Sr.'
+          },
+          'veteranDateOfBirth' => '1991-01-06',
+          'veteranSocialSecurityNumber' => '123456789',
+          'gender' => 'M'
+        }
+      end
+
+      it 'does not update the form fields' do
+        service.send(:post_fill_required_user_fields, parsed_form)
+
+        required_user_fields.each do |key, value|
+          expect(parsed_form[key]).not_to eq(value)
+        end
+      end
+    end
+
+    context 'when one or more fields are not present, but the field(s) are present in the user session' do
+      let(:parsed_form) { {} }
+
+      before do
+        allow(StatsD).to receive(:increment)
+      end
+
+      it "increments StatsD and adds/updates the form field(s) to be equal to the current_user's data" do
+        required_user_fields.each_key do |key|
+          expect(StatsD).to receive(:increment).with("api.1010ezr.missing_#{key.underscore}")
+        end
+
+        service.send(:post_fill_required_user_fields, parsed_form)
+
+        required_user_fields.each do |key, value|
+          expect(parsed_form[key]).to eq(value)
+        end
       end
     end
   end
@@ -71,6 +158,10 @@ RSpec.describe Form1010Ezr::Service do
     end
 
     context 'when successful' do
+      before do
+        allow_logger_to_receive_info
+      end
+
       it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'",
          run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
         VCR.use_cassette(
@@ -81,6 +172,10 @@ RSpec.describe Form1010Ezr::Service do
           # and then added via the 'post_fill_required_fields' method
           expect(form['isEssentialAcaCoverage']).to eq(nil)
           expect(form['vaMedicalFacility']).to eq(nil)
+          # If the 'veteranDateOfBirth', 'veteranFullName', 'veteranSocialSecurityNumber', and/or 'gender' fields are
+          # missing from the parsed_form, they should get added in via the 'post_fill_user_fields' method and
+          # pass validation
+          %w[veteranDateOfBirth veteranFullName veteranSocialSecurityNumber gender].each { |key| form.delete(key) }
 
           submission_response = submit_form(form)
 
@@ -91,6 +186,23 @@ RSpec.describe Form1010Ezr::Service do
               formSubmissionId: 432_775_981,
               timestamp: '2023-11-21T14:42:44.858-06:00'
             }
+          )
+        end
+      end
+
+      it 'logs the submission id, payload size, and individual attachment sizes in descending order (if applicable)',
+         run_at: 'Wed, 17 Jul 2024 18:17:30 GMT' do
+        VCR.use_cassette(
+          'form1010_ezr/authorized_submit_with_attachments',
+          { match_requests_on: %i[method uri body], erb: true }
+        ) do
+          submission_response = submit_form(ezr_form_with_attachments)
+
+          expect(Rails.logger).to have_received(:info).with("SubmissionID=#{submission_response[:formSubmissionId]}")
+          expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZR: ' \
+                                                            'Body size of 362 KB with 2 attachment(s)')
+          expect(Rails.logger).to have_received(:info).with(
+            'Attachment sizes in descending order: 348 KB, 1.8 KB'
           )
         end
       end
@@ -136,6 +248,86 @@ RSpec.describe Form1010Ezr::Service do
           end
         end
       end
+
+      context 'when the form includes TERA info' do
+        let(:form) { get_fixture('form1010_ezr/valid_form_with_tera') }
+
+        it 'returns a success object', run_at: 'Wed, 13 Mar 2024 18:14:49 GMT' do
+          VCR.use_cassette(
+            'form1010_ezr/authorized_submit_with_tera',
+            { match_requests_on: %i[method uri body], erb: true }
+          ) do
+            expect(submit_form(form)).to eq(
+              {
+                success: true,
+                formSubmissionId: 433_956_488,
+                timestamp: '2024-03-13T13:14:50.252-05:00'
+              }
+            )
+          end
+        end
+      end
+
+      context 'submitting with attachments' do
+        let(:form) { get_fixture('form1010_ezr/valid_form') }
+
+        context 'with pdf attachments' do
+          it 'returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:32 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_with_attachments',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
+              expect(submit_form(ezr_form_with_attachments)).to eq(
+                {
+                  success: true,
+                  formSubmissionId: 435_845_348,
+                  timestamp: '2024-07-17T13:17:32.384-05:00'
+                }
+              )
+              expect(Rails.logger).to have_received(:info).with(
+                'Payload for submitted 1010EZR: Body size of 362 KB with 2 attachment(s)'
+              )
+            end
+          end
+        end
+
+        context 'with a non-pdf attachment' do
+          it 'returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:34 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_with_non_pdf_attachment',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
+              ezr_attachment = build(:form1010_ezr_attachment)
+              ezr_attachment.set_file_data!(
+                Rack::Test::UploadedFile.new(
+                  'spec/fixtures/files/sm_file1.jpg',
+                  'image/jpeg'
+                )
+              )
+              ezr_attachment.save!
+
+              form_with_non_pdf_attachment = form.merge(
+                'attachments' => [
+                  {
+                    'confirmationCode' => ezr_attachment.guid
+                  }
+                ]
+              )
+
+              expect(submit_form(form_with_non_pdf_attachment)).to eq(
+                {
+                  success: true,
+                  formSubmissionId: 435_845_365,
+                  timestamp: '2024-07-17T13:17:35.167-05:00'
+                }
+              )
+              expect(Rails.logger).to have_received(:info).with(
+                'Payload for submitted 1010EZR: Body size of 12.8 KB with 1 attachment(s)'
+              )
+            end
+          end
+        end
+      end
     end
 
     context 'when an error occurs' do
@@ -161,19 +353,42 @@ RSpec.describe Form1010Ezr::Service do
             )
             expect(e.errors[0].status).to eq('422')
           end
-          expect_logger_error('10-10EZR form validation failed. Form does not match schema.')
+          expect_logger_errors(
+            [
+              '10-10EZR form validation failed. Form does not match schema.',
+              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+            ]
+          )
         end
 
         it 'increments statsd' do
           allow(StatsD).to receive(:increment)
 
-          expect(StatsD).to receive(:increment).with('api.1010ezr.submit_form.fail',
+          expect(StatsD).to receive(:increment).with('api.1010ezr.submit_sync.fail',
                                                      tags: ['error:VCRErrorsUnhandledHTTPRequestError'])
-          expect(StatsD).to receive(:increment).with('api.1010ezr.submit_form.total')
+          expect(StatsD).to receive(:increment).with('api.1010ezr.submit_sync.total')
 
           expect do
             submit_form(form)
           end.to raise_error(StandardError)
+        end
+
+        # REMOVE THIS TEST ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
+        context "when the error pertains to the Veteran's DOB" do
+          before do
+            allow(JSON::Validator).to receive(:fully_validate).and_return(['veteranDateOfBirth error'])
+          end
+
+          it 'adds to the PersonalInformationLog and saves the unprocessed DOB' do
+            expect { submit_form(form) }.to raise_error do |e|
+              personal_information_log =
+                PersonalInformationLog.find_by(error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure")
+
+              expect(personal_information_log.present?).to eq(true)
+              expect(personal_information_log.data).to eq(form['veteranDateOfBirth'])
+              expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
+            end
+          end
         end
       end
 
@@ -193,7 +408,9 @@ RSpec.describe Form1010Ezr::Service do
           end.to raise_error(
             StandardError, 'Uh oh. Some bad error occurred.'
           )
-          expect_logger_error('10-10EZR form submission failed: Uh oh. Some bad error occurred.')
+          expect_logger_errors(
+            ['10-10EZR form submission failed: Uh oh. Some bad error occurred.']
+          )
         end
       end
     end

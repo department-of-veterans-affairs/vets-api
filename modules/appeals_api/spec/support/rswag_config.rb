@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
+require 'appeals_api/form_schemas'
 
 # Allow use of DocHelpers outside of 'it' context
 RSpec.configure { |_config| include DocHelpers }
@@ -20,8 +21,6 @@ class AppealsApi::RswagConfig
       },
       tags:,
       paths: {},
-      # basePath helps with rswag runs, but is not valid OAS v3. rswag.rake removes it from the output file.
-      basePath: base_path_template.gsub('{version}', version),
       components: {
         securitySchemes: name == 'decision_reviews' ? decision_reviews_security_schemes : oauth_security_schemes(name),
         schemas: schemas(api_name: name, version:)
@@ -213,15 +212,16 @@ class AppealsApi::RswagConfig
       merge_schemas(
         hlr_create_schemas,
         hlr_response_schemas,
-        generic_schemas.except(*%i[errorWithTitleAndDetail timeStamp X-Consumer-Username X-Consumer-ID X-VA-User documentUploadMetadata]),
-        shared_schemas.slice(*%w[address phone timezone nonBlankString])
+        generic_schemas.slice(*%i[errorModel uuid]),
+        shared_schemas.slice(*%w[address fileNumber icn nonBlankString phone ssn timezone])
       )
     when 'notice_of_disagreements'
       merge_schemas(
         nod_create_schemas,
         nod_response_schemas,
         appealable_issues_response_schemas.slice(*%i[appealableIssue]),
-        generic_schemas.slice(*%i[errorModel uuid])
+        generic_schemas.slice(*%i[errorModel uuid]),
+        shared_schemas.slice(*%w[address fileNumber icn nonBlankString phone ssn timezone])
       )
     when 'supplemental_claims'
       merge_schemas(
@@ -229,23 +229,24 @@ class AppealsApi::RswagConfig
         sc_response_schemas,
         appealable_issues_response_schemas.slice(*%i[appealableIssue]),
         generic_schemas.slice(*%i[errorModel documentUploadMetadata]),
-        shared_schemas.slice(*%w[address icn phone ssn timezone nonBlankString])
+        shared_schemas.slice(*%w[address fileNumber icn nonBlankString phone ssn timezone])
       )
     when 'appealable_issues'
       merge_schemas(
         appealable_issues_response_schemas,
-        generic_schemas.slice(*%i[errorModel])
+        generic_schemas.slice(*%i[errorModel]),
+        shared_schemas.slice(*%w[icn])
       )
     when 'legacy_appeals'
       merge_schemas(
         legacy_appeals_schema,
-        generic_schemas.slice(*%i[errorModel X-VA-SSN X-VA-File-Number X-VA-ICN]),
-        shared_schemas.slice(*%w[nonBlankString])
+        generic_schemas.slice(*%i[errorModel]),
+        shared_schemas.slice(*%w[icn nonBlankString])
       )
     when 'appeals_status'
       merge_schemas(
         appeals_status_response_schemas,
-        generic_schemas.slice(*(version == 'v0' ? %i[errorModel X-VA-SSN X-VA-User] : %i[errorModel X-VA-User])),
+        generic_schemas.slice(*(version == 'v0' ? %i[errorModel X-VA-SSN X-VA-User] : %i[errorModel])),
         shared_schemas.slice(*(version == 'v0' ? nil : %w[icn]))
       )
     when 'decision_reviews'
@@ -865,25 +866,11 @@ class AppealsApi::RswagConfig
   end
 
   def decision_reviews_sc_create_schemas
-    sc_schema = parse_create_schema('decision_reviews', 'v2', '200995.json')
-    return sc_schema if wip_doc_enabled?(:sc_v2_potential_pact_act)
-
-    # Removes 'potentialPactAct' from schema for production docs
-    sc_schema.tap do |s|
-      s.dig(*%w[scCreate properties data properties attributes properties])&.delete('potentialPactAct')
-    end
+    parse_create_schema('decision_reviews', 'v2', '200995.json')
   end
 
   def sc_create_schemas
     sc_schema = parse_create_schema('supplemental_claims', 'v0', '200995.json', return_raw: true)
-
-    # Removes 'potentialPactAct' from schema for production docs
-    unless wip_doc_enabled?(:sc_v2_potential_pact_act)
-      sc_schema.tap do |s|
-        s.dig(*%w[properties data properties attributes properties])&.delete('potentialPactAct')
-      end
-    end
-
     {
       scCreate: { type: 'object' }.merge!(sc_schema.slice(*%w[description properties required])),
       scEvidenceSubmissionCreate: parse_create_schema('supplemental_claims', 'v0', 'evidence_submission.json', return_raw: true)
@@ -1234,16 +1221,12 @@ class AppealsApi::RswagConfig
     }
   end
 
+  # @return Hash<String,Hash> a map of shared schema names to shared schemas
   def shared_schemas
     # Keys are strings to override older, non-shared-schema definitions
-    {
-      'address' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'address.json')))['properties']['address'],
-      'icn' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'icn.json')))['properties']['icn'],
-      'nonBlankString' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'nonBlankString.json')))['properties']['nonBlankString'],
-      'phone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'phone.json')))['properties']['phone'],
-      'ssn' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'ssn.json')))['properties']['ssn'],
-      'timezone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'timezone.json')))['properties']['timezone']
-    }
+    AppealsApi::FormSchemas::ALL_SHARED_SCHEMA_TYPES.index_with do |name|
+      AppealsApi::FormSchemas.load_shared_schema(name, 'v0', strip_description: true)
+    end
   end
 
   def parse_create_schema(api_name, api_version, schema_file, return_raw: false)

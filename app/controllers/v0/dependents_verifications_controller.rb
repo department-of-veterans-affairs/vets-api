@@ -18,7 +18,7 @@ module V0
 
       unless claim.save
         StatsD.increment('api.dependency_verification_claim.failure')
-        Raven.tags_context(team: 'vfs-ebenefits') # tag sentry logs with team name
+        Sentry.set_tags(team: 'vfs-ebenefits') # tag sentry logs with team name
         raise Common::Exceptions::ValidationErrors, claim
       end
 

@@ -1,0 +1,185 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://staging-api.va.gov/services/benefits-reference-data/v1/intake-sites
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Apikey:
+      - testapikeyhere
+      User-Agent:
+      - Faraday v0.17.6
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 27 Apr 2023 20:39:40 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"totalItems":324,"totalPages":1,"links":[{"href":"https://sandbox-api.va.gov/services/benefits-reference-data/v1/intake-sites","rel":"self"}],"items":[{"id":98283,"description":"AF
+        Academy"},{"id":123558,"description":"ANG Hub"},{"id":98282,"description":"Aberdeen
+        Proving Ground"},{"id":123657,"description":"Al Udeid, Qatar"},{"id":123578,"description":"Alameda
+        Coast Guard"},{"id":98284,"description":"Albuquerque"},{"id":98285,"description":"Altus
+        AFB*"},{"id":98286,"description":"Anchorage"},{"id":123603,"description":"Andersen
+        AFB - Air Force / Guam"},{"id":98287,"description":"Andrews AFB"},{"id":98288,"description":"Annapolis
+        NS/USNA"},{"id":123585,"description":"Ansbach, Germany"},{"id":123617,"description":"Arifjan,
+        Kuwait"},{"id":98289,"description":"Atlanta"},{"id":123610,"description":"Aviano
+        AB, Italy"},{"id":123555,"description":"Bahrain / Kingdom of Bahrain"},{"id":98290,"description":"Baltimore"},{"id":123586,"description":"Bamberg,
+        Germany"},{"id":98292,"description":"Barksdale AFB"},{"id":123568,"description":"Baumholder,
+        Germany"},{"id":123577,"description":"Beale AFB"},{"id":125209,"description":"Beaufort
+        Naval Hospital"},{"id":123554,"description":"Benelux (Brussels/Schinnen/SHAPE)"},{"id":98293,"description":"Bethesda
+        NH"},{"id":98294,"description":"Boise"},{"id":98295,"description":"Bolling
+        AFB"},{"id":98296,"description":"Boston"},{"id":123652,"description":"Buchanan"},{"id":98299,"description":"Buckley
+        AFB"},{"id":98300,"description":"Buffalo"},{"id":123631,"description":"CBC
+        Gulfport"},{"id":123607,"description":"Camp Atterbury (Demob)"},{"id":98301,"description":"Camp
+        Casey (Korea)"},{"id":98302,"description":"Camp Lejeune"},{"id":98303,"description":"Camp
+        Pendleton*"},{"id":123634,"description":"Camp Shelby (Demob)"},{"id":123644,"description":"Cannon
+        AFB"},{"id":123639,"description":"Cape May Coast Guard"},{"id":98305,"description":"Carlisle
+        Barracks"},{"id":98307,"description":"Charleston AFB"},{"id":125210,"description":"Charleston
+        Naval Health Clinic"},{"id":98308,"description":"Cherry Point MCAS"},{"id":98309,"description":"Cheyenne"},{"id":98310,"description":"Chicago"},{"id":98311,"description":"Cleveland"},{"id":123582,"description":"Coast
+        Guard Sector Miami"},{"id":98314,"description":"Columbia"},{"id":123632,"description":"Columbus
+        AFB"},{"id":98315,"description":"Corpus Christi NAS"},{"id":98317,"description":"Dahlgren
+        NSWC"},{"id":98318,"description":"Davis-Monthan AFB"},{"id":98319,"description":"Denver"},{"id":98321,"description":"Des
+        Moines"},{"id":98322,"description":"Detroit"},{"id":123627,"description":"Detroit
+        Arsenal"},{"id":98323,"description":"DiLorenzo-Pentagon"},{"id":123608,"description":"Diego
+        Garcia / BIOT"},{"id":98324,"description":"Dover AFB"},{"id":123623,"description":"Dugway
+        Proving Grounds"},{"id":98325,"description":"Dyess AFB"},{"id":98326,"description":"Earle
+        Naval Weapons (new)"},{"id":123569,"description":"Edwards AFB"},{"id":98327,"description":"Eglin
+        AFB*"},{"id":123547,"description":"Eielson AFB"},{"id":123663,"description":"Ellsworth
+        AFB"},{"id":98328,"description":"Elmendorf AFB"},{"id":98329,"description":"Everett
+        NS"},{"id":98330,"description":"Fairchild AFB*"},{"id":98331,"description":"Fargo"},{"id":98332,"description":"Fort
+        Belvoir"},{"id":98333,"description":"Fort Benning"},{"id":98334,"description":"Fort
+        Bliss"},{"id":98335,"description":"Fort Bragg"},{"id":98336,"description":"Fort
+        Campbell"},{"id":98337,"description":"Fort Carson"},{"id":98338,"description":"Fort
+        Detrick"},{"id":98339,"description":"Fort Dix"},{"id":98340,"description":"Fort
+        Drum"},{"id":98341,"description":"Fort Gordon"},{"id":98342,"description":"Fort
+        Hood"},{"id":98343,"description":"Fort Irwin"},{"id":98344,"description":"Fort
+        Jackson"},{"id":98345,"description":"Fort Knox"},{"id":98346,"description":"Fort
+        Leavenworth"},{"id":98347,"description":"Fort Lee"},{"id":98348,"description":"Fort
+        Lewis"},{"id":98349,"description":"Fort Meade"},{"id":98351,"description":"Fort
+        Polk"},{"id":98352,"description":"Fort Richardson"},{"id":98353,"description":"Fort
+        Riley KS"},{"id":98354,"description":"Fort Rucker"},{"id":98355,"description":"Fort
+        Sam Houston"},{"id":98357,"description":"Fort Sill"},{"id":98358,"description":"Fort
+        Stewart"},{"id":123622,"description":"Ft Devens"},{"id":123640,"description":"Ft
+        Hamilton"},{"id":123668,"description":"Ft Worth (ANG Hub)"},{"id":123666,"description":"Ft.
+        Bliss"},{"id":98359,"description":"Ft. Eustis"},{"id":98360,"description":"Ft.
+        Harrison"},{"id":98361,"description":"Ft. Huachuca"},{"id":98362,"description":"Ft.
+        Leonard Wood"},{"id":123682,"description":"Ft. McCoy"},{"id":123550,"description":"Ft.
+        Wainwright"},{"id":123588,"description":"Geilenkirchen, Germany"},{"id":98363,"description":"Goodfellow
+        AFB"},{"id":123635,"description":"Grand Forks AFB"},{"id":98364,"description":"Great
+        Lakes NTC"},{"id":123584,"description":"Guantanamo Bay / Cuba"},{"id":123620,"description":"Hanscom
+        AFB"},{"id":98365,"description":"Hartford"},{"id":123561,"description":"Heidelberg
+        Germany"},{"id":98366,"description":"Hickam AFB"},{"id":98367,"description":"Hill
+        AFB"},{"id":123643,"description":"Holloman AFB"},{"id":98368,"description":"Homeland
+        Security (HS)"},{"id":98369,"description":"Honolulu"},{"id":98370,"description":"Houston"},{"id":123594,"description":"Hunter
+        AAF"},{"id":98371,"description":"Huntington"},{"id":98372,"description":"Hurlburt
+        Field"},{"id":123665,"description":"Incirlik AB, Turkey"},{"id":98374,"description":"Indianapolis"},{"id":123659,"description":"JB
+        Charleston"},{"id":123660,"description":"JB Charleston-AB"},{"id":123674,"description":"JB
+        Langley-Eustis"},{"id":123679,"description":"JB Lewis-McChord"},{"id":123605,"description":"JB
+        Pearl Harbor-Hickam"},{"id":123676,"description":"JBMH-Henderson Hall"},{"id":123675,"description":"JBMH-Myer"},{"id":98375,"description":"Jackson"},{"id":98376,"description":"Jacksonville
+        NAS"},{"id":123641,"description":"Joint Base McGuire-Dix (Demob)"},{"id":123560,"description":"Kaiserslautern
+        Germany"},{"id":98377,"description":"Keesler AFB"},{"id":98378,"description":"Key
+        West CG"},{"id":98379,"description":"Key West NAS"},{"id":98380,"description":"Kings
+        Bay NAS"},{"id":98381,"description":"Kirtland AFB"},{"id":98382,"description":"Kitsap
+        NS* (formerly Bremerton NB)"},{"id":123615,"description":"Kunsan AB, Korea"},{"id":98383,"description":"Lackland
+        AFB"},{"id":123656,"description":"Lajes Field"},{"id":98384,"description":"Lakehurst
+        (Southern NJ)"},{"id":123571,"description":"Landstuhl Reg Med Ctr"},{"id":105142,"description":"Langley
+        Air Force Base"},{"id":123670,"description":"Laughlin AFB"},{"id":98387,"description":"Lemoore
+        NAS"},{"id":98388,"description":"Lincoln"},{"id":98390,"description":"Little
+        Rock"},{"id":98391,"description":"Little Rock AFB"},{"id":98392,"description":"Los
+        Angeles"},{"id":123563,"description":"Los Angeles AFB"},{"id":98393,"description":"Louisville"},{"id":123559,"description":"Luke
+        AFB"},{"id":98400,"description":"MC Recruit Depot"},{"id":123574,"description":"MCAGTC
+        29 Palms"},{"id":123662,"description":"MCAS Beaufort"},{"id":123556,"description":"MCAS
+        Yuma"},{"id":98401,"description":"MCB Hawaii"},{"id":123678,"description":"MCB
+        Quantico"},{"id":123596,"description":"MCLB Albany"},{"id":123565,"description":"MCRD
+        San Diego"},{"id":98394,"description":"MacDill AFB"},{"id":98395,"description":"Malmstrom
+        AFB"},{"id":98396,"description":"Manchester"},{"id":98397,"description":"Manila"},{"id":98398,"description":"Maxwell
+        AFB"},{"id":98399,"description":"Mayport NS*"},{"id":98402,"description":"McChord
+        AFB"},{"id":98403,"description":"McConnell AFB"},{"id":98404,"description":"McGuire
+        AFB"},{"id":123593,"description":"Miami"},{"id":98405,"description":"Miami
+        CG"},{"id":98406,"description":"Milwaukee"},{"id":123636,"description":"Minot
+        AFB"},{"id":98407,"description":"Miramar MCAS"},{"id":98408,"description":"Montgomery"},{"id":123591,"description":"Moody
+        AFB"},{"id":98409,"description":"Mountain Home AFB"},{"id":98410,"description":"Muskogee"},{"id":123647,"description":"NAS
+        Fallon / NV"},{"id":123669,"description":"NAS JRB Fort Worth"},{"id":123618,"description":"NAS
+        JRB New Orleans"},{"id":123671,"description":"NAS Kingsville"},{"id":123633,"description":"NAS
+        Meridian"},{"id":123602,"description":"NAVBASE Guam Barrigada / Guam"},{"id":123572,"description":"NAWS
+        China Lake"},{"id":123557,"description":"NB San Diego"},{"id":123658,"description":"NS
+        Newport"},{"id":98420,"description":"NSA"},{"id":123664,"description":"NSA
+        Midsouth Memphis"},{"id":123601,"description":"NSA Souda Bay / Greece"},{"id":123637,"description":"NSY
+        Portsmouth"},{"id":123611,"description":"Naples / ITALY"},{"id":98412,"description":"Nashville"},{"id":123745,"description":"National
+        Capital Region (NCR)"},{"id":123638,"description":"Naval Base Ventura County"},{"id":123646,"description":"Nellis
+        AFB, NV/Creech AFB, NV"},{"id":98414,"description":"New London NSB"},{"id":98415,"description":"New
+        Orleans"},{"id":98416,"description":"New River MCAS"},{"id":98417,"description":"New
+        York"},{"id":98418,"description":"Newark"},{"id":98419,"description":"Norfolk
+        NB"},{"id":123667,"description":"North Ft. Hood"},{"id":98422,"description":"Oakland"},{"id":98424,"description":"Offutt
+        AFB"},{"id":123616,"description":"Osan AB, Korea"},{"id":123685,"description":"Other
+        - AGR"},{"id":123686,"description":"Other - Not on List"},{"id":98425,"description":"Patrick
+        AFB"},{"id":98426,"description":"Patuxent River NAS"},{"id":98427,"description":"Pearl
+        Harbor NB"},{"id":98428,"description":"Pensacola NAS"},{"id":98429,"description":"Pensacola
+        NH"},{"id":125211,"description":"Pentagon In-Take Site"},{"id":123579,"description":"Petaluma
+        Coast Guard"},{"id":98430,"description":"Peterson AFB"},{"id":98431,"description":"Philadelphia"},{"id":98432,"description":"Phoenix"},{"id":98433,"description":"Pittsburgh"},{"id":98435,"description":"Portland"},{"id":98436,"description":"Portsmouth
+        NAS"},{"id":98437,"description":"Portsmouth NH"},{"id":123576,"description":"Presidio
+        of Monterey"},{"id":98438,"description":"Providence"},{"id":123598,"description":"RAF
+        Alconbury, UK"},{"id":123597,"description":"RAF Lakenheath, UK"},{"id":123599,"description":"RAF
+        Menwith Hill, UK"},{"id":123600,"description":"RAF Mildenhall, UK"},{"id":123589,"description":"Ramstein
+        AB, Germany"},{"id":98439,"description":"Randolph AFB"},{"id":98440,"description":"Redstone
+        Arsenal"},{"id":98441,"description":"Reno"},{"id":98442,"description":"Roanoke"},{"id":123595,"description":"Robins
+        AFB"},{"id":123606,"description":"Rock Island"},{"id":123573,"description":"Rota
+        / SPAIN"},{"id":98443,"description":"Salt Lake City"},{"id":98444,"description":"San
+        Diego"},{"id":98450,"description":"San Francisco"},{"id":98451,"description":"San
+        Juan"},{"id":98446,"description":"Schofield Barracks"},{"id":98447,"description":"Schriever
+        AFB"},{"id":123570,"description":"Schweinfurt Germany"},{"id":98448,"description":"Scotia
+        ND(now Saratoga Springs Transition Station)"},{"id":98449,"description":"Scott
+        AFB"},{"id":98452,"description":"Seattle"},{"id":98454,"description":"Seymour
+        Johnson AFB"},{"id":98455,"description":"Shaw AFB"},{"id":98456,"description":"Sheppard
+        AFB"},{"id":123612,"description":"Sigonella / ITALY"},{"id":98457,"description":"Sioux
+        Falls"},{"id":123587,"description":"Spangdahlem AB, Germany"},{"id":98459,"description":"St.
+        Louis"},{"id":98460,"description":"St. Paul"},{"id":98461,"description":"St.
+        Petersburg"},{"id":123567,"description":"Stuttgart Germany"},{"id":123673,"description":"Texas
+        City Coast Guard"},{"id":98463,"description":"Tinker AFB"},{"id":98464,"description":"Togus"},{"id":98465,"description":"Travis
+        AFB"},{"id":98466,"description":"Tripler AMC"},{"id":98467,"description":"Tyndall
+        AFB"},{"id":123653,"description":"USCG Air Station Ramey"},{"id":123642,"description":"USCG
+        Atlantic City"},{"id":123624,"description":"USCG Baltimore"},{"id":123564,"description":"USCG
+        Base Los Angeles"},{"id":123655,"description":"USCG Borinquen"},{"id":123621,"description":"USCG
+        Boston"},{"id":123648,"description":"USCG Buffalo"},{"id":123661,"description":"USCG
+        Charleston"},{"id":123580,"description":"USCG Clearwater"},{"id":123650,"description":"USCG
+        Cleveland"},{"id":123672,"description":"USCG Corpus Christi"},{"id":123626,"description":"USCG
+        Detroit"},{"id":123628,"description":"USCG Grand Haven"},{"id":123604,"description":"USCG
+        Honolulu"},{"id":123581,"description":"USCG Humboldt Bay"},{"id":123592,"description":"USCG
+        Jacksonville"},{"id":123545,"description":"USCG Juneau"},{"id":123546,"description":"USCG
+        Ketchikan"},{"id":123548,"description":"USCG Kodiak"},{"id":123649,"description":"USCG
+        Long Island"},{"id":123684,"description":"USCG Martinsburg"},{"id":123683,"description":"USCG
+        Milwaukee"},{"id":123551,"description":"USCG Mobile"},{"id":123619,"description":"USCG
+        New Orleans"},{"id":123651,"description":"USCG Portland"},{"id":123681,"description":"USCG
+        Portsmouth"},{"id":123677,"description":"USCG Recruiting Command"},{"id":123625,"description":"USCG
+        SW Harbor"},{"id":123566,"description":"USCG San Diego"},{"id":123583,"description":"USCG
+        Savannah"},{"id":123680,"description":"USCG Seattle"},{"id":123549,"description":"USCG
+        Sitka"},{"id":123630,"description":"USCG St Louis"},{"id":123654,"description":"USCG
+        Station San Juan"},{"id":123629,"description":"USCG Su Ste Marie"},{"id":123552,"description":"USCG
+        Valdez"},{"id":125212,"description":"VAMC Biloxi"},{"id":98468,"description":"Vance
+        AFB"},{"id":123575,"description":"Vandenberg AFB"},{"id":123609,"description":"Vicenza
+        Italy"},{"id":123562,"description":"Vilseck Germany"},{"id":98469,"description":"Waco"},{"id":98470,"description":"Walter
+        Reed AMC - C&P"},{"id":98471,"description":"Warren AFB (Cheyenne)"},{"id":98473,"description":"West
+        Point"},{"id":98474,"description":"Whidbey Island NAS"},{"id":98476,"description":"White
+        River Junction"},{"id":123645,"description":"White Sands"},{"id":98475,"description":"Whiteman
+        AFB"},{"id":98477,"description":"Whiting Field"},{"id":98478,"description":"Wichita"},{"id":123590,"description":"Wiesbaden
+        Germany"},{"id":98480,"description":"Wilmington"},{"id":98481,"description":"Winston-Salem"},{"id":98482,"description":"Wright-Patterson
+        AFB"},{"id":123613,"description":"Yokosuka / JAPAN"},{"id":123614,"description":"Yokota
+        AB, Japan"},{"id":98483,"description":"Yongsan (Korea)"},{"id":123553,"description":"Yuma
+        Proving Grounds"}]}'
+  recorded_at: Thu, 27 Apr 2023 20:39:40 GMT
+recorded_with: VCR 6.1.0

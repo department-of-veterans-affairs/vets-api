@@ -64,7 +64,7 @@ module Avs
 
       def get_avs_path(sid)
         # TODO: define and use constant for base path.
-        "/my-health/medical-records/care-summaries/avs/#{sid}"
+        "/my-health/medical-records/summaries-and-notes/visit-summary/#{sid}"
       end
 
       def render_client_error(title, message, status = :bad_request)
@@ -88,7 +88,7 @@ module Avs
       end
 
       def validate_sid?(sid)
-        /^([A-F0-9]){32}$/.match(sid)
+        /^[[:xdigit:]]{30,40}$/.match(sid)
       end
 
       def normalize_icn(icn)

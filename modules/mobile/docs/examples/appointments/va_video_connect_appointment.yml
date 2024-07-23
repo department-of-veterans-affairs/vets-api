@@ -35,9 +35,10 @@ data:
       best_time_to_call: null
       friendly_location_name: null
       locationId: '938'
-      eCheckinAllowed: false
 meta:
   errors: null
   checkinWindow:
     minutesBefore: 45
     minutesAfter: 15
+  upcomingAppointmentsCount: 1
+  upcomingDaysLimit: 7

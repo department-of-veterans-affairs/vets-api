@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'lib/saved_claims_spec_helper'
 
-RSpec.describe SavedClaim::Pension, uploader_helpers: true do
+RSpec.describe SavedClaim::Pension, :uploader_helpers do
   subject { described_class.new }
 
   let(:instance) { FactoryBot.build(:pension_claim) }
@@ -20,12 +20,10 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
       FactoryBot.create(
         :pension_claim,
         form: {
-          privacyAgreementAccepted: true,
           veteranFullName: {
             first: 'Test',
             last: 'User'
           },
-          gender: 'F',
           email: 'foo@foo.com',
           veteranDateOfBirth: '1989-12-13',
           veteranSocialSecurityNumber: '111223333',
@@ -43,14 +41,16 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
             postalCode: '90210',
             street: '123 Main St',
             city: 'Anytown'
-          }
+          },
+          statementOfTruthCertified: true,
+          statementOfTruthSignature: 'Test User'
         }.to_json
       )
     end
 
     describe '#process_attachments!' do
       it 'sets the attachments saved_claim_id' do
-        expect(CentralMail::SubmitSavedClaimJob).to receive(:perform_async).with(claim.id)
+        expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(claim.id)
         claim.process_attachments!
         expect(claim.persistent_attachments.size).to eq(2)
       end

@@ -1,0 +1,32 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/internal/auth/v3/validation
+    body:
+      encoding: UTF-8
+      string: '{"aud":["https://sandbox-api.va.gov/services/some-api","ABC123"]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      Set-Cookie:
+      - TS01de8f7b=01c8917e48884b7226c27bd140f0eb2f527fce3e9b31650454faad7ed365571aec98929c29ed7f5f1899ce34cdb6b3b7f7be80efa5;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"AT.5srKQCpbOCwG9HZRItYk_ERIkOfhdLWifr5f4HRRQx8.oar136oq1wFphHGiO2p7","type":"validated_token","attributes":{"ver":1,"jti":"AT.5srKQCpbOCwG9HZRItYk_ERIkOfhdLWifr5f4HRRQx8.oar136oq1wFphHGiO2p7","iss":"https://deptva-eval.okta.com/oauth2/default","aud":"api://default","iat":1635353996,"exp":1635357596,"cid":"0oa41882gkjtBRJhu2p7","uid":"00u3z5e6as6tEwXWx2p7","scp":["openid","offline_access","profile","some_resource.read","claim.read","claim.write"],"sub":"b24346a788c04dfea5048d44ad071181","act":{"icn":"1012667145V762142","npi":null,"sec_id":null,"vista_id":null,"type":"patient"},"launch":{"patient":"1012667145V762142"}}}}'
+  recorded_at: Wed, 27 Oct 2021 17:42:07 GMT
+recorded_with: VCR 6.0.0

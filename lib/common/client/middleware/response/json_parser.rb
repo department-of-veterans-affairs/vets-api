@@ -4,7 +4,7 @@ module Common
   module Client
     module Middleware
       module Response
-        class JsonParser < Faraday::Response::Middleware
+        class JsonParser < Faraday::Middleware
           WHITESPACE_REGEX = /\A^\s*$\z/
           MHV_SUCCESS_REGEX = /^success/i
           UNPARSABLE_STATUS_CODES = [204, 301, 302, 304].freeze
@@ -22,7 +22,7 @@ module Common
           def parse(body = nil)
             Oj.load(body)
           rescue Oj::Error => e
-            raise Common::Client::Errors::Serialization, e
+            raise Common::Client::Errors::Serialization.new(body:, message: e.message)
           end
         end
       end

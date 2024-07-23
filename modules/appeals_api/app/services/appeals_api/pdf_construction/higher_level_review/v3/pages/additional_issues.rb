@@ -51,15 +51,15 @@ module AppealsApi
           end
 
           def short_veteran_email?
-            form_data.veteran.email.length <= Structure::SHORT_EMAIL_THRESHOLD
+            form_data.veteran.email.blank? || form_data.veteran.email.length <= Structure::SHORT_EMAIL_THRESHOLD
           end
 
           def short_claimant_email?
-            form_data.claimant.email.length <= Structure::SHORT_EMAIL_THRESHOLD
+            form_data.claimant.email.blank? || form_data.claimant.email.length <= Structure::SHORT_EMAIL_THRESHOLD
           end
 
           def short_rep_email?
-            form_data.rep_email.length <= Structure::SHORT_EMAIL_THRESHOLD
+            form_data.rep_email.blank? || form_data.rep_email.length <= Structure::SHORT_EMAIL_THRESHOLD
           end
 
           def extra_issues_table_data

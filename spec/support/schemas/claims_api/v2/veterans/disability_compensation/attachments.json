@@ -1,0 +1,539 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "attributes"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Internal vets-api Claim ID"
+        },
+        "type": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["claimProcessType", "veteranIdentification", "disabilities", "serviceInformation", "claimantCertification"],
+          "properties": {
+            "claimProcessType": {
+              "type": "string"
+            },
+            "veteranIdentification": {
+              "type": "object", 
+              "properties": {
+                "serviceNumber": {
+                  "type": "string"
+                },
+                "veteranNumber": {
+                  "type": "object",
+                  "properties": {
+                    "telephone": {
+                      "type": "string"
+                    },
+                    "internationalTelephone": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "currentVaEmployee": {
+                  "type": "boolean"
+                },
+                "mailingAddress": {
+                  "type": "object",
+                  "properties": {
+                    "addressLine1": {
+                      "type": "string"
+                    },
+                    "addressLine2": {
+                      "type": "string"
+                    },
+                    "addressLine3": {
+                      "type": "string"
+                    },
+                    "city": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string"
+                    },
+                    "country": {
+                      "type": "string"
+                    },
+                    "zipFirstFive": {
+                      "type": "string"
+                    },
+                    "zipLastFour": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "emailAddress": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string"
+                    },
+                    "agreeToEmailRelatedToClaim": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "changeOfAddress": {
+              "type": "object",
+              "properties": {
+                "typeOfAddressChange": {
+                  "type": "string"
+                },
+                "addressLine1": {
+                  "type": "string"
+                },
+                "addressLine2": {
+                  "type": "string"
+                },
+                "addressLine3": {
+                  "type": "string"
+                },
+                "city": {
+                  "type": "string"
+                },
+                "state": {
+                  "type": "string"
+                },
+                "country": {
+                  "type": "string"
+                },
+                "zipFirstFive": {
+                  "type": "string"
+                },
+                "zipLastFour": {
+                  "type": "string"
+                },
+                "dates": {
+                  "type": "object",
+                  "properties": {
+                    "beginDate": {
+                      "type": "string"
+                    },
+                    "endDate": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "homeless": {
+              "type": "object",
+              "properties": {
+                "currentlyHomeless": {
+                  "type": "object",
+                  "properties": {
+                    "currentlyHomeless": {
+                      "type": "object",
+                      "properties": {
+                        "homelessSituationOptions": {
+                          "type": "string" 
+                        },
+                        "otherDescription": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "pointOfContact": {
+                  "type": "string"
+                },
+                "pointOfContactNumber": {
+                  "type": "object",
+                  "properties": {
+                    "telephone": {
+                      "type": "string"
+                    },
+                    "internationalTelephone": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "toxicExposure": {
+              "type": "object",
+              "properties": {
+                "gulfWarHazardService": {
+                  "type": "object",
+                  "properties": {
+                    "servedInGulfWarHazardLocations":{
+                      "type": "string"
+                    },
+                    "serviceDates": {
+                      "type": "object",
+                      "properties": {
+                        "beginDate": {
+                          "type": "string"
+                        },
+                        "endDate": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "herbicideHazardService": {
+                  "type": "object",
+                  "properties": {
+                    "servedInHerbicideHazardLocations": {
+                      "type": "string"
+                    },
+                    "otherLocationsServed": {
+                      "type": "string"
+                    },
+                    "serviceDates": {
+                      "type": "object",
+                      "properties": {
+                        "beginDate": {
+                          "type": "string"
+                        },
+                        "endDate": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "additionalHazardExposures": {
+                  "type": "object",
+                  "properties": {
+                    "additionalExposures": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "specifyOtherExposures": {
+                      "type": "string"
+                    },
+                    "exposureDates": {
+                      "type": "object",
+                      "properties": {
+                        "beginDate": {
+                          "type": "string"
+                        },
+                        "endDate": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "multipleExposures": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "hazardExposedTo": {
+                        "type": "string"
+                      },
+                      "exposureLocation": {
+                        "type": "string"
+                      },
+                      "exposureDates": {
+                        "type": "object",
+                        "properties": {
+                          "beginDate": {
+                            "type": "string"
+                          },
+                          "endDate": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                } 
+              }
+            },
+            "disabilities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "exposureOrEventOrInjury": {
+                    "type": "string"
+                  },
+                  "serviceRelevance": {
+                    "type": "string"
+                  },
+                  "approximateDate": {
+                    "type": "string"
+                  },
+                  "disabilityActionType": {
+                    "type": "string"
+                  },
+                  "classificationCode": {
+                    "type": "string"
+                  },
+                  "ratedDisabilityId": {
+                    "type": "string"
+                  },
+                  "diagnosticCode": {
+                    "type": "integer"
+                  },
+                  "isRelatedToToxicExposure": {
+                    "type": "boolean"
+                  },
+                  "secondaryDisabilities": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "exposureOrEventOrInjury": {
+                          "type": "string"
+                        },
+                        "serviceRelevance": {
+                          "type": "string"
+                        },
+                        "disabilityActionType": {
+                          "type": "string"
+                        },
+                        "approximateDate": {
+                          "type": "string"
+                        },
+                        "classificationCode": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "treatments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "beginDate": {
+                    "type": "string"
+                  },
+                  "treatedDisabilityNames": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "center": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "city": {
+                        "type": "string"
+                      },
+                      "state": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "serviceInformation": {
+              "type": "object", 
+              "properties": {
+                "alternateNames": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "servicePeriods": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "serviceBranch": {
+                        "type": "string"
+                      },
+                      "serviceComponent": {
+                        "type": "string"
+                      },
+                      "activeDutyBeginDate": {
+                        "type": "string"
+                      },
+                      "activeDutyEndDate": {
+                        "type": "string"
+                      },
+                      "separationLocationCode": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "servedInActiveCombatSince911": {
+                  "type": "string"
+                },
+                "reservesNationalGuardService": {
+                  "type": "object",
+                  "properties": {
+                    "component": {
+                      "type": "string"
+                    },
+                    "obligationTermsOfService": {
+                      "type": "object",
+                      "properties": {
+                        "beginDate": {
+                          "type": "string"
+                        },
+                        "endDate": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "unitName": {
+                      "type": "string"
+                    },
+                    "unitAddress": {
+                      "type": "string"
+                    },
+                    "unitPhone": {
+                      "type": "object",
+                      "properties": {
+                        "areaCode": {
+                          "type": "string"
+                        },
+                        "phoneNumber": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "receivingInactiveDutyTrainingPay": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "federalActivation": {
+                  "type": "object",
+                  "properties": {
+                    "activationDate": {
+                      "type": "string"
+                    },
+                    "anticipatedSeparationDate": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "confinements": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "approximateBeginDate": {
+                      "type": "string"
+                    },
+                    "approximateEndDate": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "servicePay": {
+              "type": "object", 
+              "properties": {
+                "receivingMilitaryRetiredPay": {
+                  "type": "string"
+                },
+                "futureMilitaryRetiredPay": {
+                  "type": "string"
+                },
+                "futureMilitaryRetiredPayExplanation": {
+                  "type": "string"
+                },
+                "militaryRetiredPay": {
+                  "type": "object",
+                  "properties": {
+                    "branchOfService": {
+                      "type": "string"
+                    },
+                    "monthlyAmount": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "retiredStatus": {
+                  "type": "string"
+                },
+                "favorMilitaryRetiredPay": {
+                  "type": "boolean"
+                },
+                "receivedSeparationOrSeverancePay": {
+                  "type": "string"
+                },
+                "separationSeverancePay": {
+                  "type": "object",
+                  "properties": {
+                    "datePaymentReceived": {
+                      "type": "string"
+                    },
+                    "branchOfService": {
+                      "type": "string"
+                    },
+                    "preTaxAmountReceived": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "favorTrainingPay": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "directDeposit": {
+              "type": "object", 
+              "properties": {
+                "noAccount": {
+                  "type": "boolean"
+                },
+                "accountNumber": {
+                  "type": "string"
+                },
+                "accountType": {
+                  "type": "string"
+                },
+                "financialInstitutionName":{
+                  "type": "string"
+                },
+                "routingNumber": {
+                  "type": "string"
+                }
+              }
+            },
+            "claimantCertification": {
+              "type": "boolean"
+            },
+            "claimNotes": {
+              "type": ["string", "null"],
+              "description": "An optional notes section.",
+              "maxLength": 4000
+            }
+          }
+        }
+      }
+    }
+  }
+}

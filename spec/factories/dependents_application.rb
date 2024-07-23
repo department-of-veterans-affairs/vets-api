@@ -137,5 +137,9 @@ FactoryBot.define do
         ]
       }.to_json
     }
+
+    trait :with_response do
+      response { '{"submit686Response":{"confirmationNumber":"600142587"}}' }
+    end
   end
 end

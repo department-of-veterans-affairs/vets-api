@@ -34,20 +34,56 @@ module EVSS
 
       STATSD_KEY_PREFIX = 'worker.evss.submit_form0781'
 
-      # Sidekiq has built in exponential back-off functionality for retrys
+      # Sidekiq has built in exponential back-off functionality for retries
       # A max retry attempt of 10 will result in a run time of ~8 hours
       # This job is invoked from 526 background job
       RETRY = 10
 
       sidekiq_options retry: RETRY
 
-      # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       sidekiq_retries_exhausted do |msg, _ex|
-        Rails.logger.send(
-          :error,
-          "Failed all retries on SubmitForm0781 submit, last error: #{msg['error_message']}"
+        job_id = msg['jid']
+        error_class = msg['error_class']
+        error_message = msg['error_message']
+        timestamp = Time.now.utc
+        form526_submission_id = msg['args'].first
+
+        form_job_status = Form526JobStatus.find_by(job_id:)
+        bgjob_errors = form_job_status.bgjob_errors || {}
+        new_error = {
+          "#{timestamp.to_i}": {
+            caller_method: __method__.to_s,
+            error_class:,
+            error_message:,
+            timestamp:,
+            form526_submission_id:
+          }
+        }
+        form_job_status.update(
+          status: Form526JobStatus::STATUS[:exhausted],
+          bgjob_errors: bgjob_errors.merge(new_error)
         )
-        Metrics.new(STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
+
+        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+
+        ::Rails.logger.warn(
+          'Submit Form 0781 Retries exhausted',
+          { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+        )
+      rescue => e
+        ::Rails.logger.error(
+          'Failure in SubmitForm0781#sidekiq_retries_exhausted',
+          {
+            messaged_content: e.message,
+            job_id:,
+            submission_id: form526_submission_id,
+            pre_exhaustion_failure: {
+              error_class:,
+              error_message:
+            }
+          }
+        )
+        raise e
       end
 
       # This method generates the PDF documents but does NOT send them anywhere.
@@ -62,6 +98,7 @@ module EVSS
       def get_docs(submission_id, uuid)
         @submission_id = submission_id
         @uuid = uuid
+        @submission = Form526Submission.find_by(id: submission_id)
 
         file_type_and_file_objs = []
         { 'form0781' => FORM_ID_0781, 'form0781a' => FORM_ID_0781A }.each do |form_type_key, actual_form_types|
@@ -87,7 +124,7 @@ module EVSS
       def perform(submission_id)
         @submission_id = submission_id
 
-        Raven.tags_context(source: '526EZ-all-claims')
+        Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
 
         with_tracking('Form0781 Submission', submission.saved_claim_id, submission.id) do
@@ -121,8 +158,11 @@ module EVSS
       # Its called twice, once to stamp with text "VA.gov YYYY-MM-DD" at the bottom of each page
       # and second time to stamp with text "VA.gov Submission" at the top of each page
       def generate_stamp_pdf(form_content, evss_claim_id, form_id)
+        submission_date = @submission&.created_at&.in_time_zone('Central Time (US & Canada)')
+        form_content = form_content.merge({ 'signatureDate' => submission_date })
         pdf_path = PdfFill::Filler.fill_ancillary_form(form_content, evss_claim_id, form_id)
-        stamped_path = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.gov', x: 5, y: 5)
+        stamped_path = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.gov', x: 5, y: 5,
+                                                                   timestamp: submission_date)
         CentralMail::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,

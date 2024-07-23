@@ -9,6 +9,7 @@ module CentralMail
     VALID_LOB = { 'CMP' => 'CMP', 'PMC' => 'PMC', 'INS' => 'INS', 'EDU' => 'EDU', 'VRE' => 'VRE', 'BVA' => 'BVA',
                   'FID' => 'FID', 'NCA' => 'NCA', 'OTH' => 'CMP' }.freeze
     REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
+    OPTIONAL_KEYS = %w[source docType businessLine].freeze
     FILE_NUMBER_REGEX = /^\d{8,9}$/
     INVALID_ZIP_CODE_ERROR_REGEX = /Invalid zipCode/
     MISSING_ZIP_CODE_ERROR_REGEX = /Missing zipCode/

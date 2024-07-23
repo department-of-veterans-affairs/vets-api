@@ -91,6 +91,17 @@ describe TravelClaim::Response do
       end
     end
 
+    context 'when status 408' do
+      it 'returns a formatted response' do
+        error_message = 'BTSSS timeout error'
+        resp = Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408)
+        hsh = { data: { error: true, code: 'CLM_011_CLAIM_TIMEOUT_ERROR', message: error_message },
+                status: resp.status }
+
+        expect(subject.build(response: resp).handle).to eq(hsh)
+      end
+    end
+
     context 'when status 500' do
       it 'returns a formatted response' do
         resp = Faraday::Response.new(response_body: 'Something went wrong', status: 500)
@@ -100,6 +111,94 @@ describe TravelClaim::Response do
         }
 
         expect(subject.build(response: resp).handle).to eq(hsh)
+      end
+    end
+  end
+
+  describe '#handle_claim_status_response' do
+    context 'when status 200' do
+      context 'when empty response' do
+        it 'returns a formatted response with empty status code' do
+          resp = Faraday::Response.new(response_body: [], status: 200)
+          hsh = { data: { code: 'CLM_020_EMPTY_STATUS', body: [] }, status: 200 }
+
+          expect(subject.build(response: resp).handle_claim_status_response).to eq(hsh)
+        end
+      end
+
+      context 'when multiple statuses' do
+        it 'returns a formatted response with multiple status code' do
+          claim_status_response = [
+            {
+              aptDateTime: '2024-05-30T18:44:22.733Z',
+              aptId: 'test-apt-id-1',
+              aptSourceSystem: 'test-apt-source',
+              aptSourceSystemId: 'test-apt-system-id-2',
+              claimNum: 'TC202207000011666',
+              claimStatus: 'approved for payment',
+              claimLastModDateTime: '2024-05-30T18:44:22.733Z',
+              facilityStationNum: 'test-facility-station-num-2'
+            },
+            {
+              aptDateTime: '2024-05-30T20:44:22.733Z',
+              aptId: 'test-apt-id-2',
+              aptSourceSystem: 'test-apt-source-2',
+              aptSourceSystemId: 'test-apt-system-id-2',
+              claimNum: 'TC202207000011633',
+              claimStatus: 'approved for payment',
+              claimLastModDateTime: '2024-05-30T18:44:22.733Z',
+              facilityStationNum: 'test-facility-station-num-2'
+            }
+          ]
+          resp = Faraday::Response.new(response_body: claim_status_response, status: 200)
+          hsh = { data: { code: 'CLM_021_MULTIPLE_STATUSES', body: claim_status_response }, status: 200 }
+
+          expect(subject.build(response: resp).handle_claim_status_response).to eq(hsh)
+        end
+      end
+
+      context 'when single status' do
+        it 'returns a formatted response with success code' do
+          claim_status_response = [
+            {
+              aptDateTime: '2024-05-30T18:44:22.733Z',
+              aptId: 'test-apt-id-1',
+              aptSourceSystem: 'test-apt-source',
+              aptSourceSystemId: 'test-apt-system-id-2',
+              claimNum: 'TC202207000011666',
+              claimStatus: 'approved for payment',
+              claimLastModDateTime: '2024-05-30T18:44:22.733Z',
+              facilityStationNum: 'test-facility-station-num-2'
+            }
+          ]
+          resp = Faraday::Response.new(response_body: claim_status_response, status: 200)
+          hsh = { data: { code: 'CLM_000_SUCCESS', body: claim_status_response }, status: 200 }
+
+          expect(subject.build(response: resp).handle_claim_status_response).to eq(hsh)
+        end
+      end
+    end
+
+    context 'when status 408' do
+      it 'returns a formatted response with timeout code' do
+        error_message = 'BTSSS timeout error'
+        resp = Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408)
+        hsh = { data: { error: true, code: 'CLM_011_CLAIM_TIMEOUT_ERROR', message: error_message },
+                status: resp.status }
+
+        expect(subject.build(response: resp).handle_claim_status_response).to eq(hsh)
+      end
+    end
+
+    context 'when status 500' do
+      it 'returns a formatted response with unknown error code' do
+        resp = Faraday::Response.new(response_body: 'Internal server error', status: 500)
+        hsh = {
+          data: { error: true, code: 'CLM_030_UNKNOWN_SERVER_ERROR',
+                  message: 'Internal server error' }, status: resp.status
+        }
+
+        expect(subject.build(response: resp).handle_claim_status_response).to eq(hsh)
       end
     end
   end

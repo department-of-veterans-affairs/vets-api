@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-
-RSpec.describe 'claims decision request', type: :request do
+require_relative '../support/helpers/rails_helper'
+RSpec.describe 'claims decision request', :skip_json_api_validation, type: :request do
   describe 'GET /v0/claim/:id/request-decision' do
     let!(:user) { sis_user(icn: '1008596379V859838') }
 
@@ -18,9 +16,9 @@ RSpec.describe 'claims decision request', type: :request do
       expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::RequestDecision.jobs.first['jid'])
     end
 
-    it 'returns 500 for non-existent record' do
+    it 'returns 404 for non-existent record' do
       post '/mobile/v0/claim/3242233/request-decision', headers: sis_headers
-      expect(response).to have_http_status(:internal_server_error)
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :iam_user, class: 'IAMUser' do
-    uuid { '3097e489-ad75-5746-ab1a-e0aabc1b426a' }
+    uuid { '6260ab13-177f-583d-b2dc-1b350404abb7' }
     last_signed_in { Time.now.utc }
     transient do
       authn_context { LOA::IDME_LOA1_VETS }

@@ -22,7 +22,7 @@ RSpec.describe AccountLoginStatisticsJob, type: :job do
 
       before { AccountLoginStat.create(account_id: account.id, idme_at: 3.days.ago) }
 
-      it 'will find correct total counts' do
+      it 'finds correct total counts' do
         AccountLoginStatisticsJob.new.perform
 
         expect(StatsD).to have_received(:gauge)

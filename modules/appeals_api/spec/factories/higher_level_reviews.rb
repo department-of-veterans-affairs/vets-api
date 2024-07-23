@@ -47,6 +47,10 @@ FactoryBot.define do
     api_version { 'V0' }
     auth_headers { FixtureHelpers.fixture_as_json 'higher_level_reviews/v0/valid_200996_headers.json' }
     form_data { FixtureHelpers.fixture_as_json 'higher_level_reviews/v0/valid_200996.json' }
+    after(:build) do |hlr, attrs|
+      hlr.form_data['data']['attributes']['veteran']['icn'] = attrs.veteran_icn if attrs.veteran_icn.present?
+      hlr
+    end
   end
 
   factory :extra_higher_level_review_v0,
@@ -54,6 +58,10 @@ FactoryBot.define do
     api_version { 'V0' }
     auth_headers { FixtureHelpers.fixture_as_json 'higher_level_reviews/v0/valid_200996_headers.json' }
     form_data { FixtureHelpers.fixture_as_json 'higher_level_reviews/v0/valid_200996_extra.json' }
+    after(:build) do |hlr, attrs|
+      hlr.form_data['data']['attributes']['veteran']['icn'] = attrs.veteran_icn if attrs.veteran_icn.present?
+      hlr
+    end
   end
 
   factory :minimal_higher_level_review_v0,
@@ -61,5 +69,9 @@ FactoryBot.define do
     api_version { 'V0' }
     auth_headers { {} }
     form_data { FixtureHelpers.fixture_as_json 'higher_level_reviews/v0/valid_200996_minimum.json' }
+    after(:build) do |hlr, attrs|
+      hlr.form_data['data']['attributes']['veteran']['icn'] = attrs.veteran_icn if attrs.veteran_icn.present?
+      hlr
+    end
   end
 end

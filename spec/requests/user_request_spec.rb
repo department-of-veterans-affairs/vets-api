@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/sm_client_helpers'
 
 RSpec.describe 'Fetching user data' do
   include SchemaMatchers
+  include SM::ClientHelpers
 
   context 'GET /v0/user - when an LOA 3 user is logged in' do
     let(:mhv_user) { build(:user, :mhv) }
@@ -11,6 +13,7 @@ RSpec.describe 'Fetching user data' do
     let(:edipi) { '1005127153' }
 
     before do
+      allow(SM::Client).to receive(:new).and_return(authenticated_client)
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
       create(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)
@@ -24,6 +27,7 @@ RSpec.describe 'Fetching user data' do
       let(:mhv_user) { build(:user, :mhv, :no_mpi_profile) }
 
       it 'GET /v0/user - returns proper json' do
+        create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_correlation_id)
         assert_response :success
         expect(response).to match_response_schema('user_loa3')
       end
@@ -47,6 +51,7 @@ RSpec.describe 'Fetching user data' do
           BackendServices::USER_PROFILE,
           BackendServices::RX,
           BackendServices::MESSAGING,
+          BackendServices::MEDICAL_RECORDS,
           BackendServices::HEALTH_RECORDS,
           BackendServices::ID_CARD,
           # BackendServices::MHV_AC, this will be false if mhv account is premium
@@ -62,7 +67,7 @@ RSpec.describe 'Fetching user data' do
     it 'gives me va profile cerner data' do
       va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
       expect(va_profile['is_cerner_patient']).to be false
-      expect(va_profile['facilities']).to match_array([{ 'facility_id' => '358', 'is_cerner' => false }])
+      expect(va_profile['facilities']).to contain_exactly({ 'facility_id' => '358', 'is_cerner' => false })
     end
 
     it 'returns patient status' do
@@ -153,7 +158,7 @@ RSpec.describe 'Fetching user data' do
       end
     end
 
-    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person', skip_vet360: true do
+    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person', :skip_vet360 do
       before do
         exception  = 'the server responded with status 503'
         error_body = { 'status' => 'some service unavailable status' }
@@ -176,7 +181,7 @@ RSpec.describe 'Fetching user data' do
       it 'returns meta.errors information', :aggregate_failures do
         error = body.dig('meta', 'errors').first
 
-        expect(error['external_service']).to eq 'Vet360'
+        expect(error['external_service']).to eq 'VAProfile'
         expect(error['description']).to be_present
         expect(error['status']).to eq 502
       end
@@ -190,6 +195,7 @@ RSpec.describe 'Fetching user data' do
     before do
       user = new_user(:loa1)
       sign_in_as(user)
+      create(:user_verification, idme_uuid: user.idme_uuid)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
       VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
         get v0_user_url, params: nil, headers: v0_user_request_headers
@@ -225,6 +231,7 @@ RSpec.describe 'Fetching user data' do
     before do
       user = new_user(:loa1)
       sign_in_as(user)
+      create(:user_verification, idme_uuid: user.idme_uuid)
       get v0_user_url, params: nil, headers: v0_user_request_headers
     end
 

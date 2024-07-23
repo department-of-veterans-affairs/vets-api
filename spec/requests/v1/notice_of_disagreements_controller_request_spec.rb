@@ -28,6 +28,11 @@ RSpec.describe V1::NoticeOfDisagreementsController do
            headers:
     end
 
+    let(:extra_error_log_message) do
+      'BackendServiceException: {:source=>"Common::Client::Errors::ClientError raised in DecisionReviewV1::Service", ' \
+        ':code=>"DR_422"}'
+    end
+
     let(:test_request_body) do
       JSON.parse Rails.root.join('spec', 'fixtures', 'notice_of_disagreements',
                                  'valid_NOD_create_request.json').read
@@ -47,10 +52,12 @@ RSpec.describe V1::NoticeOfDisagreementsController do
                                                       http: {
                                                         status_code: 200,
                                                         body: '[Redacted]'
-                                                      }
+                                                      },
+                                                      version_number: 'v2'
                                                     })
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_10182.overall_claim_submission.success')
+        expect(StatsD).to receive(:increment).with('nod_evidence_upload.v2.queued')
         previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
         # Create an InProgressForm
         in_progress_form = create(:in_progress_form, user_uuid: user.uuid, form_id: '10182')
@@ -87,8 +94,14 @@ RSpec.describe V1::NoticeOfDisagreementsController do
                                                        http: {
                                                          status_code: 422,
                                                          body: anything
-                                                       }
+                                                       },
+                                                       version_number: 'v2'
                                                      })
+        expect(Rails.logger).to receive(:error).with(
+          message: "Exception occurred while submitting Notice Of Disagreement: #{extra_error_log_message}",
+          backtrace: anything
+        )
+        expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_10182.overall_claim_submission.failure')
         expect(personal_information_logs.count).to be 0

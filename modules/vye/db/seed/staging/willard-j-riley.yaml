@@ -1,0 +1,56 @@
+---
+:profile:
+  :ssn: '796013145'
+  :file_number: '796013145'
+  :icn: 1013118011V183517
+:info:
+  :file_number: '796013145'
+  :dob: 1997-09-08
+  :stub_nm: WJRILEY
+  :mr_status: A
+  :rem_ent: '2448354'
+  :cert_issue_date: 2019-07-25
+  :del_date: 2026-05-19
+  :date_last_certified: 2024-04-02
+  :rpo_code: 1506
+  :fac_code: quidem
+  :payment_amt: 9394.18
+  :indicator: A
+  :bdn_clone_active: true
+:address:
+  :veteran_name: Willard J Riley
+  :address1: 1598 Nienow Flat
+  :city: North Irvinstad
+  :state: NE
+  :zip_code: '08819'
+  :origin: backend
+:awards:
+- :cur_award_ind: P
+  :award_begin_date: 2023-10-01
+  :award_end_date: 2023-12-08
+  :training_time: 4
+  :payment_date:
+  :monthly_rate: 1488.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: C
+  :award_begin_date: 2024-01-16
+  :award_end_date: 2024-05-03
+  :training_time: 4
+  :payment_date:
+  :monthly_rate: 1488.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+:pending_documents:
+- :doc_type: sint
+  :queue_date: 2024-05-16
+  :rpo: quae
+- :doc_type: ut
+  :queue_date: 2024-05-15
+  :rpo: eaque

@@ -42,8 +42,9 @@ module Swagger
                       has_no_fiduciary_assigned
                       is_not_deceased
                       has_payment_address
+                      is_edu_claim_available
                     ]
-                    property :can_update_direct_deposit, type: :boolean, example: true, description: 'Must be true to view payment account information'
+                    property :can_update_direct_deposit, type: :boolean, example: true, description: 'Must be true to view C&P direct deposit information'
                     property :is_corp_available, type: :boolean, example: true, description: ''
                     property :is_corp_rec_found, type: :boolean, example: true, description: ''
                     property :has_no_bdn_payments, type: :boolean, example: true, description: ''
@@ -54,6 +55,7 @@ module Swagger
                     property :has_no_fiduciary_assigne, type: :boolean, example: true, description: ''
                     property :is_not_decease, type: :boolean, example: true, description: ''
                     property :has_payment_address, type: :boolean, example: true, description: ''
+                    property :is_edu_claim_available, type: :boolean, example: true, description: 'Must be true to view EDU direct deposit information'
                   end
 
                   property :payment_account do
@@ -426,8 +428,6 @@ module Swagger
 
       swagger_path '/v0/profile/address_validation' do
         operation :post do
-          extend Swagger::Responses::AuthenticationError
-
           key :description, 'Outputs address suggestions'
           key :operationId, 'postVet360AddressValidation'
           key :tags, %w[
@@ -701,138 +701,6 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/profile/alternate_phone' do
-        operation :get do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Gets a users alternate phone number information'
-          key :operationId, 'getAlternatePhone'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :$ref, :PhoneNumber
-            end
-          end
-
-          response 403 do
-            key :description, 'Forbidden'
-            schema do
-              key :$ref, :EVSSAuthError
-            end
-          end
-        end
-
-        operation :post do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Creates/updates a users alternate phone number information'
-          key :operationId, 'postAlternatePhone'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          parameter do
-            key :name, :body
-            key :in, :body
-            key :description, 'Attributes to create/update a phone number.'
-            key :required, true
-
-            schema do
-              property :number, type: :string, example: '4445551212'
-              property :extension, type: :string, example: '101'
-              property :country_code, type: :string, example: '1'
-            end
-          end
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :$ref, :PhoneNumber
-            end
-          end
-
-          response 403 do
-            key :description, 'Forbidden'
-            schema do
-              key :$ref, :EVSSAuthError
-            end
-          end
-        end
-      end
-
-      swagger_path '/v0/profile/email' do
-        operation :get do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Gets a users email address information'
-          key :operationId, 'getEmailAddress'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :$ref, :Email
-            end
-          end
-
-          response 403 do
-            key :description, 'Forbidden'
-            schema do
-              key :$ref, :EVSSAuthError
-            end
-          end
-        end
-
-        operation :post do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Creates/updates a users email address'
-          key :operationId, 'postEmailAddress'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          parameter do
-            key :name, :body
-            key :in, :body
-            key :description, 'Attributes to create/update an email address.'
-            key :required, true
-
-            schema do
-              property :email, type: :string, example: 'john@example.com'
-            end
-          end
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :$ref, :Email
-            end
-          end
-
-          response 403 do
-            key :description, 'Forbidden'
-            schema do
-              key :$ref, :EVSSAuthError
-            end
-          end
-        end
-      end
-
       swagger_path '/v0/profile/email_addresses/create_or_update' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
@@ -1090,73 +958,6 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/profile/primary_phone' do
-        operation :get do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Gets a users primary phone number information'
-          key :operationId, 'getPrimaryPhone'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :$ref, :PhoneNumber
-            end
-          end
-
-          response 403 do
-            key :description, 'Forbidden'
-            schema do
-              key :$ref, :EVSSAuthError
-            end
-          end
-        end
-
-        operation :post do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Creates/updates a users primary phone number information'
-          key :operationId, 'postPrimaryPhone'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          parameter do
-            key :name, :body
-            key :in, :body
-            key :description, 'Attributes to create/update a phone number.'
-            key :required, true
-
-            schema do
-              property :number, type: :string, example: '4445551212'
-              property :extension, type: :string, example: '101'
-              property :country_code, type: :string, example: '1'
-            end
-          end
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :$ref, :PhoneNumber
-            end
-          end
-
-          response 403 do
-            key :description, 'Forbidden'
-            schema do
-              key :$ref, :EVSSAuthError
-            end
-          end
-        end
-      end
-
       swagger_path '/v0/profile/service_history' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
@@ -1188,7 +989,9 @@ module Swagger
                       property :end_date, type: :string, format: :date, example: '2016-06-01'
                       property :termination_reason_code, type: :string, example: 'S', description: 'S = Separation From Personnel Category, C = Completion of Active Service Period, D = Death while in personnel category or organization, W = Not Applicable'
                       property :termination_reason_text, type: :string, example: 'Separation from personnel category or organization'
-                      property :personnel_category_type_code, type: :string, example: 'V', description: 'A = Regular Active, N = Guard, V = Reserve, Q = Reserve Retiree'
+                      property :period_of_service_type_code, type: :string, example: 'V', description: 'Service type code'
+                      property :period_of_service_type_text, type: :string, example: 'Reserve member', description: 'Service type text'
+                      property :character_of_discharge_code, type: :string, example: 'DVN', description: 'The abbreviated code used to reference the status of a Servicemember upon termination of an episode'
                     end
                   end
                 end

@@ -36,7 +36,7 @@ RSpec.describe 'AskVAApi::V0::StaticDataAuth', type: :request do
       end
 
       it 'response with status :unauthorized' do
-        expect(response).to have_http_status('403') # rubocop:disable RSpec/Rails/HttpStatus
+        expect(response).to have_http_status('403') # rubocop:disable RSpecRails/HttpStatus
         expect(response.body).to include('You do not have access to this resource.')
       end
     end

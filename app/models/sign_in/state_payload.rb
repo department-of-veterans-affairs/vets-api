@@ -11,6 +11,7 @@ module SignIn
       :code_challenge,
       :client_state,
       :code,
+      :scope,
       :created_at
     )
 
@@ -22,13 +23,21 @@ module SignIn
     validate :confirm_client_id
 
     # rubocop:disable Metrics/ParameterLists
-    def initialize(acr:, client_id:, type:, code:, code_challenge: nil, client_state: nil, created_at: nil)
+    def initialize(acr:,
+                   client_id:,
+                   type:,
+                   code:,
+                   scope: nil,
+                   code_challenge: nil,
+                   client_state: nil,
+                   created_at: nil)
       @acr = acr
       @client_id = client_id
       @type = type
       @code_challenge = code_challenge
       @client_state = client_state
       @code = code
+      @scope = scope
       @created_at = created_at || Time.zone.now.to_i
 
       validate!

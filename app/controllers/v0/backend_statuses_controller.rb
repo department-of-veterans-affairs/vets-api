@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'evss/gi_bill_status/service'
+require 'lighthouse/benefits_education/service'
 require 'backend_services'
 
 module V0
@@ -12,8 +12,10 @@ module V0
     # show only looks at GI bill scheduled downtime (and gets no data from PagerDuty)
     def index
       statuses = ExternalServicesRedis::Status.new.fetch_or_cache
+      maintenance_windows = MaintenanceWindow.end_after(Time.zone.now)
 
-      render json: statuses, serializer: BackendStatusesSerializer
+      options = { params: { maintenance_windows: } }
+      render json: BackendStatusesSerializer.new(statuses, options)
     end
 
     # GET /v0/backend_statuses/:service
@@ -25,16 +27,15 @@ module V0
       be_status = BackendStatus.new(name: @backend_service)
       case @backend_service
       when BackendServices::GI_BILL_STATUS
-        be_status.is_available = EVSS::GiBillStatus::Service.within_scheduled_uptime?
-        be_status.uptime_remaining = EVSS::GiBillStatus::Service.seconds_until_downtime
+        be_status.is_available = BenefitsEducation::Service.within_scheduled_uptime?
+        be_status.uptime_remaining = BenefitsEducation::Service.seconds_until_downtime
       else
         # default service is up!
         be_status.is_available = true
         be_status.uptime_remaining = 0
       end
 
-      render json: be_status,
-             serializer: BackendStatusSerializer
+      render json: BackendStatusSerializer.new(be_status)
     end
 
     private

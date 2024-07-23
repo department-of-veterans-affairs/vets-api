@@ -9,16 +9,15 @@ module V0
     before_action { authorize :evss, :access? }
     before_action { authorize :lighthouse, :access? }
 
+    DECISION_ALLOWLIST = ['1151 Denied', '1151 Granted', 'Not Service Connected', 'Service Connected'].freeze
+
     def show
       lh_response = get_lh_rated_disabilities
       evss_response = get_evss_rated_disabilities
 
-      lh_response_length = lh_response.dig('data', 'attributes', 'individual_ratings').length
-      evss_response_length = evss_response.rated_disabilities.length
-
-      if lh_response_length != evss_response_length
-        log_length_discrepancy((lh_response_length - evss_response_length).abs)
-      end
+      lh_ratings = lh_response.dig('data', 'attributes', 'individual_ratings')
+      evss_ratings = evss_response.rated_disabilities
+      log_length_discrepancy(evss_ratings, lh_ratings) if lh_ratings.length != evss_ratings.length
 
       # This doesn't need to return anything at the moment
       render json: nil
@@ -26,10 +25,17 @@ module V0
 
     private
 
-    def log_length_discrepancy(difference)
-      message = "Discrepancy of #{difference} disability ratings"
+    def log_length_discrepancy(evss_ratings, lh_ratings)
+      message = 'Discrepancy between Lighthouse and EVSS disability ratings'
 
-      ::Rails.logger.info(message, { message_type: 'lh.rated_disabilities.length_discrepancy' })
+      ::Rails.logger.info(message, {
+                            message_type: 'lh.rated_disabilities.length_discrepancy',
+                            evss_length: evss_ratings.length,
+                            evss_rating_ids: evss_ratings.pluck('rated_disability_id'),
+                            lighthouse_length: lh_ratings.length,
+                            lighthouse_rating_ids: lh_ratings.pluck('disability_rating_id'),
+                            revision: 5
+                          })
     end
 
     # EVSS
@@ -52,18 +58,27 @@ module V0
 
       # We only want active ratings
       if response.dig('data', 'attributes', 'individual_ratings')
-        remove_inactive_ratings!(response['data']['attributes']['individual_ratings'])
+        filter_ratings_by_decision!(response['data']['attributes']['individual_ratings'])
+        reject_inactive_ratings!(response['data']['attributes']['individual_ratings'])
       end
 
       response
     end
 
-    def remove_inactive_ratings!(ratings)
+    def filter_ratings_by_decision!(ratings)
+      ratings.select! { |rating| DECISION_ALLOWLIST.include?(rating['decision']) }
+    end
+
+    def reject_inactive_ratings!(ratings)
       ratings.select! { |rating| active?(rating) }
     end
 
     def active?(rating)
-      rating['rating_end_date'].nil?
+      date = rating['rating_end_date']
+
+      # In order for the rating to be considered active,
+      # the date should be either nil or in the future
+      date.nil? || Date.parse(date).future?
     end
 
     def service

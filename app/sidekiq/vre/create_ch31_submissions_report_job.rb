@@ -4,6 +4,22 @@ module VRE
   class CreateCh31SubmissionsReportJob
     require 'csv'
     include Sidekiq::Job
+    include SentryLogging
+
+    STATSD_KEY_PREFIX = 'worker.vre.create_ch31_submissions_report_job'
+
+    # Sidekiq has built in exponential back-off functionality for retries
+    # A max retry attempt of 14 will result in a run time of ~25 hours
+    RETRY = 14
+
+    sidekiq_options retry: RETRY
+
+    sidekiq_retries_exhausted do |msg, _ex|
+      Rails.logger.error(
+        "Failed all retries on VRE::CreateCh31SubmissionsReportJob, last error: #{msg['error_message']}"
+      )
+      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+    end
 
     def perform(sidekiq_scheduler_args, run_date = nil)
       date = if run_date
@@ -15,6 +31,9 @@ module VRE
 
       submitted_claims = get_claims_created_between(build_range(date))
       Ch31SubmissionsReportMailer.build(submitted_claims).deliver_now unless FeatureFlipper.staging_email?
+    rescue
+      Rails.logger.warn('VRE::CreateCh31SubmissionsReportJob failed, retrying...')
+      raise
     end
 
     private

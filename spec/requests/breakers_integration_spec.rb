@@ -9,14 +9,14 @@ RSpec.describe 'breakers', type: :request do
 
   let(:active_rxs) { File.read('spec/fixtures/json/get_active_rxs.json') }
   let(:history_rxs) { File.read('spec/fixtures/json/get_history_rxs.json') }
+  let(:user) { build(:user, :mhv) }
   let(:session) do
     Rx::ClientSession.new(
-      user_id: '123',
+      user_id: user.mhv_correlation_id,
       expires_at: 3.weeks.from_now,
       token: Rx::ClientHelpers::TOKEN
     )
   end
-  let(:user) { build(:user, :mhv) }
 
   before do
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
@@ -30,7 +30,6 @@ RSpec.describe 'breakers', type: :request do
     # Not clearing the breakers would cause subsequent RX calls to fail after the breaker is
     # triggered in this group.
 
-    # fakeredis/rspec has a `before` callback, but it's for the suite, not each example. Oops.
     Breakers.client.redis_connection.redis.flushdb
   end
 
@@ -49,7 +48,7 @@ RSpec.describe 'breakers', type: :request do
 
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', '{"message":"ack"}', status_code: 500)
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/getactiverx', '{"message":"ack"}', status_code: 500)
-      20.times do
+      80.times do
         response = get '/v0/prescriptions'
         expect(response).to eq(400)
       end

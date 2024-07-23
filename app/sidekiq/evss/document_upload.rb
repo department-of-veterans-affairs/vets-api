@@ -43,7 +43,7 @@ class EVSS::DocumentUpload
   private
 
   def validate_document!
-    Raven.tags_context(source: 'claims-status')
+    Sentry.set_tags(source: 'claims-status')
     raise Common::Exceptions::ValidationErrors unless document.valid?
   end
 

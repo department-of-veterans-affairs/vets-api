@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require 'json_marshal/marshaller'
+require 'claims_api/v2/mock_aws_service'
 
 module ClaimsApi
   module FileData
     extend ActiveSupport::Concern
 
     included do
-      serialize :file_data, JsonMarshal::Marshaller
+      serialize :file_data, coder: JsonMarshal::Marshaller
       has_kms_key
       has_encrypted :file_data, key: :kms_key, **lockbox_options
 
@@ -24,7 +25,11 @@ module ClaimsApi
       end
 
       def set_file_data!(file_data, doc_type, description = nil)
-        uploader.store!(file_data)
+        if Flipper.enabled? :claims_load_testing
+          ClaimsApi::V2::MockAwsService.new.store(file_data)
+        else
+          uploader.store!(file_data)
+        end
         self.file_data = { filename: uploader.filename,
                            doc_type:,
                            description: }

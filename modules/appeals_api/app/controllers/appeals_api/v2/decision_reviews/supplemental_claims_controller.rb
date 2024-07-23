@@ -44,8 +44,7 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
 
     sc.save
 
-    pdf_version = Flipper.enabled?(:decision_review_supplemental_claim_pdf_v3) ? 'v3' : 'v2'
-    AppealsApi::PdfSubmitJob.perform_async(sc.id, 'AppealsApi::SupplementalClaim', pdf_version)
+    AppealsApi::PdfSubmitJob.perform_async(sc.id, 'AppealsApi::SupplementalClaim', 'v3')
     AppealsApi::AddIcnUpdater.perform_async(sc.id, 'AppealsApi::SupplementalClaim') if sc.veteran_icn.blank?
 
     render json: AppealsApi::SupplementalClaimSerializer.new(sc).serializable_hash
@@ -57,13 +56,6 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
 
   def schema
     response = AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(form_schema)
-
-    unless Flipper.enabled?(:decision_review_sc_pact_act_boolean)
-      response.tap do |s|
-        s.dig(*%w[definitions scCreate properties data properties attributes properties])&.delete('potentialPactAct')
-      end
-    end
-
     render json: response
   end
 

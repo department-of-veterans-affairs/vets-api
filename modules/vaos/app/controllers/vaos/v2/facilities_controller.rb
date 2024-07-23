@@ -23,7 +23,7 @@ module VAOS
 
       def facility
         @facility ||=
-          mobile_facility_service.get_facility(facility_id)
+          mobile_facility_service.get_facility!(facility_id)
       end
 
       def facility_id
@@ -44,12 +44,9 @@ module VAOS
       end
 
       def schedulable
-        if Flipper.enabled?('va_online_scheduling_required_schedulable_param')
-          # with this flag on, we will always want to return 'true' for this param per github issue #59503
-          params[:schedulable] = true
-        else
-          params[:schedulable]
-        end
+        # We will always want to return 'true' for this param per github issue #59503
+        # and PR vets-api#13087
+        params[:schedulable] = true
       end
     end
   end

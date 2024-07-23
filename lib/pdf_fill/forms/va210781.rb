@@ -312,7 +312,7 @@ module PdfFill
         @form_data['veteranDateOfBirth'] = expand_veteran_dob(@form_data)
         expand_incidents(@form_data['incidents'])
 
-        expand_signature(@form_data['veteranFullName'])
+        expand_signature(@form_data['veteranFullName'], @form_data['signatureDate'])
         @form_data['signature'] = "/es/ #{@form_data['signature']}"
 
         @form_data

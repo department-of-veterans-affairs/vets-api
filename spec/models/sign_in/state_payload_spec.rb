@@ -11,7 +11,8 @@ RSpec.describe SignIn::StatePayload, type: :model do
            acr:,
            code:,
            client_state:,
-           created_at:)
+           created_at:,
+           scope:)
   end
 
   let(:code_challenge) { Base64.urlsafe_encode64(SecureRandom.hex) }
@@ -22,6 +23,7 @@ RSpec.describe SignIn::StatePayload, type: :model do
   let(:client_id) { client_config.client_id }
   let(:client_state) { SecureRandom.hex }
   let(:created_at) { Time.zone.now.to_i }
+  let(:scope) { SignIn::Constants::Auth::DEVICE_SSO }
 
   describe 'validations' do
     describe '#code' do

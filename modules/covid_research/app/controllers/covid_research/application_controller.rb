@@ -11,7 +11,7 @@ module CovidResearch
 
     def set_tags_and_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'coronavirus-research' }
-      Raven.tags_context(source: 'coronavirus-research')
+      Sentry.set_tags(source: 'coronavirus-research')
     end
 
     def routing_error

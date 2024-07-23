@@ -15,61 +15,8 @@ RSpec.describe 'Requesting ID Card Attributes' do
   end
 
   describe '#show /v0/id_card/attributes' do
-    context 'Feature flipper military_information_vaprofile=false and military_information_vaprofile_vic=false' do
-      let(:service_episodes) { [build(:service_episode)] }
-
-      before do
-        Flipper.disable(:military_information_vaprofile)
-        Flipper.disable(:military_information_vaprofile_vic)
-      end
-
-      it 'returns a signed redirect URL' do
-        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method],
-                                                                                    allow_playback_repeats: true) do
-          allow(VAProfile::Configuration::SETTINGS.veteran_status).to receive(:cache_enabled).and_return(true)
-          expect_any_instance_of(
-            VAProfileRedis::VeteranStatus
-          ).to receive(:title38_status).at_least(:once).and_return('V1')
-          expect_any_instance_of(EMISRedis::MilitaryInformation)
-            .to receive(:service_episodes_by_date).at_least(:once).and_return(service_episodes)
-          get '/v0/id_card/attributes', headers: auth_header
-          expect(response).to have_http_status(:ok)
-          json = JSON.parse(response.body)
-          url = json['url']
-          expect(url).to be_truthy
-          traits = json['traits']
-          expect(traits).to be_key('edipi')
-          expect(traits).to be_key('firstname')
-          expect(traits).to be_key('lastname')
-          expect(traits).to be_key('title38status')
-          expect(traits).to be_key('branchofservice')
-          expect(traits).to be_key('dischargetype')
-          expect(traits).to be_key('timestamp')
-          expect(traits).to be_key('signature')
-        end
-      end
-
-      it 'returns Bad Gateway if military information not retrievable' do
-        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method],
-                                                                                    allow_playback_repeats: true) do
-          allow(VAProfile::Configuration::SETTINGS.veteran_status).to receive(:cache_enabled).and_return(true)
-          expect_any_instance_of(VAProfileRedis::VeteranStatus)
-            .to receive(:title38_status).at_least(:once).and_return('V1')
-          expect_any_instance_of(EMISRedis::MilitaryInformation)
-            .to receive(:service_episodes_by_date).and_raise(StandardError)
-          get '/v0/id_card/attributes', headers: auth_header
-          expect(response).to have_http_status(:bad_gateway)
-        end
-      end
-    end
-
-    context 'Feature flipper military_information_vaprofile=true and military_information_vaprofile=true' do
+    context 'VAProfile and Military Information' do
       let(:service_episodes) { [build(:prefill_service_episode)] }
-
-      before do
-        Flipper.enable(:military_information_vaprofile)
-        Flipper.enable(:military_information_vaprofile_vic)
-      end
 
       it 'returns a signed redirect URL' do
         VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method],

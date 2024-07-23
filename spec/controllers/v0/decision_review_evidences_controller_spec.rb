@@ -60,46 +60,26 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
       )
     end
 
-    it 'creates a FormAttachment, logs formatted error, and increments statsd' do
-      request.headers['Source-App-Name'] = '10182-board-appeal'
-      params = { param_namespace => { file_data: pdf_file } }
-      allow(Rails.logger).to receive(:info)
-      expect(Rails.logger).to receive(:info).with({
-                                                    message: 'Evidence upload to s3 success!',
-                                                    user_uuid: user.uuid,
-                                                    action: 'Evidence upload to s3',
-                                                    form_id: '10182',
-                                                    upstream_system: nil,
-                                                    downstream_system: 'AWS S3',
-                                                    is_success: true,
-                                                    http: {
-                                                      status_code: nil,
-                                                      body: nil
-                                                    },
-                                                    form_attachment_guid:
-                                                  })
-      expect(StatsD).to receive(:increment).with('decision_review.form_10182.evidence_upload_to_s3.success')
-      form_attachment = build(attachment_factory_id, guid: form_attachment_guid)
-
-      expect(form_attachment_model).to receive(:new) do
-        expect(form_attachment).to receive(:set_file_data!)
-
-        expect(form_attachment).to receive(:save!) do
-          form_attachment.id = 99
-          form_attachment
-        end
-
-        form_attachment
+    context 'with a param password' do
+      let(:encrypted_log_params_success) do
+        {
+          message: 'Evidence upload to s3 success!',
+          user_uuid: user.uuid,
+          action: 'Evidence upload to s3',
+          form_id: '10182',
+          upstream_system: nil,
+          downstream_system: 'AWS S3',
+          is_success: true,
+          http: {
+            status_code: nil,
+            body: nil
+          },
+          form_attachment_guid:,
+          encrypted: true
+        }
       end
 
-      expect(subject).to receive(:render).with(json: form_attachment).and_call_original # rubocop:disable RSpec/SubjectStub
-
-      post(:create, params:)
-
-      expect(response).to have_http_status(:ok)
-      expect(
-        JSON.parse(response.body)
-      ).to eq(
+      let(:expected_response_body) do
         {
           'data' => {
             'id' => '99',
@@ -109,7 +89,34 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
             }
           }
         }
-      )
+      end
+
+      it 'creates a FormAttachment, logs formatted success message, and increments statsd' do
+        request.headers['Source-App-Name'] = '10182-board-appeal'
+        params = { param_namespace => { file_data: pdf_file, password: 'test_password' } }
+
+        expect(Common::PdfHelpers).to receive(:unlock_pdf)
+        allow(Rails.logger).to receive(:info)
+        expect(Rails.logger).to receive(:info).with(encrypted_log_params_success)
+        expect(StatsD).to receive(:increment).with('decision_review.form_10182.evidence_upload_to_s3.success')
+        form_attachment = build(attachment_factory_id, guid: form_attachment_guid)
+
+        expect(form_attachment_model).to receive(:new) do
+          expect(form_attachment).to receive(:set_file_data!)
+
+          expect(form_attachment).to receive(:save!) do
+            form_attachment.id = 99
+            form_attachment
+          end
+
+          form_attachment
+        end
+
+        post(:create, params:)
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)).to eq(expected_response_body)
+      end
     end
 
     context 'evidence is uploaded from the NOD (10182) form' do
@@ -164,7 +171,8 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
                                                          status_code: 422,
                                                          body: 'Unprocessable Entity'
                                                        },
-                                                       form_attachment_guid:
+                                                       form_attachment_guid:,
+                                                       encrypted: false
                                                      })
         form_attachment = build(attachment_factory_id, guid: form_attachment_guid)
         expect(form_attachment_model).to receive(:new).and_return(form_attachment)

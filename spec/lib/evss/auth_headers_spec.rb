@@ -37,11 +37,10 @@ describe EVSS::AuthHeaders do
 
     context 'with some nil values' do
       before do
-        allow(current_user).to receive(:ssn).and_return(nil)
-        allow(current_user).to receive(:edipi).and_return(nil)
+        allow(current_user).to receive_messages(ssn: nil, edipi: nil)
       end
 
-      it 'will not return nil header values' do
+      it 'does not return nil header values' do
         expect(headers.values.include?(nil)).to eq false
       end
 

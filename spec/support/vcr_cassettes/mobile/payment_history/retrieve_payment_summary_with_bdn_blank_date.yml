@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/PersonWebServiceBean/PersonWebService?WSDL
+    uri: <BGS_BASE_URL>/PersonWebServiceBean/PersonWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -700,7 +700,7 @@ http_interactions:
   recorded_at: Tue, 06 Oct 2020 19:10:30 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/PersonWebServiceBean/PersonWebService
+    uri: <BGS_BASE_URL>/PersonWebServiceBean/PersonWebService
     body:
       encoding: UTF-8
       string: |-
@@ -757,7 +757,7 @@ http_interactions:
   recorded_at: Tue, 06 Oct 2020 19:10:31 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/vrm-ws/PaymentInformationService?WSDL
+    uri: <BGS_BASE_URL>/vrm-ws/PaymentInformationService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -1033,7 +1033,7 @@ http_interactions:
   recorded_at: Tue, 06 Oct 2020 19:10:32 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/vrm-ws/PaymentInformationService
+    uri: <BGS_BASE_URL>/vrm-ws/PaymentInformationService
     body:
       encoding: UTF-8
       string: |-

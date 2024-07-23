@@ -14,6 +14,8 @@ module VAProfile
     class Service < VAProfile::Service
       OID = '2.16.840.1.113883.4.349'
       include Common::Client::Concerns::Monitoring
+
+      STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.demographics".freeze
       configuration VAProfile::Demographics::Configuration
 
       # Returns a response object containing the user's preferred name, and gender-identity

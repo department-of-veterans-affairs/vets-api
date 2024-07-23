@@ -11,7 +11,7 @@ RSpec.describe 'Backend Status' do
   describe '#show' do
     let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
     let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
-    let(:tz) { ActiveSupport::TimeZone.new(EVSS::GiBillStatus::Service::OPERATING_ZONE) }
+    let(:tz) { ActiveSupport::TimeZone.new(BenefitsEducation::Service::OPERATING_ZONE) }
     let(:offline_saturday) { tz.parse('17th Mar 2018 19:00:01') }
     let(:online_weekday) { tz.parse('24th Jan 2018 06:00:00') }
 
@@ -115,6 +115,25 @@ RSpec.describe 'Backend Status' do
           expect(error['code']).to be_a(String).and eq 'PAGERDUTY_429'
           expect(error['title']).to be_a(String).and eq 'Exceeded rate limit'
         end
+      end
+    end
+
+    context 'when there are maintenance windows' do
+      include_context 'simulating Redis caching of PagerDuty#get_services'
+
+      let!(:maintenance_window) do
+        create(:maintenance_window, start_time: 1.day.ago, end_time: 1.day.from_now)
+      end
+
+      it 'returns the maintenance windows', :aggregate_failures do
+        get '/v0/backend_statuses'
+
+        body = JSON.parse(response.body)
+        maintenance_windows = body['data']['attributes']['maintenance_windows']
+
+        expect(maintenance_windows).to be_an(Array)
+        expect(maintenance_windows.first).to eq(maintenance_window.as_json(only: %i[id external_service start_time
+                                                                                    end_time description]))
       end
     end
   end

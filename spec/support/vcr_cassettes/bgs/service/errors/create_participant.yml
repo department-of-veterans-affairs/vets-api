@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntWebServiceBean/VnpPtcpntService?WSDL
+    uri: <BGS_BASE_URL>/VnpPtcpntWebServiceBean/VnpPtcpntService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -171,7 +171,7 @@ http_interactions:
   recorded_at: Mon, 20 Jul 2020 22:57:58 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntWebServiceBean/VnpPtcpntService
+    uri: <BGS_BASE_URL>/VnpPtcpntWebServiceBean/VnpPtcpntService
     body:
       encoding: UTF-8
       string: |-
@@ -227,7 +227,7 @@ http_interactions:
   recorded_at: Mon, 20 Jul 2020 22:57:59 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntWebServiceBean/VnpPtcpntService?WSDL
+    uri: <BGS_BASE_URL>/VnpPtcpntWebServiceBean/VnpPtcpntService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -396,7 +396,7 @@ http_interactions:
   recorded_at: Mon, 20 Jul 2020 22:58:00 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntWebServiceBean/VnpPtcpntService
+    uri: <BGS_BASE_URL>/VnpPtcpntWebServiceBean/VnpPtcpntService
     body:
       encoding: UTF-8
       string: |-
@@ -452,7 +452,7 @@ http_interactions:
   recorded_at: Mon, 20 Jul 2020 22:58:01 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntWebServiceBean/VnpPtcpntService?WSDL
+    uri: <BGS_BASE_URL>/VnpPtcpntWebServiceBean/VnpPtcpntService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -621,7 +621,7 @@ http_interactions:
   recorded_at: Mon, 20 Jul 2020 22:58:02 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntWebServiceBean/VnpPtcpntService
+    uri: <BGS_BASE_URL>/VnpPtcpntWebServiceBean/VnpPtcpntService
     body:
       encoding: UTF-8
       string: |-

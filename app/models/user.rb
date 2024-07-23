@@ -75,10 +75,6 @@ class User < Common::RedisStore
     @user_account_uuid ||= user_account&.id
   end
 
-  def inherited_proof_verified
-    @inherited_proof_verified ||= InheritedProofVerifiedUserAccount.where(user_account_id: user_account_uuid).present?
-  end
-
   def pciu_email
     pciu&.get_email_address&.email
   end
@@ -303,7 +299,7 @@ class User < Common::RedisStore
     @mpi = nil
   end
 
-  # emis attributes
+  # VA Profile attributes
   delegate :military_person?, to: :veteran_status
   delegate :veteran?, to: :veteran_status
 
@@ -355,20 +351,8 @@ class User < Common::RedisStore
     super
   end
 
-  def military_information
-    @military_information ||= if Flipper.enabled?(:military_information_vaprofile)
-                                FormProfile.new(form_id: nil, user: self).initialize_military_information
-                              else
-                                EMISRedis::MilitaryInformation.for_user(self)
-                              end
-  end
-
   def veteran_status
-    @veteran_status ||= if Flipper.enabled?(:veteran_status_updated)
-                          VAProfileRedis::VeteranStatus.for_user(self)
-                        else
-                          EMISRedis::VeteranStatus.for_user(self)
-                        end
+    @veteran_status ||= VAProfileRedis::VeteranStatus.for_user(self)
   end
 
   %w[profile grants].each do |okta_model_name|
@@ -386,6 +370,13 @@ class User < Common::RedisStore
   def identity
     @identity ||= UserIdentity.find(uuid)
   end
+
+  def onboarding
+    @onboarding ||= VeteranOnboarding.for_user(self)
+  end
+
+  # VeteranOnboarding attributes & methods
+  delegate :show_onboarding_flow_on_login, to: :onboarding, allow_nil: true
 
   def vet360_contact_info
     return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && vet360_id.present?

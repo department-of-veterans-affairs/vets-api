@@ -18,6 +18,7 @@ class EVSSClaimDocument < Common::Base
 
   validates(:file_name, presence: true)
   validate :known_document_type?
+  validate :content_type_matches_extension?
   validate :unencrypted_pdf?
   before_validation :normalize_text, :convert_to_unlocked_pdf, :normalize_file_name
 
@@ -81,6 +82,27 @@ class EVSSClaimDocument < Common::Base
 
   private
 
+  def content_type_matches_extension?
+    return unless file_obj
+
+    true_mime_type = MimeMagic.by_magic(File.open(file_obj.tempfile.path)).to_s
+
+    # MimeMagic cannot always determine the mime_type and will sometimes
+    # return ''. In those cases it makes sense to fall back to the content_type
+    # as passed in when the request is made
+    true_mime_type = file_obj.content_type if true_mime_type.empty?
+
+    assumed_mime_type = MimeMagic.by_extension(extension).to_s
+
+    errors.add(:base, I18n.t('errors.messages.uploads.content_type_mismatch')) if true_mime_type != assumed_mime_type
+  end
+
+  def extension
+    # Using file_name instead of file_path because the temp path doesn't include
+    # an extension
+    File.extname(file_name).downcase[1..] # Remove the leading dot
+  end
+
   def known_document_type?
     errors.add(:base, I18n.t('errors.messages.uploads.document_type_unknown')) unless description
   end
@@ -91,11 +113,15 @@ class EVSSClaimDocument < Common::Base
     pdftk = PdfForms.new(Settings.binaries.pdftk)
     tempfile_without_pass = Tempfile.new(['decrypted_evss_claim_document', '.pdf'])
 
-    error_messages = pdftk.call_pdftk(file_obj.tempfile.path,
-                                      'input_pw', password,
-                                      'output', tempfile_without_pass.path)
-    if error_messages.present? && error_messages.include?('Error')
-      log_message_to_sentry(error_messages, 'warn')
+    begin
+      pdftk.call_pdftk(file_obj.tempfile.path,
+                       'input_pw', password,
+                       'output', tempfile_without_pass.path)
+    rescue PdfForms::PdftkError => e
+      file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
+      password_regex = /(input_pw).*?(output)/
+      sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
+      log_message_to_sentry(sanitized_message, 'warn')
       errors.add(:base, I18n.t('errors.messages.uploads.pdf.incorrect_password'))
     end
 

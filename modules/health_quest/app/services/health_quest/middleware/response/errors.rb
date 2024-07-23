@@ -3,11 +3,11 @@
 module HealthQuest
   module Middleware
     module Response
-      class Errors < Faraday::Response::Middleware
+      class Errors < Faraday::Middleware
         def on_complete(env)
           return if env.success?
 
-          Raven.extra_context(message: env.body, url: env.url)
+          Sentry.set_extras(message: env.body, url: env.url)
           case env.status
           when 400, 409
             error_400(env.body)

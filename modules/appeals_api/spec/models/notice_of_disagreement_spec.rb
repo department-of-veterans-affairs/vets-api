@@ -13,6 +13,20 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       expect(nod.metadata['central_mail_business_line']).to eq 'BVA'
     end
 
+    describe 'non-veteran claimant flag' do
+      it 'saves non-veteran claimant status to metadata' do
+        expect(nod.metadata['non_veteran_claimant']).to eq(false)
+      end
+
+      describe 'with non-veteran claimant' do
+        let(:nod) { create(opts[:extra_factory]) }
+
+        it 'saves non-veteran claimant status to metadata' do
+          expect(nod.metadata['non_veteran_claimant']).to eq(true)
+        end
+      end
+    end
+
     describe 'potential_write_in_issue_count' do
       context 'with no write-in issues' do
         it 'saves the correct value to metadata' do
@@ -403,13 +417,42 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     describe 'metadata' do
       include_examples 'NOD metadata', {
         factory: :notice_of_disagreement_v2,
+        extra_factory: :extra_notice_of_disagreement_v2,
         form_data_fixture: 'decision_reviews/v2/valid_10182.json'
       }
+    end
+
+    describe '#veteran_icn' do
+      subject { nod.veteran_icn }
+
+      let(:nod) { create(:extra_notice_of_disagreement_v2) }
+
+      it 'matches header' do
+        expect(subject).to be_present
+        expect(subject).to eq nod.auth_headers['X-VA-ICN']
+      end
+
+      describe 'when ICN not provided in header' do
+        let(:nod) { create(:notice_of_disagreement_v2) }
+
+        it 'is blank' do
+          expect(subject).to be_blank
+        end
+      end
     end
   end
 
   describe 'when api_version is V0' do
     let(:appeal) { create(:extra_notice_of_disagreement_v0, api_version: 'V0') }
+
+    describe '#veteran_icn' do
+      subject { appeal.veteran_icn }
+
+      it 'matches the ICN in the form data' do
+        expect(subject).to be_present
+        expect(subject).to eq appeal.form_data.dig('data', 'attributes', 'veteran', 'icn')
+      end
+    end
 
     it_behaves_like 'shared model validations',
                     required_claimant_headers: [],
@@ -421,6 +464,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     describe 'metadata' do
       include_examples 'NOD metadata', {
         factory: :notice_of_disagreement_v0,
+        extra_factory: :extra_notice_of_disagreement_v0,
         form_data_fixture: 'notice_of_disagreements/v0/valid_10182.json'
       }
     end

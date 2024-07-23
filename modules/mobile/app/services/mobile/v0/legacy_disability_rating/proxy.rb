@@ -29,7 +29,6 @@ module Mobile
           raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
         rescue => e
           if e.respond_to?('response')
-            Rails.logger.info('LEGACY DR ERRORS WITH RESPONSE', error: e)
             case e.response[:status]
             when 400
               raise Common::Exceptions::BackendServiceException, 'MOBL_404_rating_not_found'
@@ -41,7 +40,6 @@ module Mobile
               raise e
             end
           else
-            Rails.logger.info('LEGACY DR ERRORS WITHOUT RESPONSE', error: e)
             raise e
           end
         end

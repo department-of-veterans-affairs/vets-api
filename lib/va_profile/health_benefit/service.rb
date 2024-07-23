@@ -1,14 +1,17 @@
 # frozen_string_literal: true
 
+require 'common/client/concerns/monitoring'
 require 'va_profile/health_benefit/configuration'
 require 'va_profile/health_benefit/associated_persons_response'
 require 'va_profile/models/associated_person'
+require 'va_profile/stats'
 
 module VAProfile
   module HealthBenefit
     class Service < VAProfile::Service
       include Common::Client::Concerns::Monitoring
 
+      STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.health_benefit".freeze
       configuration VAProfile::HealthBenefit::Configuration
 
       OID = '1.2.3' # placeholder
@@ -20,7 +23,7 @@ module VAProfile
 
         with_monitoring do
           response = perform(:get, v1_read_path)
-          VAProfile::HealthBenefit::AssociatedPersonsResponse.from(response)
+          VAProfile::HealthBenefit::AssociatedPersonsResponse.new(response)
         end
       rescue => e
         handle_error(e)
@@ -30,7 +33,7 @@ module VAProfile
         fixture_path = %w[spec fixtures va_profile health_benefit_v1_associated_persons.json]
         body = Rails.root.join(*fixture_path).read
         response = OpenStruct.new(status: 200, body:)
-        VAProfile::HealthBenefit::AssociatedPersonsResponse.from(response)
+        VAProfile::HealthBenefit::AssociatedPersonsResponse.new(response)
       end
 
       private
@@ -43,7 +46,8 @@ module VAProfile
       end
 
       def aaid
-        ID_ME_AAID if user&.idme_uuid.present?
+        return ID_ME_AAID if user&.idme_uuid.present?
+
         LOGIN_GOV_AAID if user&.logingov_uuid.present?
       end
 

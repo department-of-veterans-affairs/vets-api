@@ -51,7 +51,7 @@ http_interactions:
       X-Envoy-Upstream-Service-Time:
       - '8'
       Set-Cookie:
-      - TS016f4012=01c16e2d81474406e85283946cff1852cafff617d91202ec7c664a87432ee87eff124abedd2252a9b32c7e41a03639a572ecfc7787;
+      - TS016f4012=stubbed_cookie;
         Max-Age=900; Path=/
       - stubbed_cookie
         path=/; SameSite=Lax; HttpOnly

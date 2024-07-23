@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'faraday/retry'
+
 # Rake tasks to create and update questionnaires in PGD
 
 # rubocop:disable all

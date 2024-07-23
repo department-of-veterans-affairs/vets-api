@@ -25,6 +25,51 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     end
   end
 
+  describe '#index when "cst_include_ddl_boa_letters" is enabled and "cst_include_ddl_5103_letters" is disabled' do
+    before do
+      Flipper.enable(:cst_include_ddl_boa_letters)
+      Flipper.disable(:cst_include_ddl_5103_letters)
+    end
+
+    it 'lists correct documents' do
+      get(:index)
+      letters = JSON.parse(response.body)
+      allowed_letters = letters.select { |d| %w[27 184].include?(d['doc_type']) }
+
+      expect(allowed_letters.length).to eql(letters.length)
+    end
+  end
+
+  describe '#index when "cst_include_ddl_5103_letters" is enabled and "cst_include_ddl_boa_letters" is disabled' do
+    before do
+      Flipper.enable(:cst_include_ddl_5103_letters)
+      Flipper.disable(:cst_include_ddl_boa_letters)
+    end
+
+    it 'lists correct documents' do
+      get(:index)
+      letters = JSON.parse(response.body)
+      allowed_letters = letters.select { |d| %w[704 706 858 184].include?(d['doc_type']) }
+
+      expect(allowed_letters.length).to eql(letters.length)
+    end
+  end
+
+  describe '#index when "cst_include_ddl_5103_letters" and "cst_include_ddl_boa_letters" feature flags are disabled' do
+    before do
+      Flipper.disable(:cst_include_ddl_5103_letters)
+      Flipper.disable(:cst_include_ddl_boa_letters)
+    end
+
+    it 'lists correct documents' do
+      get(:index)
+      letters = JSON.parse(response.body)
+      allowed_letters = letters.select { |d| d['doc_type'] == '184' }
+
+      expect(allowed_letters.length).to eql(letters.length)
+    end
+  end
+
   describe '#show' do
     it 'responds with a pdf with a dated filename' do
       get(:show, params: { document_id: })
@@ -45,6 +90,42 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
       get(:show, params: { document_id: })
 
       expect(response.header['Content-Disposition']).to include("filename=\"#{filename}\"")
+    end
+  end
+
+  context 'DDL Logging' do
+    before do
+      Flipper.enable(:cst_include_ddl_5103_letters)
+      Flipper.enable(:cst_include_ddl_boa_letters)
+      allow(Rails.logger).to receive(:info)
+    end
+
+    it 'logs metadata of document types to DataDog' do
+      get(:index)
+      expect(Rails.logger)
+        .to have_received(:info)
+        .with('DDL Document Types Metadata',
+              { message_type: 'ddl.doctypes_metadata',
+                document_type_metadata: [
+                  { doc_type: '27',
+                    type_description: 'Board Of Appeals Decision Letter' },
+                  { doc_type: '858',
+                    type_description: 'Custom 5103 Notice' },
+                  { doc_type: '706',
+                    type_description: '5103/DTA Letter' },
+                  { doc_type: '184',
+                    type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
+                  { doc_type: '184',
+                    type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
+                  { doc_type: '184',
+                    type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
+                  { doc_type: '704',
+                    type_description: 'Standard 5103 Notice' },
+                  { doc_type: '184',
+                    type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
+                  { doc_type: '184',
+                    type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' }
+                ] })
     end
   end
 end

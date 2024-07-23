@@ -10,6 +10,8 @@ module AppealsApi
     skip_before_action(:authenticate)
     before_action :set_default_headers
 
+    WARNING_EMOJI = ':warning:'
+
     def decision_reviews
       render json: {
         meta: {
@@ -37,9 +39,44 @@ module AppealsApi
     def healthcheck
       render json: {
         description: 'Appeals API health check',
-        status: 'UP',
+        status: 'pass',
         time: Time.zone.now.to_formatted_s(:iso8601)
       }
+    end
+
+    # Treat s3 as an internal resource as opposed to an upstream service per VA
+    def healthcheck_s3
+      http_status_code = 200
+      s3_heathy = s3_is_healthy?
+      unless s3_heathy
+        begin
+          http_status_code = 503
+          slack_details = {
+            class: self.class.name,
+            warning: "#{WARNING_EMOJI} Appeals API healthcheck failed: unable to connect to AWS S3 bucket."
+          }
+          AppealsApi::Slack::Messager.new(slack_details).notify!
+        rescue => e
+          Rails.logger.error("Appeals API S3 failed Healthcheck slack notification failed: #{e.message}", e)
+        end
+      end
+      render json: {
+        description: 'Appeals API health check',
+        status: s3_heathy ? 'pass' : 'fail',
+        time: Time.zone.now.to_formatted_s(:iso8601)
+      }, status: http_status_code
+    end
+
+    def s3_is_healthy?
+      # Internally, appeals defers to Benefits Intake for s3 ops, so we check the BI buckets
+      # using the BI Settings
+      s3 = Aws::S3::Resource.new(region: Settings.vba_documents.s3.region,
+                                 access_key_id: Settings.vba_documents.s3.aws_access_key_id,
+                                 secret_access_key: Settings.vba_documents.s3.aws_secret_access_key)
+      s3.client.head_bucket({ bucket: Settings.vba_documents.s3.bucket })
+      true
+    rescue
+      false
     end
 
     def mail_status_upstream_healthcheck

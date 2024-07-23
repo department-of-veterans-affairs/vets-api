@@ -46,7 +46,7 @@ module PdfFill
 
         return if postal_code.blank?
 
-        postal_code = postal_code.tr('^0-9', '')
+        postal_code = postal_code.tr('\-', '')
 
         split_postal_code = postal_code.scan(/.{1,5}/)
         if split_postal_code.length == 2
@@ -125,6 +125,19 @@ module PdfFill
         return '' if bool_attribute.nil?
 
         bool_attribute ? 'Yes' : 'No'
+      end
+
+      # Further readability improvements require various refactoring and code
+      # de-duplication across different forms.
+      module PhoneNumberFormatting
+        def expand_phone_number(phone_number)
+          phone_number = phone_number.delete('^0-9')
+          {
+            'phone_area_code' => phone_number[0..2],
+            'phone_first_three_numbers' => phone_number[3..5],
+            'phone_last_four_numbers' => phone_number[6..9]
+          }
+        end
       end
     end
   end

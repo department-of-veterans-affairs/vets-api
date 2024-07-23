@@ -1,14 +1,19 @@
 # frozen_string_literal: true
 
-class DisabilityCompensationsSerializer < ActiveModel::Serializer
+class DisabilityCompensationsSerializer
+  include JSONAPI::Serializer
+
+  set_id { '' }
+  set_type 'direct_deposit/disability_compensations'
+
   attributes :control_information, :payment_account
 
-  def control_information
+  attribute :control_information do |object|
     object[:control_information]
   end
 
-  def payment_account
-    return unless object.key?(:payment_account)
+  attribute :payment_account do |object|
+    next nil unless object.key?(:payment_account)
 
     payment_account = object[:payment_account]
 
@@ -19,13 +24,5 @@ class DisabilityCompensationsSerializer < ActiveModel::Serializer
     payment_account[:routing_number] = StringHelpers.mask_sensitive(routing_number) if routing_number
 
     payment_account
-  end
-
-  def id
-    nil
-  end
-
-  def type
-    'direct_deposit/disability_compensations'
   end
 end

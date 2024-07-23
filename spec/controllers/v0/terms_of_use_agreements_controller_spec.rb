@@ -4,10 +4,64 @@ require 'rails_helper'
 
 RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
   let(:user) { create(:user) }
-  let(:user_account) { create(:user_account) }
+  let(:user_account) { create(:user_account, icn:) }
+  let(:icn) { user.icn }
+  let(:first_name) { user.first_name }
+  let(:last_name) { user.last_name }
   let!(:user_verification) { create(:user_verification, user_account:, idme_uuid: user.uuid) }
   let(:agreement_version) { 'v1' }
   let(:terms_code) { nil }
+  let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+  let(:mpi_profile) do
+    build(:mpi_profile,
+          icn:,
+          given_names: [first_name],
+          family_name: last_name)
+  end
+
+  before do
+    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(find_profile_response)
+  end
+
+  describe 'GET #current_status' do
+    subject { get :current_status, params: { icn: } }
+
+    it 'returns ok status' do
+      subject
+      expect(response).to have_http_status(:ok)
+    end
+
+    context 'when a terms of use agreement exists for the authenticated user' do
+      let!(:terms_of_use_acceptance) do
+        create(:terms_of_use_agreement, user_account:, response: terms_response, agreement_version:)
+      end
+
+      context 'and terms of use agreement has been accepted' do
+        let(:terms_response) { 'accepted' }
+
+        it 'returns accepted status' do
+          subject
+          expect(JSON.parse(response.body)['agreement_status']).to eq(terms_response)
+        end
+      end
+
+      context 'and terms of use agreement has been declined' do
+        let(:terms_response) { 'declined' }
+
+        it 'returns declined status' do
+          subject
+          expect(JSON.parse(response.body)['agreement_status']).to eq(terms_response)
+        end
+      end
+    end
+
+    context 'when a terms of use agreement does not exist for the authenticated user' do
+      it 'returns nil status' do
+        subject
+        expect(JSON.parse(response.body)['agreement_status']).to eq(nil)
+      end
+    end
+  end
 
   describe 'GET #latest' do
     subject { get :latest, params: { version: agreement_version, terms_code: } }
@@ -60,7 +114,9 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
 
     context 'when user is authenticated with a one time terms code' do
       let(:terms_code) { SecureRandom.hex }
-      let!(:terms_code_container) { create(:terms_code_container, code: terms_code, user_uuid: user.uuid) }
+      let!(:terms_code_container) do
+        create(:terms_code_container, code: terms_code, user_account_uuid: user_account.id)
+      end
 
       it_behaves_like 'authenticated get latest agreement'
     end
@@ -116,17 +172,6 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
         end
       end
 
-      context 'when the user does not have a common_name' do
-        let(:user) { create(:user, first_name: nil, middle_name: nil, last_name: nil, suffix: nil) }
-        let(:expected_error) { 'Validation failed: Common name can\'t be blank' }
-
-        it 'returns an unprocessable_entity' do
-          subject
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(JSON.parse(response.body)['error']).to eq(expected_error)
-        end
-      end
-
       context 'when the agreement acceptance fails' do
         before do
           allow_any_instance_of(TermsOfUseAgreement).to receive(:accepted!).and_raise(ActiveRecord::RecordInvalid)
@@ -158,7 +203,9 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
 
     context 'when user is authenticated with a one time terms code' do
       let(:terms_code) { SecureRandom.hex }
-      let!(:terms_code_container) { create(:terms_code_container, code: terms_code, user_uuid: user.uuid) }
+      let!(:terms_code_container) do
+        create(:terms_code_container, code: terms_code, user_account_uuid: user_account.id)
+      end
 
       it_behaves_like 'authenticated agreements acceptance'
     end
@@ -214,17 +261,6 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
         end
       end
 
-      context 'when the user does not have a common_name' do
-        let(:user) { create(:user, first_name: nil, middle_name: nil, last_name: nil, suffix: nil) }
-        let(:expected_error) { 'Validation failed: Common name can\'t be blank' }
-
-        it 'returns an unprocessable_entity' do
-          subject
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(JSON.parse(response.body)['error']).to eq(expected_error)
-        end
-      end
-
       context 'when the agreement declination fails' do
         before do
           allow_any_instance_of(TermsOfUseAgreement).to receive(:declined!).and_raise(ActiveRecord::RecordInvalid)
@@ -256,7 +292,9 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
 
     context 'when user is authenticated with a one time terms code' do
       let(:terms_code) { SecureRandom.hex }
-      let!(:terms_code_container) { create(:terms_code_container, code: terms_code, user_uuid: user.uuid) }
+      let!(:terms_code_container) do
+        create(:terms_code_container, code: terms_code, user_account_uuid: user_account.id)
+      end
 
       it_behaves_like 'authenticated agreements decline'
     end
@@ -279,8 +317,153 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
     end
   end
 
+  describe 'POST #accept_and_provision' do
+    subject { post :accept_and_provision, params: { version: agreement_version, terms_code: } }
+
+    shared_examples 'successful acceptance and provisioning' do
+      let(:expected_status) { :created }
+      let(:expected_cookie) { 'CERNER_CONSENT=ACCEPTED' }
+      let(:expected_cookie_domain) { '.va.gov' }
+      let(:expected_cookie_path) { '/' }
+      let(:expected_cookie_expiration) { 2.minutes.from_now }
+      let(:expected_log) { '[TermsOfUseAgreementsController] accept_and_provision success' }
+
+      before do
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'returns created status and sets the cerner cookie' do
+        subject
+        expect(response).to have_http_status(expected_status)
+        expect(cookies['CERNER_CONSENT']).to eq('ACCEPTED')
+        expect(response.headers['Set-Cookie']).to include(expected_cookie)
+        expect(response.headers['Set-Cookie']).to include("domain=#{expected_cookie_domain}")
+        expect(response.headers['Set-Cookie']).to include("path=#{expected_cookie_path}")
+        expect(response.headers['Set-Cookie']).to include("expires=#{expected_cookie_expiration.httpdate}")
+      end
+
+      it 'logs the expected log' do
+        subject
+        expect(Rails.logger).to have_received(:info).with(expected_log, { icn: })
+      end
+    end
+
+    shared_examples 'unsuccessful acceptance and provisioning' do
+      let(:expected_status) { :unprocessable_entity }
+      let(:expected_log) do
+        "[TermsOfUseAgreementsController] accept_and_provision error: #{expected_error}"
+      end
+
+      before do
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'does not create a terms of use agreement' do
+        expect { subject }.not_to change(TermsOfUseAgreement, :count)
+      end
+
+      it 'returns unprocessable_entity status and does not set the cookie' do
+        subject
+        expect(response).to have_http_status(expected_status)
+        expect(cookies['CERNER_CONSENT']).to be_nil
+        expect(response.headers['Set-Cookie']).to be_nil
+      end
+
+      it 'logs the expected log' do
+        subject
+        expect(Rails.logger).to have_received(:error).with(expected_log, { icn: user.icn })
+      end
+    end
+
+    context 'when user is authenticated with a session token' do
+      let(:mpi_profile) { build(:mpi_profile) }
+      let(:user) { build(:user, :loa3, mpi_profile:) }
+      let(:terms_of_use_agreement) { build(:terms_of_use_agreement, response: 'accepted') }
+      let(:acceptor) { instance_double(TermsOfUse::Acceptor, perform!: terms_of_use_agreement) }
+      let(:provisioner) { instance_double(TermsOfUse::Provisioner, perform: true) }
+
+      before do
+        Timecop.freeze(Time.zone.now.floor)
+        sign_in(user)
+        allow(TermsOfUse::Acceptor).to receive(:new).and_return(acceptor)
+        allow(TermsOfUse::Provisioner).to receive(:new).and_return(provisioner)
+      end
+
+      after { Timecop.return }
+
+      context 'when the acceptance and provisioning is successful' do
+        it_behaves_like 'successful acceptance and provisioning'
+      end
+
+      context 'when the acceptance is not successful' do
+        let(:expected_error) { TermsOfUse::Errors::AcceptorError }
+
+        before do
+          allow(acceptor).to receive(:perform!).and_raise(expected_error)
+        end
+
+        it_behaves_like 'unsuccessful acceptance and provisioning'
+      end
+
+      context 'when the provisioning is not successful' do
+        let(:expected_error) { TermsOfUse::Errors::ProvisionerError }
+
+        before do
+          allow(provisioner).to receive(:perform).and_raise(expected_error)
+        end
+
+        it_behaves_like 'unsuccessful acceptance and provisioning'
+      end
+    end
+  end
+
   describe 'PUT #update_provisioning' do
     subject { put :update_provisioning }
+
+    shared_examples 'successful provisioning' do
+      let(:expected_cookie) { 'CERNER_CONSENT=ACCEPTED' }
+      let(:expected_cookie_domain) { '.va.gov' }
+      let(:expected_cookie_path) { '/' }
+      let(:expected_cookie_expiration) { 2.minutes.from_now }
+      let(:expected_log) { '[TermsOfUseAgreementsController] update_provisioning success' }
+
+      before do
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'returns ok status and sets the cerner cookie' do
+        subject
+        expect(response).to have_http_status(:ok)
+        expect(cookies['CERNER_CONSENT']).to eq('ACCEPTED')
+        expect(response.headers['Set-Cookie']).to include(expected_cookie)
+        expect(response.headers['Set-Cookie']).to include("domain=#{expected_cookie_domain}")
+        expect(response.headers['Set-Cookie']).to include("path=#{expected_cookie_path}")
+        expect(response.headers['Set-Cookie']).to include("expires=#{expected_cookie_expiration.httpdate}")
+      end
+
+      it 'logs the expected log' do
+        subject
+        expect(Rails.logger).to have_received(:info).with(expected_log, { icn: user.icn })
+      end
+    end
+
+    shared_examples 'unsuccessful provisioning' do
+      before do
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'returns unprocessable_entity status and does not set the cookie' do
+        subject
+        expect(response).to have_http_status(expected_status)
+        expect(cookies['CERNER_CONSENT']).to be_nil
+        expect(response.headers['Set-Cookie']).to be_nil
+      end
+
+      it 'logs the expected log' do
+        subject
+        expect(Rails.logger).to have_received(:error).with(expected_log, { icn: user.icn })
+      end
+    end
 
     context 'when user is authenticated with a session token' do
       let(:mpi_profile) { build(:mpi_profile) }
@@ -297,44 +480,20 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
       after { Timecop.return }
 
       context 'when the provisioning is successful' do
-        let(:expected_cookie) { 'CERNER_CONSENT=ACCEPTED' }
-        let(:expected_cookie_domain) { '.va.gov' }
-        let(:expected_cookie_path) { '/' }
-        let(:expected_cookie_expiration) { 2.minutes.from_now }
-
-        it 'returns ok status and sets the cerner cookie' do
-          subject
-          expect(response).to have_http_status(:ok)
-          expect(cookies['CERNER_CONSENT']).to eq('ACCEPTED')
-          expect(response.headers['Set-Cookie']).to include(expected_cookie)
-          expect(response.headers['Set-Cookie']).to include("domain=#{expected_cookie_domain}")
-          expect(response.headers['Set-Cookie']).to include("path=#{expected_cookie_path}")
-          expect(response.headers['Set-Cookie']).to include("expires=#{expected_cookie_expiration.httpdate}")
-        end
-      end
-
-      context 'when the provisioning is not successful' do
-        let(:provisioned) { false }
-
-        it 'returns unprocessable_entity status and does not set the cookie' do
-          subject
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(cookies['CERNER_CONSENT']).to be_nil
-          expect(response.headers['Set-Cookie']).to be_nil
-        end
+        it_behaves_like 'successful provisioning'
       end
 
       context 'when the provisioning raises an error' do
+        let(:expected_status) { :unprocessable_entity }
+        let(:expected_log) do
+          '[TermsOfUseAgreementsController] update_provisioning error: TermsOfUse::Errors::ProvisionerError'
+        end
+
         before do
           allow(provisioner).to receive(:perform).and_raise(TermsOfUse::Errors::ProvisionerError)
         end
 
-        it 'returns unprocessable_entity status and does not set the cookie' do
-          subject
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(cookies['CERNER_CONSENT']).to be_nil
-          expect(response.headers['Set-Cookie']).to be_nil
-        end
+        it_behaves_like 'unsuccessful provisioning'
       end
     end
   end

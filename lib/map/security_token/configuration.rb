@@ -22,6 +22,10 @@ module MAP
         Settings.map_services.check_in_client_id
       end
 
+      def appointments_client_id
+        Settings.map_services.appointments_client_id
+      end
+
       def client_key_path
         Settings.map_services.client_key_path
       end
@@ -82,8 +86,9 @@ module MAP
         ) do |conn|
           conn.use :breakers
           conn.use Faraday::Response::RaiseError
-          conn.response :betamocks if Settings.map_services.secure_token_service.mock
           conn.adapter Faraday.default_adapter
+          conn.response :json, content_type: /\bjson/
+          conn.response :betamocks if Settings.map_services.secure_token_service.mock
         end
       end
     end

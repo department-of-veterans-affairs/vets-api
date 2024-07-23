@@ -1,13 +1,7 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
-require 'sentry_logging'
-
 module ClaimsApi
   class FlashUpdater < UpdaterService
-    include Sidekiq::Job
-    include SentryLogging
-
     def perform(flashes, auto_claim_id)
       user = bgs_headers(auto_claim_id)
       service = bgs_service(user).claimant

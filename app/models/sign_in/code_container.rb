@@ -12,6 +12,7 @@ module SignIn
     attribute :user_verification_id, Integer
     attribute :credential_email, String
     attribute :user_attributes, Hash
+    attribute :device_sso, Boolean
 
     validates(:code, :user_verification_id, presence: true)
 

@@ -18,15 +18,14 @@ module Mobile
           # VAOS V2 appointments service accepts pagination params but either it formats them incorrectly
           # or the upstream service does not use them.
           response = vaos_v2_appointments_service.get_appointments(start_date, end_date, statuses.join(','),
-                                                                   pagination_params)
+                                                                   pagination_params, include_params)
 
           appointments = response[:data]
-          filterer = PresentationFilter.new(include_pending:)
-          appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
 
-          appointments = merge_clinic_facility_address(appointments)
-          appointments = merge_auxiliary_clinic_info(appointments)
-          appointments = merge_provider_names(appointments)
+          unless Flipper.enabled?(:appointments_consolidation, @user)
+            filterer = VAOS::V2::AppointmentsPresentationFilter.new
+            appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
+          end
 
           appointments = vaos_v2_to_v0_appointment_adapter.parse(appointments)
 
@@ -35,49 +34,11 @@ module Mobile
 
         private
 
-        def merge_clinic_facility_address(appointments)
-          cached_facilities = {}
-
-          facility_ids = appointments.map(&:location_id).compact.uniq
-          facility_ids.each do |facility_id|
-            cached_facilities[facility_id] = appointments_helper.get_facility(facility_id)
-          end
-
-          appointments.each do |appt|
-            facility_id = appt[:location_id]
-            next unless facility_id
-
-            appt[:location] = cached_facilities[facility_id]
-          end
-        end
-
-        def merge_auxiliary_clinic_info(appointments)
-          cached_clinics = {}
-
-          location_clinics = appointments.map { |appt| [appt.location_id, appt.clinic] }.reject { |a| a.any?(nil) }.uniq
-          location_clinics.each do |location_id, clinic_id|
-            cached_clinics[clinic_id] = appointments_helper.get_clinic(location_id, clinic_id)
-          end
-
-          appointments.each do |appt|
-            clinic_id = appt[:clinic]
-            next unless clinic_id
-
-            service_name = cached_clinics.dig(clinic_id, :service_name)
-            appt[:service_name] = service_name
-
-            physical_location = cached_clinics.dig(clinic_id, :physical_location)
-            appt[:physical_location] = physical_location
-          end
-        end
-
-        def merge_provider_names(appointments)
-          provider_names_proxy = ProviderNames.new(@user)
-          appointments.each do |appt|
-            practitioners_list = appt[:practitioners]
-            names = provider_names_proxy.form_names_from_appointment_practitioners_list(practitioners_list)
-            appt[:healthcare_provider] = names
-          end
+        def include_params
+          {
+            clinics: true,
+            facilities: true
+          }
         end
 
         def appointments_helper

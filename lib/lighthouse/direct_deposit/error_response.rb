@@ -21,6 +21,10 @@ module Lighthouse
         { errors: @errors }
       end
 
+      def code=(code)
+        errors.first[:code] = code
+      end
+
       def code
         errors.first[:code]
       end

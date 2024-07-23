@@ -3,7 +3,11 @@
 module Mobile
   class ApplicationController < SignIn::ApplicationController
     include Traceable
+    include SignIn::AudienceValidator
+
     service_tag 'mobile-app'
+    validates_access_token_audience Settings.sign_in.vamobile_client_id
+
     before_action :authenticate
     before_action :set_tags_and_extra_context
     skip_before_action :authenticate, only: :cors_preflight
@@ -30,6 +34,8 @@ module Mobile
     end
 
     def access_token
+      return super if sis_authentication?
+
       @access_token ||= bearer_token
     end
 
@@ -45,7 +51,7 @@ module Mobile
 
     def set_tags_and_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'mobile' }
-      Raven.tags_context(source: 'mobile')
+      Sentry.set_tags(source: 'mobile')
     end
   end
 end

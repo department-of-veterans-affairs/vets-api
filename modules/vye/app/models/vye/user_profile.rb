@@ -1,0 +1,79 @@
+# frozen_string_literal: true
+
+class Vye::UserProfile < ApplicationRecord
+  include Vye::DigestProtected
+
+  has_many :user_infos, dependent: :restrict_with_exception
+  has_one(
+    :active_user_info,
+    -> { with_bdn_clone_active },
+    class_name: 'Vye::UserInfo',
+    inverse_of: :user_profile,
+    dependent: :restrict_with_exception
+  )
+  has_many :pending_documents, dependent: :restrict_with_exception
+  has_many :verifications, dependent: :restrict_with_exception
+
+  digest_attribute :ssn
+  digest_attribute :file_number
+
+  validate do
+    unless ssn_digest.present? || file_number_digest.present?
+      errors.add(
+        :base,
+        'Either SSN or file number must be present.'
+      )
+    end
+  end
+
+  validates :ssn_digest, :file_number_digest, uniqueness: true, allow_nil: true
+
+  scope(
+    :with_assos,
+    lambda {
+      includes(
+        :pending_documents,
+        :verifications,
+        active_user_info: %i[address_changes awards]
+      )
+    }
+  )
+
+  def self.find_and_update_icn(user:)
+    return if user.blank?
+
+    with_assos.find_by(icn: user.icn) || with_assos.find_from_digested_ssn(user.ssn)&.tap do |result|
+      result.update!(icn: user.icn)
+    end
+  end
+
+  def check_for_match
+    user_profile = self
+    attribute_name = %w[ssn_digest file_number_digest icn].find { |a| attribute_changed? a }
+    conflict = attribute_name.present?
+
+    { user_profile:, conflict:, attribute_name: }
+  end
+
+  def self.produce(attributes)
+    ssn, file_number, icn = attributes.values_at(:ssn, :file_number, :icn).map(&:presence)
+    ssn_digest, file_number_digest = [ssn, file_number].map { |value| gen_digest(value) }
+    assignment = { ssn_digest:, file_number_digest: }.merge(icn.present? ? { icn: } : {})
+
+    user_profile = find_or_build(ssn_digest:, file_number_digest:)
+    user_profile&.assign_attributes(**assignment)
+    user_profile&.check_for_match
+  end
+
+  def self.find_or_build(ssn_digest:, file_number_digest:)
+    return nil if ssn_digest.blank? && file_number_digest.blank?
+
+    result = find_by(ssn_digest:) if ssn_digest.present?
+    return result if result.present?
+
+    result = find_by(file_number_digest:) if file_number_digest.present?
+    return result if result.present?
+
+    build(ssn_digest:, file_number_digest:)
+  end
+end

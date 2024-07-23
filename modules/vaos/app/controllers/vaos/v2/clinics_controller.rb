@@ -11,7 +11,6 @@ module VAOS
                                                         clinical_service: params[:clinical_service],
                                                         page_size: params[:page_size],
                                                         page_number: params[:page_number])
-        log_clinic_names(response)
         render json: VAOS::V2::ClinicsSerializer.new(response)
       end
 
@@ -69,20 +68,6 @@ module VAOS
 
       def unable_to_lookup_clinic?(appt)
         appt.nil? || appt.location_id.nil? || appt.clinic.nil?
-      end
-
-      def log_clinic_names(clinic_data)
-        clinic_data.each do |clinic|
-          clinic_names = { CLINIC_KEY => clinic_name_metrics(clinic) }
-          Rails.logger.info('Clinic names returned', clinic_names.to_json) unless clinic_names.empty?
-        end
-      end
-
-      def clinic_name_metrics(clinic)
-        {
-          stationId: clinic.station_id,
-          serviceName: clinic.service_name
-        }
       end
 
       def systems_service

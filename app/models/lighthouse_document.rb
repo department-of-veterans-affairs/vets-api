@@ -8,17 +8,17 @@ class LighthouseDocument < Common::Base
   include ActiveModel::Validations::Callbacks
   include SentryLogging
 
-  attribute :file_number, String
   attribute :claim_id, Integer
-  attribute :tracked_item_id, Integer
   attribute :document_type, String
   attribute :file_name, String
-  attribute :uuid, String
   attribute :file_obj, ActionDispatch::Http::UploadedFile
+  attribute :participant_id, String
   attribute :password, String
+  attribute :tracked_item_id, Integer
+  attribute :uuid, String
 
   validates(:file_name, presence: true)
-  validates(:file_number, presence: true)
+  validates(:participant_id, presence: true)
   validate :known_document_type?
   validate :unencrypted_pdf?
   before_validation :normalize_text, :convert_to_unlocked_pdf, :normalize_file_name
@@ -93,11 +93,15 @@ class LighthouseDocument < Common::Base
     pdftk = PdfForms.new(Settings.binaries.pdftk)
     tempfile_without_pass = Tempfile.new(['decrypted_lighthouse_claim_document', '.pdf'])
 
-    error_messages = pdftk.call_pdftk(file_obj.tempfile.path,
-                                      'input_pw', password,
-                                      'output', tempfile_without_pass.path)
-    if error_messages.present? && error_messages.include?('Error')
-      log_message_to_sentry(error_messages, 'warn')
+    begin
+      pdftk.call_pdftk(file_obj.tempfile.path,
+                       'input_pw', password,
+                       'output', tempfile_without_pass.path)
+    rescue PdfForms::PdftkError => e
+      file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
+      password_regex = /(input_pw).*?(output)/
+      sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
+      log_message_to_sentry(sanitized_message, 'warn')
       errors.add(:base, I18n.t('errors.messages.uploads.pdf.incorrect_password'))
     end
 

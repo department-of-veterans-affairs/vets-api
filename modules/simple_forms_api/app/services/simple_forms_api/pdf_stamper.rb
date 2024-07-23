@@ -4,124 +4,54 @@ require 'central_mail/datestamp_pdf'
 
 module SimpleFormsApi
   class PdfStamper
-    FORM_REQUIRES_STAMP = %w[26-4555 21-4142 21-10210 21-0845 21P-0847 21-0966 21-0972].freeze
+    FORM_REQUIRES_STAMP = %w[20-10207 21-0845 21-0966 21-0972 21-4138 21-10210 21-4142 21P-0847 26-4555].freeze
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
+    SUBMISSION_DATE_TITLE = 'Application Submitted:'
 
-    def self.stamp_pdf(stamped_template_path, data)
-      if FORM_REQUIRES_STAMP.include? data['form_number']
-        stamp_method = "stamp#{data['form_number'].gsub('-', '')}".downcase
-        send(stamp_method, stamped_template_path, data)
-      end
+    def self.stamp_pdf(stamped_template_path, form, current_loa)
+      stamp_signature(stamped_template_path, form)
 
-      current_time = Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')
-      stamp_text = SUBMISSION_TEXT + current_time
-      desired_stamps = [[10, 10, stamp_text]]
-      stamp(desired_stamps, stamped_template_path, text_only: false)
+      stamp_auth_text(stamped_template_path, current_loa)
+
+      stamp_submission_date(stamped_template_path, form.submission_date_stamps)
     end
 
-    def self.stamp264555(stamped_template_path, data)
-      desired_stamps = []
-      desired_stamps.append([73, 390, 'X']) if data['previous_sah_application']['has_previous_sah_application'] == false
-      desired_stamps.append([73, 355, 'X']) if data['previous_hi_application']['has_previous_hi_application'] == false
-      desired_stamps.append([73, 320, 'X']) if data['living_situation']['is_in_care_facility'] == false
-      stamp(desired_stamps, stamped_template_path)
-    end
-
-    def self.stamp214142(stamped_template_path, data)
-      desired_stamps = [[50, 560]]
-      signature_text = data['statement_of_truth_signature']
-      page_configuration = [
-        { type: :new_page },
-        { type: :text, position: desired_stamps[0] },
-        { type: :new_page }
-      ]
-
-      multistamp(stamped_template_path, signature_text, page_configuration)
-
-      # This is a one-off case where we need to stamp a date on the first page of 21-4142 when resubmitting
-      if data['in_progress_form_created_at']
-        date_title = 'Application Submitted:'
-        date_text = data['in_progress_form_created_at']
-        stamp214142_date_stamp_for_resubmission(stamped_template_path, date_title, date_text)
+    def self.stamp_signature(stamped_template_path, form)
+      form_number = form.data['form_number']
+      if FORM_REQUIRES_STAMP.include? form_number
+        form.desired_stamps.each do |desired_stamp|
+          stamp(desired_stamp, stamped_template_path)
+        end
       end
     end
 
-    def self.stamp214142_date_stamp_for_resubmission(stamped_template_path, date_title, date_text)
-      date_title_stamp_position = [440, 710]
-      date_text_stamp_position = [440, 690]
-      page_configuration = [
-        { type: :text, position: date_title_stamp_position },
-        { type: :new_page },
-        { type: :new_page }
-      ]
-
-      multistamp(stamped_template_path, date_title, page_configuration, 12)
-
-      page_configuration = [
-        { type: :text, position: date_text_stamp_position },
-        { type: :new_page },
-        { type: :new_page }
-      ]
-
-      multistamp(stamped_template_path, date_text, page_configuration, 12)
+    def self.stamp_auth_text(stamped_template_path, current_loa)
+      current_time = "#{Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')} "
+      auth_text = case current_loa
+                  when 3
+                    'Signee signed with an identity-verified account.'
+                  when 2
+                    'Signee signed in but hasn’t verified their identity.'
+                  else
+                    'Signee not signed in.'
+                  end
+      coords = [10, 10]
+      text = SUBMISSION_TEXT + current_time
+      desired_stamp = { coords:, text: }
+      verify(stamped_template_path) do
+        stamp(desired_stamp, stamped_template_path, append_to_stamp: auth_text, text_only: false)
+      end
     end
 
-    def self.stamp2110210(stamped_template_path, data)
-      desired_stamps = [[50, 160]]
-      signature_text = data['statement_of_truth_signature']
+    def self.stamp4010007_uuid(uuid)
+      uuid = "UUID: #{uuid}"
+      stamped_template_path = 'tmp/vba_40_10007-tmp.pdf'
+      desired_stamps = [[390, 18]]
       page_configuration = [
-        { type: :new_page },
-        { type: :new_page },
         { type: :text, position: desired_stamps[0] }
       ]
 
-      multistamp(stamped_template_path, signature_text, page_configuration)
-    end
-
-    def self.stamp210845(stamped_template_path, data)
-      desired_stamps = [[50, 240]]
-      signature_text = data['statement_of_truth_signature']
-      page_configuration = [
-        { type: :new_page },
-        { type: :new_page },
-        { type: :text, position: desired_stamps[0] }
-      ]
-
-      multistamp(stamped_template_path, signature_text, page_configuration)
-    end
-
-    def self.stamp21p0847(stamped_template_path, data)
-      desired_stamps = [[50, 190]]
-      signature_text = data['statement_of_truth_signature']
-      page_configuration = [
-        { type: :new_page },
-        { type: :text, position: desired_stamps[0] }
-      ]
-
-      multistamp(stamped_template_path, signature_text, page_configuration)
-    end
-
-    def self.stamp210972(stamped_template_path, data)
-      desired_stamps = [[50, 465]]
-      signature_text = data['statement_of_truth_signature']
-      page_configuration = [
-        { type: :new_page },
-        { type: :new_page },
-        { type: :text, position: desired_stamps[0] }
-      ]
-
-      multistamp(stamped_template_path, signature_text, page_configuration)
-    end
-
-    def self.stamp210966(stamped_template_path, data)
-      desired_stamps = [[50, 415]]
-      signature_text = data['statement_of_truth_signature']
-      page_configuration = [
-        { type: :new_page },
-        { type: :text, position: desired_stamps[0] }
-      ]
-
-      multistamp(stamped_template_path, signature_text, page_configuration)
+      verified_multistamp(stamped_template_path, uuid, page_configuration, 9)
     end
 
     def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
@@ -139,30 +69,76 @@ module SimpleFormsApi
 
       perform_multistamp(stamped_template_path, stamp_path)
     rescue => e
-      Rails.logger.error "Failed to generate stamped file: #{e.message}"
+      Rails.logger.error 'Simple forms api - Failed to generate stamped file', message: e.message
       raise
     ensure
       Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
     end
 
-    def self.stamp(desired_stamps, stamped_template_path, text_only: true)
+    def self.stamp(desired_stamp, stamped_template_path, append_to_stamp: false, text_only: true)
       current_file_path = stamped_template_path
-      desired_stamps.each do |x, y, text|
-        out_path = CentralMail::DatestampPdf.new(current_file_path).run(text:, x:, y:, text_only:)
-        current_file_path = out_path
+      coords = desired_stamp[:coords]
+      text = desired_stamp[:text]
+      page = desired_stamp[:page]
+      font_size = desired_stamp[:font_size]
+      x = coords[0]
+      y = coords[1]
+      if page
+        page_configuration = get_page_configuration(page, coords)
+        verified_multistamp(stamped_template_path, text, page_configuration, font_size)
+      else
+        datestamp_instance = CentralMail::DatestampPdf.new(current_file_path, append_to_stamp:)
+        current_file_path = datestamp_instance.run(text:, x:, y:, text_only:, size: 9)
+        File.rename(current_file_path, stamped_template_path)
       end
-      File.rename(current_file_path, stamped_template_path)
     end
 
     def self.perform_multistamp(stamped_template_path, stamp_path)
       out_path = "#{Common::FileHelpers.random_file_path}.pdf"
       pdftk = PdfFill::Filler::PDF_FORMS
       pdftk.multistamp(stamped_template_path, stamp_path, out_path)
-      File.delete(stamped_template_path)
+      Common::FileHelpers.delete_file_if_exists(stamped_template_path)
       File.rename(out_path, stamped_template_path)
-    rescue
+    rescue => e
+      Rails.logger.error 'Simple forms api - Failed to perform multistamp', message: e.message
       Common::FileHelpers.delete_file_if_exists(out_path)
+      raise e
+    end
+
+    def self.stamp_submission_date(stamped_template_path, desired_stamps)
+      desired_stamps.each do |desired_stamp|
+        stamp(desired_stamp, stamped_template_path)
+      end
+    end
+
+    def self.verify(template_path)
+      orig_size = File.size(template_path)
+      yield
+      stamped_size = File.size(template_path)
+
+      raise StandardError, 'The PDF remained unchanged upon stamping.' unless stamped_size > orig_size
+    rescue Prawn::Errors::IncompatibleStringEncoding
       raise
+    rescue => e
+      raise StandardError, "An error occurred while verifying stamp: #{e}"
+    end
+
+    def self.verified_multistamp(stamped_template_path, stamp_text, page_configuration, *)
+      raise StandardError, 'The provided stamp content was empty.' if stamp_text.blank?
+
+      verify(stamped_template_path) { multistamp(stamped_template_path, stamp_text, page_configuration, *) }
+    end
+
+    def self.get_page_configuration(page, position)
+      [
+        { type: :new_page },
+        { type: :new_page },
+        { type: :new_page },
+        { type: :new_page },
+        { type: :new_page }
+      ].tap do |config|
+        config[page] = { type: :text, position: }
+      end
     end
   end
 end

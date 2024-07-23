@@ -33,6 +33,14 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
   describe '#perform' do
     subject { described_class.new.perform(in_progress_form.id, user.uuid) }
 
+    context 'when the form has been deleted' do
+      before do
+        in_progress_form.destroy!
+      end
+
+      expect_does_nothing
+    end
+
     context 'when form email is present' do
       context 'when email confirmation is different' do
         before do

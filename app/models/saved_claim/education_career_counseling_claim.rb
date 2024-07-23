@@ -8,7 +8,7 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
     []
   end
 
-  def send_to_central_mail!
+  def send_to_benefits_intake!
     form_copy = parsed_form
 
     if form_copy['veteranSocialSecurityNumber'].blank?
@@ -27,6 +27,10 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
 
-    CentralMail::SubmitSavedClaimJob.new.perform(id)
+    Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
+  end
+
+  def business_line
+    'EDU'
   end
 end

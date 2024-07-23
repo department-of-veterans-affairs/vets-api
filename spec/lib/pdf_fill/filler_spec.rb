@@ -51,15 +51,21 @@ describe PdfFill::Filler, type: :model do
       },
       {
         form_id: '21P-527EZ',
-        factory: :pension_claim
+        factory: :pension_claim,
+        use_vets_json_schema: true
+      },
+      {
+        form_id: '21P-0969',
+        factory: :income_and_assets_claim,
+        use_vets_json_schema: true
       },
       {
         form_id: '10-10CG',
         factory: :caregivers_assistance_claim,
         input_data_fixture_dir: 'pdf_fill/10-10CG',
-        output_pdf_fixture_dir: 'pdf_fill/10-10CG/unsigned',
+        output_pdf_fixture_dir: 'pdf_fill/10-10CG/signed',
         fill_options: {
-          sign: false
+          sign: true
         }
       },
       {
@@ -83,7 +89,12 @@ describe PdfFill::Filler, type: :model do
           context "with #{type} test data" do
             let(:input_data_fixture_dir) { options[:input_data_fixture_dir] || "pdf_fill/#{form_id}" }
             let(:output_pdf_fixture_dir) { options[:output_pdf_fixture_dir] || "pdf_fill/#{form_id}" }
-            let(:form_data) { get_fixture("#{input_data_fixture_dir}/#{type}") }
+            let(:form_data) do
+              return get_fixture("#{input_data_fixture_dir}/#{type}") unless options[:use_vets_json_schema]
+
+              schema = "#{form_id.upcase}-#{type.upcase}"
+              VetsJsonSchema::EXAMPLES.fetch(schema)
+            end
             let(:saved_claim) { create(factory, form: form_data.to_json) }
 
             it 'fills the form correctly' do

@@ -24,7 +24,7 @@ RSpec.describe CovidVaccine::ExpandedRegistrationEmailJob, type: :worker do
     it 'logs message to sentry and raises if no submission exists' do
       with_settings(Settings.sentry, dsn: 'T') do
         expect(VaNotify::Service).not_to receive(:new)
-        expect(Raven).to receive(:capture_exception)
+        expect(Sentry).to receive(:capture_exception)
         expect { subject.perform('non-existent-submission-id') }.to raise_error(StandardError)
       end
     end

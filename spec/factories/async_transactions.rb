@@ -8,6 +8,7 @@ FactoryBot.define do
     status              { AsyncTransaction::Base::REQUESTED }
     sequence(:transaction_id, 100) { |n| "r3fab2b5-6af0-45e1-a9e2-394347af9#{n}" }
     transaction_status { 'RECEIVED' }
+    metadata { '{ "key1": "value1", "key2": "value2" }' }
 
     factory :address_transaction, class: 'AsyncTransaction::Vet360::AddressTransaction' do
     end

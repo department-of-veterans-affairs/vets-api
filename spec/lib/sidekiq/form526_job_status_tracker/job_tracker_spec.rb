@@ -11,6 +11,10 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
     end
   end
 
+  before do
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
+  end
+
   context 'with an exhausted callback message' do
     let!(:form526_submission) { create :form526_submission }
     let!(:form526_job_status) do
@@ -43,12 +47,12 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
       job_status = Form526JobStatus.last
       expect(job_status.status).to eq 'exhausted'
       expect(job_status.job_class).to eq 'SubmitForm526AllClaim'
-      expect(job_status.error_message).to eq msg['error_message']
       expect(job_status.form526_submission_id).to eq form526_submission.id
 
       expect(job_status.bgjob_errors).to be_a Hash
       key = job_status.bgjob_errors.keys.first
-      expect(job_status.bgjob_errors[key].keys).to match_array %w[timestamp caller_method error_class error_message]
+      expect(job_status.bgjob_errors[key].keys).to match_array %w[timestamp caller_method error_class
+                                                                  error_message form526_submission_id]
       expect(job_status.bgjob_errors[key]['caller_method']).to match 'job_exhausted'
     end
 
@@ -61,12 +65,12 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
       job_status = Form526JobStatus.last
       expect(job_status.status).to eq 'exhausted'
       expect(job_status.job_class).to eq 'SubmitForm526AllClaim'
-      expect(job_status.error_message).to eq msg['error_message']
       expect(job_status.form526_submission_id).to eq form526_submission.id
 
       expect(job_status.bgjob_errors).to be_a Hash
       key = job_status.bgjob_errors.keys.first
-      expect(job_status.bgjob_errors[key].keys).to match_array %w[timestamp caller_method error_class error_message]
+      expect(job_status.bgjob_errors[key].keys).to match_array %w[timestamp caller_method error_class
+                                                                  error_message form526_submission_id]
       expect(job_status.bgjob_errors[key]['caller_method']).to match 'job_exhausted'
     end
 

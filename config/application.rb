@@ -29,7 +29,8 @@ require_relative '../lib/olive_branch_patch'
 module VetsAPI
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 6.1
+    # https://guides.rubyonrails.org/configuring.html#default-values-for-target-version-7-0
+    config.load_defaults 7.1
 
     # Configuration for the application, engines, and railties goes here.
     #
@@ -38,6 +39,19 @@ module VetsAPI
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # RAILS 7 CONFIG START
+    # 7.1
+    config.add_autoload_paths_to_load_path = true
+    config.active_record.raise_on_assign_to_attr_readonly = false
+
+    # 7.0
+    config.action_controller.raise_on_open_redirects = false
+
+    # DEPRECATION WARNING: ActiveSupport::TimeWithZone.name has been deprecated and
+    # from Rails 7.1 will use the default Ruby implementation.
+    config.active_support.remove_deprecated_time_with_zone_name = false
+    # RAILS 7 CONFIG END
 
     # Only loads a smaller set of middleware suitable for API only apps.
     # Middleware like session, flash, cookies can be added back manually.
@@ -50,7 +64,7 @@ module VetsAPI
     config.active_support.escape_html_entities_in_json = false
 
     # CORS configuration; see also cors_preflight route
-    config.middleware.insert_before 0, Rack::Cors, logger: (-> { Rails.logger }) do
+    config.middleware.insert_before 0, Rack::Cors, logger: -> { Rails.logger } do
       allow do
         regex = Regexp.new(Settings.web_origin_regex)
         origins { |source, _env| Settings.web_origin.split(',').include?(source) || source.match?(regex) }

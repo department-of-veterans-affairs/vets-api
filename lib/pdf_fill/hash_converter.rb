@@ -53,8 +53,8 @@ module PdfFill
       end
     end
 
-    def overflow?(key_data, value)
-      return false if value.blank?
+    def overflow?(key_data, value, from_array_overflow = false)
+      return false if value.blank? || from_array_overflow
 
       value = value.to_s if value.is_a?(Numeric)
 
@@ -91,7 +91,7 @@ module PdfFill
       end
     end
 
-    def set_value(v, key_data, i)
+    def set_value(v, key_data, i, from_array_overflow = false)
       k = key_data[:key]
       return if k.blank?
 
@@ -99,7 +99,7 @@ module PdfFill
 
       new_value = convert_value(v, key_data)
 
-      if overflow?(key_data, new_value)
+      if overflow?(key_data, new_value, from_array_overflow)
         add_to_extras(key_data, new_value, i)
 
         new_value = EXTRAS_TEXT
@@ -132,7 +132,8 @@ module PdfFill
         transform_data(
           form_data: { first_key => EXTRAS_TEXT },
           pdftk_keys:,
-          i: 0
+          i: 0,
+          from_array_overflow: true
         )
 
         add_array_to_extras(form_data, pdftk_keys)
@@ -143,7 +144,7 @@ module PdfFill
       end
     end
 
-    def transform_data(form_data:, pdftk_keys:, i: nil)
+    def transform_data(form_data:, pdftk_keys:, i: nil, from_array_overflow: false)
       return if form_data.nil? || pdftk_keys.nil?
 
       case form_data
@@ -154,11 +155,12 @@ module PdfFill
           transform_data(
             form_data: v,
             pdftk_keys: pdftk_keys[k],
-            i:
+            i:,
+            from_array_overflow:
           )
         end
       else
-        set_value(form_data, pdftk_keys, i)
+        set_value(form_data, pdftk_keys, i, from_array_overflow)
       end
 
       @pdftk_form

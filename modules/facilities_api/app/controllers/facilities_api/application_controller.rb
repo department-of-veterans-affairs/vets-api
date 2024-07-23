@@ -68,6 +68,8 @@ module FacilitiesApi
     end
 
     def generate_links(paginated_obj, page_params)
+      page_params.delete(:facilityIds)
+
       links = {
         self: resource_path(
           page_params.merge(page: paginated_obj.current_page, per_page: paginated_obj.per_page)

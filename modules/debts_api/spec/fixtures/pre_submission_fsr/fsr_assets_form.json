@@ -1,0 +1,41 @@
+{
+  "view:enhanced_financial_status_report": true,
+  "questions": {
+    "has_vehicle": false
+  },
+  "cash_in_bank": "200",
+  "cash_on_hand": "100",
+  "rec_vehicle_amount": "1000",
+  "us_savings_bonds": "0",
+  "stocks_and_other_bonds": "0",
+  "assets": {
+    "real_estate_value": "2000",
+    "other_assets": [
+      {
+        "amount": "10"
+      },
+      {
+        "amount": "10"
+      }
+    ],
+    "rec_vehicle_amount": "100",
+    "automobiles": [
+      {
+        "resale_value": "100"
+      },
+      {
+        "resale_value": "100"
+      }
+    ]
+  },
+  "real_estate_records": [
+    {
+      "real_estate_type": "Vacation property",
+      "real_estate_amount": "350000.47"
+    },
+    {
+      "real_estate_type": "Single-family home",
+      "real_estate_amount": "450000.34"
+    }
+  ]
+}

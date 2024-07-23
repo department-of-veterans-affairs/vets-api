@@ -11,10 +11,8 @@ RSpec.describe PagerDuty::CacheGlobalDowntime, type: %i[job aws_helpers] do
 
   before do
     allow(Settings.maintenance).to receive(:services).and_return({ global: 'ABCDEF' })
-    allow(Settings.maintenance.aws).to receive(:access_key_id).and_return('key')
-    allow(Settings.maintenance.aws).to receive(:secret_access_key).and_return('secret')
-    allow(Settings.maintenance.aws).to receive(:bucket).and_return('bucket')
-    allow(Settings.maintenance.aws).to receive(:region).and_return('region')
+    allow(Settings.maintenance.aws).to receive_messages(access_key_id: 'key', secret_access_key: 'secret',
+                                                        bucket: 'bucket', region: 'region')
     allow(PagerDuty::MaintenanceClient).to receive(:new) { client_stub }
   end
 
@@ -47,14 +45,14 @@ RSpec.describe PagerDuty::CacheGlobalDowntime, type: %i[job aws_helpers] do
 
       it 'bails on backend error' do
         expect(client_stub).to receive(:get_all).and_raise(Common::Exceptions::BackendServiceException)
-        expect(Raven).to receive(:capture_exception).with(Common::Exceptions::BackendServiceException, level: 'error')
+        expect(Sentry).to receive(:capture_exception).with(Common::Exceptions::BackendServiceException, level: 'error')
 
         subject.perform
       end
 
       it 'bails on client error' do
         expect(client_stub).to receive(:get_all).and_raise(Common::Client::Errors::ClientError)
-        expect(Raven).to receive(:capture_exception).with(Common::Client::Errors::ClientError, level: 'error')
+        expect(Sentry).to receive(:capture_exception).with(Common::Client::Errors::ClientError, level: 'error')
 
         subject.perform
       end

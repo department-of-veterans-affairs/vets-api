@@ -6,7 +6,7 @@ module ClaimsApi
   module PoaVerification
     extend ActiveSupport::Concern
 
-    included do
+    included do # rubocop:disable Metrics/BlockLength
       #
       # Validate poa code provided exists in OGC dataset, that provided poa code is a valid/active poa code
       # @param poa_code [String] poa code to validate
@@ -67,9 +67,12 @@ module ClaimsApi
       # @param poa_code [String] poa code to match to @current_user
       #
       # @return [Boolean] True if valid poa code, False if not
-      def valid_poa_code_for_current_user?(poa_code)
+      def valid_poa_code_for_current_user?(poa_code) # rubocop:disable Metrics/MethodLength
+        return false if @current_user.first_name.nil? || @current_user.last_name.nil?
+
         reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
                                                                last_name: @current_user.last_name)
+
         return false if reps.blank?
 
         if reps.count > 1
@@ -80,6 +83,12 @@ module ClaimsApi
             reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
                                                                    last_name: @current_user.last_name,
                                                                    middle_initial:)
+
+            if reps.blank? || reps.count > 1
+              reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
+                                                                     last_name: @current_user.last_name,
+                                                                     poa_code:)
+            end
 
             raise ::Common::Exceptions::Unauthorized, detail: 'VSO Representative Not Found' if reps.blank?
             raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results' if reps.count > 1
@@ -99,6 +108,8 @@ module ClaimsApi
         logged_in_representative_user = @current_user
         target_veteran_to_be_verified = target_veteran
         verify_representative_and_veteran(logged_in_representative_user, target_veteran_to_be_verified)
+      rescue ::Common::Exceptions::UnprocessableEntity
+        raise
       rescue
         raise ::Common::Exceptions::Unauthorized, detail: 'Cannot validate Power of Attorney'
       end

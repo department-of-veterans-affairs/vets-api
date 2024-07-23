@@ -317,6 +317,7 @@ RSpec.describe 'IntentToFiles', type: :request do
 
       let(:itf_submit_path) { "/services/claims/v2/veterans/#{veteran_id}/intent-to-file" }
       let(:scopes) { %w[system/claim.write] }
+      let(:invalid_scopes) { %w[system/526-pdf.override] }
 
       let(:data) do
         {
@@ -345,6 +346,13 @@ RSpec.describe 'IntentToFiles', type: :request do
             mock_ccg(scopes) do |auth_header|
               post itf_submit_path, params: data, headers: auth_header
               expect(response.status).to eq(200)
+            end
+          end
+
+          it 'returns a 401 unauthorized with incorrect scopes' do
+            mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
+              post itf_submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unauthorized)
             end
           end
         end

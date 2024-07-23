@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
+require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'immunizations', type: :request do
+RSpec.describe 'immunizations', :skip_json_api_validation, type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '9000682') }
   let(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }
 
   before do
-    allow(File).to receive(:read).and_return(rsa_key.to_s)
     Timecop.freeze(Time.zone.parse('2021-10-20T15:59:16Z'))
+    allow_any_instance_of(Mobile::V0::LighthouseAssertion).to receive(:rsa_key).and_return(
+      OpenSSL::PKey::RSA.new(rsa_key.to_s)
+    )
   end
 
   after { Timecop.return }
@@ -20,7 +20,7 @@ RSpec.describe 'immunizations', type: :request do
   describe 'GET /mobile/v0/health/immunizations' do
     context 'when the expected fields have data' do
       before do
-        VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/lighthouse_health/get_immunizations_old', match_requests_on: %i[method uri]) do
           get '/mobile/v0/health/immunizations', headers: sis_headers, params: nil
         end
       end
@@ -30,8 +30,6 @@ RSpec.describe 'immunizations', type: :request do
       end
 
       it 'matches the expected schema' do
-        # TODO: this should use the matcher helper instead (was throwing an Oj::ParseError)
-        # expect().to match_json_schema('immunizations')
         expect(response.parsed_body).to eq(
           {
             'data' => [{
@@ -483,7 +481,7 @@ RSpec.describe 'immunizations', type: :request do
 
     describe 'vaccine group name and manufacturer population' do
       let(:immunizations_request) do
-        VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/lighthouse_health/get_immunizations_old', match_requests_on: %i[method uri]) do
           get '/mobile/v0/health/immunizations', headers: sis_headers, params: nil
         end
       end
@@ -634,6 +632,7 @@ RSpec.describe 'immunizations', type: :request do
           VCR.use_cassette('mobile/lighthouse_health/get_immunizations_blank_group_name',
                            match_requests_on: %i[method uri]) do
             get '/mobile/v0/health/immunizations', headers: sis_headers, params: nil
+
             expect(response).to have_http_status(:ok)
           end
         end
@@ -643,7 +642,7 @@ RSpec.describe 'immunizations', type: :request do
     describe 'order' do
       context 'date is available' do
         it 'is sorted by descending date, then alphabetically by group name within a date' do
-          VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/lighthouse_health/get_immunizations_old', match_requests_on: %i[method uri]) do
             get '/mobile/v0/health/immunizations', headers: sis_headers, params: nil
           end
           dates = response.parsed_body['data'].map { |imm| imm['attributes']['date'] }

@@ -1,0 +1,79 @@
+{
+  "view:enhanced_financial_status_report": true,
+  "expenses": {
+    "food": "4000.38",
+    "expense_records": [
+      {
+        "name": "Rent",
+        "amount": "1200.53"
+      },
+      {
+        "name": "Mortgage payment",
+        "amount": "1000.00"
+      },
+      {
+        "name": "something else",
+        "amount": "100"
+      }
+    ],
+    "credit_card_bills": [
+      {
+        "purpose": "Credit card payment",
+        "creditor_name": "",
+        "original_amount": "",
+        "unpaid_balance": "300000",
+        "amount_due_monthly": "10000",
+        "date_started": "",
+        "amount_past_due": "7000"
+      }
+    ]
+  },
+  "other_expenses": [
+    {
+      "name": "Pool service",
+      "amount": "200"
+    },
+    {
+      "name": "Lawn service",
+      "amount": "100.54"
+    },
+    {
+      "name": "Food",
+      "amount": "300"
+    }
+  ],
+  "installment_contracts": [
+    {
+      "purpose": "Credit card payments",
+      "creditor_name": "Creditor One",
+      "original_amount": "50000.54",
+      "unpaid_balance": "15000.56",
+      "amount_due_monthly": "800.10",
+      "date_started": "2017_03_xx",
+      "amount_past_due": "125.43"
+    },
+    {
+      "purpose": "Car payment/lease",
+      "creditor_name": "Creditor Two",
+      "original_amount": "100000.43",
+      "unpaid_balance": "50000.26",
+      "amount_due_monthly": "1200.54",
+      "date_started": "2019_05_xx",
+      "amount_past_due": "0"
+    }
+  ],
+  "utility_records": [
+    {
+      "utility_type": "Electricity",
+      "amount": "350.45"
+    },
+    {
+      "utility_type": "Water",
+      "amount": "75.43"
+    },
+    {
+      "utility_type": "Cable",
+      "amount": "275.47"
+    }
+  ]
+}

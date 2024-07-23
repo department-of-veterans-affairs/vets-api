@@ -11,7 +11,7 @@ module LGY
     STATSD_KEY_PREFIX = 'api.lgy'
     SENTRY_TAG = { team: 'vfs-ebenefits' }.freeze
 
-    def initialize(edipi:, icn:)
+    def initialize(edipi: nil, icn: nil)
       @edipi = edipi
       @icn = icn
     end
@@ -161,9 +161,30 @@ module LGY
       end
     end
 
+    def post_grant_application(payload:)
+      with_monitoring do
+        perform(
+          :post,
+          "#{grant_manager_end_point}/application/createGrantApplication",
+          payload.to_json,
+          sahsha_request_headers
+        )
+      end
+    rescue Common::Client::Errors::ClientError => e
+      raise e
+    end
+
     def request_headers
       {
         Authorization: "api-key { \"appId\":\"#{Settings.lgy.app_id}\", \"apiKey\": \"#{Settings.lgy.api_key}\"}"
+      }
+    end
+
+    def sahsha_request_headers
+      {
+        Authorization: "api-key { \"appId\":\"#{Settings.lgy_sahsha.app_id}\", \"apiKey\": \"#{
+          Settings.lgy_sahsha.api_key
+        }\"}"
       }
     end
 
@@ -177,6 +198,10 @@ module LGY
 
     def end_point
       "#{Settings.lgy.base_url}/eligibility-manager/api/eligibility"
+    end
+
+    def grant_manager_end_point
+      "#{Settings.lgy_sahsha.base_url}/grant-manager/api/grants"
     end
   end
 end

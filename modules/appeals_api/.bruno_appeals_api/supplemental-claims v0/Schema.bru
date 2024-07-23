@@ -1,0 +1,28 @@
+meta {
+  name: Schema
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{base_uri}}/services/appeals/supplemental-claims/v0/schemas/200995
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+vars:pre-request {
+  oauth_scope: system/SupplementalClaims.read
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const { setOauthToken } = require('./helpers.js');
+  await setOauthToken();
+}

@@ -4,7 +4,7 @@ require 'json_marshal/marshaller'
 
 class ClaimsApi::EvidenceWaiverSubmission < ApplicationRecord
   validates :cid, presence: true
-  serialize :auth_headers, JsonMarshal::Marshaller
+  serialize :auth_headers, coder: JsonMarshal::Marshaller
 
   has_kms_key
   has_encrypted :auth_headers, key: :kms_key, **lockbox_options

@@ -8,44 +8,37 @@ RSpec.describe 'Triage Teams Integration', type: :request do
   include SM::ClientHelpers
   include SchemaMatchers
 
-  let(:va_patient) { true }
-  let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
+  let(:current_user) { build(:user, :mhv) }
 
   before do
-    allow(SM::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)
+    Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
   end
 
-  context 'Basic User' do
-    let(:mhv_account_type) { 'Basic' }
+  after do
+    Timecop.return
+  end
 
-    before { get '/my_health/v1/messaging/recipients' }
+  context 'when NOT authorized' do
+    before do
+      VCR.insert_cassette('sm_client/session_error')
+      get '/my_health/v1/messaging/recipients'
+    end
+
+    after do
+      VCR.eject_cassette
+    end
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
   end
 
-  context 'Advanced User' do
-    let(:mhv_account_type) { 'Advanced' }
+  context 'when authorized' do
+    before do
+      VCR.insert_cassette('sm_client/session')
+    end
 
-    before { get '/my_health/v1/messaging/recipients' }
-
-    include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
-  end
-
-  context 'Premium User' do
-    let(:mhv_account_type) { 'Premium' }
-
-    context 'not a va patient' do
-      before { get '/my_health/v1/messaging/recipients' }
-
-      let(:va_patient) { false }
-      let(:current_user) do
-        build(:user, :mhv, :no_vha_facilities, va_patient:, mhv_account_type:)
-      end
-
-      include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
+    after do
+      VCR.eject_cassette
     end
 
     it 'responds to GET #index' do

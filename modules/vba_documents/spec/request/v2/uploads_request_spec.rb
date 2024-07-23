@@ -202,15 +202,12 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         @md = JSON.parse(valid_metadata)
         @upload_submission = VBADocuments::UploadSubmission.new
         @upload_submission.update(status: 'uploaded')
-        allow_any_instance_of(VBADocuments::UploadProcessor).to receive(:cancelled?).and_return(false)
         allow_any_instance_of(Tempfile).to receive(:size).and_return(1) # must be > 0 or submission will error w/DOC107
         allow(VBADocuments::MultipartParser).to receive(:parse) {
           { 'metadata' => @md.to_json, 'content' => valid_doc }
         }
         allow(CentralMail::Service).to receive(:new) { client_stub }
-        allow(faraday_response).to receive(:status).and_return(200)
-        allow(faraday_response).to receive(:body).and_return([[], []].to_json)
-        allow(faraday_response).to receive(:success?).and_return(true)
+        allow(faraday_response).to receive_messages(status: 200, body: [[], []].to_json, success?: true)
         allow(VBADocuments::PayloadManager).to receive(:download_raw_file) { [Tempfile.new, Time.zone.now] }
         expect(client_stub).to receive(:upload) {
           faraday_response
@@ -309,9 +306,8 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       bucket = instance_double(Aws::S3::Bucket)
       obj = instance_double(Aws::S3::Object)
       allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
-      allow(objstore).to receive(:first_version).and_return(version)
       allow(objstore).to receive(:download)
-      allow(objstore).to receive(:bucket).and_return(bucket)
+      allow(objstore).to receive_messages(first_version: version, bucket:)
       allow(bucket).to receive(:object).and_return(obj)
       allow(obj).to receive(:exists?).and_return(true)
       allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
@@ -335,9 +331,8 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       bucket = instance_double(Aws::S3::Bucket)
       obj = instance_double(Aws::S3::Object)
       allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
-      allow(objstore).to receive(:first_version).and_return(version)
       allow(objstore).to receive(:download)
-      allow(objstore).to receive(:bucket).and_return(bucket)
+      allow(objstore).to receive_messages(first_version: version, bucket:)
       allow(bucket).to receive(:object).and_return(obj)
       allow(obj).to receive(:exists?).and_return(false)
       allow(version).to receive(:last_modified).and_return(DateTime.now.utc)

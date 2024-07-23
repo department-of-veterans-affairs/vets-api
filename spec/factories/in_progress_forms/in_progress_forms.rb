@@ -234,7 +234,6 @@ FactoryBot.define do
           "view:demographic_categories": { "is_spanish_hispanic_latino": false },
           "veteran_home_address": { "country": 'USA' },
           "view:comp_desc": {},
-          "va_compensation_type": 'lowDisability',
           "last_service_branch": 'coast guard',
           "last_entry_date": '1970-07-13',
           "last_discharge_date": '1998-08-31',
@@ -285,6 +284,30 @@ FactoryBot.define do
       end
     end
 
+    factory :in_progress_527_form do
+      user_uuid { SecureRandom.uuid }
+      form_id { '21-527EZ' }
+      metadata do
+        {
+          version: 1,
+          returnUrl: 'foo.com'
+        }
+      end
+      form_data do
+        {
+          'veteran_full_name' => {
+            'first' => 'John',
+            'last' => 'Doe'
+          },
+          'veteran_social_security_number' => '333224444',
+          'veteran_date_of_birth' => '1960-01-01',
+          'service_branch' => {
+            'army' => true
+          }
+        }.to_json
+      end
+    end
+
     factory :in_progress_1880_form do
       user_account { create(:user_account) }
       form_id { '26-1880' }
@@ -330,6 +353,31 @@ FactoryBot.define do
     factory :in_progress_1010ez_form do
       user_uuid { SecureRandom.uuid }
       form_id { '1010ez' }
+      metadata do
+        {
+          version: 1,
+          returnUrl: 'foo.com'
+        }
+      end
+      form_data do
+        # form data truncated for brevity
+        {
+          'veteran_full_name' =>
+            {
+              'first' => 'first_name',
+              'middle' => 'M',
+              'last' => 'last_name',
+              'suffix' => 'Sr.'
+            },
+          'veteran_social_security_number' => '111223333',
+          'veteran_date_of_birth' => '1985-03-07'
+        }.to_json
+      end
+    end
+
+    factory :in_progress_5655_form do
+      user_uuid { SecureRandom.uuid }
+      form_id { '5655' }
       metadata do
         {
           version: 1,

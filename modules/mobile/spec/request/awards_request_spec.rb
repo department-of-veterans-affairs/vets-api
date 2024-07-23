@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-
+require_relative '../support/helpers/rails_helper'
 RSpec.describe Mobile::V0::AwardsController, type: :request do
   before do
     sis_user(participant_id: 600_061_742)
@@ -53,12 +51,21 @@ RSpec.describe Mobile::V0::AwardsController, type: :request do
           'ptcpntBeneId' => '2810777',
           'ptcpntVetId' => '2810777',
           'reasonOneTxt' => '21',
-          'spouseTxt' => 'Spouse',
-          'veteranId' => 600_061_742,
-          'isEligibleForPension' => true,
-          'isInReceiptOfPension' => true,
-          'netWorthLimit' => 129_094 }
+          'spouseTxt' => 'Spouse' }
       )
+    end
+
+    context 'when upstream service returns error' do
+      it 'returns error' do
+        allow_any_instance_of(BGS::AwardsService).to receive(:get_awards).and_return(false)
+        get '/mobile/v0/awards', headers: sis_headers
+
+        error = { 'errors' => [{ 'title' => 'Bad Gateway',
+                                 'detail' => 'Received an an invalid response from the upstream server',
+                                 'code' => 'MOBL_502_upstream_error', 'status' => '502' }] }
+        expect(response).to have_http_status(:bad_gateway)
+        expect(response.parsed_body).to eq(error)
+      end
     end
   end
 end

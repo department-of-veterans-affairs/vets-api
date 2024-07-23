@@ -265,7 +265,7 @@ RSpec.describe Form1010cg::Service do
     end
 
     context 'when email is provided' do
-      it 'will provid that email in the mvi search' do
+      it 'provids that email in the mvi search' do
         veteran_email = 'veteran-email@example.com'
         veteran_data = build_claim_data_for(:veteran) do |data|
           data['email'] = veteran_email
@@ -309,7 +309,7 @@ RSpec.describe Form1010cg::Service do
         )
       end
 
-      it 'will log the result of a successful search' do
+      it 'logs the result of a successful search' do
         %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
           expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
             create(:find_profile_response, profile: double(icn: :ICN_123))
@@ -325,7 +325,7 @@ RSpec.describe Form1010cg::Service do
         end
       end
 
-      it 'will log the result of a unsuccessful search' do
+      it 'logs the result of a unsuccessful search' do
         %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
           expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
             create(:find_profile_not_found_response, error: double(message: 'some-message'))
@@ -341,7 +341,7 @@ RSpec.describe Form1010cg::Service do
         end
       end
 
-      it 'will log when a search is skipped' do
+      it 'logs when a search is skipped' do
         subject = described_class.new(
           build(
             :caregivers_assistance_claim,
@@ -380,7 +380,7 @@ RSpec.describe Form1010cg::Service do
         end.to raise_error(StandardError)
       end
 
-      it 'will not log the search result when reading from cache' do
+      it 'does not log the search result when reading from cache' do
         expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
           create(:find_profile_response, profile: double(icn: :ICN_123))
         )
@@ -402,7 +402,7 @@ RSpec.describe Form1010cg::Service do
   describe '#build_metadata' do
     it 'returns the icn for each subject on the form and the veteran\'s status' do
       %w[veteran primaryCaregiver secondaryCaregiverOne].each_with_index do |form_subject, index|
-        return_value = form_subject == 'secondaryCaregiverOne' ? 'NOT_FOUND' : "ICN_#{index}".to_sym
+        return_value = form_subject == 'secondaryCaregiverOne' ? 'NOT_FOUND' : :"ICN_#{index}"
         expect(subject).to receive(:icn_for).with(form_subject).and_return(return_value)
       end
 
@@ -423,13 +423,13 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#assert_veteran_status' do
-    it 'will raise error if veteran\'s icn can not be found' do
+    it "raises error if veteran's icn can not be found" do
       expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
       expect(subject).to receive(:log_exception_to_sentry).with(instance_of(described_class::InvalidVeteranStatus))
       expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
-    it 'will not raise error if veteran\'s icn is found' do
+    it "does not raise error if veteran's icn is found" do
       expect(subject).to receive(:icn_for).with('veteran').and_return(:ICN_123)
 
       expect(subject.assert_veteran_status).to eq(nil)
@@ -488,31 +488,30 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#process_claim_v2!' do
-    it 'submits to mulesoft', run_at: 'Thu, 04 Aug 2022 20:44:29 GMT' do
-      allow(SecureRandom).to receive(:uuid).and_return('884f6e51-027f-4cf1-a164-b95efbfb59f2')
-      claim_with_mpi_veteran.save!
-      allow(claim_with_mpi_veteran).to receive(:id).and_return(2)
+    let(:mule_soft_client) { instance_double(CARMA::Client::MuleSoftClient) }
+    let(:mule_soft_payload) { { fake_payload: 'value' } }
 
-      allow(SecureRandom).to receive(:uuid).and_return('6484da2a-dd58-4227-ac76-9dab3e2f1a98')
+    before do
+      profile = double(:profile, icn: 'something')
+      profile_response = double(:mpi_response, ok?: true, profile:)
+      allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(profile_response)
 
-      VCR.use_cassette('mulesoft/submit_v2_no_poa', VCR::MATCH_EVERYTHING) do
-        res = described_class.new(claim_with_mpi_veteran).process_claim_v2!
-        expect(res['data']['carmacase']['id']).to eq('aB93R0000000erZSAQ')
-      end
+      from_claim_result = double(:from_claim_result)
+      allow(CARMA::Models::Submission).to receive(:from_claim).and_return(from_claim_result)
+      allow(from_claim_result).to receive(:to_request_payload).and_return(mule_soft_payload)
+
+      allow(CARMA::Client::MuleSoftClient).to receive(:new).and_return(mule_soft_client)
+      allow(mule_soft_client).to receive(:create_submission_v2)
+    end
+
+    it 'submits to mulesoft' do
+      described_class.new(claim_with_mpi_veteran).process_claim_v2!
+      expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
     end
 
     context 'with a poa attachment' do
-      it 'submits to mulesoft', run_at: 'Thu, 04 Aug 2022 20:37:35 GMT' do
-        allow(SecureRandom).to receive(:uuid).and_return('6e53ebe5-b1d8-4228-bc3b-f05dce4184fe')
-        claim_with_mpi_veteran
-
-        allow(SecureRandom).to receive(:uuid).and_return('ada9fedd-8196-4bb6-95fc-91139e395b57')
+      it 'submits to mulesoft' do
         claim_with_mpi_veteran.parsed_form['poaAttachmentId'] = create(:form1010cg_attachment, :with_attachment).guid
-
-        claim_with_mpi_veteran.save!
-        allow(claim_with_mpi_veteran).to receive(:id).and_return(4)
-
-        allow(SecureRandom).to receive(:uuid).and_return('6c777349-0824-43e1-b2aa-3a94cd8d0a30')
 
         expect_any_instance_of(Form1010cg::Attachment).to receive(:to_local_file).and_return(
           'spec/fixtures/files/doctors-note.jpg'
@@ -520,10 +519,9 @@ RSpec.describe Form1010cg::Service do
 
         allow(File).to receive(:delete).with('spec/fixtures/files/doctors-note.jpg')
 
-        VCR.use_cassette('mulesoft/submit_v2', VCR::MATCH_EVERYTHING) do
-          res = described_class.new(claim_with_mpi_veteran).process_claim_v2!
-          expect(res['data']['carmacase']['id']).to eq('aB93R0000000es3SAA')
-        end
+        described_class.new(claim_with_mpi_veteran).process_claim_v2!
+        expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
+        expect(File).to have_received(:delete).with('spec/fixtures/files/doctors-note.jpg')
       end
     end
   end

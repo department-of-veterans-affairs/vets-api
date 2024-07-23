@@ -45,6 +45,7 @@ module KmsKeyRotation
 
       model
         .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%")
+        .or(model.where(encrypted_kms_key: nil))
         .limit(max_records_per_batch)
         .pluck(model.primary_key)
         .map { |id| URI::GID.build(app: GlobalID.app, model_name: model.name, model_id: id).to_s }

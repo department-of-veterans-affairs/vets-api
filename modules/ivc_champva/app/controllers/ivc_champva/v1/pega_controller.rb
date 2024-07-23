@@ -1,0 +1,94 @@
+# frozen_string_literal: true
+
+module IvcChampva
+  module V1
+    class PegaController < SignIn::ServiceAccountApplicationController
+      service_tag 'veteran-ivc-champva-forms'
+      VALID_KEYS = %w[form_uuid file_names status case_id].freeze
+
+      def update_status
+        Datadog::Tracing.trace('Start PEGA Status Update') do
+          data = JSON.parse(params.to_json)
+
+          unless data.is_a?(Hash)
+            render json: JSON.generate({ status: 500, error: 'Invalid JSON format: Expected a JSON object' })
+          end
+
+          response =
+            if valid_keys?(data)
+              update_data(data['form_uuid'], data['file_names'], data['status'], data['case_id'])
+            else
+              { json: { error_message: 'Invalid JSON keys' }, status: :bad_request }
+            end
+
+          render json: response[:json], status: response[:status]
+        rescue JSON::ParserError => e
+          render json: { error_message: "JSON parsing error: #{e.message}" }, status: :internal_server_error
+        end
+      end
+
+      private
+
+      def update_data(form_uuid, file_names, status, case_id)
+        ivc_forms = forms_query(form_uuid, file_names)
+
+        if ivc_forms.any?
+          ivc_forms.each do |form|
+            form.update!(
+              pega_status: status,
+              case_id:
+            )
+          end
+
+          # We only need the first form, outside of the file_names field, the data is the same.
+          form = ivc_forms.first
+          send_email(ivc_forms.first, ivc_forms.count) if form.email.present? && form.email_sent.nil?
+
+          update_email_sent(form_uuid)
+
+          { json: {}, status: :ok }
+        else
+          { json:
+          { error_message: "No form(s) found with the form_uuid: #{form_uuid} and/or the file_names: #{file_names}." },
+            status: :not_found }
+        end
+      end
+
+      def send_email(form, file_count)
+        form_data =
+          {
+            email: form.email,
+            first_name: form.first_name,
+            last_name: form.last_name,
+            form_number: form.form_number,
+            file_count:,
+            pega_status: form.pega_status,
+            created_at: form.created_at.strftime('%B %d, %Y')
+          }
+
+        IvcChampva::Email.new(form_data).send_email
+      end
+
+      # It's just updating a flag that an email has been sent
+      # No need for callbacks or validations
+      # rubocop:disable Rails/SkipsModelValidations
+      def update_email_sent(form_uuid)
+        IvcChampvaForm.where(form_uuid:).update_all(email_sent: true)
+      end
+      # rubocop:enable Rails/SkipsModelValidations
+
+      def valid_keys?(data)
+        true if VALID_KEYS.all? { |key| data.key?(key) }
+      end
+
+      def forms_query(form_uuid, file_names)
+        file_name_conditions = file_names.map { |file_name| { file_name: } }
+        file_name_query = file_name_conditions.reduce(IvcChampvaForm.none) do |query, condition|
+          query.or(IvcChampvaForm.where(condition))
+        end
+
+        IvcChampvaForm.where(form_uuid:).merge(file_name_query)
+      end
+    end
+  end
+end

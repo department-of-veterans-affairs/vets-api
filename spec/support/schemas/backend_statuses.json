@@ -21,6 +21,20 @@
                 }
               },
               "type": "array"
+            },
+            "maintenance_windows": {
+              "description": "Array of external service maintenance windows",
+              "items": {
+                "type": "object",
+                "properties": {
+                    "id": { "type": "integer" },
+                    "external_service": { "type": "string" },
+                    "start": { "type": "string" },
+                    "end": { "type": "string" },
+                    "description": { "type": "string" }
+                }
+              },
+              "type": "array"
             }
           },
           "type": "object"

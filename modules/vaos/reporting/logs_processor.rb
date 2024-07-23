@@ -10,7 +10,7 @@ require 'net/http'
 require 'uri'
 require 'csv'
 
-AWS_LOG_PATH = 'dsva-vagov-prod/srv/vets-api/src/log/vets-api-server.log'
+AWS_LOG_PATH = 'dsva-vagov-prod/app/log/vets-api-server.log'
 
 class LogsProcessor
   def request_by_id(id)
@@ -28,7 +28,7 @@ class LogsProcessor
         stdout_str = stdout.read
         stderr_str = stderr.read
 
-        stdout_arr = stdout_str.split(%r{dsva-vagov-prod/srv/vets-api/src/log/vets-api-server.log[^|]+\| })
+        stdout_arr = stdout_str.split(%r{dsva-vagov-prod/app/log/vets-api-server.log[^|]+\| })
         stdout_arr = stdout_arr[1..]
 
         puts stderr_str if stderr_str

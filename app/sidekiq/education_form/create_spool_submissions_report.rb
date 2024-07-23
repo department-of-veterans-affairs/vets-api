@@ -26,7 +26,6 @@ module EducationForm
         processed_at: processed_at_range
       ).find_each do |education_benefits_claim|
         parsed_form = education_benefits_claim.parsed_form
-        data[:stem_exists] = data[:stem_exists]
         data[:csv_array] << [
           format_name(parsed_form['relativeFullName']),
           format_name(parsed_form['veteranFullName']),

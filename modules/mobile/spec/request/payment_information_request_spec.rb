@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
+require_relative '../support/helpers/rails_helper'
 
 RSpec.describe 'payment information', type: :request do
   include JsonSchemaMatchers
@@ -44,6 +42,16 @@ RSpec.describe 'payment information', type: :request do
   end
 
   describe 'GET /mobile/v0/payment-information/benefits lighthouse' do
+    context 'user without access' do
+      let!(:user) { sis_user(:api_auth, :loa1) }
+
+      it 'returns 403' do
+        get '/mobile/v0/payment-information/benefits', headers: sis_headers
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'with a valid response' do
       it 'matches the payment information schema' do
         VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
@@ -156,6 +164,17 @@ RSpec.describe 'payment information', type: :request do
       }
     end
 
+    context 'user without access' do
+      let!(:user) { sis_user(:api_auth, :loa1) }
+
+      it 'returns 403' do
+        put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                       headers: sis_headers(json: true)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'with a valid response' do
       it 'matches the ppiu schema' do
         allow(DirectDepositEmailJob).to receive(:send_to_emails)
@@ -172,13 +191,13 @@ RSpec.describe 'payment information', type: :request do
     context 'when the user does have an associated email address' do
       subject do
         VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
-          put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers:
+          put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers: sis_headers(json: true)
         end
       end
 
       it 'calls VA Notify background job to send an email' do
-        user.all_emails do |email|
-          expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, nil)
+        user.all_emails.each do |email|
+          expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, 'comp_and_pen')
         end
 
         subject
@@ -191,7 +210,7 @@ RSpec.describe 'payment information', type: :request do
       it 'logs a message to Sentry' do
         VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
           expect_any_instance_of(User).to receive(:all_emails).and_return([])
-          expect(Raven).to receive(:capture_message).once
+          expect(Sentry).to receive(:capture_message).once
 
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
                                                          headers: sis_headers(json: true)
@@ -275,6 +294,14 @@ RSpec.describe 'payment information', type: :request do
         meta_error = response.parsed_body.dig('errors', 0, 'meta', 'messages', 0)
         expect(meta_error['key']).to match('payment.accountRoutingNumber.invalidCheckSum')
         expect(meta_error['text']).to match('Financial institution routing number is invalid')
+      end
+    end
+
+    context 'when the upstream times out' do
+      it 'returns 504' do
+        allow_any_instance_of(Faraday::Connection).to receive(:put).and_raise(Faraday::TimeoutError)
+        put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers: sis_headers(json: true)
+        expect(response).to have_http_status(:gateway_timeout)
       end
     end
   end

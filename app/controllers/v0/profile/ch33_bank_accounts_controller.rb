@@ -6,6 +6,7 @@ module V0
   module Profile
     class Ch33BankAccountsController < ApplicationController
       service_tag 'direct-deposit'
+      before_action :controller_enabled?
       before_action { authorize :ch33_dd, :access? }
 
       def index
@@ -23,7 +24,7 @@ module V0
           return render(json: res, status: :bad_request)
         end
 
-        VANotifyDdEmailJob.send_to_emails(current_user.all_emails, :ch33)
+        VANotifyDdEmailJob.send_to_emails(current_user.all_emails, 'ch33')
 
         Rails.logger.warn('Ch33BankAccountsController#update request completed', sso_logging_info)
 
@@ -32,12 +33,15 @@ module V0
 
       private
 
+      def controller_enabled?
+        if Flipper.enabled?(:profile_show_direct_deposit_single_form_edu_downtime, @current_user)
+          raise Common::Exceptions::Forbidden, detail: 'This endpoint is deprecated and will be removed soon.'
+        end
+      end
+
       def render_find_ch33_dd_eft
-        get_ch33_dd_eft_info = service.get_ch33_dd_eft_info
-        render(
-          json: get_ch33_dd_eft_info,
-          serializer: Ch33BankAccountSerializer
-        )
+        ch33_dd_eft_info = service.get_ch33_dd_eft_info
+        render json: Ch33BankAccountSerializer.new(ch33_dd_eft_info)
       end
 
       def service

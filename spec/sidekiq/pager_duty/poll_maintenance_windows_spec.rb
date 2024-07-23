@@ -81,7 +81,7 @@ RSpec.describe PagerDuty::PollMaintenanceWindows, type: :job do
       described_class.new.perform
       window = MaintenanceWindow.find_by(pagerduty_id: 'ABCDEF')
       expect(window).not_to be_nil
-      expect(window.description).to eq('Sorry, EMIS is unavailable RN\nTry again later')
+      expect(window.description).to eq('Sorry, VIC is unavailable RN\nTry again later')
     end
   end
 
@@ -92,14 +92,14 @@ RSpec.describe PagerDuty::PollMaintenanceWindows, type: :job do
 
     it 'bails on backend error' do
       expect(client_stub).to receive(:get_all).and_raise(Common::Exceptions::BackendServiceException)
-      expect(Raven).to receive(:capture_exception).with(Common::Exceptions::BackendServiceException, level: 'error')
+      expect(Sentry).to receive(:capture_exception).with(Common::Exceptions::BackendServiceException, level: 'error')
 
       described_class.new.perform
     end
 
     it 'bails on client error' do
       expect(client_stub).to receive(:get_all).and_raise(Common::Client::Errors::ClientError)
-      expect(Raven).to receive(:capture_exception).with(Common::Client::Errors::ClientError, level: 'error')
+      expect(Sentry).to receive(:capture_exception).with(Common::Client::Errors::ClientError, level: 'error')
 
       described_class.new.perform
     end

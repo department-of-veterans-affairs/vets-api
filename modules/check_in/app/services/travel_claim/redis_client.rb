@@ -33,27 +33,31 @@ module TravelClaim
     end
 
     def icn(uuid:)
-      return nil if appointment_identifiers(uuid:).nil?
-
-      Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :icn)
+      fetch_attribute(uuid:, attribute: :icn)
     end
 
     def mobile_phone(uuid:)
-      return nil if appointment_identifiers(uuid:).nil?
-
-      Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :mobilePhone)
+      fetch_attribute(uuid:, attribute: :mobilePhone)
     end
 
     def patient_cell_phone(uuid:)
-      return nil if appointment_identifiers(uuid:).nil?
-
-      Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :patientCellPhone)
+      fetch_attribute(uuid:, attribute: :patientCellPhone)
     end
 
     def station_number(uuid:)
-      return nil if appointment_identifiers(uuid:).nil?
+      fetch_attribute(uuid:, attribute: :stationNo)
+    end
 
-      Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :stationNo)
+    def facility_type(uuid:)
+      fetch_attribute(uuid:, attribute: :facilityType)
+    end
+
+    def fetch_attribute(uuid:, attribute:)
+      identifiers = appointment_identifiers(uuid:)
+      return nil if identifiers.nil?
+
+      parsed_identifiers = Oj.load(identifiers).with_indifferent_access
+      parsed_identifiers.dig(:data, :attributes, attribute)
     end
 
     private

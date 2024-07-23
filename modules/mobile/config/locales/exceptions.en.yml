@@ -51,6 +51,12 @@ en:
         code: 'MOBL_422_validation_error'
         detail: ~
         status: 422
+      MOBL_418_custom_error:
+        <<: *external_defaults
+        title: Custom Error
+        code: 'MOBL_418_custom_error'
+        detail: ~
+        status: 418
       MOBL_502_upstream_error:
         <<: *external_defaults
         title: Bad Gateway

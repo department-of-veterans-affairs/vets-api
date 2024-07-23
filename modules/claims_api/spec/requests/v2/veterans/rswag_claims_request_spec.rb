@@ -6,7 +6,7 @@ require_relative '../../../rails_helper'
 require 'bgs_service/local_bgs'
 
 describe 'Claims',
-         swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
+         openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
   let(:bcs) do
     ClaimsApi::LocalBGS
   end
@@ -25,7 +25,6 @@ describe 'Claims',
         { bearer_token: [] }
       ]
       produces 'application/json'
-      description 'Retrieves all claims for Veteran.'
 
       parameter name: 'veteranId',
                 in: :path,
@@ -62,7 +61,7 @@ describe 'Claims',
 
           before do |example|
             mock_ccg(scopes) do
-              VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
                 expect_any_instance_of(bcs)
                   .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_response)
                 expect(ClaimsApi::AutoEstablishedClaim)
@@ -116,7 +115,7 @@ describe 'Claims',
   end
 
   path '/veterans/{veteranId}/claims/{id}' do
-    get 'Find claim by ID' do
+    get 'Find claim by ID.' do
       tags 'Claims'
       operationId 'findClaimById'
       security [
@@ -129,7 +128,7 @@ describe 'Claims',
       parameter name: :id,
                 in: :path,
                 type: :string,
-                example: '1234',
+                example: '600400703',
                 description: 'The ID of the claim being requested'
       parameter name: 'veteranId',
                 in: :path,
@@ -182,8 +181,8 @@ describe 'Claims',
 
           before do |example|
             mock_ccg(scopes) do
-              VCR.use_cassette('bgs/tracked_item_service/claims_v2_show_tracked_items') do
-                VCR.use_cassette('evss/documents/get_claim_documents') do
+              VCR.use_cassette('claims_api/bgs/tracked_item_service/claims_v2_show_tracked_items') do
+                VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                   bgs_response[:benefit_claim_details_dto][:ptcpnt_vet_id] = target_veteran.participant_id
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_response)

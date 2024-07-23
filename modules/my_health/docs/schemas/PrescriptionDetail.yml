@@ -1,0 +1,210 @@
+type: object
+required:
+  - type
+  - id
+  - attributes
+  - links
+properties:
+  type:
+    type: string
+    example: "prescription_details"
+  id:
+    type: string
+    example: "22332759"
+  attributes:
+    type: object
+    required:
+      - prescriptionId
+      - prescriptionNumber
+      - prescriptionName
+      - refillStatus
+      - refillDate
+      - refillRemaining
+      - facilityName
+      - orderedDate
+      - quantity
+      - expirationDate
+      - stationNumber
+      - isRefillable
+      - isTrackable
+      - inCernerTransition
+      - userId
+      - dispStatus
+      - ndc
+      - prescriptionNumberIndex
+      - prescriptionSource
+      - category
+      - trackingList
+      - rxRfRecords
+      - tracking
+    properties:
+      prescriptionId:
+        type: integer
+        example: 22510594
+      prescriptionNumber:
+        type: string
+        example: 3636929A
+      prescriptionName:
+        type: string
+        example: DANAZOL 200MG CAP
+      refillStatus:
+        type: string
+        example: active
+      refillSubmitDate:
+        type: string
+        nullable: true
+        format: datetime
+        example: 2023-07-24T15:48:49.000Z
+      refillDate:
+        type: string
+        format: datetime
+        example: 2023-08-04T04:00:00.000Z
+      refillRemaining:
+        type: integer
+        example: 4
+      facilityName:
+        type: string
+        example: "DAYT29"
+      orderedDate:
+        type: string
+        format: datetime
+        example: 2023-08-04T04:00:00.000Z
+      quantity:
+        type: integer
+        example: 30
+      expirationDate:
+        type: string
+        format: datetime
+        example: 2023-08-04T04:00:00.000Z
+      dispensedDate:
+        type: string
+        nullable: true
+        format: datetime
+        example: 2023-08-04T04:00:00.000Z
+      stationNumber:
+        type: string
+        example: "989"
+      isRefillable:
+        type: boolean
+        example: true
+      isTrackable:
+        type: boolean
+        example: false
+      cmopNdcNumber:
+        type: string
+        nullable: true
+        example: '00013264681'
+      inCernerTransition:
+        type: boolean
+        example: false
+      notRefillableDisplayMessage:
+        type: string
+        nullable: true
+        example: "A refill request cannot be submitted at this time."
+      sig:
+        type: string
+        nullable: true
+        example: "TAKE ONE TABLET BY MOUTH DAILY FOR 30 DAYS"
+      cmopDivisionPhone:
+        type: string
+        nullable: true
+        example: "(178)636-6871"
+      userId:
+        type: integer
+        example: 16955936
+      providerFirstName:
+        type: string
+        nullable: true
+        example: "MOHAMMAD"
+      providerLastName:
+        type: string
+        nullable: true
+        example: "ISLAM"
+      remarks:
+        type: string
+        nullable: true
+        example: "TEST RE"
+      divisionName:
+        type: string
+        nullable: true
+        example: "DAYTON"
+      modifiedDate:
+        type: string
+        nullable: true
+        format: datetime
+        example: 2023-08-04T04:00:00.000Z
+      institutionId:
+        type: string
+        nullable: true
+        example: "institutionId"
+      dialCmopDivisionPhone:
+        type: string
+        nullable: true
+        example: "1786366871"
+      dispStatus:
+        type: string
+        example: "Active"
+      ndc:
+        type: string
+        nullable: true
+        example: "00597-0030-01"
+      reason:
+        type: string
+        nullable: true
+        example: "reason"
+      prescriptionNumberIndex:
+        type: string
+        example: "RX"
+      prescriptionSource:
+        type: string
+        example: "RX"
+      disclaimer:
+        type: string
+        nullable: true
+        example: "TEST DISCLAIMER 02222022"
+      indicationForUse:
+        type: string
+        nullable: true
+        example: "indicationForUse"
+      indicationForUseFlag:
+        type: string
+        nullable: true
+        example: "indicationForUseFlag"
+      category:
+        type: string
+        example: "Rx Medication"
+      trackingList:
+        type: array
+        items:
+          $ref: "./PrescriptionTrackingItem.yml"
+      rxRfRecords:
+        type: array
+        items:
+          $ref: "./RxRfRecord.yml"
+      tracking:
+        type: boolean
+        example: false
+      color:
+        type: string
+        nullable: true
+        example: "WHITE"
+      shape:
+        type: string
+        nullable: true
+        example: "OVAL"
+      frontImprint:
+        type: string
+        nullable: true
+        example: "9,3"
+      backImprint:
+        type: string
+        nullable: true
+        example: "1,1"
+  links:
+    type: object
+    required:
+      - self
+    properties:
+      self:
+        type: string
+        example: https://api.va.gov/my_health/v1/prescriptions/22377949

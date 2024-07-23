@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
+require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
 require 'sentry_logging'
 require 'sidekiq/form526_backup_submission_process/submit'
 require 'logging/third_party_transaction'
+require 'lighthouse/poll_form526_pdf'
 
 class Form526Submission < ApplicationRecord
   extend Logging::ThirdPartyTransaction::MethodWrapper
-
   include SentryLogging
   include Form526ClaimFastTrackingConcern
 
@@ -18,6 +19,7 @@ class Form526Submission < ApplicationRecord
                     :submit_form_8940,
                     :upload_bdd_instructions,
                     :submit_flashes,
+                    :poll_form526_pdf,
                     :cleanup,
                     additional_class_logs: {
                       action: 'Begin as anciliary 526 submission'
@@ -47,7 +49,6 @@ class Form526Submission < ApplicationRecord
   #   @return [Timestamp] created at date.
   # @!attribute updated_at
   #   @return [Timestamp] updated at date.
-  #
   has_kms_key
   has_encrypted :auth_headers_json, :birls_ids_tried, :form_json, key: :kms_key, **lockbox_options
 
@@ -56,9 +57,49 @@ class Form526Submission < ApplicationRecord
              inverse_of: false
 
   has_many :form526_job_statuses, dependent: :destroy
+  has_many :form526_submission_remediations, dependent: :destroy
   belongs_to :user_account, dependent: nil, optional: true
 
   validates(:auth_headers_json, presence: true)
+  enum backup_submitted_claim_status: { accepted: 0, rejected: 1 }
+  enum submit_endpoint: { evss: 0, claims_api: 1, benefits_intake_api: 2 }
+
+  # Documentation describing the purpose of these scopes:
+  # https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/disability/526ez/engineering_research/untouched_submission_audit/526_state_repair_tdd.md
+  scope :pending_backup_submissions, lambda {
+    where(submitted_claim_id: nil, backup_submitted_claim_status: nil)
+      .where.not(backup_submitted_claim_id: nil)
+      .where.missing(:form526_submission_remediations)
+  }
+  scope :in_process, lambda {
+    where(submitted_claim_id: nil, backup_submitted_claim_status: nil)
+      .where(arel_table[:created_at].gt(MAX_PENDING_TIME.ago))
+      .where.missing(:form526_submission_remediations)
+  }
+  scope :accepted_to_primary_path, lambda {
+    where.not(submitted_claim_id: nil)
+  }
+  scope :accepted_to_backup_path, lambda {
+    where.not(backup_submitted_claim_id: nil)
+         .where(backup_submitted_claim_status: backup_submitted_claim_statuses[:accepted])
+  }
+  scope :rejected_from_backup_path, lambda {
+    where.not(backup_submitted_claim_id: nil)
+         .where(backup_submitted_claim_status: backup_submitted_claim_statuses[:rejected])
+  }
+  scope :remediated, lambda {
+    left_joins(:form526_submission_remediations)
+      .where(form526_submission_remediations: { success: true })
+  }
+  scope :success_type, lambda {
+    where(id: accepted_to_primary_path.select(:id))
+      .or(where(id: accepted_to_backup_path.select(:id)))
+      .or(where(id: remediated.select(:id)))
+  }
+  scope :failure_type, lambda {
+    where.not(id: in_process.select(:id))
+         .where.not(id: success_type.select(:id))
+  }
 
   FORM_526 = 'form526'
   FORM_526_UPLOADS = 'form526_uploads'
@@ -68,6 +109,7 @@ class Form526Submission < ApplicationRecord
   FLASHES = 'flashes'
   BIRLS_KEY = 'va_eauth_birlsfilenumber'
   SUBMIT_FORM_526_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
+  MAX_PENDING_TIME = 3.days
 
   # Called when the DisabilityCompensation form controller is ready to hand off to the backend
   # submission process. Currently this passes directly to the retryable EVSS workflow, but if any
@@ -310,6 +352,7 @@ class Form526Submission < ApplicationRecord
       submit_form_8940 if form[FORM_8940].present?
       upload_bdd_instructions if bdd?
       submit_flashes if form[FLASHES].present?
+      poll_form526_pdf if Flipper.enabled?(:disability_526_toxic_exposure_document_upload_polling, User.find(user_uuid))
       cleanup
     end
   end
@@ -345,7 +388,120 @@ class Form526Submission < ApplicationRecord
     }
   end
 
+  def veteran_email_address
+    form.dig('form526', 'form526', 'veteran', 'emailAddress')
+  end
+
+  def format_creation_time_for_mailers
+    # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
+    created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+  end
+
+  # Synchronous access to Lighthouse API validation boolean for 526 submission
+  # Because this method hits an external API, there could be
+  # exceptions generated for non-200 response codes.
+  #
+  # If return is false, then the errors are expected to be
+  # in the lighthouse_validation_errors Array of Hashes.
+  #
+  # NOTE: This is a synchronous access to an external API
+  #       so should not be used within a request/response workflow.
+  #
+
+  def form_content_valid?
+    transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
+    body = transform_service.transform(form['form526'])
+
+    @lighthouse_validation_response = lighthouse_service.validate526(body)
+
+    if lighthouse_validation_response&.status == 200
+      true
+    else
+      mock_lighthouse_response(status: lighthouse_validation_response&.status)
+      false
+    end
+  rescue => e
+    handle_validation_error(e)
+    false
+  end
+
+  # Returns an Array of Hashes when response.status is 422
+  # otherwise it's an empty Array.
+  #
+  # The Array#empty? is true when there are no errors
+  # A Hash entry looks like this ...
+  # {
+  #   "title": "Unprocessable entity",
+  #   "detail": "The property / did not contain the required key serviceInformation",
+  #   "status": "422",
+  #   "source": {
+  #     "pointer": "data/attributes/"
+  #   }
+  # }
+  #
+  def lighthouse_validation_errors
+    if lighthouse_validation_response&.status == 200
+      []
+    else
+      lighthouse_validation_response.body['errors']
+    end
+  end
+
+  def duplicate?
+    last_remediation&.ignored_as_duplicate || false
+  end
+
+  def remediated?
+    last_remediation&.success || false
+  end
+
+  def failure_type?
+    !success_type? && !in_process?
+  end
+
+  def success_type?
+    self.class.success_type.exists?(id:)
+  end
+
+  def in_process?
+    self.class.in_process.exists?(id:)
+  end
+
   private
+
+  attr_accessor :lighthouse_validation_response
+
+  # Setup the Lighthouse service for this user account.
+  # Lighthouse calls the user_account.icn the "ID of Veteran"
+  #
+  def lighthouse_service
+    account = user_account ||
+              Account.lookup_by_user_uuid(user_uuid)
+    BenefitsClaims::Service.new(account.icn)
+  end
+
+  def handle_validation_error(e)
+    errors = e.errors if e.respond_to?(:errors)
+    detail = errors&.dig(0, :detail)
+    status = errors&.dig(0, :status)
+    error_msg = "#{detail || e} -- #{e.backtrace[0]}"
+    mock_lighthouse_response(status:, error: error_msg)
+  end
+
+  def mock_lighthouse_response(status:, error: 'Unknown')
+    response_struct = Struct.new(:status, :body)
+    mock_response = response_struct.new(status || 609, nil)
+
+    mock_response.body = {
+      'errors' => [
+        {
+          'title' => "Response Status Code '#{mock_response.status}' - #{error}"
+        }
+      ]
+    }
+
+    @lighthouse_validation_response = mock_response
+  end
 
   def queue_central_mail_backup_submission_for_non_retryable_error!(e: nil)
     # Entry-point for backup 526 CMP submission
@@ -410,7 +566,17 @@ class Form526Submission < ApplicationRecord
     BGS::FlashUpdater.perform_async(id) if user && Flipper.enabled?(:disability_compensation_flashes, user)
   end
 
+  def poll_form526_pdf
+    # In order to track the status of the 526 PDF upload via Lighthouse,
+    # call poll_form526_pdf, provided we received a valid claim_id from Lighthouse
+    Lighthouse::PollForm526Pdf.perform_async(id) if id
+  end
+
   def cleanup
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
+  end
+
+  def last_remediation
+    form526_submission_remediations&.order(:created_at)&.last
   end
 end

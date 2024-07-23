@@ -15,9 +15,9 @@ module SentryControllerLogging
       'user_uuid' => current_user&.uuid,
       'source' => request.headers['Source-App-Name']
     }
-    Raven.extra_context(request_uuid: request.uuid)
-    Raven.user_context(user_context) if current_user
-    Raven.tags_context(tags_context)
+    Sentry.set_extras(request_uuid: request.uuid)
+    Sentry.set_user(user_context) if current_user
+    Sentry.set_tags(tags_context)
   end
 
   def user_context
@@ -32,9 +32,10 @@ module SentryControllerLogging
   def tags_context
     { controller_name: }.tap do |tags|
       if current_user.present?
-        tags[:sign_in_method] = current_user.identity.sign_in[:service_name]
+        sign_in = current_user.respond_to?(:identity) ? current_user.identity.sign_in : current_user.sign_in
+        tags[:sign_in_method] = sign_in[:service_name]
         # account_type is filtered by sentry, becasue in other contexts it refers to a bank account type
-        tags[:sign_in_acct_type] = current_user.identity.sign_in[:account_type]
+        tags[:sign_in_acct_type] = sign_in[:account_type]
       else
         tags[:sign_in_method] = 'not-signed-in'
       end

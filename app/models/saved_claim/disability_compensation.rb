@@ -7,8 +7,6 @@ require 'evss/disability_compensation_form/form8940'
 require 'bgs/disability_compensation_form_flashes'
 
 class SavedClaim::DisabilityCompensation < SavedClaim
-  alias_attribute :submission, :disability_compensation_submission
-
   attr_accessor :form_hash
 
   # For backwards compatibility, FORM constant needs to be set
@@ -24,8 +22,8 @@ class SavedClaim::DisabilityCompensation < SavedClaim
   def to_submission_data(user)
     form4142 = EVSS::DisabilityCompensationForm::Form4142.new(user, @form_hash.deep_dup).translate
     form526 = @form_hash.deep_dup
-    form526_uploads = form526['form526'].delete('attachments')
     dis_form = EVSS::DisabilityCompensationForm::DataTranslationAllClaim.new(user, form526, form4142.present?).translate
+    form526_uploads = form526['form526'].delete('attachments')
 
     {
       Form526Submission::FORM_526 => dis_form,

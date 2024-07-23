@@ -2,138 +2,135 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/fhir/Condition?_count=9999&_id=39274&_include=*"
+      uri: "<MHV_MR_HOST>/fhir/Condition/4169"
       body:
-        encoding: US-ASCII
+        encoding: ASCII-8BIT
         string: ""
       headers:
-        Accept:
-          - application/fhir+json
         User-Agent:
           - Ruby FHIR Client
         Accept-Charset:
           - utf-8
-        Accept-Encoding:
-          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Accept:
+          - application/fhir+json
+        Authorization: Bearer <TOKEN>
+        Connection:
+          - close
         Host:
-          - hapi.fhir.org
+          - localhost:2003
     response:
       status:
         code: 200
         message: OK
       headers:
-        Server:
-          - nginx/1.18.0 (Ubuntu)
         Date:
-          - Thu, 22 Jun 2023 00:14:15 GMT
+          - Mon, 06 May 2024 18:32:13 GMT
         Content-Type:
-          - application/fhir+json;charset=utf-8
+          - application/fhir+json;charset=UTF-8
         Transfer-Encoding:
           - chunked
-        Connection:
-          - keep-alive
         X-Powered-By:
-          - HAPI FHIR 6.7.8-SNAPSHOT/b985091c2c/2023-06-21 REST Server (FHIR Server; FHIR
-            4.0.1/R4)
+          - HAPI FHIR 6.10.0 REST Server (FHIR Server; FHIR 4.0.1/R4)
+        Etag:
+          - W/"2"
         X-Request-Id:
-          - PELvP4WepLhXovvT
+          - be94ea4ec9aa874177eb261fc61f9fd4
+        Content-Location:
+          - https://mhv-sysb-api.myhealth.va.gov/fhir/Condition/4169/_history/2
         Last-Modified:
-          - Thu, 22 Jun 2023 00:14:15 GMT
+          - Tue, 30 Apr 2024 14:34:21 GMT
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+        Connection:
+          - close
       body:
         encoding: UTF-8
         string: |-
           {
-            "resourceType": "Bundle",
-            "id": "252b8a9b-6477-4c2e-bcea-2c6e114fe803",
+            "resourceType": "Condition",
+            "id": "4169",
             "meta": {
-              "lastUpdated": "2023-06-22T00:14:15.569+00:00"
+              "versionId": "2",
+              "lastUpdated": "2024-04-30T10:34:21.089-04:00",
+              "source": "#7HHChpSNxTKN0IK7",
+              "profile": [ "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition" ]
             },
-            "type": "searchset",
-            "total": 1,
-            "link": [ {
-              "relation": "self",
-              "url": "<MHV_MR_HOST>/fhir/Condition?_id=39274&_include=*"
-            } ],
-            "entry": [ {
-              "fullUrl": "<MHV_MR_HOST>/fhir/Condition/39274",
-              "resource": {
-                "resourceType": "Condition",
-                "id": "39274",
-                "meta": {
-                  "versionId": "1",
-                  "lastUpdated": "2019-10-01T11:57:08.886+00:00",
-                  "source": "#b56fd535cd79f195"
-                },
-                "clinicalStatus": {
-                  "coding": [ {
-                    "system": "http://hl7.org/fhir/condition-clinical",
-                    "code": "active",
-                    "display": "Active"
-                  } ]
-                },
-                "code": {
-                  "coding": [ {
-                    "system": "http://snomed.info/sct",
-                    "code": "195967001",
-                    "display": "Asthma"
-                  } ]
-                },
-                "subject": {
-                  "reference": "Patient/39254"
-                },
-                "onsetDateTime": "1950"
+            "contained": [ {
+              "resourceType": "Location",
+              "id": "Location-0",
+              "meta": {
+                "profile": [ "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location" ]
               },
-              "search": {
-                "mode": "match"
-              }
+              "identifier": [ {
+                "use": "usual",
+                "system": "urn:oid:2.16.840.1.113883.4.349.4.984",
+                "value": "HospitalLocationTO.552"
+              } ],
+              "name": "DAYTON"
             }, {
-              "fullUrl": "<MHV_MR_HOST>/fhir/Patient/39254",
-              "resource": {
-                "resourceType": "Patient",
-                "id": "39254",
-                "meta": {
-                  "versionId": "3",
-                  "lastUpdated": "2020-08-28T15:12:12.739+00:00",
-                  "source": "#eRUwTpSEF3mREFO0"
-                },
-                "text": {
-                  "status": "generated",
-                  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div class=\"hapiHeaderText\">Henry_3 <b>LEVIN_3 </b> the 7th_3 </div><table class=\"hapiPropertyTable\"><tbody><tr><td>Identifier</td><td>996-756-495-3</td></tr><tr><td>Date of birth</td><td><span>24 September 1932</span></td></tr></tbody></table></div>"
-                },
-                "identifier": [ {
-                  "type": {
-                    "coding": [ {
-                      "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-                      "code": "MR",
-                      "display": "Medical record number"
-                    } ]
-                  },
-                  "system": "http://hl7.org/fhir/identifier-type",
-                  "value": "996-756-495-3"
-                } ],
-                "name": [ {
-                  "use": "usual",
-                  "family": "Levin_3",
-                  "given": [ "Henry_3" ],
-                  "suffix": [ "the 7th_3" ]
-                } ],
-                "gender": "male",
-                "birthDate": "1964-09-24",
-                "maritalStatus": {
-                  "coding": [ {
-                    "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
-                    "code": "M",
-                    "display": "Married"
-                  } ]
-                },
-                "managingOrganization": {
-                  "reference": "Organization/185"
-                }
+              "resourceType": "Practitioner",
+              "id": "Provider-0",
+              "meta": {
+                "profile": [ "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner" ]
               },
-              "search": {
-                "mode": "include"
-              }
+              "identifier": [ {
+                "use": "usual",
+                "system": "urn:oid:2.16.840.1.113883.4.349.4.984",
+                "value": "AuthorTO.36556"
+              } ],
+              "name": [ {
+                "text": "SMITH,JOHN"
+              } ]
+            } ],
+            "identifier": [ {
+              "use": "usual",
+              "system": "urn:oid:2.16.840.1.113883.4.349.4.984",
+              "value": "ProblemTO.352354"
+            } ],
+            "clinicalStatus": {
+              "coding": [ {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                "code": "active"
+              } ]
+            },
+            "verificationStatus": {
+              "coding": [ {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                "code": "confirmed"
+              } ]
+            },
+            "category": [ {
+              "coding": [ {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              } ]
+            } ],
+            "code": {
+              "coding": [ {
+                "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                "code": "F41.1"
+              } ],
+              "text": "Generalized Anxiety Disorder (SCT 21897009)"
+            },
+            "subject": {
+              "reference": "Patient/1002"
+            },
+            "onsetDateTime": "2010-10",
+            "recordedDate": "2024-04-29T12:00:00-04:00",
+            "recorder": {
+              "extension": [ {
+                "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                "valueReference": {
+                  "reference": "#Location-0"
+                }
+              } ],
+              "reference": "#Provider-0"
+            },
+            "note": [ {
+              "authorString": "SMITH,JOHN",
+              "time": "2024-04-29T12:00:00-04:00",
+              "text": "2010\n"
             } ]
           }
-    recorded_at: Thu, 22 Jun 2023 00:14:15 GMT
-recorded_with: VCR 6.1.0
+    recorded_at: Mon, 06 May 2024 18:32:13 GMT
+recorded_with: VCR 6.2.0

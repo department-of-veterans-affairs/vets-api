@@ -1,0 +1,79 @@
+{
+  "name": "native",
+  "image": "mcr.microsoft.com/devcontainers/base:bookworm",
+
+  "customizations": {
+    "codespaces": {
+      "openFiles": [
+        "docs/setup/codespaces.md",
+        "README.md"
+      ],
+      "repositories": {
+        "department-of-veterans-affairs/vets-api-mockdata": {
+          "permissions": {
+            "contents": "read",
+            "pull_requests": "write"
+          }
+        }
+      }
+    },
+    "vscode": {
+      "extensions": ["Shopify.ruby-lsp"]
+    }
+  },
+
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/ruby-asdf:0": {
+      "version": "3.3.3"
+    },
+    "ghcr.io/robbert229/devcontainer-features/postgresql-client:1": {
+      "version": "15"
+    },
+    "ghcr.io/devcontainers-contrib/features/redis-homebrew:1": {
+      "version": "6.2"
+    },
+    "ghcr.io/devcontainers/features/sshd:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "latest"
+    }
+  },
+
+  "forwardPorts": [
+    3000,
+    9293,
+    5432,
+    6379
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "vets-api",
+      "onAutoForward": "notify",
+      "requireLocalPort": true
+    },
+    "9293": {
+      "label": "vets-api-healthcheck",
+      "onAutoForward": "silent",
+      "requireLocalPort": true
+    },
+    "5432": {
+      "label": "postgis",
+      "onAutoForward": "silent",
+      "requireLocalPort": true
+    },
+    "6379": {
+      "label": "redis",
+      "onAutoForward": "silent",
+      "requireLocalPort": true
+    }
+  },
+
+  "onCreateCommand": "sh .devcontainer/on-create.sh",
+  "postCreateCommand": "sh .devcontainer/post-create.sh",
+  "postStartCommand": "sh .devcontainer/post-start.sh",
+  "postAttachCommand": {
+    "server": "bin/rails server",
+    "sidekiq": "bundle exec sidekiq"
+  }
+}

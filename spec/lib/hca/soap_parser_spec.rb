@@ -11,8 +11,7 @@ describe HCA::SOAPParser do
       env = double
       allow(env).to receive(:url)
       allow(env).to receive(:body=).and_raise(Common::Client::Errors::HTTPError)
-      allow(env).to receive(:body).and_return(body)
-      allow(env).to receive(:status).and_return(status)
+      allow(env).to receive_messages(body:, status:)
 
       expect { parser.on_complete(env) }.to raise_error(reraised_error)
     end
@@ -26,7 +25,7 @@ describe HCA::SOAPParser do
 
       it 'tags and log validation errors' do
         expect(StatsD).to receive(:increment).with('api.hca.validation_fail')
-        expect(Raven).to receive(:tags_context).with(validation: 'hca')
+        expect(Sentry).to receive(:set_tags).with(validation: 'hca')
 
         subject
       end

@@ -4,11 +4,12 @@ require 'lighthouse/benefits_claims/service'
 
 module SimpleFormsApi
   class IntentToFile
-    attr_reader :params, :icn
+    attr_reader :user, :icn, :params
 
-    def initialize(params, icn)
+    def initialize(user, params = {})
+      @user = user
+      @icn = user&.icn
       @params = params
-      @icn = icn
     end
 
     def submit
@@ -26,6 +27,11 @@ module SimpleFormsApi
         expiration_date = response.dig('data', 'attributes', 'expirationDate')
       end
 
+      user_account_uuid = user.user_account_uuid
+      Rails.logger.info(
+        'Simple forms api - sent to benefits claims api, intent to file create endpoint',
+        { benefit_selections:, confirmation_number:, user_account_uuid: }
+      )
       [confirmation_number, expiration_date]
     end
 
@@ -66,8 +72,12 @@ module SimpleFormsApi
 
     def handle_missing_intent(e, type)
       Rails.logger.info(
-        "Simple forms api - #{type} intent to file not found. Form number: #{params[:form_number]},
-          error: #{e}, ICN #{icn}"
+        'Simple forms api - intent to file not found',
+        {
+          intent_type: type,
+          form_number: params[:form_number],
+          error: e
+        }
       )
       nil
     end

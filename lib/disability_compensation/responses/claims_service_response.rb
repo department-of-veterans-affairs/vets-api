@@ -18,6 +18,7 @@ module DisabilityCompensation
       attribute :base_end_product_code, String
       attribute :development_letter_sent, Boolean
       attribute :status, String
+      attribute :claim_date, String
       attribute :claim_phase_dates, ClaimPhaseDates
     end
 

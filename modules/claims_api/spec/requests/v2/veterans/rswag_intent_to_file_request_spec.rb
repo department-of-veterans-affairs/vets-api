@@ -6,9 +6,9 @@ require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
 # doc generation for V2 ITFs temporarily disabled by API-13879
-describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
+describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
   path '/veterans/{veteranId}/intent-to-file/{type}' do
-    get "Returns last active Intent to File form submission for given 'type'." do
+    get "Returns Veteran's last active Intent to File submission for given benefit type." do
       tags 'Intent to File'
       operationId 'active0966itf'
       security [
@@ -17,7 +17,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
         { bearer_token: [] }
       ]
       produces 'application/json'
-      description "Returns Veteran's last active Intent to File submission for given benefit type."
+      description "Returns Veteran's last active Intent to File submission for given benefit type of compensation, pension, or survivor." # rubocop:disable Layout/LineLength
 
       parameter name: 'veteranId',
                 in: :path,
@@ -29,6 +29,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
                 in: :path,
                 required: true,
                 type: :string,
+                example: 'compensation',
                 description: 'Type of Intent to File to return. Available values - compensation, pension, survivor.'
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:type) { 'compensation' }
@@ -295,7 +296,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
             stub_poa_verification
 
             mock_ccg(scopes) do
-              VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
                 submit_request(example.metadata)
               end
             end

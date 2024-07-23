@@ -37,7 +37,15 @@ module DecisionReviewV1
     def create_higher_level_review(request_body:, user:)
       with_monitoring_and_error_handling do
         headers = create_higher_level_review_headers(user)
-        response = perform :post, 'higher_level_reviews', request_body, headers
+        common_log_params = { key: :overall_claim_submission, form_id: '996', user_uuid: user.uuid,
+                              downstream_system: 'Lighthouse' }
+        begin
+          response = perform :post, 'higher_level_reviews', request_body, headers
+          log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
+        rescue => e
+          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          raise e
+        end
         raise_schema_error_unless_200_status response.status
         validate_against_schema json: response.body, schema: HLR_CREATE_RESPONSE_SCHEMA,
                                 append_to_error_class: ' (HLR_V1)'
@@ -72,7 +80,17 @@ module DecisionReviewV1
       with_monitoring_and_error_handling do
         path = "contestable_issues/higher_level_reviews?benefit_type=#{benefit_type}"
         headers = get_contestable_issues_headers(user)
-        response = perform :get, path, nil, headers
+        common_log_params = { key: :get_contestable_issues, form_id: '996', user_uuid: user.uuid,
+                              upstream_system: 'Lighthouse' }
+        begin
+          response = perform :get, path, nil, headers
+          log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
+        rescue => e
+          # We can freely log Lighthouse's error responses because they do not include PII or PHI.
+          # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v1.
+          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          raise e
+        end
         raise_schema_error_unless_200_status response.status
         validate_against_schema(
           json: response.body,
@@ -126,7 +144,10 @@ module DecisionReviewV1
           key: :overall_claim_submission,
           form_id: '10182',
           user_uuid: user.uuid,
-          downstream_system: 'Lighthouse'
+          downstream_system: 'Lighthouse',
+          params: {
+            version_number: 'v2'
+          }
         }
         begin
           response = perform :post, 'notice_of_disagreements', request_body, headers
@@ -378,8 +399,8 @@ module DecisionReviewV1
         error_class: "#{self.class.name}#save_error_details exception #{error.class} (DECISION_REVIEW_V1)",
         data: { error: Class.new.include(FailedRequestLoggable).exception_hash(error) }
       )
-      Raven.tags_context external_service: self.class.to_s.underscore
-      Raven.extra_context url: config.base_path, message: error.message
+      Sentry.set_tags(external_service: self.class.to_s.underscore)
+      Sentry.set_extras(url: config.base_path, message: error.message)
     end
 
     def log_error_details(error:, message: nil)
@@ -398,7 +419,7 @@ module DecisionReviewV1
             when Faraday::ParsingError
               DecisionReviewV1::ServiceException.new key: 'DR_502', response_values: source_hash
             when Common::Client::Errors::ClientError
-              Raven.extra_context body: error.body, status: error.status
+              Sentry.set_extras(body: error.body, status: error.status)
               if error.status == 403
                 Common::Exceptions::Forbidden.new source_hash
               else

@@ -43,6 +43,7 @@ module SignIn
     class ServiceAccountConfigNotFound < StandardError; end
     class InvalidServiceAccountScope < StandardError; end
     class CodeInvalidError < StandardError; end
+    class MissingParamsError < StandardError; end
     class MalformedParamsError < StandardError; end
     class CodeVerifierMalformedError < StandardError; end
     class UserAccountNotFoundError < StandardError; end
@@ -63,5 +64,11 @@ module SignIn
     class InvalidAccessTokenAttributeError < StandardError; end
     class TermsOfUseNotAcceptedError < StandardError; end
     class CredentialLockedError < StandardError; end
+    class InvalidAudienceError < StandardError; end
+    class InvalidScope < StandardError; end
+    class InvalidTokenError < StandardError; end
+    class InvalidTokenTypeError < StandardError; end
+    class InvalidClientConfigError < StandardError; end
+    class InvalidSSORequestError < StandardError; end
   end
 end

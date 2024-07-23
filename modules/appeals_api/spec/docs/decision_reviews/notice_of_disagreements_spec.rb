@@ -7,12 +7,12 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_pdf_downloads.rb')
 
-def swagger_doc
+def openapi_spec
   "modules/appeals_api/app/swagger/decision_reviews/v2/swagger#{DocHelpers.doc_suffix}.json"
 end
 
 # rubocop:disable RSpec/VariableName, RSpec/ScatteredSetup, RSpec/RepeatedExample, Layout/LineLength
-describe 'Notice of Disagreements', swagger_doc:, type: :request do
+describe 'Notice of Disagreements', openapi_spec:, type: :request do
   include DocHelpers
   include FixtureHelpers
   let(:apikey) { 'apikey' }
@@ -158,18 +158,18 @@ describe 'Notice of Disagreements', swagger_doc:, type: :request do
     end
   end
 
-  path '/notice_of_disagreements/{uuid}/download' do
-    get 'Download a watermarked copy of a submitted Notice of Disagreement' do
-      tags 'Notice of Disagreements'
-      operationId 'downloadNod'
-      security DocHelpers.decision_reviews_security_config
+  # path '/notice_of_disagreements/{uuid}/download' do
+  # get 'Download a watermarked copy of a submitted Notice of Disagreement' do
+  # tags 'Notice of Disagreements'
+  # operationId 'downloadNod'
+  # security DocHelpers.decision_reviews_security_config
 
-      include_examples 'decision reviews PDF download docs', {
-        factory: :extra_notice_of_disagreement_v2,
-        appeal_type_display_name: 'Notice of Disagreement'
-      }
-    end
-  end
+  # include_examples 'decision reviews PDF download docs', {
+  # factory: :extra_notice_of_disagreement_v2,
+  # appeal_type_display_name: 'Notice of Disagreement'
+  # }
+  # end
+  # end
 
   path '/notice_of_disagreements/schema' do
     get 'Gets the Notice of Disagreement JSON Schema.' do

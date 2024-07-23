@@ -5,7 +5,7 @@ http_interactions:
     uri: http://localhost:8120/employee-experience/max-ratings
     body:
       encoding: UTF-8
-      string: '{"diagnostic_codes":[7101,6260,6204]}'
+      string: '{"diagnostic_codes":[6260]}'
     headers:
       Accept:
       - application/json

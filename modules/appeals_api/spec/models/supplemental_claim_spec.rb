@@ -5,12 +5,7 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 shared_examples 'SC metadata' do |opts|
   let(:api_version) { opts[:api_version] }
-  let(:flag_enabled) { false }
-  let(:sc) do
-    flag = :decision_review_sc_pact_act_boolean
-    flag_enabled ? Flipper.enable(flag) : Flipper.disable(flag)
-    create(opts[:factory], api_version:)
-  end
+  let(:sc) { create(opts[:factory], api_version:) }
 
   it 'saves evidence type to metadata' do
     expect(sc.metadata.dig('form_data', 'evidence_type')).to eq(%w[upload])
@@ -56,24 +51,6 @@ shared_examples 'SC metadata' do |opts|
     end
   end
 
-  describe 'potential_pact_act' do
-    context 'when flag is off' do
-      it 'does not set metadata for potential_pact_act' do
-        expect(sc.metadata.dig('form_data', 'potential_pact_act')).to be_nil
-        expect(sc.metadata.dig('pact', 'potential_pact_act')).to be_nil
-      end
-    end
-
-    context 'when flag is on' do
-      let(:flag_enabled) { true }
-
-      it 'sets metadata for potential_pact_act' do
-        expect(sc.metadata.dig('form_data', 'potential_pact_act')).to be false
-        expect(sc.metadata.dig('pact', 'potential_pact_act')).to be false
-      end
-    end
-  end
-
   context 'when api_version is not V2 or V0' do
     let(:api_version) { 'V1' } # (does not exist)
 
@@ -88,6 +65,15 @@ describe AppealsApi::SupplementalClaim, type: :model do
 
   describe 'when api_version is v0' do
     let(:supplemental_claim) { create(:supplemental_claim_v0) }
+
+    describe '#veteran_icn' do
+      subject { supplemental_claim.veteran_icn }
+
+      it 'matches the ICN in the form data' do
+        expect(subject).to be_present
+        expect(subject).to eq supplemental_claim.form_data.dig('data', 'attributes', 'veteran', 'icn')
+      end
+    end
 
     describe '#soc_opt_in' do
       describe 'by default' do
@@ -110,6 +96,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
       include_examples 'SC metadata',
                        api_version: 'V0',
                        factory: :supplemental_claim_v0,
+                       extra_factory: :extra_supplemental_claim_v0,
                        form_data_fixture: 'supplemental_claims/v0/valid_200995.json'
     end
 
@@ -150,7 +137,27 @@ describe AppealsApi::SupplementalClaim, type: :model do
       include_examples 'SC metadata',
                        api_version: 'V2',
                        factory: :minimal_supplemental_claim,
+                       extra_factory: :extra_supplemental_claim,
                        form_data_fixture: 'decision_reviews/v2/valid_200995.json'
+    end
+
+    describe '#veteran_icn' do
+      subject { sc.veteran_icn }
+
+      let(:sc) { create(:supplemental_claim) }
+
+      it 'matches header' do
+        expect(subject).to be_present
+        expect(subject).to eq sc.auth_headers['X-VA-ICN']
+      end
+
+      describe 'when ICN not provided in header' do
+        let(:sc) { create(:supplemental_claim, auth_headers: default_auth_headers.except('X-VA-ICN')) }
+
+        it 'is blank' do
+          expect(subject).to be_blank
+        end
+      end
     end
 
     describe 'validations' do
@@ -249,10 +256,6 @@ describe AppealsApi::SupplementalClaim, type: :model do
 
     describe '#claimant_type_other_text' do
       it { expect(sc_with_nvc.claimant_type_other_text).to eq 'Veteran Attorney' }
-    end
-
-    describe '#potential_pact_act' do
-      it { expect(sc_with_nvc.potential_pact_act).to be(true) }
     end
 
     describe '#contestable_issues' do
@@ -455,14 +458,14 @@ describe AppealsApi::SupplementalClaim, type: :model do
     describe 'before_update' do
       before { allow(supplemental_claim).to receive(:submit_evidence_to_central_mail!) }
 
-      context 'when the status has changed to "success"' do
+      context 'when the status has changed to "complete"' do
         let(:supplemental_claim) { create(:supplemental_claim, status: 'processing') }
 
         context 'and the delay evidence feature is enabled' do
           before { Flipper.enable(:decision_review_delay_evidence) }
 
           it 'calls "#submit_evidence_to_central_mail!"' do
-            supplemental_claim.update(status: 'success')
+            supplemental_claim.update(status: 'complete')
 
             expect(supplemental_claim).to have_received(:submit_evidence_to_central_mail!)
           end
@@ -472,7 +475,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
           before { Flipper.disable(:decision_review_delay_evidence) }
 
           it 'does not call "#submit_evidence_to_central_mail!"' do
-            supplemental_claim.update(status: 'success')
+            supplemental_claim.update(status: 'complete')
 
             expect(supplemental_claim).not_to have_received(:submit_evidence_to_central_mail!)
           end

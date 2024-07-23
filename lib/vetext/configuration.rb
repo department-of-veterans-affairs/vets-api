@@ -17,8 +17,8 @@ module VEText
       @connection ||= Faraday.new(
         base_path, headers: base_request_headers, request: request_options
       ) do |conn|
-        conn.basic_auth(Settings.vetext_push.user, Settings.vetext_push.pass)
         conn.use :breakers
+        conn.request :authorization, :basic, Settings.vetext_push.user, Settings.vetext_push.pass
         conn.request :json
         conn.use Faraday::Response::RaiseError
         conn.response :snakecase

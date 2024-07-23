@@ -17,6 +17,7 @@ module DebtManagementCenter
       response = BGS::People::Request.new.find_person_by_participant_id(user: @user)
       response.file_number || @user.ssn
     rescue
+      Rails.logger.error("BGS::People::Request error - falling back to ssn for user: #{@user.uuid}")
       @user.ssn
     end
 
@@ -27,15 +28,8 @@ module DebtManagementCenter
     end
 
     def save_error_details(error)
-      Raven.tags_context(
-        external_service: self.class.to_s.underscore
-      )
-
-      Raven.extra_context(
-        url: config.base_path,
-        message: error.message,
-        body: error.body
-      )
+      Sentry.set_tags(external_service: self.class.to_s.underscore)
+      Sentry.set_extras(url: config.base_path, message: error.message, body: error.body)
     end
 
     def handle_error(error)

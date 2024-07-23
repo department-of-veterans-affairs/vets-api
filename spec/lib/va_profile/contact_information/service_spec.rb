@@ -3,15 +3,14 @@
 require 'rails_helper'
 require 'va_profile/contact_information/service'
 
-describe VAProfile::ContactInformation::Service, skip_vet360: true do
+describe VAProfile::ContactInformation::Service, :skip_vet360 do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3) }
   let(:vet360_id) { '1' }
 
   before do
-    allow(user).to receive(:vet360_id).and_return(vet360_id)
-    allow(user).to receive(:icn).and_return('1234')
+    allow(user).to receive_messages(vet360_id:, icn: '1234')
     Flipper.enable(:contact_info_change_email)
   end
 
@@ -276,7 +275,7 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
         build(:va_profile_address, :override, country_name: nil)
       end
 
-      it 'will override the address error', run_at: '2020-02-14T00:19:15.000Z' do
+      it 'overrides the address error', run_at: '2020-02-14T00:19:15.000Z' do
         VCR.use_cassette(
           'va_profile/contact_information/put_address_override',
           VCR::MATCH_EVERYTHING
@@ -474,7 +473,7 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
 
       it 'includes "general_client_error" tag in sentry error', :aggregate_failures do
         VCR.use_cassette('va_profile/contact_information/email_transaction_status_error', VCR::MATCH_EVERYTHING) do
-          expect(Raven).to receive(:tags_context).with(va_profile: 'general_client_error')
+          expect(Sentry).to receive(:set_tags).with(va_profile: 'general_client_error')
 
           expect { subject.get_email_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
@@ -779,7 +778,7 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
 
       it 'logs a va_profile tagged error message to sentry', :aggregate_failures do
         VCR.use_cassette('va_profile/contact_information/person_transaction_status_error', VCR::MATCH_EVERYTHING) do
-          expect(Raven).to receive(:tags_context).with(va_profile: 'failed_vet360_id_initializations')
+          expect(Sentry).to receive(:set_tags).with(va_profile: 'failed_vet360_id_initializations')
 
           expect { subject.get_person_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)

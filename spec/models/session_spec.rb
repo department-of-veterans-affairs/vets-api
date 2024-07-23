@@ -55,12 +55,12 @@ RSpec.describe Session, type: :model do
         expect(subject.ttl).to eq(3600)
       end
 
-      it 'will extend the session when within maximum ttl' do
+      it 'extends the session when within maximum ttl' do
         subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME - 1.minute)
         expect(subject.expire(1800)).to eq(true)
       end
 
-      it 'will not extend the session when beyond the maximum ttl' do
+      it 'does not extend the session when beyond the maximum ttl' do
         subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME + 1.minute)
         expect(subject.expire(1800)).to eq(false)
         expect(subject.errors.messages).to include(:created_at)
@@ -99,7 +99,7 @@ RSpec.describe Session, type: :model do
         expect(subject.ttl).to be_between(0, 3600)
       end
 
-      it 'will save a session within the maximum ttl' do
+      it 'saves a session within the maximum ttl' do
         subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME - 1.minute)
         expect(subject.save).to eq(true)
       end
@@ -107,7 +107,7 @@ RSpec.describe Session, type: :model do
       context 'when beyond the maximum ttl' do
         before { subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME + 1.minute) }
 
-        it 'will not save' do
+        it 'does not save' do
           expect(subject.save).to eq(false)
           expect(subject.errors.messages).to include(:created_at)
         end

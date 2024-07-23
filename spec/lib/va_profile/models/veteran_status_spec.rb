@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'va_profile/models/veteran_status'
 
-describe VAProfile::Models::VeteranStatus, if: Flipper.enabled?(:veteran_status_updated) do
+describe VAProfile::Models::VeteranStatus do
   let(:model) { VAProfile::Models::VeteranStatus.new }
 
   it 'is valid' do

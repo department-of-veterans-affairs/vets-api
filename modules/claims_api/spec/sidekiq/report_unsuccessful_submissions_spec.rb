@@ -1,79 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../shared_reporting_helper'
+require_relative 'shared_reporting_examples_spec'
 
 RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
-  let(:upload_claims) do
-    upload_claims = []
-    upload_claims.push(FactoryBot.create(:auto_established_claim,
-                                         :status_errored,
-                                         cid: '0oa9uf05lgXYk6ZXn297',
-                                         evss_response: nil))
-    upload_claims.push(FactoryBot.create(:auto_established_claim,
-                                         :status_errored,
-                                         cid: '0oa9uf05lgXYk6ZXn297',
-                                         evss_response: 'random string'))
-    evss_response_array = [{ 'key' => 'key-here', 'severity' => 'FATAL', 'text' => 'message-here' }]
-    upload_claims.push(FactoryBot.create(:auto_established_claim,
-                                         :status_errored,
-                                         cid: '0oa9uf05lgXYk6ZXn297',
-                                         evss_response: evss_response_array))
-    upload_claims.push(FactoryBot.create(:auto_established_claim,
-                                         :status_errored,
-                                         cid: '0oa9uf05lgXYk6ZXn297',
-                                         evss_response: evss_response_array.to_json))
-    upload_claims.push(FactoryBot.create(:auto_established_claim_without_flashes_or_special_issues,
-                                         :status_errored,
-                                         cid: '0oa9uf05lgXYk6ZXn297',
-                                         evss_response: evss_response_array.to_json))
-    upload_claims.push(FactoryBot.create(:auto_established_claim_without_flashes_or_special_issues,
-                                         :status_errored,
-                                         cid: '0oa9uf05lgXYk6ZXn297',
-                                         evss_response: evss_response_array.to_json))
-  end
-  let(:pending_claims) { FactoryBot.create(:auto_established_claim, cid: '0oa9uf05lgXYk6ZXn297') }
-  let(:poa_submissions) do
-    poa_submissions = []
-    poa_submissions.push(FactoryBot.create(:power_of_attorney,
-                                           cid: '0oa9uf05lgXYk6ZXn297'))
-    poa_submissions.push(FactoryBot.create(:power_of_attorney,
-                                           cid: '0oa9uf05lgXYk6ZXn297'))
-    poa_submissions.push(FactoryBot.create(:power_of_attorney,
-                                           cid: '0oa9uf05lgXYk6ZXn297'))
-  end
-  let(:errored_poa_submissions) do
-    errored_poa_submissions = []
-    errored_poa_submissions.push(FactoryBot.create(:power_of_attorney, :errored, cid: '0oa9uf05lgXYk6ZXn297'))
-    errored_poa_submissions.push(FactoryBot.create(
-                                   :power_of_attorney,
-                                   :errored,
-                                   vbms_error_message: 'File could not be retrieved from AWS',
-                                   cid: '0oa9uf05lgXYk6ZXn297'
-                                 ))
-    errored_poa_submissions.push(FactoryBot.create(:power_of_attorney_without_doc, cid: '0oa9uf05lgXYk6ZXn297'))
-  end
-  let(:evidence_waiver_submissions) do
-    evidence_waiver_submissions = []
-    evidence_waiver_submissions.push(FactoryBot.create(:claims_api_evidence_waiver_submission,
-                                                       cid: '0oa9uf05lgXYk6ZXn297'))
-    evidence_waiver_submissions.push(FactoryBot.create(:claims_api_evidence_waiver_submission,
-                                                       cid: '0oa9uf05lgXYk6ZXn297'))
-    evidence_waiver_submissions.push(FactoryBot.create(:claims_api_evidence_waiver_submission,
-                                                       cid: '0oa9uf05lgXYk6ZXn297'))
-  end
-  let(:errored_evidence_waiver_submissions) do
-    errored_evidence_waiver_submissions = []
-    errored_evidence_waiver_submissions.push(FactoryBot.create(:claims_api_evidence_waiver_submission, :errored,
-                                                               cid: '0oa9uf05lgXYk6ZXn297'))
-    errored_evidence_waiver_submissions.push(FactoryBot.create(
-                                               :claims_api_evidence_waiver_submission,
-                                               :errored,
-                                               vbms_error_message: 'File could not be retrieved from AWS',
-                                               cid: '0oa9uf05lgXYk6ZXn297'
-                                             ))
-    errored_evidence_waiver_submissions.push(FactoryBot.create(:claims_api_evidence_waiver_submission,
-                                                               cid: '0oa9uf05lgXYk6ZXn297'))
-  end
+  include_context 'shared reporting defaults'
 
   describe '#perform' do
     let(:from) { 1.day.ago }
@@ -135,60 +67,22 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
       end
     end
 
-    it 'includes POA metrics' do
-      with_settings(Settings.claims_api,
-                    report_enabled: true) do
-        poa_submissions
-        errored_poa_submissions
+    it_behaves_like 'shared reporting behavior'
+  end
 
-        job = described_class.new
-        job.perform
-        poa_totals = job.poa_totals
-        unsuccessful_poa_submissions = job.unsuccessful_poa_submissions
+  describe 'when an errored job has exhausted its retries' do
+    it 'logs to the ClaimsApi Logger' do
+      error_msg = 'An error occurred from the Report Unsuccessful Submission Job'
+      msg = { 'class' => described_class,
+              'error_message' => error_msg }
 
-        expect(poa_totals[0]['VA TurboClaim'][:totals]).to eq(6)
-        expect(unsuccessful_poa_submissions.count).to eq(2)
-        expect(unsuccessful_poa_submissions[0][:cid]).to eq('0oa9uf05lgXYk6ZXn297')
-      end
-    end
-
-    it 'includes ews metrics' do
-      with_settings(Settings.claims_api,
-                    report_enabled: true) do
-        evidence_waiver_submissions
-        errored_evidence_waiver_submissions
-
-        job = described_class.new
-        job.perform
-        ews_totals = job.ews_totals
-        unsuccessful_evidence_waiver_submissions = job.unsuccessful_evidence_waiver_submissions
-
-        expect(ews_totals[0]['VA TurboClaim'][:totals]).to eq(6)
-        expect(unsuccessful_evidence_waiver_submissions.count).to eq(2)
-        expect(unsuccessful_evidence_waiver_submissions[0][:cid]).to eq('0oa9uf05lgXYk6ZXn297')
-      end
-    end
-
-    it 'includes ITF metrics' do
-      with_settings(Settings.claims_api,
-                    report_enabled: true) do
-        ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: '0oa9uf05lgXYk6ZXn297')
-        ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: '0oa9uf05lgXYk6ZXn297')
-
-        ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: '0oadnb0o063rsPupH297')
-        ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: '0oadnb0o063rsPupH297')
-
-        job = described_class.new
-        job.perform
-        itf_totals = job.itf_totals
-
-        expect(itf_totals[0]['VA TurboClaim'][:submitted]).to eq(1)
-        expect(itf_totals[0]['VA TurboClaim'][:errored]).to eq(1)
-        expect(itf_totals[0]['VA TurboClaim'][:totals]).to eq(2)
-
-        expect(itf_totals[1]['VA Connect Pro'][:submitted]).to eq(1)
-        expect(itf_totals[1]['VA Connect Pro'][:errored]).to eq(1)
-        expect(itf_totals[1]['VA Connect Pro'][:totals]).to eq(2)
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          record_id: nil,
+          detail: "Job retries exhausted for #{described_class}",
+          error: error_msg
+        )
       end
     end
   end

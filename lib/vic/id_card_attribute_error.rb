@@ -4,7 +4,7 @@ require 'common/exceptions/base_error'
 
 module VIC
   class IDCardAttributeError < Common::Exceptions::BaseError
-    VIC002 = { status: 403, code: 'VIC002', detail: 'No EDIPI or not found in eMIS' }.freeze
+    VIC002 = { status: 403, code: 'VIC002', detail: 'No EDIPI or not found in VA Profile' }.freeze
     VIC010 = { status: 403, code: 'VIC010', detail: 'Could not verify Veteran status' }.freeze
     NOT_ELIGIBLE = {
       status: 403,

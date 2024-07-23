@@ -72,16 +72,14 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   end
 
   before do
-    allow_any_instance_of(described_class).to receive(:cancelled?).and_return(false)
     allow_any_instance_of(Tempfile).to receive(:size).and_return(1) # must be > 0 or submission will error w/DOC107
     objstore = instance_double(VBADocuments::ObjectStore)
     version = instance_double(Aws::S3::ObjectVersion)
     bucket = instance_double(Aws::S3::Bucket)
     obj = instance_double(Aws::S3::Object)
     allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
-    allow(objstore).to receive(:first_version).and_return(version)
     allow(objstore).to receive(:download)
-    allow(objstore).to receive(:bucket).and_return(bucket)
+    allow(objstore).to receive_messages(first_version: version, bucket:)
     allow(bucket).to receive(:object).and_return(obj)
     allow(obj).to receive(:exists?).and_return(true)
     allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
@@ -110,9 +108,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       it 'does not send duplicates if called multiple times concurrently on the same guid' do
         allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
         allow(CentralMail::Service).to receive(:new) { client_stub }
-        allow(faraday_response).to receive(:status).and_return(200)
-        allow(faraday_response).to receive(:body).and_return('')
-        allow(faraday_response).to receive(:success?).and_return(true)
+        allow(faraday_response).to receive_messages(status: 200, body: '', success?: true)
         allow(client_stub).to receive(:upload).and_return(faraday_response)
         num_times = 7
         # Why 7?  That's the most times a duplicate ever occurred.  See the excel spreadsheet in the ticket!
@@ -144,9 +140,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     it 'tracks how we got into the recieved state' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }
-      allow(faraday_response).to receive(:status).and_return(200)
-      allow(faraday_response).to receive(:body).and_return('')
-      allow(faraday_response).to receive(:success?).and_return(true)
+      allow(faraday_response).to receive_messages(status: 200, body: '', success?: true)
       capture_body = nil
       expect(client_stub).to receive(:upload) { |arg|
         capture_body = arg
@@ -163,9 +157,9 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       upload_model.save!
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
       allow(CentralMail::Service).to receive(:new) { client_stub }
-      allow(faraday_response).to receive(:status).and_return(429)
-      allow(faraday_response).to receive(:body).and_return("UUID already in cache [uuid: #{upload_model.guid}]")
-      allow(faraday_response).to receive(:success?).and_return(false)
+      allow(faraday_response).to receive_messages(status: 429,
+                                                  body: "UUID already in cache [uuid: #{upload_model.guid}]",
+                                                  success?: false)
       allow(client_stub).to receive(:upload).and_return(faraday_response)
       allow(File).to receive(:size).and_return(10)
       allow_any_instance_of(File).to receive(:rewind).and_return(nil)
@@ -185,9 +179,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     it 'parses and uploads a valid multipart payload' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }
-      allow(faraday_response).to receive(:status).and_return(200)
-      allow(faraday_response).to receive(:body).and_return('')
-      allow(faraday_response).to receive(:success?).and_return(true)
+      allow(faraday_response).to receive_messages(status: 200, body: '', success?: true)
       capture_body = nil
       expect(client_stub).to receive(:upload) { |arg|
         capture_body = arg
@@ -206,9 +198,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     it 'parses and uploads a valid multipart payload with attachments' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
       allow(CentralMail::Service).to receive(:new) { client_stub }
-      allow(faraday_response).to receive(:status).and_return(200)
-      allow(faraday_response).to receive(:body).and_return('')
-      allow(faraday_response).to receive(:success?).and_return(true)
+      allow(faraday_response).to receive_messages(status: 200, body: '', success?: true)
       capture_body = nil
       expect(client_stub).to receive(:upload) { |arg|
         capture_body = arg
@@ -262,10 +252,9 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       before do
         allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
         allow(CentralMail::Service).to receive(:new) { client_stub }
-        allow(faraday_response).to receive(:status).and_return(400)
-        allow(faraday_response).to receive(:body)
-          .and_return("Document already uploaded with uuid [uuid: #{upload.guid}]")
-        allow(faraday_response).to receive(:success?).and_return(false)
+        allow(faraday_response).to receive_messages(status: 400,
+                                                    body: "Document already uploaded with uuid [uuid: #{upload.guid}]",
+                                                    success?: false)
         allow(client_stub).to receive(:upload).and_return(faraday_response)
         allow(StatsD).to receive(:increment)
         allow(Rails.logger).to receive(:warn)
@@ -317,9 +306,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
           { 'metadata' => send(allowed), 'content' => valid_doc }
         }
         allow(CentralMail::Service).to receive(:new) { client_stub }
-        allow(faraday_response).to receive(:status).and_return(200)
-        allow(faraday_response).to receive(:body).and_return('')
-        allow(faraday_response).to receive(:success?).and_return(true)
+        allow(faraday_response).to receive_messages(status: 200, body: '', success?: true)
         expect(client_stub).to receive(:upload) { faraday_response }
         described_class.new.perform(upload.guid, test_caller)
         updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
@@ -501,7 +488,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       }
       described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-      expect(updated.metadata['size'].class).to be == Integer
+      expect(updated.metadata['size'].class).to eq Integer
     end
 
     context 'document is base64 encoded' do
@@ -565,9 +552,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
       before do
         allow(CentralMail::Service).to receive(:new) { client_stub }
-        allow(faraday_response).to receive(:status).and_return(200)
-        allow(faraday_response).to receive(:body).and_return('')
-        allow(faraday_response).to receive(:success?).and_return(true)
+        allow(faraday_response).to receive_messages(status: 200, body: '', success?: true)
         allow(client_stub).to receive(:upload).and_return(faraday_response)
       end
 
@@ -608,9 +593,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
           { 'metadata' => @md.to_json, 'content' => valid_doc }
         }
         allow(CentralMail::Service).to receive(:new) { client_stub }
-        allow(faraday_response).to receive(:status).and_return(200)
-        allow(faraday_response).to receive(:body).and_return('')
-        allow(faraday_response).to receive(:success?).and_return(true)
+        allow(faraday_response).to receive_messages(status: 200, body: '', success?: true)
         capture_body = nil
         expect(client_stub).to receive(:upload) { |arg|
           capture_body = arg
@@ -653,9 +636,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         { 'metadata' => md.to_json, 'content' => valid_doc }
       }
       allow(CentralMail::Service).to receive(:new) { client_stub }
-      allow(faraday_response).to receive(:status).and_return(200)
-      allow(faraday_response).to receive(:body).and_return('')
-      allow(faraday_response).to receive(:success?).and_return(true)
+      allow(faraday_response).to receive_messages(status: 200, body: '', success?: true)
       described_class.new.perform(v2_upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: v2_upload.guid)
       expect(updated.status).to eq('error')
@@ -666,11 +647,10 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     it 'sets error status for upstream zip code validation' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }
-      allow(faraday_response).to receive(:status).and_return(412)
-      allow(faraday_response).to receive(:body).and_return(
-        "Metadata Field Error - Missing zipCode [uuid: #{upload.guid}] "
-      )
-      allow(faraday_response).to receive(:success?).and_return(false)
+      allow(faraday_response)
+        .to receive_messages(status: 412,
+                             body: "Metadata Field Error - Missing zipCode [uuid: #{upload.guid}] ",
+                             success?: false)
       capture_body = nil
       expect(client_stub).to receive(:upload) { |arg|
         capture_body = arg
@@ -693,9 +673,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     it 'sets error status for upstream server error' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }
-      allow(faraday_response).to receive(:status).and_return(422)
-      allow(faraday_response).to receive(:body).and_return('')
-      allow(faraday_response).to receive(:success?).and_return(false)
+      allow(faraday_response).to receive_messages(status: 422, body: '', success?: false)
       capture_body = nil
       expect(client_stub).to receive(:upload) { |arg|
         capture_body = arg
@@ -716,9 +694,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       before do
         allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
         allow(CentralMail::Service).to receive(:new) { client_stub }
-        allow(faraday_response).to receive(:status).and_return(500)
-        allow(faraday_response).to receive(:body).and_return('')
-        allow(faraday_response).to receive(:success?).and_return(false)
+        allow(faraday_response).to receive_messages(status: 500, body: '', success?: false)
       end
 
       it 'does not set error status for upstream server error' do

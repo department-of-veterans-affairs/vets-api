@@ -10,10 +10,13 @@ module SignIn
 
     def perform
       validate_service_account_config
-      validate_iss
+      validate_issuer
       validate_audience
       validate_scopes
       validate_user_attributes
+      validate_subject
+      validate_issued_at_time
+      validate_expiration
       create_new_access_token
     end
 
@@ -25,14 +28,14 @@ module SignIn
       end
     end
 
-    def validate_iss
-      if decoded_assertion.iss != audience
+    def validate_issuer
+      if issuer != audience
         raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion issuer is not valid'
       end
     end
 
     def validate_audience
-      unless decoded_assertion.aud.match(token_route)
+      unless assertion_audience.include?(token_route)
         raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion audience is not valid'
       end
     end
@@ -49,6 +52,24 @@ module SignIn
       end
     end
 
+    def validate_subject
+      if user_identifier.blank?
+        raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion subject is not valid'
+      end
+    end
+
+    def validate_issued_at_time
+      if issued_at_time.blank? || issued_at_time > Time.now.to_i
+        raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion issuance timestamp is not valid'
+      end
+    end
+
+    def validate_expiration
+      if expiration.blank?
+        raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion expiration timestamp is not valid'
+      end
+    end
+
     def create_new_access_token
       ServiceAccountAccessToken.new(service_account_id:,
                                     audience:,
@@ -58,6 +79,8 @@ module SignIn
     end
 
     def decoded_assertion_scopes_are_defined_in_config?
+      return service_account_config.scopes.blank? if scopes.blank?
+
       (scopes - service_account_config.scopes).empty?
     end
 
@@ -66,8 +89,9 @@ module SignIn
     end
 
     def hostname
-      scheme = Settings.vsp_environment == 'localhost' ? 'http://' : 'https://'
-      "#{scheme}#{Settings.hostname}"
+      return localhost_hostname if Settings.vsp_environment == 'localhost'
+
+      "https://#{Settings.hostname}"
     end
 
     def decoded_assertion
@@ -83,7 +107,7 @@ module SignIn
     end
 
     def scopes
-      @scopes ||= decoded_assertion.scopes
+      @scopes ||= Array(decoded_assertion.scopes)
     end
 
     def user_attributes
@@ -94,8 +118,24 @@ module SignIn
       @user_identifier ||= decoded_assertion.sub
     end
 
+    def issuer
+      @issuer ||= decoded_assertion.iss
+    end
+
+    def assertion_audience
+      @assertion_audience ||= Array(decoded_assertion.aud)
+    end
+
     def audience
       @audience ||= service_account_config.access_token_audience
+    end
+
+    def issued_at_time
+      @issued_at_time ||= decoded_assertion.iat
+    end
+
+    def expiration
+      @expiration ||= decoded_assertion.exp
     end
 
     def service_account_config
@@ -117,6 +157,12 @@ module SignIn
       raise Errors::AssertionExpiredError.new message: 'Assertion has expired'
     rescue JWT::DecodeError
       raise Errors::AssertionMalformedJWTError.new message: 'Assertion is malformed'
+    end
+
+    def localhost_hostname
+      port = URI.parse("http://#{Settings.hostname}").port
+
+      "http://localhost:#{port}"
     end
   end
 end

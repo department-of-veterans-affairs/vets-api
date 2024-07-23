@@ -71,8 +71,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
       FactoryBot.create(:evss_claim, id: 2, evss_id: 189_625,
                                      user_uuid: 'xyz')
       # check tagging of EVSSClaimsController.show RecordNotFound error
-      allow(Raven).to receive(:tags_context)
-      expect(Raven).to receive(:tags_context).with(team: 'benefits-memorial-1')
+      allow(Sentry).to receive(:set_tags)
+      expect(Sentry).to receive(:set_tags).with(team: 'benefits-memorial-1')
 
       get '/v0/evss_claims/2'
       expect(response).to have_http_status(:not_found)

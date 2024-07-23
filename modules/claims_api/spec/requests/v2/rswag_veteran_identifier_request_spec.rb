@@ -6,7 +6,7 @@ require 'rails_helper'
 require_relative '../../rails_helper'
 require_relative '../../support/swagger_shared_components/v2'
 
-describe 'Veteran Identifier', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do # rubocop:disable RSpec/DescribeClass
+describe 'Veteran Identifier', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do # rubocop:disable RSpec/DescribeClass
   before do
     stub_mpi(profile)
   end
@@ -55,8 +55,7 @@ describe 'Veteran Identifier', swagger_doc: Rswag::TextHelpers.new.claims_api_do
           )
 
           before do |example|
-            mock_ccg(scopes) do |auth_header|
-              Authorization = auth_header # rubocop:disable Naming/ConstantName
+            mock_ccg(scopes) do
               submit_request(example.metadata)
             end
           end
@@ -78,8 +77,7 @@ describe 'Veteran Identifier', swagger_doc: Rswag::TextHelpers.new.claims_api_do
       describe 'Getting a 400 response' do
         context 'when parameters are missing' do
           before do |example|
-            mock_ccg(scopes) do |auth_header|
-              Authorization = auth_header # rubocop:disable Naming/ConstantName
+            mock_ccg(scopes) do
               data[:ssn] = nil
               submit_request(example.metadata)
             end
@@ -140,8 +138,7 @@ describe 'Veteran Identifier', swagger_doc: Rswag::TextHelpers.new.claims_api_do
           expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
           allow(veteran).to receive(:mpi).and_return(veteran_mpi_data)
           allow(veteran_mpi_data).to receive(:icn).and_return(nil)
-          mock_ccg(scopes) do |auth_header|
-            Authorization = auth_header # rubocop:disable Naming/ConstantName
+          mock_ccg(scopes) do
             submit_request(example.metadata)
           end
         end

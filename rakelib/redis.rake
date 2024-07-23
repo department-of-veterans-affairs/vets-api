@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'emis/responses/response'
-require 'emis/responses/get_veteran_status_response'
-
 namespace :redis do
   desc 'Flush Vets.gov User/Sessions'
   task flush_session: %i[flush_session_store flush_users_store]
@@ -103,12 +100,6 @@ end
 
 def title38_indicator?(item)
   item&.respond_to?(:title38_status)
-end
-
-def any_veteran_indicator?(item)
-  item&.post911_deployment_indicator == 'Y' ||
-    item&.post911_combat_indicator == 'Y' ||
-    item&.pre911_deployment_indicator == 'Y'
 end
 
 def patient?(vha_ids)

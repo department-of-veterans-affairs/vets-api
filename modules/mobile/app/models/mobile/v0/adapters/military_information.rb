@@ -92,9 +92,6 @@ module Mobile
 
         def discharge_code_section(service_period)
           discharge_code = service_period[:character_of_discharge_code]
-          if discharge_code.present? && DISCHARGE_CODE_MAP.keys.exclude?(discharge_code)
-            Rails.logger.error('Invalid discharge code', code: discharge_code)
-          end
           DISCHARGE_CODE_MAP[discharge_code]
         end
       end

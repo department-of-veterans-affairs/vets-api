@@ -6,8 +6,8 @@ RSpec.describe 'Claim Document Attachment', type: :request do
   before do
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
-    allow(ClamScan::Client).to receive(:scan)
-      .and_return(instance_double('ClamScan::Response', safe?: true))
+    allow(Common::VirusScan).to receive(:scan).and_return(true)
+    allow_any_instance_of(Common::VirusScan).to receive(:scan).and_return(true)
   end
 
   context 'with a valid file' do
@@ -79,6 +79,24 @@ RSpec.describe 'Claim Document Attachment', type: :request do
 
       params = { file:, form_id: '21P-527EZ' }
       post('/v0/claim_attachments', params:)
+    end
+  end
+
+  context 'with a password protected file' do
+    let(:file) do
+      fixture_file_upload('password_is_test.pdf')
+    end
+
+    it 'does not raise an error when password is correct' do
+      params = { file:, form_id: '26-1880', password: 'test' }
+      post('/v0/claim_attachments', params:)
+      expect(response.status).to eq(200)
+    end
+
+    it 'raises an error when password is incorrect' do
+      params = { file:, form_id: '26-1880', password: 'bad_password' }
+      post('/v0/claim_attachments', params:)
+      expect(response.status).to eq(422)
     end
   end
 end

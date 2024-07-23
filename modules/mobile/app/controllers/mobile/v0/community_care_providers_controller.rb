@@ -27,7 +27,7 @@ module Mobile
       private
 
       def ppms_api
-        FacilitiesApi::V1::PPMS::Client.new
+        FacilitiesApi::V2::PPMS::Client.new
       end
 
       def locator_params
@@ -52,7 +52,8 @@ module Mobile
       end
 
       def facility_coordinates
-        facility = Mobile::FacilitiesHelper.get_facilities(Array(params[:facilityId])).first
+        v1_facilities_flag = Flipper.enabled?(:mobile_v1_lighthouse_facilities, @current_user)
+        facility = Mobile::FacilitiesHelper.get_facilities(Array(params[:facilityId]), v1_facilities_flag).first
         raise Common::Exceptions::RecordNotFound, params[:facilityId] unless facility
 
         [facility.lat, facility.long]

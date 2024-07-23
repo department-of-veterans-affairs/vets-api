@@ -24,9 +24,16 @@ RSpec.describe SignIn::RedirectUrlGenerator do
       let(:terms_of_use_url) { "#{terms_redirect_uri}?#{embedded_params}" }
       let(:embedded_params) { "#{{ redirect_url: redirect_uri_with_params }.to_query}&amp;terms_code=#{terms_code}" }
       let(:redirect_uri_with_params) { "#{redirect_uri}?#{params_hash.to_query}" }
+      let(:expected_log_message) { 'Redirecting to /terms-of-use' }
+      let(:expected_log_payload) { { type: :sis } }
 
       it 'renders a meta refresh with expected redirect uri embedded in terms of use redirect' do
         expect(subject).to include(terms_of_use_url)
+      end
+
+      it 'logs expected message' do
+        expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
+        subject
       end
     end
 

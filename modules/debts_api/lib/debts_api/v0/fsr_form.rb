@@ -46,5 +46,9 @@ module DebtsApi
 
       enabled_flags
     end
+
+    def in_progress_form(user_uuid)
+      InProgressForm.where(form_id: '5655', user_uuid:).last
+    end
   end
 end

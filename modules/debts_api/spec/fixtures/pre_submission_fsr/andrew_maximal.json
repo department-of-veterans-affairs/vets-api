@@ -1,0 +1,1268 @@
+{
+  "view:enhanced_financial_status_report": true,
+  "view:streamlined_waiver": true,
+  "other_expenses": [
+    {
+      "name": "Clothing",
+      "amount": "10"
+    },
+    {
+      "name": "Food",
+      "amount": "1000.54"
+    },
+    {
+      "name": "Veteran added",
+      "amount": "100"
+    }
+  ],
+  "view:components": {
+    "view:asset_info": {},
+    "view:rec_vehicle_info": {},
+    "view:vehicle_info": {},
+    "view:marital_status": {},
+    "view:veteran_info": {},
+    "view:va_benefits_on_file": {}
+  },
+  "expenses": {
+    "expense_records": [
+      {
+        "name": "Rent",
+        "amount": "1200.53"
+      }
+    ],
+    "credit_card_bills": [
+      {
+        "purpose": "Credit card payment",
+        "creditor_name": "",
+        "original_amount": "",
+        "unpaid_balance": "300000",
+        "amount_due_monthly": "10000",
+        "date_started": "",
+        "amount_past_due": "7000"
+      }
+    ]
+  },
+  "assets": {
+    "real_estate_value": "800000.81",
+    "other_assets": [
+      {
+        "name": "Collectibles, or collection(s)",
+        "amount": "12344"
+      },
+      {
+        "name": "Antiques",
+        "amount": "44"
+      },
+      {
+        "name": "Fine art",
+        "amount": "122"
+      }
+    ],
+    "cash_in_bank": "3000.45",
+    "cash_on_hand": "10000.67",
+    "rec_vehicle_amount": "15000.23",
+    "us_savings_bonds": "25000.65",
+    "stocks_and_other_bonds": "50000.84",
+    "automobiles": [
+      {
+        "make": "Dodge",
+        "model": "RAM",
+        "year": "2020",
+        "resale_value": "75000.45"
+      },
+      {
+        "make": "Dodge",
+        "model": "Charger",
+        "year": "2020",
+        "resale_value": "40000.54"
+      }
+    ],
+    "monetary_assets": [
+      {
+        "name": "Cash",
+        "amount": "100"
+      },
+      {
+        "name": "Checking accounts",
+        "amount": "100"
+      },
+      {
+        "name": "Savings accounts",
+        "amount": "100"
+      },
+      {
+        "name": "U.S. Savings Bonds",
+        "amount": "100"
+      },
+      {
+        "name": "Retirement accounts (401k, IRAs, 403b, TSP)",
+        "amount": "100"
+      },
+      {
+        "name": "Other stocks and bonds (not in your retirement accounts)",
+        "amount": "100"
+      },
+      {
+        "name": "Pension",
+        "amount": "100"
+      },
+      {
+        "name": "Cryptocurrency",
+        "amount": "100"
+      }
+    ]
+  },
+  "additional_income": {
+    "spouse": {
+      "sp_addl_income": [
+        {
+          "name": "Child care income",
+          "amount": "800.54"
+        },
+        {
+          "name": "Alimony payment",
+          "amount": "1000.23"
+        }
+      ]
+    },
+    "addl_inc_records": [
+      {
+        "name": "Social Security",
+        "amount": "150.67"
+      },
+      {
+        "name": "Alimony",
+        "amount": "210.43"
+      }
+    ]
+  },
+  "social_security": {
+    "spouse": {
+      "social_sec_amt": "1400.45"
+    },
+    "social_sec_amt": "1200.65"
+  },
+  "benefits": {
+    "spouse_benefits": {
+      "compensation_and_pension": "1000.09",
+      "education": "500.46"
+    }
+  },
+  "additional_data": {
+    "bankruptcy": {
+      "date_discharged": "2004-10-22",
+      "court_location": "Tampa, FL",
+      "docket_number": "123456"
+    },
+    "additional_comments": "Supporting personal statement..."
+  },
+  "questions": {
+    "has_been_adjudicated_bankrupt": true,
+    "has_credit_card_bills": true,
+    "has_other_expenses": true,
+    "has_repayments": true,
+    "has_utilities": true,
+    "has_recreational_vehicle": true,
+    "has_vehicle": true,
+    "has_real_estate": true,
+    "has_dependents": "2",
+    "spouse_has_additional_income": true,
+    "spouse_has_social_security": true,
+    "spouse_has_benefits": true,
+    "spouse_is_employed": true,
+    "is_married": true,
+    "has_additional_income": true,
+    "has_social_security": true,
+    "vet_is_employed": true
+  },
+  "installment_contracts": [
+    {
+      "purpose": "Credit card payments",
+      "creditor_name": "Creditor One",
+      "original_amount": "50000.54",
+      "unpaid_balance": "15000.56",
+      "amount_due_monthly": "800.10",
+      "date_started": "2017-03-XX",
+      "amount_past_due": "125.43"
+    },
+    {
+      "purpose": "Car payment/lease",
+      "creditor_name": "Creditor Two",
+      "original_amount": "100000.43",
+      "unpaid_balance": "50000.26",
+      "amount_due_monthly": "1200.54",
+      "date_started": "2019-05-XX",
+      "amount_past_due": "0"
+    }
+  ],
+  "utility_records": [
+    {
+      "name": "Electricity",
+      "amount": "402.35"
+    },
+    {
+      "name": "Gas",
+      "amount": "85.16"
+    },
+    {
+      "name": "Cable",
+      "amount": "175.47"
+    }
+  ],
+  "personal_data": {
+    "dependents": [
+      {
+        "dependent_age": "12"
+      },
+      {
+        "dependent_age": "17"
+      }
+    ],
+    "employment_history": {
+      "spouse": {
+        "sp_employment_records": [
+          {
+            "type": "Full time",
+            "from": "2018-6-XX",
+            "to": "",
+            "is_current": true,
+            "employer_name": "Spouse Current",
+            "gross_monthly_income": "100",
+            "deductions": [
+              {
+                "name": "State tax",
+                "amount": "10"
+              }
+            ]
+          },
+          {
+            "type": "Full time",
+            "from": "2015-3-XX",
+            "to": "2018-6-XX",
+            "employer_name": "Spouse Previous",
+            "is_current": false
+          }
+        ]
+      },
+      "veteran": {
+        "employment_records": [
+          {
+            "type": "Full time",
+            "from": "2021-01-XX",
+            "to": "",
+            "is_current": true,
+            "employer_name": "Test",
+            "gross_monthly_income": "123",
+            "deductions": [
+              {
+                "name": "State tax",
+                "amount": "1"
+              }
+            ]
+          },
+          {
+            "type": "Full time",
+            "from": "2021-01-XX",
+            "to": "2021-12-XX",
+            "is_current": false,
+            "employer_name": "I quit"
+          }
+        ]
+      }
+    },
+    "spouse_full_name": {
+      "first": "Angela",
+      "last": "Mitchell"
+    },
+    "address": {
+      "lives_on_military_base_info": {},
+      "country": "USA",
+      "street": "123 Fake Street",
+      "city": "Tampa",
+      "state": "FL",
+      "postal_code": "33543"
+    },
+    "telephone_number": "4445551212",
+    "email_address": "test2@test1.net",
+    "veteran_contact_information": {
+      "email": "test@user.com",
+      "address": {
+        "address_line1": "1200 Park Ave",
+        "address_line2": "c/o Pixar",
+        "address_line3": null,
+        "address_pou": "CORRESPONDENCE",
+        "address_type": "DOMESTIC",
+        "city": "Emeryville",
+        "country_name": "United States",
+        "country_code_iso2": "US",
+        "country_code_iso3": "USA",
+        "country_code_fips": null,
+        "county_code": null,
+        "county_name": null,
+        "created_at": "2020-05-30T03:57:20.000+00:00",
+        "effective_end_date": null,
+        "effective_start_date": "2020-07-10T20:10:45.000+00:00",
+        "id": 173917,
+        "international_postal_code": null,
+        "province": null,
+        "source_date": "2020-07-10T20:10:45.000+00:00",
+        "source_system_user": null,
+        "state_code": "CA",
+        "transaction_id": "7139aa82-fd06-45ea-a217-9654869924bd",
+        "updated_at": "2020-07-10T20:10:46.000+00:00",
+        "validation_key": null,
+        "vet360_id": "1273780",
+        "zip_code": "94608",
+        "zip_code_suffix": null
+      },
+      "mobile_phone": {
+        "area_code": "510",
+        "country_code": "1",
+        "created_at": "2020-06-12T16:56:37.000+00:00",
+        "extension": "",
+        "effective_end_date": null,
+        "effective_start_date": "2020-07-14T19:07:45.000+00:00",
+        "id": 146766,
+        "is_international": false,
+        "is_textable": null,
+        "is_text_permitted": null,
+        "is_tty": null,
+        "is_voicemailable": null,
+        "phone_number": "9224444",
+        "phone_type": "HOME",
+        "source_date": "2020-07-14T19:07:45.000+00:00",
+        "source_system_user": null,
+        "transaction_id": "92c49d39-22b2-4bd6-92b4-0b7e7c63c6a9",
+        "updated_at": "2020-07-14T19:07:46.000+00:00",
+        "vet360_id": "1273780"
+      }
+    },
+    "veteran_full_name": {
+      "first": "Greg",
+      "last": "Anderson",
+      "middle": "A"
+    },
+    "date_of_birth": "1933-04-05"
+  },
+  "personal_identification": {
+    "ssn": "1234",
+    "file_number": "5678"
+  },
+  "selected_debts_and_copays": [
+    {
+      "file_number": "796121200",
+      "payee_number": "00",
+      "person_entitled": "AJHONS",
+      "deduction_code": "30",
+      "benefit_type": "Comp & Pen",
+      "diary_code": "080",
+      "diary_code_description": "Referred to the Department of the Treasury",
+      "amount_overpaid": 0,
+      "amount_withheld": 0,
+      "original_ar": 136.24,
+      "current_ar": 100,
+      "debt_history": [
+        {
+          "date": "02/25/2009",
+          "letter_code": "914",
+          "description": "Paid In Full - Account balance cleared via offset, not including TOP."
+        },
+        {
+          "date": "02/07/2009",
+          "letter_code": "905",
+          "description": "Administrative Write Off"
+        },
+        {
+          "date": "12/03/2008",
+          "letter_code": "487",
+          "description": "Death Case Pending Action"
+        }
+      ],
+      "id": 0,
+      "debt_type": "DEBT",
+      "resolution_option": "waiver",
+      "resolution_comment": "",
+      "resolution_waiver_check": true
+    },
+    {
+      "file_number": "796121200",
+      "payee_number": "00",
+      "person_entitled": "AJOHNS",
+      "deduction_code": "74",
+      "benefit_type": "CH33 Student Tuition EDU",
+      "diary_code": "117",
+      "diary_code_description": "Pending payment",
+      "amount_overpaid": 0,
+      "amount_withheld": 475,
+      "original_ar": 2210.9,
+      "current_ar": 1000,
+      "debt_history": [
+        {
+          "date": "04/01/2017",
+          "letter_code": 608,
+          "description": "Full C&P Benefit Offset Notifi"
+        },
+        {
+          "date": "11/18/2015",
+          "letter_code": 130,
+          "description": "Debt Increase - Due P"
+        },
+        {
+          "date": "04/08/2015",
+          "letter_code": 608,
+          "description": "Full C&P Benefit Offset Notifi"
+        },
+        {
+          "date": "03/26/2015",
+          "letter_code": 100,
+          "description": "First Demand Letter - Inactive Benefits - Due Process"
+        }
+      ],
+      "id": 3,
+      "debt_type": "DEBT",
+      "resolution_option": "monthly",
+      "resolution_comment": "50.51"
+    },
+    {
+      "id": "f4385298-08a6-42f8-a86f-50e97033fb85",
+      "p_s_seq_num": 506,
+      "p_s_tot_seq_num": 588,
+      "p_s_facility_num": "534",
+      "p_s_fac_phone_num": null,
+      "p_s_tot_statement": 27,
+      "p_s_statement_val": "0000018255H",
+      "p_s_statement_date": "11152019",
+      "p_s_statement_date_output": "11/15/2019",
+      "p_s_process_date": "11112019",
+      "p_s_process_date_output": "11/11/2019",
+      "p_h_patient_lst_nme": "JONES",
+      "p_h_patient_fst_nme": "TRAVIS",
+      "p_h_patient_mid_nme": "D",
+      "p_h_address1": "1885 SHORE DR S APT 327",
+      "p_h_address2": null,
+      "p_h_address3": null,
+      "p_h_city": "SAVANNAH",
+      "p_h_state": "FL",
+      "p_h_zip_cde": "314104413",
+      "p_h_zip_cde_output": "31410-4413",
+      "p_h_ctry_nme": null,
+      "p_h_amt_due": 15,
+      "p_h_amt_due_output": "15.00&nbsp;&nbsp;",
+      "p_h_prev_bal": 135,
+      "p_h_prev_bal_output": "135.00&nbsp;&nbsp;",
+      "p_h_tot_charges": 15,
+      "p_h_tot_charges_output": "15.00&nbsp;&nbsp;",
+      "p_h_tot_credits": -135,
+      "p_h_tot_credits_output": "135.00-&nbsp;",
+      "p_h_new_balance": 15,
+      "p_h_new_balance_output": "15.00&nbsp;&nbsp;",
+      "p_h_special_notes": "To pay your statement online, go to www.pay.gov or call 1-888-827-4817.",
+      "p_hro_para_cdes": "304050556065708085",
+      "p_h_num_of_lines": 10,
+      "p_h_dfn_number": 346310,
+      "p_h_cerner_statement_number": 1005154223,
+      "p_h_cerner_patient_id": "1005154223",
+      "p_h_cerner_account_number": "1005154223",
+      "p_h_icn_number": "1012845638V677813",
+      "p_h_account_number": 0,
+      "p_h_large_font_indcator": 0,
+      "details": [
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10152019",
+          "p_d_date_posted_output": "10/15/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC) VISIT DATE: 09/07/2018",
+          "p_d_trans_desc_output": "OUTPATIENT CARE VISIT DATE: 09/07/2018",
+          "p_d_trans_amt": 15,
+          "p_d_trans_amt_output": "15.00&nbsp;&nbsp;",
+          "p_d_ref_no": "534-K009FK8"
+        }
+      ],
+      "station": {
+        "facilit_y_num": "534",
+        "vis_n_num": "07",
+        "facilit_y_desc": "RALPH H. JOHNSON VA MEDICAL CENTER (534)",
+        "cycl_e_num": "012",
+        "remi_t_to_flag": "L",
+        "mai_l_insert_flag": "0",
+        "sta_t_address1": "ACCOUNTS RECEIVABLE (04AR)",
+        "sta_t_address2": "109 BEE ST",
+        "sta_t_address3": null,
+        "city": "CHARLESTON",
+        "state": "SC",
+        "zi_p_cde": "294015703",
+        "zi_p_cde_output": "29401-5703",
+        "ba_r_cde": "*294015703090*",
+        "te_l_num_flag": "P",
+        "te_l_num": "1-866-258-2772",
+        "te_l_num2": null,
+        "contac_t_info": null,
+        "d_m2_tel_num": null,
+        "contac_t_info2": null,
+        "to_p_tel_num": null,
+        "lb_x_fedex_address1": null,
+        "lb_x_fedex_address2": null,
+        "lb_x_fedex_address3": null,
+        "lb_x_fedex_city": null,
+        "lb_x_fedex_state": null,
+        "lb_x_fedex_zip_cde": null,
+        "lb_x_fedex_bar_cde": null,
+        "lb_x_fedex_contact": null,
+        "lb_x_fedex_contact_tel_num": null,
+        "facility_name": "Bob Stump Department of Veterans Affairs Medical Center"
+      },
+      "debt_type": "COPAY",
+      "resolution_option": "compromise",
+      "resolution_comment": "10.51"
+    },
+    {
+      "id": "b381cc7b-ea3a-49dc-a982-7146416ed373",
+      "p_s_seq_num": 1162,
+      "p_s_tot_seq_num": 1,
+      "p_s_facility_num": "757",
+      "p_s_fac_phone_num": null,
+      "p_s_tot_statement": 11,
+      "p_s_statement_val": "0000040520F",
+      "p_s_statement_date": "06052021",
+      "p_s_statement_date_output": "06/05/2021",
+      "p_s_process_date": "06092021",
+      "p_s_process_date_output": "06/09/2021",
+      "p_h_patient_lst_nme": "JONES",
+      "p_h_patient_fst_nme": "TRAVIS",
+      "p_h_patient_mid_nme": "D",
+      "p_h_address1": "1885 SHORE DR S APT 327",
+      "p_h_address2": null,
+      "p_h_address3": null,
+      "p_h_city": "SOUTH PASADENA",
+      "p_h_state": "FL",
+      "p_h_zip_cde": "337074743",
+      "p_h_zip_cde_output": "33707-4743",
+      "p_h_ctry_nme": "US",
+      "p_h_amt_due": 46,
+      "p_h_amt_due_output": "46.00&nbsp;&nbsp;",
+      "p_h_prev_bal": 30,
+      "p_h_prev_bal_output": "30.00&nbsp;&nbsp;",
+      "p_h_tot_charges": 46,
+      "p_h_tot_charges_output": "46.00&nbsp;&nbsp;",
+      "p_h_tot_credits": -30,
+      "p_h_tot_credits_output": "30.00-&nbsp;",
+      "p_h_new_balance": 46,
+      "p_h_new_balance_output": "46.00&nbsp;&nbsp;",
+      "p_h_special_notes": null,
+      "p_hro_para_cdes": "254050556065708085",
+      "p_h_num_of_lines": 7,
+      "p_h_dfn_number": 0,
+      "p_h_cerner_statement_number": 1005154223,
+      "p_h_cerner_patient_id": "1005154223",
+      "p_h_cerner_account_number": "1005154223",
+      "p_h_icn_number": "1012845638V677813",
+      "p_h_account_number": 0,
+      "p_h_large_font_indcator": 0,
+      "details": [
+        {
+          "p_d_date_posted": "03092020",
+          "p_d_date_posted_output": "03/09/2020",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC) VISIT DATE: 01/14/2020",
+          "p_d_trans_desc_output": "OUTPATIENT CARE VISIT DATE: 01/14/2020",
+          "p_d_trans_amt": 15,
+          "p_d_trans_amt_output": "15.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K00R4FL"
+        },
+        {
+          "p_d_date_posted": "03092020",
+          "p_d_date_posted_output": "03/09/2020",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "516-K00R4FL"
+        },
+        {
+          "p_d_date_posted": "03242020",
+          "p_d_date_posted_output": "03/24/2020",
+          "p_d_trans_desc": "COPAY RX:100020337B FD:01/23/2020",
+          "p_d_trans_desc_output": "COPAY RX#100020337B FILL DATE: 01/23/2020",
+          "p_d_trans_amt": 5,
+          "p_d_trans_amt_output": "5.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K00RSNZ"
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "DRUG:LISINOPRIL 5MG TAB  DAYS:30  QTY:30",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;DRUG:LISINOPRIL 5MG TAB  DAYS:30  QTY:30",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "PHY:SANTOS,LOUISE  CHG:$5.00",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;PHY:SANTOS,LOUISE  CHG:$5.00",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": "03242020",
+          "p_d_date_posted_output": "03/24/2020",
+          "p_d_trans_desc": "RX CO-PAYMENT/NSC VET",
+          "p_d_trans_desc_output": "PAYMENT POSTED ON 03/24/2020",
+          "p_d_trans_amt": -5,
+          "p_d_trans_amt_output": "5.00-&nbsp;",
+          "p_d_ref_no": "516-K00RSNZ"
+        },
+        {
+          "p_d_date_posted": "04032020",
+          "p_d_date_posted_output": "04/03/2020",
+          "p_d_trans_desc": "COPAY RX:100030241 FD:03/30/2020",
+          "p_d_trans_desc_output": "COPAY RX#100030241 FILL DATE: 03/30/2020",
+          "p_d_trans_amt": 15,
+          "p_d_trans_amt_output": "15.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K00S829"
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "DRUG:ATENOLOL 25MG TAB  DAYS:90  QTY:90",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;DRUG:ATENOLOL 25MG TAB  DAYS:90  QTY:90",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "PHY:GUTHRIE,BROOKE L  CHG:$15.00",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;PHY:GUTHRIE,BROOKE L  CHG:$15.00",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": "04272020",
+          "p_d_date_posted_output": "04/27/2020",
+          "p_d_trans_desc": "COPAY RX:100020336 FD:04/23/2020",
+          "p_d_trans_desc_output": "COPAY RX#100020336 FILL DATE: 04/23/2020",
+          "p_d_trans_amt": 15,
+          "p_d_trans_amt_output": "15.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K00SZBK"
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "DRUG:AMLODIPINE BESYLATE 10MG TAB  DAYS:90",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;DRUG:AMLODIPINE BESYLATE 10MG TAB  DAYS:90",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "QTY:90  PHY:GUTHRIE,BROOKE L  CHG:$15.00",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;QTY:90  PHY:GUTHRIE,BROOKE L  CHG:$15.00",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": "04282020",
+          "p_d_date_posted_output": "04/28/2020",
+          "p_d_trans_desc": "COPAY RX:100011847 FD:04/23/2020",
+          "p_d_trans_desc_output": "COPAY RX#100011847 FILL DATE: 04/23/2020",
+          "p_d_trans_amt": 8,
+          "p_d_trans_amt_output": "8.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K00SZBK"
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "DRUG:MICONAZOLE NITRATE 2% TOP TINCTURE  DAYS:30",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;DRUG:MICONAZOLE NITRATE 2% TOP TINCTURE  DAYS:30",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "QTY:60  PHY:GUTHRIE,BROOKE L  CHG:$8.00",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;QTY:60  PHY:GUTHRIE,BROOKE L  CHG:$8.00",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": "05262020",
+          "p_d_date_posted_output": "05/26/2020",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC) VISIT DATE: 04/15/2020",
+          "p_d_trans_desc_output": "OUTPATIENT CARE VISIT DATE: 04/15/2020",
+          "p_d_trans_amt": 50,
+          "p_d_trans_amt_output": "50.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K00TXGK"
+        },
+        {
+          "p_d_date_posted": "05262020",
+          "p_d_date_posted_output": "05/26/2020",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -50,
+          "p_d_trans_amt_output": "50.00-&nbsp;",
+          "p_d_ref_no": "516-K00TXGK"
+        },
+        {
+          "p_d_date_posted": "06302020",
+          "p_d_date_posted_output": "06/30/2020",
+          "p_d_trans_desc": "COPAY RX:100030241 FD:06/30/2020",
+          "p_d_trans_desc_output": "COPAY RX#100030241 FILL DATE: 06/30/2020",
+          "p_d_trans_amt": 15,
+          "p_d_trans_amt_output": "15.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K00UY3W"
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "DRUG:ATENOLOL 25MG TAB  DAYS:90  QTY:90",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;DRUG:ATENOLOL 25MG TAB  DAYS:90  QTY:90",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "PHY:GUTHRIE,BROOKE L  CHG:$15.00",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;PHY:GUTHRIE,BROOKE L  CHG:$15.00",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": "07092020",
+          "p_d_date_posted_output": "07/09/2020",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC) VISIT DATE: 06/08/2020",
+          "p_d_trans_desc_output": "OUTPATIENT CARE VISIT DATE: 06/08/2020",
+          "p_d_trans_amt": 50,
+          "p_d_trans_amt_output": "50.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K00V8T8"
+        },
+        {
+          "p_d_date_posted": "07092020",
+          "p_d_date_posted_output": "07/09/2020",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -50,
+          "p_d_trans_amt_output": "50.00-&nbsp;",
+          "p_d_ref_no": "516-K00V8T8"
+        },
+        {
+          "p_d_date_posted": "07092020",
+          "p_d_date_posted_output": "07/09/2020",
+          "p_d_trans_desc": "COMMENT: K00ULWR PD $50.00 DOS 060820",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;COMMENT: K00ULWR PD $50.00 DOS 060820",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K00V8T8"
+        },
+        {
+          "p_d_date_posted": "08132020",
+          "p_d_date_posted_output": "08/13/2020",
+          "p_d_trans_desc": "COPAY RX:100020336 FD:08/11/2020",
+          "p_d_trans_desc_output": "COPAY RX#100020336 FILL DATE: 08/11/2020",
+          "p_d_trans_amt": 15,
+          "p_d_trans_amt_output": "15.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K00WDZQ"
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "DRUG:AMLODIPINE BESYLATE 10MG TAB  DAYS:90",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;DRUG:AMLODIPINE BESYLATE 10MG TAB  DAYS:90",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "QTY:90  PHY:GUTHRIE,BROOKE L  CHG:$15.00",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;QTY:90  PHY:GUTHRIE,BROOKE L  CHG:$15.00",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": "09222020",
+          "p_d_date_posted_output": "09/22/2020",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC) VISIT DATE: 08/20/2020",
+          "p_d_trans_desc_output": "OUTPATIENT CARE VISIT DATE: 08/20/2020",
+          "p_d_trans_amt": 50,
+          "p_d_trans_amt_output": "50.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K00XUY2"
+        },
+        {
+          "p_d_date_posted": "09222020",
+          "p_d_date_posted_output": "09/22/2020",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -50,
+          "p_d_trans_amt_output": "50.00-&nbsp;",
+          "p_d_ref_no": "516-K00XUY2"
+        },
+        {
+          "p_d_date_posted": "09222020",
+          "p_d_date_posted_output": "09/22/2020",
+          "p_d_trans_desc": "COMMENT: K00X41A PD $50.00 DOS 082020",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;COMMENT: K00X41A PD $50.00 DOS 082020",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K00XUY2"
+        },
+        {
+          "p_d_date_posted": "10072020",
+          "p_d_date_posted_output": "10/07/2020",
+          "p_d_trans_desc": "COPAY RX:100030241 FD:10/05/2020",
+          "p_d_trans_desc_output": "COPAY RX#100030241 FILL DATE: 10/05/2020",
+          "p_d_trans_amt": 15,
+          "p_d_trans_amt_output": "15.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K10J56V"
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "DRUG:ATENOLOL 25MG TAB  DAYS:90  QTY:90",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;DRUG:ATENOLOL 25MG TAB  DAYS:90  QTY:90",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "PHY:GUTHRIE,BROOKE L  CHG:$15.00",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;PHY:GUTHRIE,BROOKE L  CHG:$15.00",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": "10292020",
+          "p_d_date_posted_output": "10/29/2020",
+          "p_d_trans_desc": "COPAY RX:100045030 FD:10/27/2020",
+          "p_d_trans_desc_output": "COPAY RX#100045030 FILL DATE: 10/27/2020",
+          "p_d_trans_amt": 24,
+          "p_d_trans_amt_output": "24.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K10J56V"
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "DRUG:NIACIN (SLO-NIACIN) 250MG TAB,SA  DAYS:90",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;DRUG:NIACIN (SLO-NIACIN) 250MG TAB,SA  DAYS:90",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "QTY:90  PHY:VELAZQUEZ SANCHEZ,VANESSA",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;QTY:90  PHY:VELAZQUEZ SANCHEZ,VANESSA",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "CHG:$24.00",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;CHG:$24.00",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": "10292020",
+          "p_d_date_posted_output": "10/29/2020",
+          "p_d_trans_desc": "COPAY RX:100045028 FD:10/27/2020",
+          "p_d_trans_desc_output": "COPAY RX#100045028 FILL DATE: 10/27/2020",
+          "p_d_trans_amt": 8,
+          "p_d_trans_amt_output": "8.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K10J56V"
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "DRUG:CARBAMIDE PEROXIDE 6.5% OTIC SOLN  DAYS:14",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;DRUG:CARBAMIDE PEROXIDE 6.5% OTIC SOLN  DAYS:14",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "QTY:45  PHY:VELAZQUEZ SANCHEZ,VANESSA  CHG:$8.00",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;QTY:45  PHY:VELAZQUEZ SANCHEZ,VANESSA  CHG:$8.00",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": "10292020",
+          "p_d_date_posted_output": "10/29/2020",
+          "p_d_trans_desc": "COPAY RX:100045029 FD:10/27/2020",
+          "p_d_trans_desc_output": "COPAY RX#100045029 FILL DATE: 10/27/2020",
+          "p_d_trans_amt": 8,
+          "p_d_trans_amt_output": "8.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K10J56V"
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "DRUG:MICONAZOLE NITRATE 2% TOP TINCTURE  DAYS:30",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;DRUG:MICONAZOLE NITRATE 2% TOP TINCTURE  DAYS:30",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "QTY:90  PHY:VELAZQUEZ SANCHEZ,VANESSA  CHG:$8.00",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;QTY:90  PHY:VELAZQUEZ SANCHEZ,VANESSA  CHG:$8.00",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": "11192020",
+          "p_d_date_posted_output": "11/19/2020",
+          "p_d_trans_desc": "PAYMENT   (Int:0.12  Adm:1.64)",
+          "p_d_trans_desc_output": "PAYMENT POSTED ON 11/19/2020",
+          "p_d_trans_amt": -16.76,
+          "p_d_trans_amt_output": "16.76-&nbsp;",
+          "p_d_ref_no": "516-K00JZPJ"
+        },
+        {
+          "p_d_date_posted": "11192020",
+          "p_d_date_posted_output": "11/19/2020",
+          "p_d_trans_desc": "PAYMENT   (Int:0.26  Adm:0.00)",
+          "p_d_trans_desc_output": "PAYMENT POSTED ON 11/19/2020",
+          "p_d_trans_amt": -15.26,
+          "p_d_trans_amt_output": "15.26-&nbsp;",
+          "p_d_ref_no": "516-K00N8XA"
+        },
+        {
+          "p_d_date_posted": "11192020",
+          "p_d_date_posted_output": "11/19/2020",
+          "p_d_trans_desc": "PAYMENT",
+          "p_d_trans_desc_output": "PAYMENT POSTED ON 11/19/2020",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "516-K00QKJJ"
+        },
+        {
+          "p_d_date_posted": "11192020",
+          "p_d_date_posted_output": "11/19/2020",
+          "p_d_trans_desc": "PAYMENT",
+          "p_d_trans_desc_output": "PAYMENT POSTED ON 11/19/2020",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "516-K00S829"
+        },
+        {
+          "p_d_date_posted": "11192020",
+          "p_d_date_posted_output": "11/19/2020",
+          "p_d_trans_desc": "PAYMENT",
+          "p_d_trans_desc_output": "PAYMENT POSTED ON 11/19/2020",
+          "p_d_trans_amt": -23,
+          "p_d_trans_amt_output": "23.00-&nbsp;",
+          "p_d_ref_no": "516-K00SZBK"
+        },
+        {
+          "p_d_date_posted": "11192020",
+          "p_d_date_posted_output": "11/19/2020",
+          "p_d_trans_desc": "PAYMENT",
+          "p_d_trans_desc_output": "PAYMENT POSTED ON 11/19/2020",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "516-K00UY3W"
+        },
+        {
+          "p_d_date_posted": "11192020",
+          "p_d_date_posted_output": "11/19/2020",
+          "p_d_trans_desc": "PAYMENT",
+          "p_d_trans_desc_output": "PAYMENT POSTED ON 11/19/2020",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "516-K00WDZQ"
+        },
+        {
+          "p_d_date_posted": "11192020",
+          "p_d_date_posted_output": "11/19/2020",
+          "p_d_trans_desc": "PAYMENT",
+          "p_d_trans_desc_output": "PAYMENT POSTED ON 11/19/2020",
+          "p_d_trans_amt": -55,
+          "p_d_trans_amt_output": "55.00-&nbsp;",
+          "p_d_ref_no": "516-K10J56V"
+        },
+        {
+          "p_d_date_posted": "11232020",
+          "p_d_date_posted_output": "11/23/2020",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC) VISIT DATE: 10/27/2020",
+          "p_d_trans_desc_output": "OUTPATIENT CARE VISIT DATE: 10/27/2020",
+          "p_d_trans_amt": 15,
+          "p_d_trans_amt_output": "15.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K10LD3I"
+        },
+        {
+          "p_d_date_posted": "11232020",
+          "p_d_date_posted_output": "11/23/2020",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "516-K10LD3I"
+        },
+        {
+          "p_d_date_posted": "11232020",
+          "p_d_date_posted_output": "11/23/2020",
+          "p_d_trans_desc": "COMMENT: K10KM1P PD $15.00 DOS:10/27/20",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;COMMENT: K10KM1P PD $15.00 DOS:10/27/20",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K10LD3I"
+        },
+        {
+          "p_d_date_posted": "12012020",
+          "p_d_date_posted_output": "12/01/2020",
+          "p_d_trans_desc": "COPAY RX:100046632 FD:11/18/2020",
+          "p_d_trans_desc_output": "COPAY RX#100046632 FILL DATE: 11/18/2020",
+          "p_d_trans_amt": 15,
+          "p_d_trans_amt_output": "15.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K10LT59"
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "DRUG:AMLODIPINE BESYLATE 10MG TAB  DAYS:90",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;DRUG:AMLODIPINE BESYLATE 10MG TAB  DAYS:90",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "QTY:90  PHY:VELAZQUEZ SANCHEZ,VANESSA",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;QTY:90  PHY:VELAZQUEZ SANCHEZ,VANESSA",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "CHG:$15.00",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;CHG:$15.00",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": "12162020",
+          "p_d_date_posted_output": "12/16/2020",
+          "p_d_trans_desc": "COPAY RX:100030241A FD:12/12/2020",
+          "p_d_trans_desc_output": "COPAY RX#100030241A FILL DATE: 12/12/2020",
+          "p_d_trans_amt": 15,
+          "p_d_trans_amt_output": "15.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K10MUDV"
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "DRUG:ATENOLOL 25MG TAB  DAYS:90  QTY:90",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;DRUG:ATENOLOL 25MG TAB  DAYS:90  QTY:90",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "PHY:VELAZQUEZ SANCHEZ,VANESSA  CHG:$15.00",
+          "p_d_trans_desc_output": "&nbsp;&nbsp;&nbsp;PHY:VELAZQUEZ SANCHEZ,VANESSA  CHG:$15.00",
+          "p_d_trans_amt": 0,
+          "p_d_trans_amt_output": ".00&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        },
+        {
+          "p_d_date_posted": "12212020",
+          "p_d_date_posted_output": "12/21/2020",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC) VISIT DATE: 11/13/2020",
+          "p_d_trans_desc_output": "OUTPATIENT CARE VISIT DATE: 11/13/2020",
+          "p_d_trans_amt": 15,
+          "p_d_trans_amt_output": "15.00&nbsp;&nbsp;",
+          "p_d_ref_no": "516-K10N4AR"
+        },
+        {
+          "p_d_date_posted": "12212020",
+          "p_d_date_posted_output": "12/21/2020",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "516-K10N4AR"
+        },
+        {
+          "p_d_date_posted": null,
+          "p_d_date_posted_output": "",
+          "p_d_trans_desc": "INTEREST/ADM. CHARGE (Int:0.32 Adm:1.64 Other:0.00",
+          "p_d_trans_desc_output": "INTEREST/ADM. CHARGE (Int:0.32 Adm:1.64 Other:0.00",
+          "p_d_trans_amt": 1.96,
+          "p_d_trans_amt_output": "1.96&nbsp;&nbsp;",
+          "p_d_ref_no": null
+        }
+      ],
+      "station": {
+        "facilit_y_num": "649",
+        "vis_n_num": "22",
+        "facilit_y_desc": "PRESCOTT VA MEDICAL CENTER (649)",
+        "cycl_e_num": "016",
+        "remi_t_to_flag": "L",
+        "mai_l_insert_flag": "0",
+        "sta_t_address1": "500 N US HIGHWAY 89",
+        "sta_t_address2": "AGENT CASHIER (04C)",
+        "sta_t_address3": null,
+        "city": "PRESCOTT",
+        "state": "AZ",
+        "zi_p_cde": "863135001",
+        "zi_p_cde_output": "86313-5001",
+        "ba_r_cde": "*863135001003*",
+        "te_l_num_flag": "S",
+        "te_l_num": "1-866-802-6819",
+        "te_l_num2": null,
+        "contac_t_info": null,
+        "d_m2_tel_num": null,
+        "contac_t_info2": null,
+        "to_p_tel_num": null,
+        "lb_x_fedex_address1": null,
+        "lb_x_fedex_address2": null,
+        "lb_x_fedex_address3": null,
+        "lb_x_fedex_city": null,
+        "lb_x_fedex_state": null,
+        "lb_x_fedex_zip_cde": null,
+        "lb_x_fedex_bar_cde": null,
+        "lb_x_fedex_contact": null,
+        "lb_x_fedex_contact_tel_num": null,
+        "facility_name": "Ralph H. Johnson Department of Veterans Affairs Medical Center"
+      },
+      "debt_type": "COPAY",
+      "resolution_option": "waiver",
+      "resolution_comment": "",
+      "resolution_waiver_check": true
+    }
+  ],
+  "debt": {
+    "current_ar": 0,
+    "debt_history": [
+      {
+        "date": ""
+      }
+    ],
+    "deduction_code": "",
+    "original_ar": 0
+  },
+  "financial_overview": {},
+  "available_options": {},
+  "income": [
+    {
+      "veteran_or_spouse": "VETERAN",
+      "compensation_and_pension": "3261.1",
+      "education": "50"
+    }
+  ]
+}

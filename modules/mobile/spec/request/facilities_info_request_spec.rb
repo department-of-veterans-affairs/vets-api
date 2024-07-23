@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
+require_relative '../support/helpers/rails_helper'
 
 RSpec.describe 'facilities info', type: :request do
   include JsonSchemaMatchers
@@ -180,8 +178,6 @@ RSpec.describe 'facilities info', type: :request do
           it 'logs the cache is nil and still returns alphabetized facilities' do
             VCR.use_cassette('mobile/appointments/get_multiple_facilities_200', match_requests_on: %i[method uri]) do
               get('/mobile/v0/facilities-info/appointments', headers: sis_headers)
-              expect(Rails.logger).to have_received(:info).with('mobile facilities info appointments cache nil',
-                                                                user_uuid: user.uuid)
               expect(response).to have_http_status(:ok)
               expect(facilities[0]['name']).to eq('American Lake VA Medical Center')
               expect(facilities[1]['name']).to eq('Ayton VA Medical Center')

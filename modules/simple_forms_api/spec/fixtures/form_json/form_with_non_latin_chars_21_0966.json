@@ -1,0 +1,49 @@
+{
+  "form_number": "21-0966",
+  "third_party_preparer_full_name": {
+    "first": "Preparer",
+    "middle": "V.",
+    "last": "Party, III"
+  },
+  "third_party_preparer_role": "other",
+  "other_third_party_preparer_role": "Secret agent",
+  "preparer_identification": "THIRD_PARTY_SURVIVING_DEPENDENT",
+  "surviving_dependent_full_name": {
+    "first": "I",
+    "middle": "Will",
+    "last": "Survive"
+  },
+  "surviving_dependent_date_of_birth": "1995-06-24",
+  "surviving_dependent_phone": "1234567890",
+  "surviving_dependent_international_phone": "2345678901",
+  "surviving_dependent_email": "survivor@dependent.com",
+  "surviving_dependent_mailing_address": {
+    "street": "123 Fake St.",
+    "street2": "Apt. 2",
+    "city": "Fakesville",
+    "country": "USA",
+    "state": "GA",
+    "postal_code": "12345"
+  },
+  "surviving_dependent_id": {
+    "ssn": "554565676",
+    "va_file_number": "12345678"
+  },
+  "veteran_full_name": {
+    "first": "Châu",
+    "middle": "m",
+    "last": "Nguyễn"
+  },
+  "veteran_date_of_birth": "1990-03-12",
+  "veteran_id": {
+    "ssn": "246813579"
+  },
+  "relationship_to_veteran": {
+    "relationship_to_veteran": "other"
+  },
+  "benefit_selection": {
+    "survivor": true
+  },
+  "statement_of_truth_signature": "Châu m Nguyễn",
+  "statement_of_truth_certified": true
+}

@@ -2,11 +2,17 @@
 
 module AskVAApi
   module SubTopics
-    class Serializer < ActiveModel::Serializer
+    class Serializer
       include JSONAPI::Serializer
-      set_type :subtopics
+      set_type :sub_topics
 
-      attributes :name
+      attributes :name,
+                 :allow_attachments,
+                 :description,
+                 :display_name,
+                 :parent_id,
+                 :rank_order,
+                 :requires_authentication
     end
   end
 end

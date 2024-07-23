@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/benefits-awards/DiariesService?WSDL
+    uri: <BGS_BASE_URL>/benefits-awards/DiariesService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -146,7 +146,7 @@ http_interactions:
   recorded_at: Wed, 24 Feb 2021 02:49:42 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/benefits-awards/DiariesService
+    uri: <BGS_BASE_URL>/benefits-awards/DiariesService
     body:
       encoding: UTF-8
       string: |-

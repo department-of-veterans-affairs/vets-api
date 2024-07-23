@@ -16,7 +16,7 @@ info:
 
     ### Authorization and Access
 
-    To gain access to the Appeals Status API you must [request an API Key](/apply). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.
+    To gain access to the Appeals Status API you must [request an API Key](/support/contact-us). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.
 
     1. Client Request: GET https://sandbox-api.va.gov/services/appeals/v0/appeals
         * Provide the Veteran's SSN as the X-VA-SSN header

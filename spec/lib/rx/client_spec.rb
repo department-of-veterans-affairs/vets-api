@@ -94,7 +94,7 @@ describe Rx::Client do
         if caching_enabled
           expect(Common::Collection).to receive(:bust).with(cache_keys)
         else
-          expect(Common::Collection).to receive(:bust).with([nil, nil])
+          expect(Common::Collection).not_to receive(:bust).with([nil, nil])
         end
 
         client_response = client.post_refill_rx(13_650_545)

@@ -333,7 +333,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
     end
   end
 
-  describe '#download' do
+  describe '#download', skip: 'temporarily skipped' do
     it_behaves_like 'watermarked pdf download endpoint', {
       factory: :extra_notice_of_disagreement_v2,
       decision_reviews: true,

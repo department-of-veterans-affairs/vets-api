@@ -1,34 +1,28 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'va_profile/health_benefit/service'
-require 'va_profile/health_benefit/associated_persons_response'
 
 RSpec.describe V0::Profile::ContactsController, type: :controller do
-  let(:user) { build(:user, :loa3) }
-  let(:loa1_user) { build(:user, :loa1) }
-  let(:fixture_path) { %w[spec fixtures va_profile health_benefit_v1_associated_persons.json] }
-  let(:service_body) { Rails.root.join(*fixture_path).read }
-  let(:service_response) { OpenStruct.new(status: 200, body: service_body) }
-  let(:response_object) { VAProfile::HealthBenefit::AssociatedPersonsResponse.from(service_response) }
-  let(:json) { JSON.parse(subject.body) }
+  include SchemaMatchers
 
-  describe '/v0/profile/contacts' do
+  let(:idme_uuid) { 'dd681e7d6dea41ad8b80f8d39284ef29' }
+  let(:user) { build(:user, :loa3, idme_uuid:) }
+  let(:loa1_user) { build(:user, :loa1) }
+
+  describe 'GET /v0/profile/contacts' do
     subject { get :index }
 
-    before do
-      # mock service response
-      allow_any_instance_of(VAProfile::HealthBenefit::Service)
-        .to receive(:get_associated_persons).and_return(response_object)
-
-      Flipper.enable(:profile_contacts)
+    around do |ex|
+      VCR.use_cassette('va_profile/profile/v3/health_benefit_bio_200') do
+        ex.run
+      end
     end
 
     context 'successful request' do
       it 'returns emergency contacts' do
         sign_in_as user
         expect(subject).to have_http_status(:success)
-        expect(json['data'].length).to eq(2)
+        expect(response).to match_response_schema('contacts')
       end
     end
 
@@ -38,18 +32,10 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
       end
     end
 
-    context 'user is not loa3' do
+    context 'user is loa1' do
       it 'returns a forbidden status code' do
         sign_in_as loa1_user
         expect(subject).to have_http_status(:forbidden)
-      end
-    end
-
-    context 'feature is disabled' do
-      it 'returns an unauthorized status code' do
-        Flipper.disable(:profile_contacts)
-        sign_in_as user
-        expect(subject).to have_http_status(:not_found)
       end
     end
   end

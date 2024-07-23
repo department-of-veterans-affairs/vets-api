@@ -9,7 +9,7 @@ module V0
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
-        Raven.tags_context(team: 'vfs-ebenefits') # tag sentry logs with team name
+        Sentry.set_tags(team: 'vfs-ebenefits') # tag sentry logs with team name
         raise Common::Exceptions::ValidationErrors, claim
       end
 
@@ -17,7 +17,7 @@ module V0
       dependent_service.submit_686c_form(claim)
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-      clear_saved_form(claim.form_id)
+      # clear_saved_form(claim.form_id) # We do not want to destroy the InProgressForm for this submission
 
       render(json: claim)
     end

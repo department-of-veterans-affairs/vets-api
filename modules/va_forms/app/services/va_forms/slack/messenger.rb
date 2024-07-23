@@ -14,6 +14,8 @@ module VAForms
       end
 
       def notify!
+        return unless Settings.va_forms.slack.enabled
+
         Faraday.post(API_PATH, request_body, request_headers)
       end
 
