@@ -13,6 +13,10 @@ describe Form526JobStatusSerializer, type: :serializer do
     expect(data['id']).to be_blank
   end
 
+  it 'includes :type' do
+    expect(data['type']).to eq 'form526_job_statuses'
+  end
+
   it 'includes :claim_id' do
     expect(attributes['claim_id']).to eq form526_job_status.submission.submitted_claim_id
   end

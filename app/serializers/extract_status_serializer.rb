@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-class ExtractStatusSerializer < ActiveModel::Serializer
-  attribute :id
-  attribute :extract_type
-  attribute :last_updated
-  attribute :status
-  attribute :created_on
-  attribute :station_number
+class ExtractStatusSerializer
+  include JSONAPI::Serializer
+
+  set_type :extract_statuses
+
+  attributes :extract_type, :last_updated, :status, :created_on, :station_number
 end

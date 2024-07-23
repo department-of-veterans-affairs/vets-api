@@ -13,20 +13,25 @@ RSpec.describe 'Forms uploader', type: :request do
     Flipper.enable(:simple_forms_lighthouse_benefits_intake_service)
   end
 
-  unauthenticated_forms = %w[vba_40_0247.json vba_21_10210.json vba_21p_0847.json
-                             vba_40_10007.json]
-  authenticated_forms = [
+  forms = [
     # TODO: Restore this test when we release 26-4555 to production.
     # 'vba_26_4555.json',
     'vba_21_4138.json',
     'vba_21_4142.json',
+    'vba_21_10210.json',
+    'vba_21p_0847.json',
     'vba_21_0972.json',
     'vba_21_0845.json',
+    'vba_40_0247.json',
     'vba_21_0966.json',
     'vba_20_10206.json',
+    'vba_40_10007.json',
     'vba_20_10207-veteran.json',
     'vba_20_10207-non-veteran.json'
   ]
+
+  authenticated_forms = forms - %w[vba_40_0247.json vba_21_10210.json vba_21p_0847.json
+                                   vba_40_10007.json]
 
   describe '#submit' do
     context 'going to Lighthouse Benefits Intake API' do
@@ -51,7 +56,7 @@ RSpec.describe 'Forms uploader', type: :request do
         Flipper.enable(:simple_forms_email_confirmations)
       end
 
-      unauthenticated_forms.each do |form|
+      forms.each do |form|
         fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
         data = JSON.parse(fixture_path.read)
 
@@ -111,52 +116,6 @@ RSpec.describe 'Forms uploader', type: :request do
             user = create(:user)
             sign_in_as(user)
             create(:in_progress_form, user_uuid: user.uuid, form_id: data['form_number'])
-          end
-
-          context 'through the SimpleFormsApiSubmission::Service' do
-            it 'makes the request' do
-              allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
-              post '/simple_forms_api/v1/simple_forms', params: data
-
-              expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
-              expect(response).to have_http_status(:ok)
-            end
-
-            it 'saves a FormSubmissionAttempt' do
-              allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
-              expect do
-                post '/simple_forms_api/v1/simple_forms', params: data
-              end.to change(FormSubmissionAttempt, :count).by(1)
-            end
-          end
-
-          context 'through the Lighthouse BenefitsIntake::Service' do
-            before do
-              Flipper.enable(:simple_forms_lighthouse_benefits_intake_service)
-            end
-
-            after do
-              Flipper.disable(:simple_forms_lighthouse_benefits_intake_service)
-            end
-
-            it 'makes the request' do
-              allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
-              post '/simple_forms_api/v1/simple_forms', params: data
-
-              expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
-              expect(response).to have_http_status(:ok)
-            end
-
-            it 'saves a FormSubmissionAttempt' do
-              allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
-              expect do
-                post '/simple_forms_api/v1/simple_forms', params: data
-              end.to change(FormSubmissionAttempt, :count).by(1)
-            end
           end
 
           it 'clears the InProgressForm' do
@@ -244,6 +203,30 @@ RSpec.describe 'Forms uploader', type: :request do
             end
           end
         end
+
+        context 'unauthenticated' do
+          let(:expiration_date) { Time.zone.now }
+
+          before do
+            allow_any_instance_of(ActiveSupport::TimeZone).to receive(:now).and_return(expiration_date)
+          end
+
+          it 'returns an expiration date' do
+            Flipper.disable(:form21_0966_confirmation_email)
+
+            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                           'vba_21_0966.json')
+            data = JSON.parse(fixture_path.read)
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            parsed_response_body = JSON.parse(response.body)
+            parsed_expiration_date = Time.zone.parse(parsed_response_body['expiration_date'])
+            expect(parsed_expiration_date.to_s).to eq (expiration_date + 1.year).to_s
+
+            Flipper.enable(:form21_0966_confirmation_email)
+          end
+        end
       end
 
       context 'request with attached documents' do
@@ -295,8 +278,6 @@ RSpec.describe 'Forms uploader', type: :request do
       end
 
       context 'transliterating fields' do
-        before { sign_in }
-
         context 'transliteration succeeds' do
           it 'responds with ok' do
             Flipper.disable(:form21_0966_confirmation_email)
@@ -370,8 +351,6 @@ RSpec.describe 'Forms uploader', type: :request do
     end
 
     describe 'failed requests scrub PII from error messages' do
-      before { sign_in }
-
       describe 'unhandled form' do
         it 'makes the request and expects a failure' do
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
@@ -502,8 +481,6 @@ RSpec.describe 'Forms uploader', type: :request do
   end
 
   describe '#submit_supporting_documents' do
-    before { sign_in }
-
     it 'renders the attachment as json' do
       clamscan = double(safe?: true)
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
@@ -635,8 +612,6 @@ RSpec.describe 'Forms uploader', type: :request do
   end
 
   describe 'email confirmations' do
-    before { sign_in }
-
     let(:confirmation_number) { 'some_confirmation_number' }
 
     describe '21_4142' do
