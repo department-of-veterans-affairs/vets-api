@@ -770,6 +770,10 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging lefthand navigation for new navigation solution
     enable_in_development: true
+  mhv_secure_messaging_edit_contact_list:
+    actor_type: user
+    description: Disables/Enables Secure Messaging edit contact list page
+    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
