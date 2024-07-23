@@ -2,6 +2,7 @@
 
 require 'json_schema/json_api_missing_attribute'
 require 'appeals_api/form_schemas'
+require 'decision_review/utilities/saved_claim/service'
 
 class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi::ApplicationController
   include AppealsApi::JsonFormatValidation
@@ -10,6 +11,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   include AppealsApi::MPIVeteran
   include AppealsApi::Schemas
   include AppealsApi::PdfDownloads
+  include DecisionReview::SavedClaim::Service
 
   skip_before_action :authenticate
   before_action :validate_icn_header, only: %i[index download]
@@ -48,7 +50,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
       AppealsApi::AddIcnUpdater.perform_async(@higher_level_review.id, 'AppealsApi::HigherLevelReview')
     end
 
-    store_request_in_saved_claim(form: @json_body.to_json, guid: @higher_level_review.id)
+    store_saved_claim(claim_class: SavedClaim::HigherLevelReview, form: @json_body.to_json, guid: @higher_level_review.id)
 
     render_higher_level_review
   end
@@ -139,14 +141,6 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
     )
 
     render_model_errors unless @higher_level_review.validate
-  end
-
-  def store_request_in_saved_claim(form:, guid:)
-    claim = SavedClaim::HigherLevelReview.new(form:, guid:)
-    claim.save!
-  rescue => e
-    Rails.logger.warn('HigherLevelReviewsController: Error saving SavedClaim::HigherLevelReview',
-                      { guid:, error: e.message })
   end
 
   def render_model_errors

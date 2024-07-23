@@ -79,7 +79,7 @@ RSpec.describe V1::SupplementalClaimsController do
         expect(in_progress_form).to be_nil
         # SavedClaim should be created with request data
         saved_claim = SavedClaim::SupplementalClaim.find_by(guid: id)
-        expect(saved_claim.form).to eq(test_request_body)
+        expect(saved_claim.form).to eq(VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY_V1').to_json)
       end
     end
 

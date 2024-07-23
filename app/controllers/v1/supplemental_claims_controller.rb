@@ -2,10 +2,12 @@
 
 require 'decision_review_v1/utilities/constants'
 require 'decision_review_v1/utilities/helpers'
+require 'decision_review/utilities/saved_claim/service'
 
 module V1
   class SupplementalClaimsController < AppealsBaseControllerV1
     include DecisionReviewV1::Appeals::Helpers
+    include DecisionReview::SavedClaim::Service
     service_tag 'appeal-application'
 
     def show
@@ -102,7 +104,8 @@ module V1
           end
           submit_evidence(sc_evidence, appeal_submission_id, submitted_appeal_uuid) if sc_evidence.present?
 
-          store_request_in_saved_claim(form: request_body_obj, guid: submitted_appeal_uuid, uploaded_forms: sc_evidence)
+          store_saved_claim(claim_class: SavedClaim::SupplementalClaim, form: req_body_obj.to_json,
+                            guid: submitted_appeal_uuid, uploaded_forms: sc_evidence)
 
           # Only destroy InProgressForm after evidence upload step
           # so that we still have references if a fatal error occurs before this step
@@ -125,14 +128,6 @@ module V1
       }
       appeal_submission = AppealSubmission.create!(create_params)
       appeal_submission.id
-    end
-
-    def store_request_in_saved_claim(form:, guid:)
-      claim = SavedClaim::SupplementalClaim.new(form:, guid:, uploaded_forms:)
-      claim.save!
-    rescue => e
-      Rails.logger.warn('SupplementalClaimsController: Error saving SavedClaim::SupplementalClaim',
-                        { guid:, error: e.message })
     end
 
     def clear_in_progress_form

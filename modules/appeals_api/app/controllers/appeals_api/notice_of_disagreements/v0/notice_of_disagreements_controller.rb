@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'appeals_api/form_schemas'
+require 'decision_review/utilities/saved_claim/service'
 
 module AppealsApi::NoticeOfDisagreements::V0
   class NoticeOfDisagreementsController < AppealsApi::ApplicationController
@@ -11,6 +12,7 @@ module AppealsApi::NoticeOfDisagreements::V0
     include AppealsApi::PdfDownloads
     include AppealsApi::Schemas
     include AppealsApi::StatusSimulation
+    include DecisionReview::SavedClaim::Service
 
     skip_before_action :authenticate
     before_action :validate_json_body, if: -> { request.post? }
@@ -67,6 +69,7 @@ module AppealsApi::NoticeOfDisagreements::V0
       return render_model_errors(nod) unless nod.validate
 
       nod.save
+      store_saved_claim(claim_class: SavedClaim::NoticeOfDisagreement, form: @json_body.to_json, guid: nod.id)
       AppealsApi::PdfSubmitJob.perform_async(nod.id, 'AppealsApi::NoticeOfDisagreement', 'v3')
 
       render_notice_of_disagreement(nod, include_pii: true, status: :created)

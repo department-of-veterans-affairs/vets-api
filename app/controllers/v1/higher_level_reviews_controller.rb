@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
+require 'decision_review/utilities/saved_claim/service'
+
 module V1
   class HigherLevelReviewsController < AppealsBaseControllerV1
+    include DecisionReview::SavedClaim::Service
     service_tag 'higher-level-review'
 
     def show
@@ -22,7 +25,8 @@ module V1
         AppealSubmission.create!(user_uuid: @current_user.uuid, user_account: @current_user.user_account,
                                  type_of_appeal: 'HLR', submitted_appeal_uuid:)
 
-        store_request_in_saved_claim(form: request_body_hash.to_json, guid: submitted_appeal_uuid)
+        store_saved_claim(claim_class: SavedClaim::HigherLevelReview, form: request_body_hash.to_json,
+                          guid: submitted_appeal_uuid)
 
         # Clear in-progress form since submit was successful
         InProgressForm.form_for_user('20-0996', current_user)&.destroy!
@@ -54,14 +58,6 @@ module V1
         e, error_class: error_class(method: 'create', exception_class: e.class), request:
       )
       raise
-    end
-
-    def store_request_in_saved_claim(form:, guid:)
-      claim = SavedClaim::HigherLevelReview.new(form:, guid:)
-      claim.save!
-    rescue => e
-      Rails.logger.warn('HigherLevelReviewsController: Error saving SavedClaim::HigherLevelReview',
-                        { guid:, error: e.message })
     end
   end
 end

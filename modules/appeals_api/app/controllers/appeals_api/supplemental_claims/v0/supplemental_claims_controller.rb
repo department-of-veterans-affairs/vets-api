@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'appeals_api/form_schemas'
+require 'decision_review/utilities/saved_claim/service'
 
 module AppealsApi::SupplementalClaims::V0
   class SupplementalClaimsController < AppealsApi::ApplicationController
@@ -12,6 +13,7 @@ module AppealsApi::SupplementalClaims::V0
     include AppealsApi::PdfDownloads
     include AppealsApi::Schemas
     include AppealsApi::StatusSimulation
+    include DecisionReview::SavedClaim::Service
 
     skip_before_action :authenticate
     before_action :validate_json_body, if: -> { request.post? }
@@ -78,6 +80,7 @@ module AppealsApi::SupplementalClaims::V0
       return render_model_errors(sc) unless sc.validate
 
       sc.save
+      store_saved_claim(claim_class: SavedClaim::SupplementalClaim, form: @json_body.to_json, guid: sc.id)
       AppealsApi::PdfSubmitJob.perform_async(sc.id, 'AppealsApi::SupplementalClaim', 'v3')
       render_supplemental_claim(sc, include_pii: true, status: :created)
     end

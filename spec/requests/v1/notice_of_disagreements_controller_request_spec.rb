@@ -79,7 +79,7 @@ RSpec.describe V1::NoticeOfDisagreementsController do
         expect(in_progress_form).to be_nil
         # SavedClaim should be created with request data
         saved_claim = SavedClaim::NoticeOfDisagreement.find_by(guid: id)
-        expect(saved_claim.form).to eq(test_request_body)
+        expect(JSON.parse(saved_claim.form)).to eq(test_request_body)
       end
     end
 

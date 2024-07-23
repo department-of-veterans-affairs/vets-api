@@ -104,6 +104,11 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
         expect(created_supplemental_claim.api_version).to eq('V0')
       end
 
+      it 'creates a SavedClaim::SupplementalClaim record with the request data' do
+        saved_claim = SavedClaim::SupplementalClaim.find_by(guid: created_supplemental_claim)
+        expect(JSON.parse(saved_claim.form)).to eq data
+      end
+
       it 'includes the form_data with PII in the serialized response' do
         expect(json_body.dig('data', 'attributes', 'formData')).to be_present
       end

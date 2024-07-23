@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'appeals_api/form_schemas'
+require 'decision_review/utilities/saved_claim/service'
 
 module AppealsApi::HigherLevelReviews::V0
   class HigherLevelReviewsController < AppealsApi::ApplicationController
@@ -12,6 +13,7 @@ module AppealsApi::HigherLevelReviews::V0
     include AppealsApi::PdfDownloads
     include AppealsApi::Schemas
     include AppealsApi::StatusSimulation
+    include DecisionReview::SavedClaim::Service
 
     skip_before_action :authenticate
     before_action :validate_json_body, if: -> { request.post? }
@@ -75,6 +77,7 @@ module AppealsApi::HigherLevelReviews::V0
       return render_model_errors(hlr) unless hlr.validate
 
       hlr.save
+      store_saved_claim(claim_class: SavedClaim::HigherLevelReview, form: @json_body.to_json, guid: hlr.id)
       AppealsApi::PdfSubmitJob.perform_async(hlr.id, 'AppealsApi::HigherLevelReview', 'v3')
 
       render_higher_level_review(hlr, include_pii: true, status: :created)

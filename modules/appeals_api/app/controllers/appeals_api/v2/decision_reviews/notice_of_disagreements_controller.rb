@@ -2,6 +2,7 @@
 
 require 'json_schema/json_api_missing_attribute'
 require 'appeals_api/form_schemas'
+require 'decision_review/utilities/saved_claim/service'
 
 class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < AppealsApi::ApplicationController
   include AppealsApi::Schemas
@@ -9,6 +10,7 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
   include AppealsApi::StatusSimulation
   include AppealsApi::CharacterUtilities
   include AppealsApi::PdfDownloads
+  include DecisionReview::SavedClaim::Service
 
   skip_before_action :authenticate
   before_action :validate_icn_header, only: %i[index download]
@@ -39,7 +41,8 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
       'AppealsApi::NoticeOfDisagreement',
       'v3'
     )
-    store_request_in_saved_claim(form: @json_body.to_json, guid: @notice_of_disagreement.id)
+    store_saved_claim(claim_class: SavedClaim::NoticeOfDisagreement, form: @json_body.to_json,
+                      guid: @notice_of_disagreement.id)
 
     render_notice_of_disagreement
   end
@@ -124,14 +127,6 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
       veteran_icn: request_headers['X-VA-ICN']
     )
     render_model_errors unless @notice_of_disagreement.validate
-  end
-
-  def store_request_in_saved_claim(form:, guid:)
-    claim = SavedClaim::NoticeOfDisagreement.new(form:, guid:)
-    claim.save!
-  rescue => e
-    Rails.logger.warn('NoticeOfDisagreementController: Error saving SavedClaim::NoticeOfDisagreement',
-                      { guid:, error: e.message })
   end
 
   # Follows JSON API v1.0 error object standard (https://jsonapi.org/format/1.0/#error-objects)

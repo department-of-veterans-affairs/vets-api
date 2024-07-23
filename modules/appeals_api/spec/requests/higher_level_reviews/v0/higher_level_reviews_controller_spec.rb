@@ -103,6 +103,11 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
         expect(created_hlr.api_version).to eq('V0')
       end
 
+      it 'creates a SavedClaim::HigherLevelReview record with the request data' do
+        saved_claim = SavedClaim::HigherLevelReview.find_by(guid: created_hlr)
+        expect(JSON.parse(saved_claim.form)).to eq data
+      end
+
       it 'includes the form_data with PII in the serialized response' do
         expect(parsed_response['data']['attributes']['formData']).to be_present
       end

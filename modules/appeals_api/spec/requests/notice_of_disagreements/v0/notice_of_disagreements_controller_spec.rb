@@ -70,6 +70,11 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
         expect(created_notice_of_disagreement.api_version).to eq('V0')
       end
 
+      it 'creates a SavedClaim::NoticeOfDisagreement record with the request data' do
+        saved_claim = SavedClaim::NoticeOfDisagreement.find_by(guid: created_notice_of_disagreement)
+        expect(JSON.parse(saved_claim.form)).to eq data
+      end
+
       it 'includes the form_data with PII in the serialized response' do
         expect(parsed_response.dig('data', 'attributes', 'formData')).to be_present
       end
