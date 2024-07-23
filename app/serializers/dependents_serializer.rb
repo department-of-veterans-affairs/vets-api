@@ -12,33 +12,32 @@ class DependentsSerializer < ActiveModel::Serializer
   def persons
     @persons ||= object[:persons].instance_of?(Hash) ? [object[:persons]] : object[:persons]
 
+    return @persons if dependency_decisions.blank?
+
     @persons.each do |person|
-      person[:upcoming_removal] = upcoming_removals[person[:ptcpntId]]
-      person[:dependent_benefit_type] = upcoming_dependent_benefit_types[person[:ptcpntId]]
+      person[:upcoming_removal] = upcoming_removals[person[:ptcpnt_id]]
+      person[:dependent_benefit_type] = dependent_benefit_types[person[:ptcpnt_id]]
     end
   end
 
   private
 
   def upcoming_removals
-    @upcoming_removals ||= current_and_pending_decisions.map do |_p, decs|
-      decs.max do |a, b|
-        a[:award_effective_date] <=> b[:award_effective_date]
-      end
+    @upcoming_removals ||= current_and_pending_decisions.transform_values do |decs|
+      decs.filter { |dec| %w[T18 SCHATTT].include?(dec[:dependency_decision_type]) }
+          .max { |a, b| a[:award_effective_date] <=> b[:award_effective_date] }
     end
   end
 
   def dependent_benefit_types
-    @dependent_benefit_types ||= current_and_pending_decisions.map do |_person, decisions|
-      dec = decisions.find do |d|
-        %w[EMC SCHATTB].include?(d[:dependency_decision_type])
-      end
+    @dependent_benefit_types ||= current_and_pending_decisions.transform_values do |decisions|
+      dec = decisions.find { |d| %w[EMC SCHATTB].include?(d[:dependency_decision_type]) }
       dec[:dependency_status_type_description].gsub(/\s+/, ' ')
     end
   end
 
   def current_and_pending_decisions
-    return @current_and_pending_decisions unless @current_and_pending_decisions.nil?
+    return @current_and_pending_decisions if @current_and_pending_decisions.present?
 
     # Filter by eligible minor child or school attendance types and if they are the current or future decisions
     decisions = dependency_decisions
@@ -48,19 +47,22 @@ class DependentsSerializer < ActiveModel::Serializer
     end
 
     @current_and_pending_decisions = decisions.group_by { |dec| dec[:person_id] }
-                                              .map do |_p, decs|
+                                              .transform_values do |decs|
       # get only most recent active decision and add back to array
-      most_recent = decs.filter { |dec| %w[EMC SCHATTB].include?(dec[:dependency_decision_type]) }
-                        .max { |a, b| a[:award_effective_date] <=> b[:award_effective_date] }
+      most_recent =
+        decs.filter { |dec| %w[EMC SCHATTB].include?(dec[:dependency_decision_type]) }
+            .max { |a, b| a[:award_effective_date] <=> b[:award_effective_date] }
       # include future school attendance
-      decs.filter { |dec|
+      (decs.filter { |dec|
         %w[T18 SCHATTB SCHATTT].include?(dec[:dependency_decision_type])
-      } + [most_recent]
+      } + [most_recent]).uniq
     end
   end
 
   def dependency_decisions
-    decisions = object[:diaries][:dependency_decs][:dependency_dec]
+    decisions = object.dig(:diaries, :dependency_decs)
+    return if decisions.nil?
+
     decisions.is_a?(Hash) ? [decisions] : decisions
   end
 end

@@ -3,21 +3,21 @@
 class DependentSerializer < ActiveModel::Serializer
   type :dependent
 
-  attributes(:awardIndicator,
-             :cityOfBirth,
-             :dateOfBirth,
-             :emailAddress,
-             :firstName,
+  attributes(:award_indicator,
+             :city_of_birth,
+             :date_of_birth,
+             :email_address,
+             :first_name,
              :gender,
-             :lastName,
-             :middleName,
-             :ptcpntId,
-             :relatedToVet,
+             :last_name,
+             :middle_name,
+             :ptcpnt_id,
+             :related_to_vet,
              :relationship,
              :ssn,
-             :ssnVerifyStatus,
-             :stateOfBirth,
-             :veteranIndicator,
+             :ssn_verify_status,
+             :state_of_birth,
+             :veteran_indicator,
              :dependent_benefit_type)
 
   def id
