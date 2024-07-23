@@ -616,12 +616,11 @@ module ClaimsApi
         end
         sorted = arr&.sort_by { |sp| sp[:activeDutyEndDate] }
 
-        if sorted.count > 1
-          sorted.pop
-          @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = sorted
-        else
-          @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = {}
-        end
+        @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = if sorted.count > 1
+                                                                                            sorted
+                                                                                          else
+                                                                                            {}
+                                                                                          end
 
         @pdf_data[:data][:attributes][:serviceInformation].delete(:servicePeriods)
         @pdf_data
