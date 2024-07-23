@@ -82,7 +82,6 @@ module EVSS
       def retryable_error_handler(error)
         # Needed to log the error properly in the Sidekiq::Form526JobStatusTracker::JobTracker,
         # which is included near the top of this job's inheritance tree in EVSS::DisabilityCompensationForm::JobStatus
-
         super(error)
         raise error
       end
