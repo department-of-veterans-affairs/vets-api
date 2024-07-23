@@ -42,9 +42,7 @@ module IvcChampva
 
           # We only need the first form, outside of the file_names field, the data is the same.
           form = ivc_forms.first
-          send_email(ivc_forms.first, ivc_forms.count) if form.email.present? && form.email_sent.nil?
-
-          update_email_sent(form_uuid)
+          send_email(form_uuid, ivc_forms.first, ivc_forms.count) if form.email.present?
 
           { json: {}, status: :ok }
         else
@@ -54,7 +52,9 @@ module IvcChampva
         end
       end
 
-      def send_email(form, file_count)
+      def send_email(form_uuid, form, file_count)
+        return if form.email_sent
+
         form_data =
           {
             email: form.email,
@@ -66,7 +66,13 @@ module IvcChampva
             created_at: form.created_at.strftime('%B %d, %Y')
           }
 
-        IvcChampva::Email.new(form_data).send_email
+        ActiveRecord::Base.transaction do
+          if IvcChampva::Email.new(form_data).send_email
+            update_email_sent(form_uuid)
+          else
+            raise ActiveRecord::Rollback, 'Pega Status Update Email send failure'
+          end
+        end
       end
 
       # It's just updating a flag that an email has been sent
