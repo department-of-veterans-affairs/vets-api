@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class GenderIdentitySerializer < ActiveModel::Serializer
-  attributes :gender_identity
+class GenderIdentitySerializer
+  include JSONAPI::Serializer
 
-  def id
-    nil
-  end
+  set_id { '' }
+
+  attribute :gender_identity
 end

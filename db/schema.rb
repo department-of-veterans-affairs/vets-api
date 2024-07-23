@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_16_143105) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_16_195104) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -871,6 +871,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_143105) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "case_id"
+    t.boolean "email_sent", default: false, null: false
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
   end
 
