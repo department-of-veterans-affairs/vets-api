@@ -51,15 +51,15 @@ module Pensions
                         })
     end
 
-    def track_submission_attempted(claim, lighthouse_service, user_uuid, payload)
+    def track_submission_attempted(claim, lighthouse_service, user_uuid, upload)
       StatsD.increment("#{SUBMISSION_STATS_KEY}.attempt")
       Rails.logger.info('Lighthouse::PensionBenefitIntakeJob submission to LH attempted', {
                           claim_id: claim&.id,
                           benefits_intake_uuid: lighthouse_service&.uuid,
                           confirmation_number: claim&.confirmation_number,
                           user_uuid:,
-                          file: payload[:file],
-                          attachments: payload[:attachments]
+                          file: upload[:file],
+                          attachments: upload[:attachments]
                         })
     end
 

@@ -5,13 +5,15 @@ require_relative '../../../lib/pensions/monitor'
 
 RSpec.describe Pensions::Monitor do
   let(:monitor) { described_class.new }
-  let(:stats_key) { described_class::CLAIM_STATS_KEY }
+  let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
+  let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
   let(:claim) { create(:pensions_module_pension_claim) }
   let(:ipf) { create(:in_progress_form) }
 
-  context "with all params supplied" do
+  context 'with all params supplied' do
     let(:current_user) { create(:user) }
     let(:monitor_error) { create(:monitor_error) }
+    let(:lh_service) { OpenStruct.new(uuid: 'uuid')}
 
     describe '#track_show404' do
       it 'logs a not found error' do
@@ -48,10 +50,10 @@ RSpec.describe Pensions::Monitor do
         log = '21P-527EZ submission to Sidekiq begun'
         payload = {
           confirmation_number: claim.confirmation_number,
-          user_uuid: current_user.uuid,
+          user_uuid: current_user.uuid
         }
 
-        expect(StatsD).to receive(:increment).with("#{stats_key}.attempt")
+        expect(StatsD).to receive(:increment).with("#{claim_stats_key}.attempt")
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_create_attempt(claim, current_user)
@@ -69,10 +71,70 @@ RSpec.describe Pensions::Monitor do
           message: monitor_error.message
         }
 
-        expect(StatsD).to receive(:increment).with("#{stats_key}.failure")
+        expect(StatsD).to receive(:increment).with("#{claim_stats_key}.failure")
         expect(Rails.logger).to receive(:error).with(log, payload)
 
         monitor.track_create_error(ipf, claim, current_user, monitor_error)
+      end
+    end
+
+    describe '#track_create_success' do
+      it 'logs sidekiq success' do
+        log = '21P-527EZ submission to Sidekiq success'
+        payload = {
+          confirmation_number: claim.confirmation_number,
+          user_uuid: current_user.uuid,
+          in_progress_form_id: ipf.id
+        }
+        claim.form_start_date = Time.zone.now
+
+        expect(StatsD).to receive(:increment).with("#{claim_stats_key}.success")
+        expect(StatsD).to receive(:measure).with('saved_claim.time-to-file', claim.created_at - claim.form_start_date,
+                                                 tags: ["form_id:#{claim.form_id}"])
+        expect(Rails.logger).to receive(:info).with(log, payload)
+
+        monitor.track_create_success(ipf, claim, current_user)
+      end
+    end
+
+    describe '#track_submission_begun' do
+      it 'logs sidekiq job started' do
+        log = 'Lighthouse::PensionBenefitIntakeJob submission to LH begun'
+        payload = {
+          claim_id: claim.id,
+          benefits_intake_uuid: lh_service.uuid,
+          confirmation_number: claim.confirmation_number,
+          user_uuid: current_user.uuid
+        }
+
+        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.begun")
+        expect(Rails.logger).to receive(:info).with(log, payload)
+
+        monitor.track_submission_begun(claim, lh_service, current_user.uuid)
+      end
+    end
+
+    describe '#track_submission_attempted' do
+      it 'logs sidekiq job upload attempt' do
+        upload = {
+          file: 'pdf-file-path',
+          attachments: ['pdf-attachment1', 'pdf-attachment2']
+        }
+
+        log = 'Lighthouse::PensionBenefitIntakeJob submission to LH attempted'
+        payload = {
+          claim_id: claim.id,
+          benefits_intake_uuid: lh_service.uuid,
+          confirmation_number: claim.confirmation_number,
+          user_uuid: current_user.uuid,
+          file: upload[:file],
+          attachments: upload[:attachments]
+        }
+
+        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.attempt")
+        expect(Rails.logger).to receive(:info).with(log, payload)
+
+        monitor.track_submission_attempted(claim, lh_service, current_user.uuid, upload)
       end
     end
 
