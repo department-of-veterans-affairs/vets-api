@@ -50,7 +50,8 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
       AppealsApi::AddIcnUpdater.perform_async(@higher_level_review.id, 'AppealsApi::HigherLevelReview')
     end
 
-    store_saved_claim(claim_class: SavedClaim::HigherLevelReview, form: @json_body.to_json, guid: @higher_level_review.id)
+    store_saved_claim(claim_class: SavedClaim::HigherLevelReview, form: @json_body.to_json,
+                      guid: @higher_level_review.id)
 
     render_higher_level_review
   end
