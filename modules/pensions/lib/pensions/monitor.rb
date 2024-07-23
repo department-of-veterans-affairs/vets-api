@@ -89,19 +89,19 @@ module Pensions
       Rails.logger.error('Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!', {
                            claim_id: msg['args'].first,
                            confirmation_number: claim&.confirmation_number,
-                           message: msg,
-                           user_uuid: msg['args'].length <= 1 ? nil : msg['args'][1]
+                           user_uuid: msg['args'].length <= 1 ? nil : msg['args'][1],
+                           message: msg
                          })
     end
 
     def track_file_cleanup_error(claim, lighthouse_service, user_uuid, e)
       Rails.logger.error('Lighthouse::PensionBenefitIntakeJob cleanup failed',
                          {
-                           error: e&.message,
                            claim_id: claim&.id,
                            benefits_intake_uuid: lighthouse_service&.uuid,
                            confirmation_number: claim&.confirmation_number,
-                           user_uuid:
+                           user_uuid:,
+                           error: e&.message
                          })
     end
   end

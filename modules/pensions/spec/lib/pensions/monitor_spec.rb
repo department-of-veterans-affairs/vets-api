@@ -138,5 +138,78 @@ RSpec.describe Pensions::Monitor do
       end
     end
 
+    describe '#track_submission_success' do
+      it 'logs sidekiq job successful' do
+        log = 'Lighthouse::PensionBenefitIntakeJob submission to LH succeeded'
+        payload = {
+          claim_id: claim.id,
+          benefits_intake_uuid: lh_service.uuid,
+          confirmation_number: claim.confirmation_number,
+          user_uuid: current_user.uuid
+        }
+
+        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.success")
+        expect(Rails.logger).to receive(:info).with(log, payload)
+
+        monitor.track_submission_success(claim, lh_service, current_user.uuid)
+      end
+    end
+
+    describe '#track_submission_retry' do
+      it 'logs sidekiq job failure and retry' do
+        log = 'Lighthouse::PensionBenefitIntakeJob submission to LH failed, retrying'
+        payload = {
+          claim_id: claim.id,
+          benefits_intake_uuid: lh_service.uuid,
+          confirmation_number: claim.confirmation_number,
+          user_uuid: current_user.uuid,
+          message: monitor_error.message
+        }
+
+        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.failure")
+        expect(Rails.logger).to receive(:warn).with(log, payload)
+
+        monitor.track_submission_retry(claim, lh_service, current_user.uuid, monitor_error)
+      end
+    end
+
+    describe '#track_submission_exhaustion' do
+      it 'logs sidekiq job exhaustion' do
+        msg = {'args' => [claim.id, current_user.uuid]}
+
+        log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
+        payload = {
+          claim_id: claim.id,
+          confirmation_number: claim.confirmation_number,
+          user_uuid: current_user.uuid,
+          message: msg
+        }
+
+        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
+        expect(Rails.logger).to receive(:error).with(log, payload)
+
+        monitor.track_submission_exhaustion(msg, claim)
+      end
+    end
+
+    describe '#track_file_cleanup_error' do
+      it 'logs sidekiq job ensure file cleanup error' do
+        msg = {'args' => [claim.id, current_user.uuid]}
+
+        log = 'Lighthouse::PensionBenefitIntakeJob cleanup failed'
+        payload = {
+          claim_id: claim.id,
+          benefits_intake_uuid: lh_service.uuid,
+          confirmation_number: claim.confirmation_number,
+          user_uuid: current_user.uuid,
+          error: monitor_error.message
+        }
+
+        expect(Rails.logger).to receive(:error).with(log, payload)
+
+        monitor.track_file_cleanup_error(claim, lh_service, current_user.uuid, monitor_error)
+      end
+    end
+
   end
 end
