@@ -99,45 +99,46 @@ module RepresentationManagement
         # the controller.  Start with a Next Steps page if needed.
         #
         # @param data [Hash] Data to fill in pdf form with
-        # rubocop:disable Metrics/MethodLength
+        #
         def fill_and_combine_pdf(data)
           pdftk = PdfForms.new(Settings.binaries.pdftk)
+          next_steps_tempfile = generate_next_steps_page(data) if next_steps_page?
+          template_tempfile = fill_template_form(pdftk, data)
 
-          if next_steps_page?
-            next_steps_tempfile = Tempfile.new
-            next_steps = Prawn::Document.new
-            next_steps_above_contact(next_steps)
-            next_steps_contact(next_steps, data)
-            next_steps_below_contact(next_steps)
-            next_steps.render_file(next_steps_tempfile.path)
-          end
+          combine_pdfs(next_steps_tempfile, template_tempfile)
+          cleanup_tempfiles(template_tempfile, next_steps_tempfile)
+        end
 
-          # We need a Tempfile here because CombinePDF needs a file to load.
-          template_tempfile = Tempfile.new
-          # Fill that template with the form data
-          pdftk.fill_form(
-            @template_path,
-            template_tempfile.path,
-            template_options(data),
-            flatten: true
-          )
-          @template_path = template_tempfile.path
-          template_tempfile.rewind
+        def generate_next_steps_page(data)
+          tempfile = Tempfile.new
+          next_steps = Prawn::Document.new
+          next_steps_above_contact(next_steps)
+          next_steps_contact(next_steps, data)
+          next_steps_below_contact(next_steps)
+          next_steps.render_file(tempfile.path)
+          tempfile
+        end
 
-          output_path = @tempfile.path
+        def fill_template_form(pdftk, data)
+          tempfile = Tempfile.new
+          pdftk.fill_form(@template_path, tempfile.path, template_options(data), flatten: true)
+          @template_path = tempfile.path
+          tempfile.rewind
+          tempfile
+        end
 
+        def combine_pdfs(next_steps_tempfile, template_tempfile)
           pdf = CombinePDF.new
           pdf << CombinePDF.load(next_steps_tempfile.path) if next_steps_page?
-          pdf << CombinePDF.load(@template_path)
-          pdf.save(output_path)
-
+          pdf << CombinePDF.load(template_tempfile.path)
+          pdf.save(@tempfile.path)
           @tempfile.rewind
-          # Delete the tempfile we created now that CombinePDF has saved
-          # the final pdf.
+        end
+
+        def cleanup_tempfiles(template_tempfile, next_steps_tempfile)
           template_tempfile.unlink
           next_steps_tempfile.unlink if next_steps_page?
         end
-        # rubocop:enable Metrics/MethodLength
       end
     end
   end
