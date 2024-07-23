@@ -73,9 +73,19 @@ module EVSS
 
           StatsD.increment("#{STATSD_METRIC_PREFIX}.success")
         end
+      rescue => e
+        retryable_error_handler(e)
       end
 
       private
+
+      def retryable_error_handler(error)
+        # Needed to log the error properly in the Sidekiq::Form526JobStatusTracker::JobTracker,
+        # which is included near the top of this job's inheritance tree in EVSS::DisabilityCompensationForm::JobStatus
+
+        super(error)
+        raise error
+      end
 
       def mailer_template_id
         Settings.vanotify.services
