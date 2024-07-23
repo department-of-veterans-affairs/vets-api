@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_16_195104) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_23_205058) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -1025,6 +1025,27 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_195104) do
     t.datetime "updated_at", null: false
     t.index ["application_uuid"], name: "index_preneed_submissions_on_application_uuid", unique: true
     t.index ["tracking_number"], name: "index_preneed_submissions_on_tracking_number", unique: true
+  end
+
+  create_table "representation_management_users", force: :cascade do |t|
+    t.text "first_name_ciphertext"
+    t.text "last_name_ciphertext"
+    t.text "city_ciphertext"
+    t.text "state_ciphertext"
+    t.text "postal_code_ciphertext"
+    t.string "first_name_bidx"
+    t.string "last_name_bidx"
+    t.string "city_bidx"
+    t.string "state_bidx"
+    t.string "postal_code_bidx"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["city_bidx"], name: "index_representation_management_users_on_city_bidx", unique: true
+    t.index ["first_name_bidx"], name: "index_representation_management_users_on_first_name_bidx", unique: true
+    t.index ["last_name_bidx"], name: "index_representation_management_users_on_last_name_bidx", unique: true
+    t.index ["postal_code_bidx"], name: "index_representation_management_users_on_postal_code_bidx", unique: true
+    t.index ["state_bidx"], name: "index_representation_management_users_on_state_bidx", unique: true
   end
 
   create_table "saved_claims", id: :serial, force: :cascade do |t|
