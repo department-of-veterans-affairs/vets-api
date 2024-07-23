@@ -86,6 +86,10 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         expect(parsed['data']['type']).to eq('higherLevelReview')
         expect(parsed['data']['attributes']['status']).to eq('pending')
         expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
+
+        saved_claim = SavedClaim::HigherLevelReview.find_by(guid: hlr_guid)
+        expect(saved_claim.guid).to eq(hlr_guid)
+        expect(JSON.parse(saved_claim.form)).to eq(JSON.parse(data_default))
       end
     end
 

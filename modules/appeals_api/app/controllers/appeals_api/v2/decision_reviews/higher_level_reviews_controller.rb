@@ -48,6 +48,8 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
       AppealsApi::AddIcnUpdater.perform_async(@higher_level_review.id, 'AppealsApi::HigherLevelReview')
     end
 
+    store_request_in_saved_claim(form: @json_body.to_json, guid: @higher_level_review.id)
+
     render_higher_level_review
   end
 
@@ -137,6 +139,14 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
     )
 
     render_model_errors unless @higher_level_review.validate
+  end
+
+  def store_request_in_saved_claim(form:, guid:)
+    claim = SavedClaim::HigherLevelReview.new(form:, guid:)
+    claim.save!
+  rescue => e
+    Rails.logger.warn('HigherLevelReviewsController: Error saving SavedClaim::HigherLevelReview',
+                      { guid:, error: e.message })
   end
 
   def render_model_errors

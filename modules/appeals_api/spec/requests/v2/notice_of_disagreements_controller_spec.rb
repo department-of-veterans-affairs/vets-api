@@ -81,6 +81,11 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         expect(nod.veteran_icn).to eq('1013062086V794840')
         expect(parsed['data']['type']).to eq('noticeOfDisagreement')
         expect(parsed['data']['attributes']['status']).to eq('pending')
+
+        guid = parsed['data']['id']
+        saved_claim = SavedClaim::NoticeOfDisagreement.find_by(guid:)
+        expect(saved_claim.guid).to eq(guid)
+        expect(JSON.parse(saved_claim.form)).to eq(JSON.parse(max_data))
       end
     end
 
