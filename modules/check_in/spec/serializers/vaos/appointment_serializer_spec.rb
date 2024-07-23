@@ -31,7 +31,7 @@ RSpec.describe CheckIn::VAOS::AppointmentSerializer do
             "timezone": { "timeZoneId": "America/New York" },
             "phone": { "main": "843-577-5011" }
           },
-          "clinic_info":{
+          "clinicInfo":{
             "data": {
               "serviceName": "CHS NEUROSURGERY VARMA",
               "physicalLocation": "1ST FL SPECIALTY MODULE 2",
@@ -62,7 +62,7 @@ RSpec.describe CheckIn::VAOS::AppointmentSerializer do
             "timezone": { "timeZoneId": "America/New York" },
             "phone": { "main": "843-577-5011" }
           },
-          "clinic_info":{
+          "clinicInfo":{
             "data": {
               "serviceName": "CaregiverSupport",
               "physicalLocation": "2360 East Pershing Boulevard",
@@ -94,9 +94,9 @@ RSpec.describe CheckIn::VAOS::AppointmentSerializer do
         facilityVistaSite: '534',
         facilityTimezone: 'America/New York',
         facilityPhoneMain: '843-577-5011',
-        serviceName: 'CHS NEUROSURGERY VARMA',
-        physicalLocation: '1ST FL SPECIALTY MODULE 2',
-        friendlyName: 'CHS NEUROSURGERY VARMA'
+        clinicServiceName: 'CHS NEUROSURGERY VARMA',
+        clinicPhysicalLocation: '1ST FL SPECIALTY MODULE 2',
+        clinicFriendlyName: 'CHS NEUROSURGERY VARMA'
       }
     }
   end
@@ -117,9 +117,9 @@ RSpec.describe CheckIn::VAOS::AppointmentSerializer do
         facilityVistaSite: '909',
         facilityTimezone: 'America/New York',
         facilityPhoneMain: '843-577-5011',
-        serviceName: 'CaregiverSupport',
-        physicalLocation: '2360 East Pershing Boulevard',
-        friendlyName: 'CaregiverSupport'
+        clinicServiceName: 'CaregiverSupport',
+        clinicPhysicalLocation: '2360 East Pershing Boulevard',
+        clinicFriendlyName: 'CaregiverSupport'
       }
     }
   end
