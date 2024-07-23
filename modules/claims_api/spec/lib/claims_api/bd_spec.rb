@@ -86,8 +86,8 @@ describe ClaimsApi::BD do
           JSON.parse(temp_io_contents)
         end
 
-        it 'the systemName is LH-B' do
-          expect(json_body['data']['systemName']).to eq('LH-B')
+        it 'the systemName is Lighthouse' do
+          expect(json_body['data']['systemName']).to eq('Lighthouse')
         end
 
         it 'the docType is L190' do
@@ -109,8 +109,8 @@ describe ClaimsApi::BD do
           JSON.parse(temp_io_contents)
         end
 
-        it 'the systemName is LH-B' do
-          expect(json_body['data']['systemName']).to eq('LH-B')
+        it 'the systemName is Lighthouse' do
+          expect(json_body['data']['systemName']).to eq('Lighthouse')
         end
 
         it 'the docType is L075' do
