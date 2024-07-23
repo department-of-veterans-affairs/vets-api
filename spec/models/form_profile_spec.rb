@@ -869,42 +869,66 @@ RSpec.describe FormProfile, type: :model do
   let(:v21_22_expected) do
     {
       'personalInformation' => {
-        'first' => user.first_name&.capitalize,
-        'middle' => user.middle_name&.capitalize,
-        'last' => user.last_name&.capitalize,
-        'suffix' => user.suffix,
-        'preferredName' => 'SAM',
-        'dateOfBirth' => user.birth_date,
-        'socialSecurityNumber' => user.ssn,
-        'serviceNumber' => '123455678'
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dateOfBirth' => '1809-02-12'
       },
       'contactInformation' => {
         'email' => user.pciu_email,
-        'phone' => us_phone,
-        'address' => address
+        'address' => {
+          'street' => street_check[:street],
+          'street2' => street_check[:street2],
+          'city' => user.address[:city],
+          'state' => user.address[:state],
+          'country' => user.address[:country],
+          'postal_code' => user.address[:postal_code][0..4]
+        },
+        'primaryPhone' => '4445551212',
       },
-      'veteranServiceInformation' => veteran_service_information
+      'militaryInformation' => {
+        'serviceBranch' => 'Army',
+        'serviceDateRange' => {
+          'from' => '2002-07-02',
+          'to' => '2014-08-31'
+        }
+      },
     }
   end
 
-  let(:v21_22a_expected) do
+  let(:v21_22_a_expected) do
     {
       'personalInformation' => {
-        'first' => user.first_name&.capitalize,
-        'middle' => user.middle_name&.capitalize,
-        'last' => user.last_name&.capitalize,
-        'suffix' => user.suffix,
-        'preferredName' => 'SAM',
-        'dateOfBirth' => user.birth_date,
-        'socialSecurityNumber' => user.ssn,
-        'serviceNumber' => '123455678'
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dateOfBirth' => '1809-02-12'
       },
       'contactInformation' => {
         'email' => user.pciu_email,
-        'phone' => us_phone,
-        'address' => address
+        'address' => {
+          'street' => street_check[:street],
+          'street2' => street_check[:street2],
+          'city' => user.address[:city],
+          'state' => user.address[:state],
+          'country' => user.address[:country],
+          'postal_code' => user.address[:postal_code][0..4]
+        },
+        'primaryPhone' => '4445551212',
       },
-      'veteranServiceInformation' => veteran_service_information
+      'militaryInformation' => {
+        'serviceBranch' => 'Army',
+        'serviceDateRange' => {
+          'from' => '2002-07-02',
+          'to' => '2014-08-31'
+        }
+      },
     }
   end
 
@@ -1661,7 +1685,6 @@ RSpec.describe FormProfile, type: :model do
           26-1880
           26-4555
           21-22
-          21-22A
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
