@@ -85,6 +85,8 @@ module RepresentationManagement
         end
 
         def claimant_identification(data)
+          return {} if data.claimant_last_name.blank?
+
           {
             # # Claimant Name
             "#{PAGE1_KEY}.Claimants_FirstName[0]": data.claimant_first_name,
@@ -100,6 +102,8 @@ module RepresentationManagement
         end
 
         def claimant_contact_details(data)
+          return {} if data.claimant_last_name.blank?
+
           {
             # Claimant Address
             "#{PAGE1_KEY}.Claimants_MailingAddress_NumberAndStreet[0]": \
