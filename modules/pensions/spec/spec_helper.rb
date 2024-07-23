@@ -3,7 +3,6 @@
 require 'rspec/rails'
 
 RSpec.configure { |config| config.use_transactional_fixtures = true }
-Dir[Rails.root.join('spec', 'lib', '**', '*.rb')].each { |file| require file }
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
