@@ -1586,3 +1586,6 @@ features:
   merge_1995_and_5490:
     actore_type: user
     description: Activating the combined 1995 and 5490 form 
+  use_new_get_all_features:
+    actor_type: user
+    description: Used to test new feature toggle code. Removal ETA July 15, 2024
