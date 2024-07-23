@@ -19,6 +19,10 @@ RSpec.describe 'Pega callback', type: :request do
     end
 
     context 'with valid payload' do
+      before do
+        allow_any_instance_of(IvcChampva::Email).to receive(:valid_environment?).and_return(true)
+      end
+
       it 'returns HTTP status 200 with same form_uuid but not all files' do
         IvcChampvaForm.delete_all
         IvcChampvaForm.create!(
@@ -109,9 +113,11 @@ RSpec.describe 'Pega callback', type: :request do
         case_id_array = ivc_forms.map { |form| form.pluck(:case_id) }
         email_sent_array = ivc_forms.map { |form| form.pluck(:email_sent) }
 
+        ordered_email_sent_array = email_sent_array.flatten.sort_by { |b| b ? 1 : 0 }
+
         expect(status_array.flatten.compact!).to eq(['Processed'])
         expect(case_id_array.flatten.compact!).to eq(['ABC-1234'])
-        expect(email_sent_array.flatten).to eq([false, true])
+        expect(ordered_email_sent_array).to eq([false, true])
         expect(response).to have_http_status(:ok)
       end
 
