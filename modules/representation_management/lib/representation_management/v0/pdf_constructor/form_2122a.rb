@@ -4,6 +4,10 @@ module RepresentationManagement
   module V0
     module PdfConstructor
       class Form2122a < RepresentationManagement::V0::PdfConstructor::Base
+        PAGE1_KEY = 'form1[0].#subform[0]'
+        PAGE2_KEY = 'form1[0].#subform[1]'
+        PAGE3_KEY = 'form1[0].#subform[2]'
+
         protected
 
         def next_steps_page?
@@ -34,126 +38,151 @@ module RepresentationManagement
                           '21-22a.pdf')
         end
 
-        # rubocop:disable Metrics/MethodLength
-        def page1_options(data)
-          page1_key = 'form1[0].#subform[0]'
+        def template_options(data)
+          veteran_identification(data)
+            .merge(veteran_contact_details(data))
+            .merge(claimant_identification(data))
+            .merge(claimant_contact_details(data))
+            .merge(representative_identification(data))
+            .merge(representative_contact_details(data))
+            .merge(appointment_options(data))
+            .merge(header_options(data))
+        end
+
+        def veteran_identification(data)
           {
-            # Page 1
             # Section I
             # Veteran Name
-            "#{page1_key}.Veterans_Last_Name[0]": data.veteran_last_name,
-            "#{page1_key}.Veterans_Middle_Initial[0]": data.veteran_middle_initial,
-            "#{page1_key}.Veterans_First_Name[0]": data.veteran_first_name,
+            "#{PAGE1_KEY}.Veterans_Last_Name[0]": data.veteran_last_name,
+            "#{PAGE1_KEY}.Veterans_Middle_Initial[0]": data.veteran_middle_initial,
+            "#{PAGE1_KEY}.Veterans_First_Name[0]": data.veteran_first_name,
             # Veteran SSN
-            "#{page1_key}.SocialSecurityNumber_FirstThreeNumbers[0]": data.veteran_social_security_number[0..2],
-            "#{page1_key}.SocialSecurityNumber_SecondTwoNumbers[0]": data.veteran_social_security_number[3..4],
-            "#{page1_key}.SocialSecurityNumber_LastFourNumbers[0]": data.veteran_social_security_number[5..8],
+            "#{PAGE1_KEY}.SocialSecurityNumber_FirstThreeNumbers[0]": data.veteran_social_security_number[0..2],
+            "#{PAGE1_KEY}.SocialSecurityNumber_SecondTwoNumbers[0]": data.veteran_social_security_number[3..4],
+            "#{PAGE1_KEY}.SocialSecurityNumber_LastFourNumbers[0]": data.veteran_social_security_number[5..8],
             # Veteran File Number
-            "#{page1_key}.Veterans_Service_Number_If_Applicable[0]": data.veteran_va_file_number,
+            "#{PAGE1_KEY}.Veterans_Service_Number_If_Applicable[0]": data.veteran_va_file_number,
             # Veteran DOB
-            "#{page1_key}.Date_Of_Birth_Month[0]": data.veteran_date_of_birth.split('/').first,
-            "#{page1_key}.Date_Of_Birth_Day[0]": data.veteran_date_of_birth.split('/').second,
-            "#{page1_key}.Date_Of_Birth_Year[0]": data.veteran_date_of_birth.split('/').last,
+            "#{PAGE1_KEY}.Date_Of_Birth_Month[0]": data.veteran_date_of_birth.split('/').first,
+            "#{PAGE1_KEY}.Date_Of_Birth_Day[0]": data.veteran_date_of_birth.split('/').second,
+            "#{PAGE1_KEY}.Date_Of_Birth_Year[0]": data.veteran_date_of_birth.split('/').last,
             # Veteran Service Number
-            "#{page1_key}.Veterans_Service_Number_If_Applicable[1]": data.veteran_service_number,
+            "#{PAGE1_KEY}.Veterans_Service_Number_If_Applicable[1]": data.veteran_service_number,
             # Item 6 Service Branch
-            "#{page1_key}.RadioButtonList[1]": service_branch_checkbox(data.veteran_service_branch),
-            # Veteran Mailing Address
-            "#{page1_key}.MailingAddress_NumberAndStreet[0]": data.veteran_address_line1,
-            "#{page1_key}.MailingAddress_ApartmentOrUnitNumber[0]": data.veteran_address_line2,
-            "#{page1_key}.MailingAddress_City[0]": data.veteran_city,
-            "#{page1_key}.MailingAddress_StateOrProvince[0]": data.veteran_state_code,
-            "#{page1_key}.MailingAddress_Country[0]": data.veteran_country,
-            "#{page1_key}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": data.veteran_zip_code,
-            "#{page1_key}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": data.veteran_zip_code_suffix,
-            # Veteran Phone Number
-            "#{page1_key}.Telephone_Number_Area_Code[1]": data.veteran_phone[0..2],
-            "#{page1_key}.Telephone_Middle_Three_Numbers[0]": data.veteran_phone[3..5],
-            "#{page1_key}.Telephone_Last_Four_Numbers[1]": data.veteran_phone[6..9],
-            # Veteran Email
-            "#{page1_key}.E_Mail_Address_Optional[1]": data.veteran_email,
-
-            # # Section II
-            # Claimant Name
-            "#{page1_key}.Claimants_First_Name[0]": data.claimant_first_name,
-            "#{page1_key}.Claimants_Middle_Initial[0]": data.claimant_middle_initial,
-            "#{page1_key}.Claimants_Last_Name[0]": data.claimant_last_name,
-            # Claimant DOB
-            "#{page1_key}.Claimants_Date_Of_Birth_Month[0]": data.claimant_date_of_birth.split('/').first,
-            "#{page1_key}.Date_Of_Birth_Day[1]": data.claimant_date_of_birth.split('/').second,
-            "#{page1_key}.Date_Of_Birth_Year[1]": data.claimant_date_of_birth.split('/').last,
-            # Claimant Relationship
-            "#{page1_key}.RelationshipToVeteran[0]": data.claimant_relationship,
-            # Claimant Mailing Address
-            "#{page1_key}.MailingAddress_NumberAndStreet[1]": data.claimant_address_line1,
-            "#{page1_key}.MailingAddress_ApartmentOrUnitNumber[1]": data.claimant_address_line2,
-            "#{page1_key}.MailingAddress_City[1]": data.claimant_city,
-            "#{page1_key}.MailingAddress_StateOrProvince[1]": data.claimant_state_code,
-            "#{page1_key}.MailingAddress_Country[1]": data.claimant_country,
-            "#{page1_key}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]": data.claimant_zip_code,
-            "#{page1_key}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[1]": data.claimant_zip_code_suffix,
-            # Claimant Phone Number
-            "#{page1_key}.Telephone_Number_Area_Code[0]": data.claimant_phone[0..2],
-            "#{page1_key}.Telphone_Middle_Three_Numbers[0]": data.claimant_phone[3..5],
-            "#{page1_key}.Telephone_Last_Four_Numbers[0]": data.claimant_phone[6..9],
-            # Claimant Email
-            "#{page1_key}.E_Mail_Address_Optional[0]": data.claimant_email,
-
-            # # Section III
-            # Representative Name
-            "#{page1_key}.Name_Of_Individual_Appointed_As_Representative_First_Name[0]": data.representative_first_name,
-            "#{page1_key}.Middle_Initial[0]": data.representative_middle_initial,
-            "#{page1_key}.Last_Name[0]": data.representative_last_name,
-            # Representative Type
-            "#{page1_key}.RadioButtonList[0]": representative_type_checkbox(data.representative_type)
+            "#{PAGE1_KEY}.RadioButtonList[1]": service_branch_checkbox(data.veteran_service_branch)
           }
         end
-        # rubocop:enable Metrics/MethodLength
 
-        # rubocop:disable Layout/LineLength
-        def page2_options(data)
-          page2_key = 'form1[0].#subform[1]'
+        def veteran_contact_details(data)
+          {
+            # Veteran Mailing Address
+            "#{PAGE1_KEY}.MailingAddress_NumberAndStreet[0]": data.veteran_address_line1,
+            "#{PAGE1_KEY}.MailingAddress_ApartmentOrUnitNumber[0]": data.veteran_address_line2,
+            "#{PAGE1_KEY}.MailingAddress_City[0]": data.veteran_city,
+            "#{PAGE1_KEY}.MailingAddress_StateOrProvince[0]": data.veteran_state_code,
+            "#{PAGE1_KEY}.MailingAddress_Country[0]": data.veteran_country,
+            "#{PAGE1_KEY}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": data.veteran_zip_code,
+            "#{PAGE1_KEY}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": data.veteran_zip_code_suffix,
+            # Veteran Phone Number
+            "#{PAGE1_KEY}.Telephone_Number_Area_Code[1]": data.veteran_phone[0..2],
+            "#{PAGE1_KEY}.Telephone_Middle_Three_Numbers[0]": data.veteran_phone[3..5],
+            "#{PAGE1_KEY}.Telephone_Last_Four_Numbers[1]": data.veteran_phone[6..9],
+            # Veteran Email
+            "#{PAGE1_KEY}.E_Mail_Address_Optional[1]": data.veteran_email
+          }
+        end
+
+        def claimant_identification(data)
+          {
+            # Claimant Name
+            "#{PAGE1_KEY}.Claimants_First_Name[0]": data.claimant_first_name,
+            "#{PAGE1_KEY}.Claimants_Middle_Initial[0]": data.claimant_middle_initial,
+            "#{PAGE1_KEY}.Claimants_Last_Name[0]": data.claimant_last_name,
+            # Claimant DOB
+            "#{PAGE1_KEY}.Claimants_Date_Of_Birth_Month[0]": data.claimant_date_of_birth.split('/').first,
+            "#{PAGE1_KEY}.Date_Of_Birth_Day[1]": data.claimant_date_of_birth.split('/').second,
+            "#{PAGE1_KEY}.Date_Of_Birth_Year[1]": data.claimant_date_of_birth.split('/').last,
+            # Claimant Relationship
+            "#{PAGE1_KEY}.RelationshipToVeteran[0]": data.claimant_relationship
+          }
+        end
+
+        def claimant_contact_details(data)
+          {
+            # Claimant Mailing Address
+            "#{PAGE1_KEY}.MailingAddress_NumberAndStreet[1]": data.claimant_address_line1,
+            "#{PAGE1_KEY}.MailingAddress_ApartmentOrUnitNumber[1]": data.claimant_address_line2,
+            "#{PAGE1_KEY}.MailingAddress_City[1]": data.claimant_city,
+            "#{PAGE1_KEY}.MailingAddress_StateOrProvince[1]": data.claimant_state_code,
+            "#{PAGE1_KEY}.MailingAddress_Country[1]": data.claimant_country,
+            "#{PAGE1_KEY}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]": data.claimant_zip_code,
+            "#{PAGE1_KEY}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[1]": data.claimant_zip_code_suffix,
+            # Claimant Phone Number
+            "#{PAGE1_KEY}.Telephone_Number_Area_Code[0]": data.claimant_phone[0..2],
+            "#{PAGE1_KEY}.Telphone_Middle_Three_Numbers[0]": data.claimant_phone[3..5],
+            "#{PAGE1_KEY}.Telephone_Last_Four_Numbers[0]": data.claimant_phone[6..9],
+            # Claimant Email
+            "#{PAGE1_KEY}.E_Mail_Address_Optional[0]": data.claimant_email
+          }
+        end
+
+        def representative_identification(data)
+          {
+            # Representative Name
+            "#{PAGE1_KEY}.Name_Of_Individual_Appointed_As_Representative_First_Name[0]": data.representative_first_name,
+            "#{PAGE1_KEY}.Middle_Initial[0]": data.representative_middle_initial,
+            "#{PAGE1_KEY}.Last_Name[0]": data.representative_last_name,
+            # Representative Type
+            "#{PAGE1_KEY}.RadioButtonList[0]": representative_type_checkbox(data.representative_type)
+          }
+        end
+
+        def representative_contact_details(data)
+          {
+            # Representative Mailing Address
+            "#{PAGE2_KEY}.MailingAddress_NumberAndStreet[2]": data.representative_address_line1,
+            "#{PAGE2_KEY}.MailingAddress_ApartmentOrUnitNumber[2]": data.representative_address_line2,
+            "#{PAGE2_KEY}.MailingAddress_City[2]": data.representative_city,
+            "#{PAGE2_KEY}.MailingAddress_StateOrProvince[2]": data.representative_state_code,
+            "#{PAGE2_KEY}.MailingAddress_Country[2]": data.representative_country,
+            "#{PAGE2_KEY}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[2]": data.representative_zip_code,
+            "#{PAGE2_KEY}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[2]": data.representative_zip_code_suffix,
+            # Representative Phone Number
+            "#{PAGE2_KEY}.Telephone_Number_Area_Code[2]": data.representative_phone[0..2],
+            "#{PAGE2_KEY}.Telephone_Middle_Three_Numbers[1]": data.representative_phone[3..5],
+            "#{PAGE2_KEY}.Telephone_Last_Four_Numbers[2]": data.representative_phone[6..9],
+            # Representative Email
+            "#{PAGE2_KEY}.E_Mail_Address_Of_Individual_Appointed_As_Claimants_Representative_Optional[0]": \
+            data.representative_email_address
+          }
+        end
+
+        def appointment_options(data)
+          {
+            # Record Consent
+            "#{PAGE2_KEY}.AuthorizationForRepAccessToRecords[0]": data.record_consent == true ? 1 : 0,
+            # Consent Limits
+            "#{PAGE2_KEY}.RelationshipToVeteran[1]": limitations_of_consent_text(data.consent_limits),
+            # Consent Address Change
+            "#{PAGE2_KEY}.AuthorizationForRepActClaimantsBehalf[0]": data.consent_address_change == true ? 1 : 0,
+            # Condtions of Appointment
+            "#{PAGE3_KEY}.LIMITATIONS[0]": data.conditions_of_appointment.join(', ')
+          }
+        end
+
+        def header_options(data)
           {
             # Page 2
             # Header Veteran SSN
-            "#{page2_key}.SocialSecurityNumber_FirstThreeNumbers[1]": data.veteran_social_security_number[0..2],
-            "#{page2_key}.SocialSecurityNumber_SecondTwoNumbers[1]": data.veteran_social_security_number[3..4],
-            "#{page2_key}.SocialSecurityNumber_LastFourNumbers[1]": data.veteran_social_security_number[5..8],
-            # Representative Mailing Address
-            "#{page2_key}.MailingAddress_NumberAndStreet[2]": data.representative_address_line1,
-            "#{page2_key}.MailingAddress_ApartmentOrUnitNumber[2]": data.representative_address_line2,
-            "#{page2_key}.MailingAddress_City[2]": data.representative_city,
-            "#{page2_key}.MailingAddress_StateOrProvince[2]": data.representative_state_code,
-            "#{page2_key}.MailingAddress_Country[2]": data.representative_country,
-            "#{page2_key}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[2]": data.representative_zip_code,
-            "#{page2_key}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[2]": data.representative_zip_code_suffix,
-            # Representative Phone Number
-            "#{page2_key}.Telephone_Number_Area_Code[2]": data.representative_phone[0..2],
-            "#{page2_key}.Telephone_Middle_Three_Numbers[1]": data.representative_phone[3..5],
-            "#{page2_key}.Telephone_Last_Four_Numbers[2]": data.representative_phone[6..9],
-            # Representative Email
-            "#{page2_key}.E_Mail_Address_Of_Individual_Appointed_As_Claimants_Representative_Optional[0]": data.representative_email_address,
-            # Record Consent
-            "#{page2_key}.AuthorizationForRepAccessToRecords[0]": data.record_consent == true ? 1 : 0,
-            # Consent Limits
-            "#{page2_key}.RelationshipToVeteran[1]": limitations_of_consent_text(data.consent_limits),
-            # Consent Address Change
-            "#{page2_key}.AuthorizationForRepActClaimantsBehalf[0]": data.consent_address_change == true ? 1 : 0
-          }
-        end
-        # rubocop:enable Layout/LineLength
-
-        def template_options(data)
-          page3_key = 'form1[0].#subform[2]'
-          {
+            "#{PAGE2_KEY}.SocialSecurityNumber_FirstThreeNumbers[1]": data.veteran_social_security_number[0..2],
+            "#{PAGE2_KEY}.SocialSecurityNumber_SecondTwoNumbers[1]": data.veteran_social_security_number[3..4],
+            "#{PAGE2_KEY}.SocialSecurityNumber_LastFourNumbers[1]": data.veteran_social_security_number[5..8],
             # Page 3
             # Header Veteran SSN
-            "#{page3_key}.SocialSecurityNumber_FirstThreeNumbers[2]": data.veteran_social_security_number[0..2],
-            "#{page3_key}.SocialSecurityNumber_SecondTwoNumbers[2]": data.veteran_social_security_number[3..4],
-            "#{page3_key}.SocialSecurityNumber_LastFourNumbers[2]": data.veteran_social_security_number[5..8],
-            # Condtions of Appointment
-            "#{page3_key}.LIMITATIONS[0]": data.conditions_of_appointment.join(', ')
-          }.merge(page1_options(data)).merge(page2_options(data))
+            "#{PAGE3_KEY}.SocialSecurityNumber_FirstThreeNumbers[2]": data.veteran_social_security_number[0..2],
+            "#{PAGE3_KEY}.SocialSecurityNumber_SecondTwoNumbers[2]": data.veteran_social_security_number[3..4],
+            "#{PAGE3_KEY}.SocialSecurityNumber_LastFourNumbers[2]": data.veteran_social_security_number[5..8]
+          }
         end
 
         def service_branch_checkbox(service_branch)
