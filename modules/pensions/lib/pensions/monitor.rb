@@ -32,7 +32,7 @@ module Pensions
     def track_create_success(in_progress_form, claim, current_user)
       StatsD.increment("#{CLAIM_STATS_KEY}.success")
       if claim.form_start_date
-        claim_duration = claim.created_at - claim.form_start_date # not sure what to call this variable
+        claim_duration = claim.created_at - claim.form_start_date
         tags = ["form_id:#{claim.form_id}"]
         StatsD.measure('saved_claim.time-to-file', claim_duration, tags:)
       end
