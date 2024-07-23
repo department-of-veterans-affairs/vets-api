@@ -61,11 +61,8 @@ namespace :user_credential do
   end
 
   def log_message(level:, message:)
-    if Rails.env.production?
-      `echo "#{datadog_log(level:, message:).to_json.dump}" >> /proc/1/fd/1`
-    else
-      puts message
-    end
+    `echo "#{datadog_log(level:, message:).to_json.dump}" >> /proc/1/fd/1` if Rails.env.production?
+    puts message
   end
 
   def datadog_log(level:, message:)
