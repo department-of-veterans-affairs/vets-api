@@ -12,7 +12,7 @@ module ClaimsApi
       include ClaimsApi::PoaVbmsSidekiq
 
       # Generate a 21-22 or 21-22a form for a given POA request.
-      # Uploads the generated form to VBMS. If successfully uploaded,
+      # Uploads the generated form to VBMS or BD. If successfully uploaded,
       # it queues a job to update the POA code in BGS, as well.
       #
       # @param power_of_attorney_id [String] Unique identifier of the submitted POA
