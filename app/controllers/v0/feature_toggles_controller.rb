@@ -32,6 +32,16 @@ module V0
     def get_all_features
       return old_get_all_features unless Flipper.enabled?(:use_new_get_all_features)
 
+      if flipper_id.blank?
+        Rails.cache.fetch('all_feature_toggles', expires_in: 1.minute) do
+          fetch_features_from_db
+        end
+      else
+        fetch_features_from_db(flipper_id)
+      end
+    end
+
+    def fetch_features_from_db(flipper_id = nil)
       results = ActiveRecord::Base.connection.select_all(
         ActiveRecord::Base.sanitize_sql_array([get_all_features_sql, flipper_id])
       )
