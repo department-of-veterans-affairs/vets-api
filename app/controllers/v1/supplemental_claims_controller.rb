@@ -87,10 +87,12 @@ module V1
       raise
     end
 
-    def process_submission
+    def process_submission # rubocop:disable Metrics/MethodLength
       req_body_obj = request_body_hash.is_a?(String) ? JSON.parse(request_body_hash) : request_body_hash
-      form4142 = req_body_obj.delete('form4142')
+      saved_claim_request_body = req_body_obj.to_json # serialize before request body is modified
+      uploaded_forms = []
       sc_evidence = req_body_obj.delete('additionalDocuments')
+      form4142 = req_body_obj.delete('form4142')
       zip_from_frontend = req_body_obj.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')
       sc_response = decision_review_service.create_supplemental_claim(request_body: req_body_obj, user: @current_user)
       submitted_appeal_uuid = sc_response.body.dig('data', 'id')
@@ -101,11 +103,12 @@ module V1
           ::Rails.logger.info(post_create_log_msg(appeal_submission_id:, submitted_appeal_uuid:))
           if form4142.present?
             handle_4142(request_body: req_body_obj, form4142:, appeal_submission_id:, submitted_appeal_uuid:)
+            uploaded_forms << '21-4142'
           end
           submit_evidence(sc_evidence, appeal_submission_id, submitted_appeal_uuid) if sc_evidence.present?
 
-          store_saved_claim(claim_class: SavedClaim::SupplementalClaim, form: req_body_obj.to_json,
-                            guid: submitted_appeal_uuid, uploaded_forms: sc_evidence)
+          store_saved_claim(claim_class: SavedClaim::SupplementalClaim, form: saved_claim_request_body,
+                            guid: submitted_appeal_uuid, uploaded_forms:)
 
           # Only destroy InProgressForm after evidence upload step
           # so that we still have references if a fatal error occurs before this step
