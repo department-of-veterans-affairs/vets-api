@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_22_150751) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_23_142201) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -375,6 +375,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_22_150751) do
     t.integer "vbms_upload_failure_count", default: 0
     t.integer "bgs_upload_failure_count", default: 0
     t.string "claim_id"
+    t.integer "tracked_items", default: [], array: true
   end
 
   create_table "claims_api_intent_to_files", force: :cascade do |t|
