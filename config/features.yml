@@ -26,6 +26,18 @@ features:
   appointments_consolidation:
     actor_type: user
     description: For features being tested while merging logic for appointments between web and mobile
+  ask_va_form_feature:
+    actor_type: user
+    description: show/hide experimental features for Ask VA 0873
+    enable_in_development: true
+  ask_va_dashboard_feature:
+    actor_type: user
+    description: show/hide experimental features for Ask VA 0873 dashboard feature
+    enable_in_development: true
+  ask_va_introduction_page_feature:
+    actor_type: user
+    description: show/hide experimental features for Ask VA 0873 introduction feature
+    enable_in_development: true
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
