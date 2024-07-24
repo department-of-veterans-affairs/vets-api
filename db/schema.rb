@@ -348,7 +348,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
     t.text "bgs_special_issue_responses_ciphertext"
     t.text "encrypted_kms_key"
     t.string "cid"
-    t.uuid "transaction_id"
+    t.string "transaction_id"
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
