@@ -46,6 +46,19 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: {{ .Values.appName }}-sidekiq
 spec:
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.worker.autoscaling.scaleUp.stabilizationWindowSeconds }}
+      policies:
+      - type: Pods
+        value: {{ .Values.web.autoscaling.scaleUp.pods }}
+        periodSeconds: {{ .Values.web.autoscaling.scaleUp.periodSeconds }}
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.worker.autoscaling.scaleDown.stabilizationWindowSeconds }}
+      policies:
+      - type: Pods
+        value: {{ .Values.web.autoscaling.scaleDown.pods }}
+        periodSeconds: {{ .Values.web.autoscaling.scaleDown.periodSeconds }}
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
