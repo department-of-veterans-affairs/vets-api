@@ -2,10 +2,10 @@
 
 module CheckIn
   class TravelClaimStatusCheckWorker < TravelClaimBaseWorker
-    SUCCESSFUL_CLAIM_STATUSES = ['approved for payment', 'claim paid', 'claim submitted', 'in manual review',
-                                 'in-process', 'submitted for payment', 'saved'].freeze
-    FAILED_CLAIM_STATUSES = ['appeal', 'closed with no payment', 'denied', 'fiscal rescinded', 'incomplete', 'on hold',
-                             'partial payment', 'payment canceled'].freeze
+    SUCCESSFUL_CLAIM_STATUSES = %w[ApprovedForPayment ClaimPaid ClaimSubmitted
+                                   InManualReview In-Process Saved SubmittedForPayment].freeze
+    FAILED_CLAIM_STATUSES = %w[Appeal ClosedWithNoPayment Denied FiscalRescinded Incomplete OnHold
+                               PartialPayment PaymentCanceled].freeze
 
     def perform(uuid, appointment_date)
       redis_client = TravelClaim::RedisClient.build
@@ -83,9 +83,9 @@ module CheckIn
 
         response_body = claim_status_resp.dig(:data, :body)
         claim_status = response_body.first.with_indifferent_access[:claimStatus]
-        if SUCCESSFUL_CLAIM_STATUSES.include?(claim_status.downcase)
+        if SUCCESSFUL_CLAIM_STATUSES.include?(claim_status)
           TravelClaim::Response::CODE_CLAIM_APPROVED
-        elsif FAILED_CLAIM_STATUSES.include?(claim_status.downcase)
+        elsif FAILED_CLAIM_STATUSES.include?(claim_status)
           TravelClaim::Response::CODE_CLAIM_NOT_APPROVED
         else
           logger.info({ message: 'Received non-matching claim status', claim_status:, uuid: })
