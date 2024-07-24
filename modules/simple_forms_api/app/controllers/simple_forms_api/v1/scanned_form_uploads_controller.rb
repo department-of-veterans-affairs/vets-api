@@ -16,7 +16,7 @@ module SimpleFormsApi
         raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
         attachment.save
-        render json: attachment
+        render json: PersistentAttachmentSerializer.new(attachment)
       end
 
       private
