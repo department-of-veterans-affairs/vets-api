@@ -76,22 +76,20 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
     end
 
     it 'ignores individual actors and percentage_of_actors when globally enabled' do
-      feature_name = 'globally_enabled_feature'
-      feature_name_camel = feature_name.camelize(:lower)
       cookie_id = 'abc_123'
       actor = Flipper::Actor.new(cookie_id)
 
-      Flipper.enable_actor(feature_name, actor)
-      Flipper.enable_percentage_of_actors(feature_name, 25)
-      Flipper.enable(feature_name)
+      Flipper.enable_actor(@feature_name, actor)
+      Flipper.enable_percentage_of_actors(@feature_name, 25)
+      Flipper.enable(@feature_name)
 
       get :index, params: { cookie_id: }
 
       expect(response).to have_http_status(:ok)
       json_data = JSON.parse(response.body)
 
-      feature = json_data['data']['features'].find { |f| f['name'] == feature_name }
-      feature_camel = json_data['data']['features'].find { |f| f['name'] == feature_name_camel }
+      feature = json_data['data']['features'].find { |f| f['name'] == @feature_name }
+      feature_camel = json_data['data']['features'].find { |f| f['name'] == @feature_name_camel }
 
       expect(feature['value']).to be true
       expect(feature_camel['value']).to be true

@@ -12,7 +12,7 @@ module V0
         features_params = params[:features].split(',')
         features = get_features(features_params)
       else
-        features = get_all_features.map { |feature| feature.except(:gate_key) }
+        features = get_all_features
       end
 
       render json: { data: { type: 'feature_toggles', features: } }
@@ -32,31 +32,43 @@ module V0
     def get_all_features
       return old_get_all_features unless Flipper.enabled?(:use_new_get_all_features)
 
-      results = enabled_features
-      results.each do |feature|
-        next if feature[:value]
+      features = fetch_features_with_gate_keys
+      add_feature_gate_values(features)
+      format_features(features)
+    end
 
-        feature_name = feature[:name]
-        gate = feature_gates.find {|feature| feature[:feature_name] == feature_name }
-        gate_key = gate && gate[:gate_key]
+    def fetch_features_with_gate_keys
+      FLIPPER_FEATURE_CONFIG['features']
+        .map { |name, value| { name:, value: false, actor_type: value['actor_type'] } }
+        .tap do |features|
+          # Update value to true if globally enabled
+          feature_gates.each do |row|
+            feature = features.find { |f| f[:name] == row['feature_name'] }
+            next unless feature # Ignore features not in config/features.yml
 
-        feature_config = FLIPPER_FEATURE_CONFIG['features'][feature_name]
-        actor_type = feature_config ? feature_config['actor_type'] : FLIPPER_ACTOR_STRING
-        actor = resolve_actor(actor_type)
-
-        if %w[actors percentage_of_actors percentage_of_time].include?(gate_key)
-          enabled = Flipper.enabled?(feature_name, actor)
-          feature[:value] = enabled
+            feature[:gate_key] = row['gate_key'] # Add gate_key for use in add_feature_gate_values
+            feature[:value] = true if row['gate_key'] == 'boolean' && row['value'] == 'true'
+          end
         end
-      end
+    end
 
-      new_results = [ ]
-      results.each do |result|
-        new_results << { name: result[:name].camelize(:lower), value: result[:value] }
-        new_results << { name: result[:name], value: result[:value] }
-      end
+    def add_feature_gate_values(features)
+      features.each do |feature|
+        # If globally enabled, don't disable for percentage or actors
+        next if feature[:value] && %w[actors percentage_of_actors percentage_of_time].exclude?(feature[:gate_key])
 
-      new_results
+        # There's only a handful of these so individually querying them doesn't take long
+        feature[:value] = Flipper.enabled?(feature[:name], resolve_actor(feature[:actor_type]))
+      end
+    end
+
+    def format_features(features)
+      features.flat_map do |feature|
+        [
+          { name: feature[:name].camelize(:lower), value: feature[:value] },
+          { name: feature[:name], value: feature[:value] }
+        ]
+      end
     end
 
     def resolve_actor(actor_type)
@@ -68,64 +80,16 @@ module V0
     end
 
     def feature_gates
-      ActiveRecord::Base.connection.select_all(
-        ActiveRecord::Base.sanitize_sql_array([feature_gates_sql])
-      ).each_with_object([]) do |row, array|
-        array << { feature_name: row['feature_name'], gate_key: row['gate_key'] }
-      end
-    end
-
-    def feature_gates_sql
-      <<-SQL.squish
-        SELECT 
-            flipper_features.key AS feature_name, 
-            flipper_gates.key AS gate_key
-        FROM 
-            flipper_features
-        LEFT JOIN 
-            flipper_gates
-        ON 
-            flipper_features.key = flipper_gates.feature_key
-        WHERE 
-            flipper_gates.key != 'boolean'
+      @feature_gates ||= ActiveRecord::Base.connection.select_all(<<-SQL.squish)
+        SELECT flipper_features.key AS feature_name, flipper_gates.key AS gate_key, flipper_gates.value
+        FROM flipper_features
+        LEFT JOIN flipper_gates
+        ON flipper_features.key = flipper_gates.feature_key
       SQL
     end
 
-    def enabled_features
-      results = ActiveRecord::Base.connection.select_all(
-        ActiveRecord::Base.sanitize_sql_array([enabled_features_sql])
-      ).each_with_object([]) do |row, array|
-        feature_name = row['feature_name']
-        enabled = row['value'] == "true"
-
-        array << { name: feature_name, value: enabled }
-      end
-
-      existing_feature_names = results.map { |result| result[:name] }
-      missing_features = FLIPPER_FEATURE_CONFIG['features'].keys - existing_feature_names
-
-      missing_features.each do |feature|
-        results << { name: feature, value: false }
-      end
-
-      results
-    end
-
-    def enabled_features_sql
-      <<-SQL.squish
-        SELECT 
-            flipper_features.key AS feature_name, 
-            flipper_gates.key AS gate_key, 
-            flipper_gates.value
-        FROM 
-            flipper_features
-        LEFT JOIN 
-            flipper_gates
-        ON 
-            flipper_features.key = flipper_gates.feature_key
-        WHERE 
-            flipper_gates.key = 'boolean';
-      SQL
+    def flipper_id
+      params[:cookie_id] || @current_user&.flipper_id
     end
 
     def old_get_all_features
@@ -145,10 +109,6 @@ module V0
       end
 
       features
-    end
-
-    def flipper_id
-      params[:cookie_id] || @current_user&.flipper_id
     end
   end
 end
