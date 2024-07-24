@@ -53,8 +53,10 @@ module RepresentationManagement
       end
 
       def search_params
-        params.require(%i[lat long type])
-        params.permit(:distance, :lat, :long, :name, :page, :per_page, :sort, :type)
+        @search_params ||= begin
+          params.require(%i[lat long type])
+          params.permit(:distance, :lat, :long, :name, :page, :per_page, :sort, :type)
+        end
       end
 
       def pagination_params
