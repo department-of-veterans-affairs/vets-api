@@ -4,6 +4,7 @@ require 'central_mail/service'
 require 'benefits_intake_service/service'
 require 'central_mail/datestamp_pdf'
 require 'pdf_info'
+require 'simple_forms_api_submission/metadata_validator'
 
 module CentralMail
   class SubmitCentralForm686cJob
@@ -192,9 +193,11 @@ module CentralMail
         'docType' => claim.form_id,
         'numberPages' => form_pdf_metadata[:pages]
       }
-      metadata.merge(generate_attachment_metadata(attachment_paths))
+
       SimpleFormsApiSubmission::MetadataValidator
         .validate(metadata, zip_code_is_us_based: address['country_name'] == 'USA')
+
+      metadata.merge(generate_attachment_metadata(attachment_paths))
     end
 
     def generate_metadata_lh
