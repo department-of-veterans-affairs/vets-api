@@ -1146,7 +1146,7 @@ module ClaimsApi
       end
 
       # Will check for a real date including leap year
-      def date_is_valid?(date, property, is_full_date = false)
+      def date_is_valid?(date, property, is_full_date = false) # rubocop:disable Style/OptionalBooleanParameter
         return if date.blank?
 
         raise_date_error(date, property) unless /^[\d-]+$/ =~ date # check for something like 'July 2017'
