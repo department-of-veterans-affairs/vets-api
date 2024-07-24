@@ -180,13 +180,14 @@ module CentralMail
       form_pdf_metadata = get_hash_and_pages(form_path)
       address = form['veteran_contact_information']['veteran_address']
       receive_date = claim.created_at.in_time_zone('Central Time (US & Canada)')
+      is_usa = address['country_name'] == 'USA'
       metadata = {
         'veteranFirstName' => form['veteran_information']['full_name']['first'],
         'veteranLastName' => form['veteran_information']['full_name']['last'],
         'fileNumber' => form['veteran_information']['file_number'] || form['veteran_information']['ssn'],
         'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => claim.guid,
-        'zipCode' => address['country_name'] == 'USA' ? address['zip_code'] : FOREIGN_POSTALCODE,
+        'zipCode' => is_usa ? address['zip_code'] : FOREIGN_POSTALCODE,
         'source' => 'va.gov',
         'hashV' => form_pdf_metadata[:hash],
         'numberAttachments' => attachment_paths.size,
@@ -194,8 +195,7 @@ module CentralMail
         'numberPages' => form_pdf_metadata[:pages]
       }
 
-      validated_metadata = SimpleFormsApiSubmission::MetadataValidator
-        .validate(metadata, zip_code_is_us_based: address['country_name'] == 'USA')
+      validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: is_usa)
 
       validated_metadata.merge(generate_attachment_metadata(attachment_paths))
     end
