@@ -6,31 +6,27 @@ module RepresentationManagement
       service_tag 'representation-management'
       skip_before_action :authenticate
       before_action :feature_enabled
-      before_action :verify_type
-      before_action :verify_sort
-      before_action :verify_long
-      before_action :verify_lat
-      before_action :verify_distance
 
       DEFAULT_PAGE = 1
       DEFAULT_PER_PAGE = 10
       DEFAULT_SORT = 'distance_asc'
-      PERMITTED_MAX_DISTANCES = [5, 10, 25, 50, 100, 200].freeze # in miles, no distance provided will default to "all"
-      PERMITTED_SORTS = %w[distance_asc first_name_asc first_name_desc last_name_asc last_name_desc].freeze
-      PERMITTED_TYPES = %w[attorney claims_agent representative].freeze
 
       def index
-        collection = Common::Collection.new(AccreditedIndividual, data: individual_query)
-        resource = collection.paginate(**pagination_params)
+        search = RepresentationManagement::AccreditedIndividualSearch.new(search_params)
 
-        render json: serializer_class.new(resource.data, { meta: resource.metadata })
+        if search.valid?
+          collection = Common::Collection.new(AccreditedIndividual, data: individual_query)
+          resource = collection.paginate(**pagination_params)
+          data = resource.data
+          options = { meta: resource.metadata }
+
+          render json: RepresentationManagement::AccreditedIndividuals::IndividualSerializer.new(data, options)
+        else
+          render json: { errors: search.errors.full_messages }, status: :unprocessable_entity
+        end
       end
 
       private
-
-      def serializer_class
-        'RepresentationManagement::AccreditedIndividuals::IndividualSerializer'.constantize
-      end
 
       def base_query
         AccreditedIndividual
@@ -115,48 +111,6 @@ module RepresentationManagement
 
       def feature_enabled
         routing_error unless Flipper.enabled?(:find_a_representative_use_accredited_models)
-      end
-
-      def verify_type
-        unless PERMITTED_TYPES.include?(search_params[:type])
-          raise Common::Exceptions::InvalidFieldValue.new('type', search_params[:type])
-        end
-      end
-
-      def verify_sort
-        return unless search_params[:sort]
-        unless PERMITTED_SORTS.include?(search_params[:sort])
-          raise Common::Exceptions::InvalidFieldValue.new('sort', search_params[:sort])
-        end
-      end
-
-      def verify_long
-        long = Float(search_params[:long])
-      rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('long', search_params[:long])
-      else
-        raise Common::Exceptions::InvalidFieldValue.new('long', search_params[:long]) unless (-180..180).cover?(long)
-      end
-
-      def verify_lat
-        lat = Float(search_params[:lat])
-      rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('lat', search_params[:lat])
-      else
-        raise Common::Exceptions::InvalidFieldValue.new('lat', search_params[:lat]) unless (-90..90).cover?(lat)
-      end
-
-      def verify_distance
-        return unless search_params[:distance]
-
-        distance = Integer(search_params[:distance])
-      rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('distance', search_params[:distance])
-      else
-        unless PERMITTED_MAX_DISTANCES.include?(distance)
-          raise Common::Exceptions::InvalidFieldValue.new('distance',
-                                                          search_params[:distance])
-        end
       end
     end
   end

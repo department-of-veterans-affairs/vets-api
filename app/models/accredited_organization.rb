@@ -48,6 +48,6 @@ class AccreditedOrganization < ApplicationRecord
 
   # This method needs to exist on the model so [Common::Collection] doesn't blow up when trying to paginate
   def self.max_per_page
-    100
+    AccreditedRepresentation::Constants::MAX_PER_PAGE
   end
 end
