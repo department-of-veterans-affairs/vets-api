@@ -19,8 +19,8 @@ module ClaimsApi
           validate_veteran_name(false)
 
           tracked_item_ids = params['data']['attributes']['trackedItems'] if params['data'].present?
-          ews = create_ews(params[:id])
-          ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id, tracked_item_ids, @pctpnt_vet_id)
+          ews = create_ews(claim_id: params[:id], tracked_item_ids: [tracked_item_ids])
+          ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id)
 
           render json: { success: true }, status: :accepted
         end
@@ -70,7 +70,8 @@ module ClaimsApi
           }
 
           new_ews = ClaimsApi::EvidenceWaiverSubmission.create!(attributes)
-          new_ews.auth_headers['va_eauth_birlsfilenumber'] = @file_number
+          # ensure that in the case of a dependent claimant this gets into the correct folder
+          new_ews.auth_headers['target_veteran_folder_id'] = @pctpnt_vet_id
           new_ews.save
           new_ews
         end
