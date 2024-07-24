@@ -79,28 +79,38 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
     end
 
     context 'when sec_id is present' do
-      context 'when multiple sec_id values are detected' do
-        let(:sec_id) { %w[sec-id-1 sec-id-2] }
-        let(:expected_log) { '[TermsOfUse][SignUpServiceUpdaterJob] Multiple sec_id values detected' }
-
+      context 'sec_id validation' do
         before do
           allow(service_instance).to receive(:agreements_accept)
           allow(Rails.logger).to receive(:info)
         end
 
-        it 'logs a warning message' do
-          job.perform(user_account_uuid, version)
+        context 'when a single sec_id value is detected' do
+          it 'does not log a warning message' do
+            job.perform(user_account_uuid, version)
 
-          expect(Rails.logger).to have_received(:info).with(expected_log, icn:)
+            expect(Rails.logger).not_to have_received(:info)
+          end
         end
 
-        it 'updates the terms of use agreement in sign up service' do
-          job.perform(user_account_uuid, version)
+        context 'when multiple sec_id values are detected' do
+          let(:sec_id) { %w[sec-id-1 sec-id-2] }
+          let(:expected_log) { '[TermsOfUse][SignUpServiceUpdaterJob] Multiple sec_id values detected' }
 
-          expect(MAP::SignUp::Service).to have_received(:new)
-          expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
-                                                                             signature_name: common_name,
-                                                                             version:)
+          it 'logs a warning message' do
+            job.perform(user_account_uuid, version)
+
+            expect(Rails.logger).to have_received(:info).with(expected_log, icn:)
+          end
+
+          it 'updates the terms of use agreement in sign up service' do
+            job.perform(user_account_uuid, version)
+
+            expect(MAP::SignUp::Service).to have_received(:new)
+            expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
+                                                                               signature_name: common_name,
+                                                                               version:)
+          end
         end
       end
 
