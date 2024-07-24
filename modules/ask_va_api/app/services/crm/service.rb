@@ -11,7 +11,7 @@ module Crm
     CRM_ENV = {
       'test' => 'iris-dev',
       'development' => 'iris-dev',
-      'staging' => 'iris-dev',
+      'staging' => 'iris-preprod',
       'production' => 'iris-PROD'
     }.freeze
 
