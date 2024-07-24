@@ -94,7 +94,7 @@ RSpec.describe DependentsSerializer, type: :serializer do
     end
   end
 
-  context 'upcoming removal date out of range range' do
+  context 'upcoming removal expired' do
     let(:expiring_diary) do
       {
         person_id:,
@@ -105,9 +105,13 @@ RSpec.describe DependentsSerializer, type: :serializer do
       }
     end
 
-    it 'does not return date and reason' do
+    it 'does not return expired date and reason' do
       expect(attributes['persons'].first['upcoming_removal_date']).to be_nil
       expect(attributes['persons'].first['upcoming_removal_reason']).to be_nil
+    end
+
+    it 'does not display current benefits date and reason' do
+      expect(attributes['persons'].first['dependent_benefit_type']).to be_nil
     end
   end
 
@@ -124,7 +128,7 @@ RSpec.describe DependentsSerializer, type: :serializer do
         dependency_decision_type: 'EMC',
         dependency_decision_type_description: 'Eligible Minor Child',
         dependency_status_type_description: 'Minor Child',
-        award_effective_date: 2.years.from_now.iso8601
+        award_effective_date: 2.days.from_now.iso8601
       }
     end
 

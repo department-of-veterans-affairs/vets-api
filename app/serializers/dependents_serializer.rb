@@ -1,7 +1,12 @@
 # frozen_string_literal: true
 
 module DependentsHelper
-  private
+  def still_pending(award_event_id)
+    lambda { |decision|
+      decision[:award_event_id] == award_event_id &&
+        Time.zone.parse(decision[:award_effective_date]) > Time.zone.now
+    }
+  end
 
   def upcoming_removals(decisions)
     decisions.transform_values do |decs|
@@ -22,16 +27,19 @@ module DependentsHelper
     decisions = dependency_decisions(diaries)
                 .filter do |dec|
       date = Time.zone.parse(dec[:award_effective_date])
-      (%w[EMC SCHATTB].include?(dec[:dependency_decision_type]) && date < Time.zone.now) ||
+      (%w[EMC SCHATTB].include?(dec[:dependency_decision_type]) && date <= Time.zone.now) ||
         (%w[T18 SCHATTT].include?(dec[:dependency_decision_type]) && date > Time.zone.now)
     end
 
     decisions.group_by { |dec| dec[:person_id] }
              .transform_values do |decs|
       # get only most recent active decision and add back to array
-      most_recent =
-        decs.filter { |dec| %w[EMC SCHATTB].include?(dec[:dependency_decision_type]) }
-            .max { |a, b| a[:award_effective_date] <=> b[:award_effective_date] }
+      active =
+        decs.filter do |dec|
+          %w[EMC SCHATTB].include?(dec[:dependency_decision_type]) &&
+            decs.any?(&still_pending(dec[:award_event_id]))
+        end
+      most_recent = active.max { |a, b| a[:award_effective_date] <=> b[:award_effective_date] }
       # include future school attendance
       (decs.filter { |dec|
         %w[T18 SCHATTB SCHATTT].include?(dec[:dependency_decision_type])
