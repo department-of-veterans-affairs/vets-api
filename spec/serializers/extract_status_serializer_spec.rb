@@ -13,6 +13,10 @@ describe ExtractStatusSerializer, type: :serializer do
     expect(data['id']).to eq extract_status.id
   end
 
+  it 'includes :type' do
+    expect(data['type']).to eq 'extract_statuses'
+  end
+
   it 'includes :extract_type' do
     expect(attributes['extract_type']).to eq extract_status.extract_type
   end
