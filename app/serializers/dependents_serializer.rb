@@ -6,12 +6,17 @@ class DependentsSerializer
   set_type :dependents
 
   attribute :persons do |object|
-    next [object[:persons]] if object[:persons].instance_of?(Hash)
+    arr = object[:persons].instance_of?(Hash) ? [object[:persons]] : object[:persons]
 
-    next object if dependency_decisions.blank?
+    next arr if dependency_decisions.blank?
 
-    object.each do |person|
-      person[:upcoming_removal] = upcoming_removals[person[:ptcpnt_id]]
+    arr.each do |person|
+      upcoming_removal = person[:upcoming_removal] = upcoming_removals[person[:ptcpnt_id]]
+      if upcoming_removal
+        person[:upcoming_removal_date] = upcoming_removal[:award_effective_date]
+        person[:upcoming_removal_reason] = upcoming_removal[:dependency_status_type_description].gsub(/\s+/, ' ')
+      end
+
       person[:dependent_benefit_type] = dependent_benefit_types[person[:ptcpnt_id]]
     end
   end
