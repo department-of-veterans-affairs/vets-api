@@ -20,6 +20,10 @@ describe Ch33BankAccountSerializer, type: :serializer do
     expect(data['id']).to be_blank
   end
 
+  it 'includes :type' do
+    expect(data['type']).to eq('hashes')
+  end
+
   context 'when :dposit_acnt_type_nm is C' do
     it 'includes :account_type is Checking' do
       expect(attributes['account_type']).to eq 'Checking'

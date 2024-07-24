@@ -10,11 +10,11 @@ module DebtsApi
         end
 
         def transform_personal_id
-          output = {}
-          output['ssn'] = @form['ssn']
-          output['fileNumber'] = @form['file_number']
-          output['fsrReason'] = get_resolution_options
-          output
+          {
+            'ssn' => @form['ssn'],
+            'fileNumber' => @form['file_number'],
+            'fsrReason' => get_resolution_options
+          }
         end
 
         private
@@ -26,7 +26,9 @@ module DebtsApi
         end
 
         def resolution_options_map
-          { 'waiver' => 'Waiver', 'monthly' => 'Extended monthly payments', 'compromise' => 'Compromise' }
+          { 'waiver' => 'Waiver',
+            'monthly' => 'Extended monthly payments',
+            'compromise' => 'Compromise' }
         end
       end
     end

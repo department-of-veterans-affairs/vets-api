@@ -25,7 +25,7 @@ module V0
     def show
       dependents = dependent_service.get_dependents
       dependents[:diaries] = dependency_verification_service.read_diaries
-      render json: dependents, serializer: DependentsSerializer
+      render json: DependentsSerializer.new(dependents)
     rescue => e
       log_exception_to_sentry(e)
       raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)

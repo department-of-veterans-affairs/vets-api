@@ -8,6 +8,7 @@ module Vye
 
       def perform
         Vye::BatchTransfer::IngressFiles.bdn_load
+        IngressTims.perform_async
       end
     end
   end

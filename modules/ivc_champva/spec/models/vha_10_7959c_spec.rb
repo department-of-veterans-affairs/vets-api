@@ -48,6 +48,7 @@ RSpec.describe IvcChampva::VHA107959c do
         'veteranLastName' => 'Doe',
         'fileNumber' => '123456789',
         'zipCode' => '12345',
+        'ssn_or_tin' => '123456789',
         'country' => 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => '10-7959C',
