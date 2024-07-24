@@ -147,7 +147,7 @@ module ClaimsApi
       end
 
       def validate_form_526_identification
-        return if form_attributes['veteranIdentification'].nil? || form_attributes['veteranIdentification'].blank?
+        return if form_attributes['veteranIdentification'].blank?
 
         validate_form_526_current_mailing_address_country
         validate_form_526_current_mailing_address_state
