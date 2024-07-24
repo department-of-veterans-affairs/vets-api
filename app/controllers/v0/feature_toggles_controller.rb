@@ -39,15 +39,15 @@ module V0
 
     def fetch_features_with_gate_keys
       FLIPPER_FEATURE_CONFIG['features']
-        .map { |name, value| { name:, value: false, actor_type: value['actor_type'] } }
+        .map { |name, config| { name:, enabled: false, actor_type: config['actor_type'] } }
         .tap do |features|
-          # Update value to true if globally enabled
+          # Update enabled to true if globally enabled
           feature_gates.each do |row|
             feature = features.find { |f| f[:name] == row['feature_name'] }
             next unless feature # Ignore features not in config/features.yml
 
             feature[:gate_key] = row['gate_key'] # Add gate_key for use in add_feature_gate_values
-            feature[:value] = true if row['gate_key'] == 'boolean' && row['value'] == 'true'
+            feature[:enabled] = true if row['gate_key'] == 'boolean' && row['value'] == 'true'
           end
         end
     end
@@ -55,18 +55,18 @@ module V0
     def add_feature_gate_values(features)
       features.each do |feature|
         # If globally enabled, don't disable for percentage or actors
-        next if feature[:value] && %w[actors percentage_of_actors percentage_of_time].exclude?(feature[:gate_key])
+        next if feature[:enabled] || %w[actors percentage_of_actors percentage_of_time].exclude?(feature[:gate_key])
 
         # There's only a handful of these so individually querying them doesn't take long
-        feature[:value] = Flipper.enabled?(feature[:name], resolve_actor(feature[:actor_type]))
+        feature[:enabled] = Flipper.enabled?(feature[:name], resolve_actor(feature[:actor_type]))
       end
     end
 
     def format_features(features)
       features.flat_map do |feature|
         [
-          { name: feature[:name].camelize(:lower), value: feature[:value] },
-          { name: feature[:name], value: feature[:value] }
+          { name: feature[:name].camelize(:lower), value: feature[:enabled] },
+          { name: feature[:name], value: feature[:enabled] }
         ]
       end
     end
