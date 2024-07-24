@@ -80,12 +80,13 @@ module V0
     end
 
     def feature_gates
-      @feature_gates ||= ActiveRecord::Base.connection.select_all(<<-SQL.squish)
-        SELECT flipper_features.key AS feature_name, flipper_gates.key AS gate_key, flipper_gates.value
-        FROM flipper_features
-        LEFT JOIN flipper_gates
-        ON flipper_features.key = flipper_gates.feature_key
-      SQL
+      Rails.cache.fetch('global_feature_gates', expires_in: 1.minute) do
+        ActiveRecord::Base.connection.select_all(<<-SQL.squish)
+          SELECT flipper_features.key AS feature_name, flipper_gates.key AS gate_key, flipper_gates.value
+          FROM flipper_features
+          LEFT JOIN flipper_gates ON flipper_features.key = flipper_gates.feature_key
+        SQL
+      end
     end
 
     def flipper_id

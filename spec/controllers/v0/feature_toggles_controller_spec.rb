@@ -9,7 +9,6 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
     @cached_enabled_val = Flipper.enabled?(@feature_name)
     Flipper.enable(@feature_name)
     Flipper.enable(:use_new_get_all_features)
-    Flipper.disable(:this_is_only_a_test_disabled)
   end
 
   after(:all) do
@@ -18,10 +17,11 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
 
   describe 'GET #index without params' do
     it 'returns all features (true or false)' do
+      Flipper.disable(@feature_name)
       get :index
       expect(response).to have_http_status(:ok)
       json_data = JSON.parse(response.body)
-      disabled_feature = json_data['data']['features'].find { |f| f['name'] == 'this_is_only_a_test_disabled' }
+      disabled_feature = json_data['data']['features'].find { |f| f['name'] == @feature_name }
 
       expect(json_data['data']['features'].first['value']).not_to be_nil
       expect(disabled_feature['value']).to be false
