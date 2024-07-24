@@ -193,6 +193,8 @@ module CentralMail
         'numberPages' => form_pdf_metadata[:pages]
       }
       metadata.merge(generate_attachment_metadata(attachment_paths))
+      SimpleFormsApiSubmission::MetadataValidator
+        .validate(metadata, zip_code_is_us_based: address['country_name'] == 'USA')
     end
 
     def generate_metadata_lh
