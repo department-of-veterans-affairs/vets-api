@@ -236,6 +236,16 @@
       "nullable": true,
       "additionalProperties": false,
       "properties": {
+        "isCurrentlyHomeless": {
+          "type": ["boolean", "null"],
+          "nullable": true,
+          "description": "Is the Veteran currently homeless?"
+        },
+        "isAtRiskOfBecomingHomeless": {
+          "type": ["boolean", "null"],
+          "nullable": true,
+          "description": "Is the Veteran currently at risk of becoming homeless?"
+        },
         "currentlyHomeless": {
           "type": ["object", "null"],
           "nullable": true,

@@ -254,7 +254,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(homeless_point_of_contact).to eq('john stewart')
         expect(homeless_telephone).to eq('555-555-5555')
         expect(homeless_international_telephone).to eq('44-20-1234-5678')
-        expect(homeless_currently).to eq('YES') # can't be both homess & at risk
+        expect(homeless_currently).to be_nil
         expect(homeless_situation_options).to eq('FLEEING_CURRENT_RESIDENCE')
         expect(homeless_currently_other_description).to eq('ABCDEFGHIJKLM')
       end
