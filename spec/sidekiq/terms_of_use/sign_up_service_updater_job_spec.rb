@@ -79,6 +79,31 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
     end
 
     context 'when sec_id is present' do
+      context 'when multiple sec_id values are detected' do
+        let(:sec_id) { %w[sec-id-1 sec-id-2] }
+        let(:expected_log) { '[TermsOfUse][SignUpServiceUpdaterJob] Multiple sec_id values detected' }
+
+        before do
+          allow(service_instance).to receive(:agreements_accept)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'logs a warning message' do
+          job.perform(user_account_uuid, version)
+
+          expect(Rails.logger).to have_received(:info).with(expected_log, icn:)
+        end
+
+        it 'updates the terms of use agreement in sign up service' do
+          job.perform(user_account_uuid, version)
+
+          expect(MAP::SignUp::Service).to have_received(:new)
+          expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
+                                                                             signature_name: common_name,
+                                                                             version:)
+        end
+      end
+
       context 'when the terms of use agreement is accepted' do
         before do
           allow(service_instance).to receive(:agreements_accept)
