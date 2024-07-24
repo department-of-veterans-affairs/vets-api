@@ -10,7 +10,7 @@ class Form526StatusPollingJob
   MAX_BATCH_SIZE = 1000
   attr_reader :max_batch_size, :paranoid
 
-  def initialize(max_batch_size = MAX_BATCH_SIZE, paranoid = false)
+  def initialize(max_batch_size: MAX_BATCH_SIZE, paranoid: false)
     @max_batch_size = max_batch_size
     @total_handled = 0
     @paranoid = paranoid

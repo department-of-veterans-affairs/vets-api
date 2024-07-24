@@ -43,7 +43,7 @@ PERIODIC_JOBS = lambda { |mgr|
   # Update Lighthouse526DocumentUpload statuses according to Lighthouse Benefits Documents service tracking
   mgr.register('0 3 * * *', 'Form526StatusPollingJob')
   # Updates status of FormSubmissions per call to Lighthouse Benefits Intake API
-  mgr.register('0 2 * * 0', 'Form526StatusPollingJob', 'args' => [nil, true])
+  mgr.register('0 2 * * 0', 'Form526StatusPollingJob', 'args' => { paranoid: true })
   # Checks all 'success' type submissions in LH to ensure they haven't changed
 
   # mgr.register('0 0 * * *', 'VRE::CreateCh31SubmissionsReportJob')
