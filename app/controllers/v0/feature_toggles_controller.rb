@@ -39,11 +39,7 @@ module V0
 
     def fetch_features_with_gate_keys
       Rails.cache.fetch('features_with_gate_keys', expires_in: 1.minute) do
-        last_feature_updated_at = Flipper::Adapters::ActiveRecord::Feature.maximum(:updated_at)
-        last_gate_updated_at = Flipper::Adapters::ActiveRecord::Gate.where(key: 'boolean').maximum(:updated_at)
-        cache_key = "features_with_gate_keys/#{last_feature_updated_at}/#{last_gate_updated_at}"
-
-        Rails.cache.fetch(cache_key, expires_in: 24.hours) do
+        Rails.cache.fetch(cache_key_for_features_with_gate_keys, expires_in: 24.hours) do
           FLIPPER_FEATURE_CONFIG['features']
             .map { |name, config| { name:, enabled: false, actor_type: config['actor_type'] } }
             .tap do |features|
@@ -58,6 +54,18 @@ module V0
             end
         end
       end
+    end
+
+    def cache_key_for_features_with_gate_keys
+      result = ActiveRecord::Base.connection.select_all(<<-SQL.squish).first
+        SELECT
+          (SELECT MAX(updated_at) FROM flipper_features) AS last_feature_updated_at,
+          (SELECT MAX(updated_at) FROM flipper_gates WHERE key = 'boolean') AS last_gate_updated_at
+      SQL
+
+      last_feature_updated_at = result['last_feature_updated_at'].to_time.to_formatted_s(:number)
+      last_gate_updated_at = result['last_gate_updated_at'].to_time.to_formatted_s(:number)
+      "features_with_gate_keys/#{last_feature_updated_at}/#{last_gate_updated_at}"
     end
 
     def add_feature_gate_values(features)
