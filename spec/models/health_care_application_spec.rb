@@ -520,6 +520,10 @@ RSpec.describe HealthCareApplication, type: :model do
             expect { subject }.not_to raise_error
           end
 
+          it 'increments statsd' do
+            expect { subject }.to trigger_statsd_increment('api.1010ez.submission_failure_email_sent')
+          end
+
           context 'without first name' do
             subject do
               health_care_application.parsed_form['veteranFullName'] = nil
@@ -539,7 +543,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
             let(:standard_error) { StandardError.new('Test error') }
 
-            it 'sends a failure email to the email address provided on the form' do
+            it 'sends a failure email without personalisations to the email address provided on the form' do
               subject
               expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params_no_name)
             end
@@ -548,33 +552,6 @@ RSpec.describe HealthCareApplication, type: :model do
               allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
               expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
               expect { subject }.not_to raise_error
-            end
-
-            it 'increments statsd' do
-              expect { subject }.to trigger_statsd_increment('api.1010ez.submission_failure_email_sent')
-            end
-
-            context 'without first name' do
-              subject do
-                health_care_application.parsed_form['veteranFullName'] = nil
-                super()
-              end
-
-              let(:template_params_no_name) do
-                [
-                  email_address,
-                  template_id,
-                  {
-                    'salutation' => ''
-                  },
-                  api_key
-                ]
-              end
-
-              it 'sends email without personalisations' do
-                subject
-                expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params_no_name)
-              end
             end
           end
         end
