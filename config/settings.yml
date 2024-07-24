@@ -1625,6 +1625,12 @@ lgy:
   api_key: ~
   mock_coe: true
 
+lgy_sahsha:
+  base_url: http://www.example.com
+  app_id: ~
+  api_key: ~
+  mock_coe: false
+
 form526_backup:
   enabled: true
   # Can be single or multi, to send 1 payload or many, to central mail
