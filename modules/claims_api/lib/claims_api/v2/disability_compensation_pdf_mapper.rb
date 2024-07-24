@@ -379,8 +379,11 @@ module ClaimsApi
       def zip
         zip_first_five = @auto_claim&.dig('veteranIdentification', 'mailingAddress', 'zipFirstFive') || ''
         zip_last_four = @auto_claim&.dig('veteranIdentification', 'mailingAddress', 'zipLastFour') || ''
+        international_zip = @pdf_data&.dig(:data, :attributes, :identificationInformation, :mailingAddress, :internationalPostalCode)
         zip = if zip_last_four.present?
                 "#{zip_first_five}-#{zip_last_four}"
+              elsif international_zip.present?
+                international_zip
               else
                 zip_first_five
               end
@@ -388,6 +391,7 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].merge!(zip:) if mailing_addr
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:zipFirstFive)
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:zipLastFour)
+        @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:internationalPostalCode)
 
         @pdf_data
       end

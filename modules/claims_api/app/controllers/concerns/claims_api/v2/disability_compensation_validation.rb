@@ -189,7 +189,7 @@ module ClaimsApi
         if mailing_address['country'] == 'USA' && mailing_address['zipFirstFive'].blank?
           collect_error_messages(
             source: '/veteranIdentification/mailingAddress/zipFirstFive',
-            detail: 'The internationalPostalCode is required if the country is not USA.'
+            detail: 'The zipFirstFive is required if the country is USA.'
           )
         elsif mailing_address['country'] != 'USA' && mailing_address['internationalPostalCode'].blank?
           collect_error_messages(
