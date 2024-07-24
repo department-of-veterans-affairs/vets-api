@@ -12,7 +12,7 @@ module V0
         features_params = params[:features].split(',')
         features = get_features(features_params)
       else
-        features = get_all_features
+        features = get_all_features.map { |feature| feature.except(:gate_key) }
       end
 
       render json: { data: { type: 'feature_toggles', features: } }
@@ -25,61 +25,108 @@ module V0
         underscored_feature_name = feature_name.underscore
         actor_type = FLIPPER_FEATURE_CONFIG['features'].dig(feature_name, 'actor_type')
 
-        { name: feature_name, value: Flipper.enabled?(underscored_feature_name, actor(actor_type)) }
+        { name: feature_name, value: Flipper.enabled?(underscored_feature_name, resolve_actor(actor_type)) }
       end
     end
 
     def get_all_features
       return old_get_all_features unless Flipper.enabled?(:use_new_get_all_features)
 
-      if flipper_id.blank?
-        Rails.cache.fetch('all_feature_toggles', expires_in: 1.minute) do
-          fetch_features_from_db
+      results = enabled_features
+      results.each do |feature|
+        next if feature[:value]
+
+        feature_name = feature[:name]
+        gate = feature_gates.find {|feature| feature[:feature_name] == feature_name }
+        gate_key = gate && gate[:gate_key]
+
+        feature_config = FLIPPER_FEATURE_CONFIG['features'][feature_name]
+        actor_type = feature_config ? feature_config['actor_type'] : FLIPPER_ACTOR_STRING
+        actor = resolve_actor(actor_type)
+
+        if %w[actors percentage_of_actors percentage_of_time].include?(gate_key)
+          enabled = Flipper.enabled?(feature_name, actor)
+          feature[:value] = enabled
         end
+      end
+
+      new_results = [ ]
+      results.each do |result|
+        new_results << { name: result[:name].camelize(:lower), value: result[:value] }
+        new_results << { name: result[:name], value: result[:value] }
+      end
+
+      new_results
+    end
+
+    def resolve_actor(actor_type)
+      if actor_type == FLIPPER_ACTOR_STRING
+        Flipper::Actor.new(params[:cookie_id])
       else
-        fetch_features_from_db(flipper_id)
+        @current_user
       end
     end
 
-    def fetch_features_from_db(flipper_id = nil)
-      results = ActiveRecord::Base.connection.select_all(
-        ActiveRecord::Base.sanitize_sql_array([get_all_features_sql, flipper_id, flipper_id, flipper_id, flipper_id])
-      )
-
-      results.each_with_object([]) do |row, array|
-        feature_name = row['feature_name']
-        array << { name: feature_name.camelize(:lower), value: row['enabled'] }
-        array << { name: feature_name, value: row['enabled'] }
+    def feature_gates
+      ActiveRecord::Base.connection.select_all(
+        ActiveRecord::Base.sanitize_sql_array([feature_gates_sql])
+      ).each_with_object([]) do |row, array|
+        array << { feature_name: row['feature_name'], gate_key: row['gate_key'] }
       end
     end
 
-    # rubocop:disable Metrics/MethodLength
-    def get_all_features_sql
+    def feature_gates_sql
       <<-SQL.squish
-        SELECT flipper_features.key AS feature_name,
-              MAX(
-                CASE
-                  WHEN flipper_gates.key = 'boolean' AND flipper_gates.value = 'true' THEN 1
-                  WHEN flipper_gates.key = 'actors' AND flipper_gates.value = ? THEN 1
-                  WHEN flipper_gates.key = 'percentage_of_actors' AND (
-                    (abs(crc32((flipper_features.key || COALESCE(?, ''))::bytea)) % (100 * 1000)) < (CAST(CASE WHEN flipper_gates.key = 'percentage_of_actors' THEN flipper_gates.value ELSE '0' END AS integer) * 1000)
-                  ) THEN 1
-                  ELSE 0
-                END
-              ) = 1 AS enabled,
-              abs(crc32((flipper_features.key || COALESCE(?, ''))::bytea)) AS hash_value,
-              (CAST(CASE WHEN flipper_gates.key = 'percentage_of_actors' THEN flipper_gates.value ELSE '0' END AS integer) * 1000) AS threshold,
-              flipper_gates.value AS gate_value,
-              flipper_gates.key AS gate_key,
-              (abs(crc32((flipper_features.key || COALESCE(?, ''))::bytea)) % (100 * 1000)) AS hash_mod,
-              (CAST(CASE WHEN flipper_gates.key = 'percentage_of_actors' THEN flipper_gates.value ELSE '0' END AS integer) * 1000) AS threshold_value
-        FROM flipper_features
-        LEFT JOIN flipper_gates
-          ON flipper_features.key = flipper_gates.feature_key
-        GROUP BY flipper_features.key, flipper_gates.key, flipper_gates.value;
+        SELECT 
+            flipper_features.key AS feature_name, 
+            flipper_gates.key AS gate_key
+        FROM 
+            flipper_features
+        LEFT JOIN 
+            flipper_gates
+        ON 
+            flipper_features.key = flipper_gates.feature_key
+        WHERE 
+            flipper_gates.key != 'boolean'
       SQL
     end
-    # rubocop:enable Metrics/MethodLength
+
+    def enabled_features
+      results = ActiveRecord::Base.connection.select_all(
+        ActiveRecord::Base.sanitize_sql_array([enabled_features_sql])
+      ).each_with_object([]) do |row, array|
+        feature_name = row['feature_name']
+        enabled = row['value'] == "true"
+
+        array << { name: feature_name, value: enabled }
+      end
+
+      existing_feature_names = results.map { |result| result[:name] }
+      missing_features = FLIPPER_FEATURE_CONFIG['features'].keys - existing_feature_names
+
+      missing_features.each do |feature|
+        results << { name: feature, value: false }
+      end
+
+      results
+    end
+
+    def enabled_features_sql
+      <<-SQL.squish
+        SELECT 
+            flipper_features.key AS feature_name, 
+            flipper_gates.key AS gate_key, 
+            flipper_gates.value
+        FROM 
+            flipper_features
+        LEFT JOIN 
+            flipper_gates
+        ON 
+            flipper_features.key = flipper_gates.feature_key
+        WHERE 
+            flipper_gates.key = 'boolean';
+      SQL
+    end
 
     def old_get_all_features
       features = []
@@ -87,10 +134,10 @@ module V0
       FLIPPER_FEATURE_CONFIG['features'].collect do |feature_name, values|
         flipper_enabled = if Settings.flipper.mute_logs
                             ActiveRecord::Base.logger.silence do
-                              Flipper.enabled?(feature_name, actor(values['actor_type']))
+                              Flipper.enabled?(feature_name, resolve_actor(values['actor_type']))
                             end
                           else
-                            Flipper.enabled?(feature_name, actor(values['actor_type']))
+                            Flipper.enabled?(feature_name, resolve_actor(values['actor_type']))
                           end
         # returning both camel and snakecase for uniformity on FE
         features << { name: feature_name.camelize(:lower), value: flipper_enabled }
@@ -102,14 +149,6 @@ module V0
 
     def flipper_id
       params[:cookie_id] || @current_user&.flipper_id
-    end
-
-    def actor(actor_type)
-      if actor_type == FLIPPER_ACTOR_STRING
-        Flipper::Actor.new(params[:cookie_id])
-      else
-        @current_user
-      end
     end
   end
 end
