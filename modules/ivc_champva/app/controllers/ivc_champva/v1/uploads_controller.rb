@@ -64,6 +64,7 @@ module IvcChampva
 
         form = form_class.new(parsed_form_data)
         form.track_user_identity
+        form.track_current_user_loa(@current_user) if @current_user
 
         attachment_ids = generate_attachment_ids(form_id, applicant_rounded_number)
         attachment_ids.concat(supporting_document_ids(parsed_form_data))
