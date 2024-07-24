@@ -17,15 +17,8 @@ module Pensions
       end
 
       def show
-        claim = claim_class.find_by!(guid: params[:id]) # will raise ActiveRecord::NotFound
-        form_submission = claim.form_submissions&.order(id: :asc)&.last
-        submission_attempt = form_submission&.form_submission_attempts&.order(created_at: :asc)&.last
-        if submission_attempt
-          # this is to satisfy frontend check for successful submission
-          state = submission_attempt.aasm_state == 'failure' ? 'failure' : 'success'
-          response = format_show_response(claim, state, form_submission, submission_attempt)
-        end
-        render(json: response)
+        claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
+        render json: SavedClaimSerializer.new(claim)
       rescue ActiveRecord::RecordNotFound => e
         pension_monitor.track_show404(params[:id], current_user, e)
         render(json: { error: e.to_s }, status: :not_found)
@@ -72,26 +65,10 @@ module Pensions
         in_progress_form.update(metadata:)
       end
 
-      def format_show_response(claim, state, form_submission, submission_attempt)
-        {
-          data: {
-            id: claim.id,
-            form_id: claim.form_id,
-            guid: claim.guid,
-            attributes: {
-              state:,
-              benefits_intake_uuid: form_submission.benefits_intake_uuid,
-              form_type: form_submission.form_type,
-              attempt_id: submission_attempt.id,
-              aasm_state: submission_attempt.aasm_state
-            }
-          }
-        }
+      def pension_monitor
+        @monitor ||= Pensions::Monitor.new
       end
 
-      def pension_monitor
-        Pensions::Monitor.new
-      end
     end
   end
 end
