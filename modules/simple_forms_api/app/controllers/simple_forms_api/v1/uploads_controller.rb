@@ -75,6 +75,15 @@ module SimpleFormsApi
         }
       end
 
+      def authenticate
+        super
+      rescue Common::Exceptions::Unauthorized
+        Rails.logger.info(
+          'Simple forms api - unauthenticated user submitting form',
+          { form_number: params[:form_number] }
+        )
+      end
+
       private
 
       def handle_210966_authenticated
@@ -105,6 +114,10 @@ module SimpleFormsApi
         lgy_response = LGY::Service.new.post_grant_application(payload: form.as_payload)
         reference_number = lgy_response.body['reference_number']
         status = lgy_response.body['status']
+        Rails.logger.info(
+          'Simple forms api - sent to lgy',
+          { form_number: params[:form_number], status:, reference_number: }
+        )
         { json: { reference_number:, status: }, status: lgy_response.status }
       end
 

@@ -4130,7 +4130,7 @@ RSpec.describe 'Disability Claims', type: :request do
             {
               accountType: 'CHECKING',
               accountNumber: '123123123123',
-              routingNumber: '1234567891011121314',
+              routingNumber: '12345678-1011121314',
               financialInstitutionName: 'Global Bank',
               noAccount: false
             }
@@ -4143,6 +4143,28 @@ RSpec.describe 'Disability Claims', type: :request do
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when direct deposit information includes a long account number and financial institution name' do
+          let(:direct_deposit) do
+            {
+              accountType: 'CHECKING',
+              accountNumber: '123123123123888888-888888',
+              routingNumber: '123123123',
+              financialInstitutionName: 'Long financial institution name example test longer than 35 characters',
+              noAccount: false
+            }
+          end
+
+          it 'returns a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse data
+              json['data']['attributes']['directDeposit'] = direct_deposit
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
