@@ -73,6 +73,18 @@ RSpec.describe 'submission_statuses', type: :request do
         results = JSON.parse(response.body)['data']
         expect(results.size).to eq(3)
       end
+
+      it 'returns all fields' do
+        VCR.use_cassette('forms/submission_statuses/200_valid') do
+          get '/v0/my_va/submission_statuses'
+        end
+
+        expect(response).to have_http_status(:ok)
+
+        results = JSON.parse(response.body)['data']
+        keys = %w[id detail form_type message status created_at updated_at]
+        expect(results.first['attributes'].keys.sort).to eq(keys.sort)
+      end
     end
 
     context 'when user has no submissions' do
