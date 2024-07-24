@@ -58,7 +58,14 @@ module V0
         next if feature[:enabled] || %w[actors percentage_of_actors percentage_of_time].exclude?(feature[:gate_key])
 
         # There's only a handful of these so individually querying them doesn't take long
-        feature[:enabled] = Flipper.enabled?(feature[:name], resolve_actor(feature[:actor_type]))
+        feature[:enabled] =
+          if Settings.flipper.mute_logs
+            ActiveRecord::Base.logger.silence do
+              Flipper.enabled?(feature[:name], resolve_actor(feature[:actor_type]))
+            end
+          else
+            Flipper.enabled?(feature[:name], resolve_actor(feature[:actor_type]))
+          end
       end
     end
 

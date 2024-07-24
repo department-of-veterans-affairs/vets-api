@@ -94,6 +94,31 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
       expect(feature['value']).to be true
       expect(feature_camel['value']).to be true
     end
+
+    context 'when flipper.mute_logs settings is true' do
+      before do
+        allow(ActiveRecord::Base.logger).to receive(:silence)
+        allow(Settings.flipper).to receive(:mute_logs).and_return(true)
+        Flipper.disable(@feature_name)
+        Flipper.enable_percentage_of_actors(@feature_name, 100)
+      end
+
+      it 'sets ActiveRecord logger to silence' do
+        expect(ActiveRecord::Base.logger).to receive(:silence)
+
+        get :index
+      end
+    end
+
+    context 'when flipper.mute_logs settings is false' do
+      before { allow(Settings.flipper).to receive(:mute_logs).and_return(false) }
+
+      it 'does not set ActiveRecord logger to silence' do
+        expect(ActiveRecord::Base.logger).not_to receive(:silence)
+
+        get :index
+      end
+    end
   end
 
   describe 'GET #index with params' do
