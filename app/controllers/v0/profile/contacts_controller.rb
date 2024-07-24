@@ -11,12 +11,7 @@ module V0
       # GET /v0/profile/contacts
       def index
         response = service.get_health_benefit_bio
-        render(
-          status: response.status,
-          json: response.contacts,
-          serializer: CollectionSerializer,
-          each_serializer: ContactSerializer
-        )
+        render json: ContactSerializer.new(response.contacts), status: response.status
       end
 
       private

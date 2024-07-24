@@ -88,6 +88,14 @@ RSpec.describe Form526Submission do
       end
     end
 
+    context 'when backup_submitted_claim_status is paranoid_success' do
+      let(:backup_submitted_claim_status) { 'paranoid_success' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
     context 'when backup_submitted_claim_status is neither accepted, rejected nor nil' do
       it 'is invalid' do
         expect do
@@ -108,6 +116,28 @@ RSpec.describe Form526Submission do
     let!(:remediated_and_expired) { create(:form526_submission, :remediated, :created_more_than_3_days_ago) }
     let!(:remediated_and_rejected) { create(:form526_submission, :remediated, :backup_path, :backup_rejected) }
     let!(:no_longer_remediated) { create(:form526_submission, :no_longer_remediated) }
+    let!(:paranoid_success) { create(:form526_submission, :backup_path, :paranoid_success) }
+    let!(:success_by_age) do
+      Timecop.freeze((1.year + 1.day).ago) do
+        create(:form526_submission, :backup_path, :paranoid_success)
+      end
+    end
+
+    describe 'paranoid_success_type' do
+      it 'returns records less than a year old with paranoid_success backup status' do
+        expect(Form526Submission.paranoid_success_type).to contain_exactly(
+          paranoid_success
+        )
+      end
+    end
+
+    describe 'success_by_age_type' do
+      it 'returns records more than a year old with paranoid_success backup status' do
+        expect(Form526Submission.success_by_age_type).to contain_exactly(
+          success_by_age
+        )
+      end
+    end
 
     describe 'pending_backup_submissions' do
       it 'returns records submitted to the backup path but lacking a decisive state' do
@@ -168,7 +198,9 @@ RSpec.describe Form526Submission do
           remediated_and_expired,
           remediated_and_rejected,
           happy_path_success,
-          accepted_backup
+          accepted_backup,
+          paranoid_success,
+          success_by_age
         )
       end
     end
@@ -916,6 +948,32 @@ RSpec.describe Form526Submission do
         expect do
           subject.perform_ancillary_jobs(first_name)
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm8940.jobs, :size).by(1)
+      end
+    end
+
+    context 'with Lighthouse document upload polling' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
+      end
+
+      context 'when feature enabled' do
+        before { Flipper.enable(:disability_526_toxic_exposure_document_upload_polling) }
+
+        it 'queues polling job' do
+          expect do
+            subject.perform_ancillary_jobs(first_name)
+          end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(1)
+        end
+      end
+
+      context 'when feature disabled' do
+        before { Flipper.disable(:disability_526_toxic_exposure_document_upload_polling) }
+
+        it 'does not queue polling job' do
+          expect do
+            subject.perform_ancillary_jobs(first_name)
+          end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(0)
+        end
       end
     end
   end

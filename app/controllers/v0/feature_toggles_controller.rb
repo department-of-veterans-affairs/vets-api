@@ -30,6 +30,47 @@ module V0
     end
 
     def get_all_features
+      return old_get_all_features unless Flipper.enabled?(:use_new_get_all_features)
+
+      if flipper_id.blank?
+        Rails.cache.fetch('all_feature_toggles', expires_in: 1.minute) do
+          fetch_features_from_db
+        end
+      else
+        fetch_features_from_db(flipper_id)
+      end
+    end
+
+    def fetch_features_from_db(flipper_id = nil)
+      results = ActiveRecord::Base.connection.select_all(
+        ActiveRecord::Base.sanitize_sql_array([get_all_features_sql, flipper_id])
+      )
+
+      results.each_with_object([]) do |row, array|
+        next unless row['enabled']
+
+        feature_name = row['feature_name']
+        array << { name: feature_name.camelize(:lower), value: row['enabled'] }
+        array << { name: feature_name, value: row['enabled'] }
+      end
+    end
+
+    def get_all_features_sql
+      <<-SQL.squish
+        SELECT flipper_features.key AS feature_name,
+              MAX(CASE
+                    WHEN flipper_gates.key = 'boolean' AND flipper_gates.value = 'true' THEN 1
+                    WHEN flipper_gates.key = 'actors' AND flipper_gates.value = ? THEN 1
+                    ELSE 0
+                  END) = 1 AS enabled
+        FROM flipper_features
+        LEFT JOIN flipper_gates
+          ON flipper_features.key = flipper_gates.feature_key
+        GROUP BY flipper_features.key;
+      SQL
+    end
+
+    def old_get_all_features
       features = []
 
       FLIPPER_FEATURE_CONFIG['features'].collect do |feature_name, values|
@@ -46,6 +87,10 @@ module V0
       end
 
       features
+    end
+
+    def flipper_id
+      params[:cookie_id] || @current_user&.flipper_id
     end
 
     def actor(actor_type)
