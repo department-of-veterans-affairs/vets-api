@@ -55,6 +55,7 @@ module ClaimsApi
         validate_form_526_change_of_address_ending_date
         validate_form_526_change_of_address_country
         validate_form_526_change_of_address_state
+        validate_form_526_change_of_address_zip
       end
 
       def validate_form_526_change_of_address_required_fields

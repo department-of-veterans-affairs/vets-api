@@ -175,13 +175,17 @@ module ClaimsApi
       def chg_addr_zip
         zip_first_five = @auto_claim&.dig('changeOfAddress', 'zipFirstFive') || ''
         zip_last_four = @auto_claim&.dig('changeOfAddress', 'zipLastFour') || ''
+        international_zip = @auto_claim&.dig('changeOfAddress', 'internationalPostalCode')
         zip = if zip_last_four.present?
                 "#{zip_first_five}-#{zip_last_four}"
+              elsif international_zip.present?
+                international_zip
               else
                 zip_first_five
               end
         addr = @pdf_data&.dig(:data, :attributes, :identificationInformation, :mailingAddress).present?
         @pdf_data[:data][:attributes][:changeOfAddress][:newAddress].merge!(zip:) if addr
+        @pdf_data[:data][:attributes][:changeOfAddress].delete(:internationalPostalCode)
       end
 
       def toxic_exposure_attributes
