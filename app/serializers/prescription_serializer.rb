@@ -10,6 +10,7 @@ class PrescriptionSerializer
   link :self do |object|
     v0_prescription_url(object.prescription_id)
   end
+
   link :tracking do |object|
     object.trackable? ? v0_prescription_trackings_url(object.prescription_id) : ''
   end
