@@ -137,7 +137,7 @@ RSpec.describe DependentsSerializer, type: :serializer do
     end
   end
 
-  context 'current benefits out of range range' do
+  context 'current benefits out of range' do
     let(:current_diary) do
       {
         person_id:,
