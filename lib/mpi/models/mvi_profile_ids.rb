@@ -21,12 +21,17 @@ module MPI
       attribute :birls_id, String
       attribute :birls_ids, Array[String]
       attribute :sec_id, String
+      attribute :sec_ids, Array[String]
       attribute :vet360_id, String
       attribute :cerner_facility_ids, Array[String]
       attribute :cerner_id, String
 
       def mhv_correlation_id
         @active_mhv_ids&.first
+      end
+
+      def multiple_sec_ids?
+        sec_ids.present? && sec_ids.size > 1
       end
     end
   end

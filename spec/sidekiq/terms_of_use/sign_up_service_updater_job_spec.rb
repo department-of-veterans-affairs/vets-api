@@ -26,11 +26,12 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
     let(:family_name) { 'family_name' }
     let(:common_name) { "#{given_names.first} #{family_name}" }
     let(:sec_id) { 'some-sec-id' }
+    let(:sec_ids) { [sec_id] }
     let(:service_instance) { instance_double(MAP::SignUp::Service) }
     let(:version) { terms_of_use_agreement&.agreement_version }
     let(:expires_in) { 72.hours }
     let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
-    let(:mpi_profile) { build(:mpi_profile, icn:, sec_id:, given_names:, family_name:) }
+    let(:mpi_profile) { build(:mpi_profile, icn:, sec_id:, sec_ids:, given_names:, family_name:) }
     let(:mpi_service) { instance_double(MPI::Service, find_profile_by_identifier: find_profile_response) }
 
     before do
@@ -94,7 +95,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
         end
 
         context 'when multiple sec_id values are detected' do
-          let(:sec_id) { %w[sec-id-1 sec-id-2] }
+          let(:sec_ids) { [sec_id, 'other-sec-id'] }
           let(:expected_log) { '[TermsOfUse][SignUpServiceUpdaterJob] Multiple sec_id values detected' }
 
           it 'logs a warning message' do

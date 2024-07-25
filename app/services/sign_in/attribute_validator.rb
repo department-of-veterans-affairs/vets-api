@@ -62,6 +62,7 @@ module SignIn
       check_id_mismatch(mpi_response_profile.edipis, 'EDIPI', Constants::ErrorCode::MULTIPLE_EDIPI)
       check_id_mismatch(mpi_response_profile.mhv_iens, 'MHV_ID', Constants::ErrorCode::MULTIPLE_MHV_IEN)
       check_id_mismatch(mpi_response_profile.participant_ids, 'CORP_ID', Constants::ErrorCode::MULTIPLE_CORP_ID)
+      check_id_mismatch(mpi_response_profile.sec_ids, 'SEC_ID', Constants::ErrorCode::MULTIPLE_SEC_ID)
     end
 
     def add_mpi_user
@@ -163,9 +164,8 @@ module SignIn
 
     def check_id_mismatch(id_array, id_description, code)
       if id_array && id_array.compact.uniq.size > 1
-        handle_error("User attributes contain multiple distinct #{id_description} values",
-                     code,
-                     error: Errors::MPIMalformedAccountError)
+        error = id_description == 'SEC_ID' ? nil : Errors::MPIMalformedAccountError
+        handle_error("User attributes contain multiple distinct #{id_description} values", code, error:)
       end
     end
 

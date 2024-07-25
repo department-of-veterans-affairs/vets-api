@@ -50,9 +50,7 @@ module TermsOfUse
 
     def sec_id?
       if mpi_profile.sec_id.present?
-        if Array(mpi_profile.sec_id).size > 1
-          Rails.logger.info("#{LOG_TITLE} Multiple sec_id values detected", { icn: })
-        end
+        Rails.logger.info("#{LOG_TITLE} Multiple sec_id values detected", { icn: }) if mpi_profile.multiple_sec_ids?
         return true
       end
 
