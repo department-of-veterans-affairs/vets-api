@@ -85,10 +85,10 @@ module ClaimsApi
       case doc_type
       when 'L075', 'L190'
         nil
-      when 'L122'
-        claim.evss_id
       when 'L705'
         claim.claim_id
+      else
+        claim.evss_id
       end
     end
 
