@@ -10,6 +10,7 @@ properties:
   id:
     type: string
     example: "3230323230383032313833303A323032323038303231393030"
+    description: Upstream identifier
   attributes:
     type: object
     required:
