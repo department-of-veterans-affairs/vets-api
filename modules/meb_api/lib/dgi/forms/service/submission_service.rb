@@ -28,17 +28,13 @@ module MebApi
           private
 
           def end_point(form_type)
-            endpoint = "claimType/#{form_type}/claimsubmission"
-            Rails.logger.debug("Endpoint: #{endpoint.inspect}, Frozen: #{endpoint.frozen?}")
-            endpoint.dup
+            "claimType/#{form_type}/claimsubmission".dup
           end
 
           def request_headers
-            authorization = "Bearer #{MebApi::AuthenticationTokenService.call}"
-            Rails.logger.debug("Authorization: #{authorization.inspect}, Frozen: #{authorization.frozen?}")
             {
               "Content-Type": 'application/json',
-              Authorization: authorization.dup
+              Authorization: "Bearer #{MebApi::AuthenticationTokenService.call}".dup
             }
           end
 
