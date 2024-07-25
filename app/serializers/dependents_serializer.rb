@@ -24,7 +24,7 @@ module DependentsHelper
 
   def upcoming_removals(decisions)
     decisions.transform_values do |decs|
-      decs.filter { |dec| END_EVENTS.include?(dec[:dependency_decision_type]) }.max(&max_time)
+      decs.filter { |dec| END_EVENTS.include?(dec[:dependency_decision_type]) }.max { |a, b| max_time(a, b) }
     end
   end
 
@@ -51,7 +51,7 @@ module DependentsHelper
           START_EVENTS.include?(dec[:dependency_decision_type]) &&
             decs.any? { |d| still_pending(d, dec[:award_event_id]) }
         end
-      most_recent = active.max(&max_time)
+      most_recent = active.max { |a, b| max_time(a, b) }
       # include all future events (including school attendance begins)
       (decs.filter { |dec|
         FUTURE_EVENTS.include?(dec[:dependency_decision_type]) && in_future(dec)
