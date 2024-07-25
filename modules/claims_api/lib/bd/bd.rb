@@ -72,7 +72,7 @@ module ClaimsApi
         'POA'
       when 'L122'
         'claim'
-      when 'L705'
+      else
         'supporting'
       end
     end
