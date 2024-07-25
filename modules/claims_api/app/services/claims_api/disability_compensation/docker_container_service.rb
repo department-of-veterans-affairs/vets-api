@@ -28,6 +28,8 @@ module ClaimsApi
         auto_claim.update!(evss_id: evss_res[:claimId])
       end
 
+      private
+
       def add_transaction_id_to_headers(auto_claim)
         auto_claim.auth_headers['va_eauth_service_transaction_id'] = auto_claim.transaction_id
         auto_claim.save!
