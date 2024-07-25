@@ -5,8 +5,6 @@ module RepresentationManagement
     class PdfGenerator2122aController < RepresentationManagement::V0::PdfGeneratorBaseController
       def create
         form = RepresentationManagement::Form2122aData.new(flatten_form_params)
-        p 'form ' * 100, "form: #{form.inspect}", "form.valid?: #{form.valid?}",
-          "form.errors: #{form.errors.full_messages}"
 
         if form.valid?
           Tempfile.create do |tempfile|
