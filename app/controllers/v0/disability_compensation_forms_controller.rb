@@ -26,8 +26,7 @@ module V0
 
       response = api_provider.get_rated_disabilities
 
-      render json: response,
-             serializer: RatedDisabilitiesSerializer
+      render json: RatedDisabilitiesSerializer.new(response)
     end
 
     def separation_locations
