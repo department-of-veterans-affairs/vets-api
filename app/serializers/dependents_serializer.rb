@@ -18,7 +18,7 @@ module DependentsHelper
     decision[:award_event_id] == award_event_id && in_future(decision)
   end
 
-  def remove_excess_space(str)
+  def trim_whitespace(str)
     str&.gsub(/\s+/, ' ')
   end
 
@@ -31,7 +31,7 @@ module DependentsHelper
   def dependent_benefit_types(decisions)
     decisions.transform_values do |decs|
       dec = decs.find { |d| START_EVENTS.include?(d[:dependency_decision_type]) }
-      dec && remove_excess_space(dec[:dependency_status_type_description])
+      dec && trim_whitespace(dec[:dependency_status_type_description])
     end
   end
 
@@ -88,7 +88,7 @@ class DependentsSerializer
       upcoming_removal = person[:upcoming_removal] = upcoming_removals(decisions)[person[:ptcpnt_id]]
       if upcoming_removal
         person[:upcoming_removal_date] = Time.zone.parse(upcoming_removal[:award_effective_date])
-        person[:upcoming_removal_reason] = remove_excess_space(upcoming_removal[:dependency_decision_type_description])
+        person[:upcoming_removal_reason] = trim_whitespace(upcoming_removal[:dependency_decision_type_description])
       end
 
       person[:dependent_benefit_type] = dependent_benefit_types(decisions)[person[:ptcpnt_id]]
