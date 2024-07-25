@@ -23,7 +23,7 @@ jobs:
         id: check_reviewers
         run: |
           REQUESTED_TEAMS=$(echo '${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')
-          if echo "$REQUESTED_TEAMS" | grep -qE '(identity|mobile|lighthouse)'; then
+          if echo "$REQUESTED_TEAMS" | grep -qiE '(mobile|lighthouse|identity)'; then
             echo "Specialized team review required. Skipping backend-review-group requirement."
             echo "skip_be_review=true" >> $GITHUB_OUTPUT
           else
