@@ -17,6 +17,17 @@ module MyHealth
         render json: resource,
                serializer: MessagingPreferenceSerializer
       end
+
+      # Update preferredTeam value for a patient's list of triage teams
+      # @param updated_triage_teams - an array of objects with triage_team_id and preferred_team values
+      def update_triage_team_preferences
+        updated_triage_teams = Array(params[:updated_triage_teams])
+        sanitized_triage_teams = updated_triage_teams.map do |team|
+          team.permit(:triage_team_id, :preferred_team).to_h
+        end
+        resource = client.update_triage_team_preferences(sanitized_triage_teams)
+        render json: resource
+      end
     end
   end
 end
