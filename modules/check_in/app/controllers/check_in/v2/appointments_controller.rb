@@ -37,12 +37,13 @@ module CheckIn
 
       def merge_facilities_and_clinic(appointments)
         appointments.each do |appt|
-          unless appt[:locationId].nil?
-            appt[:facility] = facility_service.get_facility_with_cache(facility_id: appt[:locationId])
-            unless appt[:clinic].nil?
-              appt[:clinicInfo] =
-                facility_service.get_clinic_with_cache(facility_id: appt[:locationId], clinic_id: appt[:clinic])
-            end
+          next if appt[:locationId].blank?
+
+          appt[:facility] = facility_service.get_facility_with_cache(facility_id: appt[:locationId])
+
+          if appt[:clinic].present?
+            appt[:clinicInfo] =
+              facility_service.get_clinic_with_cache(facility_id: appt[:locationId], clinic_id: appt[:clinic])
           end
         end
       end
