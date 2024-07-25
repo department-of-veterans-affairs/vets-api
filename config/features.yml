@@ -26,6 +26,18 @@ features:
   appointments_consolidation:
     actor_type: user
     description: For features being tested while merging logic for appointments between web and mobile
+  ask_va_form_feature:
+    actor_type: user
+    description: show/hide experimental features for Ask VA 0873
+    enable_in_development: true
+  ask_va_dashboard_feature:
+    actor_type: user
+    description: show/hide experimental features for Ask VA 0873 dashboard feature
+    enable_in_development: true
+  ask_va_introduction_page_feature:
+    actor_type: user
+    description: show/hide experimental features for Ask VA 0873 introduction feature
+    enable_in_development: true
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
@@ -881,6 +893,10 @@ features:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
     enable_in_development: true
+  pension_income_and_assets_clarification:
+   actor_type: user
+   description: >
+     [Front-end only] When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
   pension_medical_evidence_clarification:
    actor_type: user
    description: >
