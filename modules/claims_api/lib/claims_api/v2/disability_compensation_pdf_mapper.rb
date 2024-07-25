@@ -186,9 +186,6 @@ module ClaimsApi
         addr = @pdf_data&.dig(:data, :attributes, :identificationInformation, :mailingAddress).present?
         @pdf_data[:data][:attributes][:changeOfAddress][:newAddress].merge!(zip:) if addr
         @pdf_data[:data][:attributes][:changeOfAddress].delete(:internationalPostalCode)
-        if international_zip.present?
-          @pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:type] = 'INTERNATIONAL'
-        end
       end
 
       def toxic_exposure_attributes
@@ -399,7 +396,6 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:zipFirstFive)
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:zipLastFour)
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:internationalPostalCode)
-        @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:type] = 'INTERNATIONAL' if international_zip.present?
 
         @pdf_data
       end
