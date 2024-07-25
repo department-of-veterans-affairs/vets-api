@@ -34,6 +34,10 @@ FactoryBot.define do
     backup_submitted_claim_status { 'rejected' }
   end
 
+  trait :paranoid_success do
+    backup_submitted_claim_status { 'paranoid_success' }
+  end
+
   trait :with_everything do
     form_json do
       File.read("#{submissions_path}/with_everything.json")
