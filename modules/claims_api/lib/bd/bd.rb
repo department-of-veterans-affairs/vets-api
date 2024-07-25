@@ -37,7 +37,7 @@ module ClaimsApi
     # Upload document of mapped claim
     #
     # @return success or failure
-    def upload(claim:, pdf_path:, doc_type: 'L122', file_number: nil, original_filename: nil, tracked_item_ids: nil, # rubocop:disable Metrics/ParameterLists
+    def upload(claim:, pdf_path:, doc_type: 'L122', file_number: nil, original_filename: nil, # rubocop:disable Metrics/ParameterLists
                pctpnt_vet_id: nil)
       unless File.exist? pdf_path
         ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist",
@@ -46,7 +46,7 @@ module ClaimsApi
       end
 
       @multipart = true
-      body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:, tracked_item_ids:,
+      body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:,
                                   pctpnt_vet_id:)
       res = client.post('documents', body)&.body
 
@@ -72,7 +72,7 @@ module ClaimsApi
     # @return {parameters, file}
     # rubocop:disable Metrics/ParameterLists
     def generate_upload_body(claim:, doc_type:, pdf_path:, file_number: nil, original_filename: nil,
-                             tracked_item_ids: nil, pctpnt_vet_id: nil)
+                             pctpnt_vet_id: nil)
       payload = {}
       auth_headers = claim.auth_headers
       veteran_name = "#{auth_headers['va_eauth_firstName']}_#{auth_headers['va_eauth_lastName']}"
@@ -80,8 +80,8 @@ module ClaimsApi
       claim_id = doc_type == 'L705' ? claim.claim_id : claim.evss_id
       file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
       participant_id = pctpnt_vet_id if doc_type == 'L705'
-      data = build_body(doc_type:, file_name:, participant_id:, claim_id:,
-                        file_number: birls_file_num, tracked_item_ids:)
+      data = build_body(doc_type:, file_name:, participant_id:, claim_id: claim.id,
+                        file_number: birls_file_num)
 
       fn = Tempfile.new('params')
       File.write(fn, data.to_json)
@@ -137,13 +137,28 @@ module ClaimsApi
       end
     end
 
-    def build_body(doc_type:, file_name:, claim_id:, participant_id: nil, tracked_item_ids: [], file_number: nil) # rubocop:disable Metrics/ParameterLists
+    def find_claim_by_doc_type(claim_id, doc_type)
+      case doc_type
+      when 'L075', 'L190'
+        claim = ClaimsApi::PowerOfAttorney.find(claim_id)
+      when 'L122'
+        claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+
+      when 'L705'
+        claim = ClaimsApi::EvidenceWaiverSubmission.find(claim_id)
+      end
+      claim
+    end
+
+    def build_body(doc_type:, file_name:, claim_id:, participant_id: nil, file_number: nil)
+      claim = find_claim_by_doc_type(claim_id, doc_type)
+      tracked_item_ids = claim[:tracked_items]&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
       data = {
         systemName: 'VA.gov',
         docType: doc_type,
         claimId: claim_id,
         fileName: file_name,
-        trackedItemIds: tracked_item_ids&.map(&:to_i)
+        trackedItemIds: tracked_item_ids || []
       }
       data[:participantId] = participant_id unless participant_id.nil?
       data[:fileNumber] = file_number unless file_number.nil?
