@@ -14,6 +14,7 @@ properties:
         id:
           type: string
           example: "9E68GA6Q3NBTx8mxT3VG"
+          description: upstream receive_application_id
         type:
           type: string
           example: "preneeds_receive_applications"
