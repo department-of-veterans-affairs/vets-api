@@ -52,7 +52,7 @@ module MebApi
 
       def submit_claim
         response_data = nil
-      
+
         if Flipper.enabled?(:toe_light_house_dgi_direct_deposit, @current_user) && !Rails.env.development?
           begin
             response_data = DirectDeposit::Client.new(@current_user&.icn).get_payment_info
@@ -62,11 +62,11 @@ module MebApi
             return
           end
         end
-      
+
         response = submission_service.submit_claim(params, response_data, 'toe')
-      
+
         clear_saved_form(params[:form_id]) if params[:form_id]
-      
+
         render json: {
           data: {
             'status': response.status
@@ -95,7 +95,6 @@ module MebApi
       def payment_service
         BGS::Service.new(@current_user)
       end
-
     end
   end
 end
