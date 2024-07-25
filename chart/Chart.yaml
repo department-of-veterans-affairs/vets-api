@@ -95,7 +95,8 @@ type: application
 # 0.12.30 - Correct HPA references
 # 0.13.0  - New readinessProbe: is_ready command
 # 0.13.1  - Add BACKLOG_POD for a 20% chance of always ready
-version: 0.13.1
+# 0.13.2  - HPA settings to scale up quickly, and down slowly for workers
+version: 0.13.2
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
