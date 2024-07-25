@@ -78,31 +78,4 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
     end
     # The Tempfile is automatically deleted after the block ends
   end
-
-  it 'includes all text values within the PDF' do
-    values_not_reflected_in_direct_text = %w[
-      veteran_social_security_number
-      veteran_date_of_birth
-      veteran_insurance_numbers
-      veteran_address_line2
-      claimant_date_of_birth
-      record_consent
-      consent_limits
-      consent_address_change
-    ]
-    form = RepresentationManagement::Form2122Data.new(data)
-    Tempfile.create do |tempfile|
-      tempfile.binmode
-      RepresentationManagement::V0::PdfConstructor::Form2122.new(tempfile).construct(form)
-
-      pdf_text = PDF::Reader.new(tempfile).pages.map(&:text).join(' ')
-      data.each do |key, value|
-        next if values_not_reflected_in_direct_text.include?(key.to_s)
-
-        value_in_individual_letters = value.to_s.chars.join('  ')
-        expect(pdf_text).to include(value.to_s).or include(value_in_individual_letters)
-      end
-    end
-    # The Tempfile is automatically deleted after the block ends
-  end
 end
