@@ -38,18 +38,34 @@ module V0
     end
 
     def fetch_features_with_gate_keys
-      FLIPPER_FEATURE_CONFIG['features']
-        .map { |name, config| { name:, enabled: false, actor_type: config['actor_type'] } }
-        .tap do |features|
-          # Update enabled to true if globally enabled
-          feature_gates.each do |row|
-            feature = features.find { |f| f[:name] == row['feature_name'] }
-            next unless feature # Ignore features not in config/features.yml
+      Rails.cache.fetch('features_with_gate_keys', expires_in: 1.minute) do
+        Rails.cache.fetch(cache_key_for_features_with_gate_keys, expires_in: 24.hours) do
+          FLIPPER_FEATURE_CONFIG['features']
+            .map { |name, config| { name:, enabled: false, actor_type: config['actor_type'] } }
+            .tap do |features|
+              # Update enabled to true if globally enabled
+              feature_gates.each do |row|
+                feature = features.find { |f| f[:name] == row['feature_name'] }
+                next unless feature # Ignore features not in config/features.yml
 
-            feature[:gate_key] = row['gate_key'] # Add gate_key for use in add_feature_gate_values
-            feature[:enabled] = true if row['gate_key'] == 'boolean' && row['value'] == 'true'
-          end
+                feature[:gate_key] = row['gate_key'] # Add gate_key for use in add_feature_gate_values
+                feature[:enabled] = true if row['gate_key'] == 'boolean' && row['value'] == 'true'
+              end
+            end
         end
+      end
+    end
+
+    def cache_key_for_features_with_gate_keys
+      result = ActiveRecord::Base.connection.select_all(<<-SQL.squish).first
+        SELECT
+          (SELECT MAX(updated_at) FROM flipper_features) AS last_feature_updated_at,
+          (SELECT MAX(updated_at) FROM flipper_gates WHERE key = 'boolean') AS last_gate_updated_at
+      SQL
+
+      last_feature_updated_at = result['last_feature_updated_at'].to_time.to_formatted_s(:number)
+      last_gate_updated_at = result['last_gate_updated_at'].to_time.to_formatted_s(:number)
+      "features_with_gate_keys/#{last_feature_updated_at}/#{last_gate_updated_at}"
     end
 
     def add_feature_gate_values(features)
@@ -87,13 +103,11 @@ module V0
     end
 
     def feature_gates
-      Rails.cache.fetch('global_feature_gates', expires_in: 1.minute) do
-        ActiveRecord::Base.connection.select_all(<<-SQL.squish)
-          SELECT flipper_features.key AS feature_name, flipper_gates.key AS gate_key, flipper_gates.value
-          FROM flipper_features
-          LEFT JOIN flipper_gates ON flipper_features.key = flipper_gates.feature_key
-        SQL
-      end
+      ActiveRecord::Base.connection.select_all(<<-SQL.squish)
+        SELECT flipper_features.key AS feature_name, flipper_gates.key AS gate_key, flipper_gates.value
+        FROM flipper_features
+        LEFT JOIN flipper_gates ON flipper_features.key = flipper_gates.feature_key
+      SQL
     end
 
     def flipper_id
