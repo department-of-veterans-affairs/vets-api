@@ -101,7 +101,7 @@ module Pension21p527ez
                            benefits_intake_uuid: lighthouse_service&.uuid,
                            confirmation_number: claim&.confirmation_number,
                            user_uuid:,
-                           error: e&.message,
+                           error: e&.message
                          })
     end
   end

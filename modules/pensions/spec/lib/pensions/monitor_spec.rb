@@ -13,7 +13,7 @@ RSpec.describe Pensions::Monitor do
   context 'with all params supplied' do
     let(:current_user) { create(:user) }
     let(:monitor_error) { create(:monitor_error) }
-    let(:lh_service) { OpenStruct.new(uuid: 'uuid')}
+    let(:lh_service) { OpenStruct.new(uuid: 'uuid') }
 
     describe '#track_show404' do
       it 'logs a not found error' do
@@ -118,7 +118,7 @@ RSpec.describe Pensions::Monitor do
       it 'logs sidekiq job upload attempt' do
         upload = {
           file: 'pdf-file-path',
-          attachments: ['pdf-attachment1', 'pdf-attachment2']
+          attachments: %w[pdf-attachment1 pdf-attachment2]
         }
 
         log = 'Lighthouse::PensionBenefitIntakeJob submission to LH attempted'
@@ -175,7 +175,7 @@ RSpec.describe Pensions::Monitor do
 
     describe '#track_submission_exhaustion' do
       it 'logs sidekiq job exhaustion' do
-        msg = {'args' => [claim.id, current_user.uuid]}
+        msg = { 'args' => [claim.id, current_user.uuid] }
 
         log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
         payload = {
@@ -194,8 +194,6 @@ RSpec.describe Pensions::Monitor do
 
     describe '#track_file_cleanup_error' do
       it 'logs sidekiq job ensure file cleanup error' do
-        msg = {'args' => [claim.id, current_user.uuid]}
-
         log = 'Lighthouse::PensionBenefitIntakeJob cleanup failed'
         payload = {
           claim_id: claim.id,
@@ -210,6 +208,5 @@ RSpec.describe Pensions::Monitor do
         monitor.track_file_cleanup_error(claim, lh_service, current_user.uuid, monitor_error)
       end
     end
-
   end
 end

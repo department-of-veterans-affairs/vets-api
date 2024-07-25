@@ -93,6 +93,5 @@ module V0
     def pension_monitor
       @monitor ||= Pension21p527ez::Monitor.new
     end
-
   end
 end

@@ -10,11 +10,8 @@ RSpec.describe Pensions::V0::PensionClaimsController, type: :controller do
 
   before do
     allow(Pensions::Monitor).to receive(:new).and_return(monitor)
-    allow(monitor).to receive(:track_show404)
-    allow(monitor).to receive(:track_show_error)
-    allow(monitor).to receive(:track_create_attempt)
-    allow(monitor).to receive(:track_create_error)
-    allow(monitor).to receive(:track_create_success)
+    allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
+                                       track_create_error: nil, track_create_success: nil)
   end
 
   it_behaves_like 'a controller that deletes an InProgressForm', 'pension_claim', 'pension_claim', '21P-527EZ'
@@ -27,12 +24,11 @@ RSpec.describe Pensions::V0::PensionClaimsController, type: :controller do
 
     it 'logs validation errors' do
       allow(Pensions::SavedClaim).to receive(:new).and_return(claim)
-      allow(claim).to receive(:save).and_return(false) # force validation error path
-      allow(claim).to receive(:errors).and_return('mock validation error')
+      allow(claim).to receive_messages(save: false, errors: 'mock error')
 
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_error).once
-      expect(subject).to receive(:log_validation_error_to_metadata).once
+      expect(claim).not_to receive(:upload_to_lighthouse)
 
       response = post(:create, params: { param_name => { form: claim.form } })
 
@@ -96,7 +92,7 @@ RSpec.describe Pensions::V0::PensionClaimsController, type: :controller do
     it 'updates the in_progress_form' do
       expect(in_progress_form).to receive(:metadata).and_return(in_progress_form.metadata)
       expect(in_progress_form).to receive(:update)
-      result = subject.send(:log_validation_error_to_metadata, in_progress_form, claim)
+      subject.send(:log_validation_error_to_metadata, in_progress_form, claim)
     end
   end
 

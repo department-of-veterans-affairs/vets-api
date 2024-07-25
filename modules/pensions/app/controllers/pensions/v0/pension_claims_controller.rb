@@ -67,7 +67,6 @@ module Pensions
       def pension_monitor
         @monitor ||= Pensions::Monitor.new
       end
-
     end
   end
 end
