@@ -74,17 +74,6 @@ module MebApi
         }
       end
 
-        response = submission_service.submit_claim(params, response_data, 'toe')
-
-        clear_saved_form(params[:form_id]) if params[:form_id]
-
-        render json: {
-          data: {
-            'status': response.status
-          }
-        }
-      end
-
       private
 
       def claimant_service
