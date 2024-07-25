@@ -30,8 +30,32 @@ RSpec.describe SignIn::AuthenticationServiceRetriever do
         let(:type) { SignIn::Constants::Auth::LOGINGOV }
         let(:expected_credential_service) { SignIn::Logingov::Service }
 
-        it 'returns expected credential service object' do
-          expect(subject).to be_a(expected_credential_service)
+        context 'and client config does not have optional scopes' do
+          it 'returns expected credential service object' do
+            expect(subject).to be_a(expected_credential_service)
+          end
+        end
+
+        context 'and client config has optional scopes' do
+          let(:client_config) { create(:client_config, authentication:, access_token_attributes:) }
+
+          context 'and optional scopes are valid' do
+            let(:access_token_attributes) { %w[all_emails] }
+            let(:expected_optional_scopes) { %w[all_emails] }
+
+            it 'sets optional scopes variable to returned credential service object' do
+              expect(subject.optional_scopes).to eq(expected_optional_scopes)
+            end
+          end
+
+          context 'and optional scopes are invalid' do
+            let(:access_token_attributes) { %w[first_name] }
+            let(:expected_optional_scopes) { [] }
+
+            it 'does not set optional_scopes' do
+              expect(subject.optional_scopes).to eq(expected_optional_scopes)
+            end
+          end
         end
       end
 

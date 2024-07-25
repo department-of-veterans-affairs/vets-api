@@ -20,6 +20,7 @@ module IvcChampva
         'veteranMiddleName' => @data.dig('veteran', 'full_name', 'middle'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
         'fileNumber' => @data.dig('veteran', 'va_claim_number').presence || @data.dig('veteran', 'ssn'),
+        'ssn_or_tin' => @data.dig('veteran', 'ssn'),
         'zipCode' => @data.dig('veteran', 'mailing_address', 'postal_code') || '00000',
         'country' => @data.dig('veteran', 'mailing_address', 'country') || 'USA',
         'source' => 'VA Platform Digital Forms',
@@ -28,10 +29,6 @@ module IvcChampva
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info']
       }
-    end
-
-    def submission_date_config
-      { should_stamp_date?: false }
     end
 
     def method_missing(_, *args)

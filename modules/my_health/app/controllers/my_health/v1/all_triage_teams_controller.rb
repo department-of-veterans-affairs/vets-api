@@ -13,10 +13,7 @@ module MyHealth
         resource = resource.sort(params.permit(:sort)[:sort])
 
         # Even though this is a collection action we are not going to paginate
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: AllTriageTeamsSerializer,
-               meta: resource.metadata
+        render json: AllTriageTeamsSerializer.new(resource.data, { meta: resource.metadata })
       end
     end
   end

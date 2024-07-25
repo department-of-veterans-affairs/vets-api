@@ -3,9 +3,12 @@
 FactoryBot.define do
   factory :disability_compensation, class: Hash do
     control_information
-    payment_account
 
-    initialize_with { { control_information:, payment_account: } }
+    trait :with_payment_account do
+      payment_account
+    end
+
+    initialize_with { attributes }
   end
 
   factory :control_information, class: Hash do

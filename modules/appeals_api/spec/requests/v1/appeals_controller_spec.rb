@@ -11,7 +11,6 @@ describe AppealsApi::V1::AppealsController, type: :request do
     let(:caseflow_cassette_name) { 'caseflow/appeals' }
     let(:mpi_cassette_name) { 'mpi/find_candidate/valid' }
     let(:va_user) { 'test.user@example.com' }
-    let(:headers) { { 'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => va_user } }
     let(:icn) { '1012667145V762142' }
     let(:ssn) { '796122306' }
 
@@ -21,8 +20,7 @@ describe AppealsApi::V1::AppealsController, type: :request do
         {
           cassette: 'caseflow/appeals',
           path: '/services/appeals/appeals-status/v1/appeals',
-          scope_base: 'AppealsStatus',
-          headers: { 'X-VA-User' => 'test.user@example.com' }
+          scope_base: 'AppealsStatus'
         }
       )
     end
@@ -32,7 +30,7 @@ describe AppealsApi::V1::AppealsController, type: :request do
         def make_request(auth_header)
           VCR.use_cassette(caseflow_cassette_name) do
             VCR.use_cassette(mpi_cassette_name) do
-              get(path, params: { icn: }, headers: auth_header.merge(headers))
+              get(path, params: { icn: }, headers: auth_header)
             end
           end
         end
@@ -48,7 +46,7 @@ describe AppealsApi::V1::AppealsController, type: :request do
         allow(Rails.logger).to receive(:info)
         VCR.use_cassette(caseflow_cassette_name) do
           VCR.use_cassette(mpi_cassette_name) do
-            with_openid_auth(scopes) { |auth_header| get(path, params:, headers: auth_header.merge(headers)) }
+            with_openid_auth(scopes) { |auth_header| get(path, params:, headers: auth_header) }
           end
         end
       end

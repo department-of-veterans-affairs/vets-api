@@ -251,7 +251,7 @@ module DebtsApi
           tot_deductions = taxes_values + retirement_values + social_sec + other
           other_income = addl_inc.to_f.round(2) + benefits_amount.to_f.round(2) + soc_sec_amt.to_f.round(2)
           net_income = gross_salary - tot_deductions
-          total_monthly_net_income = net_income + other_income
+          total_monthly_net_income = (net_income + other_income)
 
           {
             'veteranOrSpouse' => BENEFICIARY_MAP[beneficiary_type],
@@ -308,7 +308,7 @@ module DebtsApi
                  end
 
           edu = if beneficiary_type == 'spouse'
-                  benefits.dig('spouse_benefits', 'education').to_f || 0
+                  benefits.dig('spouse_benefits', 'education').to_f
                 else
                   income.sum { |item| item['education'].to_f }
                 end

@@ -38,14 +38,31 @@ module IvcChampva
       }
     end
 
-    def submission_date_config
-      { should_stamp_date?: false }
+    def desired_stamps
+      [{ coords: [40, 105], text: data['statement_of_truth_signature'], page: 0 }]
+    end
+
+    def submission_date_stamps
+      [
+        {
+          coords: [40, 500],
+          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          page: 1,
+          font_size: 12
+        }
+      ]
     end
 
     def track_user_identity
       identity = data['certifier_role']
       StatsD.increment("#{STATS_KEY}.#{identity}")
       Rails.logger.info('IVC ChampVA Forms - 10-10D Submission User Identity', identity:)
+    end
+
+    def track_current_user_loa(current_user)
+      current_user_loa = current_user&.loa&.[](:current) || 0
+      StatsD.increment("#{STATS_KEY}.#{current_user_loa}")
+      Rails.logger.info('IVC ChampVA Forms - 10-10D Current User LOA', current_user_loa:)
     end
 
     def method_missing(_, *args)

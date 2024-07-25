@@ -20,6 +20,7 @@ RSpec.describe 'prescriptions', type: :request do
 
   before do
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
+    Flipper.enable(:mhv_medications_display_documentation_content)
     sign_in_as(current_user)
   end
 
@@ -271,6 +272,38 @@ RSpec.describe 'prescriptions', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_empty
+      end
+
+      context 'prescription documentation' do
+        it 'responds to GET #index of prescription documentation' do
+          VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
+            get '/my_health/v1/prescriptions/13650541/documentation?ndc=71205042524'
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response.body).to be_a(String)
+          attrs = JSON.parse(response.body)['data']['attributes']
+          expect(attrs['html']).to include('<h1>Ibuprofen</h1>')
+        end
+
+        it 'responds with error when the API unable to find documentation for NDC' do
+          VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
+            get '/my_health/v1/prescriptions/13650541/documentation?ndc=24'
+          end
+          expect(response).to have_http_status(:service_unavailable)
+          error = JSON.parse(response.body)['error']
+          expect(error).to include('Unable to fetch documentation')
+        end
+
+        it 'responds with not_found when the feature is disabled' do
+          Flipper.disable(:mhv_medications_display_documentation_content)
+          VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
+            get '/my_health/v1/prescriptions/13650541/documentation?ndc=71205042524'
+          end
+          expect(response).to have_http_status(:not_found)
+          expect(JSON.parse(response.body)).to eq({ 'error' => 'Documentation is not available' })
+        end
       end
 
       context 'nested resources' do

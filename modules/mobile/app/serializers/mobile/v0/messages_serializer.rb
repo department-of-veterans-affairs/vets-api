@@ -2,24 +2,21 @@
 
 module Mobile
   module V0
-    class MessagesSerializer < ActiveModel::Serializer
-      attribute :id
+    class MessagesSerializer
+      include JSONAPI::Serializer
 
-      attribute(:message_id) { object.id }
-      attribute :category
-      attribute :subject
-      attribute :body
-      attribute :attachment
-      attribute :sent_date
-      attribute :sender_id
-      attribute :sender_name
-      attribute :recipient_id
-      attribute :recipient_name
-      attribute :read_receipt
-      attribute :triage_group_name
-      attribute :proxy_sender_name
+      set_id :id
+      set_type :messages
 
-      link(:self) { Mobile::UrlHelper.new.v0_message_url(object.id) }
+      attributes :category, :subject, :body, :attachment, :sent_date,
+                 :sender_id, :sender_name, :recipient_id, :recipient_name, :read_receipt,
+                 :triage_group_name, :proxy_sender_name
+
+      attribute :message_id, &:id
+
+      link :self do |object|
+        Mobile::UrlHelper.new.v0_message_url(object.id)
+      end
     end
   end
 end

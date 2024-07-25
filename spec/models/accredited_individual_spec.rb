@@ -81,6 +81,38 @@ RSpec.describe AccreditedIndividual, type: :model do
     end
   end
 
+  describe '.find_with_full_name_similar_to' do
+    before do
+      # word similarity to Bob Law value = 1
+      create(:accredited_individual, registration_number: '12300', first_name: 'Bob', last_name: 'Law')
+
+      # word similarity to Bob Law value = 0.375
+      create(:accredited_individual, registration_number: '23400', first_name: 'Bobby', last_name: 'Low')
+
+      # word similarity to Bob Law value = 0.375
+      create(:accredited_individual, registration_number: '34500', first_name: 'Bobbie', last_name: 'Lew')
+
+      # word similarity to Bob Law value = 0.25
+      create(:accredited_individual, registration_number: '45600', first_name: 'Robert', last_name: 'Lanyard')
+    end
+
+    context 'when there are accredited individuals with full names similar to the search phrase' do
+      it 'returns all individuals with full names >= the word similarity threshold' do
+        results = described_class.find_with_full_name_similar_to('Bob Law', 0.3)
+
+        expect(results.pluck(:registration_number)).to match_array(%w[12300 23400 34500])
+      end
+    end
+
+    context 'when there are no accredited individuals with full names similar to the search phrase' do
+      it 'returns an empty array' do
+        results = described_class.find_with_full_name_similar_to('No Name')
+
+        expect(results.pluck(:registration_number)).to eq([])
+      end
+    end
+  end
+
   describe '#poa_codes' do
     context 'when the individual has no poa code' do
       let(:individual) { create(:accredited_individual) }

@@ -59,18 +59,12 @@ RSpec.describe TermsOfUse::Acceptor, type: :service do
     end
 
     describe '#perform!' do
-      let(:expected_attr_key) { SecureRandom.hex(32) }
       let(:sign_up_service_updater_job) { TermsOfUse::SignUpServiceUpdaterJob.set(sync:) }
-      let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
-      let(:mpi_profile) { build(:mpi_profile, icn:, sec_id:) }
-      let(:sec_id) { 'some-sec-id' }
 
       before do
-        allow(SecureRandom).to receive(:hex).and_return(expected_attr_key)
         allow(Rails.logger).to receive(:info)
         allow(TermsOfUse::SignUpServiceUpdaterJob).to receive(:set).and_return(sign_up_service_updater_job)
         allow(sign_up_service_updater_job).to receive(:perform_async)
-        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(find_profile_response)
       end
 
       context 'when sync is false' do
@@ -91,28 +85,12 @@ RSpec.describe TermsOfUse::Acceptor, type: :service do
           it 'enqueues the SignUpServiceUpdaterJob with expected parameters' do
             acceptor.perform!
             expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:set).with(sync: false)
-            expect(sign_up_service_updater_job).to have_received(:perform_async).with(expected_attr_key)
+            expect(sign_up_service_updater_job).to have_received(:perform_async).with(user_account.id, version)
           end
 
-          it 'logs the attr_package key' do
+          it 'logs update_sign_up_service' do
             acceptor.perform!
-            expect(Rails.logger).to have_received(:info).with('[TermsOfUse] [Acceptor] attr_package key',
-                                                              { icn:, attr_package_key: expected_attr_key })
-          end
-        end
-
-        context 'and sec_id does not exist for the user' do
-          let(:sec_id) { nil }
-          let(:expected_log) { '[TermsOfUse] [Acceptor] Sign Up Service not updated due to user missing sec_id' }
-
-          it 'does not enqueue the SignUpServiceUpdaterJob' do
-            acceptor.perform!
-            expect(TermsOfUse::SignUpServiceUpdaterJob).not_to have_received(:set)
-          end
-
-          it 'logs a sign up service not updated message' do
-            acceptor.perform!
-            expect(Rails.logger).to have_received(:info).with(expected_log, { icn: })
+            expect(Rails.logger).to have_received(:info).with('[TermsOfUse] [Acceptor] update_sign_up_service', icn:)
           end
         end
       end
@@ -128,28 +106,12 @@ RSpec.describe TermsOfUse::Acceptor, type: :service do
           it 'calls the SignUpServiceUpdaterJob with expected parameters' do
             acceptor.perform!
             expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:set).with(sync: true)
-            expect(sign_up_service_updater_job).to have_received(:perform_async).with(expected_attr_key)
+            expect(sign_up_service_updater_job).to have_received(:perform_async).with(user_account.id, version)
           end
 
-          it 'logs the attr_package key' do
+          it 'logs update_sign_up_service' do
             acceptor.perform!
-            expect(Rails.logger).to have_received(:info).with('[TermsOfUse] [Acceptor] attr_package key',
-                                                              { icn:, attr_package_key: expected_attr_key })
-          end
-        end
-
-        context 'and sec_id does not exist for the user' do
-          let(:sec_id) { nil }
-          let(:expected_log) { '[TermsOfUse] [Acceptor] Sign Up Service not updated due to user missing sec_id' }
-
-          it 'does not enqueue the SignUpServiceUpdaterJob' do
-            acceptor.perform!
-            expect(TermsOfUse::SignUpServiceUpdaterJob).not_to have_received(:set)
-          end
-
-          it 'logs a sign up service not updated message' do
-            acceptor.perform!
-            expect(Rails.logger).to have_received(:info).with(expected_log, { icn: })
+            expect(Rails.logger).to have_received(:info).with('[TermsOfUse] [Acceptor] update_sign_up_service', icn:)
           end
         end
 

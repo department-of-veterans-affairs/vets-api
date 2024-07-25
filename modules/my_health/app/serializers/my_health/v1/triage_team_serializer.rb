@@ -2,15 +2,12 @@
 
 module MyHealth
   module V1
-    class TriageTeamSerializer < ActiveModel::Serializer
-      def id
-        object.triage_team_id
-      end
+    class TriageTeamSerializer
+      include JSONAPI::Serializer
 
-      attribute :triage_team_id
-      attribute :name
-      attribute :relation_type
-      attribute :preferred_team
+      set_type :triage_teams
+      set_id :triage_team_id
+      attributes :triage_team_id, :name, :relation_type, :preferred_team
     end
   end
 end

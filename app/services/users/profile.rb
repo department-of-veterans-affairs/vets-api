@@ -80,7 +80,6 @@ module Users
         verified: user.loa3?,
         sign_in: user.identity.sign_in,
         authn_context: user.authn_context,
-        inherited_proof_verified: user.inherited_proof_verified,
         claims:,
         icn: user.icn,
         birls_id: user.birls_id,
