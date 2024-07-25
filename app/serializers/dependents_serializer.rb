@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
 module DependentsHelper
-  def still_pending(award_event_id)
-    lambda { |decision|
-      decision[:award_event_id] == award_event_id &&
-        Time.zone.parse(decision[:award_effective_date]) > Time.zone.now
-    }
+  def still_pending(decision, award_event_id)
+    decision[:award_event_id] == award_event_id &&
+      Time.zone.parse(decision[:award_effective_date]) > Time.zone.now
   end
 
   def upcoming_removals(decisions)
@@ -37,7 +35,7 @@ module DependentsHelper
       active =
         decs.filter do |dec|
           %w[EMC SCHATTB].include?(dec[:dependency_decision_type]) &&
-            decs.any?(&still_pending(dec[:award_event_id]))
+            decs.any? { |d| still_pending(d, dec[:award_event_id]) }
         end
       most_recent = active.max { |a, b| a[:award_effective_date] <=> b[:award_effective_date] }
       # include future school attendance
