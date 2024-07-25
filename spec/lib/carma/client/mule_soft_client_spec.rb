@@ -3,15 +3,6 @@
 require 'rails_helper'
 require 'carma/client/mule_soft_client'
 
-class MockFaradayResponse
-  attr_reader :body, :status
-
-  def initialize(body, status = 200)
-    @body = body
-    @status = status
-  end
-end
-
 describe CARMA::Client::MuleSoftClient do
   let(:client) { described_class.new }
 
@@ -50,7 +41,7 @@ describe CARMA::Client::MuleSoftClient do
           }
         }.to_json
       end
-      let(:mock_success_response) { MockFaradayResponse.new(response_body, 201) }
+      let(:mock_success_response) { double('FaradayResponse', status: 201, body: response_body) }
       let(:payload) { {} }
 
       context 'OAuth 2.0 flipper enabled' do
@@ -88,7 +79,7 @@ describe CARMA::Client::MuleSoftClient do
 
           context 'with errors' do
             let(:has_errors) { true }
-            let(:mock_error_response) { MockFaradayResponse.new(response_body, 500) }
+            let(:mock_error_response) { double('FaradayResponse', status: 500, body: response_body) }
 
             it 'raises SchemaValidationError' do
               expect(client).to receive(:perform)
@@ -132,7 +123,7 @@ describe CARMA::Client::MuleSoftClient do
             }
           }.to_json
         end
-        let(:mock_success_response) { MockFaradayResponse.new(response_body, 201) }
+        let(:mock_success_response) { double('FaradayResponse', status: 201, body: response_body) }
 
         before do
           Flipper.disable(:cg1010_oauth_2_enabled)

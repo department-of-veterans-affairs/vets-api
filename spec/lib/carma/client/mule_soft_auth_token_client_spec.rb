@@ -3,15 +3,6 @@
 require 'rails_helper'
 require 'carma/client/mule_soft_auth_token_client'
 
-class MockFaradayResponse
-  attr_reader :body, :status
-
-  def initialize(body, status = 200)
-    @body = body
-    @status = status
-  end
-end
-
 describe CARMA::Client::MuleSoftAuthTokenClient do
   let(:client) { described_class.new }
 
@@ -56,7 +47,7 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
     let(:options) { { timeout: } }
 
     let(:access_token) { 'my-token' }
-    let(:mock_token_response) { MockFaradayResponse.new({ access_token: }, 201) }
+    let(:mock_token_response) { double('FaradayResponse', status: 201, body: { access_token: }) }
 
     context 'successfully gets token' do
       it 'calls perform with expected params' do
@@ -69,7 +60,7 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
     end
 
     context 'error getting token' do
-      let(:mock_error_token_response) { MockFaradayResponse.new({ sad: true }, 500) }
+      let(:mock_error_token_response) { double('FaradayResponse', status: 500, body: { sad: true }) }
 
       it 'raises error' do
         expect(client).to receive(:perform)
