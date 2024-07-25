@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+START_EVENTS = %w[EMC SCHATTB].freeze
+LATER_START_EVENTS = %w[SCHATTB].freeze
+END_EVENTS = %w[T18 SCHATTT].freeze
+FUTURE_EVENTS = (LATER_START_EVENTS + END_EVENTS).freeze
+
 module DependentsHelper
   def still_pending(decision, award_event_id)
     decision[:award_event_id] == award_event_id &&
@@ -8,14 +13,14 @@ module DependentsHelper
 
   def upcoming_removals(decisions)
     decisions.transform_values do |decs|
-      decs.filter { |dec| %w[T18 SCHATTT].include?(dec[:dependency_decision_type]) }
+      decs.filter { |dec| END_EVENTS.include?(dec[:dependency_decision_type]) }
           .max { |a, b| a[:award_effective_date] <=> b[:award_effective_date] }
     end
   end
 
   def dependent_benefit_types(decisions)
     decisions.transform_values do |decs|
-      dec = decs.find { |d| %w[EMC SCHATTB].include?(d[:dependency_decision_type]) }
+      dec = decs.find { |d| START_EVENTS.include?(d[:dependency_decision_type]) }
       dec && dec[:dependency_status_type_description]&.gsub(/\s+/, ' ')
     end
   end
@@ -25,8 +30,8 @@ module DependentsHelper
     decisions = dependency_decisions(diaries)
                 .filter do |dec|
       date = Time.zone.parse(dec[:award_effective_date])
-      (%w[EMC SCHATTB].include?(dec[:dependency_decision_type]) && date <= Time.zone.now) ||
-        (%w[T18 SCHATTT].include?(dec[:dependency_decision_type]) && date > Time.zone.now)
+      (START_EVENTS.include?(dec[:dependency_decision_type]) && date <= Time.zone.now) ||
+        (END_EVENTS.include?(dec[:dependency_decision_type]) && date > Time.zone.now)
     end
 
     decisions.group_by { |dec| dec[:person_id] }
@@ -34,13 +39,14 @@ module DependentsHelper
       # get only most recent active decision and add back to array
       active =
         decs.filter do |dec|
-          %w[EMC SCHATTB].include?(dec[:dependency_decision_type]) &&
+          START_EVENTS.include?(dec[:dependency_decision_type]) &&
             decs.any? { |d| still_pending(d, dec[:award_event_id]) }
         end
       most_recent = active.max { |a, b| a[:award_effective_date] <=> b[:award_effective_date] }
-      # include future school attendance
+      # include all future events (including school attendance begins)
       (decs.filter { |dec|
-        %w[T18 SCHATTB SCHATTT].include?(dec[:dependency_decision_type])
+        FUTURE_EVENTS.include?(dec[:dependency_decision_type]) &&
+          Time.zone.parse(dec[:award_effective_date]) > Time.zone.now
       } + [most_recent]).compact
     end
   end
