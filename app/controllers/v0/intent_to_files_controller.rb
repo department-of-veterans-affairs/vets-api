@@ -38,14 +38,12 @@ module V0
       )
       type = params['itf_type'] || 'compensation'
       response = intent_to_file_provider.get_intent_to_file(type, nil, nil)
-      render json: response,
-             serializer: IntentToFileSerializer
+      render json: IntentToFileSerializer.new(response)
     end
 
     def active
       response = strategy.cache_or_service(@current_user.uuid, params[:type]) { service.get_active(params[:type]) }
-      render json: response,
-             serializer: IntentToFileSerializer
+      render json: IntentToFileSerializer.new(response)
     end
 
     def submit
@@ -58,8 +56,7 @@ module V0
       )
       type = params['itf_type'] || 'compensation'
       response = intent_to_file_provider.create_intent_to_file(type, nil, nil)
-      render json: response,
-             serializer: IntentToFileSerializer
+      render json: IntentToFileSerializer.new(response)
     end
 
     private
