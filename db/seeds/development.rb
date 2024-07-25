@@ -160,3 +160,8 @@ btsss.update!(
   access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
   certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')]
 )
+
+# Update any exisitng ServiceAccountConfigs and ClientConfigs with default empty arrays
+SignIn::ServiceAccountConfig.where(certificates: nil).update(certificates: [])
+SignIn::ServiceAccountConfig.where(scopes: nil).update(scopes: [])
+SignIn::ClientConfig.where(certificates: nil).update(certificates: [])
