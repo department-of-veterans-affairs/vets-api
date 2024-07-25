@@ -14,9 +14,6 @@ module CheckIn
         end
 
         appointments
-        # find the facility and clinic IDs from all appointments
-        # make a call to facilities and clinic endpoints
-        # combine the appointments payload with facilities and clinics data
 
         merge_facilities_and_clinic(appointments[:data])
         serializer = VAOS::AppointmentSerializer.new(appt_struct_data)
