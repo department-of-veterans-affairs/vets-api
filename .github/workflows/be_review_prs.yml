@@ -1,4 +1,4 @@
-name: Require be-review-group PR Approvals
+name: Require backend-review-group PR Approvals
 
 on:
   pull_request:
@@ -24,17 +24,17 @@ jobs:
         run: |
           REQUESTED_TEAMS=$(echo '${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')
           if echo "$REQUESTED_TEAMS" | grep -qE '(identity|mobile|lighthouse)'; then
-            echo "Specialized team review required. Skipping be-review-group requirement."
+            echo "Specialized team review required. Skipping backend-review-group requirement."
             echo "skip_be_review=true" >> $GITHUB_OUTPUT
           else
-            echo "No specialized team review required. Enforcing be-review-group requirement."
+            echo "No specialized team review required. Enforcing backend-review-group requirement."
             echo "skip_be_review=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Enforce be-review-group approval
+      - name: Enforce backend-review-group approval
         if: steps.check_reviewers.outputs.skip_be_review == 'false'
         uses: pulumi/action-pr-require-team-review@v1.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           require-approval-count: 1
-          required-review-team: be-review-group
+          required-review-team: backend-review-group
