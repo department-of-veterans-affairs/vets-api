@@ -13,6 +13,8 @@ module ClaimsApi
 
         auto_claim = get_claim(claim_id)
 
+        add_transaction_id_to_headers(auto_claim) if auto_claim.transaction_id.present?
+
         evss_data = get_evss_data(auto_claim)
 
         log_service_progress(claim_id, 'docker_service',
@@ -24,6 +26,11 @@ module ClaimsApi
                              "Successfully submitted to Docker container with response: #{evss_res}")
         # update with the evss_id returned
         auto_claim.update!(evss_id: evss_res[:claimId])
+      end
+
+      def add_transaction_id_to_headers(auto_claim)
+        auto_claim.auth_headers['va_eauth_service_transaction_id'] = auto_claim.transaction_id
+        auto_claim.save!
       end
 
       def get_evss_data(auto_claim)
