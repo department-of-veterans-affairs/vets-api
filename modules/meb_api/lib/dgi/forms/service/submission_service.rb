@@ -28,13 +28,17 @@ module MebApi
           private
 
           def end_point(form_type)
-            "claimType/#{form_type}/claimsubmission"
+            endpoint = "claimType/#{form_type}/claimsubmission"
+            Rails.logger.debug("Endpoint: #{endpoint.inspect}, Frozen: #{endpoint.frozen?}")
+            endpoint.dup
           end
 
           def request_headers
+            authorization = "Bearer #{MebApi::AuthenticationTokenService.call}"
+            Rails.logger.debug("Authorization: #{authorization.inspect}, Frozen: #{authorization.frozen?}")
             {
               "Content-Type": 'application/json',
-              Authorization: "Bearer #{MebApi::AuthenticationTokenService.call}"
+              Authorization: authorization.dup
             }
           end
 
@@ -50,13 +54,13 @@ module MebApi
           def update_dd_params(params, dd_params)
             check_masking = params.dig(:form, :direct_deposit, :direct_deposit_account_number).include?('*')
             if check_masking && !Flipper.enabled?(:toe_light_house_dgi_direct_deposit, @current_user)
-              params[:form][:direct_deposit][:direct_deposit_account_number] = dd_params[:dposit_acnt_nbr]
-              params[:form][:direct_deposit][:direct_deposit_routing_number] = dd_params[:routng_trnsit_nbr]
+              params[:form][:direct_deposit][:direct_deposit_account_number] = dd_params[:dposit_acnt_nbr]&.dup
+              params[:form][:direct_deposit][:direct_deposit_routing_number] = dd_params[:routng_trnsit_nbr]&.dup
             elsif check_masking && Flipper.enabled?(:toe_light_house_dgi_direct_deposit, @current_user)
               params[:form][:direct_deposit][:direct_deposit_account_number] =
-                dd_params&.payment_account ? dd_params.payment_account[:account_number] : nil
+                dd_params&.payment_account ? dd_params.payment_account[:account_number]&.dup : nil
               params[:form][:direct_deposit][:direct_deposit_routing_number] =
-                dd_params&.payment_account ? dd_params.payment_account[:routing_number] : nil
+                dd_params&.payment_account ? dd_params.payment_account[:routing_number]&.dup : nil
             end
             params
           end

@@ -51,20 +51,30 @@ module MebApi
       end
 
       def submit_claim
-        dd_response = nil
-        if Flipper.enabled?(:toe_short_circuit_bgs_failure, @current_user)
+        response_data = nil
+      
+        if Flipper.enabled?(:toe_light_house_dgi_direct_deposit, @current_user) && !Rails.env.development?
           begin
-            dd_response = direct_deposit_response
+            response_data = DirectDeposit::Client.new(@current_user&.icn).get_payment_info
           rescue => e
-            Rails.logger.error('BDN service error: ', e)
+            Rails.logger.error("BIS service error: #{e}")
             head :internal_server_error
             return
           end
-        else
-          dd_response = payment_service.get_ch33_dd_eft_info
         end
+      
+        response = submission_service.submit_claim(params, response_data, 'toe')
+      
+        clear_saved_form(params[:form_id]) if params[:form_id]
+      
+        render json: {
+          data: {
+            'status': response.status
+          }
+        }
+      end
 
-        response = submission_service.submit_claim(params, dd_response, 'toe')
+        response = submission_service.submit_claim(params, response_data, 'toe')
 
         clear_saved_form(params[:form_id]) if params[:form_id]
 
@@ -97,13 +107,6 @@ module MebApi
         BGS::Service.new(@current_user)
       end
 
-      def direct_deposit_response
-        if Flipper.enabled?(:toe_light_house_dgi_direct_deposit, @current_user)
-          DirectDeposit::Client.new(@current_user&.icn).get_payment_info
-        else
-          payment_service.get_ch33_dd_eft_info
-        end
-      end
     end
   end
 end
