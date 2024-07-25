@@ -107,8 +107,10 @@ module ClaimsApi
       file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
       participant_id = pctpnt_vet_id if %w[L075 L190 L705].include?(doc_type)
       system_name = 'Lighthouse' if %w[L075 L190].include?(doc_type)
-      data = build_body(doc_type:, file_name:, participant_id:, claim_id: claim.id,
-                        file_number: birls_file_num, system_name:)
+      tracked_items = claim.tracked_items&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
+
+      data = build_body(doc_type:, file_name:, participant_id:, claim_id:,
+                        file_number: birls_file_num, system_name:, tracked_items:)
 
       fn = Tempfile.new('params')
       File.write(fn, data.to_json)
@@ -171,29 +173,13 @@ module ClaimsApi
       end
     end
 
-    def find_claim_by_doc_type(claim_id, doc_type)
-      case doc_type
-      when 'L075', 'L190'
-        claim = ClaimsApi::PowerOfAttorney.find(claim_id)
-      when 'L122'
-        claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-
-      when 'L705'
-        claim = ClaimsApi::EvidenceWaiverSubmission.find(claim_id)
-      end
-      claim
-    end
-
     def build_body(options = {})
-      claim = find_claim_by_doc_type(options[:claim_id], options[:doc_type])
-      tracked_item_ids = claim[:tracked_items]&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
-
       data = {
-        systemName: options.fetch(:system_name, 'VA.gov'),
+        systemName: options[:system_name].nil? ? 'VA.gov' : options[:system_name],
         docType: options[:doc_type],
         claimId: options[:claim_id],
         fileName: options[:file_name],
-        trackedItemIds: tracked_item_ids || []
+        trackedItemIds: options[:tracked_items].nil? ? [] : options[:tracked_items]
       }
       data[:participantId] = options[:participant_id] unless options[:participant_id].nil?
       data[:fileNumber] = options[:file_number] unless options[:file_number].nil?

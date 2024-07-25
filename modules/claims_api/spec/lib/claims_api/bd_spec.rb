@@ -155,8 +155,10 @@ describe ClaimsApi::BD do
     end
 
     describe '#build_body' do
+      let(:tracked_items) { ews.tracked_items }
+
       it 'builds an L705 (5103) body correctly' do
-        result = subject.send(:build_body, doc_type: 'L705', file_name: '5103.pdf', claim_id: ews.id)
+        result = subject.send(:build_body, doc_type: 'L705', file_name: '5103.pdf', claim_id: ews.id, tracked_items:)
 
         expected = { data: { systemName: 'VA.gov', docType: 'L705', claimId: '43fc03ab-86df-4386-977b-4e5b87f0817f',
                              fileName: '5103.pdf', trackedItemIds: [234, 235] } }
@@ -166,7 +168,7 @@ describe ClaimsApi::BD do
       it 'builds an L705 (5103) body with all of the params correctly' do
         result = subject.send(:build_body, doc_type: 'L705', file_name: '5103.pdf', claim_id: ews.id,
                                            participant_id: '60289076',
-                                           file_number: '7348296')
+                                           file_number: '7348296', tracked_items:)
 
         expected = { data: { systemName: 'VA.gov', docType: 'L705', claimId: '43fc03ab-86df-4386-977b-4e5b87f0817f',
                              fileName: '5103.pdf', trackedItemIds: [234, 235], participantId: '60289076',

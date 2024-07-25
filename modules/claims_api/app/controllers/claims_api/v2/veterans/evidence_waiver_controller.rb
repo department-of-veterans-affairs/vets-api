@@ -19,7 +19,9 @@ module ClaimsApi
           validate_veteran_name(false)
 
           tracked_item_ids = params['data']['attributes']['trackedItems'] if params['data'].present?
-          ews = create_ews(claim_id: params[:id], tracked_item_ids: [tracked_item_ids])
+          ews = create_ews(params[:id])
+          tracked_item_ids&.each { |id| ews.tracked_items << id }
+          ews.save
           ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id)
 
           render json: { success: true }, status: :accepted
