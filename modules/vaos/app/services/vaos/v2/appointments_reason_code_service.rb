@@ -45,7 +45,7 @@ module VAOS
         preferred_dates = extract_preferred_dates(reason_code_hash)
 
         appointment[:contact] = contact unless contact.nil?
-        appointment[:additional_appointment_details] = comments unless comments.nil?
+        appointment[:patient_comments] = comments unless comments.nil?
         appointment[:reason_for_appointment] = reason unless reason.nil?
         appointment[:preferred_dates] = preferred_dates unless preferred_dates.nil?
       end
