@@ -506,7 +506,23 @@ RSpec.describe HealthCareApplication, type: :model do
               api_key
             ]
           end
+      context 'has form' do
+        context 'with email address' do
+          let(:email_address) { health_care_application.parsed_form['email'] }
+          let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
+          let(:template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email }
+          let(:template_params) do
+            [
+              email_address,
+              template_id,
+              {
+                'salutation' => "Dear #{health_care_application.parsed_form['veteranFullName']['first']},"
+              },
+              api_key
+            ]
+          end
 
+          let(:standard_error) { StandardError.new('Test error') }
           let(:standard_error) { StandardError.new('Test error') }
 
           it 'sends a failure email to the email address provided on the form' do
@@ -543,33 +559,37 @@ RSpec.describe HealthCareApplication, type: :model do
               subject
               expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params_no_name)
             end
+          it 'sends a failure email to the email address provided on the form' do
+            subject
+            expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params)
+          end
 
-            it 'logs error to sentry if email job throws error' do
-              allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
-              expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
-              expect { subject }.not_to raise_error
+          it 'logs error to sentry if email job throws error' do
+            allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
+            expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
+            expect { subject }.not_to raise_error
+          end
+
+          it 'increments statsd' do
+            expect { subject }.to trigger_statsd_increment('api.1010ez.submission_failure_email_sent')
+          end
+
+          context 'without first name' do
+            subject do
+              health_care_application.parsed_form['veteranFullName'] = nil
+              super()
             end
 
-            it 'increments statsd' do
-              expect { subject }.to trigger_statsd_increment('api.1010ez.submission_failure_email_sent')
+            let(:template_params_no_name) do
+              [
+                email_address,
+                template_id,
+                {
+                  'salutation' => ''
+                },
+                api_key
+              ]
             end
-
-            context 'without first name' do
-              subject do
-                health_care_application.parsed_form['veteranFullName'] = nil
-                super()
-              end
-
-              let(:template_params_no_name) do
-                [
-                  email_address,
-                  template_id,
-                  {
-                    'salutation' => ''
-                  },
-                  api_key
-                ]
-              end
 
               it 'sends email without personalisations' do
                 subject
