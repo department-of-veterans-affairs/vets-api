@@ -6,22 +6,32 @@ END_EVENTS = %w[T18 SCHATTT].freeze
 FUTURE_EVENTS = (LATER_START_EVENTS + END_EVENTS).freeze
 
 module DependentsHelper
+  def max_time(a, b)
+    a[:award_effective_date] <=> b[:award_effective_date]
+  end
+
+  def in_future(decision)
+    Time.zone.parse(decision[:award_effective_date]) > Time.zone.now
+  end
+
   def still_pending(decision, award_event_id)
-    decision[:award_event_id] == award_event_id &&
-      Time.zone.parse(decision[:award_effective_date]) > Time.zone.now
+    decision[:award_event_id] == award_event_id && in_future(decision)
+  end
+
+  def remove_excess_space(str)
+    str&.gsub(/\s+/, ' ')
   end
 
   def upcoming_removals(decisions)
     decisions.transform_values do |decs|
-      decs.filter { |dec| END_EVENTS.include?(dec[:dependency_decision_type]) }
-          .max { |a, b| a[:award_effective_date] <=> b[:award_effective_date] }
+      decs.filter { |dec| END_EVENTS.include?(dec[:dependency_decision_type]) }.max(&max_time)
     end
   end
 
   def dependent_benefit_types(decisions)
     decisions.transform_values do |decs|
       dec = decs.find { |d| START_EVENTS.include?(d[:dependency_decision_type]) }
-      dec && dec[:dependency_status_type_description]&.gsub(/\s+/, ' ')
+      dec && remove_excess_space(dec[:dependency_status_type_description])
     end
   end
 
@@ -29,9 +39,8 @@ module DependentsHelper
     # Filter by eligible minor child or school attendance types and if they are the current or future decisions
     decisions = dependency_decisions(diaries)
                 .filter do |dec|
-      date = Time.zone.parse(dec[:award_effective_date])
-      (START_EVENTS.include?(dec[:dependency_decision_type]) && date <= Time.zone.now) ||
-        (END_EVENTS.include?(dec[:dependency_decision_type]) && date > Time.zone.now)
+      (START_EVENTS.include?(dec[:dependency_decision_type]) && !in_future(dec)) ||
+        (END_EVENTS.include?(dec[:dependency_decision_type]) && in_future(dec))
     end
 
     decisions.group_by { |dec| dec[:person_id] }
@@ -42,11 +51,10 @@ module DependentsHelper
           START_EVENTS.include?(dec[:dependency_decision_type]) &&
             decs.any? { |d| still_pending(d, dec[:award_event_id]) }
         end
-      most_recent = active.max { |a, b| a[:award_effective_date] <=> b[:award_effective_date] }
+      most_recent = active.max(&max_time)
       # include all future events (including school attendance begins)
       (decs.filter { |dec|
-        FUTURE_EVENTS.include?(dec[:dependency_decision_type]) &&
-          Time.zone.parse(dec[:award_effective_date]) > Time.zone.now
+        FUTURE_EVENTS.include?(dec[:dependency_decision_type]) && in_future(dec)
       } + [most_recent]).compact
     end
   end
@@ -80,7 +88,7 @@ class DependentsSerializer
       upcoming_removal = person[:upcoming_removal] = upcoming_removals(decisions)[person[:ptcpnt_id]]
       if upcoming_removal
         person[:upcoming_removal_date] = Time.zone.parse(upcoming_removal[:award_effective_date])
-        person[:upcoming_removal_reason] = upcoming_removal[:dependency_decision_type_description].gsub(/\s+/, ' ')
+        person[:upcoming_removal_reason] = remove_excess_space(upcoming_removal[:dependency_decision_type_description])
       end
 
       person[:dependent_benefit_type] = dependent_benefit_types(decisions)[person[:ptcpnt_id]]
