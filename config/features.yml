@@ -525,6 +525,10 @@ features:
     actor_type: user
     description: Enables flagging feature for Find a Representative frontend
     enable_in_development: true
+  find_a_representative_use_accredited_models:
+    actor_type: user
+    description: Enables Find A Representative APIs using AccreditedX models
+    enable_in_development: true
   representative_status_enabled:
     actor_type: cookie_id
     description: Enables flagging feature for Find a Representative frontend
