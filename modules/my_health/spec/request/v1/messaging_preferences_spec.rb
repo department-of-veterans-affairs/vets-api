@@ -96,5 +96,32 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
       expect(response).to have_http_status(:unprocessable_entity)
       expect(JSON.parse(response.body)['errors'].first['code']).to eq('SM152')
     end
+
+    it 'responds to POST #update_triage_team_preferences' do
+      VCR.use_cassette('sm_client/preferences/updates_triage_team_preferences') do
+        params = { updated_triage_teams: [{ triage_team_id: 1013155, preferred_team: true }] }
+        post '/my_health/v1/messaging/preferences/recipients', params: params
+      end
+    
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("200")
+    end
+
+    it 'POST #update_triage_team_preferences requires at least one triage team to include preferredTeam true' do
+      VCR.use_cassette('sm_client/preferences/updates_triage_team_preferences_at_least_one_true') do
+        params = { updated_triage_teams: [{ triage_team_id: 1013155, preferred_team: false }] }
+        post '/my_health/v1/messaging/preferences/recipients', params: params
+      end
+      expect(JSON.parse(response.body)['errors'].first['detail']).to eq('At Least one Triage group must be set to Yes')
+    end
+
+    it 'POST #update_triage_team_preferences requires a valid triage team' do
+      VCR.use_cassette('sm_client/preferences/updates_triage_team_preferences_error_invalid_triage_team') do
+        params = { updated_triage_teams: [{ triage_team_id: 1013155234, preferred_team: true }] }
+        post '/my_health/v1/messaging/preferences/recipients', params: params
+      end
+      expect(JSON.parse(response.body)['errors'].first['code']).to eq('SM99')
+    end
+
   end
 end
