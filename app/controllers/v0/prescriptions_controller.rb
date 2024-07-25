@@ -19,7 +19,6 @@ module V0
 
       links = pagination_links(resource)
       options = { meta: resource.metadata, links: }
-      # binding.pry
       render json: PrescriptionSerializer.new(resource.data, options)
     end
 
