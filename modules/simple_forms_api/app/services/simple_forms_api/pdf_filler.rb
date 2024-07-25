@@ -19,8 +19,8 @@ module SimpleFormsApi
 
     def generate(current_loa = nil)
       template_form_path = "#{TEMPLATE_BASE}/#{form_number}.pdf"
-      generated_form_path = "tmp/#{name}-tmp.pdf"
-      stamped_template_path = "tmp/#{name}-stamped.pdf"
+      generated_form_path = Rails.root.join("tmp/#{name}-tmp.pdf").to_s
+      stamped_template_path = Rails.root.join("tmp/#{name}-stamped.pdf")
       pdftk = PdfForms.new(Settings.binaries.pdftk)
 
       # Tempfile workaround inspired by this:

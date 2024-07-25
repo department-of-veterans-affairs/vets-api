@@ -81,9 +81,6 @@ features:
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
-  hca_submission_failure_email_va_notify:
-    actor_type: user
-    description: Send HCA Submission Failure email using VANotify.
   cg1010_oauth_2_enabled:
     actor_type: user
     description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
@@ -530,6 +527,10 @@ features:
   find_a_representative_flag_results_enabled:
     actor_type: user
     description: Enables flagging feature for Find a Representative frontend
+    enable_in_development: true
+  find_a_representative_use_accredited_models:
+    actor_type: user
+    description: Enables Find A Representative APIs using AccreditedX models
     enable_in_development: true
   representative_status_enabled:
     actor_type: cookie_id

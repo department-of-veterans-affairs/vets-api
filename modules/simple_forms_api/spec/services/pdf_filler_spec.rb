@@ -36,8 +36,8 @@ describe SimpleFormsApi::PdfFiller do
     forms.each do |file_name|
       context "when mapping the pdf data given JSON file: #{file_name}" do
         let(:form_number) { file_name.gsub('-min', '') }
-        let(:expected_pdf_path) { "tmp/#{name}-tmp.pdf" }
-        let(:expected_stamped_path) { "tmp/#{name}-stamped.pdf" }
+        let(:expected_pdf_path) { Rails.root.join("tmp/#{name}-tmp.pdf") }
+        let(:expected_stamped_path) { Rails.root.join("tmp/#{name}-stamped.pdf") }
         let(:data) { JSON.parse(File.read("modules/simple_forms_api/spec/fixtures/form_json/#{file_name}.json")) }
         let(:form) { "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(data) }
         let(:name) { SecureRandom.hex }
