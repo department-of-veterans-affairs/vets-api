@@ -10,7 +10,11 @@ module RepresentationManagement
           Tempfile.create do |tempfile|
             tempfile.binmode
             RepresentationManagement::V0::PdfConstructor::Form2122.new(tempfile).construct(form)
-            send_data tempfile.read, filename: '21-22.pdf', type: 'application/pdf', disposition: 'attachment'
+            send_data tempfile.read,
+                      filename: '21-22.pdf',
+                      type: 'application/pdf',
+                      disposition: 'attachment',
+                      status: :created
           end
           # The Tempfile is automatically deleted after the block ends
         else
