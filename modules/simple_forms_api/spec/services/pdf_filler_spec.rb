@@ -56,7 +56,7 @@ describe SimpleFormsApi::PdfFiller do
 
             described_class.new(form_number:, form:, name:).generate
 
-            expect(FileUtils).to have_received(:copy_file).with(anything, expected_stamped_path)
+            expect(FileUtils).to have_received(:copy_file).with(anything, expected_stamped_path.to_s)
           end
         end
       end
