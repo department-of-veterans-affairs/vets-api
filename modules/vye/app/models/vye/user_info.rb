@@ -26,8 +26,7 @@ module Vye
     serialize :dob, coder: DateAttributeSerializer
 
     validates(
-      :date_last_certified, :fac_code, :indicator,
-      :mr_status, :rem_ent, :rpo_code, :stub_nm,
+      :fac_code, :indicator, :mr_status, :rem_ent, :rpo_code, :stub_nm,
       presence: true
     )
 
