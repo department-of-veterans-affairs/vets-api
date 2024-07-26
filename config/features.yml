@@ -314,6 +314,9 @@ features:
   debt_letters_show_letters_vbms:
     actor_type: user
     description: Enables debt letter download from VBMS
+  debts_cache_dmc_empty_response:
+    actor_type: user
+    description: Enables caching of empty DMC response
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission
