@@ -15,7 +15,11 @@ module DebtManagementCenter
 
     def initialize(user)
       super(user)
-      @debts = init_debts
+      @debts = if Flipper.enabled?(:debts_cache_dmc_empty_response)
+                 init_cached_debts
+               else
+                 init_debts
+               end
     end
 
     def get_debts
@@ -59,12 +63,32 @@ module DebtManagementCenter
 
     def init_debts
       with_monitoring_and_error_handling do
+        Rails.logger.info('DebtManagement - DebtService#init_debts')
         options = { timeout: 30 }
         DebtManagementCenter::DebtsResponse.new(
           perform(
             :post, Settings.dmc.debts_endpoint, { fileNumber: @file_number }, nil, options
           ).body
         ).debts
+      end
+    end
+
+    def init_cached_debts
+      with_monitoring_and_error_handling do
+        # DMC refreshes DB at 5am every morning
+        Rails.cache.fetch("debts_data_#{@user.uuid}", expires_in: time_until_5am_utc) do
+          options = { timeout: 30 }
+          response = perform(
+            :post, Settings.dmc.debts_endpoint, { fileNumber: @file_number }, nil, options
+          ).body
+
+          if response.is_a?(Array) && response.empty?
+            Rails.logger.info('DebtManagement - DebtService#init_cached_debts: Writing empty response to cache')
+            Rails.cache.write("debts_data_#{@user.uuid}", response, expires_in: time_until_5am_utc)
+          end
+
+          DebtManagementCenter::DebtsResponse.new(response).debts
+        end
       end
     end
 
@@ -77,6 +101,13 @@ module DebtManagementCenter
 
     def sort_by_date(debt_history)
       debt_history.sort_by { |d| Date.strptime(d['date'], '%m/%d/%Y') }.reverse
+    end
+
+    def time_until_5am_utc
+      now = Time.now.utc
+      five_am_utc = Time.utc(now.year, now.month, now.day, 5)
+      five_am_utc += 1.day if now >= five_am_utc
+      five_am_utc - now
     end
   end
 end
