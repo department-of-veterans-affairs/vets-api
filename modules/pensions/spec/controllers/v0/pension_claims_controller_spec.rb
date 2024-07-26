@@ -3,10 +3,6 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-def logger_mock(str, x)
-  print(str, x)
-end
-
 RSpec.describe Pensions::V0::PensionClaimsController, type: :controller do
   routes { Pensions::Engine.routes }
 

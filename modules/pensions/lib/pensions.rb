@@ -2,5 +2,20 @@
 
 require 'pensions/engine'
 
+##
+# Pension 21P-527EZ Module
+#
 module Pensions
+  ##
+  # API Version 0
+  #
+  module V0
+  end
+
+  ##
+  # TagSentry
+  # @see https://docs.sentry.io/platforms/ruby/enriching-events/tags/
+  #
+  module TagSentry
+  end
 end

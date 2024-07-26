@@ -1,8 +1,14 @@
 # frozen_string_literal: true
 
 module Pensions
+  ##
+  # Monitor functions for Rails logging and StatsD
+  #
   class Monitor
+    # statsd key for api
     CLAIM_STATS_KEY = 'api.pension_claim'
+
+    # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'worker.lighthouse.pension_benefit_intake_job'
 
     def track_show404(confirmation_number, current_user, e)
