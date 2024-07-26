@@ -15,7 +15,6 @@ module MyHealth
 
       def create_reply_draft
         draft_response = client.post_create_message_draft_reply(params[:reply_id], reply_draft_params.to_h)
-        options = { include: [:attachments] } if draft_response.attachment
         render json: MessageDraftSerializer.new(draft_response), status: :created
       end
 

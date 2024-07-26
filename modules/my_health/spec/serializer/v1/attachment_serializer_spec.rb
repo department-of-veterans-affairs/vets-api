@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe MyHealth::V1::AttachmentSerializer, type: :serializer do
-  subject { serialize(attachment, serializer_class: described_class ) }
+  subject { serialize(attachment, serializer_class: described_class) }
 
   let(:attachment) { build_stubbed(:attachment) }
   let(:data) { JSON.parse(subject)['data'] }

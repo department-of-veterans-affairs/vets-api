@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe MyHealth::V1::MessageDetailsSerializer, type: :serializer do
-  subject { serialize(message, serializer_class: described_class ) }
+  subject { serialize(message, serializer_class: described_class) }
 
   let(:message) { build(:message_thread_details, :with_attachments, has_attachments: true) }
   let(:data) { JSON.parse(subject)['data'] }

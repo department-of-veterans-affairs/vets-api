@@ -3,7 +3,6 @@
 module MyHealth
   module V1
     class FoldersController < SMController
-
       def index
         resource = client.get_folders(@current_user.uuid, use_cache?, requires_oh_messages)
         links = pagination_links(resource)

@@ -100,7 +100,6 @@ module MyHealth
         render json: resource, each_serializer: MessageSignatureSerializer
       end
 
-
       def move
         folder_id = params.require(:folder_id)
         client.post_move_message(params[:id], folder_id)

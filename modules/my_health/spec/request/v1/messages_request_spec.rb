@@ -23,7 +23,7 @@ RSpec.describe 'Messages Integration', type: :request do
     Timecop.return
   end
 
-  xcontext 'when NOT authorized' do
+  context 'when NOT authorized' do
     before do
       VCR.insert_cassette('sm_client/session_error')
       get "/my_health/v1/messaging/messages/#{message_id}"
