@@ -12,7 +12,8 @@ module V0
       resource = resource.sort(params[:sort])
       resource = resource.paginate(**pagination_params)
 
-      options = { meta: resource.metadata }
+      links = pagination_links(resource)
+      options = { meta: resource.metadata, links: }
       render json: MessagesSerializer.new(resource.data, options)
     end
 
