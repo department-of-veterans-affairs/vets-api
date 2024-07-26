@@ -54,8 +54,7 @@ module RepresentationManagement
           raise 'NotImplemented' # Extend this class and implement
         end
 
-        # rubocop:disable Layout/LineLength
-        def next_steps_above_contact(pdf)
+        def next_steps_part1(pdf)
           pdf.font_size(20)
           pdf.text('Fill out your form to appoint a VA accredited representative or VSO')
           pdf.move_down(10)
@@ -66,29 +65,48 @@ module RepresentationManagement
           pdf.text('Your Next Steps')
           pdf.move_down(10)
           pdf.font_size(12)
-          pdf.text('Both you and the accredited representative will need to sign your form.  You can bring your form to them in person or mail it to them.')
+          str = <<~HEREDOC.squish
+            Both you and the accredited representative will need to sign your form.
+            You can bring your form to them in person or mail it to them.
+          HEREDOC
+          pdf.text(str)
           pdf.move_down(30)
         end
 
-        def next_steps_below_contact(pdf)
+        def next_steps_part2(pdf)
           pdf.move_down(30)
-          pdf.text('After your form is signed, you or the accredited representative can submit it online, by mail, or in person.')
+          str = <<~HEREDOC.squish
+            After your form is signed, you or the accredited representative
+            can submit it online, by mail, or in person.
+          HEREDOC
+          pdf.text(str)
           pdf.move_down(10)
           pdf.font_size(16)
           pdf.text('After you submit your printed form')
           pdf.move_down(10)
           pdf.font_size(12)
-          pdf.text("We'll confirm that the accredited representative is available to help you.  Then we'lle update your VA.gov profile with their information.")
+          str = <<~HEREDOC.squish
+            We'll confirm that the accredited representative is available to help you.
+            Then we'll update your VA.gov profile with their information.
+          HEREDOC
+          pdf.text(str)
           pdf.move_down(10)
-          pdf.text('We usually process your form within 1 week.  You can contact the accredited representative any time to aks when they can start helping you.')
+        end
+
+        def next_steps_part3(pdf)
+          str = <<~HEREDOC.squish
+            We usually process your form within 1 week.
+            You can contact the accredited representative any time to ask when they can start helping you.
+          HEREDOC
+          pdf.text(str)
           pdf.move_down(10)
           pdf.font_size(14)
           pdf.text('Need help?')
           pdf.move_down(10)
           pdf.font_size(12)
           pdf.text("You can call us at 800-698-2411, ext. 0 (TTY: 711).  We're here 24/7.")
+          pdf.move_down(10)
         end
-        # rubocop:enable Layout/LineLength
 
         private
 
@@ -112,9 +130,10 @@ module RepresentationManagement
         def generate_next_steps_page(data)
           tempfile = Tempfile.new
           next_steps = Prawn::Document.new
-          next_steps_above_contact(next_steps)
+          next_steps_part1(next_steps)
           next_steps_contact(next_steps, data)
-          next_steps_below_contact(next_steps)
+          next_steps_part2(next_steps)
+          next_steps_part3(next_steps)
           next_steps.render_file(tempfile.path)
           tempfile
         end
