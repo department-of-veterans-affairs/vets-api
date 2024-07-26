@@ -4314,10 +4314,10 @@
             "content": {
               "application/json": {
                 "examples": {
-                  "without a transactionId": {
+                  "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "3b0b2a58-4eda-4ca3-a5dc-0c8d90c7a9f5",
+                        "id": "6867223b-9910-4ff1-8a9d-9b8a6757480d",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4543,13 +4543,13 @@
                       }
                     }
                   },
-                  "with a transactionId": {
+                  "202 with a transactionId": {
                     "value": {
                       "meta": {
-                        "transactionId": "0000-00000000-00000000-0000"
+                        "transactionId": "00000000-0000-0000-0000-000000000000"
                       },
                       "data": {
-                        "id": "7fae5c07-4104-4ddd-9737-290010308b07",
+                        "id": "a71efcbb-e77b-4bc2-9302-6b4134683baf",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -7744,7 +7744,7 @@
                 "Transaction ID": {
                   "value": {
                     "meta": {
-                      "transactionId": "0000-00000000-00000000-0000"
+                      "transactionId": "00000000-0000-0000-0000-000000000000"
                     },
                     "data": {
                       "type": "form/526",
@@ -9659,7 +9659,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "07dd7284-3215-476e-8695-03ab836612e9",
+                    "id": "59dafa3f-08b6-48f9-9cb9-62b1602a48fa",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -13389,7 +13389,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "94deea83-a7ae-4fef-a80b-49ef1c500551",
+                    "id": "5978746f-0ec3-4f04-9438-08b7bd7afc24",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14082,7 +14082,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "97ff4cea-0cbd-4fa0-97c2-b50f94f481ef",
+                    "id": "b2a5ab46-32f3-4324-bad0-52321dcfb46b",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16033,7 +16033,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "59dd0f64-f2af-4b9b-89c6-87d1572abf1d",
+                    "id": "8772168e-3c21-448a-a464-75a1b6fe5500",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "dateRequestAccepted": "2024-07-26",

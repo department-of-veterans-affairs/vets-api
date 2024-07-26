@@ -311,7 +311,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
                 schema: SwaggerSharedComponents::V2.body_examples[:disability_compensation][:schema]
 
       merged_values = {}
-      merged_values[:meta] = { transactionId: '0000-00000000-00000000-0000' }
+      merged_values[:meta] = { transactionId: '00000000-0000-0000-0000-000000000000' }
       parsed_json = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                                'disability_compensation', 'form_526_json_api.json').read)
       merged_values[:data] = parsed_json['data']
@@ -363,7 +363,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             end
           end
 
-          context 'without a transactionId' do
+          context '202 without a transactionId' do
             let(:disability_comp_request) do
               data
             end
@@ -381,7 +381,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             end
           end
 
-          context 'with a transactionId' do
+          context '202 with a transactionId' do
             let(:disability_comp_request) do
               merged_values
             end
