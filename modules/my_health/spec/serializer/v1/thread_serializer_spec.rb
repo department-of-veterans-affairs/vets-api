@@ -14,6 +14,10 @@ describe MyHealth::V1::ThreadsSerializer, type: :serializer do
     expect(data['id']).to eq thread.thread_id.to_s
   end
 
+  it 'includes :type' do
+    expect(data['type']).to eq 'message_threads'
+  end
+
   it 'includes :thread_id' do
     expect(attributes['thread_id']).to eq thread.thread_id
   end

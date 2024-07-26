@@ -7,6 +7,8 @@ module MyHealth
 
       set_id :thread_id
 
+      set_type :message_threads
+
       attribute :thread_id
       attribute :folder_id
       attribute :message_id
