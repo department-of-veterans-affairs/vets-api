@@ -4686,7 +4686,7 @@ RSpec.describe 'Disability Claims', type: :request do
     let(:synchronous_scopes) { %w[system/526.override system/claim.write] }
     let(:invalid_scopes) { %w[system/526-pdf.override] }
     let(:meta) do
-      { transactionId: '0000-00000000-00000000-0000' }
+      { transactionId: '00000000-0000-0000-000000000000' }
     end
 
     context 'submission to synchronous' do
