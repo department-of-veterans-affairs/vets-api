@@ -6,10 +6,6 @@ require 'decision_review_v1/service'
 RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
   subject { described_class }
 
-  around do |example|
-    Sidekiq::Testing.inline!(&example)
-  end
-
   let(:service) { instance_double(DecisionReviewV1::Service) }
 
   let(:guid1) { SecureRandom.uuid }
@@ -31,7 +27,7 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
   end
 
   describe 'perform' do
-    context 'with flag enabled' do
+    context 'with flag enabled', :aggregate_failures do
       before do
         Flipper.enable :decision_review_saved_claim_sc_status_updater_job_enabled
       end
@@ -45,8 +41,7 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
           SavedClaim::NoticeOfDisagreement.create(form: '{}')
         end
 
-        # rubocop:disable Layout/LineLength
-        it 'updates SavedClaim::SupplementalClaim delete_date for completed records without a delete_date', :aggregate_failures do
+        it 'updates SavedClaim::SupplementalClaim delete_date for completed records without a delete_date' do
           expect(service).to receive(:get_supplemental_claim).with(guid1).and_return(response_complete)
           expect(service).to receive(:get_supplemental_claim).with(guid2).and_return(response_pending)
           expect(service).not_to receive(:get_supplemental_claim).with(guid3)

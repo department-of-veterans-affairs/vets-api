@@ -6,10 +6,6 @@ require 'decision_review_v1/service'
 RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
   subject { described_class }
 
-  around do |example|
-    Sidekiq::Testing.inline!(&example)
-  end
-
   let(:service) { instance_double(DecisionReviewV1::Service) }
 
   let(:guid1) { SecureRandom.uuid }
@@ -31,7 +27,7 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
   end
 
   describe 'perform' do
-    context 'with flag enabled' do
+    context 'with flag enabled', :aggregate_failures do
       before do
         Flipper.enable :decision_review_saved_claim_hlr_status_updater_job_enabled
       end
