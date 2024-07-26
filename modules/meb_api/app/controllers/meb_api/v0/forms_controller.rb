@@ -61,7 +61,6 @@ module MebApi
             end
           rescue => e
             Rails.logger.error("BIS service error: #{e}")
-            # Proceed without direct deposit info in case of error
           end
         end
 
