@@ -54,7 +54,7 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
           expect(service).not_to receive(:get_notice_of_disagreement)
           expect(service).not_to receive(:get_supplemental_claim)
 
-          subject.new.perform
+          subject.perform_async
 
           claim1 = SavedClaim::HigherLevelReview.find_by(guid: guid1)
           expect(claim1.delete_date).not_to be_nil
