@@ -35,7 +35,7 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
       claimant_country: 'US',
       claimant_zip_code: '12345',
       claimant_zip_code_suffix: '6789',
-      claimant_phone: '1111111111',
+      claimant_phone: '5555555555',
       claimant_email: 'claimant@example.com',
       representative_first_name: 'John',
       representative_middle_initial: 'Q',
