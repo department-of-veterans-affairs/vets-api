@@ -6,7 +6,6 @@ module FacilitiesApi
   class V2::Lighthouse::Facility < Common::Base
     include ActiveModel::Serializers::JSON
     attribute :access, Object
-    attribute :effective_date, String
     attribute :address, Object
     attribute :classification, String
     attribute :distance, Float

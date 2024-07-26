@@ -48,10 +48,15 @@ module FacilitiesApi
           health_services = services_data.map do |service|
             V2::Lighthouse::Service.new(service)
           end
-          facility.access = { 'health' => health_services }
-          facility.effective_date = facility.access['health'].first['effective_date'] if facility.access['health'].first
-          # The output below seems correct access is an object with a key of health and an array of health services
-          # Rails.logger.warn(facility.access)
+          health_services = health_services.select { |service| service['new'] || service['established'] }
+          facility.access = if health_services.first
+                              { 'health' => health_services,
+                                'effectiveDate' => health_services.first['effectiveDate'] }
+                            else
+                              {
+                                'health' => [], effectiveDate: ''
+                              }
+                            end
           facility
         end
 
