@@ -2569,3 +2569,184 @@ http_interactions:
         VA Clinic","facilityType":"va_health_facility","classification":"Primary Care
         CBOC","parent":{"id":"vha_506","link":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_506"},"lat":41.066235,"long":-83.619621,"timeZone":"America/New_York","mobile":false,"visn":"10"}}}'
   recorded_at: Mon, 17 Jun 2024 18:40:34 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_506GG/services
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Date:
+      - Fri, 26 Jul 2024 20:45:56 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '52'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "message":"Invalid authentication credentials"
+        }
+  recorded_at: Fri, 26 Jul 2024 20:45:56 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Date:
+      - Fri, 26 Jul 2024 20:45:57 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '52'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "message":"Invalid authentication credentials"
+        }
+  recorded_at: Fri, 26 Jul 2024 20:45:57 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Date:
+      - Fri, 26 Jul 2024 20:46:00 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '52'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "message":"Invalid authentication credentials"
+        }
+  recorded_at: Fri, 26 Jul 2024 20:46:00 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vc_0617V/services
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Date:
+      - Fri, 26 Jul 2024 20:46:00 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '52'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "message":"Invalid authentication credentials"
+        }
+  recorded_at: Fri, 26 Jul 2024 20:46:00 GMT
+recorded_with: VCR 6.2.0
