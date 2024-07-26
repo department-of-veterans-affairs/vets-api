@@ -50,7 +50,8 @@ module FacilitiesApi
           end
           facility.access = { 'health' => health_services }
           facility.effective_date = facility.access['health'].first['effective_date'] if facility.access['health'].first
-          Rails.logger.warn(facility.access)
+          # The output below seems correct access is an object with a key of health and an array of health services
+          # Rails.logger.warn(facility.access)
           facility
         end
 
