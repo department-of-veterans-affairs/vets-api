@@ -45,7 +45,8 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
           SavedClaim::NoticeOfDisagreement.create(form: '{}')
         end
 
-        it 'updates SavedClaim::SupplementalClaim delete_date for completed records without a delete_date' do
+        # rubocop:disable Layout/LineLength
+        it 'updates SavedClaim::SupplementalClaim delete_date for completed records without a delete_date', :aggregate_failures do
           expect(service).to receive(:get_supplemental_claim).with(guid1).and_return(response_complete)
           expect(service).to receive(:get_supplemental_claim).with(guid2).and_return(response_pending)
           expect(service).not_to receive(:get_supplemental_claim).with(guid3)
