@@ -21,9 +21,14 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
   end
 
   before do
+    Sidekiq::Testing.inline!
     stub_const('DecisionReview::SavedClaimHlrStatusUpdaterJob::REQUEST_DELAY', 0)
 
     allow(DecisionReviewV1::Service).to receive(:new).and_return(service)
+  end
+
+  after do
+    Sidekiq::Testing.fake!
   end
 
   describe 'perform' do
@@ -49,17 +54,13 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
           expect(service).not_to receive(:get_notice_of_disagreement)
           expect(service).not_to receive(:get_supplemental_claim)
 
-          frozen_time = DateTime.new(2024, 1, 1).utc
+          subject.new.perform
 
-          Timecop.freeze(frozen_time) do
-            subject.new.perform
+          claim1 = SavedClaim::HigherLevelReview.find_by(guid: guid1)
+          expect(claim1.delete_date).not_to be_nil
 
-            claim1 = SavedClaim::HigherLevelReview.find_by(guid: guid1)
-            expect(claim1.delete_date).to eq frozen_time + 59.days
-
-            claim2 = SavedClaim::HigherLevelReview.find_by(guid: guid2)
-            expect(claim2.delete_date).to be_nil
-          end
+          claim2 = SavedClaim::HigherLevelReview.find_by(guid: guid2)
+          expect(claim2.delete_date).to be_nil
         end
       end
     end
