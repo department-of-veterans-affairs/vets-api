@@ -55,7 +55,7 @@ module SimpleFormsApi
     end
 
     def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
-      stamp_path = Common::FileHelpers.random_file_path
+      stamp_path = Rails.root.join(Common::FileHelpers.random_file_path)
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
         page_configuration.each do |config|
           case config[:type]
@@ -94,7 +94,7 @@ module SimpleFormsApi
     end
 
     def self.perform_multistamp(stamped_template_path, stamp_path)
-      out_path = "#{Common::FileHelpers.random_file_path}.pdf"
+      out_path = Rails.root.join("#{Common::FileHelpers.random_file_path}.pdf")
       pdftk = PdfFill::Filler::PDF_FORMS
       pdftk.multistamp(stamped_template_path, stamp_path, out_path)
       Common::FileHelpers.delete_file_if_exists(stamped_template_path)
