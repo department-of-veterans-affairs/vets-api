@@ -92,6 +92,7 @@ describe MyHealth::V1::PrescriptionSerializer, type: :serializer do
 
   context 'when prescription is trackable?' do
     let(:prescription) { build_stubbed(:prescription, is_trackable: true) }
+
     it 'includes :tracking link' do
       expected_url = MyHealth::UrlHelper.new.v1_prescription_trackings_url(prescription.prescription_id)
       expect(links['tracking']).to eq expected_url

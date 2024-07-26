@@ -3,7 +3,6 @@
 module MyHealth
   module V1
     class PrescriptionDetailsSerializer < PrescriptionSerializer
-
       include JSONAPI::Serializer
 
       set_id :prescription_id
@@ -32,11 +31,13 @@ module MyHealth
       attribute :category
       attribute :tracking_list do |object|
         next [] unless object.tracking_list
+
         tracking_list = object.tracking_list
         tracking_list.dig(0, 1) || []
       end
       attribute :rx_rf_records do |object|
         next [] unless object.rx_rf_records
+
         records = object.rx_rf_records
         records.dig(0, 1) || []
       end
