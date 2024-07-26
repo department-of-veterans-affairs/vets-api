@@ -52,13 +52,13 @@ module Lighthouse
     # @param [String] veteran's ICN
     #
     def perform(form_type, form_start_date, veteran_icn)
-      init(form_type, form_start_date, veteran_icn)
+      init(form_type, veteran_icn)
 
-      @itf_log_monitor.track_create_itf_begun(@itf_type, form_start_date, @user_account.id)
+      @itf_log_monitor.track_create_itf_begun(@itf_type, form_start_date, @user_account&.id)
       @service.create_intent_to_file(@itf_type, '')
-      @itf_log_monitor.track_create_itf_success(@itf_type, form_start_date, @user_account.id)
+      @itf_log_monitor.track_create_itf_success(@itf_type, form_start_date, @user_account&.id)
     rescue => e
-      @itf_log_monitor.track_create_itf_failure(@itf_type, form_start_date, @user_account.id, e)
+      @itf_log_monitor.track_create_itf_failure(@itf_type, form_start_date, @user_account&.id, e)
       raise e
     end
 
@@ -67,12 +67,12 @@ module Lighthouse
     ##
     # Instantiate instance variables for _this_ job
     #
-    def init(form_type, _form_start_date, veteran_icn)
+    def init(form_type, icn)
       @itf_log_monitor = BenefitsClaims::IntentToFile::Monitor.new
-      @user_account = UserAccount.find_by(veteran_icn:)
+      @user_account = UserAccount.find_by(icn:)
       @itf_type = ITF_FORMS[form_type]
 
-      raise CreateIntentToFileError, 'Init failed. No veteran ICN provided' if veteran_icn.blank?
+      raise CreateIntentToFileError, 'Init failed. No veteran ICN provided' if icn.blank?
 
       if @user_account.blank?
         raise CreateIntentToFileError,
@@ -80,7 +80,7 @@ module Lighthouse
       end
       raise CreateIntentToFileError, 'Init failed. Invalid ITF type' if @itf_type.blank?
 
-      @service = BenefitsClaims::Service.new(veteran_icn)
+      @service = BenefitsClaims::Service.new(icn)
     end
   end
 end

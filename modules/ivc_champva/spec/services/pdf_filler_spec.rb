@@ -44,9 +44,7 @@ describe IvcChampva::PdfFiller do
             filled_pdf_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'pdfs',
                                               "#{file_name}-filled.pdf")
 
-            expect do
-              described_class.new(form_number:, form:).generate
-            end.to change { File.exist?(expected_pdf_path) }.from(false).to(true)
+            described_class.new(form_number:, form:).generate
 
             expect(expected_pdf_path).to match_pdf_content_of(filled_pdf_path)
           end

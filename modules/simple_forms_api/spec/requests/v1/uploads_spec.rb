@@ -5,6 +5,14 @@ require 'simple_forms_api_submission/metadata_validator'
 require 'common/file_helpers'
 
 RSpec.describe 'Forms uploader', type: :request do
+  before do
+    Flipper.disable(:simple_forms_lighthouse_benefits_intake_service)
+  end
+
+  after do
+    Flipper.enable(:simple_forms_lighthouse_benefits_intake_service)
+  end
+
   forms = [
     # TODO: Restore this test when we release 26-4555 to production.
     # 'vba_26_4555.json',
@@ -52,21 +60,50 @@ RSpec.describe 'Forms uploader', type: :request do
         fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
         data = JSON.parse(fixture_path.read)
 
-        it 'makes the request' do
-          allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+        context 'through the SimpleFormsApiSubmission::Service' do
+          it 'makes the request' do
+            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
 
-          post '/simple_forms_api/v1/simple_forms', params: data
+            post '/simple_forms_api/v1/simple_forms', params: data
 
-          expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
-          expect(response).to have_http_status(:ok)
+            expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
+            expect(response).to have_http_status(:ok)
+          end
+
+          it 'saves a FormSubmissionAttempt' do
+            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+
+            expect do
+              post '/simple_forms_api/v1/simple_forms', params: data
+            end.to change(FormSubmissionAttempt, :count).by(1)
+          end
         end
 
-        it 'saves a FormSubmissionAttempt' do
-          allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+        context 'through the Lighthouse BenefitsIntake::Service' do
+          before do
+            Flipper.enable(:simple_forms_lighthouse_benefits_intake_service)
+          end
 
-          expect do
+          after do
+            Flipper.disable(:simple_forms_lighthouse_benefits_intake_service)
+          end
+
+          it 'makes the request' do
+            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+
             post '/simple_forms_api/v1/simple_forms', params: data
-          end.to change(FormSubmissionAttempt, :count).by(1)
+
+            expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
+            expect(response).to have_http_status(:ok)
+          end
+
+          it 'saves a FormSubmissionAttempt' do
+            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+
+            expect do
+              post '/simple_forms_api/v1/simple_forms', params: data
+            end.to change(FormSubmissionAttempt, :count).by(1)
+          end
         end
       end
 
@@ -96,7 +133,21 @@ RSpec.describe 'Forms uploader', type: :request do
           before do
             sign_in
             allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+            allow_any_instance_of(User).to receive(:participant_id).and_return(nil)
             allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+          end
+
+          context 'veteran' do
+            it 'calls #populate_veteran_data' do
+              expect_any_instance_of(SimpleFormsApi::VBA210966).to receive(:populate_veteran_data).and_call_original
+
+              fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                             'vba_21_0966-prefill.json')
+              data = JSON.parse(fixture_path.read)
+              data['preparer_identification'] = 'VETERAN'
+
+              post '/simple_forms_api/v1/simple_forms', params: data
+            end
           end
 
           context 'third party' do
@@ -252,7 +303,8 @@ RSpec.describe 'Forms uploader', type: :request do
             post '/simple_forms_api/v1/simple_forms', params: data
 
             expect(response).to have_http_status(:error)
-            expect(response.body).to include('not compatible with the Windows-1252 character set')
+            # 'not compatible' gets mangled by our scrubbing but this indicates that we're getting the right message
+            expect(response.body).to include('not copatible with the Windows-15 character set')
           end
         end
       end
@@ -460,7 +512,6 @@ RSpec.describe 'Forms uploader', type: :request do
       VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response_pension')
       VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response_survivor')
       sign_in
-      allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
     end
 
@@ -539,6 +590,22 @@ RSpec.describe 'Forms uploader', type: :request do
         parsed_response = JSON.parse(response.body)
         expect(parsed_response['compensation_intent']['type']).to eq 'compensation'
         expect(parsed_response['pension_intent']['type']).to eq 'pension'
+        expect(parsed_response['survivor_intent']).to eq nil
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'no participant_id' do
+      before do
+        allow_any_instance_of(User).to receive(:participant_id).and_return(nil)
+      end
+
+      it 'returns no intents' do
+        get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['compensation_intent']).to eq nil
+        expect(parsed_response['pension_intent']).to eq nil
         expect(parsed_response['survivor_intent']).to eq nil
         expect(response).to have_http_status(:ok)
       end

@@ -1,16 +1,19 @@
 # frozen_string_literal: true
 
-class BackendStatusesSerializer < ActiveModel::Serializer
+class BackendStatusesSerializer
+  include JSONAPI::Serializer
+
+  set_id { '' }
+
   attributes :reported_at, :statuses, :maintenance_windows
 
-  def id
-    nil
-  end
-
-  def maintenance_windows
-    return [] unless @instance_options[:maintenance_windows]
-
-    ActiveModel::Serializer::CollectionSerializer.new(@instance_options[:maintenance_windows],
-                                                      serializer: MaintenanceWindowSerializer)
+  attribute :maintenance_windows do |_object, params|
+    maintenance_windows = params[:maintenance_windows]
+    if maintenance_windows
+      serializer = MaintenanceWindowSerializer.new(maintenance_windows)
+      serializer.serializable_hash[:data].pluck(:attributes)
+    else
+      []
+    end
   end
 end

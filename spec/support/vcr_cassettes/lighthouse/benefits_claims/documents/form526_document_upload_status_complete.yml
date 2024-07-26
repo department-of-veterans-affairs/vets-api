@@ -1,0 +1,119 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://dev-api.va.gov/oauth2/benefits-documents/system/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2F3dXJrY3o5RXFKaGJ1czJwNyIsInN1YiI6IjBvYXd1cmtjejlFcUpoYnVzMnA3IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzaTN1aTgzZkxhNjhJSnYycDcvdjEvdG9rZW4iLCJpYXQiOjE3MjA4MTQ2NDIsImV4cCI6MTcyMDgxNDk0Mn0.jGlv5qUo7lTzWH8bCX-Qt-GsQhHbdMv-nTPk2wnqtWOFpsl3MEq6WPcUT-I_JJ6rOqo8DZS9fi1pZ3zcCLQskArGh9KtbCXY_kflhMMZ-tSPmpmzqWTg4w9AIxCJkrIRVb8lZvEAhQf_B0Mi4v5jwZhD22pRKs307tuseFw4HLxaXh-CUIXO-8RLW17B8_gbE7_wWU1ZkLyJYNa8ksGUvTZ-aD4Tzp2jzIEArh1fuhzYSrQcSwxPUz0Z4M-YCaWqYH4eKkZLpTpFUD6TMLL4pcREtGcSYRyMm441g5o--cEOcOjsYkr1KhdjQlbmB52GvHR-bWjlTO1AweJzmXtA3w&scope=documents.read+documents.write
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 12 Jul 2024 20:04:03 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '240'
+      Ratelimit-Remaining:
+      - '239'
+      Ratelimit-Reset:
+      - '58'
+      Ratelimit-Limit:
+      - '240'
+      X-Ratelimit-Remaining-Minute:
+      - '239'
+      Vary:
+      - Origin
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Etag:
+      - W/"42c-4P6zBGvSIvX6RGotiWxS1a+Ofdo"
+      Access-Control-Allow-Origin:
+      - "*"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"eyJraWQiOiJDRXYya09IcVRrQm1tVExobGh4STdBd1RyUzNoa3JmcFdfWngtbmdwRWl3IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULmJNT1dMaGpQRG5fckViOXZQQW1FVTQ2c2VjdUxCZWYyOURuVlAxSTlWM1UiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXNpM3VpODNmTGE2OElKdjJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2JlbmVmaXRzLWRvY3VtZW50cyIsImlhdCI6MTcyMDgxNDY0MywiZXhwIjoxNzIwODE1MjQzLCJjaWQiOiIwb2F3dXJrY3o5RXFKaGJ1czJwNyIsInNjcCI6WyJkb2N1bWVudHMud3JpdGUiLCJkb2N1bWVudHMucmVhZCJdLCJzdWIiOiIwb2F3dXJrY3o5RXFKaGJ1czJwNyIsImxhYmVsIjoiVkFCZW5lZml0c0NsYWltc0Rpc2FiaWxpdHlCZW5lZml0c0V4cGVyaWVuY2VSZWdlbnRoYWwifQ.AA6nlewG2LVOSC-j8BnBV2rIEZIIlcs6hPxJnjNw84CvdbPjdOrM-bAco9zaW2KlDbObdlfmgYY-2P4FSANAEgVdeLlM2D3R6az_gXpEMwjOhBbYEnPUQGpZxta9PXeBjllnhZfNXsjyKNy1dhV2UQKxunTJC855m7WEyFkistgelpGZynd5qPK530azb_E7GyBEFZOAHcFQ3zr6TeRHXYIw4tBdqN3agdHYzAQEjl3dVK1cBJe6bBSxR76jTl0ogTH4UYQUt-eA98vJk_Zp3WbX4_PayG0z3tWM_TXMgFYhQwV7QoweGk41WzQqzK686V-nJ2KtuPT-n8VCOA9tjQ","token_type":"Bearer","scope":"documents.write
+        documents.read","expires_in":600,"state":null}'
+  recorded_at: Fri, 12 Jul 2024 20:04:03 GMT
+- request:
+    method: post
+    uri: https://dev-api.va.gov/services/benefits-documents/v1/uploads/status
+    body:
+      encoding: UTF-8
+      string: '{"data":{"requestIds":["22"]}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 12 Jul 2024 20:04:03 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Reset:
+      - '57'
+      Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="523553774", dtSInfo;desc="0"
+      X-Envoy-Upstream-Service-Time:
+      - '237'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      X-Frame-Options:
+      - SAMEORIGIN
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"statuses":[{"requestId":22,"time":{"startTime":1718902851802,"endTime":1720793267285},"status":"SUCCESS","steps":[{"name":"CLAIMS_EVIDENCE","nextStepName":"BENEFITS_GATEWAY_SERVICE","description":"The
+        workflow step that uploads the document to Claims Evidence","status":"SUCCESS"},{"name":"BENEFITS_GATEWAY_SERVICE","description":"The
+        workflow step that uploads the document to Benefits Gateway Service","status":"SUCCESS"}]}]}}'
+  recorded_at: Fri, 12 Jul 2024 20:04:03 GMT
+recorded_with: VCR 6.2.0

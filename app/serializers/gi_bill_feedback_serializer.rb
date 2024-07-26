@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-class GIBillFeedbackSerializer < ActiveModel::Serializer
-  attribute(:guid)
-  attribute(:state)
-  attribute(:parsed_response)
+class GIBillFeedbackSerializer
+  include JSONAPI::Serializer
+
+  attributes :guid, :state, :parsed_response
 end
