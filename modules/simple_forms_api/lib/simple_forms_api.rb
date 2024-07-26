@@ -71,5 +71,7 @@ module SimpleFormsApi
         words.uniq.sort_by(&:length).reverse
       end
     end
+
+    class MpiAddPersonProxyFailure < StandardError; end
   end
 end

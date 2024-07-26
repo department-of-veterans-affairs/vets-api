@@ -135,6 +135,7 @@ RSpec.describe 'Forms uploader', type: :request do
             allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
             allow_any_instance_of(User).to receive(:participant_id).and_return(nil)
             allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+            allow_any_instance_of(MPIData).to receive(:add_person_proxy).and_return(double(ok?: false))
           end
 
           context 'veteran' do

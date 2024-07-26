@@ -59,7 +59,7 @@ module SimpleFormsApi
       if user
         unless user.participant_id
           add_response = MPIData.for_user(user.identity).add_person_proxy
-          raise add_response.error unless add_response.ok?
+          raise SimpleFormsApi::Exceptions::MpiAddPersonProxyFailure unless add_response.ok?
         end
 
         user.participant_id

@@ -56,6 +56,7 @@ describe SimpleFormsApi::IntentToFile do
 
     it 'return the expiration date of a newly-created Intent To File' do
       user = build(:user)
+      allow(user).to receive_messages(icn: '123498767V234859', participant_id: 'fake-participant-id')
       intent_to_file_service = SimpleFormsApi::IntentToFile.new(user, params)
       expiration_date = 'fake-expiration-date'
       id = 'fake-id'
