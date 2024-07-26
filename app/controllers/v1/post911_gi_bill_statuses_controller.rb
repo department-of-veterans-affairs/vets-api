@@ -19,6 +19,8 @@ module V1
       response = service.get_gi_bill_status
       render json: response,
              serializer: Post911GIBillStatusSerializer
+    rescue Breakers::OutageException => e
+      raise e
     rescue => e
       handle_error(e)
     ensure
