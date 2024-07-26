@@ -107,10 +107,7 @@ module V1
         handle_4142(request_body: req_body_obj, form4142:, appeal_submission_id:, submitted_appeal_uuid:)
         submit_evidence(sc_evidence, appeal_submission_id, submitted_appeal_uuid) if sc_evidence.present?
 
-        uploaded_forms = []
-        uploaded_forms << '21-4142' if form4142.present?
-        store_saved_claim(claim_class: SavedClaim::SupplementalClaim, form: saved_claim_request_body,
-                          guid: submitted_appeal_uuid, uploaded_forms:)
+        handle_saved_claim(form: saved_claim_request_body, guid: submitted_appeal_uuid, form4142:)
 
         # Only destroy InProgressForm after evidence upload step
         # so that we still have references if a fatal error occurs before this step
@@ -132,6 +129,12 @@ module V1
       }
       appeal_submission = AppealSubmission.create!(create_params)
       appeal_submission.id
+    end
+
+    def handle_saved_claim(form:, guid:, form4142:)
+      uploaded_forms = []
+      uploaded_forms << '21-4142' if form4142.present?
+      store_saved_claim(claim_class: SavedClaim::SupplementalClaim, form:, guid:, uploaded_forms:)
     end
 
     def clear_in_progress_form
