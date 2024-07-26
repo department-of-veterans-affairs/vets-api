@@ -349,19 +349,19 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
           schema SwaggerSharedComponents::V2.schemas[:sync_disability_compensation]
 
-          # def make_request(example)
-          #   Flipper.disable :claims_load_testing
+          def make_request(example)
+            Flipper.disable :claims_load_testing
 
-          #   with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
-          #     VCR.use_cassette('claims_api/disability_comp') do
-          #       VCR.use_cassette('claims_api/evss/submit') do
-          #         mock_ccg_for_fine_grained_scope(synchronous_scopes) do
-          #           submit_request(example.metadata)
-          #         end
-          #       end
-          #     end
-          #   end
-          # end
+            with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
+              VCR.use_cassette('claims_api/disability_comp') do
+                VCR.use_cassette('claims_api/evss/submit') do
+                  mock_ccg_for_fine_grained_scope(synchronous_scopes) do
+                    submit_request(example.metadata)
+                  end
+                end
+              end
+            end
+          end
 
           context 'without a transactionId' do
             let(:disability_comp_request) do
