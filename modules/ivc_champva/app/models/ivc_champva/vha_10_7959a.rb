@@ -2,6 +2,8 @@
 
 module IvcChampva
   class VHA107959a
+    STATS_KEY = 'api.ivc_champva_form.10_7959a'
+
     include Virtus.model(nullify_blank: true)
     include Attachments
 
@@ -28,6 +30,12 @@ module IvcChampva
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info']
       }
+    end
+
+    def track_user_identity
+      identity = data['certifier_role']
+      StatsD.increment("#{STATS_KEY}.#{identity}")
+      Rails.logger.info('IVC ChampVA Forms - 10-7959A Submission User Identity', identity:)
     end
 
     # rubocop:disable Naming/BlockForwarding,Style/HashSyntax
