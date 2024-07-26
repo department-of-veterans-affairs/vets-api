@@ -114,11 +114,8 @@ module ClaimsApi
                                         auto_claim, root: :data, async: false
                                       ))
 
-          form_meta = { transactionId: auto_claim.transaction_id }
-
-          render_hash = {}
-          render_hash[:meta] = form_meta if auto_claim.transaction_id.present?
-          render_hash[:data] = form_blueprint['data']
+          render_hash = { data: form_blueprint['data'] }
+          render_hash[:meta] = { transactionId: auto_claim.transaction_id } if auto_claim.transaction_id.present?
 
           render json: render_hash, status: :accepted,
                  location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)
