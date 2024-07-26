@@ -104,6 +104,7 @@ module MyHealth
           resource[:data] =
             { signature_name: nil, include_signature: false, signature_title: nil }
         end
+        # see MessageSignatureSerializer for more information
         render json: resource
       end
 

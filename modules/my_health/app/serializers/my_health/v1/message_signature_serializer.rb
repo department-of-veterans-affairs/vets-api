@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+# This serializer was used intended to be used in
+# MyHealth::V1::MessagesController#signature
+# However, it's not actually being used because the call doesn't
+# follow JSON:API specs and just uses "object" itself
+
+# I'm not deleting the serializer so the mhv team can update the
+# controller and frontend at a later date.
 module MyHealth
   module V1
     class MessageSignatureSerializer
