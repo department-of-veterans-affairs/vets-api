@@ -20,7 +20,8 @@ module FacilitiesApi
         #
         def get_by_id(id)
           response = perform(:get, "/services/va_facilities/v1/facilities/#{id}", nil)
-          V2::Lighthouse::Response.new(response.body, response.status).facility
+          response_services = perform(:get, "/services/va_facilities/v1/facilities/#{id}/services", nil)
+          V2::Lighthouse::Response.new(response.body, response.status).facility_with_services(response_services.body)
         end
 
         ##

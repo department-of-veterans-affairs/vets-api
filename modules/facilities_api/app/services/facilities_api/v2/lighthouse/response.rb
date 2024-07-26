@@ -40,6 +40,20 @@ module FacilitiesApi
           V2::Lighthouse::Facility.new(data)
         end
 
+        # services is a string here
+        def facility_with_services(services)
+          facility = V2::Lighthouse::Facility.new(data)
+          parsed_services = JSON.parse(services)
+          services_data = parsed_services.key?('data') ? parsed_services['data'] : []
+          health_services = services_data.map do |service|
+            V2::Lighthouse::Service.new(service)
+          end
+          facility.access = { 'health' => health_services }
+          facility.effective_date = facility.access['health'].first['effective_date'] if facility.access['health'].first
+          Rails.logger.warn(facility.access)
+          facility
+        end
+
         private
 
         def set_metadata(meta)
