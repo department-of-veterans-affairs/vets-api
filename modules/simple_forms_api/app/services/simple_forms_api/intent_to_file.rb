@@ -56,7 +56,14 @@ module SimpleFormsApi
     private
 
     def participant_id
-      user&.participant_id
+      if user
+        unless user.participant_id
+          add_response = MPIData.for_user(user.identity).add_person_proxy
+          raise add_response.error unless add_response.ok?
+        end
+
+        user.participant_id
+      end
     end
 
     def benefits_claims_lighthouse_service
