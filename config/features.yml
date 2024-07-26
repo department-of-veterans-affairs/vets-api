@@ -81,9 +81,6 @@ features:
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
-  hca_submission_failure_email_va_notify:
-    actor_type: user
-    description: Send HCA Submission Failure email using VANotify.
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
@@ -314,6 +311,9 @@ features:
   debt_letters_show_letters_vbms:
     actor_type: user
     description: Enables debt letter download from VBMS
+  debts_cache_dmc_empty_response:
+    actor_type: user
+    description: Enables caching of empty DMC response
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission
@@ -527,6 +527,10 @@ features:
   find_a_representative_flag_results_enabled:
     actor_type: user
     description: Enables flagging feature for Find a Representative frontend
+    enable_in_development: true
+  find_a_representative_use_accredited_models:
+    actor_type: user
+    description: Enables Find A Representative APIs using AccreditedX models
     enable_in_development: true
   representative_status_enabled:
     actor_type: cookie_id
