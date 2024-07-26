@@ -9,6 +9,7 @@ module VAProfile
         currently_active_duty
         currently_active_duty_hash
         discharge_type
+        first_entry_date
         guard_reserve_service_history
         hca_last_service_branch
         last_discharge_date
@@ -147,6 +148,10 @@ module VAProfile
         DISCHARGE_TYPES[latest_service_episode&.character_of_discharge_code]
       end
 
+      def first_entry_date
+        earliest_service_episode&.begin_date
+      end
+
       # @return [Array<Hash>] Veteran's guard and reserve service episode date
       #  ranges sorted by end_date
       def guard_reserve_service_history
@@ -263,6 +268,10 @@ module VAProfile
         end
 
         false
+      end
+
+      def earliest_service_episode
+        service_episodes_by_date.reverse.try(:[], 0)
       end
 
       # @return [Array<Hash] array of veteran's Guard and reserve service periods by period of service end date, DESC

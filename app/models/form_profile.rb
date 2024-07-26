@@ -28,6 +28,7 @@ class FormMilitaryInformation
   attribute :service_episodes_by_date, Array
   attribute :last_service_branch, String
   attribute :hca_last_service_branch, String
+  attribute :first_entry_date, String
   attribute :last_entry_date, String
   attribute :last_discharge_date, String
   attribute :discharge_type, String
