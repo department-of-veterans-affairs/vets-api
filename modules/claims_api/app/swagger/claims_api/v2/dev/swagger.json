@@ -3477,7 +3477,6 @@
                                   "description": "Identifies the Service dates and Branch the Veteran served in.",
                                   "type": "array",
                                   "minItems": 1,
-                                  "uniqueItems": true,
                                   "items": {
                                     "type": "object",
                                     "required": [
@@ -4829,7 +4828,6 @@
                                 "description": "Identifies the Service dates and Branch the Veteran served in.",
                                 "type": "array",
                                 "minItems": 1,
-                                "uniqueItems": true,
                                 "items": {
                                   "type": "object",
                                   "required": [
@@ -5702,230 +5700,466 @@
             "description": "Successful response",
             "content": {
               "application/json": {
-                "example": {
-                  "data": {
-                    "id": "80c499f0-0343-46a2-8b16-9c1c2307ab3b",
-                    "type": "forms/526",
-                    "attributes": {
-                      "claimId": "600442191",
-                      "claimProcessType": "STANDARD_CLAIM_PROCESS",
-                      "claimNotes": "Some things that are important to know, and are not included in any other place.",
-                      "veteranIdentification": {
-                        "serviceNumber": "123456789",
-                        "veteranNumber": {
-                          "telephone": "5555555555",
-                          "internationalTelephone": "+44 20 1234 5678"
-                        },
-                        "mailingAddress": {
-                          "addressLine1": "1234 Couch Street",
-                          "addressLine2": "Unit 4",
-                          "addressLine3": "Room 1",
-                          "city": "Portland",
-                          "state": "OR",
-                          "country": "USA",
-                          "zipFirstFive": "41726",
-                          "zipLastFour": "1234"
-                        },
-                        "emailAddress": {
-                          "email": "valid@somedomain.com",
-                          "agreeToEmailRelatedToClaim": true
-                        },
-                        "currentVaEmployee": false
-                      },
-                      "changeOfAddress": {
-                        "typeOfAddressChange": "TEMPORARY",
-                        "addressLine1": "10 Peach St",
-                        "addressLine2": "Unit 4",
-                        "addressLine3": "Room 1",
-                        "city": "Atlanta",
-                        "state": "GA",
-                        "country": "USA",
-                        "zipFirstFive": "42220",
-                        "zipLastFour": "9897",
-                        "dates": {
-                          "beginDate": "2023-06-04",
-                          "endDate": "2023-12-04"
-                        }
-                      },
-                      "homeless": {
-                        "currentlyHomeless": {
-                          "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
-                          "otherDescription": "ABCDEFGHIJKLM"
-                        },
-                        "pointOfContact": "john stewart",
-                        "pointOfContactNumber": {
-                          "telephone": "5555555555",
-                          "internationalTelephone": "+44 20 1234 5678"
-                        }
-                      },
-                      "toxicExposure": {
-                        "gulfWarHazardService": {
-                          "servedInGulfWarHazardLocations": "YES",
-                          "serviceDates": {
-                            "beginDate": "2018-07",
-                            "endDate": "2018-08"
-                          }
-                        },
-                        "herbicideHazardService": {
-                          "servedInHerbicideHazardLocations": "YES",
-                          "otherLocationsServed": "ABCDEFGHIJKLM",
-                          "serviceDates": {
-                            "beginDate": "2018-07",
-                            "endDate": "2018-08"
-                          }
-                        },
-                        "additionalHazardExposures": {
-                          "additionalExposures": [
-                            "ASBESTOS",
-                            "SHIPBOARD_HAZARD_AND_DEFENSE"
-                          ],
-                          "specifyOtherExposures": "Other exposure details",
-                          "exposureDates": {
-                            "beginDate": "2018-07",
-                            "endDate": "2018-08"
-                          }
-                        },
-                        "multipleExposures": [
-                          {
-                            "hazardExposedTo": "RADIATION",
-                            "exposureLocation": "Guam",
-                            "exposureDates": {
-                              "beginDate": "2012-12",
-                              "endDate": "2013-07"
+                "examples": {
+                  "without a transactionId": {
+                    "value": {
+                      "data": {
+                        "id": "a0b8b8f2-342b-4890-beae-6cfd69fb2fc7",
+                        "type": "forms/526",
+                        "attributes": {
+                          "claimId": "600442191",
+                          "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                          "claimNotes": "Some things that are important to know, and are not included in any other place.",
+                          "veteranIdentification": {
+                            "serviceNumber": "123456789",
+                            "veteranNumber": {
+                              "telephone": "5555555555",
+                              "internationalTelephone": "+44 20 1234 5678"
+                            },
+                            "mailingAddress": {
+                              "addressLine1": "1234 Couch Street",
+                              "addressLine2": "Unit 4",
+                              "addressLine3": "Room 1",
+                              "city": "Portland",
+                              "state": "OR",
+                              "country": "USA",
+                              "zipFirstFive": "41726",
+                              "zipLastFour": "1234"
+                            },
+                            "emailAddress": {
+                              "email": "valid@somedomain.com",
+                              "agreeToEmailRelatedToClaim": true
+                            },
+                            "currentVaEmployee": false
+                          },
+                          "changeOfAddress": {
+                            "typeOfAddressChange": "TEMPORARY",
+                            "addressLine1": "10 Peach St",
+                            "addressLine2": "Unit 4",
+                            "addressLine3": "Room 1",
+                            "city": "Atlanta",
+                            "state": "GA",
+                            "country": "USA",
+                            "zipFirstFive": "42220",
+                            "zipLastFour": "9897",
+                            "dates": {
+                              "beginDate": "2023-06-04",
+                              "endDate": "2023-12-04"
                             }
-                          }
-                        ]
-                      },
-                      "disabilities": [
-                        {
-                          "name": "Traumatic Brain Injury",
-                          "exposureOrEventOrInjury": "EXPOSURE",
-                          "serviceRelevance": "ABCDEFG",
-                          "approximateDate": "2018-03-11",
-                          "disabilityActionType": "NEW",
-                          "classificationCode": "9014",
-                          "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
-                          "diagnosticCode": 9020,
-                          "isRelatedToToxicExposure": true,
-                          "secondaryDisabilities": [
+                          },
+                          "homeless": {
+                            "currentlyHomeless": {
+                              "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
+                              "otherDescription": "ABCDEFGHIJKLM"
+                            },
+                            "pointOfContact": "john stewart",
+                            "pointOfContactNumber": {
+                              "telephone": "5555555555",
+                              "internationalTelephone": "+44 20 1234 5678"
+                            }
+                          },
+                          "toxicExposure": {
+                            "gulfWarHazardService": {
+                              "servedInGulfWarHazardLocations": "YES",
+                              "serviceDates": {
+                                "beginDate": "2018-07",
+                                "endDate": "2018-08"
+                              }
+                            },
+                            "herbicideHazardService": {
+                              "servedInHerbicideHazardLocations": "YES",
+                              "otherLocationsServed": "ABCDEFGHIJKLM",
+                              "serviceDates": {
+                                "beginDate": "2018-07",
+                                "endDate": "2018-08"
+                              }
+                            },
+                            "additionalHazardExposures": {
+                              "additionalExposures": [
+                                "ASBESTOS",
+                                "SHIPBOARD_HAZARD_AND_DEFENSE"
+                              ],
+                              "specifyOtherExposures": "Other exposure details",
+                              "exposureDates": {
+                                "beginDate": "2018-07",
+                                "endDate": "2018-08"
+                              }
+                            },
+                            "multipleExposures": [
+                              {
+                                "hazardExposedTo": "RADIATION",
+                                "exposureLocation": "Guam",
+                                "exposureDates": {
+                                  "beginDate": "2012-12",
+                                  "endDate": "2013-07"
+                                }
+                              }
+                            ]
+                          },
+                          "disabilities": [
                             {
-                              "name": "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
+                              "name": "Traumatic Brain Injury",
                               "exposureOrEventOrInjury": "EXPOSURE",
-                              "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
-                              "disabilityActionType": "SECONDARY",
-                              "approximateDate": "2018-03-12",
-                              "classificationCode": "9014"
+                              "serviceRelevance": "ABCDEFG",
+                              "approximateDate": "2018-03-11",
+                              "disabilityActionType": "NEW",
+                              "classificationCode": "9014",
+                              "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                              "diagnosticCode": 9020,
+                              "isRelatedToToxicExposure": true,
+                              "secondaryDisabilities": [
+                                {
+                                  "name": "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
+                                  "exposureOrEventOrInjury": "EXPOSURE",
+                                  "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
+                                  "disabilityActionType": "SECONDARY",
+                                  "approximateDate": "2018-03-12",
+                                  "classificationCode": "9014"
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Cancer - Musculoskeletal - Elbow",
+                              "exposureOrEventOrInjury": "EXPOSURE",
+                              "approximateDate": "2018-03-02",
+                              "serviceRelevance": "ABCDEFG",
+                              "disabilityActionType": "NEW",
+                              "classificationCode": "9014",
+                              "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                              "diagnosticCode": 249470,
+                              "isRelatedToToxicExposure": true
+                            },
+                            {
+                              "name": "Cancer - Musculoskeletal - Knee",
+                              "exposureOrEventOrInjury": "EXPOSURE",
+                              "approximateDate": "2015",
+                              "serviceRelevance": "ABCDEFG",
+                              "disabilityActionType": "NEW",
+                              "classificationCode": "9014",
+                              "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                              "diagnosticCode": 249470,
+                              "isRelatedToToxicExposure": true
                             }
-                          ]
-                        },
-                        {
-                          "name": "Cancer - Musculoskeletal - Elbow",
-                          "exposureOrEventOrInjury": "EXPOSURE",
-                          "approximateDate": "2018-03-02",
-                          "serviceRelevance": "ABCDEFG",
-                          "disabilityActionType": "NEW",
-                          "classificationCode": "9014",
-                          "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
-                          "diagnosticCode": 249470,
-                          "isRelatedToToxicExposure": true
-                        },
-                        {
-                          "name": "Cancer - Musculoskeletal - Knee",
-                          "exposureOrEventOrInjury": "EXPOSURE",
-                          "approximateDate": "2015",
-                          "serviceRelevance": "ABCDEFG",
-                          "disabilityActionType": "NEW",
-                          "classificationCode": "9014",
-                          "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
-                          "diagnosticCode": 249470,
-                          "isRelatedToToxicExposure": true
-                        }
-                      ],
-                      "treatments": [
-                        {
-                          "beginDate": "2009-03",
-                          "treatedDisabilityNames": [
-                            "Traumatic Brain Injury",
-                            "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
-                            "Cancer - Musculoskeletal - Elbow"
                           ],
-                          "center": {
-                            "name": "Center One",
-                            "city": "Decatur",
-                            "state": "GA"
-                          }
+                          "treatments": [
+                            {
+                              "beginDate": "2009-03",
+                              "treatedDisabilityNames": [
+                                "Traumatic Brain Injury",
+                                "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
+                                "Cancer - Musculoskeletal - Elbow"
+                              ],
+                              "center": {
+                                "name": "Center One",
+                                "city": "Decatur",
+                                "state": "GA"
+                              }
+                            }
+                          ],
+                          "serviceInformation": {
+                            "alternateNames": [
+                              "john jacob",
+                              "johnny smith"
+                            ],
+                            "servicePeriods": [
+                              {
+                                "serviceBranch": "Public Health Service",
+                                "serviceComponent": "Active",
+                                "activeDutyBeginDate": "2008-11-14",
+                                "activeDutyEndDate": "2023-10-30",
+                                "separationLocationCode": "98282"
+                              }
+                            ],
+                            "servedInActiveCombatSince911": "NO",
+                            "reservesNationalGuardService": {
+                              "component": "National Guard",
+                              "obligationTermsOfService": {
+                                "beginDate": "2019-06-04",
+                                "endDate": "2020-06-04"
+                              },
+                              "unitName": "National Guard Unit Name",
+                              "unitAddress": "1243 pine court",
+                              "unitPhone": {
+                                "areaCode": "555",
+                                "phoneNumber": "5555555"
+                              },
+                              "receivingInactiveDutyTrainingPay": "YES"
+                            },
+                            "federalActivation": {
+                              "activationDate": "2023-10-01",
+                              "anticipatedSeparationDate": "2024-07-28"
+                            },
+                            "confinements": [
+                              {
+                                "approximateBeginDate": "2018-06-04",
+                                "approximateEndDate": "2018-07-04"
+                              },
+                              {
+                                "approximateBeginDate": "2020-06",
+                                "approximateEndDate": "2020-07"
+                              }
+                            ]
+                          },
+                          "servicePay": {
+                            "receivingMilitaryRetiredPay": "NO",
+                            "futureMilitaryRetiredPay": "YES",
+                            "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
+                            "militaryRetiredPay": {
+                              "branchOfService": "Army",
+                              "monthlyAmount": 840
+                            },
+                            "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
+                            "favorMilitaryRetiredPay": false,
+                            "receivedSeparationOrSeverancePay": "NO",
+                            "separationSeverancePay": {
+                              "datePaymentReceived": "2022-03-12",
+                              "branchOfService": "Naval Academy",
+                              "preTaxAmountReceived": 379
+                            },
+                            "favorTrainingPay": true
+                          },
+                          "directDeposit": {
+                            "noAccount": false,
+                            "accountNumber": "ABCDEF",
+                            "accountType": "CHECKING",
+                            "financialInstitutionName": "Chase",
+                            "routingNumber": "123123123"
+                          },
+                          "claimantCertification": true
                         }
-                      ],
-                      "serviceInformation": {
-                        "alternateNames": [
-                          "john jacob",
-                          "johnny smith"
-                        ],
-                        "servicePeriods": [
-                          {
-                            "serviceBranch": "Public Health Service",
-                            "serviceComponent": "Active",
-                            "activeDutyBeginDate": "2008-11-14",
-                            "activeDutyEndDate": "2023-10-30",
-                            "separationLocationCode": "98282"
-                          }
-                        ],
-                        "servedInActiveCombatSince911": "NO",
-                        "reservesNationalGuardService": {
-                          "component": "National Guard",
-                          "obligationTermsOfService": {
-                            "beginDate": "2019-06-04",
-                            "endDate": "2020-06-04"
-                          },
-                          "unitName": "National Guard Unit Name",
-                          "unitAddress": "1243 pine court",
-                          "unitPhone": {
-                            "areaCode": "555",
-                            "phoneNumber": "5555555"
-                          },
-                          "receivingInactiveDutyTrainingPay": "YES"
-                        },
-                        "federalActivation": {
-                          "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-07-25"
-                        },
-                        "confinements": [
-                          {
-                            "approximateBeginDate": "2018-06-04",
-                            "approximateEndDate": "2018-07-04"
-                          },
-                          {
-                            "approximateBeginDate": "2020-06",
-                            "approximateEndDate": "2020-07"
-                          }
-                        ]
+                      }
+                    }
+                  },
+                  "with a transactionId": {
+                    "value": {
+                      "meta": {
+                        "transactionId": "0000-00000000-00000000-0000"
                       },
-                      "servicePay": {
-                        "receivingMilitaryRetiredPay": "NO",
-                        "futureMilitaryRetiredPay": "YES",
-                        "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
-                        "militaryRetiredPay": {
-                          "branchOfService": "Army",
-                          "monthlyAmount": 840
-                        },
-                        "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
-                        "favorMilitaryRetiredPay": false,
-                        "receivedSeparationOrSeverancePay": "NO",
-                        "separationSeverancePay": {
-                          "datePaymentReceived": "2022-03-12",
-                          "branchOfService": "Naval Academy",
-                          "preTaxAmountReceived": 379
-                        },
-                        "favorTrainingPay": true
-                      },
-                      "directDeposit": {
-                        "noAccount": false,
-                        "accountNumber": "ABCDEF",
-                        "accountType": "CHECKING",
-                        "financialInstitutionName": "Chase",
-                        "routingNumber": "123123123"
-                      },
-                      "claimantCertification": true
+                      "data": {
+                        "id": "99d361ec-7c46-4e84-9028-253572d2e30c",
+                        "type": "forms/526",
+                        "attributes": {
+                          "claimId": "600442191",
+                          "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                          "claimNotes": "Some things that are important to know, and are not included in any other place.",
+                          "veteranIdentification": {
+                            "serviceNumber": "123456789",
+                            "veteranNumber": {
+                              "telephone": "5555555555",
+                              "internationalTelephone": "+44 20 1234 5678"
+                            },
+                            "mailingAddress": {
+                              "addressLine1": "1234 Couch Street",
+                              "addressLine2": "Unit 4",
+                              "addressLine3": "Room 1",
+                              "city": "Portland",
+                              "state": "OR",
+                              "country": "USA",
+                              "zipFirstFive": "41726",
+                              "zipLastFour": "1234"
+                            },
+                            "emailAddress": {
+                              "email": "valid@somedomain.com",
+                              "agreeToEmailRelatedToClaim": true
+                            },
+                            "currentVaEmployee": false
+                          },
+                          "changeOfAddress": {
+                            "typeOfAddressChange": "TEMPORARY",
+                            "addressLine1": "10 Peach St",
+                            "addressLine2": "Unit 4",
+                            "addressLine3": "Room 1",
+                            "city": "Atlanta",
+                            "state": "GA",
+                            "country": "USA",
+                            "zipFirstFive": "42220",
+                            "zipLastFour": "9897",
+                            "dates": {
+                              "beginDate": "2023-06-04",
+                              "endDate": "2023-12-04"
+                            }
+                          },
+                          "homeless": {
+                            "currentlyHomeless": {
+                              "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
+                              "otherDescription": "ABCDEFGHIJKLM"
+                            },
+                            "pointOfContact": "john stewart",
+                            "pointOfContactNumber": {
+                              "telephone": "5555555555",
+                              "internationalTelephone": "+44 20 1234 5678"
+                            }
+                          },
+                          "toxicExposure": {
+                            "gulfWarHazardService": {
+                              "servedInGulfWarHazardLocations": "YES",
+                              "serviceDates": {
+                                "beginDate": "2018-07",
+                                "endDate": "2018-08"
+                              }
+                            },
+                            "herbicideHazardService": {
+                              "servedInHerbicideHazardLocations": "YES",
+                              "otherLocationsServed": "ABCDEFGHIJKLM",
+                              "serviceDates": {
+                                "beginDate": "2018-07",
+                                "endDate": "2018-08"
+                              }
+                            },
+                            "additionalHazardExposures": {
+                              "additionalExposures": [
+                                "ASBESTOS",
+                                "SHIPBOARD_HAZARD_AND_DEFENSE"
+                              ],
+                              "specifyOtherExposures": "Other exposure details",
+                              "exposureDates": {
+                                "beginDate": "2018-07",
+                                "endDate": "2018-08"
+                              }
+                            },
+                            "multipleExposures": [
+                              {
+                                "hazardExposedTo": "RADIATION",
+                                "exposureLocation": "Guam",
+                                "exposureDates": {
+                                  "beginDate": "2012-12",
+                                  "endDate": "2013-07"
+                                }
+                              }
+                            ]
+                          },
+                          "disabilities": [
+                            {
+                              "name": "Traumatic Brain Injury",
+                              "exposureOrEventOrInjury": "EXPOSURE",
+                              "serviceRelevance": "ABCDEFG",
+                              "approximateDate": "2018-03-11",
+                              "disabilityActionType": "NEW",
+                              "classificationCode": "9014",
+                              "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                              "diagnosticCode": 9020,
+                              "isRelatedToToxicExposure": true,
+                              "secondaryDisabilities": [
+                                {
+                                  "name": "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
+                                  "exposureOrEventOrInjury": "EXPOSURE",
+                                  "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
+                                  "disabilityActionType": "SECONDARY",
+                                  "approximateDate": "2018-03-12",
+                                  "classificationCode": "9014"
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Cancer - Musculoskeletal - Elbow",
+                              "exposureOrEventOrInjury": "EXPOSURE",
+                              "approximateDate": "2018-03-02",
+                              "serviceRelevance": "ABCDEFG",
+                              "disabilityActionType": "NEW",
+                              "classificationCode": "9014",
+                              "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                              "diagnosticCode": 249470,
+                              "isRelatedToToxicExposure": true
+                            },
+                            {
+                              "name": "Cancer - Musculoskeletal - Knee",
+                              "exposureOrEventOrInjury": "EXPOSURE",
+                              "approximateDate": "2015",
+                              "serviceRelevance": "ABCDEFG",
+                              "disabilityActionType": "NEW",
+                              "classificationCode": "9014",
+                              "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                              "diagnosticCode": 249470,
+                              "isRelatedToToxicExposure": true
+                            }
+                          ],
+                          "treatments": [
+                            {
+                              "beginDate": "2009-03",
+                              "treatedDisabilityNames": [
+                                "Traumatic Brain Injury",
+                                "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
+                                "Cancer - Musculoskeletal - Elbow"
+                              ],
+                              "center": {
+                                "name": "Center One",
+                                "city": "Decatur",
+                                "state": "GA"
+                              }
+                            }
+                          ],
+                          "serviceInformation": {
+                            "alternateNames": [
+                              "john jacob",
+                              "johnny smith"
+                            ],
+                            "servicePeriods": [
+                              {
+                                "serviceBranch": "Public Health Service",
+                                "serviceComponent": "Active",
+                                "activeDutyBeginDate": "2008-11-14",
+                                "activeDutyEndDate": "2023-10-30",
+                                "separationLocationCode": "98282"
+                              }
+                            ],
+                            "servedInActiveCombatSince911": "NO",
+                            "reservesNationalGuardService": {
+                              "component": "National Guard",
+                              "obligationTermsOfService": {
+                                "beginDate": "2019-06-04",
+                                "endDate": "2020-06-04"
+                              },
+                              "unitName": "National Guard Unit Name",
+                              "unitAddress": "1243 pine court",
+                              "unitPhone": {
+                                "areaCode": "555",
+                                "phoneNumber": "5555555"
+                              },
+                              "receivingInactiveDutyTrainingPay": "YES"
+                            },
+                            "federalActivation": {
+                              "activationDate": "2023-10-01",
+                              "anticipatedSeparationDate": "2024-10-31"
+                            },
+                            "confinements": [
+                              {
+                                "approximateBeginDate": "2018-06-04",
+                                "approximateEndDate": "2018-07-04"
+                              },
+                              {
+                                "approximateBeginDate": "2020-06",
+                                "approximateEndDate": "2020-07"
+                              }
+                            ]
+                          },
+                          "servicePay": {
+                            "receivingMilitaryRetiredPay": "NO",
+                            "futureMilitaryRetiredPay": "YES",
+                            "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
+                            "militaryRetiredPay": {
+                              "branchOfService": "Army",
+                              "monthlyAmount": 840
+                            },
+                            "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
+                            "favorMilitaryRetiredPay": false,
+                            "receivedSeparationOrSeverancePay": "NO",
+                            "separationSeverancePay": {
+                              "datePaymentReceived": "2022-03-12",
+                              "branchOfService": "Naval Academy",
+                              "preTaxAmountReceived": 379
+                            },
+                            "favorTrainingPay": true
+                          },
+                          "directDeposit": {
+                            "noAccount": false,
+                            "accountNumber": "ABCDEF",
+                            "accountType": "CHECKING",
+                            "financialInstitutionName": "Chase",
+                            "routingNumber": "123123123"
+                          },
+                          "claimantCertification": true
+                        }
+                      }
                     }
                   }
                 },
@@ -6714,7 +6948,6 @@
                                   "description": "Identifies the Service dates and Branch the Veteran served in.",
                                   "type": "array",
                                   "minItems": 1,
-                                  "uniqueItems": true,
                                   "items": {
                                     "type": "object",
                                     "required": [
@@ -8066,7 +8299,6 @@
                                 "description": "Identifies the Service dates and Branch the Veteran served in.",
                                 "type": "array",
                                 "minItems": 1,
-                                "uniqueItems": true,
                                 "items": {
                                   "type": "object",
                                   "required": [
@@ -8671,6 +8903,236 @@
                 },
                 "Maximum Attributes": {
                   "value": {
+                    "data": {
+                      "type": "form/526",
+                      "attributes": {
+                        "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                        "claimNotes": "Some things that are important to know, and are not included in any other place.",
+                        "veteranIdentification": {
+                          "serviceNumber": "123456789",
+                          "veteranNumber": {
+                            "telephone": "5555555555",
+                            "internationalTelephone": "+44 20 1234 5678"
+                          },
+                          "mailingAddress": {
+                            "addressLine1": "1234 Couch Street",
+                            "addressLine2": "Unit 4",
+                            "addressLine3": "Room 1",
+                            "city": "Portland",
+                            "state": "OR",
+                            "country": "USA",
+                            "zipFirstFive": "41726",
+                            "zipLastFour": "1234"
+                          },
+                          "emailAddress": {
+                            "email": "valid@somedomain.com",
+                            "agreeToEmailRelatedToClaim": true
+                          },
+                          "currentVaEmployee": false
+                        },
+                        "changeOfAddress": {
+                          "typeOfAddressChange": "TEMPORARY",
+                          "addressLine1": "10 Peach St",
+                          "addressLine2": "Unit 4",
+                          "addressLine3": "Room 1",
+                          "city": "Atlanta",
+                          "state": "GA",
+                          "country": "USA",
+                          "zipFirstFive": "42220",
+                          "zipLastFour": "9897",
+                          "dates": {
+                            "beginDate": "2023-06-04",
+                            "endDate": "2023-12-04"
+                          }
+                        },
+                        "homeless": {
+                          "currentlyHomeless": {
+                            "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
+                            "otherDescription": "ABCDEFGHIJKLM"
+                          },
+                          "pointOfContact": "john stewart",
+                          "pointOfContactNumber": {
+                            "telephone": "5555555555",
+                            "internationalTelephone": "+44 20 1234 5678"
+                          }
+                        },
+                        "toxicExposure": {
+                          "gulfWarHazardService": {
+                            "servedInGulfWarHazardLocations": "YES",
+                            "serviceDates": {
+                              "beginDate": "2018-07",
+                              "endDate": "2018-08"
+                            }
+                          },
+                          "herbicideHazardService": {
+                            "servedInHerbicideHazardLocations": "YES",
+                            "otherLocationsServed": "ABCDEFGHIJKLM",
+                            "serviceDates": {
+                              "beginDate": "2018-07",
+                              "endDate": "2018-08"
+                            }
+                          },
+                          "additionalHazardExposures": {
+                            "additionalExposures": [
+                              "ASBESTOS",
+                              "SHIPBOARD_HAZARD_AND_DEFENSE"
+                            ],
+                            "specifyOtherExposures": "Other exposure details",
+                            "exposureDates": {
+                              "beginDate": "2018-07",
+                              "endDate": "2018-08"
+                            }
+                          },
+                          "multipleExposures": [
+                            {
+                              "hazardExposedTo": "RADIATION",
+                              "exposureLocation": "Guam",
+                              "exposureDates": {
+                                "beginDate": "2012-12",
+                                "endDate": "2013-07"
+                              }
+                            }
+                          ]
+                        },
+                        "disabilities": [
+                          {
+                            "name": "Traumatic Brain Injury",
+                            "exposureOrEventOrInjury": "EXPOSURE",
+                            "serviceRelevance": "ABCDEFG",
+                            "approximateDate": "2018-03-11",
+                            "disabilityActionType": "NEW",
+                            "classificationCode": "9014",
+                            "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                            "diagnosticCode": 9020,
+                            "isRelatedToToxicExposure": true,
+                            "secondaryDisabilities": [
+                              {
+                                "name": "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
+                                "exposureOrEventOrInjury": "EXPOSURE",
+                                "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
+                                "disabilityActionType": "SECONDARY",
+                                "approximateDate": "2018-03-12",
+                                "classificationCode": "9014"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "Cancer - Musculoskeletal - Elbow",
+                            "exposureOrEventOrInjury": "EXPOSURE",
+                            "approximateDate": "2018-03-02",
+                            "serviceRelevance": "ABCDEFG",
+                            "disabilityActionType": "NEW",
+                            "classificationCode": "9014",
+                            "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                            "diagnosticCode": 249470,
+                            "isRelatedToToxicExposure": true
+                          },
+                          {
+                            "name": "Cancer - Musculoskeletal - Knee",
+                            "exposureOrEventOrInjury": "EXPOSURE",
+                            "approximateDate": "2015",
+                            "serviceRelevance": "ABCDEFG",
+                            "disabilityActionType": "NEW",
+                            "classificationCode": "9014",
+                            "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                            "diagnosticCode": 249470,
+                            "isRelatedToToxicExposure": true
+                          }
+                        ],
+                        "treatments": [
+                          {
+                            "beginDate": "2009-03",
+                            "treatedDisabilityNames": [
+                              "Traumatic Brain Injury",
+                              "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
+                              "Cancer - Musculoskeletal - Elbow"
+                            ],
+                            "center": {
+                              "name": "Center One",
+                              "city": "Decatur",
+                              "state": "GA"
+                            }
+                          }
+                        ],
+                        "serviceInformation": {
+                          "alternateNames": [
+                            "john jacob",
+                            "johnny smith"
+                          ],
+                          "servicePeriods": [
+                            {
+                              "serviceBranch": "Public Health Service",
+                              "serviceComponent": "Active",
+                              "activeDutyBeginDate": "2008-11-14",
+                              "activeDutyEndDate": "2023-10-30",
+                              "separationLocationCode": "98282"
+                            }
+                          ],
+                          "servedInActiveCombatSince911": "NO",
+                          "reservesNationalGuardService": {
+                            "component": "National Guard",
+                            "obligationTermsOfService": {
+                              "beginDate": "2019-06-04",
+                              "endDate": "2020-06-04"
+                            },
+                            "unitName": "National Guard Unit Name",
+                            "unitAddress": "1243 pine court",
+                            "unitPhone": {
+                              "areaCode": "555",
+                              "phoneNumber": "5555555"
+                            },
+                            "receivingInactiveDutyTrainingPay": "YES"
+                          },
+                          "federalActivation": {
+                            "activationDate": "2023-10-01",
+                            "anticipatedSeparationDate": "2024-10-31"
+                          },
+                          "confinements": [
+                            {
+                              "approximateBeginDate": "2018-06-04",
+                              "approximateEndDate": "2018-07-04"
+                            },
+                            {
+                              "approximateBeginDate": "2020-06",
+                              "approximateEndDate": "2020-07"
+                            }
+                          ]
+                        },
+                        "servicePay": {
+                          "receivingMilitaryRetiredPay": "NO",
+                          "futureMilitaryRetiredPay": "YES",
+                          "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
+                          "militaryRetiredPay": {
+                            "branchOfService": "Army",
+                            "monthlyAmount": 840
+                          },
+                          "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
+                          "favorMilitaryRetiredPay": false,
+                          "receivedSeparationOrSeverancePay": "NO",
+                          "separationSeverancePay": {
+                            "datePaymentReceived": "2022-03-12",
+                            "branchOfService": "Naval Academy",
+                            "preTaxAmountReceived": 379
+                          },
+                          "favorTrainingPay": true
+                        },
+                        "directDeposit": {
+                          "noAccount": false,
+                          "accountNumber": "ABCDEF",
+                          "accountType": "CHECKING",
+                          "financialInstitutionName": "Chase",
+                          "routingNumber": "123123123"
+                        },
+                        "claimantCertification": true
+                      }
+                    }
+                  }
+                },
+                "Transaction ID": {
+                  "value": {
+                    "meta": {
+                      "transactionId": "0000-00000000-00000000-0000"
+                    },
                     "data": {
                       "type": "form/526",
                       "attributes": {
@@ -9961,7 +10423,6 @@
                                 "description": "Identifies the Service dates and Branch the Veteran served in.",
                                 "type": "array",
                                 "minItems": 1,
-                                "uniqueItems": true,
                                 "items": {
                                   "type": "object",
                                   "required": [
@@ -10585,7 +11046,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0b34bc0b-dfc4-4820-b04b-98e2235f7e05",
+                    "id": "8cc405e2-4846-4f65-aab5-d6dbbd7f6c95",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -13438,8 +13899,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-07-23",
-                      "expirationDate": "2025-07-23",
+                      "creationDate": "2024-07-26",
+                      "expirationDate": "2025-07-26",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -14315,7 +14776,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e4c93b8c-9ce0-47ee-bbf9-8d344fbeaf53",
+                    "id": "928c4b11-40f1-4464-b9e2-3f03442dea5e",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15008,7 +15469,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a6322256-baf4-42de-a6f7-fda9d559f799",
+                    "id": "1d1b7405-c50e-4004-a025-f69e70171a7f",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16959,10 +17420,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3c2bcaaa-4c6a-47c5-a8ce-8bc85a23ebb1",
+                    "id": "e86b5a5f-936d-4998-9928-9b72fc115224",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-07-23",
+                      "dateRequestAccepted": "2024-07-26",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
