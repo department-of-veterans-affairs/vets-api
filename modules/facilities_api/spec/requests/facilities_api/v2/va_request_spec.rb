@@ -278,28 +278,12 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
       it { expect(response).to be_successful }
 
       it do
-        Rails.logger.error(subject)
         expect(subject).to match(
           {
             data: {
               id: 'vha_648A4',
               type: 'facility',
               attributes: {
-                classification: 'VA Medical Center (VAMC)',
-                distance: null,
-                facilityType: 'va_health_facility',
-                id: 'vha_648A4',
-                lat: 45.63938186,
-                long: -122.65538544,
-                mobile: false,
-                name: 'Vancouver VA Medical Center',
-                operationalHoursSpecialInstructions: [
-                  'More hours are available for some services. To learn more, call our main phone number.'
-                ],
-                uniqueId: '648A4',
-                visn: '20',
-                website: 'https://www.va.gov/portland-health-care/locations/vancouver-va-medical-center/',
-                tmpCovidOnlineScheduling: null,
                 access: {
                   health: [],
                   effectiveDate: ''
@@ -312,6 +296,9 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
                     address1: '1601 East 4th Plain Boulevard'
                   }
                 },
+                classification: 'VA Medical Center (VAMC)',
+                distance: nil,
+                facilityType: 'va_health_facility',
                 feedback: {
                   health: {
                     primaryCareUrgent: 0.699999988079071,
@@ -328,9 +315,16 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
                   saturday: 'Closed',
                   sunday: 'Closed'
                 },
+                id: 'vha_648A4',
+                lat: 45.63938186,
+                long: -122.65538544,
+                mobile: false,
+                name: 'Vancouver VA Medical Center',
                 operatingStatus: {
                   code: 'NORMAL'
                 },
+                operationalHoursSpecialInstructions: ['More hours are available for some services. To learn more, ' \
+                                                      'call our main phone number.'],
                 phone: {
                   fax: '360-690-0864',
                   main: '360-759-1901',
@@ -351,11 +345,6 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
                       name: 'Audiology and speech',
                       serviceId: 'audiology',
                       link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/audiology'
-                    },
-                    {
-                      name: 'Cardiology',
-                      serviceId: 'cardiology',
-                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/cardiology'
                     },
                     {
                       name: 'Dental/oral surgery',
@@ -383,6 +372,11 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
                       link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/geriatrics'
                     },
                     {
+                      name: 'Gynecology',
+                      serviceId: 'gynecology',
+                      link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/gynecology'
+                    },
+                    {
                       name: 'HIV/hepatitis care',
                       serviceId: 'hiv',
                       link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/hiv'
@@ -393,7 +387,7 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
                       link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/laboratory'
                     },
                     {
-                      name: 'Mental health care',
+                      name: 'MentalHealth',
                       serviceId: 'mentalHealth',
                       link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services/mentalHealth'
                     },
@@ -489,8 +483,56 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
                     }
                   ],
                   link: 'https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services',
-                  lastUpdated: '2024-07-24'
-                }
+                  lastUpdated: '2024-04-23'
+                },
+                uniqueId: '648A4',
+                visn: '20',
+                website: 'https://www.va.gov/portland-health-care/locations/vancouver-va-medical-center/',
+                tmpCovidOnlineScheduling: nil
+              }
+            }
+          }
+        )
+      end
+    end
+
+    context 'with missing attributes' do
+      before do
+        get '/facilities_api/v2/va/vha_506GG'
+      end
+
+      it { expect(response).to be_successful }
+
+      it do
+        expect(subject).to match(
+          {
+            data: {
+              id: 'vha_506GG',
+              type: 'facility',
+              attributes: {
+                access: {
+                  health: [],
+                  effectiveDate: ''
+                },
+                address: [],
+                classification: 'Primary Care CBOC',
+                distance: nil,
+                facilityType: 'va_health_facility',
+                feedback: [],
+                hours: [],
+                id: 'vha_506GG',
+                lat: 41.066235,
+                long: -83.619621,
+                mobile: false,
+                name: 'Findlay VA Clinic',
+                operatingStatus: [],
+                operationalHoursSpecialInstructions: nil,
+                phone: [],
+                services: [],
+                uniqueId: '506GG',
+                visn: '10',
+                website: nil,
+                tmpCovidOnlineScheduling: nil
               }
             }
           }
