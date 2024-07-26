@@ -16,9 +16,10 @@ module IvcChampva
 
     def metadata
       {
-        'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
-        'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
-        'zipCode' => @data.dig('veteran', 'address', 'postal_code'),
+        'veteranFirstName' => @data.dig('sponsor_name', 'first'),
+        'veteranLastName' => @data.dig('sponsor_name', 'last'),
+        'zipCode' => @data.dig('sponsor_address', 'postal_code'), # TODO: We don't collect this on frontend
+        'fileNumber' => '000000000', # TODO: We don't collect this on frontend
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP',
