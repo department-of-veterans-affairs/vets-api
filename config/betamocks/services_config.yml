@@ -894,3 +894,6 @@
     - :method: :get
       :path: "/demographics/demographics/v1/*/*"
       :file_path: "vet360/demographics/default"
+    - :method: :post
+      :path: "/profile-service/profile/v3/*/*"
+      :file_path: "vet360/profile-service/default"
