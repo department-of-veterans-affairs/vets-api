@@ -104,7 +104,7 @@ module RepresentationManagement
           pdf.text('Need help?')
           pdf.move_down(10)
           pdf.font_size(12)
-          pdf.text("You can call us at 800-698-2411, ext. 0 (TTY: 711).  We're here 24/7.")
+          pdf.text("You can call us at 800-698-2411, ext. 0 (TTY: 711). We're here 24/7.")
           pdf.move_down(10)
         end
 
