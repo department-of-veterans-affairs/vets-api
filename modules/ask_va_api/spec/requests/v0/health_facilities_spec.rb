@@ -285,6 +285,27 @@ RSpec.describe AskVAApi::V0::HealthFacilitiesController, team: :facilities, type
               id: 'vha_648A4',
               type: 'facility',
               attributes: {
+                'access' => {
+                  'health' => [
+                    {
+                      'service' => 'Audiology and speech',
+                      'serviceId' => 'audiology',
+                      'serviceType' => 'health',
+                      'new' => 55.0,
+                      'established' => 26.0,
+                      'effectiveDate' => '2024-07-24'
+                    },
+                    {
+                      'service' => 'Optometry',
+                      'serviceId' => 'optometry',
+                      'serviceType' => 'health',
+                      'new' => 58.0,
+                      'established' => 19.0,
+                      'effectiveDate' => '2024-07-24'
+                    }
+                  ],
+                  'effectiveDate' => '2024-07-24'
+                },
                 address: {
                   physical: {
                     zip: '98661-3753',
@@ -508,6 +529,10 @@ RSpec.describe AskVAApi::V0::HealthFacilitiesController, team: :facilities, type
               type: 'facility',
               attributes: {
                 address: [],
+                access: {
+                  health: [],
+                  effectiveDate: ''
+                },
                 classification: 'Primary Care CBOC',
                 distance: nil,
                 facilityType: 'va_health_facility',
