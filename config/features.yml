@@ -365,12 +365,15 @@ features:
   decision_review_saved_claim_hlr_status_updater_job_enabled:
     actor_type: user
     description: Enable job to set delete_date for completed SavedClaim::HigherLevelReviews
+    enable_in_development: true
   decision_review_saved_claim_nod_status_updater_job_enabled:
     actor_type: user
     description: Enable job to set delete_date for completed SavedClaim::NoticeOfDisagreements
+    enable_in_development: true
   decision_review_saved_claim_sc_status_updater_job_enabled:
     actor_type: user
     description: Enable job to set delete_date for completed SavedClaim::SupplementalClaims
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.

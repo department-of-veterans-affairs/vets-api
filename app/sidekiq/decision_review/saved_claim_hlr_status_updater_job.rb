@@ -34,8 +34,6 @@ module DecisionReview
       Rails.logger.error("#{self.class.name} error", e.message)
     end
 
-    private
-
     def decision_review_service
       @service = DecisionReviewV1::Service.new
     end

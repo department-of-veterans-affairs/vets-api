@@ -21,14 +21,9 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
   end
 
   before do
-    Sidekiq::Testing.inline!
     stub_const('DecisionReview::SavedClaimHlrStatusUpdaterJob::REQUEST_DELAY', 0)
 
     allow(DecisionReviewV1::Service).to receive(:new).and_return(service)
-  end
-
-  after do
-    Sidekiq::Testing.fake!
   end
 
   describe 'perform' do
@@ -47,20 +42,27 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
         end
 
         it 'updates SavedClaim::HigherLevelReview delete_date for completed records without a delete_date' do
-          expect(service).to receive(:get_higher_level_review).with(guid1).and_return(response_complete)
-          expect(service).to receive(:get_higher_level_review).with(guid2).and_return(response_pending)
-          expect(service).not_to receive(:get_higher_level_review).with(guid3)
+          Sidekiq::Testing.inline! do
+            test_class = subject.new
 
-          expect(service).not_to receive(:get_notice_of_disagreement)
-          expect(service).not_to receive(:get_supplemental_claim)
+            expect(service).to receive(:get_higher_level_review).with(guid1).and_return(response_complete)
+            expect(service).to receive(:get_higher_level_review).with(guid2).and_return(response_pending)
+            expect(service).not_to receive(:get_higher_level_review).with(guid3)
 
-          subject.perform_async
+            expect(service).not_to receive(:get_notice_of_disagreement)
+            expect(service).not_to receive(:get_supplemental_claim)
 
-          claim1 = SavedClaim::HigherLevelReview.find_by(guid: guid1)
-          expect(claim1.delete_date).not_to be_nil
+            expect(test_class.enabled?).to eq true
+            expect(test_class.higher_level_reviews).to eq '1'
 
-          claim2 = SavedClaim::HigherLevelReview.find_by(guid: guid2)
-          expect(claim2.delete_date).to be_nil
+            test_class.perform
+
+            claim1 = SavedClaim::HigherLevelReview.find_by(guid: guid1)
+            expect(claim1.delete_date).not_to be_nil
+
+            claim2 = SavedClaim::HigherLevelReview.find_by(guid: guid2)
+            expect(claim2.delete_date).to be_nil
+          end
         end
       end
     end
