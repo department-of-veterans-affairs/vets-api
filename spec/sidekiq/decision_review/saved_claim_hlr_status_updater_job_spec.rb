@@ -42,23 +42,20 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
         end
 
         it 'updates SavedClaim::HigherLevelReview delete_date for completed records without a delete_date' do
-          Sidekiq::Testing.inline! do
-            test_class = subject.new
+          expect(service).to receive(:get_higher_level_review).with(guid1).and_return(response_complete)
+          expect(service).to receive(:get_higher_level_review).with(guid2).and_return(response_pending)
+          expect(service).not_to receive(:get_higher_level_review).with(guid3)
 
-            expect(service).to receive(:get_higher_level_review).with(guid1).and_return(response_complete)
-            expect(service).to receive(:get_higher_level_review).with(guid2).and_return(response_pending)
-            expect(service).not_to receive(:get_higher_level_review).with(guid3)
+          expect(service).not_to receive(:get_notice_of_disagreement)
+          expect(service).not_to receive(:get_supplemental_claim)
 
-            expect(service).not_to receive(:get_notice_of_disagreement)
-            expect(service).not_to receive(:get_supplemental_claim)
+          frozen_time = DateTime.new(2024, 1, 1).utc
 
-            expect(test_class.enabled?).to eq true
-            expect(test_class.higher_level_reviews).to eq '1'
-
-            test_class.perform
+          Timecop.freeze(frozen_time) do
+            subject.new.perform
 
             claim1 = SavedClaim::HigherLevelReview.find_by(guid: guid1)
-            expect(claim1.delete_date).not_to be_nil
+            expect(claim1.delete_date).to eq frozen_time + 59.days
 
             claim2 = SavedClaim::HigherLevelReview.find_by(guid: guid2)
             expect(claim2.delete_date).to be_nil

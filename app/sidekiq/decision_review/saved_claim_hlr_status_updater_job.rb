@@ -35,6 +35,8 @@ module DecisionReview
       raise e
     end
 
+    private
+
     def decision_review_service
       @service = DecisionReviewV1::Service.new
     end
