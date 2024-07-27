@@ -285,8 +285,25 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
               type: 'facility',
               attributes: {
                 access: {
-                  health: [],
-                  effectiveDate: ''
+                  health: [
+                    {
+                      'service' => 'Audiology and speech',
+                      'serviceId' => 'audiology',
+                      'serviceType' => 'health',
+                      'new' => 55.0,
+                      'established' => 26.0,
+                      'effectiveDate' => '2024-07-24'
+                    },
+                    {
+                      'service' => 'Optometry',
+                      'serviceId' => 'optometry',
+                      'serviceType' => 'health',
+                      'new' => 58.0,
+                      'established' => 19.0,
+                      'effectiveDate' => '2024-07-24'
+                    }
+                  ],
+                  'effectiveDate' => '2024-07-24'
                 },
                 address: {
                   physical: {

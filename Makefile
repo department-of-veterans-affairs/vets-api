@@ -13,13 +13,12 @@ else
 	FOREMAN_ARG := all=1,clamd=0,freshclam=0
 endif
 
-COMPOSE_DEV  := docker compose
-COMPOSE_TEST := docker compose -f docker-compose.test.yml
+COMPOSE_DEV  := docker-compose
+COMPOSE_TEST := docker-compose -f docker-compose.test.yml
 BASH         := run --rm --service-ports web bash
 BASH_DEV     := $(COMPOSE_DEV) $(BASH) -c
 BASH_TEST    := $(COMPOSE_TEST) $(BASH) --login -c
-# SPEC_PATH    := spec/ modules/
-SPEC_PATH    := modules/facilities_api/
+SPEC_PATH    := spec/ modules/
 DB           := "bin/rails db:setup db:migrate"
 LINT         := "bin/rails lint['$(files)']"
 DOWN         := down
