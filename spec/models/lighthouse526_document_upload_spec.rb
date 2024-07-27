@@ -106,5 +106,21 @@ RSpec.describe Lighthouse526DocumentUpload do
         end
       end
     end
+
+    describe '#form0781_types?' do
+      it 'returns true for Form 0781 and Form 0781a document types' do
+        ['Form 0781', 'Form 0781a'].each do |document_type|
+          upload = build(:lighthouse526_document_upload, document_type:)
+          expect(upload.form0781_types?).to be(true)
+        end
+      end
+
+      it 'returns false for other document types' do
+        ['BDD Instructions', 'Veteran Upload'].each do |document_type|
+          upload = build(:lighthouse526_document_upload, document_type:)
+          expect(upload.form0781_types?).to be(false)
+        end
+      end
+    end
   end
 end
