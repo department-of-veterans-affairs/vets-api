@@ -32,6 +32,7 @@ module DecisionReview
       end
     rescue => e
       Rails.logger.error("#{self.class.name} error", e.message)
+      raise e
     end
 
     def decision_review_service
@@ -39,7 +40,7 @@ module DecisionReview
     end
 
     def higher_level_reviews
-      @higher_level_reviews ||= SavedClaim::HigherLevelReview.where(delete_date: nil).order(created_at: :asc)
+      @higher_level_reviews ||= ::SavedClaim::HigherLevelReview.where(delete_date: nil).order(created_at: :asc)
     end
 
     def enabled?

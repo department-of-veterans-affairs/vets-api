@@ -32,6 +32,7 @@ module DecisionReview
       end
     rescue => e
       Rails.logger.error("#{self.class.name} error", e.message)
+      raise e
     end
 
     private
@@ -41,7 +42,7 @@ module DecisionReview
     end
 
     def notice_of_disagreements
-      @notice_of_disagreements ||= SavedClaim::NoticeOfDisagreement.where(delete_date: nil).order(created_at: :asc)
+      @notice_of_disagreements ||= ::SavedClaim::NoticeOfDisagreement.where(delete_date: nil).order(created_at: :asc)
     end
 
     def enabled?

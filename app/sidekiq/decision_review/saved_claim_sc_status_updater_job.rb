@@ -32,6 +32,7 @@ module DecisionReview
       end
     rescue => e
       Rails.logger.error("#{self.class.name} error", e.message)
+      raise e
     end
 
     private
@@ -41,7 +42,7 @@ module DecisionReview
     end
 
     def supplemental_claims
-      @supplemental_claims ||= SavedClaim::SupplementalClaim.where(delete_date: nil).order(created_at: :asc)
+      @supplemental_claims ||= ::SavedClaim::SupplementalClaim.where(delete_date: nil).order(created_at: :asc)
     end
 
     def enabled?
