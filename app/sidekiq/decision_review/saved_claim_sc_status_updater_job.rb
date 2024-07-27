@@ -22,7 +22,7 @@ module DecisionReview
         guid = sc.guid
         status = decision_review_service.get_supplemental_claim(guid).dig('data', 'attributes', 'status')
 
-        # check status of SC and update delete_date as necessary
+        # check status of SC and update delete_date
         if SUCCESSFUL_STATUS.include? status
           sc.update(delete_date: DateTime.now + RETENTION_PERIOD)
           Rails.logger.info("#{self.class.name} updated delete_date", guid:)
@@ -30,15 +30,12 @@ module DecisionReview
 
         sleep REQUEST_DELAY
       end
-    rescue => e
-      Rails.logger.error("#{self.class.name} error", e.message)
-      raise e
     end
 
     private
 
     def decision_review_service
-      @service = DecisionReviewV1::Service.new
+      @service ||= DecisionReviewV1::Service.new
     end
 
     def supplemental_claims

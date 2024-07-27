@@ -22,7 +22,6 @@ module DecisionReview
         guid = nod.guid
         status = decision_review_service.get_notice_of_disagreement(guid).dig('data', 'attributes', 'status')
 
-        # check status of NOD and update delete_date as necessary
         if SUCCESSFUL_STATUS.include? status
           nod.update(delete_date: DateTime.now + RETENTION_PERIOD)
           Rails.logger.info("#{self.class.name} updated delete_date", guid:)
@@ -30,9 +29,6 @@ module DecisionReview
 
         sleep REQUEST_DELAY
       end
-    rescue => e
-      Rails.logger.error("#{self.class.name} error", e.message)
-      raise e
     end
 
     private

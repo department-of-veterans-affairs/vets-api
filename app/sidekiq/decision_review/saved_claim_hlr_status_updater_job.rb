@@ -22,7 +22,6 @@ module DecisionReview
         guid = hlr.guid
         status = decision_review_service.get_higher_level_review(guid).dig('data', 'attributes', 'status')
 
-        # check status of HLR and update delete_date as necessary
         if SUCCESSFUL_STATUS.include? status
           hlr.update(delete_date: DateTime.now + RETENTION_PERIOD)
           Rails.logger.info("#{self.class.name} updated delete_date", guid:)
@@ -30,15 +29,12 @@ module DecisionReview
 
         sleep REQUEST_DELAY
       end
-    rescue => e
-      Rails.logger.error("#{self.class.name} error", e.message)
-      raise e
     end
 
     private
 
     def decision_review_service
-      @service = DecisionReviewV1::Service.new
+      @service ||= DecisionReviewV1::Service.new
     end
 
     def higher_level_reviews
