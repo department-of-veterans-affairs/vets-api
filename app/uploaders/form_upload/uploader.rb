@@ -3,6 +3,9 @@
 require 'shrine/plugins/validate_unlocked_pdf'
 require 'shrine/plugins/validate_pdf_page_count'
 
+TOO_MANY_PAGES = 'too_many_pages'
+TOO_FEW_PAGES = 'too_few_pages'
+
 class FormUpload::Uploader < VetsShrine
   plugin :storage_from_config, settings: Settings.shrine.claims
   plugin :activerecord, callbacks: false

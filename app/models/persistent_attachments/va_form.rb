@@ -23,16 +23,12 @@ class PersistentAttachments::VAForm < PersistentAttachment
     end
   end
 
-  def too_many_pages
-    @too_many_pages || false
-  end
-
-  def too_few_pages
-    @too_few_pages || false
+  def warnings
+    @warnings ||= []
   end
 
   def as_json(options = {})
-    super(options).merge(too_many_pages:, too_few_pages:)
+    super(options).merge(warnings:)
   end
 
   private

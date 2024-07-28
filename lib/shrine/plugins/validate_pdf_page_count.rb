@@ -11,9 +11,9 @@ class Shrine
           page_count = get_page_count(file)
 
           if page_count > max_pages
-            record.instance_variable_set(:@too_many_pages, true)
+            record.warnings << TOO_MANY_PAGES
           elsif page_count < min_pages
-            record.instance_variable_set(:@too_few_pages, true)
+            record.warnings << TOO_FEW_PAGES
           end
         end
 
