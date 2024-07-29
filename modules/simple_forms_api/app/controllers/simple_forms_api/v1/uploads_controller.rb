@@ -30,7 +30,7 @@ module SimpleFormsApi
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
-        response = if use_itf_api_for_210966_form?
+        response = if intent_service.use_intent_api?
                      handle_210966_authenticated
                    elsif form_is264555_and_should_use_lgy_api
                      handle264555
@@ -59,13 +59,7 @@ module SimpleFormsApi
       end
 
       def get_intents_to_file
-        existing_intents = {}
-
-        if icn && participant_id
-          intent_service = SimpleFormsApi::IntentToFile.new(@current_user)
-          existing_intents = intent_service.existing_intents
-        end
-
+        existing_intents = intent_service.existing_intents
         render json: {
           compensation_intent: existing_intents['compensation'],
           pension_intent: existing_intents['pension'],
@@ -75,8 +69,11 @@ module SimpleFormsApi
 
       private
 
+      def intent_service
+        @intent_service ||= SimpleFormsApi::IntentToFile.new(@current_user, params)
+      end
+
       def handle_210966_authenticated
-        intent_service = SimpleFormsApi::IntentToFile.new(@current_user, params)
         parsed_form_data = JSON.parse(params.to_json)
         form = SimpleFormsApi::VBA210966.new(parsed_form_data)
         existing_intents = intent_service.existing_intents
@@ -141,7 +138,9 @@ module SimpleFormsApi
       def get_file_paths_and_metadata(parsed_form_data)
         form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
-        form = form.populate_veteran_data(@current_user) if form_id == 'vba_21_0966' && first_party?
+        if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN'
+          form = form.populate_veteran_data(@current_user)
+        end
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
 
         file_path = if @current_user
@@ -180,29 +179,13 @@ module SimpleFormsApi
         [response.status, uuid]
       end
 
-      def form_is210966
-        params[:form_number] == '21-0966'
-      end
-
-      def use_itf_api_for_210966_form?
-        form_is210966 && participant_id && icn && first_party?
-      end
-
       def form_is264555_and_should_use_lgy_api
         # TODO: Remove comment octothorpe and ALWAYS require icn
         params[:form_number] == '26-4555' # && icn
       end
 
-      def participant_id
-        @current_user&.participant_id
-      end
-
       def icn
         @current_user&.icn
-      end
-
-      def first_party?
-        params[:preparer_identification] == 'VETERAN'
       end
 
       def get_form_id

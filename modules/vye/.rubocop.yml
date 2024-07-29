@@ -5,7 +5,12 @@ require:
   - rubocop-rspec_rails
 
 Metrics/ModuleLength:
-  Max: 1000
+  Max: 500
+  CountAsOne: ['array', 'hash', 'heredoc', 'method_call']
+
+Metrics/MethodLength:
+  Max: 50
+  CountAsOne: ['array', 'hash', 'heredoc', 'method_call']
 
 AllCops:
   Exclude:
