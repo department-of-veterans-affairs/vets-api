@@ -4,6 +4,9 @@ class Shrine
   module Plugins
     module ValidatePdfPageCount
       module AttacherMethods
+        TOO_MANY_PAGES = 'too_many_pages'
+        TOO_FEW_PAGES = 'too_few_pages'
+
         def validate_pdf_page_count(max_pages: nil, min_pages: 1)
           return unless get.mime_type == Mime[:pdf].to_s
 
