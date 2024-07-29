@@ -117,17 +117,17 @@ module Pensions
     # @param claim [Pension::SavedClaim]
     # @param lighthouse_service [BenefitsIntake::Service]
     # @param user_uuid [UUID]
-    # @param payload [Hash] lighthouse upload data
+    # @param upload [Hash] lighthouse upload data
     #
-    def track_submission_attempted(claim, lighthouse_service, user_uuid, payload)
+    def track_submission_attempted(claim, lighthouse_service, user_uuid, upload)
       StatsD.increment("#{SUBMISSION_STATS_KEY}.attempt")
       Rails.logger.info('Lighthouse::PensionBenefitIntakeJob submission to LH attempted', {
                           claim_id: claim&.id,
                           benefits_intake_uuid: lighthouse_service&.uuid,
                           confirmation_number: claim&.confirmation_number,
                           user_uuid:,
-                          file: payload[:file],
-                          attachments: payload[:attachments]
+                          file: upload[:file],
+                          attachments: upload[:attachments]
                         })
     end
 
@@ -181,8 +181,8 @@ module Pensions
       Rails.logger.error('Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!', {
                            claim_id: msg['args'].first,
                            confirmation_number: claim&.confirmation_number,
-                           message: msg,
-                           user_uuid: msg['args'].length <= 1 ? nil : msg['args'][1]
+                           user_uuid: msg['args'].length <= 1 ? nil : msg['args'][1],
+                           message: msg
                          })
     end
 
@@ -198,11 +198,11 @@ module Pensions
     def track_file_cleanup_error(claim, lighthouse_service, user_uuid, e)
       Rails.logger.error('Lighthouse::PensionBenefitIntakeJob cleanup failed',
                          {
-                           error: e&.message,
                            claim_id: claim&.id,
                            benefits_intake_uuid: lighthouse_service&.uuid,
                            confirmation_number: claim&.confirmation_number,
-                           user_uuid:
+                           user_uuid:,
+                           error: e&.message
                          })
     end
   end
