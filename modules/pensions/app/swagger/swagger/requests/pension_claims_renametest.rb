@@ -14,7 +14,6 @@ module Swagger
           extend Swagger::Responses::ValidationError
           extend Swagger::Responses::SavedForm
 
-          key :description, 'Submit a pension benefit claim'
           key :operationId, 'addPensionClaim'
           key :tags, %w[benefits_forms]
 
