@@ -13,7 +13,7 @@ module Pensions
 
     initializer 'pensions.after_initialize' do |app|
       app.config.after_initialize do
-        # Register our Pdf Fill form
+        # Register our Pension Pdf Fill form
         PdfFill::Filler.register_form('21P-527EZ', PdfFill::Forms::Va21p527ez)
       end
     end

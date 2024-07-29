@@ -44,6 +44,7 @@ describe PdfFill::Filler, type: :model do
     end
   end
 
+  # see `fill_form_examples.rb` for documentation about options
   describe '#fill_form' do
     [
       {

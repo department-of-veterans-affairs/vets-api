@@ -18,18 +18,31 @@ require 'pdf_fill/forms/va261880'
 require 'pdf_fill/forms/va5655'
 
 module PdfFill
+  # Provides functionality to fill and process PDF forms.
+  #
+  # This module includes methods to register form classes, fill out PDF forms, and handle extra PDF generation.
   module Filler
     module_function
 
+    # A PdfForms instance for handling standard PDF forms.
     PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
+
+    # A PdfForms instance for handling Unicode PDF forms with XFdf data format.
     UNICODE_PDF_FORMS = PdfForms.new(Settings.binaries.pdftk, data_format: 'XFdf', utf8_fields: true)
-    # rubocop:disable Style/MutableConstant
-    FORM_CLASSES = {}
-    # rubocop:enable Style/MutableConstant
+
+    # A hash mapping form IDs to their corresponding form classes.
+    # This constant is intentionally mutable.
+    FORM_CLASSES = {} # rubocop:disable Style/MutableConstant
+
+    # Registers a form class with a specific form ID.
+    #
+    # @param key [String] The form ID to register.
+    # @param klass [Class] The class associated with the form ID.
     def register_form(key, klass)
       FORM_CLASSES[key] = klass
     end
 
+    # Registers form classes for various form IDs.
     {
       '21P-0969' => PdfFill::Forms::Va21p0969,
       '21P-530' => PdfFill::Forms::Va21p530,
@@ -50,6 +63,11 @@ module PdfFill
       register_form(key, klass)
     end
 
+    # Combines extra pages into the main PDF if necessary.
+    #
+    # @param old_file_path [String] The path to the original PDF file.
+    # @param extras_generator [ExtrasGenerator] The generator for extra pages.
+    # @return [String] The path to the final combined PDF.
     def combine_extras(old_file_path, extras_generator)
       if extras_generator.text?
         file_path = "#{old_file_path.gsub('.pdf', '')}_final.pdf"
@@ -66,6 +84,12 @@ module PdfFill
       end
     end
 
+    # Fills a form based on the provided saved claim and options.
+    #
+    # @param saved_claim [SavedClaim] The saved claim containing form data.
+    # @param file_name_extension [String, nil] Optional file name extension.
+    # @param fill_options [Hash] Options for filling the form.
+    # @return [String] The path to the filled PDF form.
     def fill_form(saved_claim, file_name_extension = nil, fill_options = {})
       form_id = saved_claim.form_id
       form_class = FORM_CLASSES[form_id]
@@ -73,10 +97,24 @@ module PdfFill
       process_form(form_id, saved_claim.parsed_form, form_class, file_name_extension || saved_claim.id, fill_options)
     end
 
+    # Fills an ancillary form based on the provided data and form ID.
+    #
+    # @param form_data [Hash] The data to fill in the form.
+    # @param claim_id [String] The ID of the claim.
+    # @param form_id [String] The form ID.
+    # @return [String] The path to the filled PDF form.
     def fill_ancillary_form(form_data, claim_id, form_id)
       process_form(form_id, form_data, FORM_CLASSES[form_id], claim_id)
     end
 
+    # Processes a form by filling it with data and saving it to a file.
+    #
+    # @param form_id [String] The form ID.
+    # @param form_data [Hash] The data to fill in the form.
+    # @param form_class [Class] The class associated with the form ID.
+    # @param file_name_extension [String] The file name extension for the output PDF.
+    # @param fill_options [Hash] Options for filling the form.
+    # @return [String] The path to the filled PDF form.
     def process_form(form_id, form_data, form_class, file_name_extension, fill_options = {})
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
