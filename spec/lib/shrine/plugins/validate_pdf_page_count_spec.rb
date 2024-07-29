@@ -28,7 +28,7 @@ describe Shrine::Plugins::ValidatePdfPageCount do
     let(:instance) { klass.new }
 
     let(:attachment) do
-      instance_double('Shrine::UploadedFile', download: File.open(file), mime_type: 'application/pdf')
+      instance_double(Shrine::UploadedFile, download: File.open(file), mime_type: 'application/pdf')
     end
 
     before do

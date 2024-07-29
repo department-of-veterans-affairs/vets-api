@@ -8,19 +8,11 @@ class PersistentAttachments::VAForm < PersistentAttachment
   before_destroy(:delete_file)
 
   def max_pages
-    if form_id == '21-0779'
-      4
-    else
-      10
-    end
+    configs[form_id][:max_pages]
   end
 
   def min_pages
-    if form_id == '21-0779'
-      2
-    else
-      1
-    end
+    configs[form_id][:min_pages]
   end
 
   def warnings
@@ -32,6 +24,17 @@ class PersistentAttachments::VAForm < PersistentAttachment
   end
 
   private
+
+  def configs
+    {
+      '21-0779' => {
+        max_pages: 4,
+        min_pages: 2
+      }
+    }.tap do |config|
+      config.default = { max_pages: 10, min_pages: 1 }
+    end
+  end
 
   def delete_file
     file.delete
