@@ -231,6 +231,38 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
+        context 'when the state is not provided and country is not USA' do
+          let(:country) { 'Afghanistan' }
+
+          it 'responds with a 202' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
+              json['data']['attributes']['veteranIdentification']['mailingAddress']['internationalPostalCode'] = '123'
+              json['data']['attributes']['veteranIdentification']['mailingAddress']['state'] = nil
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when the zip is not provided and country is not USA' do
+          let(:country) { 'Afghanistan' }
+
+          it 'responds with a 202' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
+              json['data']['attributes']['veteranIdentification']['mailingAddress']['zipFirstFive'] = nil
+              json['data']['attributes']['veteranIdentification']['mailingAddress']['internationalPostalCode'] = '12345'
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
         context 'when the country is invalid' do
           let(:country) { 'United States of Nada' }
 
@@ -273,7 +305,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 city: 'Atlanta',
                 zipFirstFive: '42220',
                 zipLastFour: '',
-                state: '',
+                state: 'OH',
                 country: 'USA'
               }
             end
