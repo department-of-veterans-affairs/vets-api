@@ -370,5 +370,5 @@ Lint/EmptyBlock:
 Layout/EmptyLineBetweenDefs:
   AllowAdjacentOneLineDefs: true
 
-AmsSerializer:
+Cops/AmsSerializer:
   Enabled: true

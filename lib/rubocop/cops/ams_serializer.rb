@@ -1,8 +1,9 @@
-module RuboCop
-  module Cop
-    class AmsSerializer < RuboCop::Cop::Base
+# frozen_string_literal: true
 
-      MSG = 'Use JSONAPI::Serializer instead of ActiveModel::Serializer'.freeze
+module RuboCop
+  module Cops
+    class AmsSerializer < RuboCop::Cop::Base
+      MSG = 'Use JSONAPI::Serializer instead of ActiveModel::Serializer'
 
       def_node_matcher :active_model_serializer?, <<~PATTERN
         (class
