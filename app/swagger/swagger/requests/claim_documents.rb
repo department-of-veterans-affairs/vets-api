@@ -7,7 +7,7 @@ module Swagger
 
       swagger_path '/v0/claim_attachments' do
         operation :post do
-          extend Swagger::Responses::InternalServerError
+          extend Swagger::Responses::UnprocessableEntityError
           extend Swagger::Responses::SavedForm
 
           key :description, 'Submit a claim document'
@@ -22,7 +22,7 @@ module Swagger
 
             schema do
               key :required, %i[file form_id]
-              property :file, type: ActionDispatch::Http::UploadedFile
+              property :file, type: :object
               property :form_id, type: :string, example: '21P-530V2'
             end
           end
