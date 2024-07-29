@@ -607,6 +607,7 @@ app/uploaders/evss_claim_document_uploader_base.rb @department-of-veterans-affai
 app/uploaders/evss_claim_document_uploader.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/uploaders/form1010cg @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/uploaders/form1010cg/poa_uploader.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+app/uploaders/form_upload @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/uploaders/hca_attachment_uploader.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/uploaders/lighthouse_document_uploader_base.rb @department-of-veterans-affairs/backend-review-group
 app/uploaders/lighthouse_document_uploader.rb @department-of-veterans-affairs/backend-review-group
