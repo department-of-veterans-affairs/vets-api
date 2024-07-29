@@ -188,3 +188,4 @@ describe AppealsApi::PdfConstruction::Generator do
     # end
   end
 end
+
