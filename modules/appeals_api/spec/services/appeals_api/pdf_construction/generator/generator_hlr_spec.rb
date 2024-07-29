@@ -167,7 +167,6 @@ describe AppealsApi::PdfConstruction::Generator do
           }
         }
       end
-      
     end
 
     # These specs need to be skipped until we can determine why they fail in the k8s branch but not master:
@@ -188,4 +187,3 @@ describe AppealsApi::PdfConstruction::Generator do
     # end
   end
 end
-
