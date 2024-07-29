@@ -24,7 +24,7 @@ module MyHealth
         updated_triage_teams = Array(params[:updated_triage_teams])
 
         if updated_triage_teams.empty? || updated_triage_teams.all? do |team|
-          preferred_team_value = team[:preferred_team]
+          preferred_team_value = team[:preferred_team].to_s
           preferred_team_value == 'false'
         end
           raise Common::Exceptions::BadRequest.new(
