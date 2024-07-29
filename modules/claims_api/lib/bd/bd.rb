@@ -179,7 +179,7 @@ module ClaimsApi
         docType: options[:doc_type],
         claimId: options[:claim_id],
         fileName: options[:file_name],
-        trackedItemIds: options[:tracked_item_ids].nil? ? [] : options[:tracked_item_ids]
+        trackedItemIds: options.fetch(:tracked_item_ids, [])
       }
       data[:participantId] = options[:participant_id] unless options[:participant_id].nil?
       data[:fileNumber] = options[:file_number] unless options[:file_number].nil?
