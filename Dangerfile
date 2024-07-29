@@ -154,7 +154,7 @@ module VSPDanger
     end
 
     def files_command
-      "git diff #{BASE_SHA}...#{HEAD_SHA} --numstat -w --ignore-blank-lines -- . #{exclusions}"
+      "git diff #{BASE_SHA}...#{HEAD_SHA} --numstat -w --ignore-blank-lines --no-renames -- . #{exclusions}"
     end
 
     def exclusions
