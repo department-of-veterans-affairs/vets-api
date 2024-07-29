@@ -53,7 +53,7 @@ module VSPDanger
     EXCLUSIONS = %w[
       *.csv *.json *.tsv *.txt *.md Gemfile.lock app/swagger modules/mobile/docs spec/fixtures/ spec/support/vcr_cassettes/
       modules/mobile/spec/support/vcr_cassettes/ db/seeds modules/vaos/app/docs modules/meb_api/app/docs
-      modules/appeals_api/app/swagger/ *.bru
+      modules/appeals_api/app/swagger/ *.bru *.pdf
     ].freeze
     PR_SIZE = { recommended: 200, maximum: 500 }.freeze
 
@@ -127,7 +127,8 @@ module VSPDanger
         next if insertions.zero? && deletions.zero?   # Skip unchanged files
         next if insertions == '-' && deletions == '-' # Skip Binary files (should be caught by `to_i` and `zero?`)
 
-        # rename or copy - use the reported changes from earlier instead
+        # rename or copy - use the reported changes from earlier instead - `file_name` will not exist
+        # eg: {lib => modules/pensions/lib}/pdf_fill/forms/va21p527ez.rb
         unless file_name.include?(" => ")
           lines = file_git_diff(file_name).split("\n")
           changed = { '+' => 0, '-' => 0 }
