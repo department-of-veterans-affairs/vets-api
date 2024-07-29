@@ -87,10 +87,13 @@ module SimpleFormsApi
         page_configuration = get_page_configuration(page, coords)
         verified_multistamp(stamped_template_path, text, page_configuration, font_size)
       else
+        Rails.logger.info('Calling CentralMail::DatestampPdf', current_file_path:, stamped_template_path:)
         datestamp_instance = CentralMail::DatestampPdf.new(current_file_path, append_to_stamp:)
         current_file_path = datestamp_instance.run(text:, x:, y:, text_only:, size: 9)
         File.rename(current_file_path, stamped_template_path)
       end
+    rescue => e
+      raise StandardError, "An error occurred while stamping the PDF: #{e}"
     end
 
     def self.perform_multistamp(stamped_template_path, stamp_path)
