@@ -4,7 +4,6 @@ require 'bgs'
 require 'token_validation/v2/client'
 require 'claims_api/claim_logger'
 require 'claims_api/dependent_service'
-require 'claims_api/v2/params_validation/evidence_waiver_submission'
 
 module ClaimsApi
   module V2
