@@ -2,13 +2,18 @@
 
 module MyHealth
   module V1
-    class AttachmentSerializer < ActiveModel::Serializer
-      attribute :id
+    class AttachmentSerializer
+      include JSONAPI::Serializer
+
+      set_type :attachments
+
       attribute :name
       attribute :message_id
       attribute :attachment_size
 
-      link(:download) { MyHealth::UrlHelper.new.v1_message_attachment_url(object.message_id, object.id) }
+      link :download do |object|
+        MyHealth::UrlHelper.new.v1_message_attachment_url(object.message_id, object.id)
+      end
     end
   end
 end

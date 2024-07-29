@@ -17,7 +17,7 @@ module V0
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
       clear_saved_form(claim.form_id)
-      render(json: claim)
+      render json: SavedClaimSerializer.new(claim)
     end
 
     private
