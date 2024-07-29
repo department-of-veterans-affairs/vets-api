@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_16_143105) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -137,15 +137,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_143105) do
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_pilot_representatives_on_email", unique: true
     t.index ["ogc_registration_number"], name: "index_pilot_representatives_on_ogc_number", unique: true
-  end
-
-  create_table "accredited_representative_portal_verified_representatives", force: :cascade do |t|
-    t.string "ogc_registration_number", null: false
-    t.string "email", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["email"], name: "index_verified_representatives_on_email", unique: true
-    t.index ["ogc_registration_number"], name: "index_verified_representatives_on_ogc_number", unique: true
   end
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -357,6 +348,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_143105) do
     t.text "bgs_special_issue_responses_ciphertext"
     t.text "encrypted_kms_key"
     t.string "cid"
+    t.string "transaction_id"
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
@@ -384,6 +376,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_143105) do
     t.integer "vbms_upload_failure_count", default: 0
     t.integer "bgs_upload_failure_count", default: 0
     t.string "claim_id"
+    t.integer "tracked_items", default: [], array: true
   end
 
   create_table "claims_api_intent_to_files", force: :cascade do |t|
@@ -434,7 +427,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_143105) do
     t.datetime "updated_at", null: false
     t.text "logout_redirect_uri"
     t.boolean "pkce"
-    t.string "certificates", array: true
+    t.string "certificates", default: [], array: true
     t.text "description"
     t.string "access_token_attributes", default: [], array: true
     t.text "terms_of_use_url"
@@ -880,6 +873,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_143105) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "case_id"
+    t.boolean "email_sent", default: false, null: false
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
   end
 
@@ -1065,10 +1059,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_143105) do
   create_table "service_account_configs", force: :cascade do |t|
     t.string "service_account_id", null: false
     t.text "description", null: false
-    t.text "scopes", null: false, array: true
+    t.text "scopes", default: [], null: false, array: true
     t.string "access_token_audience", null: false
     t.interval "access_token_duration", null: false
-    t.string "certificates", array: true
+    t.string "certificates", default: [], array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "access_token_user_attributes", default: [], array: true

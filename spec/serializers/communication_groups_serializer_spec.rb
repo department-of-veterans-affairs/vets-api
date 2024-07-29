@@ -14,6 +14,10 @@ describe CommunicationGroupsSerializer, type: :serializer do
     expect(data['id']).to be_blank
   end
 
+  it 'includes :type' do
+    expect(data['type']).to eq('hashes')
+  end
+
   it 'includes :communication_groups' do
     expect(attributes['communication_groups'].size).to eq communication_groups[:communication_groups].size
     expect(attributes['communication_groups'].first['id']).to eq communication_groups[:communication_groups].first.id
