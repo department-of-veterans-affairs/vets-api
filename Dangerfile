@@ -129,7 +129,7 @@ module VSPDanger
 
         # rename or copy - use the reported changes from earlier instead - `file_name` will not exist
         # eg: {lib => modules/pensions/lib}/pdf_fill/forms/va21p527ez.rb
-        unless file_name.include?(" => ")
+        unless file_name.include?(' => ')
           lines = file_git_diff(file_name).split("\n")
           changed = { '+' => 0, '-' => 0 }
           lines.each do |line|
