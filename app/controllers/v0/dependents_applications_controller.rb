@@ -19,7 +19,7 @@ module V0
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
       # clear_saved_form(claim.form_id) # We do not want to destroy the InProgressForm for this submission
 
-      render(json: claim)
+      render json: SavedClaimSerializer.new(claim)
     end
 
     def show
