@@ -238,6 +238,30 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 section 3, homelessness' do
+      it 'maps the currentlyHomeless true values' do
+        form_attributes['homeless']['isCurrentlyHomeless'] = true
+        form_attributes['homeless']['isAtRiskOfBecomingHomeless'] = true
+        mapper.map_claim
+
+        currently = pdf_data[:data][:attributes][:homelessInformation][:areYouCurrentlyHomeless]
+        risk = pdf_data[:data][:attributes][:homelessInformation][:areYouAtRiskOfBecomingHomeless]
+
+        expect(currently).to eq('YES')
+        expect(risk).to eq('YES')
+      end
+
+      it 'maps the currentlyHomeless false values' do
+        form_attributes['homeless']['isCurrentlyHomeless'] = false
+        form_attributes['homeless']['isAtRiskOfBecomingHomeless'] = false
+        mapper.map_claim
+
+        currently = pdf_data[:data][:attributes][:homelessInformation][:areYouCurrentlyHomeless]
+        risk = pdf_data[:data][:attributes][:homelessInformation][:areYouAtRiskOfBecomingHomeless]
+
+        expect(currently).to eq('NO')
+        expect(risk).to eq('NO')
+      end
+
       it 'maps the homeless_point_of_contact' do
         mapper.map_claim
 
