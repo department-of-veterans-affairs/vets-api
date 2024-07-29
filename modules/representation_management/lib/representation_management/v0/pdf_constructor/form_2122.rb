@@ -79,7 +79,7 @@ module RepresentationManagement
             data.veteran_zip_code_suffix,
             # Veteran Phone Number
             "#{PAGE1_KEY}.TelephoneNumber_IncludeAreaCode[1]": data.veteran_phone,
-            # # Veteran Email
+            # Veteran Email
             "#{PAGE1_KEY}.EmailAddress_Optional[0]": data.veteran_email
           }
         end
@@ -88,7 +88,7 @@ module RepresentationManagement
           return {} if data.claimant_last_name.blank?
 
           {
-            # # Claimant Name
+            # Claimant Name
             "#{PAGE1_KEY}.Claimants_FirstName[0]": data.claimant_first_name,
             "#{PAGE1_KEY}.Claimants_MiddleInitial1[0]": data.claimant_middle_initial,
             "#{PAGE1_KEY}.Claimants_LastName[0]": data.claimant_last_name,
@@ -136,7 +136,7 @@ module RepresentationManagement
             data.veteran_social_security_number[5..8],
             # Record Consent
             "#{PAGE2_KEY}.I_Authorize[1]": data.record_consent == true ? 1 : 0,
-            # # Item 20
+            # Item 20
             "#{PAGE2_KEY}.Drug_Abuse[0]": \
             data.consent_limits.present? && data.consent_limits.include?('DRUG_ABUSE') ? 1 : 0,
             "#{PAGE2_KEY}.Alcoholism_Or_Alcohol_Abuse[0]": \
