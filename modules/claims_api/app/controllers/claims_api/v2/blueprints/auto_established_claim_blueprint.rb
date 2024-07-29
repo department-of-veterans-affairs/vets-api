@@ -16,6 +16,12 @@ module ClaimsApi
             claim&.form_data
           end
         end
+
+        # view :with_meta do
+        #   field :meta, if: ->(_field_name, claim, options) { claim.transaction_id != nil } do |claim, options|
+        #     { transaction_id: claim.transaction_id}
+        #   end
+        # end
       end
     end
   end
