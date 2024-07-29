@@ -1,4 +1,4 @@
-name: Require backend-review-group PR Approvals
+name: Enforce PR Approval Requirements
 
 on:
   pull_request:
@@ -25,16 +25,35 @@ jobs:
           REQUESTED_TEAMS=$(echo '${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')
           if echo "$REQUESTED_TEAMS" | grep -qiE '(mobile|lighthouse|identity)'; then
             echo "Specialized team review required. Skipping backend-review-group requirement."
-            echo "skip_be_review=true" >> $GITHUB_OUTPUT
+            echo "skip_backend_review=true" >> $GITHUB_OUTPUT
           else
             echo "No specialized team review required. Enforcing backend-review-group requirement."
-            echo "skip_be_review=false" >> $GITHUB_OUTPUT
+            echo "skip_backend_review=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Enforce backend-review-group approval
-        if: steps.check_reviewers.outputs.skip_be_review == 'false'
-        uses: pulumi/action-pr-require-team-review@v1.0.0
+        if: steps.check_reviewers.outputs.skip_backend_review == 'false'
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers \
+            -d '{"team_reviewers":["backend-review-group"]}'
+
+      - name: Check backend-review-group approval status
+        if: steps.check_reviewers.outputs.skip_backend_review == 'false'
+        id: check_backend_review_group_approval_status
+        uses: octokit/request-action@v2.x
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          require-approval-count: 1
-          required-review-team: backend-review-group
+          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+      - name: Verify backend-review-group approval
+        if: steps.check_reviewers.outputs.skip_backend_review == 'false'
+        run: |
+          APPROVALS=$(echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq '[.[] | select(.state == "APPROVED" and .author_association == "MEMBER" and .user.login == "backend-review-group")] | length')
+          if [ "$APPROVALS" -eq 0 ]; then
+            echo "Error: This PR requires approval from backend-review-group."
+            exit 1
+          fi
