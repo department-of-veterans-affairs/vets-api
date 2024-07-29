@@ -44,6 +44,10 @@ class Lighthouse526DocumentUpload < ApplicationRecord
     end
   end
 
+  def form0781_types?
+    [FORM_0781_DOCUMENT_TYPE, FORM_0781A_DOCUMENT_TYPE].include?(document_type)
+  end
+
   private
 
   def veteran_upload?

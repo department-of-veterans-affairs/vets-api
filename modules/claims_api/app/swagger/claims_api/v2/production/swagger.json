@@ -2416,9 +2416,9 @@
                                 },
                                 "accountNumber": {
                                   "description": "Account number for the direct deposit.",
-                                  "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                  "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                   "type": "string",
-                                  "maxLength": 14,
+                                  "maxLength": 1000,
                                   "nullable": true,
                                   "example": "123123123123"
                                 },
@@ -2434,7 +2434,7 @@
                                 },
                                 "financialInstitutionName": {
                                   "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                  "maxLength": 35,
+                                  "maxLength": 1000,
                                   "type": "string",
                                   "nullable": true,
                                   "example": "Some Bank"
@@ -2442,8 +2442,9 @@
                                 "routingNumber": {
                                   "description": "Routing number for the direct deposit.",
                                   "type": "string",
+                                  "maxLength": 1000,
                                   "nullable": true,
-                                  "pattern": "^(?:\\d{9})?$",
+                                  "pattern": "^$|^\\d{0,1000}$",
                                   "example": "123123123"
                                 }
                               }
@@ -3781,9 +3782,9 @@
                               },
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
-                                "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                 "type": "string",
-                                "maxLength": 14,
+                                "maxLength": 1000,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -3799,7 +3800,7 @@
                               },
                               "financialInstitutionName": {
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                "maxLength": 35,
+                                "maxLength": 1000,
                                 "type": "string",
                                 "nullable": true,
                                 "example": "Some Bank"
@@ -3807,8 +3808,9 @@
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "nullable": true,
-                                "pattern": "^(?:\\d{9})?$",
+                                "pattern": "^$|^\\d{0,1000}$",
                                 "example": "123123123"
                               }
                             }
@@ -4343,7 +4345,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "be0b5388-a8c3-4db0-9b6d-d343a52fcb03",
+                    "id": "024168a9-3fb9-4dbb-96b0-0b594ba73819",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -4526,7 +4528,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-07-17"
+                          "anticipatedSeparationDate": "2024-07-25"
                         },
                         "confinements": [
                           {
@@ -5679,9 +5681,9 @@
                                 },
                                 "accountNumber": {
                                   "description": "Account number for the direct deposit.",
-                                  "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                  "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                   "type": "string",
-                                  "maxLength": 14,
+                                  "maxLength": 1000,
                                   "nullable": true,
                                   "example": "123123123123"
                                 },
@@ -5697,7 +5699,7 @@
                                 },
                                 "financialInstitutionName": {
                                   "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                  "maxLength": 35,
+                                  "maxLength": 1000,
                                   "type": "string",
                                   "nullable": true,
                                   "example": "Some Bank"
@@ -5705,8 +5707,9 @@
                                 "routingNumber": {
                                   "description": "Routing number for the direct deposit.",
                                   "type": "string",
+                                  "maxLength": 1000,
                                   "nullable": true,
-                                  "pattern": "^(?:\\d{9})?$",
+                                  "pattern": "^$|^\\d{0,1000}$",
                                   "example": "123123123"
                                 }
                               }
@@ -7044,9 +7047,9 @@
                               },
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
-                                "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                 "type": "string",
-                                "maxLength": 14,
+                                "maxLength": 1000,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -7062,7 +7065,7 @@
                               },
                               "financialInstitutionName": {
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                "maxLength": 35,
+                                "maxLength": 1000,
                                 "type": "string",
                                 "nullable": true,
                                 "example": "Some Bank"
@@ -7070,8 +7073,9 @@
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "nullable": true,
-                                "pattern": "^(?:\\d{9})?$",
+                                "pattern": "^$|^\\d{0,1000}$",
                                 "example": "123123123"
                               }
                             }
@@ -8952,9 +8956,9 @@
                               },
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
-                                "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                 "type": "string",
-                                "maxLength": 14,
+                                "maxLength": 1000,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -8970,7 +8974,7 @@
                               },
                               "financialInstitutionName": {
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                "maxLength": 35,
+                                "maxLength": 1000,
                                 "type": "string",
                                 "nullable": true,
                                 "example": "Some Bank"
@@ -8978,8 +8982,9 @@
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "nullable": true,
-                                "pattern": "^(?:\\d{9})?$",
+                                "pattern": "^$|^\\d{0,1000}$",
                                 "example": "123123123"
                               }
                             }
@@ -9263,7 +9268,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "325dd8b8-ae7a-469d-a0e9-66887dd5ec24",
+                    "id": "7e262461-3164-4b3c-9d0f-4680d6edc34d",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -10358,7 +10363,7 @@
                         ],
                         "properties": {
                           "claimDate": {
-                            "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                            "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})$",
                             "type": "string",
                             "example": "2018-06-04"
                           },
@@ -10393,7 +10398,6 @@
                                   "telephone": {
                                     "description": "Veteran's phone number. Number including area code.",
                                     "type": "string",
-                                    "pattern": "^\\d{10}?$",
                                     "example": "5555555555",
                                     "nullable": true
                                   },
@@ -10420,14 +10424,12 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 325,
                                     "example": "1234 Couch Street"
                                   },
                                   "addressLine2": {
                                     "description": "Address line 2 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 325,
                                     "example": "Unit 4",
                                     "nullable": true
@@ -10435,7 +10437,6 @@
                                   "addressLine3": {
                                     "description": "Address line 3 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 325,
                                     "example": "Room 1",
                                     "nullable": true
@@ -10443,7 +10444,6 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                     "example": "Portland",
                                     "maxLength": 1000
                                   },
@@ -10520,14 +10520,12 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 325,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 325,
                                 "example": "Unit 4",
                                 "nullable": true
@@ -10535,7 +10533,6 @@
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 325,
                                 "example": "Room 1",
                                 "nullable": true
@@ -10543,14 +10540,12 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                 "example": "Portland",
                                 "maxLength": 1000
                               },
                               "state": {
                                 "description": "State for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^[a-z,A-Z]{2}$",
                                 "example": "OR",
                                 "maxLength": 1000
                               },
@@ -10578,15 +10573,15 @@
                                 "properties": {
                                   "beginDate": {
                                     "description": "Begin date for the Veteran's new address.",
-                                    "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "type": "string",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
                                     "example": "2018-06-04"
                                   },
                                   "endDate": {
                                     "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
                                     "example": "2018-06-04"
                                   }
                                 }
@@ -10656,7 +10651,6 @@
                                 "nullable": true,
                                 "minLength": 1,
                                 "maxLength": 1000,
-                                "pattern": "^([-a-zA-Z0-9/']+( ?))*$",
                                 "example": "Jane Doe"
                               },
                               "pointOfContactNumber": {
@@ -10667,7 +10661,6 @@
                                   "telephone": {
                                     "description": "Ten digit primary phone of point of contact.",
                                     "type": "string",
-                                    "pattern": "^\\d{10}?$",
                                     "example": "5555555555",
                                     "nullable": true
                                   },
@@ -10710,12 +10703,14 @@
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate begin date for serving in Gulf War hazard location.",
+                                        "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                         "example": "2018-06 or 2018"
                                       },
                                       "endDate": {
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate end date for serving in Gulf War hazard location.",
+                                        "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                         "example": "2018-06 or 2018"
                                       }
                                     }
@@ -10740,7 +10735,6 @@
                                   "otherLocationsServed": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                     "description": "Other location(s) where Veteran served.",
                                     "maxLength": 5000
                                   },
@@ -10753,14 +10747,14 @@
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate begin date for serving in herbicide location.",
-                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                        "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                         "example": "2018-06 or 2018"
                                       },
                                       "endDate": {
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate end date for serving in herbicide location.",
-                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                        "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                         "example": "2018-06 or 2018"
                                       }
                                     }
@@ -10794,7 +10788,6 @@
                                   "specifyOtherExposures": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                     "description": "Exposure to asbestos.",
                                     "maxLength": 5000
                                   },
@@ -10807,14 +10800,14 @@
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate begin date for exposure.",
-                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                        "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                         "example": "2018-06 or 2018"
                                       },
                                       "endDate": {
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate end date for exposure.",
-                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                        "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                         "example": "2018-06 or 2018"
                                       }
                                     }
@@ -10833,14 +10826,12 @@
                                     "hazardExposedTo": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                       "description": "Hazard the Veteran was exposed to.",
                                       "maxLength": 1000
                                     },
                                     "exposureLocation": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                       "description": "Location where the exposure happened.",
                                       "maxLength": 1000
                                     },
@@ -10853,14 +10844,14 @@
                                           "type": "string",
                                           "nullable": true,
                                           "description": "Approximate begin date for exposure.",
-                                          "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                          "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                           "example": "2018-06 or 2018"
                                         },
                                         "endDate": {
                                           "type": "string",
                                           "nullable": true,
                                           "description": "Approximate end date for exposure.",
-                                          "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                          "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                           "example": "2018-06 or 2018"
                                         }
                                       }
@@ -10886,7 +10877,6 @@
                                 "name": {
                                   "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                   "type": "string",
-                                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                                   "example": "PTSD (post traumatic stress disorder)",
                                   "maxLength": 1000
                                 },
@@ -10911,7 +10901,7 @@
                                 "approximateDate": {
                                   "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                                   "type": "string",
-                                  "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
+                                  "pattern": "^(\\d{4}-(\\d{2}-(\\d{2})?)?|\\d{4}-\\d{2}|\\d{4}|)$",
                                   "example": "2018-03-02 or 2018-03 or 2018",
                                   "nullable": true,
                                   "maxLength": 1000
@@ -10975,7 +10965,6 @@
                                       "name": {
                                         "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                         "type": "string",
-                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                                         "example": "PTSD (post traumatic stress disorder)",
                                         "maxLength": 1000
                                       },
@@ -11008,7 +10997,7 @@
                                       "approximateDate": {
                                         "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                                         "type": "string",
-                                        "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
+                                        "pattern": "^(\\d{4}-(\\d{2}-(\\d{2})?)?|\\d{4}-\\d{2}|\\d{4}|)$",
                                         "example": "2018-03-02 or 2018-03 or 2018",
                                         "nullable": true,
                                         "maxLength": 1000
@@ -11037,7 +11026,7 @@
                                 "beginDate": {
                                   "description": "Begin date for treatment. If treatment began from 2005 to present, you do not need to provide dates. Each treatment begin date must be after the first 'servicePeriod.activeDutyBeginDate'.",
                                   "type": "string",
-                                  "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                  "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                   "example": "2018-06 or 2018",
                                   "nullable": true
                                 },
@@ -11065,21 +11054,18 @@
                                       "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^$|(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                                       "example": "Private Facility 2",
                                       "maxLength": 100
                                     },
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
                                     "state": {
                                       "description": "State of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^[a-z,A-Z]{2}$",
                                       "example": "OR",
                                       "nullable": true
                                     }
@@ -11142,13 +11128,13 @@
                                     "activeDutyBeginDate": {
                                       "description": "Date started active duty.",
                                       "type": "string",
-                                      "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                                      "pattern": "^(?:\\d{4})-(?:\\d{2})-(?:\\d{2})$",
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
                                       "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                       "type": "string",
-                                      "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                                      "pattern": "^(?:\\d{4})-(?:\\d{2})-(?:\\d{2})$",
                                       "example": "2018-06-06"
                                     },
                                     "separationLocationCode": {
@@ -11193,13 +11179,13 @@
                                       "beginDate": {
                                         "type": "string",
                                         "nullable": true,
-                                        "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                                        "pattern": "^(?:\\d{4})-(?:\\d{2})-(?:\\d{2})$",
                                         "example": "2018-06-06"
                                       },
                                       "endDate": {
                                         "type": "string",
                                         "nullable": true,
-                                        "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                                        "pattern": "^(?:\\d{4})-(?:\\d{2})-(?:\\d{2})$",
                                         "example": "2018-06-06"
                                       }
                                     }
@@ -11207,13 +11193,11 @@
                                   "unitName": {
                                     "type": "string",
                                     "maxLength": 1000,
-                                    "nullable": true,
-                                    "pattern": "^$|([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
+                                    "nullable": true
                                   },
                                   "unitAddress": {
                                     "type": "string",
                                     "maxLength": 1000,
-                                    "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
                                     "nullable": true
                                   },
                                   "unitPhone": {
@@ -11225,7 +11209,6 @@
                                         "type": "string",
                                         "nullable": true,
                                         "maxLength": 1000,
-                                        "pattern": "^$|^\\d{3}$",
                                         "example": "555"
                                       },
                                       "phoneNumber": {
@@ -11255,14 +11238,14 @@
                                   "activationDate": {
                                     "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
                                     "type": "string",
-                                    "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$|^$",
                                     "example": "2018-06-06",
                                     "nullable": true
                                   },
                                   "anticipatedSeparationDate": {
                                     "description": "Anticipated date of separation. Date must be in the future.",
                                     "type": "string",
-                                    "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$|^$",
                                     "example": "2018-06-06",
                                     "nullable": true
                                   }
@@ -11280,13 +11263,13 @@
                                       "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                      "pattern": "^(\\d{4}-(\\d{2}-(\\d{2})?)?|\\d{4}-\\d{2}|\\d{4}|)$",
                                       "example": "2018-06-06 or 2018-06"
                                     },
                                     "approximateEndDate": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                      "pattern": "^(\\d{4}-(\\d{2}-(\\d{2})?)?|\\d{4}-\\d{2}|\\d{4}|)$",
                                       "example": "2018-06-06 or 2018-06"
                                     }
                                   }
@@ -11381,7 +11364,7 @@
                                   "datePaymentReceived": {
                                     "description": "Approximate date separation pay was received. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                                     "type": "string",
-                                    "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                    "pattern": "^(\\d{4}-(\\d{2}-(\\d{2})?)?|\\d{4}-\\d{2}|\\d{4}|)$",
                                     "example": "2018-03-02 or 2018-03 or 2018"
                                   },
                                   "branchOfService": {
@@ -12138,8 +12121,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-07-15",
-                      "expirationDate": "2025-07-15",
+                      "creationDate": "2024-07-23",
+                      "expirationDate": "2025-07-23",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13015,7 +12998,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6ae7a4b3-2846-4a8d-ba20-13cfecf951cc",
+                    "id": "9ab52a35-edb8-427d-87f6-0b08c20c2e94",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13708,7 +13691,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ac0a296b-c1ee-4f20-8fa1-f02305aa0bff",
+                    "id": "4c05bf68-3ec7-4358-b5dc-585c0392411d",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15659,10 +15642,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2481cfc2-318d-4f1a-9b84-6768f6037604",
+                    "id": "27b5ef35-9836-4480-8e75-fa4286bb0186",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-07-15",
+                      "dateRequestAccepted": "2024-07-23",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

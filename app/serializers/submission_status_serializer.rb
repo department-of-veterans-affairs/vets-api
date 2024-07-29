@@ -3,5 +3,5 @@
 class SubmissionStatusSerializer
   include JSONAPI::Serializer
 
-  attributes :id, :form_type, :status, :created_at, :updated_at
+  attributes :id, :detail, :form_type, :message, :status, :created_at, :updated_at
 end

@@ -78,7 +78,7 @@ module V0
       job_status = Form526JobStatus.where(job_id: params[:job_id]).first
       raise Common::Exceptions::RecordNotFound, params[:job_id] unless job_status
 
-      render json: job_status, serializer: Form526JobStatusSerializer
+      render json: Form526JobStatusSerializer.new(job_status)
     end
 
     def rating_info
@@ -87,8 +87,8 @@ module V0
 
         disability_rating = service.get_combined_disability_rating
 
-        render json: { user_percent_of_disability: disability_rating },
-               serializer: LighthouseRatingInfoSerializer
+        rating_info = { user_percent_of_disability: disability_rating }
+        render json: LighthouseRatingInfoSerializer.new(rating_info)
       else
         rating_info_service = EVSS::CommonService.new(auth_headers)
         response = rating_info_service.get_rating_info
