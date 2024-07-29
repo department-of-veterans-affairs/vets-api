@@ -127,7 +127,8 @@ module VSPDanger
         next if insertions.zero? && deletions.zero?   # Skip unchanged files
         next if insertions == '-' && deletions == '-' # Skip Binary files (should be caught by `to_i` and `zero?`)
 
-        unless file_name.include?(" => ") # rename or copy
+        # rename or copy - use the reported changes from earlier instead
+        unless file_name.include?(" => ")
           lines = file_git_diff(file_name).split("\n")
           changed = { '+' => 0, '-' => 0 }
           lines.each do |line|
