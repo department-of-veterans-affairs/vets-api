@@ -1,0 +1,16 @@
+type: object
+properties:
+  updated_triage_teams:
+    type: array
+    items:
+      type: object
+      required:
+        - triage_team_id
+        - preferred_team
+      properties:
+        triage_team_id:
+          type: string
+          description: The ID of the triage team
+        preferred_team:
+          type: boolean
+          description: Indicates if the team is preferred (displayed in contact list if `true`)
