@@ -2,9 +2,19 @@
 
 require 'rails_helper'
 require 'pdf_fill/forms/va21p527ez'
-
+require 'lib/pdf_fill/fill_form_examples'
 def basic_class
   PdfFill::Forms::Va21p527ez.new({})
+end
+
+describe PdfFill::Filler, type: :model do
+  it_behaves_like 'a form filler', {
+    form_id: '21P-527EZ',
+    factory: :pension_claim,
+    use_vets_json_schema: true,
+    input_data_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures',
+    output_pdf_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures'
+  }
 end
 
 describe PdfFill::Forms::Va21p527ez do

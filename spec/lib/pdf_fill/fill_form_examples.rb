@@ -1,15 +1,19 @@
-# spec/support/shared_examples/fill_form_examples.rb
+# frozen_string_literal: true
+#
+require 'rails_helper'
 
 RSpec.shared_examples 'a form filler' do |options|
   form_id, factory = options.values_at(:form_id, :factory)
 
-  context "form #{form_id}" do
+  context "form #{form_id}", run_at: '2017-07-25 00:00:00 -0400' do
+    let(:input_data_fixture_dir) { options[:input_data_fixture_dir] || "pdf_fill/#{form_id}" }
+    let(:output_pdf_fixture_dir) { options[:output_pdf_fixture_dir] || "pdf_fill/#{form_id}" }
+
     %w[simple kitchen_sink overflow].each do |type|
       context "with #{type} test data" do
-        let(:input_data_fixture_dir) { options[:input_data_fixture_dir] || "pdf_fill/#{form_id}" }
-        let(:output_pdf_fixture_dir) { options[:output_pdf_fixture_dir] || "pdf_fill/#{form_id}" }
+
         let(:form_data) do
-          return get_fixture("#{input_data_fixture_dir}/#{type}") unless options[:use_vets_json_schema]
+          return get_fixture_absolute("#{input_data_fixture_dir}/#{type}") unless options[:use_vets_json_schema]
 
           schema = "#{form_id.upcase}-#{type.upcase}"
           VetsJsonSchema::EXAMPLES.fetch(schema)
@@ -38,14 +42,14 @@ RSpec.shared_examples 'a form filler' do |options|
             extras_path = the_extras_generator.generate
 
             expect(
-              FileUtils.compare_file(extras_path, "spec/fixtures/#{output_pdf_fixture_dir}/overflow_extras.pdf")
+              FileUtils.compare_file(extras_path, "#{output_pdf_fixture_dir}/overflow_extras.pdf")
             ).to eq(true)
 
             File.delete(extras_path)
           end
 
           expect(
-            pdfs_fields_match?(file_path, "spec/fixtures/#{output_pdf_fixture_dir}/#{type}.pdf")
+            pdfs_fields_match?(file_path, "#{output_pdf_fixture_dir}/#{type}.pdf")
           ).to eq(true)
 
           File.delete(file_path)

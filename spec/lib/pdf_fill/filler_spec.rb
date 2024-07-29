@@ -44,7 +44,7 @@ describe PdfFill::Filler, type: :model do
     end
   end
 
-  describe '#fill_form', run_at: '2017-07-25 00:00:00 -0400' do
+  describe '#fill_form' do
     [
       {
         form_id: '21P-530',
@@ -58,8 +58,8 @@ describe PdfFill::Filler, type: :model do
       {
         form_id: '10-10CG',
         factory: :caregivers_assistance_claim,
-        input_data_fixture_dir: 'pdf_fill/10-10CG',
-        output_pdf_fixture_dir: 'pdf_fill/10-10CG/signed',
+        input_data_fixture_dir: 'spec/fixtures/pdf_fill/10-10CG',
+        output_pdf_fixture_dir: 'spec/fixtures/pdf_fill/10-10CG/signed',
         fill_options: {
           sign: true
         }
