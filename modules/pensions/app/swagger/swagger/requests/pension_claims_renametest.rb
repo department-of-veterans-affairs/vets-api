@@ -5,6 +5,10 @@ module Swagger
     class PensionClaims
       include Swagger::Blocks
 
+      a = 1
+      b = 2
+      c = 3
+
       swagger_path 'pensions/v0/pension_claims' do
         operation :post do
           extend Swagger::Responses::ValidationError
