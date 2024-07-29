@@ -175,7 +175,7 @@ module ClaimsApi
 
     def build_body(options = {})
       data = {
-        systemName: options[:system_name].nil? ? 'VA.gov' : options[:system_name],
+        systemName: options[:system_name].presence || 'VA.gov',
         docType: options[:doc_type],
         claimId: options[:claim_id],
         fileName: options[:file_name],
