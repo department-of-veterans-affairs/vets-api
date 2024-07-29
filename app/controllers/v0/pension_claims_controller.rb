@@ -17,6 +17,7 @@ module V0
 
     def show
       claim = claim_class.find_by!(guid: params[:id]) # will raise ActiveRecord::NotFound
+
       form_submission = claim.form_submissions&.order(id: :asc)&.last
       submission_attempt = form_submission&.form_submission_attempts&.order(created_at: :asc)&.last
       if submission_attempt
@@ -24,6 +25,7 @@ module V0
         state = submission_attempt.aasm_state == 'failure' ? 'failure' : 'success'
         response = format_show_response(claim, state, form_submission, submission_attempt)
       end
+
       render(json: response)
     rescue ActiveRecord::RecordNotFound => e
       pension_monitor.track_show404(params[:id], current_user, e)
@@ -89,7 +91,7 @@ module V0
     end
 
     def pension_monitor
-      Pension21p527ez::Monitor.new
+      @monitor ||= Pension21p527ez::Monitor.new
     end
   end
 end

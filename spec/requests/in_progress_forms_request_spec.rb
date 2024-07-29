@@ -310,7 +310,9 @@ RSpec.describe V0::InProgressFormsController do
             'createdAt' => 1_483_228_800,
             'expiresAt' => 1_488_412_800, # <- these are inserted by the model on access, and will always be camelCase
             'lastUpdated' => 1_483_228_800, # now so that the front end will always receive camelCase (with or without
-            'inProgressFormId' => in_progress_form.id # the inflection header)
+            'inProgressFormId' => in_progress_form.id, # the inflection header)
+            'submission' => { 'status' => false, 'error_message' => false, 'id' => false, 'timestamp' => false,
+                              'has_attempted_submit' => false }
           )
         end
 
