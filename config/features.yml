@@ -1559,6 +1559,9 @@ features:
   pension_introduction_update:
     actor_type: user
     description: Show updated introduction page
+  pension_supporting_documents_update:
+   actor_type: user
+   description: Show updated supporting documents page
   pension_module_enabled:
     actor_type: user
     description: Enable the pension module routes
@@ -1629,9 +1632,6 @@ features:
   merge_1995_and_5490:
     actore_type: user
     description: Activating the combined 1995 and 5490 form
-  use_new_get_all_features:
-    actor_type: user
-    description: Used to test new feature toggle code. Removal ETA July 15, 2024
   mgib_verifications_maintenance: 
     actor_type: user
     description: Used to show  maintenance alert for MGIB Verifications

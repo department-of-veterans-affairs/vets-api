@@ -172,11 +172,11 @@ module ClaimsApi
 
     def build_body(options = {})
       data = {
-        systemName: options.fetch(:system_name, 'VA.gov'),
+        systemName: options[:system_name].presence || 'VA.gov',
         docType: options[:doc_type],
         claimId: options[:claim_id],
         fileName: options[:file_name],
-        trackedItemIds: options.fetch(:tracked_item_ids, [])
+        trackedItemIds: options[:tracked_item_ids].presence || []
       }
       data[:participantId] = options[:participant_id] unless options[:participant_id].nil?
       data[:fileNumber] = options[:file_number] unless options[:file_number].nil?
