@@ -62,13 +62,21 @@ module RepresentationManagement
               if: -> { veteran_va_file_number.present? }
     validates :veteran_date_of_birth, presence: true
     validates :veteran_address_line1, presence: true, length: { maximum: 30 }
-    validates :veteran_address_line2, length: { maximum: 5 }
+    validates :veteran_address_line2,
+              length: { maximum: 5 },
+              if: -> { veteran_address_line2.present? }
     validates :veteran_city, presence: true, length: { maximum: 18 }
     validates :veteran_country, presence: true, length: { is: 2 }
     validates :veteran_state_code, presence: true, length: { is: 2 }
     validates :veteran_zip_code, presence: true, length: { is: 5 }, format: { with: FIVE_DIGIT_NUMBER }
-    validates :veteran_zip_code_suffix, length: { is: 4 }, format: { with: FOUR_DIGIT_NUMBER }
-    validates :veteran_phone, length: { is: 10 }, format: { with: TEN_DIGIT_NUMBER }
+    validates :veteran_zip_code_suffix,
+              length: { is: 4 },
+              format: { with: FOUR_DIGIT_NUMBER },
+              if: -> { veteran_zip_code_suffix.present? }
+    validates :veteran_phone,
+              length: { is: 10 },
+              format: { with: TEN_DIGIT_NUMBER },
+              if: -> { veteran_phone.present? }
     validates :veteran_service_number,
               length: { is: 9 },
               format: { with: NINE_DIGIT_NUMBER },
