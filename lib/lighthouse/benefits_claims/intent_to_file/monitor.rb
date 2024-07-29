@@ -31,7 +31,7 @@ module BenefitsClaims
           itf_type:,
           form_start_date:,
           user_account_uuid:,
-          errors: e.errors
+          errors: e.try(:errors) || e&.message
         }
         Rails.logger.warn("Lighthouse::CreateIntentToFileJob create #{itf_type} ITF failed", context)
       end
