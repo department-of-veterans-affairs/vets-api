@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe MyHealth::V1::MessageSerializer, type: :serializer do
+describe MyHealth::V1::MessageDraftSerializer, type: :serializer do
   subject { serialize(message, { serializer_class: described_class, include: [:attachments] }) }
 
   let(:message) { build_stubbed(:message, :with_attachments) }
@@ -11,7 +11,7 @@ describe MyHealth::V1::MessageSerializer, type: :serializer do
   let(:relationships) { data['relationships'] }
 
   it 'includes :type relationship' do
-    expect(data['type']).to eq 'messages'
+    expect(data['type']).to eq 'message_drafts'
   end
 
   it 'includes :attachments relationship' do
