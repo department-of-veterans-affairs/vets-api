@@ -2419,8 +2419,38 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
+        context 'when the activeDutyBeginDate is missing day portion of date' do
+          let(:active_duty_begin_date) { '2009-01' }
+
+          it 'responds with a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] =
+                active_duty_begin_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
         context 'when the activeDutyEndDate is not formatted correctly' do
           let(:active_duty_end_date) { '07-28-2009' }
+
+          it 'responds with a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                active_duty_end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when the activeDutyEndDate is missing day portion of date' do
+          let(:active_duty_end_date) { '2009-07' }
 
           it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
@@ -2518,6 +2548,37 @@ RSpec.describe 'Disability Claims', type: :request do
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when there are more than one service periods' do
+          let(:service_periods) do
+            [
+              {
+                serviceBranch: 'Public Health Service',
+                serviceComponent: 'Active',
+                activeDutyBeginDate: '2008-11-14',
+                activeDutyEndDate: '2023-10-30',
+                separationLocationCode: '98282'
+              },
+              {
+                serviceBranch: 'Public Health Service',
+                serviceComponent: 'Active',
+                activeDutyBeginDate: '2008-11-14',
+                activeDutyEndDate: '2023-10-30',
+                separationLocationCode: '98282'
+              }
+            ]
+          end
+
+          it 'passes vaidation' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
             end
           end
         end

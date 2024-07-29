@@ -2,6 +2,7 @@
 
 Vets API requires:
 
+
 - Ruby 3.3.3
 - PostgreSQL 15.x (including PostGIS 3)
 - Redis 6.2.x
@@ -131,6 +132,7 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
 
    1. It is *_MUCH_* easier to use the [Postgres.app](https://postgresapp.com/downloads.html) which installs the correct combination of Postgresql and PostGIS versions.
 
+
    - Download the Postgres.app with PostgreSQL 15
    - Install Instructions here: https://postgresapp.com/
    - `sudo mkdir -p /etc/paths.d && echo /Applications/Postgres.app/Contents/Versions/latest/bin | sudo tee /etc/paths.d/postgresapp`
@@ -186,7 +188,7 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
    echo "deb http://apt.postgresql.org/pub/repos/apt/ focal"-pgdg main | sudo tee  /etc/apt/sources.list.d/pgdg.list
    sudo apt update
-   sudo apt install postgresql-11
+   sudo apt install postgresql-14
    sudo systemctl start postgresql
 
    sudo -i -u postgres

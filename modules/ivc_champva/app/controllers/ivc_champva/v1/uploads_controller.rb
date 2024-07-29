@@ -24,6 +24,11 @@ module IvcChampva
           statuses, error_message = FileUploader.new(form_id, metadata, file_paths, attachment_ids, true).handle_uploads
           response = build_json(Array(statuses), error_message)
 
+          if @current_user && response[:status] == 200
+            InProgressForm.form_for_user(params[:form_number],
+                                         @current_user)&.destroy!
+          end
+
           render json: response[:json], status: response[:status]
         rescue => e
           Rails.logger.error "Error: #{e.message}"
@@ -59,6 +64,7 @@ module IvcChampva
 
         form = form_class.new(parsed_form_data)
         form.track_user_identity
+        form.track_current_user_loa(@current_user)
 
         attachment_ids = generate_attachment_ids(form_id, applicant_rounded_number)
         attachment_ids.concat(supporting_document_ids(parsed_form_data))

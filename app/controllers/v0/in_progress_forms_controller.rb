@@ -6,9 +6,10 @@ module V0
     service_tag 'save-in-progress'
 
     def index
-      # :unaltered prevents the keys from being deeply transformed, which might corrupt some keys
+      # the keys of metadata shouldn't be deeply transformed, which might corrupt some keys
       # see https://github.com/department-of-veterans-affairs/va.gov-team/issues/17595 for more details
-      render json: InProgressForm.submission_pending.for_user(@current_user), key_transform: :unaltered
+      pending_submissions = InProgressForm.submission_pending.for_user(@current_user)
+      render json: InProgressFormSerializer.new(pending_submissions)
     end
 
     def show
@@ -34,14 +35,14 @@ module V0
         end
       end
 
-      render json: form, key_transform: :unaltered
+      render json: InProgressFormSerializer.new(form)
     end
 
     def destroy
       raise Common::Exceptions::RecordNotFound, form_id if form_for_user.blank?
 
       form_for_user.destroy
-      render json: form_for_user, key_transform: :unaltered
+      render json: InProgressFormSerializer.new(form_for_user)
     end
 
     private

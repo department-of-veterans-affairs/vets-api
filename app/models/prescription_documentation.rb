@@ -3,9 +3,9 @@
 require 'active_model'
 
 class PrescriptionDocumentation
-  attr_reader :data
+  attr_reader :html
 
-  def initialize(data)
-    @data = data
+  def initialize(html)
+    @html = html
   end
 end

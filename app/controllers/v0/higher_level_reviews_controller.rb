@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
+require 'decision_review/utilities/saved_claim/service'
+
 module V0
   class HigherLevelReviewsController < AppealsBaseController
+    include DecisionReview::SavedClaim::Service
     service_tag 'higher-level-review'
 
     def show
@@ -18,10 +21,10 @@ module V0
                           .create_higher_level_review(request_body: request_body_hash, user: @current_user)
                           .body
       submitted_appeal_uuid = hlr_response_body.dig('data', 'id')
-      AppealSubmission.create!(user_uuid: @current_user.uuid,
-                               user_account: @current_user.user_account,
-                               type_of_appeal: 'HLR',
-                               submitted_appeal_uuid:)
+      AppealSubmission.create!(user_uuid: @current_user.uuid, user_account: @current_user.user_account,
+                               type_of_appeal: 'HLR', submitted_appeal_uuid:)
+      store_saved_claim(claim_class: SavedClaim::HigherLevelReview, form: request_body_hash.to_json,
+                        guid: submitted_appeal_uuid)
       render json: hlr_response_body
     rescue => e
       request = begin

@@ -3,14 +3,12 @@
 module MyHealth
   module V1
     class MessageDetailsSerializer < MessagesSerializer
-      def id
-        object.message_id
-      end
+      include JSONAPI::Serializer
 
-      def body
-        object.message_body
-      end
+      set_id :message_id
 
+      attribute :message_id, &:id
+      attribute :body, &:message_body
       attribute :message_id
       attribute :thread_id
       attribute :folder_id
@@ -19,7 +17,7 @@ module MyHealth
       attribute :to_date
       attribute :has_attachments
 
-      attribute :attachments do
+      attribute :attachments do |object|
         (1..4).each_with_object([]) do |i, array|
           unless object.send("attachment#{i}_id").nil?
             attachment = {
@@ -37,7 +35,9 @@ module MyHealth
         end
       end
 
-      link(:self) { MyHealth::UrlHelper.new.v1_message_url(object.message_id) }
+      link :self do |object|
+        MyHealth::UrlHelper.new.v1_message_url(object.message_id)
+      end
     end
   end
 end
