@@ -58,7 +58,7 @@ module MyHealth
         resource = collection_resource
         resource.data = filter_data_by_refill_and_renew(resource.data)
 
-        options = { meta: resource.metadata, is_collection: true }
+        options = { meta: resource.metadata }
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
 

@@ -2,6 +2,7 @@
 
 require 'rx/client'
 require 'rx/medications_client'
+require_relative '../concerns/my_health/json_api_pagination_links'
 
 module MyHealth
   class RxController < ApplicationController
