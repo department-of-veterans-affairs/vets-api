@@ -7,21 +7,22 @@ def basic_class
   PdfFill::Forms::Va21p527ez.new({})
 end
 
-describe PdfFill::Filler, type: :model do
-  it_behaves_like 'a form filler', {
-    form_id: '21P-527EZ',
-    factory: :pension_claim,
-    use_vets_json_schema: true,
-    input_data_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures',
-    output_pdf_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures'
-  }
-end
-
 describe PdfFill::Forms::Va21p527ez do
-  include SchemaMatchers
 
   let(:form_data) do
     VetsJsonSchema::EXAMPLES.fetch('21P-527EZ-KITCHEN_SINK')
+  end
+
+  include SchemaMatchers
+
+  describe PdfFill::Filler, type: :model do
+    it_behaves_like 'a form filler', {
+      form_id: '21P-527EZ',
+      factory: :pension_claim,
+      use_vets_json_schema: true,
+      input_data_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures',
+      output_pdf_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures'
+    }
   end
 
   describe '#merge_fields' do

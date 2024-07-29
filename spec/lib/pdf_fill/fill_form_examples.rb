@@ -1,7 +1,30 @@
 # frozen_string_literal: true
-#
+
 require 'rails_helper'
 
+# Shared example for testing form fillers.
+# This shared example assumes that the form filler class
+# responds to a method `fill_form` that processes a form and
+# outputs a filled PDF.
+#
+# The following options parameters are:
+# - :form_id (String): Identifier for the form. (Required)
+# - :factory (Symbol): Factory name for creating test data. (Required)
+# - :use_vets_json_schema (Boolean): Whether to use Vets JSON schema for the form data. Default false.
+# - :input_data_fixture_dir (String): Directory path for input data fixtures. Default to "pdf_fill/#{form_id}".
+# - :output_pdf_fixture_dir (String): Directory path for output PDF fixtures. Default to "pdf_fill/#{form_id}".
+# - :fill_options (Hash): Options to be passed to the `fill_form` method. Default empty.
+#
+# Example Usage:
+# describe PdfFill::Filler, type: :model do
+#   it_behaves_like 'a form filler', {
+#     form_id: '21P-527EZ',
+#     factory: :pension_claim,
+#     use_vets_json_schema: true,
+#     input_data_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures',
+#     output_pdf_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures'
+#   }
+# end
 RSpec.shared_examples 'a form filler' do |options|
   form_id, factory = options.values_at(:form_id, :factory)
 
