@@ -9,10 +9,8 @@ module V0
       resource = resource.sort(params[:sort])
 
       # Even though this is a collection action we are not going to paginate
-      render json: resource.data,
-             serializer: CollectionSerializer,
-             each_serializer: TriageTeamSerializer,
-             meta: resource.metadata
+      options = { meta: resource.metadata }
+      render json: TriageTeamSerializer.new(resource.data, options)
     end
   end
 end
