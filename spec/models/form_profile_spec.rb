@@ -680,7 +680,11 @@ RSpec.describe FormProfile, type: :model do
         'postal_code' => user.address[:postal_code][0..4]
       },
       'veteranSocialSecurityNumber' => user.ssn,
-      'veteranDateOfBirth' => user.birth_date
+      'veteranDateOfBirth' => user.birth_date,
+      'activeServiceDateRange' => {
+        'from' => '1985-08-19',
+        'to' => '2014-08-31'
+      }
     }
   end
 
@@ -963,6 +967,7 @@ RSpec.describe FormProfile, type: :model do
         yes: false
       },
       'discharge_type' => nil,
+      'first_entry_date' => '2002-02-02',
       'guard_reserve_service_history' => [
         {
           from: '2012-03-02',
@@ -1603,6 +1608,7 @@ RSpec.describe FormProfile, type: :model do
         end
 
         %w[
+          21P-527EZ
           22-1990
           22-1990N
           22-1990E
@@ -1834,12 +1840,6 @@ RSpec.describe FormProfile, type: :model do
           validate_schema: true
         )
         expect(errors.empty?).to eq(true), "schema errors: #{errors}"
-      end
-    end
-
-    context 'with a pension application form' do
-      it 'returns the va profile mapped to the pension form' do
-        expect_prefilled('21P-527EZ')
       end
     end
 
