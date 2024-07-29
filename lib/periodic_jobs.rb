@@ -173,7 +173,7 @@ PERIODIC_JOBS = lambda { |mgr|
   # Clean SchemaContact::Validation records every night at midnight
   mgr.register('0 0 * * *', 'SchemaContract::DeleteValidationRecordsJob')
 
-  # Daily 2am job that sends missing Pega statuses to DataDog
-  mgr.register('0 2 * * *', 'IvcChampva::MissingFormStatusJob')
+  # Every 15min job that sends missing Pega statuses to DataDog
+  mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
 }
 # rubocop:enable Metrics/BlockLength
