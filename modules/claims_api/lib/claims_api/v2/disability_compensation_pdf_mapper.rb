@@ -108,15 +108,22 @@ module ClaimsApi
       end
 
       def homeless_at_risk_or_currently
-        at_risk = @auto_claim&.dig('homeless', 'riskOfBecomingHomeless', 'livingSituationOptions').present?
-        currently = @auto_claim&.dig('homeless', 'pointOfContact').present?
-
-        if currently && !at_risk
+        currently = @auto_claim&.dig('homeless', 'isCurrentlyHomeless')&.to_s
+        if currently == 'true'
           @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouCurrentlyHomeless: 'YES')
-        else
-          homeless = @pdf_data[:data][:attributes][:homelessInformation].present?
-          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouAtRiskOfBecomingHomeless: 'YES') if homeless
+        elsif currently == 'false'
+          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouCurrentlyHomeless: 'NO')
         end
+
+        at_risk = @auto_claim&.dig('homeless', 'isAtRiskOfBecomingHomeless').to_s
+        if at_risk == 'true'
+          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouAtRiskOfBecomingHomeless: 'YES')
+        elsif at_risk == 'false'
+          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouAtRiskOfBecomingHomeless: 'NO')
+        end
+
+        @pdf_data[:data][:attributes][:homelessInformation]&.delete(:isCurrentlyHomeless)
+        @pdf_data[:data][:attributes][:homelessInformation]&.delete(:isAtRiskOfBecomingHomeless)
 
         @pdf_data
       end
