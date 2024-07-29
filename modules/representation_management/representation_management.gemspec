@@ -16,5 +16,8 @@ Gem::Specification.new do |spec|
   spec.description = 'This module was auto-generated please update this description'
   spec.license     = 'CC0-1.0'
 
+  spec.add_dependency 'blind_index'
+
   spec.files = Dir['{app,config,db,lib}/**/*', 'Rakefile', 'README.md']
+  spec.metadata['rubygems_mfa_required'] = 'true'
 end

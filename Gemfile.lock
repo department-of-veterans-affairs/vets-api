@@ -115,6 +115,7 @@ PATH
       rails
     pensions (0.1.0)
     representation_management (0.1.0)
+      blind_index
     simple_forms_api (0.1.0)
     test_user_dashboard (0.1.0)
       rails
@@ -242,6 +243,7 @@ GEM
     akami (1.3.1)
       gyoku (>= 0.4.0)
       nokogiri
+    argon2-kdf (0.2.0)
     ast (2.4.2)
     attr_extras (7.1.0)
     awesome_print (1.9.2)
@@ -274,6 +276,9 @@ GEM
     bigdecimal (3.1.8)
     bigdecimal (3.1.8-java)
     bindex (0.8.1)
+    blind_index (2.5.0)
+      activesupport (>= 6.1)
+      argon2-kdf (>= 0.1.1)
     blueprinter (1.0.2)
     bootsnap (1.18.3)
       msgpack (~> 1.2)
