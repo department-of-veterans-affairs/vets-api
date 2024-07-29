@@ -57,6 +57,24 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEm
         subject.drain
       end.to change(Form526JobStatus, :count).by(1)
     end
+
+    context 'when an error throws when sending an email' do
+      before do
+        allow_any_instance_of(VaNotify::Service).to receive(:send_email).and_raise(Common::Client::Errors::ClientError)
+      end
+
+      it 'passes the error to the included JobTracker retryable_error_handler and re-raises the error' do
+        # Sidekiq::Form526JobStatusTracker::JobTracker is included in this job's inheritance hierarchy
+        expect_any_instance_of(
+          Sidekiq::Form526JobStatusTracker::JobTracker
+        ).to receive(:retryable_error_handler).with(an_instance_of(Common::Client::Errors::ClientError))
+
+        expect do
+          subject.perform_async(form526_submission.id)
+          subject.drain
+        end.to raise_error(Common::Client::Errors::ClientError)
+      end
+    end
   end
 
   context 'when retries are exhausted' do

@@ -178,7 +178,7 @@ module EVSS
         if service_information_source['confinements']
           transform_confinements(service_information_source, service_information)
         end
-        if service_information_source['alternateName']
+        if service_information_source['alternateNames']
           transform_alternate_names(service_information_source, service_information)
         end
         if service_information_source['reservesNationalGuardService']
