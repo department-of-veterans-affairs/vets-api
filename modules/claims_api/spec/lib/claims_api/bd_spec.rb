@@ -36,6 +36,8 @@ describe ClaimsApi::BD do
         js = JSON.parse(result[:parameters].read)
         expect(js['data']['docType']).to eq 'L023'
         expect(js['data']['claimId']).to eq claim.evss_id
+        expect(js['data']['systemName']).to eq 'VA.gov'
+        expect(js['data']['trackedItemIds']).to eq []
       end
 
       it 'uploads an attachment to BD for L122' do
@@ -44,6 +46,8 @@ describe ClaimsApi::BD do
         js = JSON.parse(result[:parameters].read)
         expect(js['data']['docType']).to eq 'L122'
         expect(js['data']['claimId']).to eq claim.evss_id
+        expect(js['data']['systemName']).to eq 'VA.gov'
+        expect(js['data']['trackedItemIds']).to eq []
       end
     end
 
@@ -162,6 +166,8 @@ describe ClaimsApi::BD do
         js = JSON.parse(result[:parameters].read)
         expect(js['data']['docType']).to eq 'L705'
         expect(js['data']['claimId']).to eq ews.claim_id
+        expect(js['data']['systemName']).to eq 'VA.gov'
+        expect(js['data']['trackedItemIds']).to eq []
       end
     end
 
