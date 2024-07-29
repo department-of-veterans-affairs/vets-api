@@ -5,8 +5,7 @@ module MyHealth
     class MessagingPreferencesController < SMController
       def show
         resource = client.get_preferences
-        render json: resource,
-               serializer: MessagingPreferenceSerializer
+        render json: MessagingPreferenceSerializer.new(resource)
       end
 
       # Set secure messaging email notification preferences.
@@ -14,8 +13,7 @@ module MyHealth
       # @param frequency - one of 'none', 'each_message', or 'daily'
       def update
         resource = client.post_preferences(params.permit(:email_address, :frequency))
-        render json: resource,
-               serializer: MessagingPreferenceSerializer
+        render json: MessagingPreferenceSerializer.new(resource)
       end
 
       # Update preferredTeam value for a patient's list of triage teams
