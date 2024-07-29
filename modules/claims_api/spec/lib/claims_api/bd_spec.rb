@@ -35,6 +35,7 @@ describe ClaimsApi::BD do
                                                      original_filename: 'stuff.pdf')
         js = JSON.parse(result[:parameters].read)
         expect(js['data']['docType']).to eq 'L023'
+        expect(js['data']['claimId']).to eq claim.evss_id
       end
 
       it 'uploads an attachment to BD for L122' do
@@ -42,6 +43,7 @@ describe ClaimsApi::BD do
                                                      pdf_path:)
         js = JSON.parse(result[:parameters].read)
         expect(js['data']['docType']).to eq 'L122'
+        expect(js['data']['claimId']).to eq claim.evss_id
       end
     end
 
@@ -99,6 +101,10 @@ describe ClaimsApi::BD do
         it 'the fileName ends in 21-22.pdf' do
           expect(json_body['data']['fileName']).to end_with('21-22.pdf')
         end
+
+        it 'the claimId is nil' do
+          expect(json_body['data']['claimId']).to be_nil
+        end
       end
 
       context 'when the doctype is L075' do
@@ -121,6 +127,10 @@ describe ClaimsApi::BD do
 
         it 'the fileName ends in 21-22a.pdf' do
           expect(json_body['data']['fileName']).to end_with('21-22a.pdf')
+        end
+
+        it 'the claimId is nil' do
+          expect(json_body['data']['claimId']).to be_nil
         end
       end
     end
@@ -151,6 +161,7 @@ describe ClaimsApi::BD do
                                                      pdf_path:)
         js = JSON.parse(result[:parameters].read)
         expect(js['data']['docType']).to eq 'L705'
+        expect(js['data']['claimId']).to eq ews.claim_id
       end
     end
 

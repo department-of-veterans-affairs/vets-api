@@ -209,6 +209,19 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         actual = pdf_data[:data][:attributes][:identificationInformation][:phoneNumber]
         expect(actual).to eq(nil)
       end
+
+      context 'international address' do
+        it 'maps the address to overflow' do
+          form_attributes['veteranIdentification']['mailingAddress']['country'] = 'Afghanistan'
+          form_attributes['veteranIdentification']['mailingAddress']['internationalPostalCode'] = 'asdf1234'
+          form_attributes['veteranIdentification']['mailingAddress']['zipFirstFive'] = nil
+          form_attributes['veteranIdentification']['mailingAddress']['zipLastFour'] = nil
+          mapper.map_claim
+          zip = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:zip]
+
+          expect(zip).to eq('asdf1234')
+        end
+      end
     end
 
     context '526 section 2, change of address' do
