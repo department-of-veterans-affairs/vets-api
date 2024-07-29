@@ -96,7 +96,8 @@ type: application
 # 0.13.0  - New readinessProbe: is_ready command
 # 0.13.1  - Add BACKLOG_POD for a 20% chance of always ready
 # 0.13.2  - HPA settings to scale up quickly, and down slowly for workers
-version: 0.13.2
+# 0.13.3  - Sidekiq Utilization HPA
+version: 0.13.3
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to

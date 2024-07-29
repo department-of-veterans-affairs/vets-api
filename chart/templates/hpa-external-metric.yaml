@@ -18,12 +18,21 @@ spec:
 {{- end }}
 
 {{- if .Values.worker.autoscaling.enabled }}
+{{- $sidekiq_busy := "max:sidekiq.busy{kube_cluster_name:dsva-vagov-" }}
+{{- $sidekiq_processes := "max:kubernetes_state.deployment.replicas_available{kube_cluster_name:dsva-vagov-" }}
+{{- $deployment := "-cluster,kube_deployment:" }}
+{{- $threads := "" }}
+{{- range .Values.worker.envSecrets }}
+  {{- if eq .name "RAILS_MAX_THREADS" }}
+    {{- $threads = .value }}
+  {{- end }}
+{{- end }}
 ---
 apiVersion: datadoghq.com/v1alpha1
 kind: DatadogMetric
 metadata:
-  name: sidekiq-enqueued-jobs
+  name: sidekiq-utilization
   namespace: {{ $root.Release.Namespace }}
 spec:
-  query: avg:sidekiq.enqueued{env:eks-{{ .Values.target_env }}}
+  query: ({{ $sidekiq_busy }}{{ $root.Values.target_env }}{{ $deployment}}vets-api-sidekiq} / ({{ $sidekiq_processes }}{{ $root.Values.target_env }}{{ $deployment }}vets-api-sidekiq}*{{ $threads }})*100)
 {{- end }}

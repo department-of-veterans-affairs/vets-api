@@ -69,7 +69,7 @@ spec:
   - type: External
     external:
       metric:
-        name: "datadogmetric@{{ $root.Release.Namespace }}:sidekiq-enqueued-jobs"
+        name: "datadogmetric@{{ $root.Release.Namespace }}:sidekiq-utilization"
       target:
         type: Value
         value: {{ .Values.worker.autoscaling.targetValue }}
