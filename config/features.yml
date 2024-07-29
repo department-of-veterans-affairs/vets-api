@@ -358,6 +358,10 @@ features:
     actor_type: user
     description: Enable using MAR 2024 revision of 200996 Higher Level Review form when submitting to EMMS for intake
     enable_in_development: false
+  decision_review_form_store_saved_claims:
+    actor_type: user
+    description: Enable storage of SavedClaim records for Decision Review forms (HLR, NOD, SC)
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -1310,6 +1314,14 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to update the Medication Review instructions on the Appointment Details page.
+  va_online_scheduling_OH_direct_schedule:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to enable direct scheduling workflow for Oracle Health appointments.
+  va_online_scheduling_OH_request:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to enable request workflow for Oracle Health appointments.
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
@@ -1616,7 +1628,7 @@ features:
     description: swap order of the military details in GI search filters
   merge_1995_and_5490:
     actore_type: user
-    description: Activating the combined 1995 and 5490 form 
+    description: Activating the combined 1995 and 5490 form
   use_new_get_all_features:
     actor_type: user
     description: Used to test new feature toggle code. Removal ETA July 15, 2024

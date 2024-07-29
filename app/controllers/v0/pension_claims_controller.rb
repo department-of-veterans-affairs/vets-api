@@ -55,7 +55,7 @@ module V0
       pension_monitor.track_create_success(in_progress_form, claim, current_user)
 
       clear_saved_form(claim.form_id)
-      render(json: claim)
+      render json: SavedClaimSerializer.new(claim)
     rescue => e
       pension_monitor.track_create_error(in_progress_form, claim, current_user, e)
       raise e

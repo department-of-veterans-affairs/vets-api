@@ -7,10 +7,8 @@ module V0
       before_action { authorize :bgs, :access? }
 
       def index
-        render(
-          json: PaymentHistory.new(payments: adapter.payments, return_payments: adapter.return_payments),
-          serializer: PaymentHistorySerializer
-        )
+        payment_history = PaymentHistory.new(payments: adapter.payments, return_payments: adapter.return_payments)
+        render json: PaymentHistorySerializer.new(payment_history)
       end
 
       private
