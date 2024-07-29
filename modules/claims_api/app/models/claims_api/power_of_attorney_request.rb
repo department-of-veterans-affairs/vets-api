@@ -3,42 +3,23 @@
 module ClaimsApi
   class PowerOfAttorneyRequest <
     Data.define(
-      :id,
       :power_of_attorney_code,
       :veteran,
-      :claimant,
-      :claimant_address,
-      :decision,
-      :authorizes_address_changing,
-      :authorizes_treatment_disclosure,
-      :created_at
+      :obsolete,
+      :decision_status
     )
+
+    class << self
+      def find(id)
+        Find.perform(id)
+      end
+    end
 
     Veteran =
       Data.define(
-        :first_name,
-        :middle_name,
-        :last_name
+        :participant_id,
+        :file_number,
+        :ssn
       )
-
-    Claimant =
-      Data.define(
-        :first_name,
-        :last_name,
-        :relationship_to_veteran
-      )
-
-    Address =
-      Data.define(
-        :city, :state, :zip, :country,
-        :military_post_office,
-        :military_postal_code
-      )
-
-    class << self
-      def search(query)
-        Search.perform(query)
-      end
-    end
   end
 end

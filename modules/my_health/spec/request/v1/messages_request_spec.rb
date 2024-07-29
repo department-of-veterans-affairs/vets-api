@@ -82,13 +82,20 @@ RSpec.describe 'Messages Integration', type: :request do
         get "/my_health/v1/messaging/messages/#{message_id}"
       end
 
+      expected_body_content =
+        "Einstein once said: “Profound quote contents here”. \n\n" \
+        "That was supposed to show a regular quote but it didn’t display like it did in the compose form.\n\n" \
+        "Let’s try out more symbols here:\n\n" \
+        "Single quote: ‘ contents’\nQuestion mark: ?\nColon: :\nDash: -\nLess than: <\nGreat then: >\nEquals: =\n" \
+        "Asterisk: *\nAnd symbol: &\nDollar symbol: $\nDivide symbol: %\nAt symbol: @\nParentheses: ( contents )\n" \
+        "Brackets: [ contents ]\nCurly braces: { contents }\nSemicolon: ;\nSlash: /\nPlus: +\nUp symbol: ^\n" \
+        "Pound key: #\nExclamation: !"
+
       expect(response).to be_successful
       expect(response.body).to be_a(String)
       # It should decode html entities
       expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('Quote test: “test”')
-      # rubocop:disable Layout/LineLength
-      expect(JSON.parse(response.body)['data']['attributes']['body']).to eq("Einstein once said: “Profound quote contents here”. \n\nThat was supposed to show a regular quote but it didn’t display like it did in the compose form.\n\nLet’s try out more symbols here:\n\nSingle quote: ‘ contents’\nQuestion mark: ?\nColon: :\nDash: -\nLess than: <\nGreat then: >\nEquals: =\nAsterisk: *\nAnd symbol: &\nDollar symbol: $\nDivide symbol: %\nAt symbol: @\nParentheses: ( contents )\nBrackets: [ contents ]\nCurly braces: { contents }\nSemicolon: ;\nSlash: /\nPlus: +\nUp symbol: ^\nPound key: #\nExclamation: !")
-      # rubocop:enable Layout/LineLength
+      expect(JSON.parse(response.body)['data']['attributes']['body']).to eq(expected_body_content)
       expect(response).to match_response_schema('message')
     end
 

@@ -398,14 +398,6 @@
       :uid_location: "url"
       :uid_locator: "\/wss-lettergenerator-services-web/rest/letters/v1\/(.+)\/generate"
 
-  # GIBS
-  - :method: :get
-    :path: "/wss-education-services-web/rest/education/chapter33/v1"
-    :file_path: "evss/gibs"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-
   # Claims
   - :method: :get
     :path: <%= "/wss-claims-services-web-#{Settings.evss.versions.claims}/rest/vbaClaimStatusService/getClaims" %>
@@ -784,6 +776,17 @@
       :cache_multiple_responses:
         :uid_location: 'query'
         :uid_locator: 'edipi'
+
+# Lighthouse Benefits Education API (GI Bill Statement of Benefits - GIBS)
+- :name: "Lighthouse Benefits Education"
+  :base_uri: <%= "#{URI(Settings.lighthouse.benefits_education.host).host}:#{URI(Settings.lighthouse.benefits_education.host).port}" %>
+  :endpoints:
+  - :method: :get
+    :path: '/services/benefits-education/v1/education/chapter33'
+    :file_path: "/lighthouse/benefits_education"
+    :cache_multiple_responses:
+      :uid_location: "query"
+      :uid_locator: "icn"
 
 # Lighthouse Benefits Claims API
 - :name: "Lighthouse Benefits Claims"

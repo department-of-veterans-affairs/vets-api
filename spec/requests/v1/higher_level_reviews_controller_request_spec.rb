@@ -37,6 +37,11 @@ RSpec.describe V1::HigherLevelReviewsController do
     }
   end
 
+  let(:extra_error_log_message) do
+    'BackendServiceException: {:source=>"Common::Client::Errors::ClientError raised in DecisionReviewV1::Service", ' \
+      ':code=>"DR_422"}'
+  end
+
   before { sign_in_as(user) }
 
   describe '#create' do
@@ -68,6 +73,9 @@ RSpec.describe V1::HigherLevelReviewsController do
         # InProgressForm should be destroyed after successful submission
         in_progress_form = InProgressForm.find_by(user_uuid: user.uuid, form_id: '20-0996')
         expect(in_progress_form).to be_nil
+        # SavedClaim should be created with request data
+        saved_claim = SavedClaim::HigherLevelReview.find_by(guid: appeal_uuid)
+        expect(saved_claim.form).to eq(VetsJsonSchema::EXAMPLES.fetch('HLR-CREATE-REQUEST-BODY_V1').to_json)
       end
     end
 
@@ -77,6 +85,11 @@ RSpec.describe V1::HigherLevelReviewsController do
 
         allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(error_log_args)
+        expect(Rails.logger).to receive(:error).with(
+          message: "Exception occurred while submitting Higher Level Review: #{extra_error_log_message}",
+          backtrace: anything
+        )
+        expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_996.overall_claim_submission.failure')
 

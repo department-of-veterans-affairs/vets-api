@@ -10,25 +10,9 @@ module ClaimsApi
     module Veterans
       class EvidenceWaiverController < ClaimsApi::V2::Veterans::Base
         skip_before_action :validate_json_format
+        before_action :set_lighthouse_claim, :set_bgs_claim!, :verify_if_dependent_claim!
 
         def submit
-          lighthouse_claim = find_lighthouse_claim!(claim_id: params[:id])
-          benefit_claim_id = lighthouse_claim.present? ? lighthouse_claim.evss_id : params[:id]
-          bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
-
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if bgs_claim.blank?
-
-          file_number_check(icn: params[:veteranId])
-
-          if @file_number.nil?
-            claims_v2_logging('EWS_submit', level: :error,
-                                            message: "EWS no file number error, claim_id: #{params[:id]}")
-
-            raise ::Common::Exceptions::ResourceNotFound.new(detail:
-              "Unable to locate Veteran's File Number. " \
-              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
-          end
-
           validate_veteran_name(false)
 
           ews = create_ews(params[:id])
@@ -38,6 +22,36 @@ module ClaimsApi
         end
 
         private
+
+        def set_lighthouse_claim
+          @lighthouse_claim = find_lighthouse_claim!(claim_id: params[:id])
+        end
+
+        def set_bgs_claim!
+          benefit_claim_id = @lighthouse_claim.present? ? @lighthouse_claim.evss_id : params[:id]
+          @bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
+
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if @bgs_claim.blank?
+        end
+
+        def verify_if_dependent_claim!
+          @pctpnt_vet_id = @bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_vet_id)
+          if @pctpnt_vet_id.blank?
+            raise ::Common::Exceptions::ResourceNotFound.new(detail:
+              'Veteran participant id is required for uploading to Benefits Documents')
+          end
+
+          pctpnt_clmant_id = @bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_clmant_id)
+          if target_veteran.participant_id != @pctpnt_vet_id && target_veteran.participant_id != pctpnt_clmant_id
+            raise ::Common::Exceptions::Unauthorized.new(detail:
+              'Claim does not belong to this veteran')
+          end
+
+          if @pctpnt_vet_id != pctpnt_clmant_id && target_veteran.participant_id == pctpnt_clmant_id
+            claims_v2_logging('EWS_submit', level: :info,
+                                            message: '5103 filed by dependent claimant')
+          end
+        end
 
         def dependent_service(bgs_claim = nil)
           ClaimsApi::DependentService.new(bgs_claim:)
@@ -52,7 +66,8 @@ module ClaimsApi
           }
 
           new_ews = ClaimsApi::EvidenceWaiverSubmission.create!(attributes)
-          new_ews.auth_headers['va_eauth_birlsfilenumber'] = @file_number
+          # ensure that in the case of a dependent claimant this gets into the correct folder
+          new_ews.auth_headers['target_veteran_folder_id'] = @pctpnt_vet_id
           new_ews.save
           new_ews
         end
