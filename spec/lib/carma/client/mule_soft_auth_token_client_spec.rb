@@ -25,11 +25,10 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
   describe '#new_bearer_token' do
     subject { client.new_bearer_token }
 
-    let(:token_url) { 'oauth2/ause1x1h6Zit9ziQL0j6/v1/token' }
     let(:token_params) do
       URI.encode_www_form({
-                            grant_type: 'client_credentials',
-                            scope: 'DTCWriteResource'
+                            grant_type: CARMA::Client::MuleSoftAuthTokenClient::GRANT_TYPE,
+                            scope: CARMA::Client::MuleSoftAuthTokenClient::SCOPE
                           })
     end
 
@@ -52,7 +51,11 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
     context 'successfully gets token' do
       it 'calls perform with expected params' do
         expect(client).to receive(:perform)
-          .with(:post, token_url, token_params, token_headers, options)
+          .with(
+            :post,
+            CARMA::Client::MuleSoftAuthTokenClient::AUTH_TOKEN_PATH,
+            token_params, token_headers, options
+          )
           .and_return(mock_token_response)
 
         subject
@@ -64,7 +67,7 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
 
       it 'raises error' do
         expect(client).to receive(:perform)
-          .with(:post, token_url, token_params, token_headers, options)
+          .with(:post, CARMA::Client::MuleSoftAuthTokenClient::AUTH_TOKEN_PATH, token_params, token_headers, options)
           .and_return(mock_error_token_response)
 
         expect do

@@ -8,6 +8,9 @@ module CARMA
       include Common::Client::Concerns::Monitoring
 
       STATSD_KEY_PREFIX = 'api.carma.mulesoft.auth'
+      AUTH_TOKEN_PATH = 'oauth2/ause1x1h6Zit9ziQL0j6/v1/token'
+      GRANT_TYPE = 'client_credentials'
+      SCOPE = 'DTCWriteResource'
 
       configuration MuleSoftAuthTokenConfiguration
 
@@ -16,7 +19,7 @@ module CARMA
       def new_bearer_token
         with_monitoring do
           response = perform(:post,
-                             'oauth2/ause1x1h6Zit9ziQL0j6/v1/token',
+                             AUTH_TOKEN_PATH,
                              params,
                              token_headers,
                              { timeout: config.timeout })
@@ -31,18 +34,26 @@ module CARMA
 
       def params
         URI.encode_www_form({
-                              grant_type: 'client_credentials',
-                              scope: 'DTCWriteResource'
+                              grant_type: GRANT_TYPE,
+                              scope: SCOPE
                             })
       end
 
       def token_headers
-        basic_auth = Base64.urlsafe_encode64("#{config.settings.client_id}:#{config.settings.client_secret}")
+        basic_auth = Base64.urlsafe_encode64("#{client_id}:#{client_secret}")
 
         {
           'Authorization' => "Basic #{basic_auth}",
           'Content-Type' => 'application/x-www-form-urlencoded'
         }
+      end
+
+      def client_id
+        config.settings.client_id
+      end
+
+      def client_secret
+        config.settings.client_secret
       end
     end
   end
