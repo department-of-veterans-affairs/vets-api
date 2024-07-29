@@ -685,10 +685,8 @@ GEM
     nkf (0.2.0)
     nkf (0.2.0-java)
     no_proxy_fix (0.1.2)
-    nokogiri (1.16.6)
+    nokogiri (1.16.7)
       mini_portile2 (~> 2.8.2)
-      racc (~> 1.4)
-    nokogiri (1.16.6-java)
       racc (~> 1.4)
     nori (2.7.0)
       bigdecimal
