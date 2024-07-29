@@ -29,8 +29,8 @@ RSpec.shared_examples 'a form filler' do |options|
   form_id, factory = options.values_at(:form_id, :factory)
 
   context "form #{form_id}", run_at: '2017-07-25 00:00:00 -0400' do
-    let(:input_data_fixture_dir) { options[:input_data_fixture_dir] || "pdf_fill/#{form_id}" }
-    let(:output_pdf_fixture_dir) { options[:output_pdf_fixture_dir] || "pdf_fill/#{form_id}" }
+    let(:input_data_fixture_dir) { options[:input_data_fixture_dir] || "spec/fixtures/pdf_fill/#{form_id}" }
+    let(:output_pdf_fixture_dir) { options[:output_pdf_fixture_dir] || "spec/fixtures/pdf_fill/#{form_id}" }
 
     %w[simple kitchen_sink overflow].each do |type|
       context "with #{type} test data" do
