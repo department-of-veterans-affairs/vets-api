@@ -59,7 +59,24 @@ RSpec.describe 'PdfGenerator2122Controller', type: :request do
       }
     end
 
-    context 'when submitting all required data' do
+    context 'when submitting valid data' do
+      context 'When submitting all fields'
+      it 'responds with a created status' do
+        post(base_path, params:)
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'responds with the expected body' do
+        post(base_path, params:)
+        expect(response.body).to eq({ message: 'Form is valid' }.to_json)
+      end
+    end
+
+    context 'when submitting valid data without optional fields' do
+      before do
+        params[:pdf_generator2122].delete(:claimant)
+      end
+
       it 'responds with a created status' do
         post(base_path, params:)
         expect(response).to have_http_status(:created)
@@ -82,6 +99,22 @@ RSpec.describe 'PdfGenerator2122Controller', type: :request do
         params[:pdf_generator2122][:organization_name] = nil
         post(base_path, params:)
         expect(response.body).to eq({ errors: ['Organization name can\'t be blank'] }.to_json)
+      end
+    end
+
+    context 'when submitting invalid data' do
+      it 'responds with an unprocessable entity status' do
+        params[:pdf_generator2122][:veteran][:address][:state_code] = 'TOO_LONG'
+        post(base_path, params:)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'responds with the expected body' do
+        params[:pdf_generator2122][:veteran][:address][:state_code] = 'TOO_LONG'
+        post(base_path, params:)
+        expect(response.body).to eq({
+          errors: ['Veteran state code is the wrong length (should be 2 characters)']
+        }.to_json)
       end
     end
   end
