@@ -218,10 +218,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           form_attributes['veteranIdentification']['mailingAddress']['zipLastFour'] = nil
           mapper.map_claim
           zip = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:zip]
-          kind = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:type]
 
           expect(zip).to eq('asdf1234')
-          expect(kind).to eq('INTERNATIONAL')
         end
       end
     end

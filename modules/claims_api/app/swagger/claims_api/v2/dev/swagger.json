@@ -2837,7 +2837,7 @@
                                       "nullable": true
                                     },
                                     "internationalPostalCode": {
-                                      "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'.",
+                                      "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
                                       "type": "string",
                                       "maxLength": 100,
                                       "nullable": true
@@ -2945,7 +2945,7 @@
                                   "example": "6789"
                                 },
                                 "internationalPostalCode": {
-                                  "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'.",
+                                  "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
                                   "type": "string",
                                   "maxLength": 100,
                                   "nullable": true
@@ -4202,7 +4202,7 @@
                                     "nullable": true
                                   },
                                   "internationalPostalCode": {
-                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'.",
+                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
                                     "type": "string",
                                     "maxLength": 100,
                                     "nullable": true
@@ -4310,7 +4310,7 @@
                                 "example": "6789"
                               },
                               "internationalPostalCode": {
-                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'.",
+                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
                                 "type": "string",
                                 "maxLength": 100,
                                 "nullable": true
@@ -6100,7 +6100,7 @@
                                       "nullable": true
                                     },
                                     "internationalPostalCode": {
-                                      "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'.",
+                                      "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
                                       "type": "string",
                                       "maxLength": 100,
                                       "nullable": true
@@ -6208,7 +6208,7 @@
                                   "example": "6789"
                                 },
                                 "internationalPostalCode": {
-                                  "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'.",
+                                  "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
                                   "type": "string",
                                   "maxLength": 100,
                                   "nullable": true
@@ -7465,7 +7465,7 @@
                                     "nullable": true
                                   },
                                   "internationalPostalCode": {
-                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'.",
+                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
                                     "type": "string",
                                     "maxLength": 100,
                                     "nullable": true
@@ -7573,7 +7573,7 @@
                                 "example": "6789"
                               },
                               "internationalPostalCode": {
-                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'.",
+                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
                                 "type": "string",
                                 "maxLength": 100,
                                 "nullable": true
@@ -9373,7 +9373,7 @@
                                     "nullable": true
                                   },
                                   "internationalPostalCode": {
-                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'.",
+                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
                                     "type": "string",
                                     "maxLength": 100,
                                     "nullable": true
@@ -9481,7 +9481,7 @@
                                 "example": "6789"
                               },
                               "internationalPostalCode": {
-                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'.",
+                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
                                 "type": "string",
                                 "maxLength": 100,
                                 "nullable": true
