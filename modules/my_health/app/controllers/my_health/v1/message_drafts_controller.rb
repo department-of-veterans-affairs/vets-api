@@ -5,9 +5,7 @@ module MyHealth
     class MessageDraftsController < SMController
       def create
         draft_response = client.post_create_message_draft(draft_params.to_h)
-        render json: draft_response,
-               serializer: MessageSerializer,
-               status: :created
+        render json: MessageDraftSerializer.new(draft_response), status: :created
       end
 
       def update
@@ -17,9 +15,7 @@ module MyHealth
 
       def create_reply_draft
         draft_response = client.post_create_message_draft_reply(params[:reply_id], reply_draft_params.to_h)
-        render json: draft_response,
-               serializer: MessageSerializer,
-               status: :created
+        render json: MessageDraftSerializer.new(draft_response), status: :created
       end
 
       def update_reply_draft

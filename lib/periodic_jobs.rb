@@ -43,7 +43,7 @@ PERIODIC_JOBS = lambda { |mgr|
   # Update Lighthouse526DocumentUpload statuses according to Lighthouse Benefits Documents service tracking
   mgr.register('0 3 * * *', 'Form526StatusPollingJob')
   # Updates status of FormSubmissions per call to Lighthouse Benefits Intake API
-  mgr.register('0 2 * * 0', 'Form526StatusPollingJob', args => [{ paranoid: true }])
+  mgr.register('0 2 * * 0', 'Form526StatusPollingJob', 'args' => { paranoid: true })
   # Checks all 'success' type submissions in LH to ensure they haven't changed
 
   # mgr.register('0 0 * * *', 'VRE::CreateCh31SubmissionsReportJob')
@@ -173,7 +173,7 @@ PERIODIC_JOBS = lambda { |mgr|
   # Clean SchemaContact::Validation records every night at midnight
   mgr.register('0 0 * * *', 'SchemaContract::DeleteValidationRecordsJob')
 
-  # Daily 2am job that sends missing Pega statuses to DataDog
-  mgr.register('0 2 * * *', 'IvcChampva::MissingFormStatusJob')
+  # Every 15min job that sends missing Pega statuses to DataDog
+  mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
 }
 # rubocop:enable Metrics/BlockLength
