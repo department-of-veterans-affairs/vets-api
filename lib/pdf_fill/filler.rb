@@ -16,6 +16,7 @@ require 'pdf_fill/forms/va21674'
 require 'pdf_fill/forms/va210538'
 require 'pdf_fill/forms/va261880'
 require 'pdf_fill/forms/va5655'
+require 'pdf_forms'
 
 module PdfFill
   module Filler
@@ -23,9 +24,13 @@ module PdfFill
 
     PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
     UNICODE_PDF_FORMS = PdfForms.new(Settings.binaries.pdftk, data_format: 'XFdf', utf8_fields: true)
-    FORM_CLASSES = {
+    FORM_CLASSES = {}
+    def register_form(key, klass)
+      FORM_CLASSES[key] = klass
+    end
+
+    {
       '21P-0969' => PdfFill::Forms::Va21p0969,
-      '21P-527EZ' => PdfFill::Forms::Va21p527ez,
       '21P-530' => PdfFill::Forms::Va21p530,
       '21P-530V2' => PdfFill::Forms::Va21p530v2,
       '21-4142' => PdfFill::Forms::Va214142,
@@ -40,7 +45,9 @@ module PdfFill
       '21-0538' => PdfFill::Forms::Va210538,
       '26-1880' => PdfFill::Forms::Va261880,
       '5655' => PdfFill::Forms::Va5655
-    }.freeze
+    }.each do |key, klass|
+      register_form(key, klass)
+    end
 
     def combine_extras(old_file_path, extras_generator)
       if extras_generator.text?
@@ -78,8 +85,15 @@ module PdfFill
         form_data: form_class.new(form_data).merge_fields(fill_options),
         pdftk_keys: form_class::KEY
       )
+
+      template_path = if form_class.const_defined?(:TEMPLATE)
+                        form_class::TEMPLATE
+                      else
+                        "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
+                      end
+
       (form_id == SavedClaim::CaregiversAssistanceClaim::FORM ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
-        "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
+        template_path,
         file_path,
         new_hash,
         flatten: Rails.env.production?
