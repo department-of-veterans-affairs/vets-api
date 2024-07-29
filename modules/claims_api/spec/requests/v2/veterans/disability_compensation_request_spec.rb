@@ -4717,8 +4717,52 @@ RSpec.describe 'Disability Claims', type: :request do
     let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read }
     let(:synchronous_scopes) { %w[system/526.override system/claim.write] }
     let(:invalid_scopes) { %w[system/526-pdf.override] }
+    let(:meta) do
+      { transactionId: '00000000-0000-0000-000000000000' }
+    end
 
     context 'submission to synchronous' do
+      context 'with a transaction_id' do
+        context 'present' do
+          it 'saves the transaction ID on the claim record' do
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+              VCR.use_cassette('claims_api/disability_comp') do
+                json = JSON.parse data
+                json['meta'] = meta
+                data = json.to_json
+                post synchronous_path, params: data, headers: auth_header
+
+                parsed_res = JSON.parse(response.body)
+                claim_id = parsed_res['data']['id']
+                aec = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+
+                expect(aec.transaction_id).to eq(meta[:transactionId])
+                expect(parsed_res['meta']['transactionId']).to eq(meta[:transactionId])
+                expect(response).to have_http_status(:accepted)
+              end
+            end
+          end
+        end
+
+        context 'absent' do
+          it 'has a null transaction ID on the claim record' do
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+              VCR.use_cassette('claims_api/disability_comp') do
+                post synchronous_path, params: data, headers: auth_header
+
+                parsed_res = JSON.parse(response.body)
+                claim_id = parsed_res['data']['id']
+                aec = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+
+                expect(aec.transaction_id).to eq(nil)
+                expect(parsed_res).not_to have_key('meta')
+                expect(response).to have_http_status(:accepted)
+              end
+            end
+          end
+        end
+      end
+
       it 'returns an empty test object' do
         mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
           VCR.use_cassette('claims_api/disability_comp') do
