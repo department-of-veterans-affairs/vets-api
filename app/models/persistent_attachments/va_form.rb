@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class PersistentAttachments::VAForm < PersistentAttachment
-  attr_accessor :form_id
-
   include ::FormUpload::Uploader::Attachment.new(:file)
 
   before_destroy(:delete_file)
