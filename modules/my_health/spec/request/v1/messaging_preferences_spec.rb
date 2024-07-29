@@ -108,11 +108,11 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
     end
 
     it 'POST #update_triage_team_preferences requires at least one triage team to include preferredTeam true' do
-      VCR.use_cassette('sm_client/preferences/updates_triage_team_preferences_at_least_one_true') do
-        params = { updated_triage_teams: [{ triage_team_id: 1_013_155, preferred_team: false }] }
-        post '/my_health/v1/messaging/preferences/recipients', params:
-      end
-      expect(JSON.parse(response.body)['errors'].first['detail']).to eq('At Least one Triage group must be set to Yes')
+      params = { updated_triage_teams: [{ triage_team_id: 1_013_155, preferred_team: false }] }
+      post('/my_health/v1/messaging/preferences/recipients', params:)
+
+      expect(JSON.parse(response.body)['errors'].first['detail'])
+        .to eq('Invalid input: updated_triage_teams cannot be empty or have all preferred_team values set to false')
     end
 
     it 'POST #update_triage_team_preferences requires a valid triage team' do
