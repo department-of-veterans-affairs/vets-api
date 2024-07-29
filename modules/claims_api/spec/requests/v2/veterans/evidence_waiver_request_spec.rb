@@ -265,7 +265,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request do
 
               it 'accepts an empty request body' do
                 json_params = JSON.parse(params)
-                json_params['data']['attributes']['trackedItemIds'] = nil
+                json_params['data']['attributes']['trackedItemIds'] = ['string']
 
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
@@ -277,9 +277,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request do
 
               it 'rejects an invalid request body' do
                 json_params = JSON.parse(params)
-                json_params['data']['attributes']['tacos'] = nil
-                json_params['data']['attributes'].delete('trackedItemIds')
-
+                json_params['data']['attributes']['trackedItemIds'] = [false]
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
                     post(sub_path, headers: auth_header, params: json_params)
