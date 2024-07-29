@@ -34,7 +34,6 @@ RSpec.shared_examples 'a form filler' do |options|
 
     %w[simple kitchen_sink overflow].each do |type|
       context "with #{type} test data" do
-
         let(:form_data) do
           return get_fixture_absolute("#{input_data_fixture_dir}/#{type}") unless options[:use_vets_json_schema]
 
