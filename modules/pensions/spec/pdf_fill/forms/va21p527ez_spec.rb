@@ -3,16 +3,17 @@
 require 'rails_helper'
 require 'pdf_fill/forms/va21p527ez'
 require 'lib/pdf_fill/fill_form_examples'
+
 def basic_class
   PdfFill::Forms::Va21p527ez.new({})
 end
 
 describe PdfFill::Forms::Va21p527ez do
+  include SchemaMatchers
+
   let(:form_data) do
     VetsJsonSchema::EXAMPLES.fetch('21P-527EZ-KITCHEN_SINK')
   end
-
-  include SchemaMatchers
 
   describe PdfFill::Filler, type: :model do
     it_behaves_like 'a form filler', {
