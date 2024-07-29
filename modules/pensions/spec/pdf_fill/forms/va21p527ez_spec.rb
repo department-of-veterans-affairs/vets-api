@@ -8,7 +8,6 @@ def basic_class
 end
 
 describe PdfFill::Forms::Va21p527ez do
-
   let(:form_data) do
     VetsJsonSchema::EXAMPLES.fetch('21P-527EZ-KITCHEN_SINK')
   end

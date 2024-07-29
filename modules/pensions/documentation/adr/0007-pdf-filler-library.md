@@ -26,4 +26,6 @@ The PDF Filler presents its own set of challenges to bring together as much of t
 
 The core ownership has moved to the `lib/pdf_fill` and `spec/pdf_fill` folders under the pension module. This allows us to isolate the work PDF work being done for the pension team to the module folder. As a result the team has less concerns when working within the scope of modifying the pension form code. 
 
+There is an registration function in the `lib/pdf_fill/filler.rb` that requires a `Style/MutableConstant` ignore so we can have a place to create a registration for our forms. If there is a better way to do this practice we could improve the readability here.
+
 One challenge that is worth noting is that the naming was decided because of copying the files over from the root application. We want to challenge ourself here to think about the proper acceptance criteria for these incoming file paths and namespaces, but also think that it may be better to address improvements and path name improvements in future work.

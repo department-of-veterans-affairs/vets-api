@@ -16,7 +16,6 @@ require 'pdf_fill/forms/va21674'
 require 'pdf_fill/forms/va210538'
 require 'pdf_fill/forms/va261880'
 require 'pdf_fill/forms/va5655'
-require 'pdf_forms'
 
 module PdfFill
   module Filler
@@ -24,7 +23,9 @@ module PdfFill
 
     PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
     UNICODE_PDF_FORMS = PdfForms.new(Settings.binaries.pdftk, data_format: 'XFdf', utf8_fields: true)
+    # rubocop:disable Style/MutableConstant
     FORM_CLASSES = {}
+    # rubocop:enable Style/MutableConstant
     def register_form(key, klass)
       FORM_CLASSES[key] = klass
     end
