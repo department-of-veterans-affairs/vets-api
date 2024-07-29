@@ -60,15 +60,16 @@ RSpec.describe 'PdfGenerator2122Controller', type: :request do
     end
 
     context 'when submitting valid data' do
-      context 'When submitting all fields'
-      it 'responds with a created status' do
-        post(base_path, params:)
-        expect(response).to have_http_status(:created)
-      end
+      context 'When submitting all fields' do
+        it 'responds with a created status' do
+          post(base_path, params:)
+          expect(response).to have_http_status(:created)
+        end
 
-      it 'responds with the expected body' do
-        post(base_path, params:)
-        expect(response.body).to eq({ message: 'Form is valid' }.to_json)
+        it 'responds with the expected body' do
+          post(base_path, params:)
+          expect(response.body).to eq({ message: 'Form is valid' }.to_json)
+        end
       end
     end
 

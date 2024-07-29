@@ -77,29 +77,121 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
       }
     end
 
-    context 'when submitting all required data' do
-      it 'responds with a created status' do
-        post(base_path, params:)
-        expect(response).to have_http_status(:created)
+    context 'when submitting valid data' do
+      context 'When submitting all fields' do
+        it 'responds with a created status' do
+          post(base_path, params:)
+          expect(response).to have_http_status(:created)
+        end
+
+        it 'responds with the expected body' do
+          post(base_path, params:)
+          expect(response.body).to eq({ message: 'Form is valid' }.to_json)
+        end
+      end
+    end
+
+    context 'when submitting valid data without optional fields' do
+      context 'When submitting all fields except claimant' do
+        before do
+          params[:pdf_generator2122a].delete(:claimant)
+        end
+
+        it 'responds with a created status' do
+          post(base_path, params:)
+          expect(response).to have_http_status(:created)
+        end
+
+        it 'responds with the expected body' do
+          post(base_path, params:)
+          expect(response.body).to eq({ message: 'Form is valid' }.to_json)
+        end
       end
 
-      it 'responds with the expected body' do
-        post(base_path, params:)
-        expect(response.body).to eq({ message: 'Form is valid' }.to_json)
+      context 'When submitting none of the optional fields' do
+        before do
+          params[:pdf_generator2122a][:veteran][:name].delete(:middle)
+          params[:pdf_generator2122a][:veteran].delete(:va_file_number)
+          params[:pdf_generator2122a][:veteran][:address].delete(:address_line2)
+          params[:pdf_generator2122a][:veteran][:address].delete(:zip_code_suffix)
+          params[:pdf_generator2122a][:veteran].delete(:phone)
+          params[:pdf_generator2122a][:veteran].delete(:service_number)
+          params[:pdf_generator2122a].delete(:claimant)
+          params[:pdf_generator2122a][:representative][:name].delete(:middle)
+          params[:pdf_generator2122a][:representative][:address].delete(:address_line2)
+          params[:pdf_generator2122a][:representative][:address].delete(:zip_code_suffix)
+        end
+
+        it 'responds with a created status' do
+          post(base_path, params:)
+          expect(response).to have_http_status(:created)
+        end
+
+        it 'responds with the expected body' do
+          post(base_path, params:)
+          expect(response.body).to eq({ message: 'Form is valid' }.to_json)
+        end
       end
     end
 
     context 'when submitting incomplete data' do
-      it 'responds with an unprocessable entity status' do
-        params[:pdf_generator2122a][:representative][:type] = nil
-        post(base_path, params:)
-        expect(response).to have_http_status(:unprocessable_entity)
+      context 'when submitting without the representative type' do
+        it 'responds with an unprocessable entity status' do
+          params[:pdf_generator2122a][:representative][:type] = nil
+          post(base_path, params:)
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'responds with the expected body' do
+          params[:pdf_generator2122a][:representative][:type] = nil
+          post(base_path, params:)
+          expect(response.body).to eq({ errors: ["Representative type can't be blank"] }.to_json)
+        end
       end
 
-      it 'responds with the expected body' do
-        params[:pdf_generator2122a][:representative][:type] = nil
-        post(base_path, params:)
-        expect(response.body).to eq({ errors: ['Representative type can\'t be blank'] }.to_json)
+      context 'when submitting without the veteran first name' do
+        it 'responds with an unprocessable entity status' do
+          params[:pdf_generator2122a][:veteran][:name][:first] = nil
+          post(base_path, params:)
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'responds with the expected body' do
+          params[:pdf_generator2122a][:veteran][:name][:first] = nil
+          post(base_path, params:)
+          expect(response.body).to eq({ errors: ["Veteran first name can't be blank"] }.to_json)
+        end
+      end
+
+      context 'When submitting without the veteran social security number' do
+        it 'responds with an unprocessable entity status' do
+          params[:pdf_generator2122a][:veteran][:ssn] = nil
+          post(base_path, params:)
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'responds with the expected body' do
+          params[:pdf_generator2122a][:veteran][:ssn] = nil
+          post(base_path, params:)
+          expect(response.body).to include("Veteran social security number can't be blank")
+        end
+      end
+
+      context 'When submitting without multiple required fields' do
+        it 'responds with an unprocessable entity status' do
+          params[:pdf_generator2122a][:veteran][:name][:last] = nil
+          params[:pdf_generator2122a][:veteran][:date_of_birth] = nil
+          post(base_path, params:)
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'responds with the expected body' do
+          params[:pdf_generator2122a][:veteran][:name][:last] = nil
+          params[:pdf_generator2122a][:veteran][:date_of_birth] = nil
+          post(base_path, params:)
+          expect(response.body).to include("Veteran last name can't be blank")
+          expect(response.body).to include("Veteran date of birth can't be blank")
+        end
       end
     end
   end
