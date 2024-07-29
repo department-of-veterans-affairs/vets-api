@@ -13,7 +13,11 @@ module ClaimsApi
 
           def validate_tracked_items(record)
             if record.data[:data].present?
-              value = record.data[:data] ? record.data[:data][:attributes][:trackedItems] : record.data[:tracked_items]
+              value = if record.data[:data]
+                        record.data[:data][:attributes][:trackedItemIds]
+                      else
+                        record.data[:tracked_items]
+                      end
               (record.errors.add :tracked_items, 'blank') && return if value.blank?
             end
           end

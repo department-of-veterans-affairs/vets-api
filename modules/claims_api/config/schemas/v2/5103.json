@@ -4,7 +4,7 @@
     "type": "object",
     "additionalProperties": false,
     "properties": {
-        "trackedItems": {
+        "trackedItemIds": {
             "description": "Array of tracked items ids.",
             "type": ["array", "null"],
             "nullable": true,

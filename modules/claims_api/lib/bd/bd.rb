@@ -107,10 +107,10 @@ module ClaimsApi
       file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
       participant_id = pctpnt_vet_id if %w[L075 L190 L705].include?(doc_type)
       system_name = 'Lighthouse' if %w[L075 L190].include?(doc_type)
-      tracked_items = claim.tracked_items&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
+      tracked_item_ids = claim.tracked_items&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
 
       data = build_body(doc_type:, file_name:, participant_id:, claim_id:,
-                        file_number: birls_file_num, system_name:, tracked_items:)
+                        file_number: birls_file_num, system_name:, tracked_item_ids:)
 
       fn = Tempfile.new('params')
       File.write(fn, data.to_json)
@@ -179,7 +179,7 @@ module ClaimsApi
         docType: options[:doc_type],
         claimId: options[:claim_id],
         fileName: options[:file_name],
-        trackedItemIds: options[:tracked_items].nil? ? [] : options[:tracked_items]
+        trackedItemIds: options[:tracked_item_ids].nil? ? [] : options[:tracked_item_ids]
       }
       data[:participantId] = options[:participant_id] unless options[:participant_id].nil?
       data[:fileNumber] = options[:file_number] unless options[:file_number].nil?

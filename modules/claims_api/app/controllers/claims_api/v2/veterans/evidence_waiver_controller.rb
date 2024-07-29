@@ -18,7 +18,7 @@ module ClaimsApi
           validate_request!(ClaimsApi::V2::ParamsValidation::EvidenceWaiverSubmission)
           validate_veteran_name(false)
 
-          tracked_item_ids = params['data']['attributes']['trackedItems'] if params['data'].present?
+          tracked_item_ids = params['data']['attributes']['trackedItemIds'] if params['data'].present?
           ews = create_ews(params[:id])
           tracked_item_ids&.each { |id| ews.tracked_items << id }
           ews.save
