@@ -26,6 +26,9 @@ RSpec.describe V0::HigherLevelReviewsController do
         expect(response).to be_successful
         appeal_uuid = JSON.parse(response.body)['data']['id']
         expect(AppealSubmission.where(submitted_appeal_uuid: appeal_uuid).first).to be_truthy
+        # SavedClaim should be created with request data
+        saved_claim = SavedClaim::HigherLevelReview.find_by(guid: appeal_uuid)
+        expect(saved_claim.form).to eq(VetsJsonSchema::EXAMPLES.fetch('HLR-CREATE-REQUEST-BODY').to_json)
       end
     end
 

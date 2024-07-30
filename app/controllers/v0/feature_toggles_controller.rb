@@ -30,8 +30,6 @@ module V0
     end
 
     def get_all_features
-      return old_get_all_features unless Flipper.enabled?(:use_new_get_all_features)
-
       features = fetch_features_with_gate_keys
       add_feature_gate_values(features)
       format_features(features)
@@ -112,25 +110,6 @@ module V0
 
     def flipper_id
       params[:cookie_id] || @current_user&.flipper_id
-    end
-
-    def old_get_all_features
-      features = []
-
-      FLIPPER_FEATURE_CONFIG['features'].collect do |feature_name, values|
-        flipper_enabled = if Settings.flipper.mute_logs
-                            ActiveRecord::Base.logger.silence do
-                              Flipper.enabled?(feature_name, resolve_actor(values['actor_type']))
-                            end
-                          else
-                            Flipper.enabled?(feature_name, resolve_actor(values['actor_type']))
-                          end
-        # returning both camel and snakecase for uniformity on FE
-        features << { name: feature_name.camelize(:lower), value: flipper_enabled }
-        features << { name: feature_name, value: flipper_enabled }
-      end
-
-      features
     end
   end
 end
