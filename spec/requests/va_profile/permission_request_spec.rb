@@ -9,7 +9,7 @@ RSpec.describe 'permission' do
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
   let(:frozen_time) { Time.zone.local(2019, 11, 5, 16, 49, 18) }
-
+  binding.pry
   if Flipper.enabled?(:va_profile_information_v3_service)
     let(:cassette) { 'va_profile/profile_information/' }
   else
@@ -28,22 +28,22 @@ RSpec.describe 'permission' do
 
   describe 'POST /v0/profile/permissions/create_or_update' do
     let(:permission) { build(:permission, vet360_id: user.vet360_id) }
-
-    it 'calls update_permission' do
-      if Flipper.enabled?(:va_profile_information_v3_service)
-        expect_any_instance_of(VAProfile::ProfileInformation::Service).to receive(:create_or_update_info)
-          .and_call_original
-        VCR.use_cassette('va_profile/profile_information/put_permission_success') do
-          post('/v0/profile/permissions/create_or_update', params: permission.to_json, headers:)
+    context 'with a 200 response' do
+      it 'calls update_permission' do
+        if Flipper.enabled?(:va_profile_information_v3_service)
+          expect_any_instance_of(VAProfile::ProfileInformation::Service).to receive(:create_or_update_info)
+            .and_call_original
+          VCR.use_cassette('va_profile/profile_information/put_permission_success') do
+            post('/v0/profile/permissions/create_or_update', params: permission.to_json, headers:)
+          end
+        else
+          expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_permission).and_call_original
+          VCR.use_cassette("#{cassette}put_permission_success") do
+            post('/v0/profile/permissions/create_or_update', params: permission.to_json, headers:)
+          end
         end
-      else
-        expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_permission).and_call_original
-        VCR.use_cassette("#{cassette}put_permission_success") do
-          post('/v0/profile/permissions/create_or_update', params: permission.to_json, headers:)
-        end
+        expect(response).to have_http_status(:ok)
       end
-
-      expect(response).to have_http_status(:ok)
     end
   end
 
@@ -165,7 +165,8 @@ RSpec.describe 'permission' do
         VCR.use_cassette("#{cassette}put_permission_ignore_eed", VCR::MATCH_EVERYTHING) do
           # The cassette we're using does not include the effectiveEndDate in the body.
           # So this test ensures that it was stripped out
-          put('/v0/profile/permissions', params: permission.to_json, headers:)
+          binding.pry
+          put('/v0/profile/permissions', params: permission.to_json)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('va_profile/transaction_response')
         end
