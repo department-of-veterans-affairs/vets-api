@@ -141,10 +141,8 @@ RSpec.describe SignIn::AttributeValidator do
         end
 
         context 'when mpi record for user has multiple sec ids' do
+          let(:update_profile_response) { create(:add_person_response, status: :ok) }
           let(:sec_ids) { %w[some-sec-id some-other-sec-id] }
-          let(:mpi_profile) { build(:mpi_profile, sec_ids:) }
-          let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
-
           let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
           let(:expected_error_log) { 'attribute validator error' }
           let(:expected_error_message) { 'User attributes contain multiple distinct SEC_ID values' }
@@ -289,8 +287,12 @@ RSpec.describe SignIn::AttributeValidator do
                 participant_ids:,
                 birth_date:,
                 given_names: [first_name],
-                family_name: last_name)
+                family_name: last_name,
+                sec_id:,
+                sec_ids:)
         end
+        let(:sec_id) { 'some-sec-id' }
+        let(:sec_ids) { [sec_id] }
         let(:id_theft_flag) { false }
         let(:deceased_date) { nil }
         let(:icn) { 'some-icn' }
@@ -423,6 +425,8 @@ RSpec.describe SignIn::AttributeValidator do
             let(:add_person_response) { create(:add_person_response, status:, parsed_codes:) }
             let(:status) { :ok }
             let(:icn) { mhv_icn }
+            let(:sec_id) { 'some-sec-id' }
+            let(:sec_ids) { [sec_id] }
             let(:parsed_codes) { { icn: } }
             let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
             let(:mpi_profile) do
@@ -441,7 +445,9 @@ RSpec.describe SignIn::AttributeValidator do
                     participant_ids:,
                     birth_date:,
                     given_names: [first_name],
-                    family_name: last_name)
+                    family_name: last_name,
+                    sec_id:,
+                    sec_ids:)
             end
             let(:first_name) { 'some-first-name' }
             let(:last_name) { 'some-last-name' }
