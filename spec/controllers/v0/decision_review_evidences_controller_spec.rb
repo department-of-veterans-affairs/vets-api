@@ -92,7 +92,7 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
       end
 
       it 'creates a FormAttachment, logs formatted success message, and increments statsd' do
-        request.headers['Source-App-Name'] = '10182-board-appeal'
+        request.env['SOURCE_APP'] = '10182-board-appeal'
         params = { param_namespace => { file_data: pdf_file, password: 'test_password' } }
 
         expect(Common::PdfHelpers).to receive(:unlock_pdf)
@@ -121,7 +121,7 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
 
     context 'evidence is uploaded from the NOD (10182) form' do
       it 'formatted success log and statsd metric are specific to NOD (10182)' do
-        request.headers['Source-App-Name'] = '10182-board-appeal'
+        request.env['SOURCE_APP'] = '10182-board-appeal'
         params = { param_namespace => { file_data: pdf_file } }
         allow(Rails.logger).to receive(:info)
         expect(Rails.logger).to receive(:info).with(hash_including(form_id: '10182'))
@@ -132,7 +132,7 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
 
     context 'evidence is uploaded from the SC (995) form' do
       it 'formatted success log and statsd metric are specific to SC (995)' do
-        request.headers['Source-App-Name'] = '995-supplemental-claim'
+        request.env['SOURCE_APP'] = '995-supplemental-claim'
         params = { param_namespace => { file_data: pdf_file } }
         allow(Rails.logger).to receive(:info)
         expect(Rails.logger).to receive(:info).with(hash_including(form_id: '995'))
@@ -143,7 +143,7 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
 
     context 'evidence is uploaded from a form with an unexpected Source-App-Name' do
       it 'logs formatted success log and increments success statsd metric, but also increments an `unexpected_form_id` statsd metric' do # rubocop:disable Layout/LineLength
-        request.headers['Source-App-Name'] = '997-supplemental-claim'
+        request.env['SOURCE_APP'] = '997-supplemental-claim'
         params = { param_namespace => { file_data: pdf_file } }
         allow(Rails.logger).to receive(:info)
         expect(Rails.logger).to receive(:info).with(hash_including(form_id: '997-supplemental-claim'))
@@ -155,7 +155,7 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
 
     context 'an error is thrown during file upload' do
       it 'logs formatted error, increments statsd, and raises error' do
-        request.headers['Source-App-Name'] = '10182-board-appeal'
+        request.env['SOURCE_APP'] = '10182-board-appeal'
         params = { param_namespace => { file_data: pdf_file } }
         expect(StatsD).to receive(:increment).with('decision_review.form_10182.evidence_upload_to_s3.failure')
         allow(Rails.logger).to receive(:error)
