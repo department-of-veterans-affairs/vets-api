@@ -5,7 +5,7 @@ require 'pensions/monitor'
 
 module Pensions
   module V0
-    class PensionClaimsController < ClaimsBaseController
+    class ClaimsController < ClaimsBaseController
       service_tag 'pension-application'
 
       def short_name

@@ -14,7 +14,7 @@ module Pensions
     FORM = '21P-527EZ'
 
     ##
-    # the predfined regional office address
+    # the predefined regional office address
     #
     # @return [Array<String>] the address lines of the regional office
     #
