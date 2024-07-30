@@ -8,6 +8,7 @@ require './lib/common/exceptions/backend_service_exception'
 require 'claims_api/common/exceptions/lighthouse/unprocessable_entity'
 require 'claims_api/common/exceptions/lighthouse/resource_not_found'
 require 'claims_api/common/exceptions/lighthouse/bad_request'
+require 'claims_api/common/exceptions/lighthouse/timeout'
 
 module ClaimsApi
   module V2

@@ -1538,6 +1538,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -1591,6 +1595,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -1643,6 +1651,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -1958,6 +1970,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -2573,6 +2589,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -2625,6 +2645,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -5752,7 +5776,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "a10bcb59-c4b1-49ce-8d0e-bb154db07e85",
+                        "id": "afcad79e-bcce-4f3d-9643-56408b4aa8bf",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5935,7 +5959,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-07-31"
+                              "anticipatedSeparationDate": "2024-08-01"
                             },
                             "confinements": [
                               {
@@ -5981,7 +6005,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "5473546a-edb8-4e42-8b1d-404c303665c6",
+                        "id": "edb28482-636a-4933-9e7d-ff5670f5b268",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -11166,7 +11190,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "265631d0-cc80-47a7-a73e-a78123aa8a9f",
+                    "id": "3b9bd54b-0559-4383-923c-1a758f39c639",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -13635,6 +13659,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
+                      "status": "401",
                       "detail": "Not authorized"
                     }
                   ]
@@ -13660,6 +13685,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -13687,6 +13716,7 @@
                 "example": {
                   "errors": [
                     {
+                      "status": "404",
                       "title": "Resource not found",
                       "detail": "Claim not found"
                     }
@@ -13714,6 +13744,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -13727,6 +13761,50 @@
                           }
                         }
                       }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "attributes": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "description": "Claims API 5103 Schema",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "trackedItemIds": {
+                            "description": "Array of tracked items ids.",
+                            "type": "array",
+                            "nullable": true,
+                            "uniqueItems": true,
+                            "items": {
+                              "type": "integer",
+                              "additionalProperties": false
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "type": "form/5103",
+                    "attributes": {
+                      "trackedItemIds": [
+                        1234
+                      ]
                     }
                   }
                 }
@@ -13895,6 +13973,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -13947,6 +14029,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -14019,8 +14105,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-07-29",
-                      "expirationDate": "2025-07-29",
+                      "creationDate": "2024-07-30",
+                      "expirationDate": "2025-07-30",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -14121,6 +14207,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -14174,6 +14264,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -14226,6 +14320,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -14430,6 +14528,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -14482,6 +14584,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -14896,7 +15002,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "44cca000-aaf4-432e-a5da-8b647fd22d3f",
+                    "id": "46fedb7e-9141-4080-9c19-6247fe86e77f",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15589,7 +15695,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "08daa8a4-d08e-4284-91b5-bf662cae2007",
+                    "id": "a48f35ac-d472-48e0-a19d-b60e0b26e72d",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -17540,10 +17646,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6225cd17-d608-4b00-a81f-6ed2f6c67a33",
+                    "id": "25fcda8b-a9e5-48b8-ac33-4a6ba64d55d0",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-07-29",
+                      "dateRequestAccepted": "2024-07-30",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

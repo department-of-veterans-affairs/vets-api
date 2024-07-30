@@ -6,9 +6,6 @@ require 'pensions/tag_sentry'
 require 'pensions/monitor'
 require 'central_mail/datestamp_pdf'
 
-##
-# Pension 21P-527EZ Module
-#
 module Pensions
   ##
   # sidekig job to send pension pdf to Lighthouse:BenefitsIntake API
@@ -18,7 +15,7 @@ module Pensions
     include Sidekiq::Job
     include SentryLogging
 
-    # job processing error
+    # generic job processing error
     class PensionBenefitIntakeError < StandardError; end
 
     # tracking id for datadog metrics
@@ -73,11 +70,12 @@ module Pensions
     private
 
     ##
-    # @private
     # Instantiate instance variables for _this_ job
     #
     # @raise [ActiveRecord::RecordNotFound] if unable to find UserAccount
     # @raise [PensionBenefitIntakeError] if unable to find SavedClaim::Pension
+    #
+    # @param (see #perform)
     #
     def init(saved_claim_id, user_account_uuid)
       Pensions::TagSentry.tag_sentry
@@ -94,7 +92,6 @@ module Pensions
     end
 
     ##
-    # @private
     # Create a temp stamped PDF and validate the PDF satisfies Benefits Intake specification
     #
     # @param file_path [String] pdf file path
@@ -114,7 +111,6 @@ module Pensions
     end
 
     ##
-    # @private
     # Upload generated pdf to Benefits Intake API
     #
     # @raise [PensionBenefitIntakeError] on upload failure
@@ -138,7 +134,6 @@ module Pensions
     end
 
     ##
-    # @private
     # Generate form metadata to send in upload to Benefits Intake API
     #
     # @see SavedClaim.parsed_form
@@ -163,7 +158,6 @@ module Pensions
     end
 
     ##
-    # @private
     # Insert submission polling entries
     #
     # @see FormSubmission
@@ -186,7 +180,6 @@ module Pensions
     end
 
     ##
-    # @private
     # Delete temporary stamped PDF files for this job instance.
     #
     # @raise [PensionBenefitIntakeError] if unable to delete file
