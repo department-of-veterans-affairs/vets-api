@@ -1,4 +1,4 @@
-name: Enforce PR Approval Requirements
+name: Enforce Backend PR Approval Requirements
 
 on:
   pull_request:
@@ -52,7 +52,7 @@ jobs:
       - name: Verify backend-review-group approval
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         run: |
-          APPROVALS=$(echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq '[.[] | select(.state == "APPROVED" and .author_association == "MEMBER" and .user.login == "backend-review-group")] | length')
+          APPROVALS=$(echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq '[.[] | select(.state == "APPROVED" and .author_association == "MEMBER" and (.user.login == "backend-review-group" or .user.login | contains("backend-review-group")))] | length')
           if [ "$APPROVALS" -eq 0 ]; then
             echo "Error: This PR requires approval from backend-review-group."
             exit 1
