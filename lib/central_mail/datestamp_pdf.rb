@@ -20,11 +20,11 @@ module CentralMail
     end
 
     def formatted_date
-      Time.now.strftime("%m/%d/%Y")
+      Time.zone.now.strftime('%m/%d/%Y')
     end
-    
+
     def date_object
-      Date.strptime(formatted_date, "%m/%d/%Y")
+      Date.strptime(formatted_date, '%m/%d/%Y')
     end
 
     # rubocop:disable Metrics/ParameterLists
