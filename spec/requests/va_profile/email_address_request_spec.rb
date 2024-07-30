@@ -30,19 +30,14 @@ RSpec.describe 'email_address' do
     let(:email) { build(:email, vet360_id: user.vet360_id) }
 
     it 'calls update_email' do
-      if Flipper.enabled?(:va_profile_information_v3_service)
-        expect_any_instance_of(VAProfile::ProfileInformation::Service).to receive(:create_or_update_info)
-          .and_call_original
-        VCR.use_cassette('va_profile/profile_information/put_email_success') do
-          post('/v0/profile/email_addresses/create_or_update', params: email.to_json, headers:)
-        end
-      else
+      # This can be removed after Contact Information is degraded
+      if !Flipper.enabled?(:va_profile_information_v3_service)
         expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_email).and_call_original
         VCR.use_cassette("#{cassette}put_email_success") do
           post('/v0/profile/email_addresses/create_or_update', params: email.to_json, headers:)
         end
+        expect(response).to have_http_status(:ok)
       end
-      expect(response).to have_http_status(:ok)
     end
   end
 
