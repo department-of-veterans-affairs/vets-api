@@ -1264,6 +1264,8 @@ DEPENDENCIES
   shoulda-matchers
   shrine
   sidekiq (~> 7.2.0)
+  sidekiq-ent!
+  sidekiq-pro!
   simple_forms_api!
   simplecov
   slack-notify
