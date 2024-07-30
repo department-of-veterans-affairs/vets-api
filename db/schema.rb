@@ -838,6 +838,13 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
     t.index ["user_uuid"], name: "index_in_progress_forms_on_user_uuid"
   end
 
+  create_table "inherited_proof_verified_user_accounts", force: :cascade do |t|
+    t.uuid "user_account_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_account_id"], name: "index_inherited_proof_verified_user_accounts_on_user_account_id", unique: true
+  end
+
   create_table "intent_to_file_queue_exhaustions", force: :cascade do |t|
     t.string "veteran_icn", null: false
     t.string "form_type"
@@ -1594,6 +1601,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
   add_foreign_key "form_submissions", "user_accounts"
   add_foreign_key "health_quest_questionnaire_responses", "user_accounts"
   add_foreign_key "in_progress_forms", "user_accounts"
+  add_foreign_key "inherited_proof_verified_user_accounts", "user_accounts"
   add_foreign_key "lighthouse526_document_uploads", "form526_submissions"
   add_foreign_key "lighthouse526_document_uploads", "form_attachments"
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
