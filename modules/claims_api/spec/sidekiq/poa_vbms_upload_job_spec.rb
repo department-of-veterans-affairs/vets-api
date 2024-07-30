@@ -11,6 +11,7 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
     @vbms_client = FakeVBMS.new
     allow(VBMS::Client).to receive(:from_env_vars).and_return(@vbms_client)
     allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return false
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -54,7 +55,7 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
         power_of_attorney.update(vbms_upload_failure_count: 4)
         expect do
           subject.new.perform(power_of_attorney.id)
-        end.to change(subject.jobs, :size).by(0)
+        end.not_to change(subject.jobs, :size)
       end
     end
 
@@ -197,6 +198,28 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
           detail: "Job retries exhausted for #{subject}",
           error: error_msg
         )
+      end
+    end
+  end
+
+  describe 'benefits documents upload feature flag' do
+    let(:power_of_attorney) { create(:power_of_attorney) }
+
+    context 'when the bd upload feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
+      end
+
+      it 'calls the benefits document API' do
+        expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
+        subject.new.perform(power_of_attorney.id)
+      end
+    end
+
+    context 'when the bd upload feature flag is disabled' do
+      it 'calls the VBMS uploader' do
+        expect_any_instance_of(subject).to receive(:upload_to_vbms)
+        subject.new.perform(power_of_attorney.id)
       end
     end
   end
