@@ -146,6 +146,7 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
           params[:pdf_generator2122a][:representative][:type] = nil
           post(base_path, params:)
           expect(response.body).to include("Representative type can't be blank")
+          expect(response.body).to include('Representative type is not included in the list')
         end
       end
 
@@ -174,6 +175,7 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
           params[:pdf_generator2122a][:veteran][:ssn] = nil
           post(base_path, params:)
           expect(response.body).to include("Veteran social security number can't be blank")
+          expect(response.body).to include('Veteran social security number is invalid')
         end
       end
 
@@ -235,7 +237,7 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
         it 'responds with the expected body' do
           params[:pdf_generator2122a][:veteran][:va_file_number] = '12345678A'
           post(base_path, params:)
-          expect(response.body).to include('Veteran VA file number is invalid')
+          expect(response.body).to eq({ errors: ['Veteran VA file number is invalid'] }.to_json)
         end
       end
 
@@ -249,7 +251,7 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
         it 'responds with the expected body' do
           params[:pdf_generator2122a][:representative][:type] = 'INVALID_TYPE'
           post(base_path, params:)
-          expect(response.body).to include('Representative type is not included in the list')
+          expect(response.body).to eq({ errors: ['Representative type is not included in the list'] }.to_json)
         end
       end
     end
