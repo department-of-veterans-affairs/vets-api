@@ -11,12 +11,13 @@ module SimpleFormsApi
       end
 
       def upload_scanned_form
-        attachment = PersistentAttachments::MilitaryRecords.new(form_id: params['formId'])
+        attachment = PersistentAttachments::VAForm.new
+        attachment.form_id = params['form_id']
         attachment.file = params['file']
         raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
         attachment.save
-        render json: PersistentAttachmentSerializer.new(attachment)
+        render json: PersistentAttachmentVAFormSerializer.new(attachment)
       end
 
       private

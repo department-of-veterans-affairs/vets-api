@@ -48,7 +48,9 @@ MyHealth::Engine.routes.draw do
         put ':reply_id/replydraft/:draft_id', on: :collection, action: :update_reply_draft, as: :update_reply
       end
 
-      resource :preferences, only: %i[show update], controller: 'messaging_preferences'
+      resource :preferences, only: %i[show update], controller: 'messaging_preferences' do
+        post 'recipients', action: :update_triage_team_preferences
+      end
     end
 
     resources :prescriptions, only: %i[index show], defaults: { format: :json } do

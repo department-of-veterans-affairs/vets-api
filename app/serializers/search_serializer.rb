@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class SearchSerializer < ActiveModel::Serializer
-  attributes :body
+class SearchSerializer
+  include JSONAPI::Serializer
 
-  def id
-    nil
-  end
+  set_id { '' }
+
+  attribute :body
 end

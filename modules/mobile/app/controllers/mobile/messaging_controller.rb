@@ -5,6 +5,7 @@ require 'mobile/v0/messaging/client'
 module Mobile
   class MessagingController < ApplicationController
     include ActionController::Serialization
+    include JsonApiPaginationLinks
 
     before_action :authorize
     before_action :authenticate_client

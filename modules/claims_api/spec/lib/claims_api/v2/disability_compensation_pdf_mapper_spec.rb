@@ -209,6 +209,19 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         actual = pdf_data[:data][:attributes][:identificationInformation][:phoneNumber]
         expect(actual).to eq(nil)
       end
+
+      context 'international address' do
+        it 'maps the address to overflow' do
+          form_attributes['veteranIdentification']['mailingAddress']['country'] = 'Afghanistan'
+          form_attributes['veteranIdentification']['mailingAddress']['internationalPostalCode'] = 'asdf1234'
+          form_attributes['veteranIdentification']['mailingAddress']['zipFirstFive'] = nil
+          form_attributes['veteranIdentification']['mailingAddress']['zipLastFour'] = nil
+          mapper.map_claim
+          zip = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:zip]
+
+          expect(zip).to eq('asdf1234')
+        end
+      end
     end
 
     context '526 section 2, change of address' do
@@ -238,6 +251,30 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 section 3, homelessness' do
+      it 'maps the currentlyHomeless true values' do
+        form_attributes['homeless']['isCurrentlyHomeless'] = true
+        form_attributes['homeless']['isAtRiskOfBecomingHomeless'] = true
+        mapper.map_claim
+
+        currently = pdf_data[:data][:attributes][:homelessInformation][:areYouCurrentlyHomeless]
+        risk = pdf_data[:data][:attributes][:homelessInformation][:areYouAtRiskOfBecomingHomeless]
+
+        expect(currently).to eq('YES')
+        expect(risk).to eq('YES')
+      end
+
+      it 'maps the currentlyHomeless false values' do
+        form_attributes['homeless']['isCurrentlyHomeless'] = false
+        form_attributes['homeless']['isAtRiskOfBecomingHomeless'] = false
+        mapper.map_claim
+
+        currently = pdf_data[:data][:attributes][:homelessInformation][:areYouCurrentlyHomeless]
+        risk = pdf_data[:data][:attributes][:homelessInformation][:areYouAtRiskOfBecomingHomeless]
+
+        expect(currently).to eq('NO')
+        expect(risk).to eq('NO')
+      end
+
       it 'maps the homeless_point_of_contact' do
         mapper.map_claim
 
@@ -254,7 +291,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(homeless_point_of_contact).to eq('john stewart')
         expect(homeless_telephone).to eq('555-555-5555')
         expect(homeless_international_telephone).to eq('44-20-1234-5678')
-        expect(homeless_currently).to eq('YES') # can't be both homess & at risk
+        expect(homeless_currently).to be_nil
         expect(homeless_situation_options).to eq('FLEEING_CURRENT_RESIDENCE')
         expect(homeless_currently_other_description).to eq('ABCDEFGHIJKLM')
       end
