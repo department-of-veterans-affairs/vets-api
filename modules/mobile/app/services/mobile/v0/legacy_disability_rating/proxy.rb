@@ -15,7 +15,7 @@ module Mobile
                                                                in_threads: 2, &:call)
           Mobile::V0::Adapters::LegacyRating.new.disability_ratings(combine_response, individual_response)
         rescue Common::Exceptions::BaseError => e
-          case e&.status_code
+          case e.status_code
           when 400
             raise Common::Exceptions::BackendServiceException, 'MOBL_404_rating_not_found'
           when 502
