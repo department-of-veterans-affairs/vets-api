@@ -8,7 +8,8 @@ module Pensions
   # Pension 21P-527EZ Active::Record
   #
   class SavedClaim < ::SavedClaim
-    self.inheritance_column = 'SavedClaim::Pension'
+    self.inheritance_column = :_type_disabled
+    default_scope -> { where(type: 'SavedClaim::Pension') }, all_queries: true
 
     # form_id, form_type
     FORM = '21P-527EZ'
