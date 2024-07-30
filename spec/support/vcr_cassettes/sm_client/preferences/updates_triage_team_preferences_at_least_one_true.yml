@@ -1,0 +1,57 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/preferences/patientpreferredtriagegroups"
+    body:
+      encoding: UTF-8
+      string: '[{"triageTeamId":"1013155","preferredTeam":"false"}]'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Tue, 23 Jul 2024 13:55:56 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '96'
+      X-Amzn-Requestid:
+      - 2aef091a-c468-40c1-9ca5-63d687e47ead
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - bXlw7HM2vHMFflw=
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      Pragma:
+      - no-cache
+      X-Amzn-Remapped-Date:
+      - Tue, 23 Jul 2024 13:55:56 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"errorCode":170,"developerMessage":"","message":"At Least one Triage
+        group must be set to Yes"}'
+  recorded_at: Tue, 23 Jul 2024 13:55:56 GMT
+recorded_with: VCR 6.2.0

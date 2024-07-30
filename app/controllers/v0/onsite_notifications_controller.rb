@@ -16,7 +16,9 @@ module V0
                       .for_user(current_user, include_dismissed: params[:include_dismissed])
                       .paginate(**pagination_params)
 
-      render(json: notifications, meta: pagination_meta(notifications))
+      options = { meta: pagination_meta(notifications) }
+
+      render json: OnsiteNotificationSerializer.new(notifications, options)
     end
 
     def update
@@ -27,7 +29,7 @@ module V0
         raise Common::Exceptions::ValidationErrors, onsite_notification
       end
 
-      render(json: onsite_notification)
+      render json: OnsiteNotificationSerializer.new(onsite_notification)
     end
 
     def create
@@ -37,7 +39,7 @@ module V0
 
       raise Common::Exceptions::ValidationErrors, onsite_notification unless onsite_notification.save
 
-      render(json: onsite_notification)
+      render json: OnsiteNotificationSerializer.new(onsite_notification)
     end
 
     private

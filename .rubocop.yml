@@ -11,6 +11,8 @@ require:
   - rubocop-factory_bot
   - rubocop-rspec_rails
   - rubocop-thread_safety
+  - './lib/rubocop/cops/ams_serializer.rb'
+
 
 AllCops:
   NewCops: disable
@@ -367,3 +369,6 @@ Lint/EmptyBlock:
 
 Layout/EmptyLineBetweenDefs:
   AllowAdjacentOneLineDefs: true
+
+Cops/AmsSerializer:
+  Enabled: true
