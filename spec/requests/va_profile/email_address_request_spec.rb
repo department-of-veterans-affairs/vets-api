@@ -31,7 +31,7 @@ RSpec.describe 'email_address' do
 
     it 'calls update_email' do
       # This can be removed after Contact Information is degraded
-      if !Flipper.enabled?(:va_profile_information_v3_service)
+      unless Flipper.enabled?(:va_profile_information_v3_service)
         expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_email).and_call_original
         VCR.use_cassette("#{cassette}put_email_success") do
           post('/v0/profile/email_addresses/create_or_update', params: email.to_json, headers:)

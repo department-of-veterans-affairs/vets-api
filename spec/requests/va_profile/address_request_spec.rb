@@ -31,7 +31,7 @@ RSpec.describe 'address' do
 
     it 'calls update_address' do
       # This can be removed after Contact Information is degraded
-      if !Flipper.enabled?(:va_profile_information_v3_service)
+      unless Flipper.enabled?(:va_profile_information_v3_service)
         expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_address).and_call_original
         VCR.use_cassette("#{cassette}put_address_success") do
           post('/v0/profile/addresses/create_or_update', params: address.to_json, headers:)
@@ -245,7 +245,8 @@ RSpec.describe 'address' do
 
       it 'effective_end_date is NOT included in the request body', :aggregate_failures do
         if Flipper.enabled?(:va_profile_information_v3_service)
-          expect_any_instance_of(VAProfile::ProfileInformation::Service).to receive(:create_or_update_info) do |_, address|
+          expect_any_instance_of(VAProfile::ProfileInformation::Service)
+            .to receive(:create_or_update_info) do |_, address|
             expect(address.effective_end_date).to eq(nil)
           end
         else

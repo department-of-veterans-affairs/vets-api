@@ -81,6 +81,7 @@ module VAProfile
           response = model.transaction_response_class.from(raw_response)
 
           return response unless http_verb == :put && record.contact_info_attr == 'email' && old_email.present?
+
           transaction = response.transaction
           return response unless transaction.received?
 

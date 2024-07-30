@@ -9,6 +9,7 @@ RSpec.describe 'permission' do
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
   let(:frozen_time) { Time.zone.local(2019, 11, 5, 16, 49, 18) }
+
   if Flipper.enabled?(:va_profile_information_v3_service)
     let(:cassette) { 'va_profile/profile_information/' }
   else
@@ -27,11 +28,13 @@ RSpec.describe 'permission' do
 
   describe 'POST /v0/profile/permissions/create_or_update' do
     let(:permission) { build(:permission, vet360_id: user.vet360_id) }
+
     context 'with a 200 response' do
       it 'calls update_permission' do
         # This can be removed after Contact Information is degraded
-        if !Flipper.enabled?(:va_profile_information_v3_service)
-          expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_permission).and_call_original
+        unless Flipper.enabled?(:va_profile_information_v3_service)
+          expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_permission)
+            .and_call_original
           VCR.use_cassette("#{cassette}put_permission_success") do
             post('/v0/profile/permissions/create_or_update', params: permission.to_json, headers:)
           end
