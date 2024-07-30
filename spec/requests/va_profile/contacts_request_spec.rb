@@ -7,6 +7,7 @@ RSpec.describe 'contacts' do
   let(:user) { build(:user, :loa3, idme_uuid:) }
   let(:resource) { JSON.parse(response.body) }
 
+
   around do |ex|
     VCR.use_cassette(cassette) { ex.run }
   end
