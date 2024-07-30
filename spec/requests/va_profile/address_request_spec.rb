@@ -31,11 +31,13 @@ RSpec.describe 'address' do
 
     it 'calls update_address' do
       # This can be removed after Contact Information is degraded
-      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_address).and_call_original
-      VCR.use_cassette("#{cassette}put_address_success") do
-        post('/v0/profile/addresses/create_or_update', params: address.to_json, headers:)
+      if !Flipper.enabled?(:va_profile_information_v3_service)
+        expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_address).and_call_original
+        VCR.use_cassette("#{cassette}put_address_success") do
+          post('/v0/profile/addresses/create_or_update', params: address.to_json, headers:)
+        end
+        expect(response).to have_http_status(:ok)
       end
-      expect(response).to have_http_status(:ok)
     end
   end
 
