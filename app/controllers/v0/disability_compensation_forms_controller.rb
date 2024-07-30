@@ -26,8 +26,7 @@ module V0
 
       response = api_provider.get_rated_disabilities
 
-      render json: response,
-             serializer: RatedDisabilitiesSerializer
+      render json: RatedDisabilitiesSerializer.new(response)
     end
 
     def separation_locations
@@ -93,7 +92,7 @@ module V0
         rating_info_service = EVSS::CommonService.new(auth_headers)
         response = rating_info_service.get_rating_info
 
-        render json: response, serializer: RatingInfoSerializer
+        render json: RatingInfoSerializer.new(response)
       end
     end
 
