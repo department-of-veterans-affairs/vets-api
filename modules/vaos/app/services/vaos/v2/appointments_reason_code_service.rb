@@ -36,7 +36,9 @@ module VAOS
         return if reason_code_hash.empty?
 
         # Direct Scheduling appointments
-        if appointment[:kind] == 'clinic' && appointment[:status] == 'booked'
+        # Note we check requested periods to ensure booked DS appointments and booked DS
+        # appointments that are later cancelled are both processed here.
+        if appointment[:kind] == 'clinic' && appointment[:requested_periods].blank?
           comments = reason_code_hash['comments'] if reason_code_hash.key?('comments')
           reason = extract_reason_for_appointment(reason_code_hash)
 
@@ -74,8 +76,12 @@ module VAOS
       # @param reason_code_hash [Hash] the hash of reason code key value pairs
       # @return [String, nil] The reason for appointment as a string, or nil if not possible.
       def extract_reason_for_appointment(reason_code_hash)
+        # Appointment requests used 'reason code' as the key
         if reason_code_hash.key?('reason code') && PURPOSE_TEXT.key?(reason_code_hash['reason code'])
           PURPOSE_TEXT[reason_code_hash['reason code']]
+        # Direct schedule appointments used 'reasonCode' as the key
+        elsif reason_code_hash.key?('reasonCode') && PURPOSE_TEXT.key?(reason_code_hash['reasonCode'])
+          PURPOSE_TEXT[reason_code_hash['reasonCode']]
         end
       end
 
