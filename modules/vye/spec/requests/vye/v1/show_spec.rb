@@ -49,3 +49,26 @@ RSpec.describe Vye::V1::UserInfosController, type: :request do
     end
   end
 end
+
+# "vye/user_info"=>
+#   {"rem_ent"=>"2421128",
+#    "cert_issue_date"=>"2021-04-18",
+#    "del_date"=>"2025-04-14",
+#    "date_last_certified"=>"2024-06-04",
+#    "payment_amt"=>"7274.33",
+#    "indicator"=>"A",
+#    "zip_code"=>"11187",
+#    "latest_address"=>
+#     {"veteran_name"=>"Cristy Leannon",
+#      "address1"=>"1604 Daniel Points",
+#      "address2"=>nil,
+#      "address3"=>nil,
+#      "address4"=>nil,
+#      "address5"=>nil,
+#      "city"=>"New Shelton",
+#      "state"=>"NV",
+#      "zip_code"=>"11187",
+#      "origin"=>"backend"},
+#    "pending_documents"=>[{"doc_type"=>"quia", "queue_date"=>"2024-07-19"}, {"doc_type"=>"adipisci", "queue_date"=>"2024-07-19"}, {"doc_type"=>"eum", "queue_date"=>"2024-07-16"}],
+#    "verifications"=>[],
+#    "pending_verifications"=>[]}}
