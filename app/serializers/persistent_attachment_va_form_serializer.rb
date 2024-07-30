@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
-class PersistentAttachmentVAFormSerializer < PersistentAttachmentSerializer
+class PersistentAttachmentVAFormSerializer
+  include JSONAPI::Serializer
+
+  attribute :confirmation_code, &:guid
+  attribute :name, &:original_filename
+  attribute :size
   attribute :warnings
 end
