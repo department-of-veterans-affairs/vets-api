@@ -210,8 +210,12 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
       end
 
-      it 'calls the benefits document API' do
-        expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
+      it 'calls the benefits document API with doc_type L075' do
+        expect_any_instance_of(ClaimsApi::BD).to receive(:upload).with(
+          claim: power_of_attorney,
+          pdf_path: anything,
+          doc_type: 'L075'
+        )
         subject.new.perform(power_of_attorney.id)
       end
     end
