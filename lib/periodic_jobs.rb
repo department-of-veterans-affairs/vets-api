@@ -175,5 +175,8 @@ PERIODIC_JOBS = lambda { |mgr|
 
   # Every 15min job that sends missing Pega statuses to DataDog
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
+
+  # Clean SavedClaim records that are past delete date
+  mgr.register('0 7 * * *', 'DecisionReview::DeleteSavedClaimRecordsJob')
 }
 # rubocop:enable Metrics/BlockLength
