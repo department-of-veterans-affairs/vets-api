@@ -18,7 +18,7 @@ require 'rails_helper'
 # Example Usage:
 #
 # it_behaves_like 'a form filler', {
-#   form_id: '21P-527EZ',
+#   form_id: described_class::FORM_ID,
 #   factory: :pension_claim,
 #   use_vets_json_schema: true,
 #   input_data_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures',
