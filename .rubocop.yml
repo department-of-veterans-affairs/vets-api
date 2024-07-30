@@ -64,9 +64,6 @@ RSpec/VariableName:
 Style/GuardClause:
   Enabled: false
 
-Style/IfUnlessModifier:
-  Enabled: false
-
 # This is pretty much the same thing as the one above. Inside a loop, it forces you to use next to skip
 # iteration rather than using an if block that runs to the end of the loop, and it suffers from the same
 # problems as above.
@@ -78,7 +75,6 @@ Style/Next:
 # and the cop will encourage you to do things that are incorrect.
 Style/ZeroLengthPredicate:
   Enabled: false
-
 
 Layout/LineLength:
   Max: 125

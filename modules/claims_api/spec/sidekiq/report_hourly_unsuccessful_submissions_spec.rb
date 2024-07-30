@@ -9,7 +9,9 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
   describe '#perform' do
     context 'when no errored submissions exist' do
       before do
+        # rubocop:disable Layout/LineLength
         allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled).and_return(true)
+        # rubocop:enable Layout/LineLength
         allow(ClaimsApi::AutoEstablishedClaim).to receive(:where).and_return([])
         allow(ClaimsApi::PowerOfAttorney).to receive(:where).and_return([])
         allow(ClaimsApi::IntentToFile).to receive(:where).and_return([])
@@ -26,7 +28,9 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
 
     context 'when errored submissions exist' do
       before do
+        # rubocop:disable Layout/LineLength
         allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled).and_return(true)
+        # rubocop:enable Layout/LineLength
         allow(ClaimsApi::AutoEstablishedClaim).to receive(:where).and_return(double(pluck: ['claim1']))
         allow(ClaimsApi::PowerOfAttorney).to receive(:where).and_return(double(pluck: ['poa1']))
         allow(ClaimsApi::IntentToFile).to receive(:where).and_return(double(pluck: ['itf1']))
