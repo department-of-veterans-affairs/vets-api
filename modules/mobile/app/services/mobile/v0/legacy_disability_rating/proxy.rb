@@ -28,7 +28,9 @@ module Mobile
         rescue EVSS::DisabilityCompensationForm::ServiceUnavailableException
           raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
         rescue => e
-          case e&.response&.dig(:status)
+          raise e unless e.respond_to?('response')
+
+          case e.response&.dig(:status)
           when 400
             raise Common::Exceptions::BackendServiceException, 'MOBL_404_rating_not_found'
           when 502
