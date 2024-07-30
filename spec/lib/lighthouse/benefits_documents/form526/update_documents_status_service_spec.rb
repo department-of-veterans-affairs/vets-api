@@ -145,4 +145,49 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
                       'api.form526.lighthouse_document_upload_processing_status.veteran_upload.complete'
     end
   end
+
+  describe 'logging when Form 0781 document upload fails' do
+    let(:form0781_document_upload) { create(:lighthouse526_document_upload, document_type: 'Form 0781') }
+    let(:uploads) { Lighthouse526DocumentUpload.where(id: form0781_document_upload.id) }
+    let(:status_response) do
+      {
+        'data' => {
+          'statuses' => [
+            {
+              'requestId' => form0781_document_upload.lighthouse_document_request_id,
+              'status' => 'FAILED',
+              'time' => { 'startTime' => 499_152_030, 'endTime' => 499_152_060 },
+              'steps' => [
+                { 'name' => 'CLAIMS_EVIDENCE', 'status' => 'FAILED' },
+                { 'name' => 'BENEFITS_GATEWAY_SERVICE', 'status' => 'NOT_STARTED' }
+              ],
+              'error' => { 'detail' => 'VBMS System Outage', 'step' => 'CLAIMS_EVIDENCE' }
+            }
+          ]
+        }
+      }
+    end
+
+    let(:submission) { form0781_document_upload.form526_submission }
+
+    before do
+      allow_any_instance_of(BenefitsDocuments::Form526::UploadStatusUpdater).to receive(:update_status)
+      allow_any_instance_of(Lighthouse526DocumentUpload).to receive(:failed?).and_return(true)
+      allow(Rails.logger).to receive(:warn)
+    end
+
+    it 'logs the latest_status_response to the Rails logger' do
+      described_class.call(uploads, status_response)
+
+      expect(Rails.logger).to have_received(:warn).with(
+        'Benefits Documents API responded with a failed document upload status', {
+          form526_submission_id: submission.id,
+          document_type: form0781_document_upload.document_type,
+          failure_step: 'CLAIMS_EVIDENCE',
+          lighthouse_document_request_id: form0781_document_upload.lighthouse_document_request_id,
+          user_uuid: submission.user_uuid
+        }
+      )
+    end
+  end
 end

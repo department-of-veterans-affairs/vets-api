@@ -8,8 +8,8 @@
 # is < allowed threshold, script will exit with a success as it's ready for
 # traffic.
 
-ALLOWED_UNAVAILABLE_PERCENTAGE=${AUTOSCALING_TARGET_VALUE:-75}
-MIN_NOT_READY_PODS=${MIN_NOT_READY_PODS:-3}
+ALLOWED_UNAVAILABLE_PERCENTAGE=${AUTOSCALING_TARGET_VALUE:-60}
+MIN_READY_PODS=${MIN_READY_PODS:-3}
 POD_NAME=${POD_NAME:-"vets-api-web-5bf4f8d6c7-pn475"} # Example POD_NAME for testing
 
 puma_data=$(curl -s --max-time 2 127.0.0.1:9293/stats)
@@ -64,11 +64,11 @@ if [ $unavailable_percentage -ge $ALLOWED_UNAVAILABLE_PERCENTAGE ]; then
   LATEST_VALUE=${LATEST_VALUE%.*}
 
   # Determine if we have enough ready pods in replicaSet
-  if [ $LATEST_VALUE -le $MIN_NOT_READY_PODS ]; then
-    echo "Pod is unhealthy but only $LATEST_VALUE (need $MIN_NOT_READY_PODS) pods are ready for traffic. Accumulating a backlog."
+  if [ $LATEST_VALUE -le $MIN_READY_PODS ]; then
+    echo "Pod is unhealthy but only $LATEST_VALUE (need $MIN_READY_PODS) pods are ready for traffic. Accumulating a backlog."
     exit 0 # Ready pods is too low, accumulate a backlog
   else
-    echo "Pod not ready (too much traffic) and we have $LATEST_VALUE pods ready. We only need $MIN_NOT_READY_PODS."
+    echo "Pod not ready (too much traffic) and we have $LATEST_VALUE pods ready. We only need $MIN_READY_PODS."
     exit 1 # Enough pods are available but this one has too much traffic.
   fi
 else
