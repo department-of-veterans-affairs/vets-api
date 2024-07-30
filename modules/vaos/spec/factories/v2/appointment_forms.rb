@@ -162,9 +162,8 @@ FactoryBot.define do
       end
     end
 
-    trait :va_booked_base do
+    trait :va_base do
       kind { 'clinic' }
-      status { 'booked' }
       location_id { '983' }
       clinic { '999' } # this is the clinic id for audiology
       slot do
@@ -180,7 +179,8 @@ FactoryBot.define do
     end
 
     trait :va_booked do
-      va_booked_base
+      va_base
+      status { 'booked' }
       reason_code do
         { 'coding' => [
             'code': 'Routine Follow-up'
@@ -190,9 +190,18 @@ FactoryBot.define do
     end
 
     trait :va_booked_valid_reason_code_text do
-      va_booked_base
+      va_base
+      status { 'booked' }
       reason_code do
-        { 'text': 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code:ROUTINEVISIT|comments:test' } # rubocop:disable Layout/LineLength
+        { 'text': 'reasonCode:ROUTINEVISIT|comments:test' }
+      end
+    end
+
+    trait :va_cancelled_valid_reason_code_text do
+      va_base
+      status { 'cancelled' }
+      reason_code do
+        { 'text': 'reasonCode:ROUTINEVISIT|comments:test' }
       end
     end
 

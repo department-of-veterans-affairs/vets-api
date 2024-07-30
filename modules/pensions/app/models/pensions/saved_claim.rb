@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-##
-# Pension 21P-527EZ Module
-#
 module Pensions
   ##
   # Pension 21P-527EZ Active::Record

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Pensions
+  # @see https://api.rubyonrails.org/classes/Rails/Engine.html
   class Engine < ::Rails::Engine
     isolate_namespace Pensions
     config.generators.api_only = true

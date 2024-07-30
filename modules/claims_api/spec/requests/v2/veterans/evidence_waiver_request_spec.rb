@@ -238,6 +238,59 @@ RSpec.describe 'Evidence Waiver 5103', type: :request do
               end
             end
           end
+
+          context 'when a request body is included' do
+            let(:params) do
+              Rails.root.join(
+                'modules',
+                'claims_api',
+                'spec',
+                'fixtures',
+                'v2',
+                'veterans',
+                '5103',
+                'form_5103_api.json'
+              ).read
+            end
+
+            context 'tracked item attribute' do
+              it 'accepts the request body' do
+                mock_ccg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
+                    post(sub_path, headers: auth_header, params:)
+                    expect(response).to have_http_status(:accepted)
+                  end
+                end
+              end
+
+              it 'accepts an empty request body' do
+                json_params = JSON.parse(params)
+                json_params['data']['attributes']['trackedItemIds'] = ['string']
+
+                mock_ccg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
+                    post(sub_path, headers: auth_header, params: json_params)
+                    expect(response).to have_http_status(:unprocessable_entity)
+                  end
+                end
+              end
+
+              it 'rejects an invalid request body' do
+                json_params = JSON.parse(params)
+                json_params['data']['attributes']['trackedItemIds'] = [false]
+                mock_ccg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
+                    post(sub_path, headers: auth_header, params: json_params)
+                    parsed_response = JSON.parse(response.body)
+                    expect(response).to have_http_status(:unprocessable_entity)
+                    expect(parsed_response['errors'][0]['detail']).to eq(
+                      'If trackedItemIds are present, they must be in an array of integers.'
+                    )
+                  end
+                end
+              end
+            end
+          end
         end
       end
     end
