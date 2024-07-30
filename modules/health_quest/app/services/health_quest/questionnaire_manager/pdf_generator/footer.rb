@@ -65,7 +65,9 @@ module HealthQuest
         # @return [String]
         #
         def full_name
-          "#{user_data['first_name']&.downcase&.capitalize} #{user_data['last_name']&.downcase&.capitalize}" if user_data
+          if user_data
+            "#{user_data['first_name']&.downcase&.capitalize} #{user_data['last_name']&.downcase&.capitalize}"
+          end
         end
 
         ##

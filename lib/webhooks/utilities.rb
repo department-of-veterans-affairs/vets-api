@@ -57,7 +57,9 @@ module Webhooks
 
         api_name = keyword_args[:api_name]
         max_retries = keyword_args[:max_retries]
-        raise ArgumentError, "api name: #{api_name} previously registered!" if Webhooks::Utilities.api_registered?(api_name)
+        if Webhooks::Utilities.api_registered?(api_name)
+          raise ArgumentError, "api name: #{api_name} previously registered!"
+        end
 
         event.each do |e|
           Webhooks::Utilities.register_event(e)

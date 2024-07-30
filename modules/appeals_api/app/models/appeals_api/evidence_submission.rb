@@ -25,7 +25,9 @@ module AppealsApi
     }
 
     def submit_to_central_mail!
-      VBADocuments::UploadProcessor.perform_async(upload_submission.guid, caller: self.class.name) if status == 'uploaded'
+      if status == 'uploaded'
+        VBADocuments::UploadProcessor.perform_async(upload_submission.guid, caller: self.class.name)
+      end
     end
   end
 end

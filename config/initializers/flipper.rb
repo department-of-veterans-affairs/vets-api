@@ -47,7 +47,9 @@ Rails.application.reloader.to_prepare do
         Flipper.add(feature)
 
         # Default features to enabled for test and those explicitly set for development
-        Flipper.enable(feature) if Rails.env.test? || (Rails.env.development? && feature_config['enable_in_development'])
+        if Rails.env.test? || (Rails.env.development? && feature_config['enable_in_development'])
+          Flipper.enable(feature)
+        end
       end
 
       # Enable features on dev-api.va.gov if they are set to enable_in_development

@@ -204,7 +204,9 @@ module ClaimsApi
             }
           else
             representative = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).first
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Power of Attorney not found') if representative.blank?
+            if representative.blank?
+              raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Power of Attorney not found')
+            end
 
             {
               first_name: representative.first_name,

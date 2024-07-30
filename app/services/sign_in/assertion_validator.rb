@@ -29,7 +29,9 @@ module SignIn
     end
 
     def validate_issuer
-      raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion issuer is not valid' if issuer != audience
+      if issuer != audience
+        raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion issuer is not valid'
+      end
     end
 
     def validate_audience

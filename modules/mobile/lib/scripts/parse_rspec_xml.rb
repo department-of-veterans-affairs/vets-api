@@ -23,7 +23,9 @@ def extract_xml_attributes(file_path, mode)
     if node.element? && node.attributes['file']
       case mode
       when 'errors'
-        files << relative_file_path(node.attributes['file'].value) if node.children.any? { |child| child.name == 'failure' }
+        if node.children.any? { |child| child.name == 'failure' }
+          files << relative_file_path(node.attributes['file'].value)
+        end
       when 'full'
         files << relative_file_path(node.attributes['file'].value)
       end

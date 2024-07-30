@@ -308,7 +308,9 @@ namespace :form526 do
       # strip the GUID from BGS errors for grouping purposes
 
       # don't show disability names, for better grouping. Can be removed after we fix inflection issue
-      message += msg['text'].gsub(/GUID.*/, '') unless message == 'form526.treatments.treatedDisabilityNames.isInvalidValue'
+      unless message == 'form526.treatments.treatedDisabilityNames.isInvalidValue'
+        message += msg['text'].gsub(/GUID.*/, '')
+      end
       message
     end
 

@@ -63,7 +63,9 @@ module VAProfileRedis
     end
 
     def response_from_redis_or_service
-      return veteran_status_service.get_veteran_status unless VAProfile::Configuration::SETTINGS.veteran_status.cache_enabled
+      unless VAProfile::Configuration::SETTINGS.veteran_status.cache_enabled
+        return veteran_status_service.get_veteran_status
+      end
 
       do_cached_with(key: @user.uuid) do
         veteran_status_service.get_veteran_status

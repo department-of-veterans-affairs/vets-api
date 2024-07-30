@@ -20,7 +20,9 @@ module V0
           params[:account_type] == 'Checking'
         ).body
 
-        return render(json: res, status: :bad_request) unless res[:update_ch33_dd_eft_response][:return][:return_code] == 'S'
+        unless res[:update_ch33_dd_eft_response][:return][:return_code] == 'S'
+          return render(json: res, status: :bad_request)
+        end
 
         VANotifyDdEmailJob.send_to_emails(current_user.all_emails, 'ch33')
 

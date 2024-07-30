@@ -15,13 +15,17 @@ module AppealsApi
 
             pdf.start_new_page
 
-            pdf.text "\n<b>Veteran Email:</b>\n#{form_data.veteran.email}\n", inline_format: true unless short_veteran_email?
+            unless short_veteran_email?
+              pdf.text "\n<b>Veteran Email:</b>\n#{form_data.veteran.email}\n", inline_format: true
+            end
 
             unless short_claimant_email?
               pdf.text "\n<b>Claimant Email:</b>\n#{form_data.claimant.email}\n", inline_format: true
             end
 
-            pdf.text "\n<b>Representative Email:</b>\n#{form_data.rep_email}\n", inline_format: true unless short_rep_email?
+            unless short_rep_email?
+              pdf.text "\n<b>Representative Email:</b>\n#{form_data.rep_email}\n", inline_format: true
+            end
 
             return pdf unless extra_issues?
 

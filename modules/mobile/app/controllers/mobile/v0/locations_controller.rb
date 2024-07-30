@@ -5,7 +5,9 @@ module Mobile
     class LocationsController < ApplicationController
       def show
         lh_location = service.get_location(params[:id])
-        raise Common::Exceptions::BackendServiceException, 'validation_errors_bad_request' if lh_location[:identifier].nil?
+        if lh_location[:identifier].nil?
+          raise Common::Exceptions::BackendServiceException, 'validation_errors_bad_request'
+        end
 
         id = lh_location[:identifier].first[:value].split('_').second
         v1_facilities_flag = Flipper.enabled?(:mobile_v1_lighthouse_facilities, @current_user)

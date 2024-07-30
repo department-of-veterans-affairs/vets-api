@@ -68,7 +68,9 @@ module Mobile
       end
 
       def validate_sort_method_inclusion!
-        raise Common::Exceptions::InvalidFieldValue.new('sort', params[:sort]) unless SORT_METHODS.include?(params[:sort])
+        unless SORT_METHODS.include?(params[:sort])
+          raise Common::Exceptions::InvalidFieldValue.new('sort', params[:sort])
+        end
       end
 
       def validate_home_sort!

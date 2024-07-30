@@ -91,7 +91,9 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   def create_poa
     poa = create(:power_of_attorney)
     poa.auth_headers = auth_headers
-    poa.form_data = poa.form_data.merge('consentAddressChange' => consent_address_change) if consent_address_change.present?
+    if consent_address_change.present?
+      poa.form_data = poa.form_data.merge('consentAddressChange' => consent_address_change)
+    end
     poa.save
     poa
   end

@@ -308,7 +308,9 @@ module ClaimsApi
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][idx].delete(:exposureDates)
         end
 
-        @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures].delete_at(idx) if exp.empty?
+        if exp.empty?
+          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures].delete_at(idx)
+        end
       end
 
       def deep_compact(hash)

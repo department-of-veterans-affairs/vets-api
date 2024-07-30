@@ -22,7 +22,9 @@ module SignIn
     private
 
     def validate_credential_lock
-      raise SignIn::Errors::CredentialLockedError.new(message: 'Credential is locked') if session.user_verification.locked
+      if session.user_verification.locked
+        raise SignIn::Errors::CredentialLockedError.new(message: 'Credential is locked')
+      end
     end
 
     def validate_terms_of_use

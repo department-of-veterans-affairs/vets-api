@@ -32,7 +32,9 @@ module CovidResearch
         with_monitoring do
           @delivery_response = post(payload)
 
-          StatsD.increment("#{STATSD_KEY_PREFIX}.deliver_form.#{@submission_type}.fail") unless @delivery_response.success?
+          unless @delivery_response.success?
+            StatsD.increment("#{STATSD_KEY_PREFIX}.deliver_form.#{@submission_type}.fail")
+          end
         end
       end
 

@@ -175,7 +175,9 @@ module EVSS
         service_information = Requests::ServiceInformation.new
 
         transform_service_periods(service_information_source, service_information)
-        transform_confinements(service_information_source, service_information) if service_information_source['confinements']
+        if service_information_source['confinements']
+          transform_confinements(service_information_source, service_information)
+        end
         if service_information_source['alternateNames']
           transform_alternate_names(service_information_source, service_information)
         end
@@ -405,7 +407,9 @@ module EVSS
       def transform_separation_pay(service_pay_source, service_pay_target)
         separation_pay_source = service_pay_source['separationPay']
 
-        service_pay_target.retired_status = service_pay_source['retiredStatus']&.upcase if separation_pay_source.present?
+        if separation_pay_source.present?
+          service_pay_target.retired_status = service_pay_source['retiredStatus']&.upcase
+        end
         service_pay_target.received_separation_or_severance_pay =
           convert_nullable_bool(separation_pay_source['received'])
 
@@ -597,7 +601,9 @@ module EVSS
 
       def transform_direct_deposit(direct_deposit_source)
         direct_deposit = Requests::DirectDeposit.new
-        direct_deposit.financial_institution_name = direct_deposit_source['bankName'] if direct_deposit_source['bankName']
+        if direct_deposit_source['bankName']
+          direct_deposit.financial_institution_name = direct_deposit_source['bankName']
+        end
         direct_deposit.account_type = direct_deposit_source['accountType'] if direct_deposit_source['accountType']
         direct_deposit.account_number = direct_deposit_source['accountNumber'] if direct_deposit_source['accountNumber']
         direct_deposit.routing_number = direct_deposit_source['routingNumber'] if direct_deposit_source['routingNumber']
