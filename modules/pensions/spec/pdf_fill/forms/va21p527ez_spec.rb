@@ -15,15 +15,13 @@ describe PdfFill::Forms::Va21p527ez do
     VetsJsonSchema::EXAMPLES.fetch('21P-527EZ-KITCHEN_SINK')
   end
 
-  describe PdfFill::Filler, type: :model do
-    it_behaves_like 'a form filler', {
-      form_id: '21P-527EZ',
-      factory: :pensions_module_pension_claim,
-      use_vets_json_schema: true,
-      input_data_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures',
-      output_pdf_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures'
-    }
-  end
+  it_behaves_like 'a form filler', {
+    form_id: '21P-527EZ',
+    factory: :pensions_module_pension_claim,
+    use_vets_json_schema: true,
+    input_data_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures',
+    output_pdf_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures'
+  }
 
   describe '#merge_fields' do
     it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do

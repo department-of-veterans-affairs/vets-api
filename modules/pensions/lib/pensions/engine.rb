@@ -1,5 +1,3 @@
-# require 'pdf_fill/filler'
-
 # frozen_string_literal: true
 
 module Pensions
