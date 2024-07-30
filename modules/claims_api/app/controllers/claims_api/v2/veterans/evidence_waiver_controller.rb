@@ -4,7 +4,6 @@ require 'bgs'
 require 'token_validation/v2/client'
 require 'claims_api/claim_logger'
 require 'claims_api/dependent_service'
-require 'claims_api/v2/params_validation/evidence_waiver_submission'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/evidence_waiver_submission_validation'
 
@@ -13,23 +12,26 @@ module ClaimsApi
     module Veterans
       class EvidenceWaiverController < ClaimsApi::V2::Veterans::Base
         include ClaimsApi::V2::EvidenceWaiverSubmissionValidation
+        include ClaimsApi::V2::Error::LighthouseErrorHandler
         skip_before_action :validate_json_format
         before_action :set_lighthouse_claim, :set_bgs_claim!, :verify_if_dependent_claim!
         FORM_NUMBER = '5103'
 
         def submit
-          @claims_api_forms_validation_errors = validate_form_5103_submission_values(params)
-          if @claims_api_forms_validation_errors
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
-                  @claims_api_forms_validation_errors
+          if params&.dig('data', 'attributes', 'trackedItemIds').present?
+            tracked_item_ids = params['data']['attributes']['trackedItemIds']
+            @claims_api_forms_validation_errors = validate_form_5103_submission_values(params)
+            if @claims_api_forms_validation_errors
+              raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity,
+                    @claims_api_forms_validation_errors
+            end
           end
 
           validate_veteran_name(false)
-          tracked_item_ids = params['data']['attributes']['trackedItemIds'] if params['data'].present?
           ews = create_ews(params[:id])
           tracked_item_ids&.each { |id| ews.tracked_items << id }
           ews.save
-          ClaimsApi::EvidenceWaiverBuilderJob.new.perform(ews.id)
+          ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id)
 
           render json: { success: true }, status: :accepted
         end

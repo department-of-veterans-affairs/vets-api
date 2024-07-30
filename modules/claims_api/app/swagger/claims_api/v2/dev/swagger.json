@@ -1538,6 +1538,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -1591,6 +1595,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -1643,6 +1651,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -1958,6 +1970,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -2573,6 +2589,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -2625,6 +2645,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -5750,7 +5774,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bd1d77a2-3122-4e14-a7bd-02b1c7c58a79",
+                    "id": "6144d6d6-613d-4f00-8f13-45c067c76144",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -5933,7 +5957,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-07-31"
+                          "anticipatedSeparationDate": "2024-08-01"
                         },
                         "confinements": [
                           {
@@ -10700,7 +10724,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6f885fee-9eb8-4adc-ac68-e878099de842",
+                    "id": "29d74c67-2c82-49c7-8068-f8b313ffd00b",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -13169,6 +13193,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
+                      "status": "401",
                       "detail": "Not authorized"
                     }
                   ]
@@ -13194,6 +13219,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -13221,6 +13250,7 @@
                 "example": {
                   "errors": [
                     {
+                      "status": "404",
                       "title": "Resource not found",
                       "detail": "Claim not found"
                     }
@@ -13247,6 +13277,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -13473,6 +13507,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -13525,6 +13563,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -13597,8 +13639,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-07-29",
-                      "expirationDate": "2025-07-29",
+                      "creationDate": "2024-07-30",
+                      "expirationDate": "2025-07-30",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13699,6 +13741,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -13752,6 +13798,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -13804,6 +13854,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -14008,6 +14062,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -14060,6 +14118,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -14474,7 +14536,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "efa32578-afb8-4eea-a0e4-32841f69b03a",
+                    "id": "2a032113-aaed-431b-a05a-df3273535a95",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15167,7 +15229,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1253c76e-3b66-494e-9851-3d7c56740063",
+                    "id": "1debe67c-4356-4034-92d4-3d81c49301e5",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -17118,10 +17180,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "40210a24-bd70-4989-bf08-070b313bffc8",
+                    "id": "dbd34823-359e-41d2-ba11-af1ed2864322",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-07-29",
+                      "dateRequestAccepted": "2024-07-30",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

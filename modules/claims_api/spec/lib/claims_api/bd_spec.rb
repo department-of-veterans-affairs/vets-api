@@ -167,7 +167,7 @@ describe ClaimsApi::BD do
         expect(js['data']['docType']).to eq 'L705'
         expect(js['data']['claimId']).to eq ews.claim_id
         expect(js['data']['systemName']).to eq 'VA.gov'
-        expect(js['data']['trackedItemIds']).to eq []
+        expect(js['data']['trackedItemIds']).to eq [234, 235]
       end
     end
 

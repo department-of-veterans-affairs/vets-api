@@ -270,7 +270,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request do
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
                     post(sub_path, headers: auth_header, params: json_params)
-                    expect(response).to have_http_status(:bad_request)
+                    expect(response).to have_http_status(:unprocessable_entity)
                   end
                 end
               end
@@ -282,8 +282,10 @@ RSpec.describe 'Evidence Waiver 5103', type: :request do
                   VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
                     post(sub_path, headers: auth_header, params: json_params)
                     parsed_response = JSON.parse(response.body)
-                    expect(response).to have_http_status(:bad_request)
-                    expect(parsed_response['errors'][0]['title']).to eq('invalid value for tracked_items')
+                    expect(response).to have_http_status(:unprocessable_entity)
+                    expect(parsed_response['errors'][0]['detail']).to eq(
+                      'If trackedItemIds are present, they must be in an array of integers.'
+                    )
                   end
                 end
               end
