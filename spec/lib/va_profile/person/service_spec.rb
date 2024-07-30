@@ -19,7 +19,7 @@ describe VAProfile::Person::Service, :skip_vet360 do
           response = subject.init_vet360_id
 
           expect(response).to be_ok
-                    if Flipper.enabled?(:va_profile_information_v3_service)
+          if Flipper.enabled?(:va_profile_information_v3_service)
             expect(response).to be_a(VAProfile::ProfileInformation::PersonTransactionResponse)
           else
             expect(response).to be_a(VAProfile::ContactInformation::PersonTransactionResponse)
@@ -45,7 +45,7 @@ describe VAProfile::Person::Service, :skip_vet360 do
           response = subject.init_vet360_id(icn)
 
           expect(response).to be_ok
-                    if Flipper.enabled?(:va_profile_information_v3_service)
+          if Flipper.enabled?(:va_profile_information_v3_service)
             expect(response).to be_a(VAProfile::ProfileInformation::PersonTransactionResponse)
           else
             expect(response).to be_a(VAProfile::ContactInformation::PersonTransactionResponse)
