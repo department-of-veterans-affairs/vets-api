@@ -227,8 +227,6 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
           end
         end
       end
-
-
     end
   end
 
