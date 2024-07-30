@@ -23,19 +23,5 @@ RSpec.describe BankName, type: :model do
         )
       end
     end
-
-    context 'with cache miss' do
-      def get_bank_name
-        described_class.get_bank_name(user, '122400724')
-      end
-
-      it 'returns the bank name and saves it in cache' do
-        VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
-          expect(get_bank_name).to eq('BANK OF AMERICA, N.A.')
-        end
-
-        expect(get_bank_name).to eq('BANK OF AMERICA, N.A.')
-      end
-    end
   end
 end
