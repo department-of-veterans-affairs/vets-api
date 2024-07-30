@@ -175,8 +175,6 @@ module VAProfile
           'fax_number'
         when VAProfile::Models::Telephone::TEMPORARY
           'temporary_phone'
-        else
-          nil
         end
       end
     end
