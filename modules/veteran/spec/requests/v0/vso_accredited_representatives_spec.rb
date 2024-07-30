@@ -25,7 +25,7 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
                               long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',
                               first_name: 'Bobby', last_name: 'Low') # ~6 miles from Washington, D.C.
 
-      create(:representative, representative_id: '113', poa_codes: %w[A11 A12 A13], user_types: ['veteran_service_officer'], # rubocop:disable Layout/LineLength
+      create(:representative, representative_id: '113', poa_codes: %w[A11 A12 A13], user_types: ['veteran_service_officer'],
                               long: -77.436649, lat: 39.101481, location: 'POINT(-77.436649 39.101481)',
                               first_name: 'Bobbie', last_name: 'Lew') # ~25 miles from Washington, D.C.
 

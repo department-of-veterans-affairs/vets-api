@@ -71,7 +71,7 @@ module Veteran
         case sort_param
         when 'distance_asc'
           ActiveRecord::Base.sanitize_sql_for_order(
-            [Arel.sql('ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, veteran_representatives.location) ASC'), # rubocop:disable Layout/LineLength
+            [Arel.sql('ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, veteran_representatives.location) ASC'),
              search_params[:long],
              search_params[:lat]]
           )
