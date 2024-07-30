@@ -15,7 +15,7 @@ module Mobile
                                                                in_threads: 2, &:call)
           Mobile::V0::Adapters::LegacyRating.new.disability_ratings(combine_response, individual_response)
         rescue Common::Exceptions::BaseError => e
-          case e.status_code
+          case e&.status_code
           when 400
             raise Common::Exceptions::BackendServiceException, 'MOBL_404_rating_not_found'
           when 502
@@ -28,17 +28,13 @@ module Mobile
         rescue EVSS::DisabilityCompensationForm::ServiceUnavailableException
           raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
         rescue => e
-          if e.respond_to?('response')
-            case e.response[:status]
-            when 400
-              raise Common::Exceptions::BackendServiceException, 'MOBL_404_rating_not_found'
-            when 502
-              raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
-            when 403
-              raise Common::Exceptions::BackendServiceException, 'MOBL_403_rating_forbidden'
-            else
-              raise e
-            end
+          case e&.response&.dig(:status)
+          when 400
+            raise Common::Exceptions::BackendServiceException, 'MOBL_404_rating_not_found'
+          when 502
+            raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
+          when 403
+            raise Common::Exceptions::BackendServiceException, 'MOBL_403_rating_forbidden'
           else
             raise e
           end
