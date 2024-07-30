@@ -199,7 +199,7 @@ FactoryBot.define do
 
     trait :va_cancelled_valid_reason_code_text do
       va_base
-      status { 'booked' }
+      status { 'cancelled' }
       reason_code do
         { 'text': 'reasonCode:ROUTINEVISIT|comments:test' }
       end
