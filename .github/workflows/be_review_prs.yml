@@ -1,4 +1,4 @@
-name: Enforce PR Approval Requirements
+name: Require backend-review-group approval
 
 on:
   pull_request:
@@ -24,10 +24,10 @@ jobs:
         run: |
           REQUESTED_TEAMS=$(echo '${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')
           if echo "$REQUESTED_TEAMS" | grep -qiE '(mobile|lighthouse|identity)'; then
-            echo "Specialized team review required. Skipping backend-review-group requirement."
+            echo "Specialized team review fulfilled. Skipping backend-review-group requirement."
             echo "skip_backend_review=true" >> $GITHUB_OUTPUT
           else
-            echo "No specialized team review required. Enforcing backend-review-group requirement."
+            echo "No specialized team review met. Enforcing backend-review-group requirement."
             echo "skip_backend_review=false" >> $GITHUB_OUTPUT
           fi
 
@@ -42,11 +42,28 @@ jobs:
         
       - name: Verify backend-review-group approval
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
+        id: verify_approval
         run: |
           APPROVALS=$(echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq '[.[] | select(.state == "APPROVED" and .author_association == "MEMBER" and (.user.login == "backend-review-group" or .user.login | contains("backend-review-group")))] | length')
           if [ "$APPROVALS" -eq 0 ]; then
+            echo "approval_status=required" >> $GITHUB_OUTPUT
             echo "Error: This PR requires approval from backend-review-group."
             exit 1
           else
+            echo "approval_status=confirmed" >> $GITHUB_OUTPUT
             echo "Backend-review-group approval confirmed."
           fi
+  
+      - name: Comment PR - Approval Required
+        if: failure() && steps.verify_approval.outputs.approval_status == 'required'
+        uses: thollander/actions-comment-pull-request@1d3973dc4b8e1399c0620d3f2b1aa5e795465308
+        with:
+          message: "This PR requires approval from backend-review-group."
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment PR - Approval Confirmed
+        if: success() && steps.verify_approval.outputs.approval_status == 'confirmed'
+        uses: thollander/actions-comment-pull-request@1d3973dc4b8e1399c0620d3f2b1aa5e795465308
+        with:
+          message: "Backend-review-group approval confirmed."
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
