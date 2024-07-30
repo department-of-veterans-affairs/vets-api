@@ -55,7 +55,7 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
             }
           },
           representative: {
-            type: 'Attorney',
+            type: 'ATTORNEY',
             phone: '5555555555',
             email: 'rep@rep.com',
             name: {
@@ -145,7 +145,7 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
         it 'responds with the expected body' do
           params[:pdf_generator2122a][:representative][:type] = nil
           post(base_path, params:)
-          expect(response.body).to eq({ errors: ["Representative type can't be blank"] }.to_json)
+          expect(response.body).to include("Representative type can't be blank")
         end
       end
 
@@ -191,6 +191,67 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
           post(base_path, params:)
           expect(response.body).to include("Veteran last name can't be blank")
           expect(response.body).to include("Veteran date of birth can't be blank")
+        end
+      end
+    end
+
+    context 'when submitting invalid data' do
+      context "When submitting a veteran's state code that is too long" do
+        it 'responds with an unprocessable entity status' do
+          params[:pdf_generator2122a][:veteran][:address][:state_code] = 'TOO_LONG'
+          post(base_path, params:)
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'responds with the expected body' do
+          params[:pdf_generator2122a][:veteran][:address][:state_code] = 'TOO_LONG'
+          post(base_path, params:)
+          expect(response.body).to eq({
+            errors: ['Veteran state code is the wrong length (should be 2 characters)']
+          }.to_json)
+        end
+      end
+
+      context 'When submitting a veteran zip code that is too short' do
+        it 'responds with an unprocessable entity status' do
+          params[:pdf_generator2122a][:veteran][:address][:zip_code] = '1234'
+          post(base_path, params:)
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'responds with the expected body' do
+          params[:pdf_generator2122a][:veteran][:address][:zip_code] = '1234'
+          post(base_path, params:)
+          expect(response.body).to include('Veteran zip code is the wrong length (should be 5 characters)')
+          expect(response.body).to include('Veteran zip code is invalid')
+        end
+      end
+
+      context 'When submitting a veteran va file number with non numeric characters' do
+        it 'responds with an unprocessable entity status' do
+          params[:pdf_generator2122a][:veteran][:va_file_number] = '12345678A'
+          post(base_path, params:)
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'responds with the expected body' do
+          params[:pdf_generator2122a][:veteran][:va_file_number] = '12345678A'
+          post(base_path, params:)
+          expect(response.body).to include('Veteran VA file number is invalid')
+        end
+      end
+
+      context 'When submitting an invalid representative type' do
+        it 'responds with an unprocessable entity status' do
+          params[:pdf_generator2122a][:representative][:type] = 'INVALID_TYPE'
+          post(base_path, params:)
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'responds with the expected body' do
+          params[:pdf_generator2122a][:representative][:type] = 'INVALID_TYPE'
+          post(base_path, params:)
+          expect(response.body).to include('Representative type is not included in the list')
         end
       end
     end

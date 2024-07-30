@@ -37,6 +37,7 @@ RSpec.describe 'PdfGenerator2122Controller', type: :request do
             va_file_number: '987654321',
             date_of_birth: '1970-01-01',
             service_number: '123123456',
+            service_branch: 'ARMY',
             phone: '5555555555',
             email: 'veteran@example.com',
             insurance_numbers: [],

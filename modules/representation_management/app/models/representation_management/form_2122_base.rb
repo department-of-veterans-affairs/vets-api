@@ -8,6 +8,7 @@ module RepresentationManagement
     FIVE_DIGIT_NUMBER = /\A\d{5}\z/
     NINE_DIGIT_NUMBER = /\A\d{9}\z/
     TEN_DIGIT_NUMBER = /\A\d{10}\z/
+    LIMITATIONS_OF_CONSENT = %w[ALCOHOLISM DRUG_ABUSE HIV SICKLE_CELL].freeze
 
     veteran_attrs = %i[
       veteran_first_name veteran_middle_initial veteran_last_name
@@ -81,6 +82,10 @@ module RepresentationManagement
               length: { is: 9 },
               format: { with: NINE_DIGIT_NUMBER },
               if: -> { veteran_service_number.present? }
+
+    # validates :consent_limits,
+    #           inclusion: { in: LIMITATIONS_OF_CONSENT },
+    #           if: -> { consent_limits.present? }
 
     with_options if: -> { claimant_first_name.present? } do
       validates :claimant_first_name, presence: true, length: { maximum: 12 }
