@@ -37,8 +37,8 @@ module ClaimsApi
     # Upload document of mapped claim
     #
     # @return success or failure
-    # rubocop:disable Metrics/ParameterLists
-    def upload(claim:, pdf_path:, pctpnt_vet_id: nil, doc_type: 'L122', file_number: nil, original_filename: nil)
+    def upload(claim:, pdf_path:, doc_type: 'L122', file_number: nil, original_filename: nil, # rubocop:disable Metrics/ParameterLists
+               pctpnt_vet_id: nil)
       unless File.exist? pdf_path
         ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist",
                                                     claim_id: claim.id)
@@ -46,7 +46,8 @@ module ClaimsApi
       end
 
       @multipart = true
-      body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:, pctpnt_vet_id:)
+      body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:,
+                                  pctpnt_vet_id:)
       res = client.post('documents', body)&.body
 
       raise ::Common::Exceptions::GatewayTimeout.new(detail: 'Upstream service error.') unless res.is_a?(Hash)
@@ -62,7 +63,6 @@ module ClaimsApi
                             detail: "/upload failure for claimId #{claim.id}, #{e.message}")
       raise e
     end
-    # rubocop:enable Metrics/ParameterLists
 
     private
 
@@ -97,7 +97,8 @@ module ClaimsApi
     #
     # @return {parameters, file}
     # rubocop:disable Metrics/ParameterLists
-    def generate_upload_body(claim:, doc_type:, pdf_path:, pctpnt_vet_id: nil, file_number: nil, original_filename: nil)
+    def generate_upload_body(claim:, doc_type:, pdf_path:, file_number: nil, original_filename: nil,
+                             pctpnt_vet_id: nil)
       payload = {}
       auth_headers = claim.auth_headers
       veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'], auth_headers['va_eauth_lastName'])
@@ -106,8 +107,10 @@ module ClaimsApi
       file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
       participant_id = pctpnt_vet_id if %w[L075 L190 L705].include?(doc_type)
       system_name = 'Lighthouse' if %w[L075 L190].include?(doc_type)
+      tracked_item_ids = claim.tracked_items&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
+
       data = build_body(doc_type:, file_name:, participant_id:, claim_id:,
-                        file_number: birls_file_num, system_name:)
+                        file_number: birls_file_num, system_name:, tracked_item_ids:)
 
       fn = Tempfile.new('params')
       File.write(fn, data.to_json)
@@ -115,8 +118,8 @@ module ClaimsApi
       payload[:file] = Faraday::UploadIO.new(pdf_path.to_s, 'application/pdf')
       payload
     end
-
     # rubocop:enable Metrics/ParameterLists
+
     def generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
       # https://confluence.devops.va.gov/display/VAExternal/Document+Types
       doc_type_to_form_name = {
