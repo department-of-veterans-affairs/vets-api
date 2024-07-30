@@ -14,10 +14,8 @@ module Mobile
 
         raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
 
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: MyHealth::V1::ThreadsSerializer,
-               meta: resource.metadata
+        options = { meta: resource.metadata }
+        render json: MyHealth::V1::ThreadsSerializer.new(resource.data, options)
       end
     end
   end
