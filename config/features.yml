@@ -1529,6 +1529,9 @@ features:
   virtual_agent_enable_pva2_chatbot:
     actor_type: user
     description: If enabled, switches VA chatbot from PVA1 to PVA2
+  virtual_agent_enable_root_bot:
+    actor_type: user
+    description: If enabled, switches VA chatbot from PVA to Root Bot
   virtual_agent_component_testing:
     actor_type: user
     description: If enabled, allows for testing of the chatbot components
