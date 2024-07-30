@@ -615,6 +615,7 @@ vba_documents:
 
 #Settings for Ask VA Api Module
 ask_va_api:
+  prefill: true
   crm_api:
     auth_url: https://login.microsoftonline.us
     base_url: https://dev.integration.d365.va.gov
