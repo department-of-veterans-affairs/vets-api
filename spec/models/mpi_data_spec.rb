@@ -309,6 +309,22 @@ describe MPIData, :skip_mvi do
           expect(mpi_data.vet360_id).to eq(profile_response.profile.vet360_id)
         end
       end
+
+      describe '#multiple_sec_ids?' do
+        context 'with multiple sec_ids' do
+          let(:mpi_profile) { build(:mpi_profile, sec_ids: %w[sec-id-1 sec-id-2]) }
+
+          it 'is true' do
+            expect(mpi_data.multiple_sec_ids?).to eq(true)
+          end
+        end
+
+        context 'with a single sec_id' do
+          it 'is false' do
+            expect(mpi_data.multiple_sec_ids?).to eq(false)
+          end
+        end
+      end
     end
 
     context 'with an error response' do

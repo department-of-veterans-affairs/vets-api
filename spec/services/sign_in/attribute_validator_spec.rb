@@ -139,6 +139,25 @@ RSpec.describe SignIn::AttributeValidator do
 
           it_behaves_like 'error response'
         end
+
+        context 'when mpi record for user has multiple sec ids' do
+          let(:sec_ids) { %w[some-sec-id some-other-sec-id] }
+          let(:mpi_profile) { build(:mpi_profile, sec_ids:) }
+          let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+          let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
+          let(:expected_error_log) { 'attribute validator error' }
+          let(:expected_error_message) { 'User attributes contain multiple distinct SEC_ID values' }
+
+          it 'logs but does not raise the error' do
+            expect_any_instance_of(SignIn::Logger).to receive(:info)
+              .with(expected_error_log,
+                    { errors: expected_error_message,
+                      credential_uuid: csp_id,
+                      type: service_name })
+            expect { subject }.not_to raise_error
+          end
+        end
       end
 
       shared_examples 'mpi versus credential mismatch' do
