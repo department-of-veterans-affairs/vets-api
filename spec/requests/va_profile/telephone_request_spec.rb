@@ -30,7 +30,8 @@ RSpec.describe 'telephone' do
 
     it 'calls update_telephone' do
       if Flipper.enabled?(:va_profile_information_v3_service)
-        expect_any_instance_of(VAProfile::ProfileInformation::Service).to receive(:create_or_update_info).and_call_original
+        expect_any_instance_of(VAProfile::ProfileInformation::Service).to receive(:create_or_update_info)
+          .and_call_original
         VCR.use_cassette('va_profile/profile_information/put_telephone_success') do
           post('/v0/profile/telephones/create_or_update', params: telephone.to_json, headers:)
         end

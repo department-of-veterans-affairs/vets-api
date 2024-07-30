@@ -31,7 +31,8 @@ RSpec.describe 'permission' do
 
     it 'calls update_permission' do
       if Flipper.enabled?(:va_profile_information_v3_service)
-        expect_any_instance_of(VAProfile::ProfileInformation::Service).to receive(:create_or_update_info).and_call_original
+        expect_any_instance_of(VAProfile::ProfileInformation::Service).to receive(:create_or_update_info)
+          .and_call_original
         VCR.use_cassette('va_profile/profile_information/put_permission_success') do
           post('/v0/profile/permissions/create_or_update', params: permission.to_json, headers:)
         end
