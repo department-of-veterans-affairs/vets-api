@@ -3,7 +3,6 @@
 module Mobile
   module V0
     class FoldersController < MessagingController
-
       def index
         resource = client.get_folders(@current_user.uuid, use_cache?)
         links = pagination_links(resource)
