@@ -33,18 +33,19 @@ jobs:
 
       - name: Add backend-review-group as reviewer
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
-        uses: actions/github-script@v6
+        uses: actions/github-script@v2
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const team = 'backend-review-group';
-            
-            await github.rest.pulls.requestReviewers({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-              team_reviewers: [team]
+            const token = process.env.GITHUB_TOKEN;
+
+            const response = await github.rest.pulls.addReviewers({
+              pull_id: context.payload.pull_id,
+              team_reviewers: [team],
+              token
             });
+
+            console.log(response);
 
       - name: Check backend-review-group approval status
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
