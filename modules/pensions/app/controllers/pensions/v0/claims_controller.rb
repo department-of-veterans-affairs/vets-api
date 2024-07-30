@@ -64,6 +64,10 @@ module Pensions
         raise Common::Exceptions::Forbidden unless Flipper.enabled?(:pension_module_enabled, current_user)
       end
 
+      def filtered_params
+        params.require(short_name.to_sym).permit(:form)
+      end
+
       def log_validation_error_to_metadata(in_progress_form, claim)
         return if in_progress_form.blank?
 
