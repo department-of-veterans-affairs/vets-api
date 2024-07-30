@@ -36,10 +36,10 @@ module PdfFill
 
     # Registers a form class with a specific form ID.
     #
-    # @param key [String] The form ID to register.
-    # @param klass [Class] The class associated with the form ID.
-    def register_form(key, klass)
-      FORM_CLASSES[key] = klass
+    # @param form_id [String] The form ID to register.
+    # @param form_class [Class] The class associated with the form ID.
+    def register_form(form_id, form_class)
+      FORM_CLASSES[form_id] = form_class
     end
 
     # Registers form classes for various form IDs.
@@ -59,8 +59,8 @@ module PdfFill
       '21-0538' => PdfFill::Forms::Va210538,
       '26-1880' => PdfFill::Forms::Va261880,
       '5655' => PdfFill::Forms::Va5655
-    }.each do |key, klass|
-      register_form(key, klass)
+    }.each do |form_id, form_class|
+      register_form(form_id, form_class)
     end
 
     # Combines extra pages into the main PDF if necessary.
@@ -93,6 +93,8 @@ module PdfFill
     def fill_form(saved_claim, file_name_extension = nil, fill_options = {})
       form_id = saved_claim.form_id
       form_class = FORM_CLASSES[form_id]
+
+      raise 'Form was not found.' if form_class.nil?
 
       process_form(form_id, saved_claim.parsed_form, form_class, file_name_extension || saved_claim.id, fill_options)
     end
