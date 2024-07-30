@@ -10,7 +10,6 @@ module DecisionReview
     # No need to retry since the schedule will run this every hour
     sidekiq_options retry: false, unique_for: 30.minutes
 
-    REQUEST_DELAY = 3
     RETENTION_PERIOD = 59.days
 
     SUCCESSFUL_STATUS = %w[complete].freeze
@@ -26,8 +25,6 @@ module DecisionReview
           hlr.update(delete_date: DateTime.now + RETENTION_PERIOD)
           Rails.logger.info("#{self.class.name} updated delete_date", guid:)
         end
-
-        sleep REQUEST_DELAY
       end
     end
 

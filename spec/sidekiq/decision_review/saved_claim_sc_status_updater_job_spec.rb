@@ -21,8 +21,6 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
   end
 
   before do
-    stub_const('DecisionReview::SavedClaimScStatusUpdaterJob::REQUEST_DELAY', 0)
-
     allow(DecisionReviewV1::Service).to receive(:new).and_return(service)
   end
 
