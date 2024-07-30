@@ -12,9 +12,7 @@ namespace :burials_v2 do
 
         parsed_form['relationship']['type'] = nil if parsed_form.dig('relationship', 'type') == 'other'
 
-        if parsed_form.dig('location_of_death', 'location') == 'other'
-          parsed_form['location_of_death']['location'] = nil
-        end
+        parsed_form['location_of_death']['location'] = nil if parsed_form.dig('location_of_death', 'location') == 'other'
 
         ipf.form_data = parsed_form.to_json
 

@@ -207,17 +207,13 @@ module VAOS
         set_cancellable_false(appointment) if cannot_be_cancelled?(appointment)
 
         # remove service type(s) for non-medical non-CnP appointments per GH#56197
-        unless medical?(appointment) || cnp?(appointment) || no_service_cat?(appointment)
-          remove_service_type(appointment)
-        end
+        remove_service_type(appointment) unless medical?(appointment) || cnp?(appointment) || no_service_cat?(appointment)
 
         # set requestedPeriods to nil if the appointment is a booked cerner appointment per GH#62912
         appointment[:requested_periods] = nil if booked?(appointment) && VAOS::AppointmentsHelper.cerner?(appointment)
 
         convert_appointment_time(appointment)
-        if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
-          fetch_avs_and_update_appt_body(appointment)
-        end
+        fetch_avs_and_update_appt_body(appointment) if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
         if cc?(appointment) && %w[proposed cancelled].include?(appointment[:status])
           find_and_merge_provider_name(appointment)
         end

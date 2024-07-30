@@ -174,9 +174,7 @@ module V0
       client_id = params[:client_id].presence
       anti_csrf_token = anti_csrf_token_param.presence
 
-      if client_config(client_id).blank?
-        raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
-      end
+      raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid' if client_config(client_id).blank?
 
       unless access_token_authenticate(skip_error_handling: true)
         raise SignIn::Errors::LogoutAuthorizationError.new message: 'Unable to authorize access token'
@@ -227,9 +225,7 @@ module V0
     private
 
     def validate_authorize_params(type, client_id, acr, operation)
-      if client_config(client_id).blank?
-        raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
-      end
+      raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid' if client_config(client_id).blank?
       unless client_config(client_id).valid_credential_service_provider?(type)
         raise SignIn::Errors::MalformedParamsError.new message: 'Type is not valid'
       end

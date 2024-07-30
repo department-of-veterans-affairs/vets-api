@@ -30,9 +30,7 @@ module SignIn
     private
 
     def validate_subject_token!
-      unless subject_token && current_access_token
-        raise Errors::InvalidTokenError.new message: 'subject token is invalid'
-      end
+      raise Errors::InvalidTokenError.new message: 'subject token is invalid' unless subject_token && current_access_token
     end
 
     def validate_subject_token_type!
@@ -61,9 +59,7 @@ module SignIn
     end
 
     def validate_client_id!
-      unless new_session_client_config
-        raise Errors::InvalidClientConfigError.new message: 'client configuration not found'
-      end
+      raise Errors::InvalidClientConfigError.new message: 'client configuration not found' unless new_session_client_config
     end
 
     def validate_shared_sessions_client!

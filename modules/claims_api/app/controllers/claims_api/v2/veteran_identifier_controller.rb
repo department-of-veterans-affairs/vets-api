@@ -8,9 +8,7 @@ module ClaimsApi
       def find
         validate_request!(ClaimsApi::V2::ParamsValidation::VeteranIdentifier)
         raise ::Common::Exceptions::ResourceNotFound if target_veteran&.mpi&.icn.blank?
-        unless ccg_flow?(token:) || user_is_target_veteran? || user_is_representative?
-          raise ::Common::Exceptions::Forbidden
-        end
+        raise ::Common::Exceptions::Forbidden unless ccg_flow?(token:) || user_is_target_veteran? || user_is_representative?
 
         render json: ClaimsApi::V2::Blueprints::VeteranIdentifierBlueprint.render(target_veteran), status: :created
       end

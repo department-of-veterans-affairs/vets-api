@@ -83,9 +83,7 @@ module MAP
       end
 
       def token_params(application, icn)
-        unless icn
-          raise Errors::MissingICNError, "#{config.logging_prefix} token failed, ICN not present in access token"
-        end
+        raise Errors::MissingICNError, "#{config.logging_prefix} token failed, ICN not present in access token" unless icn
 
         client_id = client_id_from_application(application)
         URI.encode_www_form({ grant_type: config.grant_type,

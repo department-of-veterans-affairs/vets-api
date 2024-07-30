@@ -146,9 +146,7 @@ module VBADocuments
     def validate_document(file_path, part_name, pdf_validator_options = {})
       validation_result = PDFValidator::Validator.new(file_path, pdf_validator_options).validate
 
-      unless validation_result.valid_pdf?
-        raise_validation_error(validation_result.errors, part_name, pdf_validator_options)
-      end
+      raise_validation_error(validation_result.errors, part_name, pdf_validator_options) unless validation_result.valid_pdf?
     end
 
     def raise_validation_error(errors, part_name, pdf_validator_options)

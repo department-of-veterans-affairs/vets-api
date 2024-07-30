@@ -253,9 +253,7 @@ module MedicalRecords
     # @param page_num [FHIR:Bundle]
     #
     def merge_bundles(bundle1, bundle2)
-      unless bundle1.resourceType == 'Bundle' && bundle2.resourceType == 'Bundle'
-        raise 'Both inputs must be FHIR Bundles'
-      end
+      raise 'Both inputs must be FHIR Bundles' unless bundle1.resourceType == 'Bundle' && bundle2.resourceType == 'Bundle'
 
       # Clone the first bundle to avoid modifying the original
       merged_bundle = bundle1.clone

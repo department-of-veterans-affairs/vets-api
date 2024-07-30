@@ -299,9 +299,7 @@ module Form526ClaimFastTrackingConcern
 
       disability_claimed = diagnostic_codes.include?(diagnostic_code)
 
-      if disability_claimed
-        StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{diagnostic_code}")
-      end
+      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{diagnostic_code}") if disability_claimed
       Rails.logger.info('Max CFI form526 submission',
                         id:, max_cfi_enabled:, disability_claimed:, diagnostic_code:,
                         cfi_checkbox_was_selected: cfi_checkbox_was_selected?,

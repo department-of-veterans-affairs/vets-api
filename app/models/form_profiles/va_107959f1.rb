@@ -36,7 +36,7 @@ class FormProfiles::VA107959f1 < FormProfile
   private
 
   def prefill_form_address
-    residential_address = VAProfileRedis::ContactInformation.for_user(user).residential_address if user.vet360_id.present? # rubocop:disable Layout/LineLength
+    residential_address = VAProfileRedis::ContactInformation.for_user(user).residential_address if user.vet360_id.present?
     return if residential_address.blank?
 
     @residential_address = FormAddress.new(

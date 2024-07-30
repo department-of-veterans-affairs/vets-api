@@ -139,14 +139,10 @@ module ClaimsApi
           raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail) if claimant_ssn_blank?(options)
 
           error_detail = "Veteran cannot file for type 'survivor'"
-          if claimant_id_equals_vet_id?(options)
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail)
-          end
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail) if claimant_id_equals_vet_id?(options)
 
           error_detail = "Claimant SSN cannot be the same as veteran SSN for type 'survivor'"
-          if claimant_ssn_equals_vet_ssn?(options)
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail)
-          end
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail) if claimant_ssn_equals_vet_ssn?(options)
         end
 
         def claimant_ssn_blank?(options)

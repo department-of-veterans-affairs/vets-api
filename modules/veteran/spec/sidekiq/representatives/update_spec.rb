@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.shared_examples 'a representative email or phone update process' do |flag_type, attribute, valid_value, invalid_value| # rubocop:disable Layout/LineLength
+RSpec.shared_examples 'a representative email or phone update process' do |flag_type, attribute, valid_value, invalid_value|
   let(:id) { '123abc' }
   let(:address_changed) { flag_type == 'address' }
   let(:email_changed) { flag_type == 'email' }

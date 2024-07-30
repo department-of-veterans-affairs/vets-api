@@ -51,9 +51,7 @@ module Mobile
         end
 
         def self.parse_code(detail)
-          if detail.include? 'accountRoutingNumber.invalidCheckSum'
-            return 'payment.accountRoutingNumber.invalidCheckSum'
-          end
+          return 'payment.accountRoutingNumber.invalidCheckSum' if detail.include? 'accountRoutingNumber.invalidCheckSum'
           return 'payment.accountRoutingNumber.invalid' if detail.include? 'payment.accountRoutingNumber.invalid'
           return 'payment.accountRoutingNumber.fraud' if detail.include? 'Routing number related to potential fraud'
 
