@@ -12,14 +12,17 @@ module Pensions
 
       service_tag 'pension-application'
 
+      # an identifier that matches the parameter that the form will be set as in the JSON submission.
       def short_name
         'pension_claim'
       end
 
+      # a subclass of SavedClaim, runs json-schema validations and performs any storage and attachment processing
       def claim_class
         Pensions::SavedClaim
       end
 
+      # GET serialized pension form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
         render json: SavedClaimSerializer.new(claim)
@@ -31,8 +34,7 @@ module Pensions
         raise e
       end
 
-      # Creates and validates an instance of the class, removing any copies of
-      # the form that had been previously saved by the user.
+      # POST creates and validates an instance of `claim_class`
       def create
         Pensions::TagSentry.tag_sentry
 
@@ -60,14 +62,23 @@ module Pensions
 
       private
 
+      # Raises an exception if the pension module enabled flipper flag isn't enabled.
       def check_flipper_flag
         raise Common::Exceptions::Forbidden unless Flipper.enabled?(:pension_module_enabled, current_user)
       end
 
+      # Filters out the parameters to form access.
       def filtered_params
         params.require(short_name.to_sym).permit(:form)
       end
 
+      ##
+      # include validation error on in_progress_form metadata.
+      # `noop` if in_progress_form is `blank?`
+      #
+      # @param in_progress_form [InProgressForm]
+      # @param claim [Pensions::SavedClaim]
+      #
       def log_validation_error_to_metadata(in_progress_form, claim)
         return if in_progress_form.blank?
 
@@ -76,6 +87,11 @@ module Pensions
         in_progress_form.update(metadata:)
       end
 
+      ##
+      # retreive a monitor for tracking
+      #
+      # @return [Pensions::Monitor]
+      #
       def pension_monitor
         @monitor ||= Pensions::Monitor.new
       end
