@@ -8,7 +8,7 @@ module ClaimsApi
           claim
         end
 
-        field :meta, if: ->(_field_name, claim, _options) { !claim.transaction_id.nil? } do |claim, _options|
+        field :meta, if: ->(_field_name, claim, _options) { claim.transaction_id.present? } do |claim, _options|
           { transactionId: claim.transaction_id }
         end
       end
