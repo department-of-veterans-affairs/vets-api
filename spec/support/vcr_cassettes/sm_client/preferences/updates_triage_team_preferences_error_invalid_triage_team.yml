@@ -1,0 +1,57 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/preferences/patientpreferredtriagegroups"
+    body:
+      encoding: UTF-8
+      string: '[{"triageTeamId":"1013155234","preferredTeam":"true"}]'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      Date:
+      - Tue, 23 Jul 2024 13:57:57 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '85'
+      X-Amzn-Requestid:
+      - 1e574379-3fba-4f7b-8e54-2a0265a079a0
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - bXmD2FbsvHMFu5w=
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      Pragma:
+      - no-cache
+      X-Amzn-Remapped-Date:
+      - Tue, 23 Jul 2024 13:57:57 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"errorCode":99,"developerMessage":"","message":"Unknown application
+        error occurred"}'
+  recorded_at: Tue, 23 Jul 2024 13:57:57 GMT
+recorded_with: VCR 6.2.0
