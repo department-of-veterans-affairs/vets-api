@@ -8,10 +8,11 @@ RSpec.describe 'email_address' do
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
+
   if Flipper.enabled?(:va_profile_information_v3_service)
-    let(:cassette) {'va_profile/profile_information/'}
+    let(:cassette) { 'va_profile/profile_information/' }
   else
-    let(:cassette) {'va_profile/contact_information/'}
+    let(:cassette) { 'va_profile/contact_information/' }
   end
 
   before do
@@ -36,7 +37,7 @@ RSpec.describe 'email_address' do
         end
       else
         expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_email).and_call_original
-        VCR.use_cassette(cassette + 'put_email_success') do
+        VCR.use_cassette("#{cassette}put_email_success") do
           post('/v0/profile/email_addresses/create_or_update', params: email.to_json, headers:)
         end
       end
@@ -49,7 +50,7 @@ RSpec.describe 'email_address' do
 
     context 'with a 200 response' do
       it 'matches the email address schema', :aggregate_failures do
-        VCR.use_cassette(cassette + 'post_email_success') do
+        VCR.use_cassette("#{cassette}post_email_success") do
           post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
 
           expect(response).to have_http_status(:ok)
@@ -58,7 +59,7 @@ RSpec.describe 'email_address' do
       end
 
       it 'matches the email address camel-inflected schema', :aggregate_failures do
-        VCR.use_cassette(cassette + 'post_email_success') do
+        VCR.use_cassette("#{cassette}post_email_success") do
           post('/v0/profile/email_addresses',
                params: { email_address: 'test@example.com' }.to_json,
                headers: headers_with_camel)
@@ -69,7 +70,7 @@ RSpec.describe 'email_address' do
       end
 
       it 'creates a new AsyncTransaction::VAProfile::EmailTransaction db record' do
-        VCR.use_cassette(cassette + 'post_email_success') do
+        VCR.use_cassette("#{cassette}post_email_success") do
           expect do
             post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
           end.to change(AsyncTransaction::VAProfile::EmailTransaction, :count).from(0).to(1)
@@ -77,7 +78,7 @@ RSpec.describe 'email_address' do
       end
 
       it 'invalidates the cache for the va-profile-contact-info-response Redis key' do
-        VCR.use_cassette(cassette + 'post_email_success') do
+        VCR.use_cassette("#{cassette}post_email_success") do
           expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
           post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
@@ -87,7 +88,7 @@ RSpec.describe 'email_address' do
 
     context 'with a 400 response' do
       it 'matches the errors schema', :aggregate_failures do
-        VCR.use_cassette(cassette + 'post_email_w_id_error') do
+        VCR.use_cassette("#{cassette}post_email_w_id_error") do
           post('/v0/profile/email_addresses',
                params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
 
@@ -97,7 +98,7 @@ RSpec.describe 'email_address' do
       end
 
       it 'matches the errors camel-inflected schema', :aggregate_failures do
-        VCR.use_cassette(cassette + 'post_email_w_id_error') do
+        VCR.use_cassette("#{cassette}post_email_w_id_error") do
           post('/v0/profile/email_addresses',
                params: { id: 42, email_address: 'person42@example.com' }.to_json,
                headers: headers_with_camel)
@@ -108,7 +109,7 @@ RSpec.describe 'email_address' do
       end
 
       it 'does not invalidate the cache' do
-        VCR.use_cassette(cassette + 'post_email_w_id_error') do
+        VCR.use_cassette("#{cassette}post_email_w_id_error") do
           expect_any_instance_of(Common::RedisStore).not_to receive(:destroy)
 
           post('/v0/profile/email_addresses',
@@ -119,7 +120,7 @@ RSpec.describe 'email_address' do
 
     context 'with a 403 response' do
       it 'returns a forbidden response' do
-        VCR.use_cassette(cassette + 'post_email_status_403') do
+        VCR.use_cassette("#{cassette}post_email_status_403") do
           post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
 
           expect(response).to have_http_status(:forbidden)
@@ -151,7 +152,7 @@ RSpec.describe 'email_address' do
 
     context 'with a 200 response' do
       it 'matches the email address schema', :aggregate_failures do
-        VCR.use_cassette(cassette + 'put_email_success') do
+        VCR.use_cassette("#{cassette}put_email_success") do
           put('/v0/profile/email_addresses',
               params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
 
@@ -161,7 +162,7 @@ RSpec.describe 'email_address' do
       end
 
       it 'matches the email address camel-inflected schema', :aggregate_failures do
-        VCR.use_cassette(cassette + 'put_email_success') do
+        VCR.use_cassette("#{cassette}put_email_success") do
           put('/v0/profile/email_addresses',
               params: { id: 42, email_address: 'person42@example.com' }.to_json,
               headers: headers_with_camel)
@@ -172,7 +173,7 @@ RSpec.describe 'email_address' do
       end
 
       it 'creates a new AsyncTransaction::VAProfile::EmailTransaction db record' do
-        VCR.use_cassette(cassette + 'put_email_success') do
+        VCR.use_cassette("#{cassette}put_email_success") do
           expect do
             put('/v0/profile/email_addresses',
                 params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
@@ -181,7 +182,7 @@ RSpec.describe 'email_address' do
       end
 
       it 'invalidates the cache for the va-profile-contact-info-response Redis key' do
-        VCR.use_cassette(cassette + 'put_email_success') do
+        VCR.use_cassette("#{cassette}put_email_success") do
           expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
           put('/v0/profile/email_addresses',
@@ -222,7 +223,7 @@ RSpec.describe 'email_address' do
       end
 
       it 'effective_end_date is NOT included in the request body', :aggregate_failures do
-        VCR.use_cassette(cassette + 'put_email_ignore_eed', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette("#{cassette}put_email_ignore_eed", VCR::MATCH_EVERYTHING) do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
           put('/v0/profile/email_addresses', params: email.to_json, headers:)
@@ -232,7 +233,7 @@ RSpec.describe 'email_address' do
       end
 
       it 'effective_end_date is NOT included in the request body when camel-inflected', :aggregate_failures do
-        VCR.use_cassette(cassette + 'put_email_ignore_eed', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette("#{cassette}put_email_ignore_eed", VCR::MATCH_EVERYTHING) do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
           put('/v0/profile/email_addresses', params: email.to_json, headers: headers_with_camel)
@@ -256,7 +257,7 @@ RSpec.describe 'email_address' do
 
     context 'when the method is DELETE' do
       it 'effective_end_date gets appended to the request body', :aggregate_failures do
-        VCR.use_cassette(cassette + 'delete_email_success', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette("#{cassette}delete_email_success", VCR::MATCH_EVERYTHING) do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
           delete('/v0/profile/email_addresses', params: email.to_json, headers:)
@@ -266,7 +267,7 @@ RSpec.describe 'email_address' do
       end
 
       it 'effective_end_date gets appended to the request body when camel-inflected', :aggregate_failures do
-        VCR.use_cassette(cassette + 'delete_email_success', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette("#{cassette}delete_email_success", VCR::MATCH_EVERYTHING) do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
           delete('/v0/profile/email_addresses', params: email.to_json, headers: headers_with_camel)
