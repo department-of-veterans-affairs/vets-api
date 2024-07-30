@@ -77,7 +77,7 @@ Style/ZeroLengthPredicate:
   Enabled: false
 
 Layout/LineLength:
-  Max: 125
+  Max: 120
   Exclude:
     - 'Gemfile'
     - 'Dangerfile'
