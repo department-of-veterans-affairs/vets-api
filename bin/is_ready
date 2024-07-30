@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+# Uses the unavailable percentage (total pool_capacity to total max_threads) to
+# determine readiness (e.g. "90" means 90% of pods are unavailable/used).
+#
+# If the unavailable percentage is >= allowed threshold, script will exit with
+# a failure (1) as pod is not ready for traffic. If the unavailable percentage
+# is < allowed threshold, script will exit with a success as it's ready for
+# traffic.
+
+ALLOWED_UNAVAILABLE_PERCENTAGE=${AUTOSCALING_TARGET_VALUE:-60}
+MIN_READY_PODS=${MIN_READY_PODS:-3}
+POD_NAME=${POD_NAME:-"vets-api-web-5bf4f8d6c7-pn475"} # Example POD_NAME for testing
+
+puma_data=$(curl -s --max-time 2 127.0.0.1:9293/stats)
+
+if [ $? -ne 0 ] || [ -z "$puma_data" ]; then
+	echo "Failed to get a valid response from the server. Is Puma Stats app running?"
+	exit 1
+fi
+
+pool_capacity=$(echo "$puma_data" | grep -oE '"pool_capacity":[0-9]+' | cut -f2 -d: | awk '{sum+=$1} END {print sum}')
+max_threads=$(echo "$puma_data" | grep -oE '"max_threads":[0-9]+' | cut -f2 -d: | awk '{sum+=$1} END {print sum}')
+
+unavailable_percentage=$(awk "BEGIN {printf \"%d\", 100 - (($pool_capacity * 100) / $max_threads)}")
+
+if [ $unavailable_percentage -ge $ALLOWED_UNAVAILABLE_PERCENTAGE ]; then
+  CURRENT_TIME=$(date +%s)
+
+  dd_env=$(echo $DD_ENV | cut -f2 -d-)
+  cluster_env=${DD_ENV#eks-}
+  dd_data=$(
+    curl -s --max-time 2 -G \
+      'https://vagov.ddog-gov.com/api/v1/query' \
+      --data-urlencode "query=avg:kubernetes_state.deployment.replicas_available{kube_cluster_name:dsva-vagov-${cluster_env:-prod}-cluster,kube_namespace:vets-api} by {kube_deployment}" \
+      -d "from=$((CURRENT_TIME - 60))" \
+      -d "to=${CURRENT_TIME}" \
+      -H "DD-API-KEY: $DD_API_KEY" \
+      -H "DD-APPLICATION-KEY: $DD_APP_KEY"
+  )
+
+  if [ $? -ne 0 ] || [ -z "$dd_data" ]; then
+    echo "Failed to get a valid response from Datadog."
+    exit 0 # Accumulate a backlog if DD is inaccessible
+  fi
+
+  # Check for errors in the dd_data response
+  if echo "$dd_data" | grep -q '"errors"'; then
+    echo "Datadog response contains errors:"
+    echo "$dd_data" | grep '"errors"' | sed 's/.*"errors":\[\([^]]*\)\].*/\1/'
+    exit 0 # Accumulate a backlog if there are errors in the response
+  fi
+
+  # Extract the latest value for the given kube_deployment
+  KUBE_DEPLOYMENT=$(echo $POD_NAME | rev | cut -d'-' -f3- | rev)
+  LATEST_VALUE=$(echo "$dd_data" | tr -d '\n' | sed 's/},/\n/g' | grep "\"kube_deployment:$KUBE_DEPLOYMENT\"" | sed 's/.*pointlist":\[\[\([0-9\.]*,[0-9\.]*\)\].*/\1/' | awk -F, '{print $2}')
+
+  if [ -z "$LATEST_VALUE" ]; then
+    echo "No results found for deployment $KUBE_DEPLOYMENT. From: $((CURRENT_TIME - 60)), To: ${CURRENT_TIME}, Cluster Env: ${cluster_env:-prod}"
+    exit 0 # Accumulate a backlog if data not found in DD
+  fi
+
+  # Convert LATEST_VALUE to an integer
+  LATEST_VALUE=${LATEST_VALUE%.*}
+
+  # Determine if we have enough ready pods in replicaSet
+  if [ $LATEST_VALUE -le $MIN_READY_PODS ]; then
+    echo "Pod is unhealthy but only $LATEST_VALUE (need $MIN_READY_PODS) pods are ready for traffic. Accumulating a backlog."
+    exit 0 # Ready pods is too low, accumulate a backlog
+  else
+    echo "Pod not ready (too much traffic) and we have $LATEST_VALUE pods ready. We only need $MIN_READY_PODS."
+    exit 1 # Enough pods are available but this one has too much traffic.
+  fi
+else
+  exit 0 # Not checking others pods, this one is healthy
+fi

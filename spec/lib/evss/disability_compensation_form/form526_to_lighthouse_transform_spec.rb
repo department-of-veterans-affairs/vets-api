@@ -123,6 +123,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.mailing_address.state).to eq('AE')
       expect(result.mailing_address.zip_first_five).to eq('817')
     end
+
+    it 'trims leading/trailing spaces from address line 1' do
+      data['form526']['veteran']['currentMailingAddress']['addressLine1'] = ' 1234 Couch Street '
+      result = transformer.send(:transform_veteran, data['form526']['veteran'])
+      expect(result.mailing_address.address_line_1).to eq('1234 Couch Street')
+    end
   end
 
   describe 'transform change of address' do
@@ -168,10 +174,28 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
     it 'sets service information correctly' do
       result = transformer.send(:transform_service_information, data)
       expect(result.service_periods).not_to be_nil
+      expect(result.service_periods.count).to eq(3)
+      expect(result.service_periods.first.service_branch).to eq('Air Force Reserves')
+      expect(result.service_periods.first.service_component).to eq('Reserves')
+      expect(result.service_periods.first.separation_location_code).to eq('OU812')
+      expect(result.service_periods.first.active_duty_begin_date).to eq('1990-04-05')
+      expect(result.service_periods.first.active_duty_end_date).to eq('1999-01-01')
+
       expect(result.confinements).not_to be_nil
+      expect(result.confinements.first.approximate_begin_date).to eq('1987-02-01')
+      expect(result.confinements.first.approximate_end_date).to eq('1989-01-01')
+
       expect(result.alternate_names).not_to be_nil
+      expect(result.alternate_names.first).to eq('JKack Clint Bauer')
+
       expect(result.reserves_national_guard_service).not_to be_nil
-      expect(result.reserves_national_guard_service.receiving_inactive_duty_training_pay).to be('YES')
+      expect(result.reserves_national_guard_service.receiving_inactive_duty_training_pay).to eq('YES')
+      expect(result.reserves_national_guard_service.unit_name).to eq('Seal Team Six')
+      expect(result.reserves_national_guard_service.component).to eq('Reserves')
+      expect(result.reserves_national_guard_service.unit_phone.area_code).to eq('123')
+      expect(result.reserves_national_guard_service.unit_phone.phone_number).to eq('1231231')
+      expect(result.reserves_national_guard_service.obligation_terms_of_service.begin_date).to eq('2000-01-04')
+      expect(result.reserves_national_guard_service.obligation_terms_of_service.end_date).to eq('2004-01-04')
       expect(result.service_periods.first.separation_location_code).to eq('OU812')
       expect(result.reserves_national_guard_service.component).to eq('Reserves')
     end

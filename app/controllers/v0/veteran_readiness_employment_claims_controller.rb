@@ -13,7 +13,7 @@ module V0
         VRE::Submit1900Job.perform_async(claim.id, current_user.uuid)
         Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
         clear_saved_form(claim.form_id)
-        render json: claim
+        render json: SavedClaimSerializer.new(claim)
       else
         StatsD.increment("#{stats_key}.failure")
         Sentry.set_tags(team: 'vfs-ebenefits') # tag sentry logs with team name

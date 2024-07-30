@@ -10,7 +10,8 @@
       "street": "111 2nd St S",
       "city": "Seattle",
       "state": "WA",
-      "postalCode": "98101"
+      "postalCode": "98101",
+      "county": "King"
     },
     "primaryPhoneNumber": "1234567890",
     "plannedClinic": "740"
@@ -25,10 +26,10 @@
       "street": "111 2nd St S",
       "city": "Seattle",
       "state": "WA",
-      "postalCode": "98101"
+      "postalCode": "98101",
+      "county": "King"
     },
     "primaryPhoneNumber": "1234567890",
-    "vetRelationship": "Spouse",
-    "hasHealthInsurance": true
+    "vetRelationship": "Spouse"
   }
 }

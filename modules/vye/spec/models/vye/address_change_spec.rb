@@ -9,48 +9,63 @@ RSpec.describe Vye::AddressChange, type: :model do
     expect(address_change).to be_valid
   end
 
-  describe '.todays_records' do
-    it 'returns an array of hashes with the correct keys' do
-      address_change = build_stubbed(:vye_address_change, created_at: Time.zone.now)
-      user_info = address_change.user_info
-      allow(Vye::AddressChange).to receive(:created_today).and_return([address_change])
-      allow(user_info).to receive(:ssn).and_return('123456789')
-      result = Vye::AddressChange.todays_records.first
+  describe 'caching for next BDN clone' do
+    before do
+      old_bdn = FactoryBot.create(:vye_bdn_clone, is_active: true, export_ready: nil)
+      new_bdn = FactoryBot.create(:vye_bdn_clone, is_active: false, export_ready: nil)
 
-      expect(result).to include(
-        rpo: user_info.rpo_code,
-        benefit_type: user_info.indicator,
-        ssn: user_info.ssn,
-        file_number: user_info.file_number,
-        veteran_name: address_change.veteran_name,
-        address1: address_change.address1,
-        address2: address_change.address2,
-        address3: address_change.address3,
-        address4: address_change.address4,
-        city: address_change.city,
-        state: address_change.state,
-        zip_code: address_change.zip_code
-      )
+      7.times do
+        user_profile = FactoryBot.create(:vye_user_profile)
+        FactoryBot.create(:vye_user_info, :with_address_changes, bdn_clone: old_bdn, user_profile:)
+        FactoryBot.create(:vye_user_info, bdn_clone: new_bdn, user_profile:)
+      end
+
+      new_bdn.activate!
+
+      ssn = '123456789'
+      profile = double(ssn:)
+      find_profile_by_identifier = double(profile:)
+      service = double(find_profile_by_identifier:)
+      allow(MPI::Service).to receive(:new).and_return(service)
+    end
+
+    it 'produces report rows' do
+      expect do
+        described_class.cache_new_address_changes
+      end.to change(described_class, :count).by(7)
     end
   end
 
-  describe '.todays_report' do
-    it 'returns a formatted report' do
-      address_change = build(:vye_address_change)
-      user_info = address_change.user_info
-      allow(Vye::AddressChange).to receive(:created_today).and_return([address_change])
-      allow(user_info).to receive(:ssn).and_return('123456789')
-      report = Vye::AddressChange.todays_report
+  describe 'creates a report' do
+    before do
+      old_bdn = FactoryBot.create(:vye_bdn_clone, is_active: true, export_ready: nil)
+      new_bdn = FactoryBot.create(:vye_bdn_clone, is_active: false, export_ready: nil)
 
-      expect(report).to include("#{user_info.rpo_code},")
-      expect(report).to include("#{user_info.indicator},")
-      expect(report).to include("#{user_info.ssn},")
-      expect(report).to include("#{user_info.file_number},")
-      expect(report).to include("#{address_change.veteran_name},")
-      expect(report).to include("#{address_change.address1},")
-      expect(report).to include("#{address_change.city},")
-      expect(report).to include("#{address_change.state},")
-      expect(report).to include(address_change.zip_code)
+      FactoryBot.create_list(:vye_user_info, 7, :with_address_changes, bdn_clone: old_bdn)
+
+      new_bdn.activate!
+
+      ssn = '123456789'
+      profile = double(ssn:)
+      find_profile_by_identifier = double(profile:)
+      service = double(find_profile_by_identifier:)
+      allow(MPI::Service).to receive(:new).and_return(service)
+    end
+
+    it 'produces report rows' do
+      expect(described_class.report_rows.length).to eq(7)
+    end
+
+    it 'writes out a report' do
+      io = StringIO.new
+
+      expect do
+        described_class.write_report(io)
+      end.not_to raise_error
+
+      io.rewind
+
+      expect(io.string.scan("\n").count).to be(7)
     end
   end
 end

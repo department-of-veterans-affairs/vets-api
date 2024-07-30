@@ -1,16 +1,13 @@
 # frozen_string_literal: true
 
-class DependentsSerializer < ActiveModel::Serializer
-  type :dependents
+class DependentsSerializer
+  include JSONAPI::Serializer
 
-  attribute :persons
+  set_id { '' }
+  set_type :dependents
 
-  def id
-    nil
-  end
-
-  def persons
-    return [object[:persons]] if object[:persons].instance_of?(Hash)
+  attribute :persons do |object|
+    next [object[:persons]] if object[:persons].instance_of?(Hash)
 
     object[:persons]
   end

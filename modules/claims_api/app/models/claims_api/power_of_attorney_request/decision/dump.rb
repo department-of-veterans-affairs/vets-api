@@ -14,8 +14,16 @@ module ClaimsApi
               proc_id = id.split('_').last
               xml.procId(proc_id)
 
-              xml.secondaryStatus(decision.status)
-              xml.declinedReason(decision.declined_reason)
+              xml.secondaryStatus(
+                case decision.status
+                when Statuses::ACCEPTING
+                  'Accepted'
+                when Statuses::DECLINING
+                  'Declined'
+                end
+              )
+
+              xml.declinedReason(decision.declining_reason)
 
               created_at = Utilities::Dump.time(decision.created_at)
               xml.dateRequestActioned(created_at)

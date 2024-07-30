@@ -59,6 +59,12 @@ module IvcChampva
       Rails.logger.info('IVC ChampVA Forms - 10-10D Submission User Identity', identity:)
     end
 
+    def track_current_user_loa(current_user)
+      current_user_loa = current_user&.loa&.[](:current) || 0
+      StatsD.increment("#{STATS_KEY}.#{current_user_loa}")
+      Rails.logger.info('IVC ChampVA Forms - 10-10D Current User LOA', current_user_loa:)
+    end
+
     def method_missing(_, *args)
       args&.first
     end
