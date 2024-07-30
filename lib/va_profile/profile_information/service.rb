@@ -58,14 +58,40 @@ module VAProfile
       #   handle_error(e)
       # end
 
-      # def self.get_person(vet360_id)
-      #   stub_user = OpenStruct.new(vet360_id:)
-      #   new(stub_user).get_response('person')
-      # end
+      def get_person
+        with_monitoring do
+          vet360_id_present!
+          raw_response = perform(:get, @user.vet360_id)
 
-      # def submit(params)
-      #   config.submit(path(@user.edipi), params)
-      # end
+          PersonResponse.from(raw_response)
+        end
+      rescue Common::Client::Errors::ClientError => e
+        if e.status == 404
+          log_exception_to_sentry(
+            e,
+            { vet360_id: @user.vet360_id },
+            { va_profile: :person_not_found },
+            :warning
+          )
+
+          return PersonResponse.new(404, person: nil)
+        elsif e.status >= 400 && e.status < 500
+          return PersonResponse.new(e.status, person: nil)
+        end
+
+        handle_error(e)
+      rescue => e
+        handle_error(e)
+      end
+
+      def self.get_person(vet360_id)
+        stub_user = OpenStruct.new(vet360_id:)
+        new(stub_user).get_response('person')
+      end
+
+      def submit(params)
+        config.submit(path(@user.edipi), params)
+      end
 
       # Record is not defined when requesting an #update
       # Determine if the record needs to be created or updated with reassign_http_verb
