@@ -1,4 +1,4 @@
-name: Enforce Backend PR Approval Requirements
+name: Enforce PR Approval Requirements
 
 on:
   pull_request:
@@ -31,14 +31,20 @@ jobs:
             echo "skip_backend_review=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Enforce backend-review-group approval
+      - name: Add backend-review-group as reviewer
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
-        run: |
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers \
-            -d '{"team_reviewers":["backend-review-group"]}'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const team = 'backend-review-group';
+            
+            await github.rest.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              team_reviewers: [team]
+            });
 
       - name: Check backend-review-group approval status
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
@@ -56,4 +62,6 @@ jobs:
           if [ "$APPROVALS" -eq 0 ]; then
             echo "Error: This PR requires approval from backend-review-group."
             exit 1
+          else
+            echo "Backend-review-group approval confirmed."
           fi
