@@ -7,7 +7,7 @@ module VAProfile
     module V3
       ##
       # HTTP client configuration for the {VAProfile::Profile::V3::Service},
-      # sets the base path, thze base request headers, and a service name for breakers and metrics.
+      # sets the base path, the base request headers, and a service name for breakers and metrics.
       #
       class Configuration < Common::Client::Configuration::REST
         self.read_timeout = VAProfile::Configuration::SETTINGS.military_personnel.timeout || 30
