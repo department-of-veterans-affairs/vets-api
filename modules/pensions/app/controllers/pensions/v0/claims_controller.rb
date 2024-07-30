@@ -5,7 +5,11 @@ require 'pensions/monitor'
 
 module Pensions
   module V0
-    class ClaimsController < ClaimsBaseController
+    class ClaimsController < ApplicationController
+      skip_before_action(:authenticate)
+      before_action :load_user, only: :create
+      before_action :check_flipper_flag
+
       service_tag 'pension-application'
 
       def short_name
@@ -55,6 +59,10 @@ module Pensions
       end
 
       private
+
+      def check_flipper_flag
+        raise Common::Exceptions::Forbidden unless Flipper.enabled?(:pension_module_enabled, current_user)
+      end
 
       def log_validation_error_to_metadata(in_progress_form, claim)
         return if in_progress_form.blank?
