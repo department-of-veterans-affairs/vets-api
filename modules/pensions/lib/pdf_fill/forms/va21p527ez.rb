@@ -13,7 +13,6 @@ module PdfFill
       include FormHelper::PhoneNumberFormatting
       include ActiveSupport::NumberHelper
 
-
       FORM_ID = '21P-527EZ'
 
       TEMPLATE = 'modules/pensions/lib/pdf_fill/forms/pdfs/21P-527EZ.pdf'
