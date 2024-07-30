@@ -159,7 +159,7 @@ RSpec.describe 'permission' do
         VCR.use_cassette("#{cassette}put_permission_ignore_eed", VCR::MATCH_EVERYTHING) do
           # The cassette we're using does not include the effectiveEndDate in the body.
           # So this test ensures that it was stripped out
-          put('/v0/profile/permissions', params: permission.to_json)
+          put('/v0/profile/permissions', params: permission.to_json, headers:)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('va_profile/transaction_response')
         end

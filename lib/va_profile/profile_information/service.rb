@@ -67,23 +67,26 @@ module VAProfile
       end
 
       # Record is not defined when requesting an #update
-      # Determine if the record needs to be created or updated with check_if_record_exists
+      # Determine if the record needs to be created or updated with record_exists
       # Ensure http_verb is a symbol for the response request
       def create_or_update_info(http_verb, record)
         with_monitoring do
           icn_with_aaid_present!
           model = record.class
-          http_verb = http_verb.to_sym == :update ? check_if_record_exists(record) : http_verb.to_sym
+
+          http_verb = http_verb.to_sym == :update ? record_exists?(record) : http_verb.to_sym
           update_path = record.try(:permission_type).present? ? 'permissions' : record.contact_info_attr.pluralize
           raw_response = perform(http_verb, update_path, record.in_json)
-          response = model.transaction_response_class.from(raw_response)
-          return response unless http_verb == :put && record.contact_info_attr == 'email' && old_email.present?
 
+          response = model.transaction_response_class.from(raw_response)
+
+          return response unless http_verb == :put && record.contact_info_attr == 'email' && old_email.present?
           transaction = response.transaction
           return response unless transaction.received?
 
           # Create OldEmail to send notification to user's previous email
           OldEmail.create(transaction_id: transaction.id, email: old_email)
+          return response
         end
       rescue => e
         handle_error(e)
@@ -118,7 +121,7 @@ module VAProfile
 
       # create_or_update cannot determine if record exists
       # Reassign :update to either :put or :post
-      def check_if_record_exists(record)
+      def record_exists?(record)
         contact_info = VAProfileRedis::ContactInformation.for_user(@user)
         attr = record.contact_info_attr
         raise "invalid #{record.model} VAProfile::ProfileInformation" if attr.nil?
