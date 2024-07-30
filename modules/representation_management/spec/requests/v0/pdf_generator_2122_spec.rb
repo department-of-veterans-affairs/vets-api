@@ -150,10 +150,11 @@ RSpec.describe 'PdfGenerator2122Controller', type: :request do
           expect(response).to have_http_status(:unprocessable_entity)
         end
 
-        it 'responds with the expected body' do
+        it 'responds with the expected errors' do
           params[:pdf_generator2122][:veteran][:ssn] = nil
           post(base_path, params:)
           expect(response.body).to include("Veteran social security number can't be blank")
+          expect(response.body).to include('Veteran social security number is invalid')
         end
       end
 
@@ -165,7 +166,7 @@ RSpec.describe 'PdfGenerator2122Controller', type: :request do
           expect(response).to have_http_status(:unprocessable_entity)
         end
 
-        it 'responds with the expected body' do
+        it 'responds with the expected errors' do
           params[:pdf_generator2122][:veteran][:name][:last] = nil
           params[:pdf_generator2122][:veteran][:date_of_birth] = nil
           post(base_path, params:)
@@ -199,7 +200,7 @@ RSpec.describe 'PdfGenerator2122Controller', type: :request do
           expect(response).to have_http_status(:unprocessable_entity)
         end
 
-        it 'responds with the expected body' do
+        it 'responds with the expected errors' do
           params[:pdf_generator2122][:veteran][:address][:zip_code] = '1234'
           post(base_path, params:)
           expect(response.body).to include('Veteran zip code is the wrong length (should be 5 characters)')
@@ -217,7 +218,7 @@ RSpec.describe 'PdfGenerator2122Controller', type: :request do
         it 'responds with the expected body' do
           params[:pdf_generator2122][:veteran][:va_file_number] = '12345678A'
           post(base_path, params:)
-          expect(response.body).to include('Veteran VA file number is invalid')
+          expect(response.body).to eq({ errors: ['Veteran VA file number is invalid'] }.to_json)
         end
       end
     end

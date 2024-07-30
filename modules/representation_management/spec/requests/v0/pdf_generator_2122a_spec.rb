@@ -159,7 +159,7 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
         it 'responds with the expected body' do
           params[:pdf_generator2122a][:veteran][:name][:first] = nil
           post(base_path, params:)
-          expect(response.body).to eq({ errors: ["Veteran first name can't be blank"] }.to_json)
+          expect(response.body).to eq("Veteran first name can't be blank")
         end
       end
 
@@ -206,9 +206,7 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
         it 'responds with the expected body' do
           params[:pdf_generator2122a][:veteran][:address][:state_code] = 'TOO_LONG'
           post(base_path, params:)
-          expect(response.body).to eq({
-            errors: ['Veteran state code is the wrong length (should be 2 characters)']
-          }.to_json)
+          expect(response.body).to eq('Veteran state code is the wrong length (should be 2 characters)')
         end
       end
 

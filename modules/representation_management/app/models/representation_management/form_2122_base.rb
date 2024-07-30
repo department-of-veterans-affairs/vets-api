@@ -83,9 +83,7 @@ module RepresentationManagement
               format: { with: NINE_DIGIT_NUMBER },
               if: -> { veteran_service_number.present? }
 
-    # validates :consent_limits,
-    #           inclusion: { in: LIMITATIONS_OF_CONSENT },
-    #           if: -> { consent_limits.present? }
+    validate :consent_limits_must_contain_valid_values
 
     with_options if: -> { claimant_first_name.present? } do
       validates :claimant_first_name, presence: true, length: { maximum: 12 }
@@ -101,6 +99,20 @@ module RepresentationManagement
       validates :claimant_zip_code, presence: true, length: { is: 5 }, format: { with: FIVE_DIGIT_NUMBER }
       validates :claimant_zip_code_suffix, length: { is: 4 }, format: { with: FOUR_DIGIT_NUMBER }
       validates :claimant_phone, length: { is: 10 }, format: { with: TEN_DIGIT_NUMBER }
+    end
+
+    private
+
+    def consent_limits_must_contain_valid_values
+      return unless consent_limits.any?
+      return if consent_limits.size == 1 && consent_limits.first.blank?
+
+      consent_limits.each do |limit|
+        unless LIMITATIONS_OF_CONSENT.include?(limit)
+          errors.add(:consent_limits,
+                     "#{limit} is not a valid limitation of consent")
+        end
+      end
     end
   end
 end
