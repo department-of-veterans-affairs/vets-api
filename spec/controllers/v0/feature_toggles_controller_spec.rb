@@ -8,7 +8,6 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
     @feature_name_camel = @feature_name.camelize(:lower)
     @cached_enabled_val = Flipper.enabled?(@feature_name)
     Flipper.enable(@feature_name)
-    Flipper.enable(:use_new_get_all_features)
   end
 
   after(:all) do

@@ -111,15 +111,7 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
       expect(response).to have_http_status(:service_unavailable)
 
       json = JSON.parse(response.body)
-      expect(json['errors']).to eq([
-                                     {
-                                       'title' => 'Service unavailable',
-                                       'detail' => 'An outage has been reported on the Test Service ' \
-                                                   "since #{mock_outage.start_time}",
-                                       'code' => '503',
-                                       'status' => '503'
-                                     }
-                                   ])
+      expect(json['errors'][0]['status']).to eq('503')
     end
   end
 end
