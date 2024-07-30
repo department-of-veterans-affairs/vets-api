@@ -39,6 +39,7 @@ class FormMilitaryInformation
   attribute :currently_active_duty_hash, Hash
   attribute :vic_verified, Boolean
   attribute :service_branches, Array[String]
+  attribute :service_branches_for_pensions, Hash
   attribute :service_periods, Array
   attribute :guard_reserve_service_history, Array[FormDate]
   attribute :latest_guard_reserve_service_period, FormDate

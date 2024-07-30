@@ -684,6 +684,10 @@ RSpec.describe FormProfile, type: :model do
       'activeServiceDateRange' => {
         'from' => '1985-08-19',
         'to' => '2014-08-31'
+      },
+      'serviceBranch' => {
+        'army' => true,
+        'airForce' => true
       }
     }
   end
@@ -992,6 +996,10 @@ RSpec.describe FormProfile, type: :model do
       },
       'post_nov111998_combat' => false,
       'service_branches' => %w[A N],
+      'service_branches_for_pensions' => {
+        'army' => true,
+        'navy' => true
+      },
       'service_episodes_by_date' => expected_service_episodes_by_date,
       'service_periods' => [
         { service_branch: 'Army National Guard', date_range: { from: '2012-03-02', to: '2018-10-31' } },
