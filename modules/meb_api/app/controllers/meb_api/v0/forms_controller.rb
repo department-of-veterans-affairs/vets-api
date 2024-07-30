@@ -56,10 +56,11 @@ module MebApi
         if Flipper.enabled?(:toe_light_house_dgi_direct_deposit, @current_user) && !Rails.env.development?
           begin
             response_data = DirectDeposit::Client.new(@current_user&.icn).get_payment_info
+            if response_data.nil?
+              Rails.logger.warn('DirectDeposit::Client returned nil response, proceeding without direct deposit info')
+            end
           rescue => e
             Rails.logger.error("BIS service error: #{e}")
-            head :internal_server_error
-            return
           end
         end
 
