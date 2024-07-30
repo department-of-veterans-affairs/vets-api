@@ -97,7 +97,8 @@ module MyHealth
           resource[:data] =
             { signature_name: nil, include_signature: false, signature_title: nil }
         end
-        render json: resource, each_serializer: MessageSignatureSerializer
+        # see MessageSignatureSerializer for more information
+        render json: resource
       end
 
       def move
