@@ -5,9 +5,11 @@ module Vye
     def initialize(resource)
       @resource = resource
     end
+
     def to_json(*)
       Oj.dump(serializable_hash, mode: :compat, time_format: :ruby)
     end
+
     def serializable_hash
       {
         award_id: @resource.award_id,
@@ -16,7 +18,7 @@ module Vye
         transact_date: @resource.transact_date,
         monthly_rate: @resource.monthly_rate,
         number_hours: @resource.number_hours,
-        source_ind: @resource.source_ind,
+        source_ind: @resource.source_ind
       }
     end
   end

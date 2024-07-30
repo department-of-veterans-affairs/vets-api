@@ -2,16 +2,17 @@
 
 module Vye
   class UserInfoSerializer
-
     def initialize(resource)
       @resource = resource
     end
+
     def to_json(*)
       Oj.dump(serializable_hash, mode: :compat, time_format: :ruby)
     end
+
     def serializable_hash
       {
-        "vye/user_info": {
+        'vye/user_info': {
           rem_ent: @resource.rem_ent,
           cert_issue_date: @resource.cert_issue_date,
           del_date: @resource.del_date,
@@ -22,7 +23,7 @@ module Vye
           latest_address: serialized_latest_address,
           pending_documents: serialized_pending_documents,
           verifications: serialized_verifications,
-          pending_verifications: serialized_pending_verifications,
+          pending_verifications: serialized_pending_verifications
         }
       }
     end

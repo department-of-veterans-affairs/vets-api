@@ -5,9 +5,11 @@ module Vye
     def initialize(resource)
       @resource = resource
     end
+
     def to_json(*)
       Oj.dump(serializable_hash, mode: :compat, time_format: :ruby)
     end
+
     def serializable_hash
       {
         veteran_name: @resource.veteran_name,
