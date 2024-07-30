@@ -76,10 +76,9 @@ module VAOS
       # @param reason_code_hash [Hash] the hash of reason code key value pairs
       # @return [String, nil] The reason for appointment as a string, or nil if not possible.
       def extract_reason_for_appointment(reason_code_hash)
-        # Appointment requests used 'reason code' as the key
         if reason_code_hash.key?('reason code') && PURPOSE_TEXT.key?(reason_code_hash['reason code'])
           PURPOSE_TEXT[reason_code_hash['reason code']]
-        # Direct schedule appointments used 'reasonCode' as the key
+        # Direct schedule appointments also used 'reasonCode' as the key in the past so we need this as well
         elsif reason_code_hash.key?('reasonCode') && PURPOSE_TEXT.key?(reason_code_hash['reasonCode'])
           PURPOSE_TEXT[reason_code_hash['reasonCode']]
         end
