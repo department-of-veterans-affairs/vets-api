@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_30_174253) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -1122,6 +1122,44 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
     t.datetime "updated"
     t.string "created_by"
     t.string "updated_by"
+  end
+
+  create_table "std_institution_facilities", force: :cascade do |t|
+    t.date "activation_date"
+    t.date "deactivation_date"
+    t.string "name"
+    t.string "station_number"
+    t.string "vista_name"
+    t.integer "agency_id"
+    t.integer "street_country_id"
+    t.string "street_address_line1"
+    t.string "street_address_line2"
+    t.string "street_address_line3"
+    t.string "street_city"
+    t.integer "street_state_id"
+    t.integer "street_county_id"
+    t.string "street_postal_code"
+    t.integer "mailing_country_id"
+    t.string "mailing_address_line1"
+    t.string "mailing_address_line2"
+    t.string "mailing_address_line3"
+    t.string "mailing_city"
+    t.integer "mailing_state_id"
+    t.integer "mailing_county_id"
+    t.string "mailing_postal_code"
+    t.integer "facility_type_id"
+    t.integer "mfn_zeg_recipient"
+    t.integer "parent_id"
+    t.integer "realigned_from_id"
+    t.integer "realigned_to_id"
+    t.integer "visn_id"
+    t.integer "version"
+    t.datetime "created"
+    t.datetime "updated"
+    t.string "created_by"
+    t.string "updated_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "std_states", force: :cascade do |t|
