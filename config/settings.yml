@@ -224,6 +224,8 @@ edu:
       - vishnhav.ashok@va.gov
       - donna.saunders@va.gov
       - ariana.adili@govcio.com
+      - marelby.hernandez@va.gov
+      - nawar.hussein@va.gov
 
 dependents:
   prefill: true
@@ -615,6 +617,7 @@ vba_documents:
 
 #Settings for Ask VA Api Module
 ask_va_api:
+  prefill: true
   crm_api:
     auth_url: https://login.microsoftonline.us
     base_url: https://dev.integration.d365.va.gov
@@ -1618,6 +1621,12 @@ lgy:
   app_id: ~
   api_key: ~
   mock_coe: true
+
+lgy_sahsha:
+  base_url: http://www.example.com
+  app_id: ~
+  api_key: ~
+  mock_coe: false
 
 form526_backup:
   enabled: true

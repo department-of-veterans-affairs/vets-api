@@ -60,6 +60,9 @@ RSpec.describe V0::NoticeOfDisagreementsController do
         appeal_submission_uploads = AppealSubmissionUpload.where(appeal_submission:)
         expect(appeal_submission_uploads.count).to eq 1
         expect(DecisionReview::SubmitUpload).to have_enqueued_sidekiq_job(appeal_submission_uploads.first.id)
+        # SavedClaim should be created with request data
+        saved_claim = SavedClaim::NoticeOfDisagreement.find_by(guid: id)
+        expect(JSON.parse(saved_claim.form)).to eq(body)
       end
     end
 

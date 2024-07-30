@@ -178,7 +178,7 @@ module EVSS
         if service_information_source['confinements']
           transform_confinements(service_information_source, service_information)
         end
-        if service_information_source['alternateName']
+        if service_information_source['alternateNames']
           transform_alternate_names(service_information_source, service_information)
         end
         if service_information_source['reservesNationalGuardService']
@@ -475,7 +475,7 @@ module EVSS
 
       def initialize_reserves_national_guard_service(reserves_national_guard_service_source, service_information)
         service_information.reserves_national_guard_service = Requests::ReservesNationalGuardService.new(
-          obligation_term_of_service: Requests::ObligationTermsOfService.new(
+          obligation_terms_of_service: Requests::ObligationTermsOfService.new(
             begin_date: reserves_national_guard_service_source['obligationTermOfServiceFromDate'],
             end_date: reserves_national_guard_service_source['obligationTermOfServiceToDate']
           ),

@@ -6,7 +6,7 @@ require Vye::Engine.root / 'spec/rails_helper'
 RSpec.describe Vye::V1::UserInfosController, type: :request do
   describe 'GET /vye/v1' do
     describe 'when there is a logged in current_user' do
-      let!(:current_user) { create(:user) }
+      let!(:current_user) { create(:user, :accountable) }
 
       before do
         allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)

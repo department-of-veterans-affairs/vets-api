@@ -26,8 +26,7 @@ module V0
 
       response = api_provider.get_rated_disabilities
 
-      render json: response,
-             serializer: RatedDisabilitiesSerializer
+      render json: RatedDisabilitiesSerializer.new(response)
     end
 
     def separation_locations
@@ -50,7 +49,7 @@ module V0
 
     def suggested_conditions
       results = DisabilityContention.suggested(params[:name_part])
-      render json: results, each_serializer: DisabilityContentionSerializer
+      render json: DisabilityContentionSerializer.new(results)
     end
 
     def submit_all_claim
@@ -78,7 +77,7 @@ module V0
       job_status = Form526JobStatus.where(job_id: params[:job_id]).first
       raise Common::Exceptions::RecordNotFound, params[:job_id] unless job_status
 
-      render json: job_status, serializer: Form526JobStatusSerializer
+      render json: Form526JobStatusSerializer.new(job_status)
     end
 
     def rating_info
@@ -87,13 +86,13 @@ module V0
 
         disability_rating = service.get_combined_disability_rating
 
-        render json: { user_percent_of_disability: disability_rating },
-               serializer: LighthouseRatingInfoSerializer
+        rating_info = { user_percent_of_disability: disability_rating }
+        render json: LighthouseRatingInfoSerializer.new(rating_info)
       else
         rating_info_service = EVSS::CommonService.new(auth_headers)
         response = rating_info_service.get_rating_info
 
-        render json: response, serializer: RatingInfoSerializer
+        render json: RatingInfoSerializer.new(response)
       end
     end
 

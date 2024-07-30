@@ -1,6 +1,10 @@
 --title "Vets API"
 --protected
---no-private
+--private
+--verbose
+--no-cache
 --output-dir .yardoc/output
+--exclude /spec/
+--exclude /swagger/
 --readme README.md
 --files CONTRIBUTING.md,LICENSE.md,SECURITY.md

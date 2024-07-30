@@ -88,6 +88,14 @@ RSpec.describe Form526Submission do
       end
     end
 
+    context 'when backup_submitted_claim_status is paranoid_success' do
+      let(:backup_submitted_claim_status) { 'paranoid_success' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
     context 'when backup_submitted_claim_status is neither accepted, rejected nor nil' do
       it 'is invalid' do
         expect do
@@ -99,15 +107,37 @@ RSpec.describe Form526Submission do
 
   describe 'scopes' do
     let!(:in_process) { create(:form526_submission) }
-    let!(:expired) { create(:form526_submission, :created_more_than_3_days_ago) }
+    let!(:expired) { create(:form526_submission, :created_more_than_3_weeks_ago) }
     let!(:happy_path_success) { create(:form526_submission, :with_submitted_claim_id) }
     let!(:pending_backup) { create(:form526_submission, :backup_path) }
     let!(:accepted_backup) { create(:form526_submission, :backup_path, :backup_accepted) }
     let!(:rejected_backup) { create(:form526_submission, :backup_path, :backup_rejected) }
     let!(:remediated) { create(:form526_submission, :remediated) }
-    let!(:remediated_and_expired) { create(:form526_submission, :remediated, :created_more_than_3_days_ago) }
+    let!(:remediated_and_expired) { create(:form526_submission, :remediated, :created_more_than_3_weeks_ago) }
     let!(:remediated_and_rejected) { create(:form526_submission, :remediated, :backup_path, :backup_rejected) }
     let!(:no_longer_remediated) { create(:form526_submission, :no_longer_remediated) }
+    let!(:paranoid_success) { create(:form526_submission, :backup_path, :paranoid_success) }
+    let!(:success_by_age) do
+      Timecop.freeze((1.year + 1.day).ago) do
+        create(:form526_submission, :backup_path, :paranoid_success)
+      end
+    end
+
+    describe 'paranoid_success_type' do
+      it 'returns records less than a year old with paranoid_success backup status' do
+        expect(Form526Submission.paranoid_success_type).to contain_exactly(
+          paranoid_success
+        )
+      end
+    end
+
+    describe 'success_by_age_type' do
+      it 'returns records more than a year old with paranoid_success backup status' do
+        expect(Form526Submission.success_by_age_type).to contain_exactly(
+          success_by_age
+        )
+      end
+    end
 
     describe 'pending_backup_submissions' do
       it 'returns records submitted to the backup path but lacking a decisive state' do
@@ -168,7 +198,9 @@ RSpec.describe Form526Submission do
           remediated_and_expired,
           remediated_and_rejected,
           happy_path_success,
-          accepted_backup
+          accepted_backup,
+          paranoid_success,
+          success_by_age
         )
       end
     end
@@ -918,6 +950,32 @@ RSpec.describe Form526Submission do
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm8940.jobs, :size).by(1)
       end
     end
+
+    context 'with Lighthouse document upload polling' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
+      end
+
+      context 'when feature enabled' do
+        before { Flipper.enable(:disability_526_toxic_exposure_document_upload_polling) }
+
+        it 'queues polling job' do
+          expect do
+            subject.perform_ancillary_jobs(first_name)
+          end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(1)
+        end
+      end
+
+      context 'when feature disabled' do
+        before { Flipper.disable(:disability_526_toxic_exposure_document_upload_polling) }
+
+        it 'does not queue polling job' do
+          expect do
+            subject.perform_ancillary_jobs(first_name)
+          end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(0)
+        end
+      end
+    end
   end
 
   describe '#get_first_name' do
@@ -1417,8 +1475,8 @@ RSpec.describe Form526Submission do
         end
       end
 
-      context 'and the record was created more than 3 days ago' do
-        subject { create(:form526_submission, :created_more_than_3_days_ago) }
+      context 'and the record was created more than 3 weeks ago' do
+        subject { create(:form526_submission, :created_more_than_3_weeks_ago) }
 
         it 'returns false' do
           expect(subject).not_to be_in_process
@@ -1459,7 +1517,7 @@ RSpec.describe Form526Submission do
     end
 
     context 'when the submission is neither a success type nor in process' do
-      subject { create(:form526_submission, :created_more_than_3_days_ago) }
+      subject { create(:form526_submission, :created_more_than_3_weeks_ago) }
 
       it 'returns true' do
         expect(subject).to be_failure_type
