@@ -3,6 +3,8 @@ name: Require backend-review-group approval
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
+  pull_request_review:
+    types: [submitted]
 
 jobs:
   check-approval-requirements:
@@ -15,7 +17,7 @@ jobs:
         id: pr_details
         uses: octokit/request-action@v2.x
         with:
-          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers
+          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number }}/requested_reviewers
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -36,10 +38,10 @@ jobs:
         id: check_backend_review_group_approval_status
         uses: octokit/request-action@v2.x
         with:
-          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews
+          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number }}/reviews
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
+
       - name: Verify backend-review-group approval
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: verify_approval
@@ -53,7 +55,7 @@ jobs:
             echo "approval_status=confirmed" >> $GITHUB_OUTPUT
             echo "Backend-review-group approval confirmed."
           fi
-  
+
       - name: Comment PR - Approval Required
         if: failure() && steps.verify_approval.outputs.approval_status == 'required'
         uses: thollander/actions-comment-pull-request@1d3973dc4b8e1399c0620d3f2b1aa5e795465308
