@@ -216,7 +216,7 @@ module VAOS
 
         convert_appointment_time(appointment)
 
-        appointment[:station], appointment[:ien] = *extract_station_and_ien(appointment)&.first(2)
+        appointment[:station], appointment[:ien] = extract_station_and_ien(appointment)
 
         if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
           fetch_avs_and_update_appt_body(appointment)
