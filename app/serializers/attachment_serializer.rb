@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
-class AttachmentSerializer < ActiveModel::Serializer
-  attribute :id
+class AttachmentSerializer
+  include JSONAPI::Serializer
+  singleton_class.include Rails.application.routes.url_helpers
+
+  set_type :attachments
+
   attribute :name
   attribute :message_id
   attribute :attachment_size
 
-  link(:download) { v0_message_attachment_url(object.message_id, object.id) }
+  link :download do |object|
+    v0_message_attachment_url(object.message_id, object.id)
+  end
 end
