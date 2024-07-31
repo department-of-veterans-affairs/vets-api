@@ -110,15 +110,9 @@ module ClaimsApi
             auto_claim.reload
           end
 
-          form_blueprint = JSON.parse(ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
-                                        auto_claim, root: :data, async: false
-                                      ))
-
-          render_hash = { data: form_blueprint['data'] }
-          render_hash[:meta] = { transactionId: auto_claim.transaction_id } if auto_claim.transaction_id.present?
-
-          render json: render_hash, status: :accepted,
-                 location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)
+          render json: ClaimsApi::V2::Blueprints::MetaBlueprint.render(
+            auto_claim, async: false
+          ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)
         end
 
         def shared_submit_methods
