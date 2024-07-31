@@ -52,8 +52,8 @@ jobs:
           echo "Debug: Printing approved reviews"
           echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq '.[] | select(.state == "APPROVED")'
           
-          BACKEND_REVIEWERS=("ericboehs" "LindseySaari" "rmtolmach" "RachalCassity" "yan-mcneil" "rjohnson2011" "stevenjcumming")
-          APPROVALS=$(echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq --arg reviewers "$(IFS=,; echo "${BACKEND_REVIEWERS[*]}")" '[.[] | select(.state == "APPROVED" and (.user.login | IN($reviewers | split(","))))] | length')
+          BACKEND_REVIEWERS=("ericboehs" "lindseysaari" "rmtolmach" "rachalcassity" "yan-mcneil" "rjohnson2011" "stevenjcumming")
+          APPROVALS=$(echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq --arg reviewers "$(IFS=,; echo "${BACKEND_REVIEWERS[*]}")" '[.[] | select(.state == "APPROVED" and (.user.login | ascii_downcase | IN($reviewers | split(",") | map(ascii_downcase))))] | length')
           
           echo "Debug: Number of backend-review-group approvals: $APPROVALS"
           
