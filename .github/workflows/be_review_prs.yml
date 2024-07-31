@@ -52,7 +52,9 @@ jobs:
           echo "Debug: Printing approved reviews"
           echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq '.[] | select(.state == "APPROVED")'
           
-          APPROVALS=$(echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq '[.[] | select(.state == "APPROVED" and (.body | contains("on behalf of department-of-veterans-affairs/backend-review-group")))] | length')
+          BACKEND_REVIEWERS=("ericboehs" "LindseySaari" "rmtolmach" "RachalCassity" "yan-mcneil" "rjohnson2011" "stevenjcumming")
+          APPROVALS=$(echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq --arg reviewers "$(IFS=,; echo "${BACKEND_REVIEWERS[*]}")" '[.[] | select(.state == "APPROVED" and (.user.login | IN($reviewers | split(","))))] | length')
+          
           echo "Debug: Number of backend-review-group approvals: $APPROVALS"
           
           if [ "$APPROVALS" -eq 0 ]; then
@@ -69,7 +71,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body: "This PR requires approval from backend-review-group."
+          body: "This PR requires approval from backend-review-group. Please add backend-review-group as reviewers (if they're not already listed)."
 
       - name: Comment PR - Approval Confirmed
         if: success() && steps.verify_approval.outputs.approval_status == 'confirmed'
