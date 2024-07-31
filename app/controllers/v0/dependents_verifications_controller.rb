@@ -7,7 +7,7 @@ module V0
     def index
       dependents = dependency_verification_service.read_diaries
 
-      render json: dependents, serializer: DependentsVerificationsSerializer
+      render json: DependentsVerificationsSerializer.new(dependents)
     end
 
     def create
@@ -27,7 +27,7 @@ module V0
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
       clear_saved_form(claim.form_id)
 
-      render(json: claim)
+      render json: SavedClaimSerializer.new(claim)
     end
 
     private

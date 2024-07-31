@@ -56,8 +56,8 @@ RSpec.describe 'Scanned forms uploader', type: :request do
 
       expect(response).to have_http_status(:ok)
       resp = JSON.parse(response.body)
-      expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
-      expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+      expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size warnings])
+      expect(PersistentAttachment.last).to be_a(PersistentAttachments::VAForm)
     end
   end
 end

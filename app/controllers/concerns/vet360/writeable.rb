@@ -22,6 +22,8 @@ module Vet360
     def write_to_vet360_and_render_transaction!(type, params, http_verb: 'post')
       record = build_record(type, params)
       validate!(record)
+      http_verb = http_verb == 'update' ?  build_http_verb(record) : http_verb
+
       response = write_valid_record!(http_verb, type, record)
       render_new_transaction!(type, response)
     end
@@ -30,14 +32,15 @@ module Vet360
       VAProfileRedis::Cache.invalidate(@current_user)
     end
 
-    private
-
-    def build_record(type, params)
+    def build_profile_record(type, params)
       "VAProfile::Models::#{type.capitalize}"
-        .constantize
-        .new(params)
-        .set_defaults(@current_user)
+      .constantize
+      .new(params)
+      .set_defaults(@current_user)
     end
+
+
+    private
 
     def validate!(record)
       return if record.valid?
@@ -65,12 +68,25 @@ module Vet360
       end
     end
 
+    def build_http_verb(record)
+      if Flipper.enabled?(:va_profile_information_v3_redis, @current_user)
+        contact_info = VAProfileRedis::ProfileInformation.for_user(@user)
+      else
+        contact_info = VAProfileRedis::ContactInformation.for_user(@user)
+      end
+      attr = record.contact_info_attr
+      raise "invalid #{record.model} VAProfile::ProfileInformation" if attr.nil?
+
+      record.id = contact_info.public_send(attr)&.id
+      record.id.present? ? :put : :post
+    end
+
+
     def render_new_transaction!(type, response)
       transaction = "AsyncTransaction::VAProfile::#{type.capitalize}Transaction".constantize.start(
         @current_user, response
       )
-
-      render json: transaction, serializer: AsyncTransaction::BaseSerializer
+      render json: AsyncTransaction::BaseSerializer.new(transaction).serializable_hash
     end
 
     def add_effective_end_date(params)

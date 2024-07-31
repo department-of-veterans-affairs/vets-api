@@ -35,7 +35,6 @@ module VAProfile
         with_monitoring do
           vet360_id_present!
           raw_response = perform(:get, @user.vet360_id)
-
           PersonResponse.from(raw_response)
         end
       rescue Common::Client::Errors::ClientError => e
@@ -62,17 +61,21 @@ module VAProfile
         new(stub_user).get_person
       end
 
-      # Record is not defined when requesting an #update
-      # Determine if the record needs to be created or updated with reassign_http_verb
+      def submit(params)
+        config.submit(path(@user.edipi), params)
+      end
+
       # Ensure http_verb is a symbol for the response request
       def create_or_update_info(http_verb, record)
         with_monitoring do
           icn_with_aaid_present!
-          model = record.class
-          http_verb = http_verb.to_sym == :update ? reassign_http_verb(record) : http_verb.to_sym
+
+          http_verb = http_verb.to_sym
           update_path = record.try(:permission_type).present? ? 'permissions' : record.contact_info_attr.pluralize
           raw_response = perform(http_verb, update_path, record.in_json)
-          response = model.transaction_response_class.from(raw_response)
+
+          response = record.transaction_response_class.from(raw_response)
+
           return response unless http_verb == :put && record.contact_info_attr == 'email' && old_email.present?
 
           transaction = response.transaction
@@ -80,25 +83,11 @@ module VAProfile
 
           # Create OldEmail to send notification to user's previous email
           OldEmail.create(transaction_id: transaction.id, email: old_email)
+          return response
         end
       rescue => e
         handle_error(e)
       end
-
-      # def get_transaction_status(transaction_id, model)
-      #   with_monitoring do
-      #     icn_with_aaid_present!
-      #     raw_response = perform(:post, model.transaction_status_path(@user, transaction_id), '')
-      #     VAProfile::Stats.increment_transaction_results(raw_response)
-      #     transaction_status = model.transaction_response_class.from(raw_response, @user)
-      #     return transaction_status unless model.send_change_notifcations?
-
-      #     send_change_notifications(transaction_status)
-      #     transaction_status
-      #   end
-      # rescue => e
-      #   handle_error(e)
-      # end
 
       private
 
@@ -127,48 +116,9 @@ module VAProfile
         OldEmail.find(transaction_id).try(:email)
       end
 
-      # create_or_update cannot determine if record exists
-      # Reassign :update to either :put or :post
-      def reassign_http_verb(record)
-        contact_info = if Flipper.enabled?(:va_profile_information_v3_redis, user)
-                         VAProfileRedis::ProfileInformation.for_user(@user)
-                       else
-                         VAProfileRedis::ContactInformation.for_user(@user)
-                       end
-        attr = record.contact_info_attr
-        raise "invalid #{record.model} VAProfile::ProfileInformation" if attr.nil?
-
-        record.id = contact_info.public_send(attr)&.id
-        record.id.present? ? :put : :post
-      end
-
       def get_email_personalisation(type)
         { 'contact_info' => EMAIL_PERSONALISATIONS[type] }
       end
-
-      # def send_change_notifications(transaction_status)
-      #   transaction = transaction_status.transaction
-      #   transaction_id = transaction.id
-      #   return if transaction.completed_success? || TransactionNotification.find(transaction_id).present?
-
-      #   email_transaction = transaction_status.new_email.present?
-      #   notify_email = email_transaction ? old_email(transaction_id) : old_email
-      #   return if notify_email.nil?
-
-      #   personalisation = transaction_status.changed_field
-      #   notify_email_job(notify_email, personalisation)
-      #   TransactionNotification.create(transaction_id:)
-      #   return unless email_transaction
-
-      #   # Send notification to new email
-      #   notify_email_job(transaction_status.new_email, personalisation)
-      #   OldEmail.find(transaction_id).destroy
-      # end
-
-      # def notify_email_job(notify_email, personalisation)
-      #   VANotifyEmailJob.perform_async(notify_email, CONTACT_INFO_CHANGE_TEMPLATE,
-      #                                  get_email_personalisation(personalisation))
-      # end
     end
   end
 end

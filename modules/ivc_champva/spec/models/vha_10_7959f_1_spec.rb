@@ -15,6 +15,7 @@ RSpec.describe IvcChampva::VHA107959f1 do
       'veteran' => {
         'full_name' => { 'first' => 'John', 'middle' => 'P', 'last' => 'Doe' },
         'va_claim_number' => '123456789',
+        'ssn' => '123456789',
         'mailing_address' => { 'country' => 'USA', 'postal_code' => '12345' }
       },
       'form_number' => '10-7959F-1',
@@ -25,6 +26,13 @@ RSpec.describe IvcChampva::VHA107959f1 do
     }
   end
   let(:vha107959f1) { described_class.new(data) }
+  let(:file_path) { 'vha_10_7959f_1-tmp.pdf' }
+  let(:uuid) { SecureRandom.uuid }
+  let(:instance) { IvcChampva::VHA107959f1.new(data) }
+
+  before do
+    allow(instance).to receive_messages(uuid:, get_attachments: [])
+  end
 
   describe '#metadata' do
     it 'returns metadata for the form' do
@@ -35,6 +43,7 @@ RSpec.describe IvcChampva::VHA107959f1 do
         'veteranMiddleName' => 'P',
         'veteranLastName' => 'Doe',
         'fileNumber' => '123456789',
+        'ssn_or_tin' => '123456789',
         'zipCode' => '12345',
         'country' => 'USA',
         'source' => 'VA Platform Digital Forms',
@@ -51,12 +60,11 @@ RSpec.describe IvcChampva::VHA107959f1 do
     end
   end
 
-  describe '#method_missing' do
-    context 'when method is missing' do
-      it 'returns the arguments passed to it' do
-        args = %w[arg1 arg2]
-        expect(IvcChampva::VHA107959f1.new('data').handle_attachments(args)).to eq(args)
-      end
+  describe '#handle_attachments' do
+    it 'renames the file and returns the new file path' do
+      allow(File).to receive(:rename)
+      result = instance.handle_attachments(file_path)
+      expect(result).to eq(["#{uuid}_vha_10_7959f_1-tmp.pdf"])
     end
   end
 end

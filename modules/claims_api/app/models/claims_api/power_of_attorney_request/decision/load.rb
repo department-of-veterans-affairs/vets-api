@@ -18,13 +18,11 @@ module ClaimsApi
         end
 
         def perform
-          return unless status.in?(
-            Statuses::ALL
-          )
+          return if status.blank?
 
           Decision.new(
             status:,
-            declined_reason:,
+            declining_reason:,
             created_at:,
             created_by:
           )
@@ -33,12 +31,17 @@ module ClaimsApi
         private
 
         def status
-          @data['secondaryStatus']
+          case @data['secondaryStatus']
+          when 'Accepted'
+            Statuses::ACCEPTING
+          when 'Declined'
+            Statuses::DECLINING
+          end
         end
 
-        def declined_reason
+        def declining_reason
           # We won't make this scenario inbound, but maybe legacy data has this.
-          return unless status == Statuses::DECLINED
+          return unless status == Statuses::DECLINING
 
           @data['declinedReason']
         end

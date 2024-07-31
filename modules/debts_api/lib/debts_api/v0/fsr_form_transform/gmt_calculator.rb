@@ -4,6 +4,7 @@ module DebtsApi
   module V0
     module FsrFormTransform
       class GmtCalculator
+        include ::FsrFormTransform::Utils
         class InvalidYear < StandardError; end
         class InvalidDependentCount < StandardError; end
         class InvalidZipCode < StandardError; end
@@ -31,16 +32,13 @@ module DebtsApi
         end
 
         def income_limits
-          income_upper_threshold = @gmt_threshold * INCOME_UPPER_PERCENTAGE
-          asset_threshold = @gmt_threshold * ASSET_PERCENTAGE
-          discretionary_income_threshold = @gmt_threshold * DISCRETIONARY_INCOME_PERCENTAGE
           {
             pension_threshold: @pension_threshold,
             national_threshold: @national_threshold,
             gmt_threshold: @gmt_threshold,
-            income_upper_threshold:,
-            asset_threshold:,
-            discretionary_income_threshold:
+            income_upper_threshold: @gmt_threshold * INCOME_UPPER_PERCENTAGE,
+            asset_threshold: @gmt_threshold * ASSET_PERCENTAGE,
+            discretionary_income_threshold: @gmt_threshold * DISCRETIONARY_INCOME_PERCENTAGE
           }
         end
 
@@ -109,10 +107,6 @@ module DebtsApi
                       .where(effective_year: @income_threshold_year)
                       .order(trhd1: :desc)
                       .first
-        end
-
-        def find_zipcode_data(zip)
-          StdZipcode.find_by(zip_code: zip)
         end
 
         def valid_year?

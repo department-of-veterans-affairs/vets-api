@@ -11,13 +11,13 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
 
   before do
     allow(user).to receive_messages(vet360_id:, icn: '1234')
-    Flipper.enable(:va_profile_information_v3_service)
-    Flipper.enable(:va_profile_information_v3_redis)
+    Flipper.enable(:va_profile_information_v3_service, user)
+    Flipper.enable(:va_profile_information_v3_redis, user)
   end
 
   after do
-    Flipper.disable(:va_profile_information_v3_service)
-    Flipper.disable(:va_profile_information_v3_redis)
+    Flipper.disable(:va_profile_information_v3_service, user)
+    Flipper.disable(:va_profile_information_v3_redis, user)
   end
 
   describe '#get_person' do
@@ -33,7 +33,6 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
       it 'supports international provinces' do
         VCR.use_cassette('va_profile/profile_information/person_intl_addr', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
-
           expect(response.person.addresses[0].province).to eq('province')
         end
       end
@@ -41,7 +40,6 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
       it 'has a bad address' do
         VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
-
           expect(response.person.addresses[0].bad_address).to eq(true)
         end
       end
@@ -68,7 +66,6 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
             { va_profile: :person_not_found },
             :warning
           )
-
           response = subject.get_person
           expect(response).not_to be_ok
           expect(response.person).to be_nil
@@ -218,12 +215,11 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
       it 'creates an old_email record' do
         VCR.use_cassette('va_profile/profile_information/put_email_success', VCR::MATCH_EVERYTHING) do
           VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
-            allow(VAProfile::Configuration::SETTINGS.profile_information).to receive(:cache_enabled).and_return(true)
             old_email = user.vet360_contact_info.email.email_address
             expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
-
             response = subject.create_or_update_info(:put, email)
-            expect(OldEmail.find(response.transaction_id).email).to eq(old_email)
+            #expect(OldEmail.find(response.transaction_id).email).to eq(old_email)
+            expect(OldEmail.find(response.transaction.id).email).to eq(old_email)
           end
         end
       end
@@ -724,7 +720,6 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
 
   #   context 'when calling #get_person' do
   #     it 'raises an error', :aggregate_failures do
-  #       expect { subject.get_person }.to raise_error do |e|
   #         expect(e).to be_a(RuntimeError)
   #         expect(e.message).to eq(error_message)
   #       end

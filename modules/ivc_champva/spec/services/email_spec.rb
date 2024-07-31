@@ -11,9 +11,9 @@ RSpec.describe IvcChampva::Email, type: :service do
       form_number: '10-10D',
       first_name: 'John',
       last_name: 'Doe',
-      file_names: ['file1.pdf', 'file2.pdf'],
+      file_count: 3,
       pega_status: 'Processed',
-      updated_at: Time.zone.now.to_s
+      created_at: Time.zone.now.to_s
     }
   end
 
@@ -34,11 +34,13 @@ RSpec.describe IvcChampva::Email, type: :service do
           Settings.vanotify.services.ivc_champva.template_id.pega_status_update_email_template_id,
           {
             'form_number' => data[:form_number],
+            'form_name' => 'Application for CHAMPVA Benefits',
+            'phone_number' => '800-733-8387',
             'first_name' => data[:first_name],
             'last_name' => data[:last_name],
-            'file_names' => data[:file_names].join("\n"),
+            'file_count' => data[:file_count],
             'pega_status' => data[:pega_status],
-            'updated_at' => data[:updated_at]
+            'date_submitted' => data[:created_at]
           },
           Settings.vanotify.services.ivc_champva.api_key
         )

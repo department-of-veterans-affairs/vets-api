@@ -63,7 +63,7 @@ module VAProfile
         VAProfile::ProfileInformation::PersonResponse
       end
 
-      def self.transaction_response_class
+      def transaction_response_class
         VAProfile::ProfileInformation::PersonTransactionResponse
       end
 

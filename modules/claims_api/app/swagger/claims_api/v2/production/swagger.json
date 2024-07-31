@@ -373,7 +373,8 @@
                         "baseEndProductCode": "400",
                         "claimDate": "2017-05-02",
                         "claimPhaseDates": {
-                          "phaseChangeDate": "2017-10-18"
+                          "phaseChangeDate": "2017-10-18",
+                          "phaseType": "COMPLETE"
                         },
                         "claimType": "Compensation",
                         "claimTypeCode": "400PREDSCHRG",
@@ -458,6 +459,21 @@
                                     "type": "string",
                                     "description": "The date that the claim changed to its current phase",
                                     "example": "2017-10-18"
+                                  },
+                                  "phaseType": {
+                                    "type": "string",
+                                    "enum": [
+                                      "CLAIM_RECEIVED",
+                                      "UNDER_REVIEW",
+                                      "GATHERING_OF_EVIDENCE",
+                                      "REVIEW_OF_EVIDENCE",
+                                      "PREPARATION_FOR_DECISION",
+                                      "PENDING_DECISION_APPROVAL",
+                                      "PREPARATION_FOR_NOTIFICATION",
+                                      "COMPLETE"
+                                    ],
+                                    "description": "The most current phase for the claim",
+                                    "example": "UNDER_REVIEW"
                                   }
                                 }
                               },
@@ -1373,15 +1389,13 @@
                                   "required": [
                                     "addressLine1",
                                     "city",
-                                    "state",
-                                    "zipFirstFive",
                                     "country"
                                   ],
                                   "properties": {
                                     "addressLine1": {
                                       "description": "Address line 1 for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                       "maxLength": 20,
                                       "example": "1234 Couch Street"
                                     },
@@ -1409,10 +1423,11 @@
                                       "example": "Portland"
                                     },
                                     "state": {
-                                      "description": "State for the Veteran's current mailing address.",
+                                      "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                       "type": "string",
                                       "pattern": "^[a-z,A-Z]{2}$",
-                                      "example": "OR"
+                                      "example": "OR",
+                                      "nullable": true
                                     },
                                     "country": {
                                       "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -1421,16 +1436,23 @@
                                       "example": "USA"
                                     },
                                     "zipFirstFive": {
-                                      "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
+                                      "description": "Zip code (First 5 digits) for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                       "type": "string",
                                       "pattern": "^\\d{5}?$",
-                                      "example": "12345"
+                                      "example": "12345",
+                                      "nullable": true
                                     },
                                     "zipLastFour": {
                                       "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
                                       "type": "string",
                                       "pattern": "^\\d{4}?$",
                                       "example": "6789",
+                                      "nullable": true
+                                    },
+                                    "internationalPostalCode": {
+                                      "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                      "type": "string",
+                                      "maxLength": 100,
                                       "nullable": true
                                     }
                                   }
@@ -1481,13 +1503,14 @@
                                 "addressLine1": {
                                   "description": "Address line 1 for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "1234 Couch Street"
                                 },
                                 "addressLine2": {
                                   "description": "Address line 2 for the Veteran's new address.",
                                   "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Unit 4",
                                   "nullable": true
@@ -1495,6 +1518,7 @@
                                 "addressLine3": {
                                   "description": "Address line 3 for the Veteran's new address.",
                                   "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Room 1",
                                   "nullable": true
@@ -1507,10 +1531,11 @@
                                   "example": "Portland"
                                 },
                                 "state": {
-                                  "description": "State for the Veteran's new address.",
+                                  "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                   "type": "string",
                                   "pattern": "^$|^[a-z,A-Z]{2}$",
-                                  "example": "OR"
+                                  "example": "OR",
+                                  "nullable": true
                                 },
                                 "country": {
                                   "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -1519,10 +1544,11 @@
                                   "example": "USA"
                                 },
                                 "zipFirstFive": {
-                                  "description": "Zip code (First 5 digits) for the Veteran's new address.",
+                                  "description": "Zip code (First 5 digits) for the Veteran's new address. Required if 'country' is 'USA'.",
                                   "type": "string",
                                   "pattern": "^$|^\\d{5}?$",
-                                  "example": "12345"
+                                  "example": "12345",
+                                  "nullable": true
                                 },
                                 "zipLastFour": {
                                   "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -1530,6 +1556,12 @@
                                   "nullable": true,
                                   "pattern": "^$|^\\d{4}?$",
                                   "example": "6789"
+                                },
+                                "internationalPostalCode": {
+                                  "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                  "type": "string",
+                                  "maxLength": 100,
+                                  "nullable": true
                                 },
                                 "dates": {
                                   "type": "object",
@@ -1556,6 +1588,16 @@
                               "nullable": true,
                               "additionalProperties": false,
                               "properties": {
+                                "isCurrentlyHomeless": {
+                                  "type": "boolean",
+                                  "nullable": true,
+                                  "description": "Is the Veteran currently homeless?"
+                                },
+                                "isAtRiskOfBecomingHomeless": {
+                                  "type": "boolean",
+                                  "nullable": true,
+                                  "description": "Is the Veteran currently at risk of becoming homeless?"
+                                },
                                 "currentlyHomeless": {
                                   "type": "object",
                                   "nullable": true,
@@ -2029,7 +2071,7 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                        "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
@@ -2384,9 +2426,9 @@
                                 },
                                 "accountNumber": {
                                   "description": "Account number for the direct deposit.",
-                                  "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                  "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                   "type": "string",
-                                  "maxLength": 14,
+                                  "maxLength": 1000,
                                   "nullable": true,
                                   "example": "123123123123"
                                 },
@@ -2402,7 +2444,7 @@
                                 },
                                 "financialInstitutionName": {
                                   "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                  "maxLength": 35,
+                                  "maxLength": 1000,
                                   "type": "string",
                                   "nullable": true,
                                   "example": "Some Bank"
@@ -2410,8 +2452,9 @@
                                 "routingNumber": {
                                   "description": "Routing number for the direct deposit.",
                                   "type": "string",
+                                  "maxLength": 1000,
                                   "nullable": true,
-                                  "pattern": "^(?:\\d{9})?$",
+                                  "pattern": "^$|^\\d{0,1000}$",
                                   "example": "123123123"
                                 }
                               }
@@ -2722,15 +2765,13 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "state",
-                                  "zipFirstFive",
                                   "country"
                                 ],
                                 "properties": {
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -2758,10 +2799,11 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the Veteran's current mailing address.",
+                                    "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR"
+                                    "example": "OR",
+                                    "nullable": true
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -2770,16 +2812,23 @@
                                     "example": "USA"
                                   },
                                   "zipFirstFive": {
-                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
+                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
-                                    "example": "12345"
+                                    "example": "12345",
+                                    "nullable": true
                                   },
                                   "zipLastFour": {
                                     "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789",
+                                    "nullable": true
+                                  },
+                                  "internationalPostalCode": {
+                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                    "type": "string",
+                                    "maxLength": 100,
                                     "nullable": true
                                   }
                                 }
@@ -2830,13 +2879,14 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Unit 4",
                                 "nullable": true
@@ -2844,6 +2894,7 @@
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Room 1",
                                 "nullable": true
@@ -2856,10 +2907,11 @@
                                 "example": "Portland"
                               },
                               "state": {
-                                "description": "State for the Veteran's new address.",
+                                "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR"
+                                "example": "OR",
+                                "nullable": true
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -2868,10 +2920,11 @@
                                 "example": "USA"
                               },
                               "zipFirstFive": {
-                                "description": "Zip code (First 5 digits) for the Veteran's new address.",
+                                "description": "Zip code (First 5 digits) for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^\\d{5}?$",
-                                "example": "12345"
+                                "example": "12345",
+                                "nullable": true
                               },
                               "zipLastFour": {
                                 "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -2879,6 +2932,12 @@
                                 "nullable": true,
                                 "pattern": "^$|^\\d{4}?$",
                                 "example": "6789"
+                              },
+                              "internationalPostalCode": {
+                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                "type": "string",
+                                "maxLength": 100,
+                                "nullable": true
                               },
                               "dates": {
                                 "type": "object",
@@ -2905,6 +2964,16 @@
                             "nullable": true,
                             "additionalProperties": false,
                             "properties": {
+                              "isCurrentlyHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently homeless?"
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
+                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -3378,7 +3447,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -3733,9 +3802,9 @@
                               },
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
-                                "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                 "type": "string",
-                                "maxLength": 14,
+                                "maxLength": 1000,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -3751,7 +3820,7 @@
                               },
                               "financialInstitutionName": {
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                "maxLength": 35,
+                                "maxLength": 1000,
                                 "type": "string",
                                 "nullable": true,
                                 "example": "Some Bank"
@@ -3759,8 +3828,9 @@
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "nullable": true,
-                                "pattern": "^(?:\\d{9})?$",
+                                "pattern": "^$|^\\d{0,1000}$",
                                 "example": "123123123"
                               }
                             }
@@ -4295,7 +4365,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "85af9033-e9df-4203-b7a3-ecdab4e683d3",
+                    "id": "024168a9-3fb9-4dbb-96b0-0b594ba73819",
                     "type": "forms/526",
                     "attributes": {
                       "claimId": "600442191",
@@ -4478,7 +4548,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-06-27"
+                          "anticipatedSeparationDate": "2024-07-25"
                         },
                         "confinements": [
                           {
@@ -4604,15 +4674,13 @@
                                   "required": [
                                     "addressLine1",
                                     "city",
-                                    "state",
-                                    "zipFirstFive",
                                     "country"
                                   ],
                                   "properties": {
                                     "addressLine1": {
                                       "description": "Address line 1 for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                       "maxLength": 20,
                                       "example": "1234 Couch Street"
                                     },
@@ -4640,10 +4708,11 @@
                                       "example": "Portland"
                                     },
                                     "state": {
-                                      "description": "State for the Veteran's current mailing address.",
+                                      "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                       "type": "string",
                                       "pattern": "^[a-z,A-Z]{2}$",
-                                      "example": "OR"
+                                      "example": "OR",
+                                      "nullable": true
                                     },
                                     "country": {
                                       "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -4652,16 +4721,23 @@
                                       "example": "USA"
                                     },
                                     "zipFirstFive": {
-                                      "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
+                                      "description": "Zip code (First 5 digits) for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                       "type": "string",
                                       "pattern": "^\\d{5}?$",
-                                      "example": "12345"
+                                      "example": "12345",
+                                      "nullable": true
                                     },
                                     "zipLastFour": {
                                       "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
                                       "type": "string",
                                       "pattern": "^\\d{4}?$",
                                       "example": "6789",
+                                      "nullable": true
+                                    },
+                                    "internationalPostalCode": {
+                                      "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                      "type": "string",
+                                      "maxLength": 100,
                                       "nullable": true
                                     }
                                   }
@@ -4712,13 +4788,14 @@
                                 "addressLine1": {
                                   "description": "Address line 1 for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "1234 Couch Street"
                                 },
                                 "addressLine2": {
                                   "description": "Address line 2 for the Veteran's new address.",
                                   "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Unit 4",
                                   "nullable": true
@@ -4726,6 +4803,7 @@
                                 "addressLine3": {
                                   "description": "Address line 3 for the Veteran's new address.",
                                   "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Room 1",
                                   "nullable": true
@@ -4738,10 +4816,11 @@
                                   "example": "Portland"
                                 },
                                 "state": {
-                                  "description": "State for the Veteran's new address.",
+                                  "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                   "type": "string",
                                   "pattern": "^$|^[a-z,A-Z]{2}$",
-                                  "example": "OR"
+                                  "example": "OR",
+                                  "nullable": true
                                 },
                                 "country": {
                                   "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -4750,10 +4829,11 @@
                                   "example": "USA"
                                 },
                                 "zipFirstFive": {
-                                  "description": "Zip code (First 5 digits) for the Veteran's new address.",
+                                  "description": "Zip code (First 5 digits) for the Veteran's new address. Required if 'country' is 'USA'.",
                                   "type": "string",
                                   "pattern": "^$|^\\d{5}?$",
-                                  "example": "12345"
+                                  "example": "12345",
+                                  "nullable": true
                                 },
                                 "zipLastFour": {
                                   "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -4761,6 +4841,12 @@
                                   "nullable": true,
                                   "pattern": "^$|^\\d{4}?$",
                                   "example": "6789"
+                                },
+                                "internationalPostalCode": {
+                                  "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                  "type": "string",
+                                  "maxLength": 100,
+                                  "nullable": true
                                 },
                                 "dates": {
                                   "type": "object",
@@ -4787,6 +4873,16 @@
                               "nullable": true,
                               "additionalProperties": false,
                               "properties": {
+                                "isCurrentlyHomeless": {
+                                  "type": "boolean",
+                                  "nullable": true,
+                                  "description": "Is the Veteran currently homeless?"
+                                },
+                                "isAtRiskOfBecomingHomeless": {
+                                  "type": "boolean",
+                                  "nullable": true,
+                                  "description": "Is the Veteran currently at risk of becoming homeless?"
+                                },
                                 "currentlyHomeless": {
                                   "type": "object",
                                   "nullable": true,
@@ -5260,7 +5356,7 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                        "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                         "example": "Portland",
                                         "nullable": true
                                       },
@@ -5615,9 +5711,9 @@
                                 },
                                 "accountNumber": {
                                   "description": "Account number for the direct deposit.",
-                                  "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                  "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                   "type": "string",
-                                  "maxLength": 14,
+                                  "maxLength": 1000,
                                   "nullable": true,
                                   "example": "123123123123"
                                 },
@@ -5633,7 +5729,7 @@
                                 },
                                 "financialInstitutionName": {
                                   "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                  "maxLength": 35,
+                                  "maxLength": 1000,
                                   "type": "string",
                                   "nullable": true,
                                   "example": "Some Bank"
@@ -5641,8 +5737,9 @@
                                 "routingNumber": {
                                   "description": "Routing number for the direct deposit.",
                                   "type": "string",
+                                  "maxLength": 1000,
                                   "nullable": true,
-                                  "pattern": "^(?:\\d{9})?$",
+                                  "pattern": "^$|^\\d{0,1000}$",
                                   "example": "123123123"
                                 }
                               }
@@ -5953,15 +6050,13 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "state",
-                                  "zipFirstFive",
                                   "country"
                                 ],
                                 "properties": {
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -5989,10 +6084,11 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the Veteran's current mailing address.",
+                                    "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR"
+                                    "example": "OR",
+                                    "nullable": true
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -6001,16 +6097,23 @@
                                     "example": "USA"
                                   },
                                   "zipFirstFive": {
-                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
+                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
-                                    "example": "12345"
+                                    "example": "12345",
+                                    "nullable": true
                                   },
                                   "zipLastFour": {
                                     "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789",
+                                    "nullable": true
+                                  },
+                                  "internationalPostalCode": {
+                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                    "type": "string",
+                                    "maxLength": 100,
                                     "nullable": true
                                   }
                                 }
@@ -6061,13 +6164,14 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Unit 4",
                                 "nullable": true
@@ -6075,6 +6179,7 @@
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Room 1",
                                 "nullable": true
@@ -6087,10 +6192,11 @@
                                 "example": "Portland"
                               },
                               "state": {
-                                "description": "State for the Veteran's new address.",
+                                "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR"
+                                "example": "OR",
+                                "nullable": true
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -6099,10 +6205,11 @@
                                 "example": "USA"
                               },
                               "zipFirstFive": {
-                                "description": "Zip code (First 5 digits) for the Veteran's new address.",
+                                "description": "Zip code (First 5 digits) for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^\\d{5}?$",
-                                "example": "12345"
+                                "example": "12345",
+                                "nullable": true
                               },
                               "zipLastFour": {
                                 "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -6110,6 +6217,12 @@
                                 "nullable": true,
                                 "pattern": "^$|^\\d{4}?$",
                                 "example": "6789"
+                              },
+                              "internationalPostalCode": {
+                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                "type": "string",
+                                "maxLength": 100,
+                                "nullable": true
                               },
                               "dates": {
                                 "type": "object",
@@ -6136,6 +6249,16 @@
                             "nullable": true,
                             "additionalProperties": false,
                             "properties": {
+                              "isCurrentlyHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently homeless?"
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
+                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -6609,7 +6732,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -6964,9 +7087,9 @@
                               },
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
-                                "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                 "type": "string",
-                                "maxLength": 14,
+                                "maxLength": 1000,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -6982,7 +7105,7 @@
                               },
                               "financialInstitutionName": {
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                "maxLength": 35,
+                                "maxLength": 1000,
                                 "type": "string",
                                 "nullable": true,
                                 "example": "Some Bank"
@@ -6990,8 +7113,9 @@
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "nullable": true,
-                                "pattern": "^(?:\\d{9})?$",
+                                "pattern": "^$|^\\d{0,1000}$",
                                 "example": "123123123"
                               }
                             }
@@ -7845,15 +7969,13 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "state",
-                                  "zipFirstFive",
                                   "country"
                                 ],
                                 "properties": {
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
@@ -7881,10 +8003,11 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the Veteran's current mailing address.",
+                                    "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR"
+                                    "example": "OR",
+                                    "nullable": true
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -7893,16 +8016,23 @@
                                     "example": "USA"
                                   },
                                   "zipFirstFive": {
-                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
+                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
-                                    "example": "12345"
+                                    "example": "12345",
+                                    "nullable": true
                                   },
                                   "zipLastFour": {
                                     "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789",
+                                    "nullable": true
+                                  },
+                                  "internationalPostalCode": {
+                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                    "type": "string",
+                                    "maxLength": 100,
                                     "nullable": true
                                   }
                                 }
@@ -7953,13 +8083,14 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.']([-a-zA-Z0-9'.' ])?)+$",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Unit 4",
                                 "nullable": true
@@ -7967,6 +8098,7 @@
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
+                                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                 "maxLength": 20,
                                 "example": "Room 1",
                                 "nullable": true
@@ -7979,10 +8111,11 @@
                                 "example": "Portland"
                               },
                               "state": {
-                                "description": "State for the Veteran's new address.",
+                                "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR"
+                                "example": "OR",
+                                "nullable": true
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -7991,10 +8124,11 @@
                                 "example": "USA"
                               },
                               "zipFirstFive": {
-                                "description": "Zip code (First 5 digits) for the Veteran's new address.",
+                                "description": "Zip code (First 5 digits) for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^\\d{5}?$",
-                                "example": "12345"
+                                "example": "12345",
+                                "nullable": true
                               },
                               "zipLastFour": {
                                 "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -8002,6 +8136,12 @@
                                 "nullable": true,
                                 "pattern": "^$|^\\d{4}?$",
                                 "example": "6789"
+                              },
+                              "internationalPostalCode": {
+                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                "type": "string",
+                                "maxLength": 100,
+                                "nullable": true
                               },
                               "dates": {
                                 "type": "object",
@@ -8028,6 +8168,16 @@
                             "nullable": true,
                             "additionalProperties": false,
                             "properties": {
+                              "isCurrentlyHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently homeless?"
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
+                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -8501,7 +8651,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
+                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
@@ -8856,9 +9006,9 @@
                               },
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
-                                "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                                "pattern": "^(?:[a-zA-Z0-9-]{4,1000})?$",
                                 "type": "string",
-                                "maxLength": 14,
+                                "maxLength": 1000,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -8874,7 +9024,7 @@
                               },
                               "financialInstitutionName": {
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                "maxLength": 35,
+                                "maxLength": 1000,
                                 "type": "string",
                                 "nullable": true,
                                 "example": "Some Bank"
@@ -8882,8 +9032,9 @@
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "maxLength": 1000,
                                 "nullable": true,
-                                "pattern": "^(?:\\d{9})?$",
+                                "pattern": "^$|^\\d{0,1000}$",
                                 "example": "123123123"
                               }
                             }
@@ -9167,7 +9318,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "31f114e6-0bf9-4125-8d8d-7f06fac761c2",
+                    "id": "7e262461-3164-4b3c-9d0f-4680d6edc34d",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -10262,7 +10413,7 @@
                         ],
                         "properties": {
                           "claimDate": {
-                            "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                            "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})$",
                             "type": "string",
                             "example": "2018-06-04"
                           },
@@ -10297,7 +10448,6 @@
                                   "telephone": {
                                     "description": "Veteran's phone number. Number including area code.",
                                     "type": "string",
-                                    "pattern": "^\\d{10}?$",
                                     "example": "5555555555",
                                     "nullable": true
                                   },
@@ -10324,14 +10474,12 @@
                                   "addressLine1": {
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.' ])+$",
                                     "maxLength": 325,
                                     "example": "1234 Couch Street"
                                   },
                                   "addressLine2": {
                                     "description": "Address line 2 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                     "maxLength": 325,
                                     "example": "Unit 4",
                                     "nullable": true
@@ -10339,7 +10487,6 @@
                                   "addressLine3": {
                                     "description": "Address line 3 for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                     "maxLength": 325,
                                     "example": "Room 1",
                                     "nullable": true
@@ -10347,7 +10494,6 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                     "example": "Portland",
                                     "maxLength": 1000
                                   },
@@ -10424,7 +10570,6 @@
                               "addressLine1": {
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
                                 "maxLength": 325,
                                 "example": "1234 Couch Street"
                               },
@@ -10445,14 +10590,12 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                 "example": "Portland",
                                 "maxLength": 1000
                               },
                               "state": {
                                 "description": "State for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^[a-z,A-Z]{2}$",
                                 "example": "OR",
                                 "maxLength": 1000
                               },
@@ -10480,15 +10623,15 @@
                                 "properties": {
                                   "beginDate": {
                                     "description": "Begin date for the Veteran's new address.",
-                                    "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "type": "string",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
                                     "example": "2018-06-04"
                                   },
                                   "endDate": {
                                     "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
                                     "example": "2018-06-04"
                                   }
                                 }
@@ -10558,7 +10701,6 @@
                                 "nullable": true,
                                 "minLength": 1,
                                 "maxLength": 1000,
-                                "pattern": "^([-a-zA-Z0-9/']+( ?))*$",
                                 "example": "Jane Doe"
                               },
                               "pointOfContactNumber": {
@@ -10569,7 +10711,6 @@
                                   "telephone": {
                                     "description": "Ten digit primary phone of point of contact.",
                                     "type": "string",
-                                    "pattern": "^\\d{10}?$",
                                     "example": "5555555555",
                                     "nullable": true
                                   },
@@ -10612,12 +10753,14 @@
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate begin date for serving in Gulf War hazard location.",
+                                        "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                         "example": "2018-06 or 2018"
                                       },
                                       "endDate": {
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate end date for serving in Gulf War hazard location.",
+                                        "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                         "example": "2018-06 or 2018"
                                       }
                                     }
@@ -10642,7 +10785,6 @@
                                   "otherLocationsServed": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                     "description": "Other location(s) where Veteran served.",
                                     "maxLength": 5000
                                   },
@@ -10655,14 +10797,14 @@
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate begin date for serving in herbicide location.",
-                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                        "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                         "example": "2018-06 or 2018"
                                       },
                                       "endDate": {
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate end date for serving in herbicide location.",
-                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                        "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                         "example": "2018-06 or 2018"
                                       }
                                     }
@@ -10696,7 +10838,6 @@
                                   "specifyOtherExposures": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                     "description": "Exposure to asbestos.",
                                     "maxLength": 5000
                                   },
@@ -10709,14 +10850,14 @@
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate begin date for exposure.",
-                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                        "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                         "example": "2018-06 or 2018"
                                       },
                                       "endDate": {
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate end date for exposure.",
-                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                        "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                         "example": "2018-06 or 2018"
                                       }
                                     }
@@ -10735,14 +10876,12 @@
                                     "hazardExposedTo": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                       "description": "Hazard the Veteran was exposed to.",
                                       "maxLength": 1000
                                     },
                                     "exposureLocation": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
                                       "description": "Location where the exposure happened.",
                                       "maxLength": 1000
                                     },
@@ -10755,14 +10894,14 @@
                                           "type": "string",
                                           "nullable": true,
                                           "description": "Approximate begin date for exposure.",
-                                          "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                          "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                           "example": "2018-06 or 2018"
                                         },
                                         "endDate": {
                                           "type": "string",
                                           "nullable": true,
                                           "description": "Approximate end date for exposure.",
-                                          "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                          "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                           "example": "2018-06 or 2018"
                                         }
                                       }
@@ -10788,7 +10927,6 @@
                                 "name": {
                                   "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                   "type": "string",
-                                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                                   "example": "PTSD (post traumatic stress disorder)",
                                   "maxLength": 1000
                                 },
@@ -10813,7 +10951,7 @@
                                 "approximateDate": {
                                   "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                                   "type": "string",
-                                  "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
+                                  "pattern": "^(\\d{4}-(\\d{2}-(\\d{2})?)?|\\d{4}-\\d{2}|\\d{4}|)$",
                                   "example": "2018-03-02 or 2018-03 or 2018",
                                   "nullable": true,
                                   "maxLength": 1000
@@ -10877,7 +11015,6 @@
                                       "name": {
                                         "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                         "type": "string",
-                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                                         "example": "PTSD (post traumatic stress disorder)",
                                         "maxLength": 1000
                                       },
@@ -10910,7 +11047,7 @@
                                       "approximateDate": {
                                         "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                                         "type": "string",
-                                        "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
+                                        "pattern": "^(\\d{4}-(\\d{2}-(\\d{2})?)?|\\d{4}-\\d{2}|\\d{4}|)$",
                                         "example": "2018-03-02 or 2018-03 or 2018",
                                         "nullable": true,
                                         "maxLength": 1000
@@ -10939,7 +11076,7 @@
                                 "beginDate": {
                                   "description": "Begin date for treatment. If treatment began from 2005 to present, you do not need to provide dates. Each treatment begin date must be after the first 'servicePeriod.activeDutyBeginDate'.",
                                   "type": "string",
-                                  "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                  "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                   "example": "2018-06 or 2018",
                                   "nullable": true
                                 },
@@ -10967,21 +11104,18 @@
                                       "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^$|(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                                       "example": "Private Facility 2",
                                       "maxLength": 100
                                     },
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
                                       "example": "Portland",
                                       "nullable": true
                                     },
                                     "state": {
                                       "description": "State of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^[a-z,A-Z]{2}$",
                                       "example": "OR",
                                       "nullable": true
                                     }
@@ -11044,13 +11178,13 @@
                                     "activeDutyBeginDate": {
                                       "description": "Date started active duty.",
                                       "type": "string",
-                                      "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                                      "pattern": "^(?:\\d{4})-(?:\\d{2})-(?:\\d{2})$",
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
                                       "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                       "type": "string",
-                                      "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                                      "pattern": "^(?:\\d{4})-(?:\\d{2})-(?:\\d{2})$",
                                       "example": "2018-06-06"
                                     },
                                     "separationLocationCode": {
@@ -11095,13 +11229,13 @@
                                       "beginDate": {
                                         "type": "string",
                                         "nullable": true,
-                                        "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                                        "pattern": "^(?:\\d{4})-(?:\\d{2})-(?:\\d{2})$",
                                         "example": "2018-06-06"
                                       },
                                       "endDate": {
                                         "type": "string",
                                         "nullable": true,
-                                        "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                                        "pattern": "^(?:\\d{4})-(?:\\d{2})-(?:\\d{2})$",
                                         "example": "2018-06-06"
                                       }
                                     }
@@ -11109,13 +11243,11 @@
                                   "unitName": {
                                     "type": "string",
                                     "maxLength": 1000,
-                                    "nullable": true,
-                                    "pattern": "^$|([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
+                                    "nullable": true
                                   },
                                   "unitAddress": {
                                     "type": "string",
                                     "maxLength": 1000,
-                                    "pattern": "^$|^([-a-zA-Z0-9'.,&# ])+$",
                                     "nullable": true
                                   },
                                   "unitPhone": {
@@ -11127,7 +11259,6 @@
                                         "type": "string",
                                         "nullable": true,
                                         "maxLength": 1000,
-                                        "pattern": "^$|^\\d{3}$",
                                         "example": "555"
                                       },
                                       "phoneNumber": {
@@ -11157,14 +11288,14 @@
                                   "activationDate": {
                                     "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
                                     "type": "string",
-                                    "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$|^$",
                                     "example": "2018-06-06",
                                     "nullable": true
                                   },
                                   "anticipatedSeparationDate": {
                                     "description": "Anticipated date of separation. Date must be in the future.",
                                     "type": "string",
-                                    "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$|^$",
                                     "example": "2018-06-06",
                                     "nullable": true
                                   }
@@ -11182,13 +11313,13 @@
                                       "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                      "pattern": "^(\\d{4}-(\\d{2}-(\\d{2})?)?|\\d{4}-\\d{2}|\\d{4}|)$",
                                       "example": "2018-06-06 or 2018-06"
                                     },
                                     "approximateEndDate": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                      "pattern": "^(\\d{4}-(\\d{2}-(\\d{2})?)?|\\d{4}-\\d{2}|\\d{4}|)$",
                                       "example": "2018-06-06 or 2018-06"
                                     }
                                   }
@@ -11283,7 +11414,7 @@
                                   "datePaymentReceived": {
                                     "description": "Approximate date separation pay was received. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                                     "type": "string",
-                                    "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                    "pattern": "^(\\d{4}-(\\d{2}-(\\d{2})?)?|\\d{4}-\\d{2}|\\d{4}|)$",
                                     "example": "2018-03-02 or 2018-03 or 2018"
                                   },
                                   "branchOfService": {
@@ -11625,20 +11756,10 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "sponsorIcn",
-            "in": "query",
-            "required": false,
-            "example": "1012861229V078999",
-            "description": "ICN of the veteran affiliated with the dependent",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
-          "200": {
+          "202": {
             "description": "Successful response",
             "content": {
               "application/json": {
@@ -12050,8 +12171,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-06-25",
-                      "expirationDate": "2025-06-25",
+                      "creationDate": "2024-07-23",
+                      "expirationDate": "2025-07-23",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -12927,7 +13048,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9c4edea8-8afc-4a34-b418-04bb84648f98",
+                    "id": "9ab52a35-edb8-427d-87f6-0b08c20c2e94",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -13620,7 +13741,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1ac0409e-0686-4a71-a7ac-7822f3caffb6",
+                    "id": "4c05bf68-3ec7-4358-b5dc-585c0392411d",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15571,10 +15692,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6f0a7698-7599-4f0c-aed4-8531effa9266",
+                    "id": "27b5ef35-9836-4480-8e75-fa4286bb0186",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-06-25",
+                      "dateRequestAccepted": "2024-07-23",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

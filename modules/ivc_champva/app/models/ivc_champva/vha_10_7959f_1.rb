@@ -2,7 +2,10 @@
 
 module IvcChampva
   class VHA107959f1
+    STATS_KEY = 'api.ivc_champva_form.10_7959f_1'
+
     include Virtus.model(nullify_blank: true)
+    include Attachments
 
     attribute :data
     attr_reader :form_id
@@ -22,6 +25,7 @@ module IvcChampva
         'zipCode' => @data.dig('veteran', 'mailing_address', 'postal_code') || '00000',
         'country' => @data.dig('veteran', 'mailing_address', 'country') || 'USA',
         'source' => 'VA Platform Digital Forms',
+        'ssn_or_tin' => @data.dig('veteran', 'ssn'),
         'docType' => @data['form_number'],
         'businessLine' => 'CMP',
         'uuid' => @uuid,
@@ -31,6 +35,12 @@ module IvcChampva
 
     def desired_stamps
       [{ coords: [26, 82.5], text: data['statement_of_truth_signature'], page: 0 }]
+    end
+
+    def track_current_user_loa(current_user)
+      current_user_loa = current_user&.loa&.[](:current) || 0
+      StatsD.increment("#{STATS_KEY}.#{current_user_loa}")
+      Rails.logger.info('IVC ChampVA Forms - 10-7959F-1 Current User LOA', current_user_loa:)
     end
 
     def method_missing(_, *args)

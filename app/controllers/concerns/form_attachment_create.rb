@@ -8,10 +8,14 @@ module FormAttachmentCreate
     save_attachment_to_cloud!
     save_attachment_to_db!
 
-    render(json: form_attachment)
+    render json: serializer_klass.new(form_attachment)
   end
 
   private
+
+  def serializer_klass
+    raise NotImplementedError, 'Class must implement serializer method'
+  end
 
   def validate_file_upload_class!
     # is it either ActionDispatch::Http::UploadedFile or Rack::Test::UploadedFile

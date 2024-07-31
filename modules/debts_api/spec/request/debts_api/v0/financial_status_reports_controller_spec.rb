@@ -55,6 +55,14 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
       get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/pre_transform')
     end
 
+    let(:pre_transform_fsr_streamlined_form_data) do
+      get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/sw_short/streamlined_pre_transform')
+    end
+
+    let(:pre_transform_fsr_streamlined_long_form_data) do
+      get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/sw_short/streamlined_long_pre_transform')
+    end
+
     context 'when service raises FSRNotFoundInRedis' do
       let(:post_transform_fsr_form_data) do
         get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/post_transform')
@@ -83,7 +91,33 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
         VCR.use_cassette('bgs/people_service/person_data') do
           post(
             '/debts_api/v0/financial_status_reports/transform_and_submit',
+            params: pre_transform_fsr_streamlined_form_data.to_h,
+            as: :json
+          )
+          expect(response.code).to eq('200')
+        end
+      end
+    end
+
+    it 'submits a streamlined short form' do
+      VCR.use_cassette('dmc/submit_fsr') do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          post(
+            '/debts_api/v0/financial_status_reports/transform_and_submit',
             params: pre_transform_fsr_form_data.to_h,
+            as: :json
+          )
+          expect(response.code).to eq('200')
+        end
+      end
+    end
+
+    it 'submits a streamlined long form' do
+      VCR.use_cassette('dmc/submit_fsr') do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          post(
+            '/debts_api/v0/financial_status_reports/transform_and_submit',
+            params: pre_transform_fsr_streamlined_long_form_data.to_h,
             as: :json
           )
           expect(response.code).to eq('200')

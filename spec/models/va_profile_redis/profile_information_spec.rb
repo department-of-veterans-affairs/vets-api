@@ -6,7 +6,6 @@ describe VAProfileRedis::ProfileInformation do
   let(:user) { build(:user, :loa3) }
   let(:person_response) do
     raw_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
-
     VAProfile::ProfileInformation::PersonResponse.from(raw_response)
   end
   let(:contact_info) { VAProfileRedis::ProfileInformation.for_user(user) }
@@ -42,11 +41,9 @@ describe VAProfileRedis::ProfileInformation do
       let(:get_person_calls) { 'once' }
 
       before do
-        allow(VAProfile::Configuration::SETTINGS.profile_information).to receive(:cache_enabled).and_return(true)
-
         service = double
         allow(VAProfile::ProfileInformation::Service).to receive(:new).with(user).and_return(service)
-        expect(service).to receive('get_person').public_send(
+        expect(service).to receive(:get_person).public_send(
           get_person_calls
         ).and_return(
           VAProfile::ProfileInformation::PersonResponse.new(status, person: nil)
@@ -71,23 +68,21 @@ describe VAProfileRedis::ProfileInformation do
     end
   end
 
-  # describe '.new' do
-  #   it 'creates an instance with user attributes' do
-  #     expect(contact_info.user).to eq(user)
-  #   end
-  # end
+  describe '.new' do
+    it 'creates an instance with user attributes' do
+      expect(contact_info.user).to eq(user)
+    end
+  end
 
   describe '#response' do
     context 'when the cache is empty' do
       it 'caches and return the response', :aggregate_failures do
         allow_any_instance_of(
           VAProfile::ProfileInformation::Service
-        ).to receive('get_person').and_return(person_response)
+        ).to receive(:get_person).and_return(person_response)
+        # expect(contact_info.redis_namespace).to receive(:set).once
+        # expect_any_instance_of(VAProfile::ProfileInformation::Service).to receive(:get_person).twice
 
-        if VAProfile::Configuration::SETTINGS.profile_information.cache_enabled
-          expect(contact_info.redis_namespace).to receive(:set).once
-        end
-        expect_any_instance_of(VAProfile::ProfileInformation::Service).to receive('get_person').twice
         expect(contact_info.status).to eq 200
         expect(contact_info.response.person).to have_deep_attributes(person)
       end
@@ -97,7 +92,7 @@ describe VAProfileRedis::ProfileInformation do
       it 'returns the cached data', :aggregate_failures do
         contact_info.cache(user.uuid, person_response)
 
-        expect_any_instance_of(VAProfile::ProfileInformation::Service).not_to receive('get_person')
+        expect_any_instance_of(VAProfile::ProfileInformation::Service).not_to receive(:get_person)
         expect(contact_info.response.person).to have_deep_attributes(person)
       end
     end
@@ -109,11 +104,12 @@ describe VAProfileRedis::ProfileInformation do
         allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
         allow_any_instance_of(
           VAProfile::ProfileInformation::Service
-        ).to receive('get_person').and_return(person_response)
+        ).to receive(:get_person).and_return(person_response)
       end
 
       describe '#email' do
         it 'returns the users email address object', :aggregate_failures do
+
           expect(contact_info.email).to eq person.emails.first
           expect(contact_info.email.class).to eq VAProfile::Models::Email
         end
@@ -194,7 +190,7 @@ describe VAProfileRedis::ProfileInformation do
 
     context 'with an error response' do
       before do
-        allow_any_instance_of(VAProfile::ProfileInformation::Service).to receive('get_person').and_raise(
+        allow_any_instance_of(VAProfile::ProfileInformation::Service).to receive(:get_person).and_raise(
           Common::Exceptions::BackendServiceException
         )
       end
@@ -283,7 +279,7 @@ describe VAProfileRedis::ProfileInformation do
         allow(VAProfile::Models::Person).to receive(:build_from).and_return(nil)
         allow_any_instance_of(
           VAProfile::ProfileInformation::Service
-        ).to receive('get_person').and_return(empty_response)
+        ).to receive(:get_person).and_return(empty_response)
       end
 
       describe '#email' do

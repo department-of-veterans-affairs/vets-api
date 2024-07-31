@@ -13,6 +13,7 @@ Rails.application.reloader.to_prepare do
   Sidekiq::Enterprise.unique! if Rails.env.production?
 
   Sidekiq.configure_server do |config|
+    config.health_check('127.0.0.1:7433')
     config.redis = REDIS_CONFIG[:sidekiq]
     # super_fetch! is only available in sidekiq-pro and will cause
     #   "undefined method `super_fetch!'"

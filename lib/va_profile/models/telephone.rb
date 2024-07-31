@@ -147,7 +147,7 @@ module VAProfile
         )
       end
 
-      def self.transaction_response_class
+      def transaction_response_class
         VAProfile::ProfileInformation::TelephoneTransactionResponse
       end
 
@@ -164,13 +164,18 @@ module VAProfile
       end
 
       def self.contact_info_attr(record)
-        return 'mobile_phone' if record.phone_type == VAProfile::Models::Telephone::MOBILE
-        return 'home_phone' if record.phone_type == VAProfile::Models::Telephone::HOME
-        return 'work_phone' if record.phone_type == VAProfile::Models::Telephone::WORK
-        return 'fax_number' if record.phone_type == VAProfile::Models::Telephone::FAX
-        return 'temporary_phone' if record.phone_type == VAProfile::Models::Telephone::TEMPORARY
-
-        nil
+        case record
+        when VAProfile::Models::Telephone::MOBILE
+          'mobile_phone'
+        when VAProfile::Models::Telephone::HOME
+          'home_phone'
+        when VAProfile::Models::Telephone::WORK
+          'work_phone'
+        when VAProfile::Models::Telephone::FAX
+          'fax_number'
+        when VAProfile::Models::Telephone::TEMPORARY
+          'temporary_phone'
+        end
       end
     end
   end

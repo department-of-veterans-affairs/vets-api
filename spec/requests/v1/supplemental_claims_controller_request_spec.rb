@@ -36,6 +36,10 @@ RSpec.describe V1::SupplementalClaimsController do
       }
     }
   end
+  let(:extra_error_log_message) do
+    'BackendServiceException: ' \
+      '{:source=>"Common::Client::Errors::ClientError raised in DecisionReviewV1::Service", :code=>"DR_422"}'
+  end
 
   before { sign_in_as(user) }
 
@@ -73,6 +77,10 @@ RSpec.describe V1::SupplementalClaimsController do
         # InProgressForm should be destroyed after successful submission
         in_progress_form = InProgressForm.find_by(user_uuid: user.uuid, form_id: '20-0995')
         expect(in_progress_form).to be_nil
+        # SavedClaim should be created with request data
+        saved_claim = SavedClaim::SupplementalClaim.find_by(guid: id)
+        expect(saved_claim.form).to eq(VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY_V1').to_json)
+        expect(saved_claim.uploaded_forms).to be_empty
       end
     end
 
@@ -81,6 +89,11 @@ RSpec.describe V1::SupplementalClaimsController do
         expect(personal_information_logs.count).to be 0
         allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(error_log_args)
+        expect(Rails.logger).to receive(:error).with(
+          message: "Exception occurred while submitting Supplemental Claim: #{extra_error_log_message}",
+          backtrace: anything
+        )
+        expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_995.overall_claim_submission.failure')
 
@@ -126,6 +139,12 @@ RSpec.describe V1::SupplementalClaimsController do
           appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
           expect(appeal_submission.type_of_appeal).to eq('SC')
           expect { DecisionReview::Form4142Submit.drain }.to change(DecisionReview::Form4142Submit.jobs, :size).by(-1)
+
+          # SavedClaim should be created with request data and list of uploaded forms
+          request_body = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json)
+          saved_claim = SavedClaim::SupplementalClaim.find_by(guid: id)
+          expect(saved_claim.form).to eq(request_body.to_json)
+          expect(saved_claim.uploaded_forms).to contain_exactly '21-4142'
         end
       end
     end

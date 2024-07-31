@@ -12,6 +12,7 @@ module VAProfile
 
       def self.from(raw_response = nil)
         @response_body = raw_response&.body
+
         new(
           raw_response&.status,
           person: VAProfile::Models::Person.build_from(@response_body&.dig('bio'))

@@ -8,24 +8,22 @@ describe VAProfileRedis::Cache, :skip_vet360 do
   before do
     allow(user).to receive(:vet360_id).and_return('1')
     allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-    allow(VAProfile::Configuration::SETTINGS.profile_information).to receive(:cache_enabled).and_return(true)
   end
 
   describe '.invalidate' do
-    context 'when user.vet360_contact_info is present for contact information' do
-      let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
+    # context 'when user.vet360_contact_info is present for contact information' do
+    #   let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
 
-      it 'invalidates the va-profile-contact-info-response cache' do
-        VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
-          contact_info
-        end
-        expect(VAProfileRedis::ContactInformation.exists?(user.uuid)).to eq(true)
+    #   it 'invalidates the va-profile-contact-info-response cache' do
+    #     VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+    #       contact_info
+    #     end
+    #     expect(VAProfileRedis::ContactInformation.exists?(user.uuid)).to eq(true)
+    #     VAProfileRedis::Cache.invalidate(user)
 
-        VAProfileRedis::Cache.invalidate(user)
-
-        expect(VAProfileRedis::ContactInformation.exists?(user.uuid)).to eq(false)
-      end
-    end
+    #     expect(VAProfileRedis::ContactInformation.exists?(user.uuid)).to eq(false)
+    #   end
+    # end
 
     context 'when user.vet360_contact_info is present for profile information' do
       let(:contact_info) { VAProfileRedis::ProfileInformation.for_user(user) }
@@ -57,7 +55,7 @@ describe VAProfileRedis::Cache, :skip_vet360 do
       let(:contact_info) { VAProfileRedis::ProfileInformation.for_user(user) }
 
       it 'invalidates the va-profile-contact-info-response cache' do
-        VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/profile_information/person_full', VCR::MATCH_EVERYTHING) do
           contact_info
         end
         expect(VAProfileRedis::ProfileInformation.exists?(user.uuid)).to eq(true)

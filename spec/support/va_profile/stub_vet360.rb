@@ -2,6 +2,8 @@
 
 require 'va_profile/contact_information/service'
 require 'va_profile/contact_information/person_response'
+require 'va_profile/profile_information/service'
+require 'va_profile/profile_information/person_response'
 require 'va_profile/models/address'
 require 'va_profile/models/telephone'
 require 'va_profile/models/permission'
@@ -32,6 +34,10 @@ def stub_vet360(person = nil)
 
   allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_return(
     VAProfile::ContactInformation::PersonResponse.new(200, person:)
+  )
+
+  allow_any_instance_of(VAProfile::ProfileInformation::Service).to receive(:get_person).and_return(
+    VAProfile::ProfileInformation::PersonResponse.new(200, person:)
   )
 end
 # rubocop:enable Metrics/MethodLength

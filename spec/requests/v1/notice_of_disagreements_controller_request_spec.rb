@@ -28,6 +28,11 @@ RSpec.describe V1::NoticeOfDisagreementsController do
            headers:
     end
 
+    let(:extra_error_log_message) do
+      'BackendServiceException: {:source=>"Common::Client::Errors::ClientError raised in DecisionReviewV1::Service", ' \
+        ':code=>"DR_422"}'
+    end
+
     let(:test_request_body) do
       JSON.parse Rails.root.join('spec', 'fixtures', 'notice_of_disagreements',
                                  'valid_NOD_create_request.json').read
@@ -72,6 +77,9 @@ RSpec.describe V1::NoticeOfDisagreementsController do
         # InProgressForm should be destroyed after successful submission
         in_progress_form = InProgressForm.find_by(user_uuid: user.uuid, form_id: '10182')
         expect(in_progress_form).to be_nil
+        # SavedClaim should be created with request data
+        saved_claim = SavedClaim::NoticeOfDisagreement.find_by(guid: id)
+        expect(JSON.parse(saved_claim.form)).to eq(test_request_body)
       end
     end
 
@@ -92,6 +100,11 @@ RSpec.describe V1::NoticeOfDisagreementsController do
                                                        },
                                                        version_number: 'v2'
                                                      })
+        expect(Rails.logger).to receive(:error).with(
+          message: "Exception occurred while submitting Notice Of Disagreement: #{extra_error_log_message}",
+          backtrace: anything
+        )
+        expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_10182.overall_claim_submission.failure')
         expect(personal_information_logs.count).to be 0

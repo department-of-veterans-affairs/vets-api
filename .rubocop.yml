@@ -11,6 +11,8 @@ require:
   - rubocop-factory_bot
   - rubocop-rspec_rails
   - rubocop-thread_safety
+  - './lib/rubocop/cops/ams_serializer.rb'
+
 
 AllCops:
   NewCops: disable
@@ -62,6 +64,9 @@ RSpec/VariableName:
 Style/GuardClause:
   Enabled: false
 
+Style/IfUnlessModifier:
+  Enabled: false
+
 # This is pretty much the same thing as the one above. Inside a loop, it forces you to use next to skip
 # iteration rather than using an if block that runs to the end of the loop, and it suffers from the same
 # problems as above.
@@ -96,6 +101,7 @@ Metrics/MethodLength:
     - 'spec/support/form1010cg_helpers/build_claim_data_for.rb'
     - 'spec/simplecov_helper.rb'
     - 'app/sidekiq/education_form/create_daily_spool_files.rb'
+    - 'lib/map/security_token/service.rb'
     - 'Dangerfile'
 
 Metrics/ClassLength:
@@ -366,3 +372,6 @@ Lint/EmptyBlock:
 
 Layout/EmptyLineBetweenDefs:
   AllowAdjacentOneLineDefs: true
+
+Cops/AmsSerializer:
+  Enabled: true

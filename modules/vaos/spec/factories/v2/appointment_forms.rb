@@ -8,9 +8,8 @@ FactoryBot.define do
 
     initialize_with { new(user, attributes) }
 
-    trait :community_cares do
+    trait :community_cares_base do
       kind { 'cc' }
-      status { 'proposed' }
       location_id { '983' }
       service_type { 'podiatry' } # transforms on the front-end need to change
       comment {}
@@ -37,20 +36,6 @@ FactoryBot.define do
           }
         ]
       end
-      contact do
-        {
-          'telecom' => [
-            {
-              'type': 'phone',
-              'value': '2125688887'
-            },
-            {
-              'type': 'email',
-              'value': 'judymorisooooooooooooon@gmail.com'
-            }
-          ]
-        }
-      end
       requested_periods do
         [
           {
@@ -65,6 +50,33 @@ FactoryBot.define do
         {
           'city': 'Helena',
           'state': 'MT'
+        }
+      end
+    end
+
+    trait :community_cares_valid_reason_code_text do
+      community_cares_base
+      status { 'proposed' }
+      reason_code do
+        { 'text': 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code:ROUTINEVISIT|comments:test' } # rubocop:disable Layout/LineLength
+      end
+    end
+
+    trait :community_cares do
+      community_cares_base
+      status { 'proposed' }
+      contact do
+        {
+          'telecom' => [
+            {
+              'type': 'phone',
+              'value': '2125688887'
+            },
+            {
+              'type': 'email',
+              'value': 'judymorisooooooooooooon@gmail.com'
+            }
+          ]
         }
       end
       reason_code do
@@ -150,9 +162,8 @@ FactoryBot.define do
       end
     end
 
-    trait :va_booked do
+    trait :va_base do
       kind { 'clinic' }
-      status { 'booked' }
       location_id { '983' }
       clinic { '999' } # this is the clinic id for audiology
       slot do
@@ -165,6 +176,11 @@ FactoryBot.define do
           'desired_date': DateTime.new(2022, 11, 30)
         }
       end
+    end
+
+    trait :va_booked do
+      va_base
+      status { 'booked' }
       reason_code do
         { 'coding' => [
             'code': 'Routine Follow-up'
@@ -173,11 +189,52 @@ FactoryBot.define do
       end
     end
 
-    trait :va_proposed do # this has an error, bring up in SOS
+    trait :va_booked_valid_reason_code_text do
+      va_base
+      status { 'booked' }
+      reason_code do
+        { 'text': 'reasonCode:ROUTINEVISIT|comments:test' }
+      end
+    end
+
+    trait :va_cancelled_valid_reason_code_text do
+      va_base
+      status { 'cancelled' }
+      reason_code do
+        { 'text': 'reasonCode:ROUTINEVISIT|comments:test' }
+      end
+    end
+
+    trait :va_proposed_base do # this has an error, bring up in SOS
       status { 'proposed' }
       location_id { '983' }
       service_type { 'audiology' }
       comment { 'Follow-up/Routine: testing' }
+      requested_periods do
+        {
+          'end': '2022-01-04T11:59:00Z',
+          'start': '2022-01-04T00:00:00Z'
+        }
+      end
+    end
+
+    trait :va_proposed_valid_reason_code_text do
+      va_proposed_base
+      kind { 'clinic' }
+      reason_code do
+        { 'text': 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code:ROUTINEVISIT|comments:test' } # rubocop:disable Layout/LineLength
+      end
+    end
+
+    trait :va_proposed_invalid_reason_code_text do
+      va_proposed_base
+      reason_code do
+        { 'text': 'invalidkeyvaluepair|invalid:key:value:pair||' }
+      end
+    end
+
+    trait :va_proposed do # this has an error, bring up in SOS
+      va_proposed_base
       reason_code do
         { 'codeing' => [
             'code': 'Routine Follow-up'
@@ -216,13 +273,26 @@ FactoryBot.define do
       kind { 'phone' }
     end
 
-    trait :with_direct_scheduling do
+    trait :with_direct_scheduling_base do
       kind { 'cc' }
       status { 'booked' }
       location_id { '983' }
       practitioner_ids { [{ system: 'HSRM', value: '1234567890' }] }
       preferred_language { 'English' }
       reason { 'Testing' }
+      service_type { 'CCPOD' }
+    end
+
+    trait :ds_cc_booked_valid_reason_code_text do
+      with_direct_scheduling_base
+
+      reason_code do
+        { 'text': 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code:ROUTINEVISIT|comments:test' } # rubocop:disable Layout/LineLength
+      end
+    end
+
+    trait :with_direct_scheduling do
+      with_direct_scheduling_base
 
       contact do
         {
@@ -239,7 +309,6 @@ FactoryBot.define do
         }
       end
 
-      service_type { 'CCPOD' }
       requested_periods do
         [
           {
