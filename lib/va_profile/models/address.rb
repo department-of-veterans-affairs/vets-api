@@ -98,7 +98,7 @@ module VAProfile
         @address_pou == VAProfile::Models::Address::CORRESPONDENCE
       end
 
-      def self.transaction_response_class
+      def transaction_response_class
         VAProfile::ProfileInformation::AddressTransactionResponse
       end
 
