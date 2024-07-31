@@ -7,9 +7,11 @@ require 'evss_service/base'
 module ClaimsApi
   module DisabilityCompensation
     class DockerContainerService < ServiceBase
+      LOG_TAG = '526_v2_Docker_Container_job'
+
       def upload(claim_id)
-        log_service_progress(claim_id, 'docker_service',
-                             'Docker container service started')
+        log_job_progress(claim_id,
+                         'Docker container service started')
 
         auto_claim = get_claim(claim_id)
 
@@ -17,13 +19,13 @@ module ClaimsApi
 
         evss_data = get_evss_data(auto_claim)
 
-        log_service_progress(claim_id, 'docker_service',
-                             'Submitting mapped data to Docker container')
+        log_job_progress(claim_id,
+                         'Submitting mapped data to Docker container')
 
         evss_res = evss_service.submit(auto_claim, evss_data, false)
 
-        log_service_progress(claim_id, 'docker_service',
-                             "Successfully submitted to Docker container with response: #{evss_res}")
+        log_job_progress(claim_id,
+                         "Successfully submitted to Docker container with response: #{evss_res}")
         # update with the evss_id returned
         auto_claim.update!(evss_id: evss_res[:claimId])
       end
