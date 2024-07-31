@@ -17,7 +17,6 @@ module VAProfileRedis
                      else
                        VAProfileRedis::ContactInformation.find(user.uuid)
                      end
-
       contact_info.destroy if contact_info.present?
     end
   end

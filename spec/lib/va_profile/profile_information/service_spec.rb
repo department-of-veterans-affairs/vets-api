@@ -11,13 +11,13 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
 
   before do
     allow(user).to receive_messages(vet360_id:, icn: '1234')
-    Flipper.enable(:va_profile_information_v3_service, user)
-    Flipper.enable(:va_profile_information_v3_redis, user)
+    Flipper.enable(:va_profile_information_v3_service)
+    Flipper.enable(:va_profile_information_v3_redis)
   end
 
   after do
-    Flipper.disable(:va_profile_information_v3_service, user)
-    Flipper.disable(:va_profile_information_v3_redis, user)
+    Flipper.disable(:va_profile_information_v3_service)
+    Flipper.disable(:va_profile_information_v3_redis)
   end
 
   describe '#get_person' do

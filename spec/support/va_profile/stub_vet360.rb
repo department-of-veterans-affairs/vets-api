@@ -32,12 +32,16 @@ def stub_vet360(person = nil)
     ]
   )
 
-  allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_return(
-    VAProfile::ContactInformation::PersonResponse.new(200, person:)
-  )
+  if Flipper.enabled?(:va_profile_information_v3_service)
+    allow_any_instance_of(VAProfile::ProfileInformation::Service).to receive(:get_person).and_return(
+      VAProfile::ProfileInformation::PersonResponse.new(200, person:)
+    )
+  else
+    allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_return(
+      VAProfile::ContactInformation::PersonResponse.new(200, person:)
+    )
+  end
 
-  allow_any_instance_of(VAProfile::ProfileInformation::Service).to receive(:get_person).and_return(
-    VAProfile::ProfileInformation::PersonResponse.new(200, person:)
-  )
+
 end
 # rubocop:enable Metrics/MethodLength

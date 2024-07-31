@@ -27,6 +27,8 @@ describe VAProfileRedis::ContactInformation do
   end
 
   before do
+    Flipper.disable(:va_profile_information_v3_redis)
+    Flipper.disable(:va_profile_information_v3_service)
     allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
   end
 
