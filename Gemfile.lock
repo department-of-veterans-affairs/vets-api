@@ -435,7 +435,7 @@ GEM
       httpclient (>= 2.2)
     faraday-multipart (1.0.4)
       multipart-post (~> 2)
-    faraday-net_http (3.1.0)
+    faraday-net_http (3.1.1)
       net-http
     faraday-retry (2.2.1)
       faraday (~> 2.0)
@@ -508,13 +508,13 @@ GEM
       representable (~> 3.0)
       retriable (>= 2.0, < 4.a)
       rexml
-    google-apis-discovery_v1 (0.16.0)
-      google-apis-core (>= 0.14.0, < 2.a)
-    google-apis-generator (0.15.0)
+    google-apis-discovery_v1 (0.18.0)
+      google-apis-core (>= 0.15.0, < 2.a)
+    google-apis-generator (0.15.1)
       activesupport (>= 5.0)
       gems (~> 1.2)
       google-apis-core (>= 0.15.0, < 2.a)
-      google-apis-discovery_v1 (~> 0.14)
+      google-apis-discovery_v1 (~> 0.18)
       thor (>= 0.20, < 2.a)
     google-cloud-env (2.1.1)
       faraday (>= 1.0, < 3.a)
@@ -632,7 +632,7 @@ GEM
     llhttp-ffi (0.5.0)
       ffi-compiler (~> 1.0)
       rake (~> 13.0)
-    lockbox (1.3.0)
+    lockbox (1.3.3)
     logger (1.6.0)
     loofah (2.22.0)
       crass (~> 1.0.2)
@@ -770,7 +770,7 @@ GEM
       stringio
     psych (5.1.2-java)
       jar-dependencies (>= 0.1.7)
-    public_suffix (6.0.0)
+    public_suffix (6.0.1)
     puma (6.4.2)
       nio4r (~> 2.0)
     puma (6.4.2-java)
@@ -994,9 +994,6 @@ GEM
       connection_pool (>= 2.3.0)
       rack (>= 2.2.4)
       redis-client (>= 0.19.0)
-    sidekiq_alive (2.4.0)
-      gserver (~> 0.0.1)
-      sidekiq (>= 5, < 8)
     signet (0.19.0)
       addressable (~> 2.8)
       faraday (>= 0.17.5, < 3.a)
@@ -1279,7 +1276,6 @@ DEPENDENCIES
   sidekiq (~> 7.2.0)
   sidekiq-ent!
   sidekiq-pro!
-  sidekiq_alive
   simple_forms_api!
   simplecov
   slack-notify
