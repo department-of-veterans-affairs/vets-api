@@ -80,9 +80,9 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
 
     context 'when submitting valid data' do
       context 'When submitting all fields' do
-        it 'responds with a created status' do
+        it 'responds with a ok status' do
           post(base_path, params:)
-          expect(response).to have_http_status(:created)
+          expect(response).to have_http_status(:ok)
         end
 
         it 'responds with a PDF' do
@@ -98,9 +98,9 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
           params[:pdf_generator2122a].delete(:claimant)
         end
 
-        it 'responds with a created status' do
+        it 'responds with a ok status' do
           post(base_path, params:)
-          expect(response).to have_http_status(:created)
+          expect(response).to have_http_status(:ok)
         end
 
         it 'responds with a PDF' do
@@ -123,9 +123,9 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
           params[:pdf_generator2122a][:representative][:address].delete(:zip_code_suffix)
         end
 
-        it 'responds with a created status' do
+        it 'responds with a ok status' do
           post(base_path, params:)
-          expect(response).to have_http_status(:created)
+          expect(response).to have_http_status(:ok)
         end
 
         it 'responds with a PDF' do
