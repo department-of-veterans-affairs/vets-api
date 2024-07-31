@@ -58,7 +58,6 @@ module RepresentationManagement
     validates :veteran_last_name, presence: true, length: { maximum: 18 }
     validates :veteran_social_security_number, presence: true, format: { with: NINE_DIGIT_NUMBER }
     validates :veteran_va_file_number,
-              length: { is: 9 },
               format: { with: NINE_DIGIT_NUMBER },
               if: -> { veteran_va_file_number.present? }
     validates :veteran_date_of_birth, presence: true
@@ -104,6 +103,7 @@ module RepresentationManagement
     private
 
     def consent_limits_must_contain_valid_values
+      return if consent_limits.nil?
       return unless consent_limits.any?
       return if consent_limits.size == 1 && consent_limits.first.blank?
 
