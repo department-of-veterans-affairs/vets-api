@@ -9,7 +9,7 @@ class Shrine
         WRONG_FORM = 'wrong_form'
 
         def validate_correct_form(form_id: nil)
-          return unless get.mime_type == Mime[:pdf].to_s
+          return unless get.mime_type == Mime[:pdf].to_s && form_id
 
           image_path = Rails.root.join("#{Common::FileHelpers.random_file_path}.jpg").to_s
           file = get.download
