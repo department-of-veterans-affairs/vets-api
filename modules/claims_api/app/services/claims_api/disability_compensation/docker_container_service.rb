@@ -6,7 +6,7 @@ require 'evss_service/base'
 
 module ClaimsApi
   module DisabilityCompensation
-    class DockerContainerService < ClaimsApi::Service
+    class DockerContainerService < ServiceBase
       def upload(claim_id)
         log_service_progress(claim_id, 'docker_service',
                              'Docker container service started')

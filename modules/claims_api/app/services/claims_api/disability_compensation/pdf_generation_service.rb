@@ -5,7 +5,7 @@ require 'pdf_generator_service/pdf_client'
 
 module ClaimsApi
   module DisabilityCompensation
-    class PdfGenerationService < ClaimsApi::Service
+    class PdfGenerationService < ServiceBase
       EVSS_DOCUMENT_TYPE = 'L023'
 
       def generate(claim_id, middle_initial) # rubocop:disable Metrics/MethodLength
