@@ -108,15 +108,22 @@ module ClaimsApi
       end
 
       def homeless_at_risk_or_currently
-        at_risk = @auto_claim&.dig('homeless', 'riskOfBecomingHomeless', 'livingSituationOptions').present?
-        currently = @auto_claim&.dig('homeless', 'pointOfContact').present?
-
-        if currently && !at_risk
+        currently = @auto_claim&.dig('homeless', 'isCurrentlyHomeless')&.to_s
+        if currently == 'true'
           @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouCurrentlyHomeless: 'YES')
-        else
-          homeless = @pdf_data[:data][:attributes][:homelessInformation].present?
-          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouAtRiskOfBecomingHomeless: 'YES') if homeless
+        elsif currently == 'false'
+          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouCurrentlyHomeless: 'NO')
         end
+
+        at_risk = @auto_claim&.dig('homeless', 'isAtRiskOfBecomingHomeless').to_s
+        if at_risk == 'true'
+          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouAtRiskOfBecomingHomeless: 'YES')
+        elsif at_risk == 'false'
+          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouAtRiskOfBecomingHomeless: 'NO')
+        end
+
+        @pdf_data[:data][:attributes][:homelessInformation]&.delete(:isCurrentlyHomeless)
+        @pdf_data[:data][:attributes][:homelessInformation]&.delete(:isAtRiskOfBecomingHomeless)
 
         @pdf_data
       end
@@ -175,13 +182,17 @@ module ClaimsApi
       def chg_addr_zip
         zip_first_five = @auto_claim&.dig('changeOfAddress', 'zipFirstFive') || ''
         zip_last_four = @auto_claim&.dig('changeOfAddress', 'zipLastFour') || ''
+        international_zip = @auto_claim&.dig('changeOfAddress', 'internationalPostalCode')
         zip = if zip_last_four.present?
                 "#{zip_first_five}-#{zip_last_four}"
+              elsif international_zip.present?
+                international_zip
               else
                 zip_first_five
               end
         addr = @pdf_data&.dig(:data, :attributes, :identificationInformation, :mailingAddress).present?
         @pdf_data[:data][:attributes][:changeOfAddress][:newAddress].merge!(zip:) if addr
+        @pdf_data[:data][:attributes][:changeOfAddress].delete(:internationalPostalCode)
       end
 
       def toxic_exposure_attributes
@@ -379,8 +390,11 @@ module ClaimsApi
       def zip
         zip_first_five = @auto_claim&.dig('veteranIdentification', 'mailingAddress', 'zipFirstFive') || ''
         zip_last_four = @auto_claim&.dig('veteranIdentification', 'mailingAddress', 'zipLastFour') || ''
+        international_zip = @pdf_data&.dig(:data, :attributes, :identificationInformation, :mailingAddress, :internationalPostalCode)
         zip = if zip_last_four.present?
                 "#{zip_first_five}-#{zip_last_four}"
+              elsif international_zip.present?
+                international_zip
               else
                 zip_first_five
               end
@@ -388,6 +402,7 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].merge!(zip:) if mailing_addr
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:zipFirstFive)
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:zipLastFour)
+        @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:internationalPostalCode)
 
         @pdf_data
       end

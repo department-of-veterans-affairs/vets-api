@@ -9,7 +9,6 @@ PERIODIC_JOBS = lambda { |mgr|
 
   mgr.register('*/15 * * * *', 'CovidVaccine::ScheduledBatchJob')
   mgr.register('*/15 * * * *', 'CovidVaccine::ExpandedScheduledSubmissionJob')
-  mgr.register('*/30 * * * *', 'SidekiqAlive::CleanupQueues')
 
   mgr.register('5 * * * *', 'AppealsApi::HigherLevelReviewUploadStatusBatch')
   # Update HigherLevelReview statuses with their Central Mail status
