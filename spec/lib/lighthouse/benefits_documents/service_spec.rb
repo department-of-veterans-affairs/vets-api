@@ -40,10 +40,20 @@ RSpec.describe BenefitsDocuments::Service do
         }
       end
 
-      it 'enqueues a job' do
+      it 'enqueues a job when cst_synchronous_evidence_uploads is false' do
+        Flipper.disable(:cst_synchronous_evidence_uploads)
         expect do
           service.queue_document_upload(params)
         end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
+      end
+
+      it 'does not enqueue a job when cst_synchronous_evidence_uploads is true' do
+        VCR.use_cassette('spec/support/vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_document_upload_200_jpg.yml', match_requests_on: [:uri]) do # rubocop:disable Layout/LineLength
+          Flipper.enable(:cst_synchronous_evidence_uploads)
+          expect do
+            service.queue_document_upload(params)
+          end.not_to change(Lighthouse::DocumentUpload.jobs, :size)
+        end
       end
     end
   end
