@@ -28,7 +28,6 @@ class FormMilitaryInformation
   attribute :service_episodes_by_date, Array
   attribute :last_service_branch, String
   attribute :hca_last_service_branch, String
-  attribute :first_entry_date, String
   attribute :last_entry_date, String
   attribute :last_discharge_date, String
   attribute :discharge_type, String
@@ -39,7 +38,6 @@ class FormMilitaryInformation
   attribute :currently_active_duty_hash, Hash
   attribute :vic_verified, Boolean
   attribute :service_branches, Array[String]
-  attribute :service_branches_for_pensions, Hash
   attribute :service_periods, Array
   attribute :guard_reserve_service_history, Array[FormDate]
   attribute :latest_guard_reserve_service_period, FormDate
@@ -179,6 +177,7 @@ class FormProfile
 
   def self.mappings_for_form(form_id)
     @mappings ||= {}
+    form_id = '21P-527EZ-military' if form_id == '21P-527EZ' && Flipper.enabled?(:pension_military_prefill, @user)
     @mappings[form_id] || (@mappings[form_id] = load_form_mapping(form_id))
   end
 

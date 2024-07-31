@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'va_profile/military_personnel/service'
-require 'claims_api/service_branch_mapper'
 
 module VAProfile
   module Prefill
@@ -10,7 +9,6 @@ module VAProfile
         currently_active_duty
         currently_active_duty_hash
         discharge_type
-        first_entry_date
         guard_reserve_service_history
         hca_last_service_branch
         last_discharge_date
@@ -19,7 +17,6 @@ module VAProfile
         latest_guard_reserve_service_period
         post_nov111998_combat
         service_branches
-        service_branches_for_pensions
         service_episodes_by_date
         service_periods
         sw_asia_combat
@@ -106,17 +103,6 @@ module VAProfile
         "Women's Army Corps"
       ].freeze
 
-      PENSION_SERVICE_BRANCHES_MAPPING = {
-        'Army' => 'army',
-        'Navy' => 'navy',
-        'Air Force' => 'airForce',
-        'Coast Guard' => 'coastGuard',
-        'Marine Corps' => 'marineCorps',
-        'Space Force' => 'spaceForce',
-        'Public Health Service' => 'usphs',
-        'National Oceanic & Atmospheric Administration' => 'noaa'
-      }.freeze
-
       attr_reader :military_personnel_service
 
       def initialize(user)
@@ -159,10 +145,6 @@ module VAProfile
         return if latest_service_episode.blank?
 
         DISCHARGE_TYPES[latest_service_episode&.character_of_discharge_code]
-      end
-
-      def first_entry_date
-        earliest_service_episode&.begin_date
       end
 
       # @return [Array<Hash>] Veteran's guard and reserve service episode date
@@ -217,19 +199,6 @@ module VAProfile
       # @return [Array<String>] Veteran's unique service branch codes
       def service_branches
         military_service_episodes.map(&:branch_of_service_code).uniq
-      end
-
-      def service_branches_for_pensions
-        branches = {}
-        service_history.episodes.map(&:branch_of_service).uniq.each do |branch|
-          branch_value = ClaimsApi::ServiceBranchMapper.new(branch).value
-          pension_branch = PENSION_SERVICE_BRANCHES_MAPPING[branch_value]
-          branches[pension_branch] = true if pension_branch
-        end
-        branches
-      rescue => e
-        Rails.logger.error("Error fetching service branches for Pension prefill: #{e}")
-        []
       end
 
       def service_episodes_by_date
@@ -294,10 +263,6 @@ module VAProfile
         end
 
         false
-      end
-
-      def earliest_service_episode
-        service_episodes_by_date.reverse.try(:[], 0)
       end
 
       # @return [Array<Hash] array of veteran's Guard and reserve service periods by period of service end date, DESC

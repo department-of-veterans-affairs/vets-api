@@ -680,6 +680,27 @@ RSpec.describe FormProfile, type: :model do
         'postal_code' => user.address[:postal_code][0..4]
       },
       'veteranSocialSecurityNumber' => user.ssn,
+      'veteranDateOfBirth' => user.birth_date
+    }
+  end
+
+  let(:v21_p_527_ez_expected_military) do
+    {
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.suffix
+      },
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.address[:city],
+        'state' => user.address[:state],
+        'country' => user.address[:country],
+        'postal_code' => user.address[:postal_code][0..4]
+      },
+      'veteranSocialSecurityNumber' => user.ssn,
       'veteranDateOfBirth' => user.birth_date,
       'activeServiceDateRange' => {
         'from' => '1985-08-19',
@@ -971,7 +992,6 @@ RSpec.describe FormProfile, type: :model do
         yes: false
       },
       'discharge_type' => nil,
-      'first_entry_date' => '2002-02-02',
       'guard_reserve_service_history' => [
         {
           from: '2012-03-02',
@@ -996,10 +1016,6 @@ RSpec.describe FormProfile, type: :model do
       },
       'post_nov111998_combat' => false,
       'service_branches' => %w[A N],
-      'service_branches_for_pensions' => {
-        'army' => true,
-        'navy' => true
-      },
       'service_episodes_by_date' => expected_service_episodes_by_date,
       'service_periods' => [
         { service_branch: 'Army National Guard', date_range: { from: '2012-03-02', to: '2018-10-31' } },
@@ -1130,7 +1146,7 @@ RSpec.describe FormProfile, type: :model do
       new_schema
     end
 
-    def expect_prefilled(form_id)
+    def expect_prefilled(form_id, expected_title = nil)
       prefilled_data = Oj.load(described_class.for(form_id:, user:).prefill.to_json)['form_data']
 
       case form_id
@@ -1152,7 +1168,7 @@ RSpec.describe FormProfile, type: :model do
       end
 
       expect(prefilled_data).to eq(
-        form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
+        form_profile.send(:clean!, public_send(expected_title || "v#{form_id.underscore}_expected"))
       )
     end
 
@@ -1634,9 +1650,20 @@ RSpec.describe FormProfile, type: :model do
           26-4555
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
+            Flipper.disable(:pension_military_prefill)
             VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                              allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
               expect_prefilled(form_id)
+            end
+          end
+        end
+
+        context 'with pension_military_prefill' do
+          it 'returns prefilled 21P-527EZ' do
+            Flipper.enable(:pension_military_prefill)
+            VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
+                             allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
+              expect_prefilled('21P-527EZ', 'v21_p_527_ez_expected_military')
             end
           end
         end
