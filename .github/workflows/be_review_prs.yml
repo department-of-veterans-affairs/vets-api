@@ -26,10 +26,8 @@ jobs:
         run: |
           REQUESTED_TEAMS=$(echo '${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')
           if echo "$REQUESTED_TEAMS" | grep -qiE '(mobile|lighthouse|identity)'; then
-            echo "Specialized team review fulfilled. Skipping backend-review-group requirement."
             echo "skip_backend_review=true" >> $GITHUB_OUTPUT
           else
-            echo "No specialized team review met. Enforcing backend-review-group requirement."
             echo "skip_backend_review=false" >> $GITHUB_OUTPUT
           fi
 
@@ -46,31 +44,14 @@ jobs:
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: verify_approval
         run: |
-          echo "Debug: Printing all reviews"
-          echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq '.'
-          
-          echo "Debug: Printing approved reviews"
-          echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq '.[] | select(.state == "APPROVED")'
-          
-          BACKEND_REVIEWERS=("ericboehs" "lindseysaari" "rmtolmach" "rachalcassity" "yan-mcneil" "rjohnson2011" "stevenjcumming")
-          
-          echo "Debug: Checking for approvals from these users:"
-          printf '%s\n' "${BACKEND_REVIEWERS[@]}"
-          
+          BACKEND_REVIEWERS=("ericboehs" "lindseysaari" "rmtolmach" "rachalcassity" "ryan-mcneil" "rjohnson2011" "stevenjcumming")
           APPROVALS=$(echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -iE "$(IFS="|"; echo "${BACKEND_REVIEWERS[*]}")" | wc -l)
-          
-          echo "Debug: Approved reviewers:"
-          echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq -r '.[] | select(.state == "APPROVED") | .user.login'
-          
-          echo "Debug: Number of backend-review-group approvals: $APPROVALS"
-          
+          echo "Number of backend-review-group approvals: $APPROVALS"
           if [ "$APPROVALS" -eq 0 ]; then
             echo "approval_status=required" >> $GITHUB_OUTPUT
-            echo "Error: This PR requires approval from backend-review-group."
             exit 1
           else
             echo "approval_status=confirmed" >> $GITHUB_OUTPUT
-            echo "Backend-review-group approval confirmed."
           fi
   
       - name: Comment PR - Approval Required
