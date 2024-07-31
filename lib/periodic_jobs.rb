@@ -9,7 +9,6 @@ PERIODIC_JOBS = lambda { |mgr|
 
   mgr.register('*/15 * * * *', 'CovidVaccine::ScheduledBatchJob')
   mgr.register('*/15 * * * *', 'CovidVaccine::ExpandedScheduledSubmissionJob')
-  mgr.register('*/30 * * * *', 'SidekiqAlive::CleanupQueues')
 
   mgr.register('5 * * * *', 'AppealsApi::HigherLevelReviewUploadStatusBatch')
   # Update HigherLevelReview statuses with their Central Mail status
@@ -175,6 +174,11 @@ PERIODIC_JOBS = lambda { |mgr|
 
   # Every 15min job that sends missing Pega statuses to DataDog
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
+
+  # Hourly jobs that update DR SavedClaims with delete_date
+  mgr.register('20 * * * *', 'DecisionReview::SavedClaimHlrStatusUpdaterJob')
+  mgr.register('30 * * * *', 'DecisionReview::SavedClaimNodStatusUpdaterJob')
+  mgr.register('40 * * * *', 'DecisionReview::SavedClaimScStatusUpdaterJob')
 
   # Clean SavedClaim records that are past delete date
   mgr.register('0 7 * * *', 'DecisionReview::DeleteSavedClaimRecordsJob')
