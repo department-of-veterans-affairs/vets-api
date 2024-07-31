@@ -5,16 +5,40 @@ require 'formatters/time_formatter'
 
 describe Formatters::TimeFormatter do
   describe '.humanize' do
-    it 'returns single digit seconds' do
+    it 'returns single second' do
       secs = 1
       output = described_class.humanize(secs)
-      expect(output).to eq '1 seconds'
+      expect(output).to eq '1 second'
     end
 
-    it 'returns double digit seconds' do
+    it 'returns plural seconds' do
       secs = 59
       output = described_class.humanize(secs)
       expect(output).to eq '59 seconds'
+    end
+
+    it 'returns singular minute second' do
+      secs = 61
+      output = described_class.humanize(secs)
+      expect(output).to eq '1 minute 1 second'
+    end
+
+    it 'returns plural minutes seconds' do
+      secs = 128
+      output = described_class.humanize(secs)
+      expect(output).to eq '2 minutes 8 seconds'
+    end
+
+    it 'returns singular hour' do
+      secs = 3600
+      output = described_class.humanize(secs)
+      expect(output).to eq '1 hour'
+    end
+
+    it 'returns plural hours' do
+      secs = 7200
+      output = described_class.humanize(secs)
+      expect(output).to eq '2 hours'
     end
 
     it 'returns string if given a float' do
