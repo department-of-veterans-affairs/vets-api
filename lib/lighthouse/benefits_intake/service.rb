@@ -35,7 +35,8 @@ module BenefitsIntake
     # Perform the upload to BenefitsIntake
     # parameters should be run through validation functions first, to prevent downstream processing errors
     #
-    # @raise JSON::ParserError
+    # @raise [JSON::ParserError] if metadata is not a valid JSON String
+    # @raise [Errno::ENOENT] if document or each attachment are not valid Files
     #
     # @param metadata [JSONString] metadata to be sent with upload, must be valid JSON
     # @param document [String] main document file path
@@ -120,6 +121,9 @@ module BenefitsIntake
     ##
     # Validate a file satisfies BenefitsIntake specifications.
     # ** File must be a PDF.
+    #
+    # @raise [InvalidDocumentError] if document is not a valid pdf
+    # @see PDF_VALIDATOR_OPTIONS
     #
     # @param [String] document: path to file
     #
