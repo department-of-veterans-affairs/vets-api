@@ -16,14 +16,7 @@ module HCA
       begin
         result = HCA::Service.new(user_identifier).submit_form(form)
       rescue VALIDATION_ERROR
-        PersonalInformationLog.create!(data: { form: }, error_class: VALIDATION_ERROR.to_s)
-
-        @health_care_application.update!(
-          state: 'failed',
-          form: form.to_json,
-          google_analytics_client_id:
-        )
-
+        handle_enrollment_system_validation_error(form, google_analytics_client_id)
         return false
       end
 
@@ -40,6 +33,22 @@ module HCA
       Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
 
       @health_care_application.set_result_on_success!(result)
+    end
+
+    private
+
+    def handle_enrollment_system_validation_error(form, google_analytics_client_id)
+      StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.enrollment_system_validation_error")
+      PersonalInformationLog.create!(
+        data: { form: },
+        error_class: VALIDATION_ERROR.to_s
+      )
+
+      @health_care_application.update!(
+        state: 'failed',
+        form: form.to_json,
+        google_analytics_client_id:
+      )
     end
   end
 end

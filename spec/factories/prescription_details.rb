@@ -58,7 +58,7 @@ FactoryBot.define do
               quantity: nil,
               expiration_date: nil,
               prescription_number: '2720542',
-              prescription_Name: 'ONDANSETRON 8 MG TAB',
+              prescription_name: 'ONDANSETRON 8 MG TAB',
               dispensed_date: 'Thu, 21 Apr 2016 00:00:00 EDT',
               station_number: '989',
               in_cerner_transition: false,
