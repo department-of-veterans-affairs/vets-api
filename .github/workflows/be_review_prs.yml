@@ -9,7 +9,6 @@ on:
 jobs:
   check-approval-requirements:
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request_review' || github.event.review.state == 'approved'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,6 +33,15 @@ jobs:
             echo "skip_backend_review=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Get backend-review-group members
+        if: steps.check_reviewers.outputs.skip_backend_review == 'false'
+        id: get_backend_review_group_members
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /orgs/${{ github.repository_owner }}/teams/backend-review-group/members
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Check backend-review-group approval status
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: check_backend_review_group_approval_status
@@ -47,7 +55,8 @@ jobs:
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: verify_approval
         run: |
-          APPROVALS=$(echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq '[.[] | select(.state == "APPROVED" and .author_association == "MEMBER" and (.user.login == "backend-review-group" or .user.login | contains("backend-review-group")))] | length')
+          BACKEND_REVIEW_GROUP_MEMBERS=$(echo '${{ steps.get_backend_review_group_members.outputs.data }}' | jq -r '.[].login')
+          APPROVALS=$(echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq --arg members "$BACKEND_REVIEW_GROUP_MEMBERS" '[.[] | select(.state == "APPROVED" and .author_association == "MEMBER" and (.user.login == "backend-review-group" or (.user.login | IN($members | split("\n")))))] | length')
           if [ "$APPROVALS" -eq 0 ]; then
             echo "approval_status=required" >> $GITHUB_OUTPUT
             echo "Error: This PR requires approval from backend-review-group."
