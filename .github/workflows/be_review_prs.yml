@@ -9,6 +9,7 @@ on:
 jobs:
   check-approval-requirements:
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request_review' || github.event.review.state == 'approved'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -41,7 +42,7 @@ jobs:
           route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number }}/reviews
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+        
       - name: Verify backend-review-group approval
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: verify_approval
@@ -55,7 +56,7 @@ jobs:
             echo "approval_status=confirmed" >> $GITHUB_OUTPUT
             echo "Backend-review-group approval confirmed."
           fi
-
+  
       - name: Comment PR - Approval Required
         if: failure() && steps.verify_approval.outputs.approval_status == 'required'
         uses: thollander/actions-comment-pull-request@1d3973dc4b8e1399c0620d3f2b1aa5e795465308
