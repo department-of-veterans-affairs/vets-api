@@ -1562,6 +1562,9 @@ features:
   pension_supporting_documents_update:
    actor_type: user
    description: Show updated supporting documents page
+  pension_confirmation_update:
+    actor_type: user
+    description: Show updated confirmation page
   pension_module_enabled:
     actor_type: user
     description: Enable the pension module routes
