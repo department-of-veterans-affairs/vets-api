@@ -1379,4 +1379,28 @@ describe VAOS::V2::AppointmentsService do
       end
     end
   end
+
+  describe '#scrub_icn' do
+    context 'with a valid icn' do
+      it 'returns an unmodified icn' do
+        valid_icn = '0123456789'
+        expect(subject.send(:scrub_icn, valid_icn)).to eq(valid_icn)
+      end
+    end
+
+    context 'with a valid icn (including checksum)' do
+      it 'returns an unmodified icn' do
+        valid_icn = '0123456789V123456'
+        expect(subject.send(:scrub_icn, valid_icn)).to eq(valid_icn)
+      end
+    end
+
+    context 'with an icn containing non-alphanumeric characters' do
+      it 'scrubs the icn' do
+        invalid_icn = '0123456789.'
+        scrubbed_icn = '0123456789'
+        expect(subject.send(:scrub_icn, invalid_icn)).to eq(scrubbed_icn)
+      end
+    end
+  end
 end
