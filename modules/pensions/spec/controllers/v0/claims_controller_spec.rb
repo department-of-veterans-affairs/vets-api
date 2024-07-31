@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe Pensions::V0::PensionClaimsController, type: :controller do
+RSpec.describe Pensions::V0::ClaimsController, type: :controller do
   routes { Pensions::Engine.routes }
 
   let(:monitor) { double('Pensions::Monitor') }
