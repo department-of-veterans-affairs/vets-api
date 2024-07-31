@@ -123,7 +123,9 @@ class Form526Submission < ApplicationRecord
   FLASHES = 'flashes'
   BIRLS_KEY = 'va_eauth_birlsfilenumber'
   SUBMIT_FORM_526_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
-  MAX_PENDING_TIME = 3.days
+  # MAX_PENDING_TIME aligns with the farthest out expectation given in the LH BI docs,
+  # plus 1 week to accomodate for edge cases and our sidekiq jobs
+  MAX_PENDING_TIME = 3.weeks
 
   # Called when the DisabilityCompensation form controller is ready to hand off to the backend
   # submission process. Currently this passes directly to the retryable EVSS workflow, but if any
