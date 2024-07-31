@@ -7,6 +7,7 @@ require 'memoist'
 
 module VAOS
   module V2
+    # rubocop:disable Metrics/ClassLength
     class AppointmentsService < VAOS::SessionService
       extend Memoist
 
@@ -308,6 +309,11 @@ module VAOS
       #
       def normalize_icn(icn)
         icn&.gsub(/V[\d]{6}$/, '')
+      end
+
+      # Scrubs the ICN of non-alphanumeric values
+      def scrub_icn(icn)
+        icn&.gsub(/[^0-9a-z]/i, '')
       end
 
       # Checks equality between two ICNs (Integration Control Numbers)
@@ -642,11 +648,11 @@ module VAOS
       end
 
       def appointments_base_path_vaos
-        "/vaos/v1/patients/#{user.icn}/appointments"
+        "/vaos/v1/patients/#{scrub_icn(user.icn)}/appointments"
       end
 
       def appointments_base_path_vpg
-        "/vpg/v1/patients/#{user.icn}/appointments"
+        "/vpg/v1/patients/#{scrub_icn(user.icn)}/appointments"
       end
 
       def avs_path(sid)
@@ -655,9 +661,9 @@ module VAOS
 
       def get_appointment_base_path(appointment_id)
         if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
-          "/vpg/v1/patients/#{user.icn}/appointments/#{appointment_id}"
+          "/vpg/v1/patients/#{scrub_icn(user.icn)}/appointments/#{appointment_id}"
         else
-          "/vaos/v1/patients/#{user.icn}/appointments/#{appointment_id}"
+          "/vaos/v1/patients/#{scrub_icn(user.icn)}/appointments/#{appointment_id}"
         end
       end
 
@@ -682,13 +688,13 @@ module VAOS
       end
 
       def update_appointment_vpg(appt_id, status)
-        url_path = "/vpg/v1/patients/#{user.icn}/appointments/#{appt_id}"
+        url_path = "/vpg/v1/patients/#{scrub_icn(user.icn)}/appointments/#{appt_id}"
         body = [VAOS::V2::UpdateAppointmentForm.new(status:).json_patch_op]
         perform(:patch, url_path, body, headers)
       end
 
       def update_appointment_vaos(appt_id, status)
-        url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
+        url_path = "/vaos/v1/patients/#{scrub_icn(user.icn)}/appointments/#{appt_id}"
         params = VAOS::V2::UpdateAppointmentForm.new(status:).params
         perform(:put, url_path, params, headers)
       end
@@ -699,5 +705,6 @@ module VAOS
         SchemaContract::ValidationInitiator.call(user:, response:, contract_name:)
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
