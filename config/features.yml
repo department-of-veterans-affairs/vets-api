@@ -778,9 +778,6 @@ features:
   mhv_transitional_medical_records_landing_page:
     actor_type: user
     description: Enables the transitional Medical Records page at /my-health/records
-  mhv_secure_messaging_to_va_gov_release:
-    actor_type: user
-    description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
   mhv_secure_messaging_to_phase_1:
     actor_type: user
@@ -902,13 +899,13 @@ features:
     actor_type: user
     enable_in_development: true
   pension_income_and_assets_clarification:
-   actor_type: user
-   description: >
-     [Front-end only] When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
+    actor_type: user
+    description: >
+      [Front-end only] When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
   pension_medical_evidence_clarification:
-   actor_type: user
-   description: >
-     [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
+    actor_type: user
+    description: >
+      [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1560,8 +1557,8 @@ features:
     actor_type: user
     description: Show updated introduction page
   pension_supporting_documents_update:
-   actor_type: user
-   description: Show updated supporting documents page
+    actor_type: user
+    description: Show updated supporting documents page
   pension_module_enabled:
     actor_type: user
     description: Enable the pension module routes
@@ -1632,6 +1629,6 @@ features:
   merge_1995_and_5490:
     actore_type: user
     description: Activating the combined 1995 and 5490 form
-  mgib_verifications_maintenance: 
+  mgib_verifications_maintenance:
     actor_type: user
     description: Used to show  maintenance alert for MGIB Verifications
