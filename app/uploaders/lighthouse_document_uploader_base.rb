@@ -5,6 +5,7 @@ class LighthouseDocumentUploaderBase < CarrierWave::Uploader::Base
   include ValidatePdf
   include CarrierWave::MiniMagick
   include ConvertFileType
+  include UploaderVirusScan
 
   version :converted, if: :tiff_or_incorrect_extension? do
     process(convert: :jpg, if: :tiff?)
